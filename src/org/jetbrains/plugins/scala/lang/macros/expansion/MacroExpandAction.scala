@@ -21,18 +21,16 @@ import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.plugin.scala.util.{MacroExpansion, Place}
+import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -41,11 +39,11 @@ import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
 
 class MacroExpandAction extends AnAction {
+  import MacroExpandAction._
 
   case class ResolvedMacroExpansion(expansion: MacroExpansion, psiElement: Option[SmartPsiElementPointer[PsiElement]])
   class UnresolvedExpansion extends Exception
 
-  private val LOG = Logger.getInstance(getClass)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
 
@@ -54,50 +52,11 @@ class MacroExpandAction extends AnAction {
     UsageTrigger.trigger(ScalaBundle.message("macro.expand.action.id"))
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
-    val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
-
-    expandMeta(e, sourceEditor, psiFile.asInstanceOf[ScalaFile])
+    val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument).asInstanceOf[ScalaFile]
+    val offset  = sourceEditor.getCaretModel.getOffset
+    val element = ScalaPsiUtil.getParentOfType(psiFile.elementAt(offset).get, false, classOf[ScAnnotation]).asInstanceOf[ScAnnotation]
+    expandMetaAnnotation(element)
 //    expandSerialized(e, sourceEditor, psiFile)
-  }
-
-  private def expandMeta(e: AnActionEvent, sourceEditor: Editor, psiFile: ScalaFile):String = {
-    import org.jetbrains.plugins.scala.project._
-    import scala.collection.JavaConversions._
-
-    def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
-      .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
-    def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
-    val converter = new TreeConverter {
-      override def getCurrentProject: Project = e.getProject
-    }
-    val offset = sourceEditor.getCaretModel.getOffset
-    val element: PsiElement = psiFile.elementAt(offset).get
-    val annotClass = ScalaPsiUtil.getParentOfType(element, classOf[ScReferenceElement])
-      .asInstanceOf[ScReferenceElement]
-      .bind()
-      .map(_.element)
-    val annotee = ScalaPsiUtil.getParentOfType(element, classOf[ScAnnotationsHolder])
-    val converted = annotClass.map {
-      case o: ScObject if o.isMetaAnnotatationImpl =>
-        converter.ideaToMeta(annotee)
-      case _ =>
-    }
-    val metaModule = annotClass.flatMap(_.module)
-    val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
-    val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
-    val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
-    val outer = classLoader.loadClass("bar.Main$")
-    val ctor = outer.getDeclaredConstructors.head
-    ctor.setAccessible(true)
-    val inst = ctor.newInstance()
-    val meth = outer.getDeclaredMethods.find(_.getName == "apply$impl").get
-    meth.setAccessible(true)
-    val result = meth.invoke(inst, converted.get.asInstanceOf[AnyRef])
-
-    inWriteCommandAction(e.getProject) {
-      expandAnnotation(ScalaPsiUtil.contextOfType(element, false, classOf[ScAnnotation]), MacroExpansion(null, result.toString))(e)
-    }
-    ""
   }
 
   private def expandSerialized(e: AnActionEvent, sourceEditor: Editor, psiFile: PsiFile): Unit = {
@@ -118,8 +77,7 @@ class MacroExpandAction extends AnAction {
       .getOrElse(expandAllMacroInCurrentFile(resolved))
   }
 
-
-  def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent): Project = {
+  def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent) = {
     inWriteCommandAction(e.getProject) {
       try {
         applyExpansion(expansion)
@@ -131,7 +89,7 @@ class MacroExpandAction extends AnAction {
     }
   }
 
-  def expandAllMacroInCurrentFile(expansions: Seq[ResolvedMacroExpansion])(implicit e: AnActionEvent): Project = {
+  def expandAllMacroInCurrentFile(expansions: Seq[ResolvedMacroExpansion])(implicit e: AnActionEvent)  = {
     inWriteCommandAction(e.getProject) {
       applyExpansions(expansions.toList)
       e.getProject
@@ -141,10 +99,10 @@ class MacroExpandAction extends AnAction {
   def findCandidatesInFile(file: ScalaFile): Seq[ScalaPsiElement] = {
     val buffer = scala.collection.mutable.ListBuffer[ScalaPsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitAnnotation(annotation: ScAnnotation): Unit = {
+      override def visitAnnotation(annotation: ScAnnotation) = {
         // TODO
       }
-      override def visitMethodCallExpression(call: ScMethodCall): Unit = {
+      override def visitMethodCallExpression(call: ScMethodCall) = {
         // TODO
       }
     }
@@ -169,25 +127,7 @@ class MacroExpandAction extends AnAction {
     }
   }
 
-  def reformatCode(psi: PsiElement): PsiElement = {
-    val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
-    val tobeDeleted = new ArrayBuffer[PsiElement]
-    val v = new PsiElementVisitor {
-      override def visitElement(element: PsiElement): Unit = {
-        if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
-          val file = element.getContainingFile
-          val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
-          if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
-            tobeDeleted += element
-          }
-        }
-        element.acceptChildren(this)
-      }
-    }
-    v.visitElement(res)
-    tobeDeleted.foreach(_.delete())
-    res
-  }
+
 
   def applyExpansions(expansions: Seq[ResolvedMacroExpansion], triedResolving: Boolean = false)(implicit e: AnActionEvent): Unit = {
     expansions match {
@@ -207,29 +147,9 @@ class MacroExpandAction extends AnAction {
     }
   }
 
-  def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion)(implicit e: AnActionEvent): Unit = {
-    // we can only macro-annotate scala code
-    place.getParent.getParent match {
-      case holder: ScAnnotationsHolder =>
-        val body = expansion.body
-        val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body, PsiManager.getInstance(e.getProject))
-        reformatCode(newPsi)
-        newPsi.firstChild match {
-          case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
-            val children = block.getChildren
-            block.children.find(_.isInstanceOf[ScalaPsiElement]).foreach(p => p.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText))
-            holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
-            holder.delete()
-          case Some(psi: PsiElement) => // defns/method bodies/etc...
-            val result = holder.replace(psi)
-            result.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText)
-          case None => LOG.warn(s"Failed to parse expansion: $body")
-        }
-      case other =>  LOG.warn(s"Unexpected annotated element: $other at ${other.getText}")
-    }
-  }
 
-  def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent): PsiElement = {
+
+  def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
     val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body, PsiManager.getInstance(e.getProject))
     val element = call.getParent.addAfter(blockImpl, call)
     element match {
@@ -353,4 +273,84 @@ object MacroExpandAction {
   val MACRO_DEBUG_OPTION = "-Ymacro-debug-lite"
 
   val EXPANDED_KEY = new Key[String]("MACRO_EXPANDED_KEY")
+
+  private val LOG = Logger.getInstance(getClass)
+
+
+  def reformatCode(psi: PsiElement): PsiElement = {
+    val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
+    val tobeDeleted = new ArrayBuffer[PsiElement]
+    val v = new PsiElementVisitor {
+      override def visitElement(element: PsiElement) = {
+        if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+          val file = element.getContainingFile
+          val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
+          if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
+            tobeDeleted += element
+          }
+        }
+        element.acceptChildren(this)
+      }
+    }
+    v.visitElement(res)
+    tobeDeleted.foreach(_.delete())
+    res
+  }
+
+  def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion) = {
+    // we can only macro-annotate scala code
+    place.getParent.getParent match {
+      case holder: ScAnnotationsHolder =>
+        val body = expansion.body
+        val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body, PsiManager.getInstance(place.getProject))
+        reformatCode(newPsi)
+        newPsi.firstChild match {
+          case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
+            val children = block.getChildren
+            block.children.find(_.isInstanceOf[ScalaPsiElement]).foreach(p => p.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText))
+            holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
+            holder.delete()
+          case Some(psi: PsiElement) => // defns/method bodies/etc...
+            val result = holder.replace(psi)
+            result.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText)
+          case None => LOG.warn(s"Failed to parse expansion: $body")
+        }
+      case other =>  LOG.warn(s"Unexpected annotated element: $other at ${other.getText}")
+    }
+  }
+
+  def expandMetaAnnotation(annot: ScAnnotation) = {
+    import org.jetbrains.plugins.scala.project._
+
+    def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
+      .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
+    def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
+    val converter = new TreeConverter {
+      override def getCurrentProject: Project = annot.getProject
+    }
+
+    val annotClass = annot.constructor.reference.get.bind().map(_.element)
+    val annotee = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
+    val converted = annotClass.map {
+      case o: ScObject if o.isMetaAnnotatationImpl =>
+        converter.ideaToMeta(annotee)
+      case _ =>
+    }
+    val metaModule = annotClass.flatMap(_.module)
+    val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
+    val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
+    val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
+    val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScObject].qualifiedName+"$")
+    val ctor = outer.getDeclaredConstructors.head
+    ctor.setAccessible(true)
+    val inst = ctor.newInstance()
+    val meth = outer.getDeclaredMethods.find(_.getName == "apply$impl").get
+    meth.setAccessible(true)
+    val result = meth.invoke(inst, converted.get.asInstanceOf[AnyRef])
+
+    inWriteCommandAction(annot.getProject) {
+      expandAnnotation(annot, MacroExpansion(null, result.toString))
+    }
+    ""
+  }
 }
