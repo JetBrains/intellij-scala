@@ -343,12 +343,6 @@ object Boolean {
 """
     )
 
-    registerObject("""
-                   |object meta {
-                   |  def apply(in: scala.meta.Tree): Unit = ???
-                   |}
-                   """.stripMargin)
-
     registerObject(
 """
 package scala
