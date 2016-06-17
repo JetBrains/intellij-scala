@@ -10,6 +10,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -98,7 +99,16 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
 
   def findAnnotationNoAliases(qualifiedName: String): PsiAnnotation = {
     val name = qualifiedName.split('.').last
-    if (!annotations.exists(_.constructor.reference.exists(_.refName == name))) return null
+
+    def sameName(annotation: ScAnnotation): Boolean = {
+      annotation.typeElement match {
+        case simple: ScSimpleTypeElement => simple.reference.exists(_.refName == name)
+        case ScParameterizedTypeElement(simple: ScSimpleTypeElement, _) => simple.reference.exists(_.refName == name)
+        case _ => false
+      }
+    }
+
+    if (!annotations.exists(sameName)) return null
 
     hasAnnotation(qualifiedName) match {
       case Some(x) => x
