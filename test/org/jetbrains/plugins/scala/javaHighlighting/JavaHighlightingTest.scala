@@ -585,6 +585,28 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromJavaCode(scalaCode, javaCode, "SCL9661"))
   }
 
+  def testSCL9871(): Unit = {
+    val java =
+      """
+        |package foo.object;
+        |
+        |class Related {
+        |    static String foo() { return "package scoped"; }
+        |}
+      """.stripMargin
+
+    val scala =
+      """
+        |package foo.`object`
+        |
+        |object Escaping  {
+        |  Related.foo
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
   def testSCL10232(): Unit = {
     val java =
       """
@@ -668,7 +690,6 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    public abstract void setAction(Option<String> bar);
         |}
       """.stripMargin
-
 
     assertNothing(errorsFromJavaCode(scalaFileText = "", java, javaClassName = "OptionApply"))
   }

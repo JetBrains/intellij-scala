@@ -461,7 +461,7 @@ object ResolveUtils {
   }
 
   def packageContains(packageName: String, potentialChild: String): Boolean = {
-    potentialChild == packageName || potentialChild.startsWith(packageName + ".")
+    ScalaNamesUtil.equivalentFqn(potentialChild, packageName) || potentialChild.startsWith(packageName + ".")
   }
 
   def packageProcessDeclarations(pack: PsiPackage, processor: PsiScopeProcessor,
