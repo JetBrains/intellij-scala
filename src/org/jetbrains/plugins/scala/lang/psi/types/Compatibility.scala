@@ -228,6 +228,19 @@ object Compatibility {
       }
     }
 
+    def handleParametersProblems(param: Parameter, expr: ScExpression, paramType: ScType, expectedType: ScType): Unit = {
+      for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
+        val conforms = exprType.weakConforms(paramType)
+        if (!conforms) {
+          problems ::= TypeMismatch(expr, paramType)
+        } else {
+          matched ::= (param, expr)
+          matchedTypes ::= (param, exprType)
+          undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
+        }
+      }
+    }
+
     while (k < parameters.length.min(exprs.length)) {
       exprs(k) match {
         case Expression(expr: ScTypedStmt) if expr.isSequenceArg =>
@@ -236,25 +249,14 @@ object Compatibility {
             val getIt = used.indexOf(false)
             used(getIt) = true
             val param: Parameter = parameters(getIt)
-            val paramType = param.paramType
 
             if (!param.isRepeated)
-              problems ::= new ExpansionForNonRepeatedParameter(expr)
+              problems ::= ExpansionForNonRepeatedParameter(expr)
 
-            val tp = ScParameterizedType(ScalaType.designator(seqClass), Seq(paramType))
-
+            val tp = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.paramType))
             val expectedType = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType))
 
-            for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-              val conforms = exprType.weakConforms(tp)
-              if (!conforms) {
-                return ConformanceExtResult(Seq(new TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
-              } else {
-                matched ::= (param, expr)
-                matchedTypes ::= (param, exprType)
-                undefSubst += exprType.conforms(tp, new ScUndefinedSubstitutor(), checkWeak = true)._2
-              }
-            }
+            handleParametersProblems(param, expr, tp, expectedType)
           } else {
             problems :::= doNoNamed(Expression(expr)).reverse
           }
@@ -277,20 +279,26 @@ object Compatibility {
             if (index != k) {
               namedMode = true
             }
+
             assign.getRExpression match {
               case Some(expr: ScExpression) =>
-                val paramType = param.paramType
-                val expectedType = param.expectedType
-                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) {
-                  val conforms = exprType.weakConforms(paramType)
-                  if (!conforms) {
-                    problems ::= TypeMismatch(expr, paramType)
-                  } else {
-                    matched ::= (param, expr)
-                    matchedTypes ::= (param, exprType)
-                    undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
-                  }
+                val (paramType, expectedType) = expr match  {
+                  case typedStmt: ScTypedStmt if typedStmt.isSequenceArg =>
+                    val seqClass = seqClassFor(typedStmt)
+                    if (seqClass != null) {
+
+                      if (!param.isRepeated)
+                        problems ::= ExpansionForNonRepeatedParameter(expr)
+
+                      (ScParameterizedType(ScalaType.designator(seqClass), Seq(param.paramType)),
+                        ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType)))
+                    } else {
+                      (param.paramType, param.expectedType)
+                    }
+                  case _ => (param.paramType, param.expectedType)
                 }
+
+                handleParametersProblems(param, expr, paramType, expectedType)
               case _ =>
                 return ConformanceExtResult(Seq(new ApplicabilityProblem("11")), undefSubst, defaultParameterUsed, matched, matchedTypes)
             }

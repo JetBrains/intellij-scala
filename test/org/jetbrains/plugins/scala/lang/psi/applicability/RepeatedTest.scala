@@ -191,5 +191,12 @@ class RepeatedTest extends ApplicabilityTestBase {
     assertProblems("(a: A, b: B*)", "(A, Seq(C): _*)") {
       case TypeMismatch(Expression("Seq(C): _*"), Type("Seq[B]")) :: Nil =>
     }
-  }  
+  }
+
+
+  def testNamedWithRepeated(): Unit = {
+    assertProblems("(a: A*)", "(a = Seq(A): _*)") {
+      case Nil =>
+    }
+  }
 }
