@@ -6,7 +6,6 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNam
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -20,18 +19,18 @@ package object transformation {
   def quote(s: String): String = "\"" + s + "\""
 
   // Tries to use simple name, then partially qualified name, then fully qualified name instead of adding imports
-  def bindTo(r0: ScReferenceExpression, target: String) {
+  def bindTo(r0: ScReferenceElement, target: String) {
     val paths = target.split("\\.").toVector
 
     val r1 = if (r0.text == paths.last) r0 else
-      r0.replace(parseElement(paths.last, r0.psiManager)).asInstanceOf[ScReferenceExpression]
+      r0.replace(parseElement(paths.last, r0.psiManager)).asInstanceOf[ScReferenceElement]
 
     if (!isResolvedTo(r1, target)) {
       if (paths.length > 1) {
         if (paths.length > 2) {
           val r2 = r1.replace(parseElement(paths.takeRight(2).mkString("."), r0.psiManager))
 
-          if (!isResolvedTo(r2.asInstanceOf[ScReferenceExpression], target)) {
+          if (!isResolvedTo(r2.asInstanceOf[ScReferenceElement], target)) {
             r2.replace(parseElement(target, r0.psiManager))
           }
         } else {
@@ -40,6 +39,9 @@ package object transformation {
       }
     }
   }
+
+  def simpleNameOf(qualifiedName: String): String =
+    qualifiedName.split("\\.").lastOption.getOrElse(qualifiedName)
 
   def isResolvedTo(reference: ResolvableReferenceElement, target: String) =
     reference.bind().exists(result => qualifiedNameOf(result.element) == target)

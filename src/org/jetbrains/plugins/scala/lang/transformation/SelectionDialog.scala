@@ -12,6 +12,7 @@ import com.intellij.util.ui.ColumnInfo
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
+import org.jetbrains.plugins.scala.lang.transformation.conversions.MakeBoxingExplicit
 import org.jetbrains.plugins.scala.lang.transformation.declarations.{ExpandProcedureSyntax, MakeResultExpressionExplicit}
 import org.jetbrains.plugins.scala.lang.transformation.functions.{ExpandEtaExpansion, ExpandPlaceholderSyntax, MakeEtaExpansionExplicit}
 import org.jetbrains.plugins.scala.lang.transformation.general._
@@ -56,10 +57,12 @@ class SelectionDialog {
     ),
     Group("Implicits",
       Entry("Expand implicit conversion", ExpandImplicitConversion),
-      Entry("Inscribe implicit parameters", InscribeImplicitParameters),
-      Entry("Expand conversion to String"),
-      Entry("Expand boxing"),
-      Entry("Expand unboxing")
+      Entry("Inscribe implicit parameters", InscribeImplicitParameters)
+    ),
+    Group("Conversion",
+      Entry("Make boxing explicit", MakeBoxingExplicit),
+      Entry("Make unboxing explicit"),
+      Entry("Make conversion to String explicit")
     ),
     Group("Functions",
       Entry("Expand placeholder syntax", ExpandPlaceholderSyntax),

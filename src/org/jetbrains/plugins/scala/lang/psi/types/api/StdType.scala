@@ -51,6 +51,27 @@ object StdType {
     case stdType => (stdType.fullName, stdType)
   }.toMap
 
+  // Aliases to avoid name collisions
+  // TODO Enclose the values directly
+
+  @inline def Any = org.jetbrains.plugins.scala.lang.psi.types.api.Any
+  @inline def AnyVal = org.jetbrains.plugins.scala.lang.psi.types.api.AnyVal
+  @inline def AnyRef = org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
+
+  @inline def Unit = org.jetbrains.plugins.scala.lang.psi.types.api.Unit
+
+  @inline def Boolean = org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
+  @inline def Char = org.jetbrains.plugins.scala.lang.psi.types.api.Char
+  @inline def Byte = org.jetbrains.plugins.scala.lang.psi.types.api.Byte
+  @inline def Short = org.jetbrains.plugins.scala.lang.psi.types.api.Short
+  @inline def Int = org.jetbrains.plugins.scala.lang.psi.types.api.Int
+  @inline def Long = org.jetbrains.plugins.scala.lang.psi.types.api.Long
+  @inline def Float = org.jetbrains.plugins.scala.lang.psi.types.api.Float
+  @inline def Double = org.jetbrains.plugins.scala.lang.psi.types.api.Double
+
+  @inline def Null = org.jetbrains.plugins.scala.lang.psi.types.api.Null
+  @inline def Nothing = org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
+
   import com.intellij.psi.CommonClassNames._
 
   val fqnBoxedToScType = Map(
