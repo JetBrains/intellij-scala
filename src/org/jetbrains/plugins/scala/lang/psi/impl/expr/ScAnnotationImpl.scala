@@ -39,7 +39,7 @@ class ScAnnotationImpl private (stub: StubElement[ScAnnotation], nodeType: IElem
   def getParameterList: PsiAnnotationParameterList = this
 
   private def getClazz: Option[PsiClass] =
-    annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrAny.extractClass()
+    typeElement.getType(TypingContext.empty).getOrAny.extractClass()
 
   def getQualifiedName: String = getClazz match {
     case None => null
