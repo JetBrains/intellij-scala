@@ -539,6 +539,48 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromJavaCode(scalaCode, javaCode, "SCL9661A"))
   }
 
+  def testClassParameterScala(): Unit = {
+    val scala =
+      """
+        |class ScalaClassParamClass (var name: String, var surname: String)
+        |
+        |object Start {
+        |  def main(args: Array[String]) {
+        |    val scalaClassObj = new ScalaClassParamClass("Dom", "Sien")
+        |    println(scalaClassObj.name)
+        |    println(scalaClassObj.surname)
+        |
+        |    val javaClassObj = new JavaClassParamClass("Dom2", "Sien2", 31)
+        |    println(javaClassObj.name)
+        |    println(javaClassObj.surname)
+        |    println(javaClassObj.getAge)
+        |  }
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |public class JavaClassParamClass extends ScalaClassParamClass {
+        |  private int age;
+        |
+        |  public JavaClassParamClass(String name, String surname, int age) {
+        |    super(name, surname);
+        |    this.age = age;
+        |  }
+        |
+        |  public int getAge() {
+        |    return age;
+        |  }
+        |
+        |  public void setAge(int age) {
+        |    this.age = age;
+        |  }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
   def testSCL9619(): Unit = {
     val scala =
       """
