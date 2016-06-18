@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
+import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
@@ -68,6 +69,17 @@ import scala.reflect.NameTransformer
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+
+  //java has magic @PolymorphicSignature annotation in java.lang.invoke.MethodHandle
+  def isJavaReflectPolymorphicSignature(expression: ScExpression): Boolean = expression match {
+    case ScMethodCall(invoked, _) => Option(invoked.getReference) match {
+      case Some(ResolvesTo(method: PsiMethod)) =>
+        AnnotationUtil.isAnnotated(method, CommonClassNames.JAVA_LANG_INVOKE_MH_POLYMORPHIC, false, true)
+      case _ => false
+    }
+    case _ => false
+  }
+
   def nameWithPrefixIfNeeded(c: PsiClass): String = {
     val qName = c.qualifiedName
     if (ScalaCodeStyleSettings.getInstance(c.getProject).hasImportWithPrefix(qName)) qName.split('.').takeRight(2).mkString(".")

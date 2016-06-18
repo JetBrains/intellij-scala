@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -77,6 +79,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               tryConvertToSAM(fromUnderscore, expected, tp) match {
                 case Some(r) => return r
                 case _ =>
+              }
+
+              val scalaVersion = ScExpression.this.scalaLanguageLevelOrDefault
+              if (scalaVersion >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(ScExpression.this)) {
+                return ExpressionTypeResult(Success(expected, Some(ScExpression.this)), Set.empty, None)
               }
 
               val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)

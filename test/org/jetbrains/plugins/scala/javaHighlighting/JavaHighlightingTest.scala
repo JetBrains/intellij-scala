@@ -115,6 +115,34 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     }
   }
 
+  def testSCL9029() = {
+    val scala =
+      """
+        |package scl9029
+        |import java.lang.invoke.{MethodHandles, MethodType}
+        |
+        |class SCL9029 {
+        |  def a: Int = 5
+        |
+        |  def b = {
+        |    val mh = MethodHandles.publicLookup().findVirtual(
+        |      classOf[SCL9029], "a", MethodType.methodType(classOf[Int])
+        |    )
+        |    val z: Int = mh.invokeExact(this)
+        |  }
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |package scl9029;
+        |public class Foo {
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
   def testAccessBacktick(): Unit = {
     val scala =
       """
