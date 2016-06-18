@@ -2,18 +2,17 @@ package org.jetbrains.plugins.scala.javaHighlighting
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
-import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
   * @author Alefas
   * @since 23/03/16
   */
-abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase with AssertMatches {
+abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase(scalaVersion = ScalaSdkVersion._2_11) with AssertMatches {
   private var filesCreated: Boolean = false
 
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
@@ -60,20 +59,5 @@ abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase with Asser
 
   case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
-  }
-
-  private var scalaLibraryLoader: ScalaLibraryLoader = null
-
-  override def setUp() = {
-    super.setUp()
-
-    TestUtils.setLanguageLevel(getProject, LanguageLevel.JDK_1_8)
-    scalaLibraryLoader = new ScalaLibraryLoader(getProject, myFixture.getModule, null)
-    scalaLibraryLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION)
-  }
-
-  override def tearDown(): Unit = {
-    scalaLibraryLoader.clean()
-    super.tearDown()
   }
 }
