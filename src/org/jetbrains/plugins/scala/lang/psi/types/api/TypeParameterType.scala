@@ -68,7 +68,9 @@ object TypeParameter {
       case typeParam: ScTypeParam =>
         (typeParam.typeParameters, typeParam.lowerBound.toOption, typeParam.upperBound.toOption)
       case _ =>
-        (Seq.empty, None, None)
+        val manager = ScalaPsiManager.instance(typeParameter.getProject)
+        val upper = manager.javaPsiTypeParameterUpperType(typeParameter)
+        (Seq.empty, None, Some(upper))
     }
     TypeParameter(
       typeParameters.map(TypeParameter(_)),
@@ -129,8 +131,8 @@ object TypeParameterType {
           case Some(_) => typeParameter.getTypeParameters.toSeq
           case _ => Seq.empty
         },
-          () => manager.psiTypeParameterLowerType(typeParameter),
-          () => manager.psiTypeParameterUpperType(typeParameter))
+          () => Nothing,
+          () => manager.javaPsiTypeParameterUpperType(typeParameter))
     }
     TypeParameterType(
       arguments.map(TypeParameterType(_, maybeSubstitutor)),

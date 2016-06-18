@@ -198,30 +198,6 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testSCL8759(): Unit = {
-    val java =
-      """
-        |public class Foobar {
-        |    public static void foo(Object something) {
-        |    }
-        |    public static <T extends Number> void foo(T something) {
-        |    }
-        |}
-      """.stripMargin
-
-    val scala =
-      """
-        |class ScClass {
-        |  def method = {
-        |    Foobar.foo("")
-        |    Foobar.foo(java.lang.Integer.valueOf(1))
-        |  }
-        |}
-      """.stripMargin
-
-    assertNothing(errorsFromScalaCode(scala, java))
-  }
-
   def testSCL8666(): Unit = {
     val java =
       """
