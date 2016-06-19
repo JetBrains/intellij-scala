@@ -86,10 +86,10 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                 ScParameterizedType(des, tps.map { tp =>
                   def convertInnerJavaWildcardToExistentialType(wild: PsiWildcardType) = {
                     val lower: ScType =
-                      if (wild.isSuper) toScType(wild.getSuperBound, project, scope, visitedRawTypes)
+                      if (wild.isSuper) toScType(wild.getSuperBound, project, scope, visitedRawTypes, paramTopLevel = true)
                       else Nothing
                     val upper: ScType =
-                      if (wild.isExtends) toScType(wild.getExtendsBound, project, scope, visitedRawTypes)
+                      if (wild.isExtends) toScType(wild.getExtendsBound, project, scope, visitedRawTypes, paramTopLevel = true)
                       else Any
                     ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper)
                   }
