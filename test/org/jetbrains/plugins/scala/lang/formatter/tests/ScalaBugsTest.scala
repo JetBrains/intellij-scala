@@ -1565,5 +1565,25 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testPatternMatchingAliasSymbolSpacing(): Unit = {
+    getScalaSettings.SPACES_AROUND_AT_IN_PATTERNS = true
+
+    val before =
+      """"
+        |a match {
+        |  case c1 :: (rest@(c2 :: cs)) =>
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """"
+        |a match {
+        |  case c1 :: (rest @ (c2 :: cs)) =>
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
