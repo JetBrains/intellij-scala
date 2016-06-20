@@ -1585,5 +1585,31 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL8939(): Unit = {
+    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    getScalaSettings.SPACE_BEFORE_TYPE_COLON = true
+
+    val before =
+      """
+        |def foo(
+        |  aaaaaa: String,
+        |  aa: String,
+        |  aaaa: String
+        |)
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |def foo(
+        |  aaaaaa : String,
+        |  aa     : String,
+        |  aaaa   : String
+        |)
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

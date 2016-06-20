@@ -65,6 +65,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACES_IN_IMPORTS = false;
   public boolean SPACES_AROUND_AT_IN_PATTERNS = false;
   public boolean NEWLINE_AFTER_ANNOTATIONS = false;
+  public boolean ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;

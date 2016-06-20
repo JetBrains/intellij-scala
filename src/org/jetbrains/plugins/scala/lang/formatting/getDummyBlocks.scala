@@ -41,6 +41,7 @@ import scala.collection.mutable.ArrayBuffer
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
   private val alignmentsMap = scala.collection.mutable.Map[SmartPsiElementPointer[ScInterpolatedStringLiteral], Alignment]()
+  private val multiLevelAlignment = scala.collection.mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]()
 
   def apply(firstNode: ASTNode, lastNode: ASTNode, block: ScalaBlock): util.ArrayList[Block] =
     if (lastNode != null) applyInner(firstNode, lastNode, block) else applyInner(firstNode, block)
@@ -244,6 +245,21 @@ object getDummyBlocks {
             child.getElementType match {
               case ScalaElementTypes.XML_START_TAG | ScalaElementTypes.XML_END_TAG => alignment
               case _ => null
+            }
+          case _: ScParameter =>
+            child.getElementType match {
+              case ScalaTokenTypes.tCOLON if scalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS =>
+                Option(child.getPsi).flatMap(p => Option(p.getParent)).flatMap(p => Option(p.getParent)).map(rootPsi =>
+                  multiLevelAlignment.get(ScalaTokenTypes.tCOLON).flatMap(_.find(_.shouldAlign(child))) match {
+                    case Some(multiAlignment) => multiAlignment.getAlignment
+                    case None =>
+                      val multiAlignment = ElementPointerAlignmentStrategy.typeMultiLevelAlignment(rootPsi)
+                      assert(multiAlignment.shouldAlign(child))
+                      multiLevelAlignment.update(ScalaTokenTypes.tCOLON,
+                        multiAlignment :: multiLevelAlignment.getOrElse(ScalaTokenTypes.tCOLON, List()))
+                      multiAlignment.getAlignment
+                  }).getOrElse(alignment)
+              case _ => alignment
             }
           case _ => alignment
         }
