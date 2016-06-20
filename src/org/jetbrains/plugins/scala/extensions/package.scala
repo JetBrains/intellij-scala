@@ -206,6 +206,13 @@ package object extensions {
         case _ => None
       }).map(substitutor.subst)
     }
+
+    def isStub: Boolean = {
+      repr match {
+        case st: StubBasedPsiElement[_] => st.getStub != null
+        case _ => false
+      }
+    }
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
