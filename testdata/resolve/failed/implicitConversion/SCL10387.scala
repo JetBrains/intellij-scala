@@ -3,5 +3,6 @@ object SCL10387 {
     def `\\` (index: Int): A = in(index)
   }
 
-  List(1, 2, 3) <ref>\ 0
+  List(1, 2, 3) <ref>\ 0 // red
+
 }
