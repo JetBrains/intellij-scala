@@ -198,5 +198,13 @@ class RepeatedTest extends ApplicabilityTestBase {
     assertProblems("(a: A*)", "(a = Seq(A): _*)") {
       case Nil =>
     }
+
+    assertProblems("(a: A)", "(a = Seq(A): _*)") {
+      case ExpansionForNonRepeatedParameter(Expression("Seq(A): _*")) :: Nil =>
+    }
+
+    assertProblems("(a: A, b: B*)", "(A, b = Seq(A): _*)") {
+      case TypeMismatch(Expression("Seq(A): _*"), Type("Seq[B]")) :: Nil =>
+    }
   }
 }

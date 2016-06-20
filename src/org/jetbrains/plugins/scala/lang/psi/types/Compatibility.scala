@@ -228,19 +228,6 @@ object Compatibility {
       }
     }
 
-    def handleParametersProblems(param: Parameter, expr: ScExpression, paramType: ScType, expectedType: ScType): Unit = {
-      for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-        val conforms = exprType.weakConforms(paramType)
-        if (!conforms) {
-          problems ::= TypeMismatch(expr, paramType)
-        } else {
-          matched ::= (param, expr)
-          matchedTypes ::= (param, exprType)
-          undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
-        }
-      }
-    }
-
     while (k < parameters.length.min(exprs.length)) {
       exprs(k) match {
         case Expression(expr: ScTypedStmt) if expr.isSequenceArg =>
@@ -251,12 +238,21 @@ object Compatibility {
             val param: Parameter = parameters(getIt)
 
             if (!param.isRepeated)
-              problems ::= ExpansionForNonRepeatedParameter(expr)
+              problems ::= new ExpansionForNonRepeatedParameter(expr)
 
             val tp = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.paramType))
             val expectedType = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType))
 
-            handleParametersProblems(param, expr, tp, expectedType)
+            for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
+              val conforms = exprType.weakConforms(tp)
+              if (!conforms) {
+                return ConformanceExtResult(Seq(new TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
+              } else {
+                matched ::= (param, expr)
+                matchedTypes ::= (param, exprType)
+                undefSubst += exprType.conforms(tp, new ScUndefinedSubstitutor(), checkWeak = true)._2
+              }
+            }
           } else {
             problems :::= doNoNamed(Expression(expr)).reverse
           }
@@ -298,7 +294,16 @@ object Compatibility {
                   case _ => (param.paramType, param.expectedType)
                 }
 
-                handleParametersProblems(param, expr, paramType, expectedType)
+                for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
+                  val conforms = exprType.weakConforms(paramType)
+                  if (!conforms) {
+                    problems ::= TypeMismatch(expr, paramType)
+                  } else {
+                    matched ::= (param, expr)
+                    matchedTypes ::= (param, exprType)
+                    undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
+                  }
+                }
               case _ =>
                 return ConformanceExtResult(Seq(new ApplicabilityProblem("11")), undefSubst, defaultParameterUsed, matched, matchedTypes)
             }
