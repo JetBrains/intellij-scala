@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContextOwner
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -46,14 +46,14 @@ object ScalaElementPresentation {
     val presentableText: StringBuffer = new StringBuffer
     presentableText.append(if (!function.isConstructor) function.name else "this")
 
-    function.typeParametersClause.foreach(clause => presentableText.append(clause.getText))
+    function.typeParametersClause.foreach(clause => presentableText.append(clause.getTextByStub))
 
     if (function.paramClauses != null)
       presentableText.append(StructureViewUtil.getParametersAsString(function.paramClauses, fast, subst))
 
     if (fast) {
       function.returnTypeElement match {
-        case Some(rt) => presentableText.append(": ").append(rt.getText)
+        case Some(rt) if !function.isStub => presentableText.append(": ").append(rt.getText)
         case _ => //do nothing
       }
     } else {
