@@ -124,4 +124,13 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin, "class type required but Hello.type found")
   }
+
+  def testSCL10438(): Unit = {
+    checkTextHasError(
+      """
+        |object Stuff {
+        |  val parameters = Map[String, Any]("a", "b")
+        |}
+      """.stripMargin, "Type mismatch, expected: (String, Any), actual: String(\"b\")")
+  }
 }
