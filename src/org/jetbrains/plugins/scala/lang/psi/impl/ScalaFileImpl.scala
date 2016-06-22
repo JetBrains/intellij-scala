@@ -24,6 +24,7 @@ import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -378,7 +379,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def icon = Icons.FILE_TYPE_LOGO
 
-  @CachedInsidePsiElement(this, ScalaPsiManager.instance(getProject).modificationTracker)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
   }

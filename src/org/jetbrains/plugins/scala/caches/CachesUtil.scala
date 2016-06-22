@@ -3,25 +3,20 @@ package caches
 
 
 import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.locks.ReentrantLock
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.psi._
-import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScModifiableTypedDeclaration, ScModificationTrackerOwner}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
-import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.util.control.ControlThrowable
 
 /**
@@ -100,7 +95,7 @@ object CachesUtil {
               return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
             } else {
               fun.setProbablyRecursive(true)
-              throw new ProbablyRecursionException(e, (), key, Set(fun))
+              throw ProbablyRecursionException(e, (), key, Set(fun))
             }
           }
           guard.doPreventingRecursion(e, false /* todo: true? */, new Computable[CachedValueProvider.Result[Result]] {
@@ -206,7 +201,7 @@ object CachesUtil {
             defaultValue
           } else {
             fun.setProbablyRecursive(true)
-            throw new ProbablyRecursionException(e, data, key, Set(fun))
+            throw ProbablyRecursionException(e, data, key, Set(fun))
           }
         } else {
           guard.doPreventingRecursion((e, data), false, new Computable[Result] {
@@ -241,113 +236,57 @@ object CachesUtil {
     result
   }
 
-  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Object = {
-    element.getContainingFile match {
-      case file: ScalaFile if file.isCompiled =>
-        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
-          return dep_item
-        }
-        var dir = file.getParent
-        while (dir != null) {
-          if (dir.getName == "scala-library.jar") return ModificationTracker.NEVER_CHANGED
-          dir = dir.getParent
-        }
-        ProjectRootManager.getInstance(element.getProject)
-      case cls: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
-      case _ => dep_item
+  //Used in macro!
+  def enclosingModificationOwner(elem: PsiElement): ScalaSmartModificationTracker = {
+    if (elem == null) return ScalaSmartModificationTracker.EVER_CHANGED
+
+    val localContext = elem.contexts.collectFirst {
+      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner => owner
     }
+
+    localContext.map(_.getModificationTracker)
+      .getOrElse(globalModificationTracker(elem))
   }
 
-  def enclosingModificationOwner(elem: PsiElement): ModificationTracker = {
-    @tailrec
-    def calc(element: PsiElement): ModificationTracker = {
-      Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner() => owner.getModificationTracker
-        case Some(owner) => calc(owner.getContext)
-        case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
-        case _ => ScalaPsiManager.instance(element.getProject).modificationTracker
+  def globalModificationTracker(elem: PsiElement): ScalaSmartModificationTracker = {
+    if (elem == null || !elem.isValid || elem.getProject.isDisposed)
+      return ScalaSmartModificationTracker.EVER_CHANGED
+
+    val fileIndex = ProjectRootManager.getInstance(elem.getProject).getFileIndex
+
+    val vFile = Option(PsiUtilCore.getVirtualFile(elem))
+      .orElse(Option(PsiUtilCore.getVirtualFile(elem.getContext))) //to find original file of dummy elements
+
+    def isInLibrary: Boolean = {
+      vFile.exists { vf =>
+        fileIndex.isInLibraryClasses(vf) || fileIndex.isInLibrarySource(vf)
       }
     }
 
-    calc(elem)
+    def isExcluded(elem: PsiElement): Boolean = vFile.exists(fileIndex.isExcluded)
+
+    val scalaPsiManager = ScalaPsiManager.instance(elem.getProject)
+
+    if (isInLibrary)
+      LibraryModificationTracker.instance(elem.getProject)
+    else if (vFile.isEmpty || isExcluded(elem))
+      ScalaSmartModificationTracker.EVER_CHANGED
+    else if (elem.getContainingFile.getLanguage == ScalaLanguage.Instance)
+      elem.module
+        .map(m => ModuleWithDependenciesTracker.instance(m))
+        .getOrElse(scalaPsiManager.javaOutOfCodeBlockTracker)
+    else
+      scalaPsiManager.javaOutOfCodeBlockTracker
   }
 
-  @tailrec
-  def updateModificationCount(elem: PsiElement, incModCountOnTopLevel: Boolean = false): Unit = {
-    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner], classOf[ScalaCodeFragment])) match {
-      case Some(_: ScalaCodeFragment) => //do not update on changes in dummy file
-      case Some(owner: ScModificationTrackerOwner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
-        owner.incModificationCount()
-      case Some(owner) => updateModificationCount(owner.getContext)
-      case _ if incModCountOnTopLevel => ScalaPsiManager.instance(elem.getProject).incModificationCount()
-      case _ =>
-    }
+
+  def updateModificationCount(elem: PsiElement): Unit = {
+    enclosingModificationOwner(elem).onPsiChange()
   }
 
   case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
-                                                                            data: Data,
-                                                                            key: Key[T],
-                                                                            set: Set[ScFunction]) extends ControlThrowable
+                                                                    data: Data,
+                                                                    key: Key[T],
+                                                                    set: Set[ScFunction]) extends ControlThrowable
 
-  private[this] val funsRetTpToCheck = new mutable.Queue[(ScModifiableTypedDeclaration, Project)]()
-  private[this] val associatedQueueLock = new ReentrantLock(true)
-  private def doQueueWithLock[T](ac: mutable.Queue[(ScModifiableTypedDeclaration, Project)] => T): T = {
-    try {
-      associatedQueueLock.lock()
-      ac(funsRetTpToCheck)
-    } finally {
-      if (associatedQueueLock.isHeldByCurrentThread) associatedQueueLock.unlock()
-    }
-  } 
-  
-  @volatile
-  private[this] var needToCheckFuns: Boolean = false
-  private[this] val currentThreadIsCheckingFuns = new ThreadLocal[Boolean] {
-    override def initialValue(): Boolean = false
-  }
-
-  def incrementModCountForFunsWithModifiedReturn(): Unit = {
-    def checkFuns(): Unit = {
-      @inline def nextElement = doQueueWithLock(queue => if (queue.nonEmpty) queue.dequeue() else null)
-      @inline def checkSize = doQueueWithLock(queue => queue.size > 1)
-      @inline def clearQueue() = doQueueWithLock(queue => queue.clear())
-      
-      var cur = nextElement
-      
-      while (cur != null) {
-        val (fun, proj) = cur
-        val isValid: Boolean = fun.isValid
-        if ((!isValid || fun.returnTypeHasChangedSinceLastCheck) && !proj.isDisposed) {
-          //if there's more than one, just increment the general modCount If there's one, go up th
-          if (!isValid || checkSize) {
-            ScalaPsiManager.instance(proj).incModificationCount()
-            clearQueue()
-          } else {
-            updateModificationCount(fun.getContext, incModCountOnTopLevel = true)
-          }
-        }
-        
-        cur = nextElement
-      }
-
-      doQueueWithLock(_ => {needToCheckFuns = false})
-    }
-
-    if (needToCheckFuns && !currentThreadIsCheckingFuns.get()) {
-      try {
-        currentThreadIsCheckingFuns.set(true)
-        checkFuns()
-      } finally {
-        currentThreadIsCheckingFuns.set(false)
-      }
-    }
-  }
-
-  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = {
-    val project = fun.getProject
-    
-    doQueueWithLock(
-      queue => {if (!queue.exists(_._1 == fun)) {queue.enqueue((fun, project)); needToCheckFuns = true}}
-    )
-  }
 }

@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -28,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, Ty
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 import scala.collection.immutable.HashMap
 
@@ -43,7 +44,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
   override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
 
   @CachedWithRecursionGuard[ScSimpleTypeElement](this, Failure("Recursive non value type of type element", Some(this)),
-    ModCount.getBlockModificationCount)
+    CachesUtil.enclosingModificationOwner(this))
   override def getNonValueType(ctx: TypingContext, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] =
     innerNonValueType(ctx, inferValueType = false, withUnnecessaryImplicitsUpdate = withUnnecessaryImplicitsUpdate)
 

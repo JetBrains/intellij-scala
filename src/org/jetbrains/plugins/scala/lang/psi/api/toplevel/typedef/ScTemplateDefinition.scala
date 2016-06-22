@@ -18,6 +18,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -30,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 /**
  * @author ven
@@ -140,7 +141,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   def syntheticMethodsWithOverride: Seq[PsiMethod] = syntheticMethodsWithOverrideImpl
 
   /**
@@ -150,14 +151,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def allSynthetics: Seq[PsiMethod] = syntheticMethodsNoOverride ++ syntheticMethodsWithOverride
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   def syntheticMethodsNoOverride: Seq[PsiMethod] = syntheticMethodsNoOverrideImpl
 
   protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = Seq.empty
 
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   def syntheticTypeDefinitions: Seq[ScTypeDefinition] = syntheticTypeDefinitionsImpl
 
   def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty

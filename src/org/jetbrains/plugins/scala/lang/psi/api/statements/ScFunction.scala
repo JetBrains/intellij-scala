@@ -17,6 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -309,7 +310,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
 
   private def syntheticParamClause: Option[ScParameterClause] = {
@@ -445,7 +446,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     getReturnTypeImpl
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
     def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)

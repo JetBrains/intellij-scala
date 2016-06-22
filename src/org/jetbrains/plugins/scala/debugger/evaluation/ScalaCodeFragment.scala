@@ -14,7 +14,7 @@ import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScModificationTrackerOwner, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
 
 import scala.collection.mutable
@@ -28,7 +28,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     ScalaFileType.SCALA_FILE_TYPE, text)
   private var provider = new SingleRootFileViewProvider(
     PsiManager.getInstance(project), vFile, true)
-} with ScalaFileImpl(provider) with JavaCodeFragment with ScDeclarationSequenceHolder {
+} with ScalaFileImpl(provider) with JavaCodeFragment with ScDeclarationSequenceHolder with ScModificationTrackerOwner {
   getViewProvider.forceCachedPsi(this)
 
   override def getViewProvider = provider
@@ -131,6 +131,8 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     clone.provider.forceCachedPsi(clone)
     clone
   }
+
+  override def isValidModificationTrackerOwner: Boolean = true
 }
 
 object ScalaCodeFragment {

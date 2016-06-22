@@ -10,6 +10,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -78,7 +79,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     res
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   def superTypes: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
@@ -192,7 +193,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     }
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, CachesUtil.enclosingModificationOwner(this))
   def supers: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
     def addClass(t: PsiClass) {

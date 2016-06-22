@@ -151,7 +151,6 @@ object Cached {
           def $cachedFunName(): $retTp = {
             $actualCalculation
           }
-          $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           ..$currModCount
           def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}

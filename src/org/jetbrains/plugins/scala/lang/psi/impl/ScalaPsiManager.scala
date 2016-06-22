@@ -6,21 +6,21 @@ package impl
 import java.util
 import java.util.Collections
 import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
-import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker}
+import com.intellij.openapi.roots._
+import com.intellij.openapi.util.{Key, LowMemoryWatcher}
 import com.intellij.psi._
-import com.intellij.psi.impl.JavaPsiFacadeImpl
+import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.{ContainerUtil, WeakValueHashMap}
-import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
+import org.jetbrains.plugins.scala.caches._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -257,6 +257,7 @@ class ScalaPsiManager(val project: Project) {
   private def clearOnOutOfCodeBlockChange(): Unit = {
     clearCacheOnOutOfBlockChange.foreach(_.clear())
     syntheticPackages.clear()
+    clearOnChange()
   }
 
   private[impl] def projectOpened(): Unit = {
@@ -265,6 +266,7 @@ class ScalaPsiManager(val project: Project) {
     subscribeToPsiModification(project)
     subscribeToRootsChange(project)
     registerLowMemoryWatcher(project)
+    ModuleWithDependenciesTracker.registerListeners(project)
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
@@ -316,6 +318,11 @@ class ScalaPsiManager(val project: Project) {
   PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
+    private def isGeneric(event: PsiTreeChangeEvent) = event match {
+      case impl: PsiTreeChangeEventImpl => impl.isGenericChange
+      case _ => false
+    }
+
     override def childRemoved(event: PsiTreeChangeEvent): Unit = {
       CachesUtil.updateModificationCount(event.getParent)
     }
@@ -329,7 +336,8 @@ class ScalaPsiManager(val project: Project) {
     }
 
     override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
+      if (!isGeneric(event))
+        CachesUtil.updateModificationCount(event.getParent)
     }
 
     override def childMoved(event: PsiTreeChangeEvent): Unit = {
@@ -341,11 +349,17 @@ class ScalaPsiManager(val project: Project) {
     }
   }
 
-  val modificationTracker: ScalaPsiModificationTracker = new ScalaPsiModificationTracker(project)
+  val libraryModificationTracker = new LibraryModificationTracker(project)
 
-  def getModificationCount: Long = modificationTracker.getModificationCount
+  val javaOutOfCodeBlockTracker = new ScalaSmartModificationTracker {
+    override def getModificationCount: Long = PsiManager.getInstance(project).getModificationTracker.getOutOfCodeBlockModificationCount
+  }
 
-  def incModificationCount(): Long = modificationTracker.incModificationCount()
+  private val moduleModificationTrackers = mutable.HashMap.empty[Module, ModuleWithDependenciesTracker]
+
+  def clearModuleTrackers() = moduleModificationTrackers.clear()
+
+  def moduleWithDependenciesTracker(module: Module) = moduleModificationTrackers.getOrElseUpdate(module, new ModuleWithDependenciesTracker(module))
 }
 
 object ScalaPsiManager {
@@ -381,7 +395,6 @@ object ScalaPsiManager {
 
       def rootsChanged(event: ModuleRootEvent) {
         val manager = ScalaPsiManager.instance(project)
-        manager.clearOnChange()
         manager.clearOnOutOfCodeBlockChange()
       }
     })
@@ -416,17 +429,4 @@ class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponen
   override def disposeComponent(): Unit = {
     manager = null
   }
-}
-
-class ScalaPsiModificationTracker(project: Project) extends ModificationTracker {
-
-  private val myRawModificationCount = new AtomicLong(0)
-
-  private val mainModificationTracker = PsiManager.getInstance(project).getModificationTracker
-
-  def getModificationCount: Long = {
-    myRawModificationCount.get() + mainModificationTracker.getOutOfCodeBlockModificationCount
-  }
-
-  def incModificationCount(): Long = myRawModificationCount.incrementAndGet()
 }
