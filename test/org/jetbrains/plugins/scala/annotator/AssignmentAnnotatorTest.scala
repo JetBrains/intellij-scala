@@ -167,6 +167,9 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
     assertMatches(messages("def a = A; def a_=(x: A) {}; a = B")) {
       case Error("B", TypeMismatch()) :: Nil =>
     }
+    assertMatches(messages("def `a` = A; def a_=(x: A) {}; a = A")) {
+      case Nil =>
+    }
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {

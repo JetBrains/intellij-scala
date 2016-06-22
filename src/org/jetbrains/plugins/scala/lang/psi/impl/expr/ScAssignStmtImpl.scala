@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariab
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -90,7 +91,7 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
               case c: ScClassParameter if c.isVar => None
               case f: PsiField => None
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
-                val processor = new MethodResolveProcessor(ref, fun.name + "_=",
+                val processor = new MethodResolveProcessor(ref, ScalaNamesUtil.clean(fun.name) + "_=",
                   getRExpression.map(expr => List(Seq(new Expression(expr)))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,
                   isShapeResolve = shapeResolve, kinds = StdKinds.methodsOnly)
                 r.fromType match {
