@@ -97,7 +97,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
     val manager = ScalaShortNamesCacheManager.getInstance(getProject)
 
     var tuple = pack.getUserData(CachesUtil.PACKAGE_OBJECT_KEY)
-    val count = ScalaPsiManager.instance(getProject).javaOutOfCodeBlockTracker
+    val count = ScalaPsiManager.instance(getProject).javaOutOfCodeBlockTracker.getModificationCount
     if (tuple == null || tuple._2.longValue != count) {
       val clazz = manager.getPackageObjectByName(getQualifiedName, scope)
       tuple = (clazz, java.lang.Long.valueOf(count)) // TODO is it safe to cache this ignoring `scope`?
