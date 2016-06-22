@@ -108,7 +108,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     val leftNode = left.getNode
     val rightNode = right.getNode
-    val fileText = leftNode.getPsi.getContainingFile.getText
+    val fileText = Option(PsiDocumentManager.getInstance(leftNode.getPsi.getProject)).
+      flatMap(m => Option(m.getDocument(leftNode.getPsi.getContainingFile))).map(_.getText).
+      getOrElse(leftNode.getPsi.getContainingFile.getText)
 
     //new formatter spacing
     val leftElementType = leftNode.getElementType
