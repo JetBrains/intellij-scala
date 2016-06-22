@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -329,10 +329,10 @@ object MacroExpandAction {
       override def getCurrentProject: Project = annot.getProject
     }
 
-    val annotClass = annot.constructor.reference.get.bind().map(_.element)
+    val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
     val annotee = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
     val converted = annotClass.map {
-      case o: ScObject if o.isMetaAnnotatationImpl =>
+      case o: ScTypeDefinition if o.isMetaAnnotatationImpl =>
         converter.ideaToMeta(annotee)
       case _ =>
     }
@@ -340,7 +340,7 @@ object MacroExpandAction {
     val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
     val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
     val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
-    val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScObject].qualifiedName+"$")
+    val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName+"$impl$")
     val ctor = outer.getDeclaredConstructors.head
     ctor.setAccessible(true)
     val inst = ctor.newInstance()

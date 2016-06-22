@@ -8,6 +8,7 @@ import com.intellij.psi.PsiAnnotation
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * @author Alexander Podkhalyuzin
@@ -35,8 +36,8 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
     import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
     constructor.reference.exists {
       ref => ref.bind().exists {
-        result => result.element match {
-          case o: ScObject => o.isMetaAnnotatationImpl
+        result => result.parentElement match {
+          case Some(o: ScTypeDefinition) => o.isMetaAnnotatationImpl
           case _ => false
         }
       }

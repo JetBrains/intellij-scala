@@ -9,6 +9,7 @@ import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -143,5 +144,9 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
       }
     }
     objOption
+  }
+
+  def isMetaAnnotatationImpl: Boolean = {
+    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty)
   }
 }
