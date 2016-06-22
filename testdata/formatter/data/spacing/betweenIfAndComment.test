@@ -1,0 +1,6 @@
+if (false) { //foo
+}
+------
+if (false) {
+  //foo
+}

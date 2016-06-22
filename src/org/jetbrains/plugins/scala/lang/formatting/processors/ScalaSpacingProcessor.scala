@@ -535,6 +535,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case _ =>
         }
       }
+      if (rightPsi.isInstanceOf[PsiComment] && scalaSettings.KEEP_COMMENTS_ON_SAME_LINE) return WITH_SPACING
     }
 
     if (rightPsi.isInstanceOf[ScTypeDefinition]) {

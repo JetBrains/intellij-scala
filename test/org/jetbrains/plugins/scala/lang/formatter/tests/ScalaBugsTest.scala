@@ -1611,5 +1611,16 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL9516(): Unit = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """"
+        |if (false) { //blah
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
