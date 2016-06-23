@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.lang.transformation
 package implicits
 
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.{&&, BooleanExt, PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&&, BooleanExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -16,21 +17,18 @@ object InscribeImplicitParameters extends AbstractTransformer {
     case (_: ScReferenceExpression | _: ScMethodCall | _: ScInfixExpr | _: ScPostfixExpr) &&
       (e @ ImplicitParametersOwner(Seq(ps @ _*))) if ps.exists(isApplicable) =>
 
-      val arguments = ps.filter(isApplicable)
-
-      val placeholders = arguments.indices.map("arg$" + _).mkString(", ")
+      val targets = ps.filter(isApplicable).map(targetFor)
 
       val result = {
         val enclose = e.isInstanceOf[ScInfixExpr] || e.isInstanceOf[ScPostfixExpr]
-        e.replace(enclose.fold(code"($e)($placeholders)", code"$e($placeholders)"))
+        val arguments = targets.map(simpleNameOf).mkString(", ")
+        e.replace(enclose.fold(code"($e)($arguments)", code"$e($arguments)"))
       }
 
-      val references = result.depthFirst.collect {
-        case it: ScReferenceExpression if it.text.startsWith("arg$") => it
-      }
+      val references = result.getLastChild.asInstanceOf[ScArgumentExprList].exprs
 
-      arguments.zip(references.toVector).foreach {
-        case (argument, reference) => bindTo(reference, targetFor(argument))
+      references.zip(targets).foreach {
+        case (reference, target) => bindTo(reference.asInstanceOf[ScReferenceElement], target)
       }
   }
 

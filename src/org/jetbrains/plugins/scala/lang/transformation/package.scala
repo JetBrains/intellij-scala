@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
 import scala.util.matching.Regex
 
 /**
@@ -31,10 +32,26 @@ package object transformation {
   // TODO create a separate unit test for this method
   // Tries to use simple name, then partially qualified name, then fully qualified name instead of adding imports
   def bindTo(reference: ScReferenceElement, target: String) {
+    val context = reference.getParent
+
     val isExpression = reference.isInstanceOf[ScReferenceExpression]
 
-    shortest(target)(reference.getParent, isExpression).foreach { it =>
-      reference.replace(createReferenceElement(it)(reference.psiManager, isExpression))
+    @tailrec
+    def bindTo0(r1: ScReferenceElement, paths: Seq[String]) {
+      paths match {
+        case Seq(path, alternatives @ _*)  =>
+          val r2 = r1.replace(createReferenceElement(path)(r1.psiManager, isExpression)).asInstanceOf[ScReferenceElement]
+          if (!isResolvedTo(r2, target)(context, isExpression)) {
+            bindTo0(r2, alternatives)
+          }
+        case _ =>
+      }
+    }
+
+    val variants = variantsOf(target)
+
+    if (!(reference.text == variants.head && isResolvedTo(reference, target)(context, isExpression))) {
+      bindTo0(reference, variants)
     }
   }
 
@@ -42,18 +59,11 @@ package object transformation {
     Seq(SimpleName, PartiallyQualifiedName, RelativeName, AbsoluteName, FullName)
       .flatMap(_.findFirstMatchIn(reference)).map(_.group(1)).distinct
 
-  private def shortest(reference: String)(context: PsiElement, isExpression: Boolean): Option[String] = {
-    val target = relative(reference)
-    variantsOf(reference).find(isResolvedTo(_, target)(context, isExpression))
-  }
-
   private def relative(reference: String): String = reference.replaceFirst("^_root_.", "")
 
-  private def isResolvedTo(reference: String, target: String)(context: PsiElement, isExpression: Boolean): Boolean = {
-    val element = createReferenceElement(reference)(context.getManager, isExpression)
-    element.setContext(context, null)
-    element.bind().exists(result => qualifiedNameOf(result.element) == target)
-  }
+  private def isResolvedTo(reference: ScReferenceElement, target: String)(context: PsiElement, isExpression: Boolean): Boolean =
+    reference.bind().exists(result =>
+      qualifiedNameOf(result.element) == relative(target))
 
   private def createReferenceElement(reference: String)(manager: PsiManager, isExpression: Boolean): ScReferenceElement =
     if (isExpression) parseElement(reference, manager).asInstanceOf[ScReferenceExpression]
