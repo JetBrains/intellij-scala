@@ -264,7 +264,10 @@ private[expr] object ExpectedTypes {
         val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
         val exprs: Seq[ScExpression] = args.exprs
         val actExpr = expr.getDeepSameElementInContext
-        val i = if (actExpr == null) 0 else exprs.indexWhere(_ == actExpr)
+        val i = if (actExpr == null) 0 else {
+          val r = exprs.indexWhere(_ == actExpr)
+          if (r == -1) 0 else r
+        }
         val callExpression = args.callExpression
         if (callExpression != null) {
           var tps: Array[(TypeResult[ScType], Boolean)] = callExpression match {
