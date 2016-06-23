@@ -82,7 +82,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
   protected def extractTransferableData0(content: Transferable) = {
     content.isDataFlavorSupported(Associations.Flavor)
-            .ifTrue(content.getTransferData(Associations.Flavor).asInstanceOf[Associations])
+            .option(content.getTransferData(Associations.Flavor).asInstanceOf[Associations])
             .orNull
   }
 
