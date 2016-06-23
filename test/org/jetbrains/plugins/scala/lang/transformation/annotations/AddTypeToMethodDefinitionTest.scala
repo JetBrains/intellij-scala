@@ -11,6 +11,12 @@ class AddTypeToMethodDefinitionTest extends TransformerTest(AddTypeToMethodDefin
     "def f(): A = new A()"
   )
 
+  def testSimpleNameBinding() = check(
+    "import scala.io.Source",
+    "def f() = new Source()",
+    "def f(): Source = new Source()"
+  )
+
   def testExplicitType() = check(
     "def f(): A = new A()",
     "def f(): A = new A()"

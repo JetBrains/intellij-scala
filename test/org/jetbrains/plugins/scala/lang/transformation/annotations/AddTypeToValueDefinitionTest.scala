@@ -16,6 +16,12 @@ class AddTypeToValueDefinitionTest extends TransformerTest(AddTypeToValueDefinit
     "val v1, v2: A = new A()"
   )
 
+  def testSimpleNameBinding() = check(
+    "import scala.io.Source",
+    "val v = new Source()",
+    "val v: Source = new Source()"
+  )
+
   def testExplicitType() = check(
     "val v: A = new A()",
     "val v: A = new A()"

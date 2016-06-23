@@ -17,6 +17,15 @@ class AddTypeToFunctionParameterTest extends TransformerTest(AddTypeToFunctionPa
     "O((p: A) => ())"
   )
 
+  def testSimpleNameBinding() = check(
+    """
+     import scala.io.Source
+     object X { def apply(f: Source => Unit) {} }
+    """,
+    "X(p => ())",
+    "X((p: Source) => ())"
+  )
+
   def testExplicitType() = check(
     "O((p: A) => ())",
     "O((p: A) => ())"

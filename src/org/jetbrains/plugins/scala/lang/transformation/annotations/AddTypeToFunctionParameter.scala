@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.transformation.annotations
 
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.transformation._
 
@@ -17,6 +17,8 @@ object AddTypeToFunctionParameter extends AbstractTransformer {
 
       val f = code"(${p.text}: ${annotation.text}) => ()"
 
-      e.replace(f.getFirstChild.getChildren.apply(0))
+      val result = e.replace(f.getFirstChild.getFirstChild).asInstanceOf[ScParameterClause]
+
+      bindTypeElement(result.parameters.head.typeElement.get)
   }
 }

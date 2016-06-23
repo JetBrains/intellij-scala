@@ -13,6 +13,9 @@ object AddTypeToUnderscoreParameter extends AbstractTransformer {
   def transformation = {
     case (e: ScUnderscoreSection) && Typed(t) if !e.nextSibling.exists(_.getText == ":") =>
       val annotation = annotationFor(t, e)
-      e.replace(code"(_: $annotation)")
+
+      val result = e.replace(code"(_: $annotation)")
+
+      bindTypeElement(result.getFirstChild.getNextSibling.getLastChild)
   }
 }

@@ -61,7 +61,7 @@ package object transformation {
 
   // TODO define PsiMember.qualifiedName
   def qualifiedNameOf(e: PsiNamedElement): String = e match {
-    // TODO support complex types
+    // TODO support complex types, how to handle aliases?
     case it: ScTypeAliasDefinition => it.aliasedType.map(t => relative(t.canonicalText)).getOrElse(it.name)
     case it: PsiClass => it.qualifiedName
     case it: PsiMember => Option(it.containingClass).map(_.qualifiedName + ".").getOrElse("") + it.name

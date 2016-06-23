@@ -30,8 +30,13 @@ package object annotations {
     parent.addAfter(whitespace, e)
     parent.addAfter(colon, e)
 
-    result match {
-      case (_: ScSimpleTypeElement) && FirstChild(r: ScReferenceElement) => bindTo(r, annotation.text)
+    bindTypeElement(result)
+  }
+
+  def bindTypeElement(e: PsiElement) {
+    e match {
+      case (t: ScSimpleTypeElement) && FirstChild(r: ScReferenceElement) =>
+        bindTo(r, t.text)
       case _ => // TODO support compound types
     }
   }

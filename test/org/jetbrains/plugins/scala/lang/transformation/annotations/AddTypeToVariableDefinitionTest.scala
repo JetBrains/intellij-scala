@@ -16,6 +16,12 @@ class AddTypeToVariableDefinitionTest extends TransformerTest(AddTypeToVariableD
     "var v1, v2: A = new A()"
   )
 
+  def testSimpleNameBinding() = check(
+    "import scala.io.Source",
+    "var v = new Source()",
+    "var v: Source = new Source()"
+  )
+
   def testExplicitType() = check(
     "var v: A = new A()",
     "var v: A = new A()"

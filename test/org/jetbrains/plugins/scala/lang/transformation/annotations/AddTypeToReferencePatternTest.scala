@@ -22,6 +22,12 @@ class AddTypeToReferencePatternTest extends TransformerTest(AddTypeToReferencePa
     "val P(v: A) = P(new A())"
   )
 
+  def testSimpleNameBinding() = check(
+    "import scala.io.Source",
+    "(new Source()) match { case v => }",
+    "(new Source()) match { case v: Source => }"
+  )
+
   def testTypedPattern() = check(
     "(new A()) match { case v: A => }",
     "(new A()) match { case v: A => }"
