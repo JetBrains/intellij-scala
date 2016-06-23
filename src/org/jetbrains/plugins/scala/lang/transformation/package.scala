@@ -1,52 +1,69 @@
 package org.jetbrains.plugins.scala.lang
 
-import com.intellij.psi.{PsiElement, PsiMember, PsiNamedElement}
-import org.jetbrains.plugins.scala.codeInsight.intention.types.UpdateStrategy
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiNamedElementExt}
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import scala.util.matching.Regex
 
 /**
   * @author Pavel Fatin
   */
 package object transformation {
+  private val SimpleName = new Regex("(?:.+\\.)?(.+)")
+  private val PartiallyQualifiedName = new Regex(".+\\.(.+\\..+)")
+  private val RelativeName = new Regex("_root_\\.(.+)")
+  private val AbsoluteName = new Regex("(_root_\\..+)")
+  private val FullName = new Regex("(.+)")
+
   def quote(s: String): String = "\"" + s + "\""
 
+  def simpleNameOf(qualifiedName: String): String = qualifiedName match {
+    case SimpleName(name) => name
+  }
+
+  // TODO create a separate unit test for this method
   // Tries to use simple name, then partially qualified name, then fully qualified name instead of adding imports
-  def bindTo(r0: ScReferenceElement, target: String) {
-    val paths = target.split("\\.").toVector
+  def bindTo(reference: ScReferenceElement, target: String) {
+    val isExpression = reference.isInstanceOf[ScReferenceExpression]
 
-    val r1 = if (r0.text == paths.last) r0 else
-      r0.replace(parseElement(paths.last, r0.psiManager)).asInstanceOf[ScReferenceElement]
-
-    if (!isResolvedTo(r1, target)) {
-      if (paths.length > 1) {
-        if (paths.length > 2) {
-          val r2 = r1.replace(parseElement(paths.takeRight(2).mkString("."), r0.psiManager))
-
-          if (!isResolvedTo(r2.asInstanceOf[ScReferenceElement], target)) {
-            r2.replace(parseElement(target, r0.psiManager))
-          }
-        } else {
-          r1.replace(parseElement(target, r0.psiManager))
-        }
-      }
+    shortest(target)(reference.getParent, isExpression).foreach { it =>
+      reference.replace(createReferenceElement(it)(reference.psiManager, isExpression))
     }
   }
 
-  def simpleNameOf(qualifiedName: String): String =
-    qualifiedName.split("\\.").lastOption.getOrElse(qualifiedName)
+  private def variantsOf(reference: String): Seq[String] =
+    Seq(SimpleName, PartiallyQualifiedName, RelativeName, AbsoluteName, FullName)
+      .flatMap(_.findFirstMatchIn(reference)).map(_.group(1)).distinct
 
-  def isResolvedTo(reference: ResolvableReferenceElement, target: String) =
-    reference.bind().exists(result => qualifiedNameOf(result.element) == target)
+  private def shortest(reference: String)(context: PsiElement, isExpression: Boolean): Option[String] = {
+    val target = relative(reference)
+    variantsOf(reference).find(isResolvedTo(_, target)(context, isExpression))
+  }
 
+  private def relative(reference: String): String = reference.replaceFirst("^_root_.", "")
+
+  private def isResolvedTo(reference: String, target: String)(context: PsiElement, isExpression: Boolean): Boolean = {
+    val element = createReferenceElement(reference)(context.getManager, isExpression)
+    element.setContext(context, null)
+    element.bind().exists(result => qualifiedNameOf(result.element) == target)
+  }
+
+  private def createReferenceElement(reference: String)(manager: PsiManager, isExpression: Boolean): ScReferenceElement =
+    if (isExpression) parseElement(reference, manager).asInstanceOf[ScReferenceExpression]
+    else createTypeElementFromText(reference, manager).getFirstChild.asInstanceOf[ScReferenceElement]
+
+  // TODO define PsiMember.qualifiedName
   def qualifiedNameOf(e: PsiNamedElement): String = e match {
+    // TODO support complex types
+    case it: ScTypeAliasDefinition => it.aliasedType.map(t => relative(t.canonicalText)).getOrElse(it.name)
+    case it: PsiClass => it.qualifiedName
     case it: PsiMember => Option(it.containingClass).map(_.qualifiedName + ".").getOrElse("") + it.name
     case it => it.name
   }
@@ -58,24 +75,6 @@ package object transformation {
     } getOrElse {
       qualifiedNameOf(result.element)
     }
-  }
-
-  def annotationFor(t: ScType, context: PsiElement): ScTypeElement =
-    UpdateStrategy.annotationsFor(t, context).head
-
-  def appendTypeAnnotation(e: PsiElement, t: ScType): Unit = {
-    val annotation = UpdateStrategy.annotationsFor(t, e).head
-    appendTypeAnnotation(e, annotation)
-  }
-
-  def appendTypeAnnotation(e: PsiElement, annotation: ScTypeElement): Unit = {
-    val whitespace = ScalaPsiElementFactory.createWhitespace(e.getManager)
-    val colon = ScalaPsiElementFactory.createColon(e.getManager)
-
-    val parent = e.getParent
-    parent.addAfter(annotation, e)
-    parent.addAfter(whitespace, e)
-    parent.addAfter(colon, e)
   }
 
   object RenamedReference {

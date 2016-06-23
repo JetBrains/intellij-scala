@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.transformation
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.sbt.RichBoolean
 
 /**
   * @author Pavel Fatin
