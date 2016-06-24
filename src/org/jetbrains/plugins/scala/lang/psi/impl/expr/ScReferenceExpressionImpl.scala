@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwne
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, MethodResolveProcessor}
 
@@ -76,7 +77,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         val kinds = getKinds(incomplete = false)
         if (!ResolveUtils.kindMatches(element, kinds))
           throw new IncorrectOperationException(s"class $c does not match expected kind,\nexpected: ${kinds.mkString(", ")}")
-        if (refName != c.name)
+        if (!ScalaNamesUtil.equivalent(refName, c.name))
           throw new IncorrectOperationException(s"class $c does not match expected name $refName")
         val qualName = c.qualifiedName
         if (qualName != null) {
@@ -100,7 +101,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           this
         }
       case elem: PsiNamedElement =>
-        if (refName != elem.name)
+        if (!ScalaNamesUtil.equivalent(refName, elem.name))
           throw new IncorrectOperationException(s"named element $elem does not match expected name $refName")
         ScalaPsiUtil.nameContext(elem) match {
           case memb: PsiMember =>
