@@ -12,6 +12,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -37,20 +38,23 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       })
   }
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement(), new CompletionProvider[CompletionParameters] {
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+    and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter(".")))))), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
       def checkIfElementIsAvailable(element: PsiElement, clazz: ScTemplateDefinition): Boolean = {
         clazz.members.contains(element)
       }
 
       val position = positionFromParameters(parameters)
-      val clazz = PsiTreeUtil.getParentOfType(position, classOf[ScTemplateDefinition], /*strict = */ false)
+      val clazz = PsiTreeUtil.getContextOfType(position, classOf[ScTemplateDefinition])
       if (clazz == null) return
 
-      Option(PsiTreeUtil.getParentOfType(position, classOf[ScModifierListOwner])).foreach { mlo =>
-        if (!checkIfElementIsAvailable(mlo, clazz)) return
-        val hasOverride = if (!mlo.hasModifierProperty("override")) false else true
-        addCompletionsAfterOverride(resultSet, position, clazz, hasOverride)
+      Option(PsiTreeUtil.getParentOfType(position, classOf[ScModifierListOwner])).foreach {
+        case _: ScParameter => return
+        case mlo =>
+          if (!checkIfElementIsAvailable(mlo, clazz)) return
+          val hasOverride = if (!mlo.hasModifierProperty("override")) false else true
+          addCompletionsAfterOverride(resultSet, position, clazz, hasOverride)
       }
     }
   })
@@ -83,14 +87,16 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   private def addCompletionsOnOverrideKeyWord(resultSet: CompletionResultSet, parameters: CompletionParameters): Unit = {
     val position = positionFromParameters(parameters)
 
-    val clazz = PsiTreeUtil.getParentOfType(position, classOf[ScTemplateDefinition], false)
-    if (clazz == null) return
+    Option(PsiTreeUtil.getContextOfType(position, classOf[ScTemplateDefinition], classOf[ScParameter])).foreach {
+      case _: ScParameter =>
+      case clazz: ScTemplateDefinition =>
+        val classMembers = getMembers(clazz)
+        if (classMembers.isEmpty) return
 
-    val classMembers = getMembers(clazz)
-    if (classMembers.isEmpty) return
-
-    handleMembers(classMembers, clazz, (classMember, clazz) => createText(classMember, clazz, full = true), resultSet) { classMember =>
-      new MyInsertHandler()
+        handleMembers(classMembers, clazz,
+          (classMember, clazz) => createText(classMember, clazz, full = true), resultSet) { classMember =>
+          new MyInsertHandler()
+        }
     }
   }
 

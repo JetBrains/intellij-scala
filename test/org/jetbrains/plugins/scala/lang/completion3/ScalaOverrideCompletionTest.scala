@@ -212,4 +212,32 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString.contains("intVariable")).get, '\t')
     checkResultByText(handleText(baseText + outText))
   }
+
+  def testNoCompletionInClassParameter(): Unit ={
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   class A(ab<caret>)
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val result = activeLookup.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
+    assert(result.isEmpty, "Override is not enable at this place")
+  }
+
+  def testNoCompletionAfterDot(): Unit ={
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   var i = 12.ab<caret>
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val result = activeLookup.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
+    assert(result.isEmpty, "Override is not enable at this place")
+  }
 }
