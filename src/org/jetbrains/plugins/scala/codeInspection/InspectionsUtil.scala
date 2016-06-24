@@ -4,6 +4,7 @@ package codeInspection
 import com.intellij.openapi.project.Project
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -32,19 +33,9 @@ object InspectionsUtil {
 
   def conformsToTypeFromClass(scType: ScType, className: String, project: Project)
                              (implicit typeSystem: TypeSystem = project.typeSystem): Boolean = {
-    def typeFromClassName(fqn: String, project: Project): Option[ScType] = {
-      val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
-      Option(clazz).map { c =>
-        val designatorType = ScDesignatorType(c)
-        c.getTypeParameters.toSeq match {
-          case Seq() => designatorType
-          case params =>
-            ScParameterizedType(designatorType, params.map {
-              p => UndefinedType(TypeParameterType(p))
-            })
-        }
-      }
-    }
+    def typeFromClassName(fqn: String, project: Project): Option[ScType] = Option(JavaPsiFacade.getInstance(project)
+        .findClass(fqn, GlobalSearchScope.allScope(project)))
+      .map(_.toType(withUndefined = true))
 
     if (scType == Null || scType == Nothing) false
     else typeFromClassName(className, project).exists(scType.conforms(_))

@@ -31,8 +31,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole.DefinitionRole
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, StaticPsiMethodWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScSubstitutor, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -270,6 +271,22 @@ package object extensions {
       case _ => clazz.hasModifierProperty(PsiModifier.FINAL)
     }
 
+    def toType(withUndefined: Boolean = false): ScType = {
+      implicit val typeSystem = clazz.typeSystem
+
+      val designator = ScalaType.designator(clazz)
+      val parameters = clazz.getTypeParameters.toSeq map {
+        TypeParameterType(_)
+      }
+
+      parameters match {
+        case Seq() => designator
+        case _ => ScParameterizedType(designator,
+          if (withUndefined) parameters map {
+            UndefinedType(_)
+          } else parameters)
+      }
+    }
 
     def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean): Seq[(PsiMethod, String)] = {
       def concreteClassFor(typedDef: ScTypedDefinition): Option[PsiClass] = {

@@ -8,7 +8,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiNamedElement}
 import com.intellij.util.{ProcessingContext, Processor}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, _}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -94,6 +94,27 @@ object ScalaAfterNewCompletionUtil {
     }
     lookupElement
   }
+
+  //  def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
+//                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
+//                               (implicit typeSystem: TypeSystem): LookupElement = {
+//    def createElementFromType(`type`: ScType) =
+//      getLookupElementFromTypeAndClass(`type`, clazz, ScSubstitutor.empty, new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
+//
+//    def createDefaultElement = {
+//      val result = createElementFromType(clazz.toType())
+//      clazz.toType(withUndefined = true) match {
+//        case ParameterizedType(_, _) => result.typeParametersProblem = true
+//        case _ =>
+//      }
+//      result
+//    }
+//
+//    val items = (expectedTypes.toSeq flatMap {
+//      createElement(clazz, _, createElementFromType)
+//    }) :+ createDefaultElement
+//    items.head
+//  }
 
   class AfterNewLookupElementRenderer(tp: ScType, psiClass: PsiClass,
                                       subst: ScSubstitutor) extends LookupElementRenderer[LookupElement] {
@@ -234,4 +255,60 @@ object ScalaAfterNewCompletionUtil {
       case _ =>
     }
   }
+
+//  def collectInheritorsForType(typez: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
+//                               result: CompletionResultSet,
+//                               renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
+//                               insertHandler: InsertHandler[LookupElement],
+//                               renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
+//                              (implicit typeSystem: TypeSystem) {
+//    typez.extractClassType(place.getProject) foreach {
+//      case (clazz, subst) =>
+//        //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
+//        val searchScope =
+//          if (clazz.getUseScope.isInstanceOf[LocalSearchScope]) GlobalSearchScope.allScope(place.getProject)
+//          else clazz.getUseScope
+//
+//        ClassInheritorsSearch.search(clazz, searchScope, true) forEach {
+//          new Processor[PsiClass] {
+//            def process(clazz: PsiClass): Boolean = {
+//              if (clazz.name == null || clazz.name == "") return true
+//
+//              createElement(clazz, typez, convertTypeToLookupElement(_, place, addedClasses, renderer, insertHandler, renamesMap)) foreach {
+//                result.addElement(_)
+//              }
+//
+//              true
+//            }
+//          }
+//        }
+//    }
+//  }
+//
+//  private def createElement(clazz: PsiClass,
+//                            tp: ScType,
+//                            createItem: ScType => ScalaLookupItem)
+//                           (implicit typeSystem: TypeSystem): Option[ScalaLookupItem] = {
+//    val predefinedType = clazz.toType(withUndefined = true)
+//
+//    predefinedType.conforms(tp, new ScUndefinedSubstitutor()) match {
+//      case (true, undefinedSubstitutor) => undefinedSubstitutor.getSubstitutor flatMap {
+//        case substitutor =>
+//          val maybeItem = Option(createItem(substitutor.subst(clazz.toType())))
+//
+//          maybeItem foreach {
+//            case item => predefinedType match {
+//              case ParameterizedType(_, parameters) =>
+//                if (parameters.map(substitutor.subst).exists(_.isInstanceOf[UndefinedType])) {
+//                  item.typeParametersProblem = true
+//                }
+//              case _ =>
+//            }
+//          }
+//
+//          maybeItem
+//      }
+//      case _ => None
+//    }
+//  }
 }
