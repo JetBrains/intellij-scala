@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScModifiableTypedDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -75,8 +75,7 @@ trait ScFun extends ScTypeParametersOwner {
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
-  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement
-  with ScModifiableTypedDeclaration {
+  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
 
   private var synthNavElement: Option[PsiElement] = None
   var syntheticCaseClass: Option[ScClass] = None
@@ -679,8 +678,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
     Some(res)
   }
-
-  override def modifiableReturnType: Option[ScType] = returnType.toOption
 }
 
 object ScFunction {

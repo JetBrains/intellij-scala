@@ -14,7 +14,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.{Key, LowMemoryWatcher}
 import com.intellij.psi._
-import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
+import com.intellij.psi.impl.JavaPsiFacadeImpl
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiModificationTracker
@@ -260,15 +260,6 @@ class ScalaPsiManager(val project: Project) {
     clearOnChange()
   }
 
-  private[impl] def projectOpened(): Unit = {
-    import ScalaPsiManager._
-
-    subscribeToPsiModification(project)
-    subscribeToRootsChange(project)
-    registerLowMemoryWatcher(project)
-    ModuleWithDependenciesTracker.registerListeners(project)
-  }
-
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
   private val syntheticPackages = new WeakValueHashMap[String, Any]
 
@@ -315,51 +306,19 @@ class ScalaPsiManager(val project: Project) {
     keys.toSeq
   }
 
-  PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
-
-  object CacheInvalidator extends PsiTreeChangeAdapter {
-    private def isGeneric(event: PsiTreeChangeEvent) = event match {
-      case impl: PsiTreeChangeEventImpl => impl.isGenericChange
-      case _ => false
-    }
-
-    override def childRemoved(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
-    }
-
-    override def childReplaced(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
-    }
-
-    override def childAdded(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
-    }
-
-    override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
-      if (!isGeneric(event))
-        CachesUtil.updateModificationCount(event.getParent)
-    }
-
-    override def childMoved(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
-    }
-
-    override def propertyChanged(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getElement)
-    }
-  }
-
   val libraryModificationTracker = new LibraryModificationTracker(project)
 
-  val javaOutOfCodeBlockTracker = new ScalaSmartModificationTracker {
-    override def getModificationCount: Long = PsiManager.getInstance(project).getModificationTracker.getOutOfCodeBlockModificationCount
-  }
+  val javaOutOfCodeBlockTracker = ScalaSmartModificationTracker.javaOutOfCodeBlockTracker(project)
 
-  private val moduleModificationTrackers = mutable.HashMap.empty[Module, ModuleWithDependenciesTracker]
+  private val moduleModificationTrackers = ContainerUtil.newConcurrentMap[Module, ModuleWithDependenciesTracker]
 
   def clearModuleTrackers() = moduleModificationTrackers.clear()
 
-  def moduleWithDependenciesTracker(module: Module) = moduleModificationTrackers.getOrElseUpdate(module, new ModuleWithDependenciesTracker(module))
+  def moduleWithDependenciesTracker(module: Module) = {
+    val newValue = new ModuleWithDependenciesTracker(module)
+    val oldValue = moduleModificationTrackers.putIfAbsent(module, newValue)
+    Option(oldValue).getOrElse(newValue)
+  }
 }
 
 object ScalaPsiManager {
@@ -408,6 +367,14 @@ object ScalaPsiManager {
       }
     }, project)
   }
+
+  private[impl] def registerCacheListeners(project: Project): Unit = {
+    subscribeToPsiModification(project)
+    subscribeToRootsChange(project)
+    registerLowMemoryWatcher(project)
+    ScalaSmartModificationTracker.registerListeners(project)
+  }
+
 }
 
 class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponent(project) {
@@ -418,7 +385,7 @@ class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponen
     else throw new IllegalStateException("ScalaPsiManager cannot be used after disposing.")
 
   override def projectOpened(): Unit = {
-    manager.projectOpened()
+    ScalaPsiManager.registerCacheListeners(project)
   }
 
   override def projectClosed(): Unit = {

@@ -118,8 +118,6 @@ object CachedMacroUtil {
         ModCount.values.find(_.toString == v.toString) match {
           case Some(ModCount.getBlockModificationCount) =>
             q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
-          case Some(ModCount.getOutOfCodeBlockModificationCount) =>
-            q"$scalaPsiManagerFQN.instance($psiElement.getProject).getModificationTracker"
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
           case Some(ModCount.getJavaStructureModificationCount) =>
             q"$psiModificationTrackerFQN.JAVA_STRUCTURE_MODIFICATION_COUNT"

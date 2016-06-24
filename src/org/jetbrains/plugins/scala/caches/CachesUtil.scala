@@ -4,18 +4,20 @@ package caches
 
 import java.util.concurrent.ConcurrentMap
 
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.util.control.ControlThrowable
 
@@ -240,12 +242,16 @@ object CachesUtil {
   def enclosingModificationOwner(elem: PsiElement): ScalaSmartModificationTracker = {
     if (elem == null) return ScalaSmartModificationTracker.EVER_CHANGED
 
-    val localContext = elem.contexts.collectFirst {
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner => owner
+    localModificationTracker(elem).getOrElse(globalModificationTracker(elem))
+  }
+
+  def localModificationTracker(elem: PsiElement): Option[ScalaSmartModificationTracker] = {
+    val localContext = elem.contexts.takeWhile(_.isPhysical == elem.isPhysical).collectFirst {
+      case owner: ScModificationTrackerOwner
+        if owner.isValidModificationTrackerOwner => owner
     }
 
     localContext.map(_.getModificationTracker)
-      .getOrElse(globalModificationTracker(elem))
   }
 
   def globalModificationTracker(elem: PsiElement): ScalaSmartModificationTracker = {
@@ -254,8 +260,7 @@ object CachesUtil {
 
     val fileIndex = ProjectRootManager.getInstance(elem.getProject).getFileIndex
 
-    val vFile = Option(PsiUtilCore.getVirtualFile(elem))
-      .orElse(Option(PsiUtilCore.getVirtualFile(elem.getContext))) //to find original file of dummy elements
+    val vFile = findVirtualFile(elem)
 
     def isInLibrary: Boolean = {
       vFile.exists { vf =>
@@ -263,25 +268,28 @@ object CachesUtil {
       }
     }
 
-    def isExcluded(elem: PsiElement): Boolean = vFile.exists(fileIndex.isExcluded)
-
-    val scalaPsiManager = ScalaPsiManager.instance(elem.getProject)
+    def isExcluded: Boolean = vFile.exists(fileIndex.isExcluded)
 
     if (isInLibrary)
-      LibraryModificationTracker.instance(elem.getProject)
-    else if (vFile.isEmpty || isExcluded(elem))
-      ScalaSmartModificationTracker.EVER_CHANGED
-    else if (elem.getContainingFile.getLanguage == ScalaLanguage.Instance)
-      elem.module
-        .map(m => ModuleWithDependenciesTracker.instance(m))
-        .getOrElse(scalaPsiManager.javaOutOfCodeBlockTracker)
+      ScalaSmartModificationTracker.forLibraries(elem.getProject)
+    else if (isExcluded)
+      ScalaSmartModificationTracker.NEVER_CHANGED
     else
-      scalaPsiManager.javaOutOfCodeBlockTracker
+      vFile.flatMap(findModule(_, elem.getProject))
+        .map(m => ScalaSmartModificationTracker.forModule(m))
+        .getOrElse(ScalaPsiManager.instance(elem.getProject).javaOutOfCodeBlockTracker)
   }
 
+  private def findVirtualFile(elem: PsiElement): Option[VirtualFile] = {
+    Option(PsiUtilCore.getVirtualFile(elem))
+      .orElse(elem.contexts.flatMap(c => Option(PsiUtilCore.getVirtualFile(c))).headOption) //to find original file of dummy elements
+  }
 
-  def updateModificationCount(elem: PsiElement): Unit = {
-    enclosingModificationOwner(elem).onPsiChange()
+  private def findModule(vFile: VirtualFile, project: Project): Option[Module] = {
+    val fileIndex = ProjectRootManager.getInstance(project).getFileIndex
+
+    if (fileIndex.isInSourceContent(vFile)) Option(fileIndex.getModuleForFile(vFile))
+    else None
   }
 
   case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,

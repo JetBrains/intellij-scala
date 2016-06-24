@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiModifiableCodeBlock}
-import org.jetbrains.plugins.scala.caches.{LocalModificationTracker, ScalaSmartModificationTracker}
+import org.jetbrains.plugins.scala.caches._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -14,16 +13,12 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
   */
 trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeBlock {
 
-  private val modTrackerKey = Key.create[LocalModificationTracker]("scala.local.modification.tracker")
+  private lazy val modTracker = new LocalModificationTracker(this)
 
   def getModificationTracker: ScalaSmartModificationTracker = {
     assert(isValidModificationTrackerOwner)
 
-    Option(this.getUserData(modTrackerKey)).getOrElse {
-      val newTracker = new LocalModificationTracker(this)
-      this.putUserData(modTrackerKey, newTracker)
-      newTracker
-    }
+    modTracker
   }
 
   def isValidModificationTrackerOwner: Boolean = {
