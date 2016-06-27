@@ -59,6 +59,15 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean TREAT_SCRATCH_AS_WORKSHEET = true;
   private int AUTORUN_DELAY = 1400;
 
+  //BREADCRUMBS
+  private boolean BREADCRUMBS_CLASS_ENABLED = true;
+  private boolean BREADCRUMBS_FUNCTION_ENABLED = true;
+  private boolean BREADCRUMBS_LAMBDA_ENABLED = false;
+  private boolean BREADCRUMBS_MATCH_ENABLED = false;
+  private boolean BREADCRUMBS_VAL_DEF_ENABLED = false;
+  private boolean BREADCRUMBS_IF_DO_WHILE_ENABLED = false;
+  
+  
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
   {
@@ -292,6 +301,54 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   
   public void setTreatScratchFilesAsWorksheet(boolean b) {
     TREAT_SCRATCH_AS_WORKSHEET = b;
+  }
+
+  public void setBreadcrumbsClassEnabled(boolean enabled) {
+    BREADCRUMBS_CLASS_ENABLED = enabled;
+  }
+
+  public void setBreadcrumbsFunctionEnabled(boolean enabled) {
+    BREADCRUMBS_FUNCTION_ENABLED = enabled;
+  }
+  
+  public void setBreadcrumbsLambdaEnabled(boolean enabled) {
+    BREADCRUMBS_LAMBDA_ENABLED = enabled;
+  }
+  
+  public void setBreadcrumbsMatchEnabled(boolean enabled) {
+    BREADCRUMBS_MATCH_ENABLED = enabled;
+  }
+  
+  public void setBreadcrumbsValDefEnabled(boolean enabled) {
+    BREADCRUMBS_VAL_DEF_ENABLED = enabled;
+  }
+  
+  public void setBreadcrumbsIfDoWhileEnabled(boolean enabled) {
+    BREADCRUMBS_IF_DO_WHILE_ENABLED = enabled;
+  }
+
+  public boolean isBreadcrumbsClassEnabled() {
+    return BREADCRUMBS_CLASS_ENABLED;
+  }
+
+  public boolean isBreadcrumbsFunctionEnabled() {
+    return BREADCRUMBS_FUNCTION_ENABLED;
+  }
+
+  public boolean isBreadcrumbsLambdaEnabled() {
+    return BREADCRUMBS_LAMBDA_ENABLED;
+  }
+
+  public boolean isBreadcrumbsMatchEnabled() {
+    return BREADCRUMBS_MATCH_ENABLED;
+  }
+
+  public boolean isBreadcrumbsValDefEnabled() {
+    return BREADCRUMBS_VAL_DEF_ENABLED;
+  }
+
+  public boolean isBreadcrumbsIfDoWhileEnabled() {
+    return BREADCRUMBS_IF_DO_WHILE_ENABLED;
   }
   
   public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }

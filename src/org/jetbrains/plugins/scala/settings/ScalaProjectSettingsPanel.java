@@ -73,6 +73,12 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox customScalatestSyntaxHighlightingCheckbox;
   private JPanel librariesPanel;
   private JCheckBox enableScalaPluginExtensionsCheckBox;
+  private JCheckBox classesCheckBox;
+  private JCheckBox functionsCheckBox;
+  private JCheckBox lambdasCheckBox;
+  private JCheckBox matchStatementsCheckBox;
+  private JCheckBox valDefsCheckBox;
+  private JCheckBox ifDoWhileStatementsCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
   private JBList librariesList;
@@ -190,6 +196,14 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
     scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
     scalaProjectSettings.setEnableLibraryExtensions(enableScalaPluginExtensionsCheckBox.isSelected());
+
+    scalaProjectSettings.setBreadcrumbsClassEnabled(classesCheckBox.isSelected());
+    scalaProjectSettings.setBreadcrumbsFunctionEnabled(functionsCheckBox.isSelected());
+    scalaProjectSettings.setBreadcrumbsLambdaEnabled(lambdasCheckBox.isSelected());
+    scalaProjectSettings.setBreadcrumbsMatchEnabled(matchStatementsCheckBox.isSelected());
+    scalaProjectSettings.setBreadcrumbsIfDoWhileEnabled(ifDoWhileStatementsCheckBox.isSelected());
+    scalaProjectSettings.setBreadcrumbsValDefEnabled(valDefsCheckBox.isSelected());
+
     injectionPrefixTable.saveSettings(scalaProjectSettings);
   }
 
@@ -220,26 +234,26 @@ public class ScalaProjectSettingsPanel {
     if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
     if (!scalaProjectSettings.getBasePackages().equals(
-            getBasePackages())) return true;
+        getBasePackages())) return true;
     if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
-            scalaTestDefaultSuperClass.getText())) return true;
+        scalaTestDefaultSuperClass.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
-            showImplicitConversionsInCheckBox.isSelected()) return true;
+        showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
-            showArgumentsToByNameParametersCheckBox.isSelected()) return true;
+        showArgumentsToByNameParametersCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() !=
-            customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
+        customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeBlockExpressions() !=
-            includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
+        includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeLiterals() !=
-            includeLiteralsCheckBox.isSelected()) return true;
+        includeLiteralsCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-            (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
+        (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
-            (Integer) outputSpinner.getValue()) return true;
+        (Integer) outputSpinner.getValue()) return true;
     if (scalaProjectSettings.isInProcessMode() !=
-            runWorksheetInTheCheckBox.isSelected()) return true;
+        runWorksheetInTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
       return true;
@@ -247,13 +261,13 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.isSearchAllSymbols() !=
-            searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+        searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
-            enableConversionOnCopyCheckBox.isSelected()) return true;
+        enableConversionOnCopyCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isDontShowConversionDialog() !=
-            donTShowDialogCheckBox.isSelected()) return true;
+        donTShowDialogCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-            treatDocCommentAsBlockComment.isSelected()) return true;
+        treatDocCommentAsBlockComment.isSelected()) return true;
 
     if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -271,11 +285,21 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-            collectionHighlightingChooser.getSelectedIndex()) return true;
+        collectionHighlightingChooser.getSelectedIndex()) return true;
 
     if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
     if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
+
+    if (
+        scalaProjectSettings.isBreadcrumbsClassEnabled() != classesCheckBox.isSelected() ||
+            scalaProjectSettings.isBreadcrumbsFunctionEnabled() != functionsCheckBox.isSelected() ||
+            scalaProjectSettings.isBreadcrumbsLambdaEnabled() != lambdasCheckBox.isSelected() ||
+            scalaProjectSettings.isBreadcrumbsMatchEnabled() != matchStatementsCheckBox.isSelected() ||
+            scalaProjectSettings.isBreadcrumbsIfDoWhileEnabled() != ifDoWhileStatementsCheckBox.isSelected() ||
+            scalaProjectSettings.isBreadcrumbsValDefEnabled() != valDefsCheckBox.isSelected()
+        )
+      return true;
 
     if (scalaProjectSettings.isEnableLibraryExtensions() != enableScalaPluginExtensionsCheckBox.isSelected())
       return true;
@@ -328,6 +352,13 @@ public class ScalaProjectSettingsPanel {
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
     collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());
     setWorksheetDelay(scalaProjectSettings.getAutoRunDelay());
+
+    setValue(classesCheckBox, scalaProjectSettings.isBreadcrumbsClassEnabled());
+    setValue(functionsCheckBox, scalaProjectSettings.isBreadcrumbsFunctionEnabled());
+    setValue(lambdasCheckBox, scalaProjectSettings.isBreadcrumbsLambdaEnabled());
+    setValue(matchStatementsCheckBox, scalaProjectSettings.isBreadcrumbsMatchEnabled());
+    setValue(ifDoWhileStatementsCheckBox, scalaProjectSettings.isBreadcrumbsIfDoWhileEnabled());
+    setValue(valDefsCheckBox, scalaProjectSettings.isBreadcrumbsValDefEnabled());
 
     setValue(enableScalaPluginExtensionsCheckBox, scalaProjectSettings.isEnableLibraryExtensions());
 
@@ -515,25 +546,46 @@ public class ScalaProjectSettingsPanel {
     final Spacer spacer5 = new Spacer();
     panel5.add(spacer5, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     final JPanel panel6 = new JPanel();
-    panel6.setLayout(new GridLayoutManager(3, 2, new Insets(9, 9, 0, 0), -1, -1));
+    panel6.setLayout(new GridLayoutManager(10, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Misc", panel6);
     panel6.add(injectionJPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label5 = new JLabel();
     label5.setText("ScalaTest default super class:");
     panel6.add(label5, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer6 = new Spacer();
-    panel6.add(spacer6, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    panel6.add(spacer6, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     scalaTestDefaultSuperClass = new JTextField();
     scalaTestDefaultSuperClass.setColumns(25);
     panel6.add(scalaTestDefaultSuperClass, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    classesCheckBox = new JCheckBox();
+    classesCheckBox.setText("Classes");
+    panel6.add(classesCheckBox, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    functionsCheckBox = new JCheckBox();
+    functionsCheckBox.setText("Functions");
+    panel6.add(functionsCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    lambdasCheckBox = new JCheckBox();
+    lambdasCheckBox.setText("Lambdas");
+    panel6.add(lambdasCheckBox, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    matchStatementsCheckBox = new JCheckBox();
+    matchStatementsCheckBox.setText("Match statements");
+    panel6.add(matchStatementsCheckBox, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    valDefsCheckBox = new JCheckBox();
+    valDefsCheckBox.setText("Val defs");
+    panel6.add(valDefsCheckBox, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    ifDoWhileStatementsCheckBox = new JCheckBox();
+    ifDoWhileStatementsCheckBox.setText("If/Do/While statements");
+    panel6.add(ifDoWhileStatementsCheckBox, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label6 = new JLabel();
+    label6.setText("Show Breadcrumbs for:");
+    panel6.add(label6, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel7 = new JPanel();
     panel7.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Updates", panel7);
     final Spacer spacer7 = new Spacer();
     panel7.add(spacer7, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-    final JLabel label6 = new JLabel();
-    label6.setText("Plugin update channel:");
-    panel7.add(label6, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label7 = new JLabel();
+    label7.setText("Plugin update channel:");
+    panel7.add(label7, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     updateChannel = new JComboBox();
     updateChannel.setEditable(false);
     final DefaultComboBoxModel defaultComboBoxModel2 = new DefaultComboBoxModel();
@@ -600,7 +652,7 @@ public class ScalaProjectSettingsPanel {
     protected JComponent createCenterPanel() {
       JComponent res = new JPanel();
       res.add(new JLabel("Changes in ScalaTest highlighting will be processed correctly only on freshly highlighted files." +
-              "For best experience please restart Intellij IDEA"));
+          "For best experience please restart Intellij IDEA"));
       return res;
     }
 
