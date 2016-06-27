@@ -292,18 +292,11 @@ class ScalaPsiManager(val project: Project) {
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
-  def psiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
-    typeParameter.getSuperTypes match {
-      case Array(scType) => scType.toScType(project)
-      case types => andType(types)
-    }
-  }
-
-  def psiTypeParameterLowerType(typeParameter: PsiTypeParameter): ScType = {
+  def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
     andType(typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes)
   }
 
-  private def andType(psiTypes: Seq[PsiType]) = {
+  private def andType(psiTypes: Seq[PsiType]): ScType = {
     project.typeSystem.andType(psiTypes.map(_.toScType(project)))
   }
 
