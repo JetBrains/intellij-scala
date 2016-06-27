@@ -56,7 +56,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -1616,7 +1616,8 @@ object ScalaPsiUtil {
       import expr.typeSystem
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) => toSAMType(expected, expr.getResolveScope).isDefined
+        case expected if isSAMEnabled(expr) =>
+          toSAMType(expected, expr.getResolveScope, expr.scalaLanguageLevelOrDefault).isDefined
         case _ => false
       }) {
         return None
@@ -1932,15 +1933,14 @@ object ScalaPsiUtil {
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
     */
-  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope)
+  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope, languageLevel: ScalaLanguageLevel)
                (implicit typeSystem: TypeSystem): Option[ScType] = {
-    def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
-      //primary constructor (if any) must be public, no-args, not overloaded
-      constructors.length match {
-        case 0 => true
-        case 1 => constructors.head.getModifierList.hasModifierProperty("public") &&
-          constructors.head.getParameterList.getParameters.isEmpty
-        case _ => false
+    def constructorValidForSAM(constructor: PsiMethod): Boolean = {
+      val isPublicAndParameterless = constructor.getModifierList.hasModifierProperty(PsiModifier.PUBLIC) &&
+        constructor.getParameterList.getParametersCount == 0
+      constructor match {
+        case scalaConstr: ScPrimaryConstructor if isPublicAndParameterless => scalaConstr.effectiveParameterClauses.size < 2
+        case _ => isPublicAndParameterless
       }
     }
 
@@ -1948,27 +1948,42 @@ object ScalaPsiUtil {
       case Some((cl, sub)) =>
         cl match {
           case templDef: ScTemplateDefinition => //it's a Scala class or trait
+            def selfTypeValid: Boolean = {
+              templDef.selfType match {
+                case Some(selfParam: ScParameterizedType) => templDef.getType(TypingContext.empty) match {
+                  case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
+                  case _ => false
+                }
+                case Some(selfTp) => templDef.getType(TypingContext.empty) match {
+                  case Success(classType, _) => selfTp.conforms(classType)
+                  case _ => false
+                }
+                case _ => true
+              }
+            }
             val abst: Seq[ScFunction] = templDef.allMethods.toSeq.collect {
               case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
             }
-            val constrValid = templDef match { //if it's a class check its constructor
-              case cla: ScClass => constructorValidForSAM(cla.constructors)
+            val constrValid: Boolean = templDef match { //if it's a class check its constructor
+              case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
               case tr: ScTrait => true
               case _ => false
             }
+            val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
             //cl must have only one abstract member, one argument list and be monomorphic
             val valid =
               constrValid &&
                 abst.length == 1 &&
                 abst.head.parameterList.clauses.length == 1 &&
-                !abst.head.hasTypeParameters
+                !abst.head.hasTypeParameters &&
+                (isScala211 || selfTypeValid)
 
             if (valid) {
               val fun = abst.head
               fun.getType() match {
                 case Success(tp, _) =>
                   val subbed = sub.subst(tp)
-                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope) match {
+                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel) match {
                     case s@Some(_) => s
                     case _ => Some(subbed)
                   }
@@ -1987,8 +2002,10 @@ object ScalaPsiUtil {
               case array if array.length > 0 => array.filterNot(overridesConcreteMethod)
               case any => any
             }
+            val constructors: Array[PsiMethod] = cl.getConstructors
+            val constructorValid = constructors.exists(constructorValidForSAM) || constructors.isEmpty
             //must have exactly one abstract member and SAM must be monomorphic
-            val valid = abst.length == 1 && !abst.head.hasTypeParameters && constructorValidForSAM(cl.getConstructors)
+            val valid = constructorValid && abst.length == 1 && !abst.head.hasTypeParameters
             if (valid) {
               //need to generate ScType for Java method
               val method = abst.head
@@ -1999,7 +2016,7 @@ object ScalaPsiUtil {
               }
               val fun = FunctionType(returnType, params)(project, scalaScope)
               val subbed = sub.subst(fun)
-              extrapolateWildcardBounds(subbed, expected, project, scalaScope) match {
+              extrapolateWildcardBounds(subbed, expected, project, scalaScope, languageLevel) match {
                 case s@Some(_) => s
                 case _ => Some(subbed)
               }
@@ -2027,7 +2044,7 @@ object ScalaPsiUtil {
    * @see https://github.com/scala/scala/pull/4101
    * @see SCL-8956
    */
-  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope)
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope, scalaVersion: ScalaLanguageLevel)
                                        (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
     expected match {
       case ScExistentialType(ParameterizedType(expectedDesignator, _), wildcards) =>
@@ -2036,7 +2053,8 @@ object ScalaPsiUtil {
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
               tpArg match {
                 case p@ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
-                case ScExistentialType(param: ScParameterizedType, _) => convertParameter(param, variance)
+                case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
+                  convertParameter(param, variance)
                 case _ =>
                   wildcards.find(_.name == tpArg.canonicalText) match {
                     case Some(wildcard) =>

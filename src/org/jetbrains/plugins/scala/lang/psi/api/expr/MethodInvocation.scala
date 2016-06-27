@@ -222,7 +222,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case ScTypePolymorphicType(FunctionType(retType, params), typeParams) =>
         Some(checkConformanceWithInference(retType, args, typeParams, functionParams(params)))
       case any if ScalaPsiUtil.isSAMEnabled(this) =>
-        ScalaPsiUtil.toSAMType(any, getResolveScope) match {
+        ScalaPsiUtil.toSAMType(any, getResolveScope, this.scalaLanguageLevelOrDefault) match {
           case Some(FunctionType(retType: ScType, params: Seq[ScType])) =>
             Some(checkConformance(retType, args, functionParams(params)))
           case _ => None

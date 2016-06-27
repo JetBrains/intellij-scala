@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -124,7 +126,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
       tp match {
         case FunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
-          ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
+          ScalaPsiUtil.toSAMType(expected, getResolveScope, this.scalaLanguageLevelOrDefault) match {
             case Some(methodType) if tp.conforms(methodType) => expectedResult
             case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
               val newTp = FunctionType(Unit, params)(getProject, getResolveScope)
@@ -139,7 +141,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     this match {
       case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
       case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(this) => checkForSAM()
-      case MethodValue(_) => checkForSAM(etaExpansionHappened = true)
+      case MethodValue(method) if this.scalaLanguageLevelOrDefault == Scala_2_11 || method.getParameterList.getParametersCount > 0 =>
+        checkForSAM(etaExpansionHappened = true)
       case _ => None
     }
   }
@@ -204,7 +207,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 expected.removeAbstracts match {
                   case FunctionType(_, params) =>
                   case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
-                    ScalaPsiUtil.toSAMType(expect, getResolveScope) match {
+                    ScalaPsiUtil.toSAMType(expect, getResolveScope, ScExpression.this.scalaLanguageLevelOrDefault) match {
                       case Some(_) =>
                       case _ => res = updateType(retType)
                     }
