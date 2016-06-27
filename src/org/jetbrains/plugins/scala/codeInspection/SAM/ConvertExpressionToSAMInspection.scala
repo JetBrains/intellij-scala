@@ -34,7 +34,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
         definition.members match {
           case Seq(fun: ScFunctionDefinition) =>
             fun.body match {
-              case Some(funBody) if expectedMethodType.conforms(fun.getType().getOrNothing) =>
+              case Some(funBody) if fun.getType().getOrAny.conforms(expectedMethodType) =>
                 lazy val replacement: String = {
                   val res = new StringBuilder
                   fun.effectiveParameterClauses.headOption match {

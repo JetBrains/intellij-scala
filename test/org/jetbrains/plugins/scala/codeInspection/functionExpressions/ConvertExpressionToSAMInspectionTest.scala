@@ -226,4 +226,54 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     testFix(text, res, annotation)
   }
 
+  def testExistentialTypes(): Unit = {
+    val code =
+      s"""
+        |object Foo {
+        |  new MyObservable[String].addListener(${START}new MyChangeListener[String] $END{
+        |    override def changed(observable: MyObservable[_ <: String], oldValue: String, newValue: String): Unit = ???
+        |  })
+        |}
+        |
+        |trait MyChangeListener[T] {
+        |  def changed(observable: MyObservable[_ <: T], oldValue: T, newValue: T)
+        |}
+        |
+        |class MyObservable[T] {
+        |  def addListener (listener: MyChangeListener[_ >: T]) = ???
+        |}
+      """.stripMargin
+    check(code)
+    val text =
+      s"""
+         |object Foo {
+         |  new MyObservable[String].addListener(new MyChangeListener[String] {
+         |    override def changed(observable: MyObservable[_ <: String], oldValue: String, newValue: String): Unit = ???
+         |  })
+         |}
+         |
+        |trait MyChangeListener[T] {
+         |  def changed(observable: MyObservable[_ <: T], oldValue: T, newValue: T)
+         |}
+         |
+        |class MyObservable[T] {
+         |  def addListener (listener: MyChangeListener[_ >: T]) = ???
+         |}
+      """.stripMargin
+    val res =
+      """
+        |object Foo {
+        |  new MyObservable[String].addListener((observable: MyObservable[_ <: String], oldValue: String, newValue: String) => ???)
+        |}
+        |
+        |trait MyChangeListener[T] {
+        |  def changed(observable: MyObservable[_ <: T], oldValue: T, newValue: T)
+        |}
+        |
+        |class MyObservable[T] {
+        |  def addListener (listener: MyChangeListener[_ >: T]) = ???
+        |}
+      """.stripMargin
+    testFix(text, res, annotation)
+  }
 }
