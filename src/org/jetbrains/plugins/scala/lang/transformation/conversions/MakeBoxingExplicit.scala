@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.lang.transformation
 package conversions
 
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.Typed
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedType, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 
 /**
@@ -27,7 +27,7 @@ object MakeBoxingExplicit extends AbstractTransformer {
     (StdType.Double, "boxToDouble"))
 
   def transformation = {
-    case (e: ScExpression) && Typed(t) && ExpectedType(et)
+    case (e: ScExpression) && Typeable(t) && ExpectedType(et)
       if Methods.contains(t) && et != StdType.AnyRef && et != t && !isSpecializedFor(et, t) =>
 
       val target = s"$Class.${Methods(t)}"

@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.extensions.{ChildOf, ExpressionType}
+import org.jetbrains.plugins.scala.extensions.ChildOf
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 /**
  * @author Nikolay.Tropin
@@ -21,7 +22,7 @@ object RedundantCollectionConversion extends SimplificationType {
     }
     val typeAfterConversion = withGeneric.getType().getOrAny
     withGeneric match {
-      case (base@ExpressionType(baseType)) `.toCollection` () if baseType.conforms(typeAfterConversion) =>
+      case (base@Typeable(baseType)) `.toCollection` () if baseType.conforms(typeAfterConversion) =>
         val simplification = replace(withGeneric).withText(base.getText).highlightFrom(base)
         Some(simplification)
       case _ => None

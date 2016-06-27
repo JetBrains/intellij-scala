@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -37,7 +37,7 @@ import scala.collection.{Seq, Set}
  */
 
 trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with ImplicitParametersOwner
-  with ScModificationTrackerOwner with Typed {
+  with ScModificationTrackerOwner with Typeable {
   import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
   /**
    * This method returns real type, after using implicit conversions.
@@ -337,7 +337,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     getTypeWithoutImplicitsImpl(ignoreBaseTypes, fromUnderscore)
   }
 
-  def getType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
+  override def getType(ctx: TypingContext): TypeResult[ScType] = {
     this match {
       case ref: ScReferenceExpression if ref.refName == ScImplicitlyConvertible.IMPLICIT_EXPRESSION_NAME =>
         val data = getUserData(ScImplicitlyConvertible.FAKE_EXPRESSION_TYPE_KEY)

@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeParameterType, TypeSystem}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -1171,7 +1171,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   def checkValueAndVariableVariance(toCheck: ScDeclaredElementsHolder, variance: Int,
-                                    declaredElements: Seq[TypingContextOwner with ScNamedElement], holder: AnnotationHolder)
+                                    declaredElements: Seq[Typeable with ScNamedElement], holder: AnnotationHolder)
                                    (implicit typeSystem: TypeSystem) {
     if (!modifierIsThis(toCheck)) {
       for (element <- declaredElements) {

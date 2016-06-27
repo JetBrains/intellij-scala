@@ -10,7 +10,7 @@ import scala.collection.immutable.HashSet
  *
  * @author ilyas
  */
-trait TypingContextOwner {
+trait Typeable {
 
   /**
    * This method may be called only in a chain of typing calls between different entities of
@@ -20,6 +20,10 @@ trait TypingContextOwner {
    */
   def getType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType]
 
+}
+
+object Typeable {
+  def unapply(typeable: Typeable): Option[ScType] = typeable.getType().toOption
 }
 
 trait TypingContext {

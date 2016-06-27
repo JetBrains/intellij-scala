@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContextOwner
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 /**
 * @author Alexander Podkhalyuzin
@@ -77,7 +77,7 @@ object ScalaElementPresentation {
 
   def getValOrVarPresentableText(elem: ScNamedElement): String = {
     val typeText = elem match {
-      case typed: TypingContextOwner => ": " + typed.getType().getOrAny.presentableText
+      case typed: Typeable => ": " + typed.getType().getOrAny.presentableText
       case _ => ""
     }
     val keyword = ScalaPsiUtil.nameContext(elem) match {

@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiTypedDefinitionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypingContextOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
  * Member definitions, classes, named patterns which have types
  */
-trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
+trait ScTypedDefinition extends ScNamedElement with Typeable {
 
   /**
    * @return false for variable elements

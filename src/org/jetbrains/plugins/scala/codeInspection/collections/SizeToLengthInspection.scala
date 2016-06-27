@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
@@ -18,7 +18,7 @@ object SizeToLength extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case (qual @ ExpressionType(tpe))`.size`() if isArray(qual) || isString(tpe) =>
+      case (qual@Typeable(tpe)) `.size` () if isArray(qual) || isString(tpe) =>
         Some(replace(expr).withText(invocationText(qual, "length")).highlightFrom(qual))
       case _ => None
     }

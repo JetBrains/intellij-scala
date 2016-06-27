@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
@@ -21,7 +21,7 @@ object ToSetAndBackToDistinct extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     import expr.typeSystem
     expr match {
-      case (qual @ ExpressionType(qualType))`.toSet`()`.toCollection`()
+      case (qual@Typeable(qualType)) `.toSet` () `.toCollection` ()
         if sameCollectionType(qualType, expr.getType().getOrAny) && (isSeq(qual) || isArray(qual)) =>
         Some(replace(expr).withText(invocationText(qual, "distinct")).highlightFrom(qual))
       case _ => None

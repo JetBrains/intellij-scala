@@ -8,14 +8,14 @@ package types
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext, TypingContextOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
 */
 
-trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
+trait ScTypeElement extends ScalaPsiElement with Typeable {
   protected val typeName: String
 
   override def toString: String = s"$typeName: $getText"

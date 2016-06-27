@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.transformation.annotations
 
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
-import org.jetbrains.plugins.scala.lang.psi.api.Typed
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScPatternArgumentList, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.transformation._
 
 /**
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.transformation._
   */
 object AddTypeToReferencePattern extends AbstractTransformer {
   def transformation = {
-    case (e: ScReferencePattern) && Parent(_: ScCaseClause | _: ScGenerator | _: ScPattern | _: ScPatternArgumentList) && Typed(t)
+    case (e: ScReferencePattern) && Parent(_: ScCaseClause | _: ScGenerator | _: ScPattern | _: ScPatternArgumentList) && Typeable(t)
       if !e.nextSibling.exists(_.getText == ":") =>
 
       val annotation = annotationFor(t, e)

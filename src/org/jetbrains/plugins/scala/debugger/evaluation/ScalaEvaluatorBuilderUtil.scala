@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -33,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -273,7 +274,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
     def isInstanceOfEval: Evaluator = {
       unaryEval("isInstanceOf", eval => {
-        import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
         val tp = ref.getParent match {
           case gen: ScGenericCall => gen.typeArgs match {
             case Some(args) => args.typeArgs match {
@@ -391,7 +391,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def classOfFunctionEvaluator(ref: ScReferenceExpression) = {
-    import org.jetbrains.plugins.scala.lang.psi.types.api.Null
     val clazzJVMName = ref.getContext match {
       case gen: ScGenericCall =>
         gen.arguments.head.getType(TypingContext.empty).map {
@@ -548,7 +547,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val methodPosition = DebuggerUtil.getSourcePositions(method.getNavigationElement)
     val signature = JVMNameUtil.getJVMSignature(method)
     ref.qualifier match {
-      case Some(qual @ ExpressionType(tp)) if isPrimitiveScType(tp) =>
+      case Some(qual@Typeable(tp)) if isPrimitiveScType(tp) =>
         val boxEval = boxEvaluator(evaluatorFor(qual))
         ScalaMethodEvaluator(boxEval, method.name, signature, argEvals, None, methodPosition)
       case Some(q) if method.hasModifierPropertyScala("static") =>
@@ -1297,8 +1296,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     def valueClassInstance(eval: Evaluator) = {
       expr match {
         case _: ScNewTemplateDefinition => eval
-        case ExpressionType(_: ValType) => eval
-        case ExpressionType(tp @ ValueClassType(inner))  =>
+        case Typeable(_: ValType) => eval
+        case Typeable(tp@ValueClassType(inner)) =>
           valueClassInstanceEvaluator(eval, inner, tp)
         case _ => eval
       }
@@ -1390,7 +1389,6 @@ object ScalaEvaluatorBuilderUtil {
 
   def classManifestText(scType: ScType)
                        (implicit typeSystem: TypeSystem): String = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     scType match {
       case Short => "_root_.scala.reflect.ClassManifest.Short"
       case Byte => "_root_.scala.reflect.ClassManifest.Byte"
@@ -1439,7 +1437,6 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def isPrimitiveScType(tp: ScType) = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
   }
 

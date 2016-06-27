@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
 
 import scala.annotation.tailrec
@@ -219,8 +219,8 @@ object DebuggerUtil {
   def lambdaJVMSignature(lambda: PsiElement)
                         (implicit typeSystem: TypeSystem = lambda.typeSystem): Option[String] = {
     val (argumentTypes, returnType) = lambda match {
-      case expr @ ExpressionType(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
-      case ExpressionType(FunctionType(retT, argTypes)) => (argTypes, retT)
+      case (expr: ScExpression) && Typeable(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
+      case Typeable(FunctionType(retT, argTypes)) => (argTypes, retT)
       case _ => return None
     }
     val trueReturnType = returnType match {
