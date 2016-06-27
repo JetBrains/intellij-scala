@@ -48,7 +48,7 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: api.TypeSystem) =
     `type` match {
-      case JavaArrayType(thatArgument) => thatArgument.equiv(thatArgument, substitutor, falseUndef)
+      case JavaArrayType(thatArgument) => argument.equiv(thatArgument, substitutor, falseUndef)
       case ParameterizedType(designator, arguments) if arguments.length == 1 =>
         designator.extractClass() match {
           case Some(td) if td.qualifiedName == "scala.Array" => argument.equiv(arguments.head, substitutor, falseUndef)

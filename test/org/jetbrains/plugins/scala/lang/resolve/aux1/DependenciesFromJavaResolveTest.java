@@ -63,4 +63,11 @@ public class DependenciesFromJavaResolveTest extends ScalaResolveTestCase {
     assertNotNull(resolved);
     assertTrue(resolved instanceof PsiMethod);
   }
+
+  public void testJavaArrayTypeParameterInference() throws Exception {
+    PsiReference ref = findReferenceAtCaret();
+    final PsiElement resolved = ref.resolve();
+    assertNotNull(resolved);
+    assert(resolved instanceof PsiMethod);
+  }
 }
