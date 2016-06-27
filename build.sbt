@@ -93,7 +93,10 @@ lazy val runners =
 lazy val nailgunRunners =
   newProject("nailgunRunners", file("NailgunRunners"))
   .dependsOn(scalaRunner)
-  .settings(libraryDependencies += Dependencies.nailgun)
+  .settings(
+    libraryDependencies += Dependencies.nailgun,
+    scalaVersion := "2.11.6"
+  )
 
 lazy val scalap =
   newProject("scalap", file("scalap"))
@@ -115,7 +118,7 @@ lazy val macroAnnotations =
 
 lazy val ideaRunner =
   newProject("ideaRunner", file("idea-runner"))
-  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, scalap).map(_ % Provided): _*)
+  .dependsOn(Seq(scalaCommunity, scalap).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,

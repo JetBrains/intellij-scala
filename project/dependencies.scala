@@ -26,7 +26,7 @@ object Dependencies {
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
-  val sbtStructureCore = "org.jetbrains" %% "sbt-structure-core" % s"$sbtStructureVersion-SNAPSHOT"
+  val sbtStructureCore = "org.jetbrains" %% "sbt-structure-core" % s"$sbtStructureVersion-2-ga8075f0"
   val evoInflector = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched = "org.scalatest" % "scalatest-finders-patched" % "0.9.8"
 
@@ -162,13 +162,13 @@ object DependencyGroups {
   )
 
   val scalaRunner = Seq(
-    "org.specs2" %% "specs2-core" % "3.8.2" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+    "org.specs2" %% "specs2" % "2.3.11" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   )
 
   val runners = Seq(
-    "org.specs2" %% "specs2-core" % "3.8.2" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
+    "org.specs2" %% "specs2" % "2.3.11" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
     "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.4.3" % "provided"
+    "com.lihaoyi" %% "utest" % "0.3.1" % "provided"
   )
 
   val sbtLaunchTestDownloader =
