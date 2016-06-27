@@ -81,6 +81,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case _ =>
               }
 
+              val scalaVersion = ScExpression.this.scalaLanguageLevelOrDefault
+              if (scalaVersion >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(ScExpression.this)) {
+                return ExpressionTypeResult(Success(expected, Some(ScExpression.this)), Set.empty, None)
+              }
+
               val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
               val results = new ImplicitCollector(ScExpression.this, functionType, functionType, None,
                 isImplicitConversion = true, isExtensionConversion = false).collect()
