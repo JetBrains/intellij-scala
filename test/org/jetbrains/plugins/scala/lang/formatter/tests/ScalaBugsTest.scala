@@ -1622,5 +1622,75 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL6599(): Unit = {
+    val before =
+      """"
+        |/**
+        |  * Description
+        |  *
+        |  * == header ==
+        |  *
+        |  * - list item 1
+        |  *   line 2
+        |  *  - list item 1.1
+        |  *    line 2
+        |  *  - list item 1.2
+        |  *    line 2
+        |  * 1. 1
+        |  * line 2
+        |  *  1.1 1.1
+        |  *  line 2
+        |  * 2. 2
+        |  * i. 1
+        |  *    line 2
+        |  *  i. 1.1
+        |  * ii. 2
+        |  * A. 1
+        |  * B. 2
+        |  *   B. 3
+        |  *  line 2
+        |  * a. 1
+        |  *   c. 1.1
+        |  * b. 2
+        |  */
+        |val a = 42
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """"
+        |/**
+        |  * Description
+        |  *
+        |  * == header ==
+        |  *
+        |  * - list item 1
+        |  * line 2
+        |  *  - list item 1.1
+        |  * line 2
+        |  *  - list item 1.2
+        |  * line 2
+        |  * 1. 1
+        |  * line 2
+        |  *  1.1 1.1
+        |  * line 2
+        |  * 2. 2
+        |  * i. 1
+        |  * line 2
+        |  *  i. 1.1
+        |  * ii. 2
+        |  * A. 1
+        |  * B. 2
+        |  *   B. 3
+        |  * line 2
+        |  * a. 1
+        |  *   c. 1.1
+        |  * b. 2
+        |  */
+        |val a = 42
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

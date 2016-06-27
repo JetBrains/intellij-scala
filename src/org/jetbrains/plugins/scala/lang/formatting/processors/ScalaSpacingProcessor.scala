@@ -3,6 +3,8 @@ package lang
 package formatting
 package processors
 
+import java.util.regex.Pattern
+
 import com.intellij.formatting.Spacing
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
@@ -161,6 +163,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       throw new RuntimeException("Unable to find parent doc comment")
     }
 
+    def isScalaDocList(str: String) = str.startsWith("- ") || Pattern.matches("^([MDCLXVI]+|[a-zA-Z]+|\\d+)\\..+", str)
+
     val tagSpacing =
       if (scalaSettings.SD_PRESERVE_SPACES_IN_TAGS)
         Spacing.createSpacing(0, Int.MaxValue, 0, false, 0)
@@ -185,7 +189,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(y) && !scalaSettings.ENABLE_SCALADOC_FORMATTING =>
         return Spacing.getReadOnlySpacing
       case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _) =>
-        return if (getText(rightNode, fileText).apply(0) == ' ') WITHOUT_SPACING else WITH_SPACING
+        return if (isScalaDocList(getText(rightNode, fileText))) Spacing.getReadOnlySpacing
+        else if (getText(rightNode, fileText).apply(0) == ' ') WITHOUT_SPACING else WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>
         val rightText = getText(rightNode, fileText) //rightString is not semantically equal for PsiError nodes
         return if (rightText.nonEmpty && rightText.apply(0) == ' ') Spacing.getReadOnlySpacing else tagSpacing
