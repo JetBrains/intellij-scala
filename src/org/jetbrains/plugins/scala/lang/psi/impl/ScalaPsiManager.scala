@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Null, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, SyntheticClassProducer}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
@@ -293,7 +293,9 @@ class ScalaPsiManager(val project: Project) {
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
   def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
-    andType(typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes)
+    val types = typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes
+    if (types.isEmpty) Any
+    else andType(types)
   }
 
   private def andType(psiTypes: Seq[PsiType]): ScType = {
