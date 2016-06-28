@@ -62,7 +62,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   //BREADCRUMBS
   private boolean BREADCRUMBS_CLASS_ENABLED = true;
   private boolean BREADCRUMBS_FUNCTION_ENABLED = true;
-  private boolean BREADCRUMBS_LAMBDA_ENABLED = false;
+  private boolean BREADCRUMBS_LAMBDA_ENABLED = true;
   private boolean BREADCRUMBS_MATCH_ENABLED = false;
   private boolean BREADCRUMBS_VAL_DEF_ENABLED = false;
   private boolean BREADCRUMBS_IF_DO_WHILE_ENABLED = false;
