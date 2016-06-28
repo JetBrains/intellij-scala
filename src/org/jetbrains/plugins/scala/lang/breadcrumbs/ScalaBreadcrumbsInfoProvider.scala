@@ -84,9 +84,9 @@ object ScalaBreadcrumbsInfoProvider {
         limitString(parameters.map(p => p.name + ": " + p.getType.getPresentableText).mkString("(", ", ", ")")) + 
         (if (needTpe) ": " + tpe.map(_.presentableText).getOrElse("") else "")
 
-    def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, fun.returnType.toOption)
+    def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)
 
-    def getSignature(fun: ScFunctionExpr): String = getSignature(None, fun.parameters, fun.getType(TypingContext.empty).toOption)
+    def getSignature(fun: ScFunctionExpr): String = getSignature(None, fun.parameters, None)
     
     def getConstructorSignature(constr: ScFunction): String = {
       if (!constr.isConstructor) return ""
