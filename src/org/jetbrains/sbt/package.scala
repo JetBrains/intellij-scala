@@ -31,7 +31,8 @@ package object sbt {
     def fun(pair: IdeaPair[A, B]): C = f(pair.getFirst, pair.getSecond)
   }
 
-  implicit class RichFile(val file: File) extends AnyVal {
+  //todo: make this class a value class! This is a bug in 2.12-M4
+  implicit class RichFile(val file: File) {
     def /(path: String): File = new File(file, path)
 
     def `<<`: File = << (1)

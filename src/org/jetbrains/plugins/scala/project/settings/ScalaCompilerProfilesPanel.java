@@ -351,7 +351,7 @@ public class ScalaCompilerProfilesPanel extends JPanel {
   }
 
   private static class MyModuleNode extends DefaultMutableTreeNode {
-    public MyModuleNode(Module module, ProfileNode parent) {
+    public MyModuleNode(Module module, ScalaCompilerProfilesPanel.ProfileNode parent) {
       super(module);
       setParent(parent);
       setAllowsChildren(false);
