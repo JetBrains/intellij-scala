@@ -802,4 +802,6 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSOEFix(): Unit = doTest()
 
   def testUnaryMethods(): Unit = doTest()
+
+  def testTupleAnonymous(): Unit = doTest()
 }
