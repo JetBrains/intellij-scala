@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
@@ -112,7 +113,15 @@ package object project {
 
     def hasScala: Boolean = modules.exists(_.hasScala)
 
-    def hasDotty: Boolean = modulesWithScala.exists(_.hasDotty)
+    def hasDotty: Boolean = {
+      val cached = project.getUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY)
+      if (cached != null) cached
+      else {
+        val result = modulesWithScala.exists(_.hasDotty)
+        project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, java.lang.Boolean.valueOf(result))
+        result
+      }
+    }
 
     def modulesWithScala: Seq[Module] = modules.filter(_.hasScala)
 
