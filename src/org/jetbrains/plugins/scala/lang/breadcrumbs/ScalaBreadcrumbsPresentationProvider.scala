@@ -30,14 +30,14 @@ object ScalaBreadcrumbsPresentationProvider {
   }
   
   def getColorFor(el: PsiElement) = el match {
-    case _: ScTemplateDefinition => CLASS_COLOR //Color.CYAN
-    case _: ScFunction => OTHER_COLOR //Color.GREEN
-    case _: ScFunctionExpr => OTHER_COLOR //Color.LIGHT_GRAY
-    case _: ScalaPsiElement => OTHER_COLOR
+    case _: ScTemplateDefinition => getClassColor //Color.CYAN
+    case _: ScFunction => getOtherColor //Color.GREEN
+    case _: ScFunctionExpr => getOtherColor //Color.LIGHT_GRAY
+    case _: ScalaPsiElement => getOtherColor
     case _ => null
   }
   
-  private val CLASS_COLOR = EditorColors.IDENTIFIER_UNDER_CARET_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
-  private val FUNCTION_COLOR = EditorColors.WRITE_IDENTIFIER_UNDER_CARET_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
-  private val OTHER_COLOR = EditorColors.FOLDED_TEXT_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
+  private def getClassColor = EditorColors.IDENTIFIER_UNDER_CARET_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
+  private def getFunctionColor = EditorColors.WRITE_IDENTIFIER_UNDER_CARET_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
+  private def getOtherColor = EditorColors.FOLDED_TEXT_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
 }
