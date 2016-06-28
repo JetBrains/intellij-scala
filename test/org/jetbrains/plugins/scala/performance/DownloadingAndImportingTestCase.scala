@@ -13,8 +13,8 @@ import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.platform.templates.github.ZipUtil
-import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
-import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope, GlobalSearchScopesCore}
+import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
 import org.jetbrains.SbtStructureSetup
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -90,19 +90,21 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
 
   def findFile(filename: String): VirtualFile = {
     import scala.collection.JavaConversions._
+
+    val directoryScope = GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true)
     val searchScope =
-      new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(myProject),
+      new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(directoryScope,
         ScalaFileType.SCALA_FILE_TYPE, JavaFileType.INSTANCE), myProject)
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.SCALA_FILE_TYPE, searchScope)
     val file = files.filter(_.getName == filename).toList match {
       case vf :: Nil => vf
       case Nil => //is this a filepath?
-        files.find(_.getCanonicalPath == s"$projectDirPath/$filename") match {
-          case Some(vf) => vf
-          case _ =>
-            Assert.assertTrue(s"Could not find file: $filename.\nConsider providing relative path from project root", false)
-            null
+        val file = VfsTestUtil.findFileByCaseSensitivePath(s"$projectDirPath/$filename")
+        if (file != null && files.contains(file)) file
+        else {
+          Assert.assertTrue(s"Could not find file: $filename.\nConsider providing relative path from project root", false)
+          null
         }
       case list =>
         Assert.assertTrue(s"There are ${list.size} files with name $filename.\nProvide full path from project root", false)

@@ -60,34 +60,39 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
              timeoutInMillis: Int,
              stringsToType: Seq[String],
              pos: LogicalPosition,
-             typeInSetup: Option[String]): Unit = {
+             typeInSetup: Option[String],
+             performanceTestTitle: Option[String] = None): Unit = {
     val file = findFile(filename)
     val fileManager: FileManager = PsiManager.getInstance(myProject).asInstanceOf[PsiManagerEx].getFileManager
 
     myCodeInsightTestFixture.openFileInEditor(file)
     val editor = myCodeInsightTestFixture.getEditor
     val initialText = editor.getDocument.getText
-    PlatformTestUtil.startPerformanceTest(s"Performance test $filename", timeoutInMillis, new ThrowableRunnable[Nothing] {
-      override def run(): Unit = {
-        stringsToType.foreach { s =>
-          myCodeInsightTestFixture.`type`(s)
+    val title = performanceTestTitle.getOrElse(filename)
+    try {
+      PlatformTestUtil.startPerformanceTest(s"Performance test $title", timeoutInMillis, new ThrowableRunnable[Nothing] {
+        override def run(): Unit = {
+          stringsToType.foreach { s =>
+            myCodeInsightTestFixture.`type`(s)
+            myCodeInsightTestFixture.doHighlighting()
+          }
+          fileManager.cleanupForNextTest()
+        }
+      }).setup(new ThrowableRunnable[Nothing] {
+        override def run(): Unit = {
+          //file.refresh(false, false)
+          inWriteCommandAction(myProject) {
+            editor.getDocument.setText(initialText)
+          }
+          editor.getCaretModel.moveToLogicalPosition(pos)
+          typeInSetup.foreach(myCodeInsightTestFixture.`type`)
           myCodeInsightTestFixture.doHighlighting()
         }
-        fileManager.cleanupForNextTest()
+      }).assertTiming()
+    } finally {
+      inWriteCommandAction(myProject) {
+        editor.getDocument.setText(initialText)
       }
-    }).setup(new ThrowableRunnable[Nothing] {
-      override def run(): Unit = {
-        //file.refresh(false, false)
-        inWriteCommandAction(myProject) {
-          editor.getDocument.setText(initialText)
-        }
-        editor.getCaretModel.moveToLogicalPosition(pos)
-        typeInSetup.foreach(myCodeInsightTestFixture.`type`)
-        myCodeInsightTestFixture.doHighlighting()
-      }
-    }).assertTiming()
-    inWriteCommandAction(myProject) {
-      editor.getDocument.setText(initialText)
     }
   }
 
