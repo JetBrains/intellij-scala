@@ -376,6 +376,7 @@ object ScalaPsiManager {
         val manager = ScalaPsiManager.instance(project)
         manager.clearOnChange()
         manager.clearOnOutOfCodeBlockChange()
+        project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, null)
       }
     })
   }
