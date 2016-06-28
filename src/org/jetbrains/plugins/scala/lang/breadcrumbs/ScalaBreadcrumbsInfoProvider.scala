@@ -100,7 +100,7 @@ object ScalaBreadcrumbsInfoProvider {
       "this" + limitString(signature)
     }
     
-    def describeFunction(fun: ScFunction) = (if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)) + " {...}"
+    def describeFunction(fun: ScFunction) = "def " + (if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun))
     
     def describeFunction(fun: ScFunctionExpr) = getSignature(fun) + " => ..."
     
