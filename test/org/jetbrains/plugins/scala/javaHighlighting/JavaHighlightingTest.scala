@@ -823,5 +823,34 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testUpperBoundCompound(): Unit = {
+    val java =
+      """
+        |package upperBoundCompound;
+        |class BaseComponent {}
+        |
+        |interface ComponentManager {
+        |    BaseComponent getComponent(String var1);
+        |
+        |    <T> T getComponent(Class<T> var1);
+        |
+        |    <T> T getComponent(Class<T> var1, T var2);
+        |}
+      """.stripMargin
+    val scala =
+      """
+        |package upperBoundCompound
+        |
+        |class Foo
+        |object Koo {
+        |  def instance(p: ComponentManager) = {
+        |
+        |    p.getComponent(classOf[Foo])
+        |  }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }
 
