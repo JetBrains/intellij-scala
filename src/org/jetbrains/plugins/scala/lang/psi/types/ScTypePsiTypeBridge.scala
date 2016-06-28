@@ -70,9 +70,17 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
               case Array() => des
               case _ if classType.isRaw =>
                 var index = 0
-                ScParameterizedType(des, tps.map( _ =>
-                  ScExistentialArgument(s"_$$${index += 1; index}", Nil, Nothing, Any)
-                )).unpackedType
+                ScParameterizedType(des, tps.map({ tp => {
+                  val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
+                  ScExistentialArgument(s"_$$${index += 1; index}", Nil, Nothing,
+                    arrayOfTypes.length match {
+                      case 0 => Any
+                      case 1 => toScType(arrayOfTypes.apply(0), project, scope, visitedRawTypes + clazz)
+                      case _ => ScCompoundType(arrayOfTypes.map(toScType(_, project, scope, visitedRawTypes + clazz)),
+                        Map.empty, Map.empty)
+                    })
+                }
+                })).unpackedType
               case _ =>
                 var index = 0
                 ScParameterizedType(des, tps.map { tp =>
