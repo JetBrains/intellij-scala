@@ -61,7 +61,7 @@ object ScalaStubsUtil {
   }
 
   def getSelfTypeInheritors(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
-    @CachedInsidePsiElement(clazz, CachesUtil.enclosingModificationOwner(clazz))
+    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareDependencyItem(clazz))
     def selfTypeInheritorsInner(scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
       val project = clazz.getProject

@@ -309,7 +309,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, ModCount.getLibraryAwareCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
 
   private def syntheticParamClause: Option[ScParameterClause] = {
@@ -412,7 +412,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * @return Empty array, if containing class is null.
    */
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getLibraryAwareCount, this)
   def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
@@ -445,7 +445,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     getReturnTypeImpl
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, ModCount.getLibraryAwareCount)
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
     def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)

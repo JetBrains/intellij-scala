@@ -78,7 +78,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     res
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, ModCount.getLibraryAwareCount)
   def superTypes: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
@@ -192,7 +192,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     }
   }
 
-  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  @CachedInsidePsiElement(this, ModCount.getLibraryAwareCount)
   def supers: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
     def addClass(t: PsiClass) {

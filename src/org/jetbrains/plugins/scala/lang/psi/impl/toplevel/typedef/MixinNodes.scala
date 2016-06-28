@@ -461,7 +461,7 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    @CachedWithRecursionGuard[PsiClass](clazz, Seq.empty, CachesUtil.getDependentItem(clazz)())
+    @CachedWithRecursionGuard[PsiClass](clazz, Seq.empty, CachesUtil.libraryAwareDependencyItem(clazz))
     def inner(): Seq[ScType] = {
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
