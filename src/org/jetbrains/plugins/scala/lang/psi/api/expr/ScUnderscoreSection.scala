@@ -42,11 +42,10 @@ trait ScUnderscoreSection extends ScExpression {
               }
             case _ => None
           }
-        case tuple: ScTuple =>
-          if (!calcArguments) return Some(expr.asInstanceOf[ScExpression])
+        case tuple: ScTuple if calcArguments =>
           tuple.getContext match {
             case infix: ScInfixExpr if infix.getArgExpr == tuple => go(infix, calcArguments = false)
-            case _ => None
+            case _ => Some(tuple)
           }
         case inf: ScInfixExpr => go(inf, calcArguments = false)
         case pre: ScPrefixExpr => go(pre, calcArguments = false)
