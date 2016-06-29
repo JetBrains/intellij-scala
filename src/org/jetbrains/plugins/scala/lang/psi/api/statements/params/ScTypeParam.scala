@@ -29,7 +29,7 @@ trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiType
 
   def typeParameterText: String
 
-  def getPsiElementId: PsiElement
+  def getPsiElementId: Long
 }
 
 object ScTypeParam {

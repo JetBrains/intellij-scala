@@ -459,13 +459,13 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               val gen = args.callGeneric.getOrElse(null: ScGenericCall)
               def collectSubstitutor(element: PsiElement): ScSubstitutor = {
                 if (gen == null) return ScSubstitutor.empty
-                val tp: Array[(String, PsiElement)] = element match {
+                val tp: Array[(String, Long)] = element match {
                   case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.nameAndId).toArray
                   case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.nameAndId)
                   case _ => return ScSubstitutor.empty
                 }
                 val typeArgs: Seq[ScTypeElement] = gen.arguments
-                val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
+                val map = new collection.mutable.HashMap[(String, Long), ScType]
                 for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
                   map += ((tp(i), typeArgs(i).calcType))
                 }
@@ -552,7 +552,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           case gen: ScParameterizedTypeElement =>
                             val tp = clazz.typeParameters.map(_.nameAndId)
                             val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                            val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
+                            val map = new collection.mutable.HashMap[(String, Long), ScType]
                             for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
                               map += ((tp(i), typeArgs(i).calcType))
                             }
@@ -582,7 +582,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                         case gen: ScParameterizedTypeElement =>
                           val tp = clazz.getTypeParameters.map(_.nameAndId)
                           val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                          val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
+                          val map = new collection.mutable.HashMap[(String, Long), ScType]
                           for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
                             map += ((tp(i), typeArgs(i).calcType))
                           }

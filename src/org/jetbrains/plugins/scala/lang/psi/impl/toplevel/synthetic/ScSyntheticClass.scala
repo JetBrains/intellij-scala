@@ -54,7 +54,7 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
 
-  def getPsiElementId: PsiElement = null
+  def getPsiElementId: Long = -1
 
   def getOffsetInFile: Int = 0
 
