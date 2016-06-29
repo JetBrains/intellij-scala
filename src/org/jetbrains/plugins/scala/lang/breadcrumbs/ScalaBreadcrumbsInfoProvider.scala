@@ -103,7 +103,12 @@ object ScalaBreadcrumbsInfoProvider {
     
     def describeFunction(fun: ScFunctionExpr): String = "λ" + getSignature(fun)
     
-    def describeTemplateDef(td: ScTemplateDefinition): String = td.name
+    def describeTemplateDef(td: ScTemplateDefinition): String = td match {
+      case newDef: ScNewTemplateDefinition if Option(newDef.extendsBlock).exists(_.isAnonymousClass) => 
+        val s = "new " + newDef.extendsBlock.templateParents.map(_.text).getOrElse("Any")
+        if (s.length < MAX_STRING_LENGTH * 2) s else s.substring(0, MAX_STRING_LENGTH * 2 - 4) + "..."
+      case other => other.name
+    }
     
     def describeMember(mb: ScMember): String = {
       mb match {
