@@ -63,7 +63,7 @@ class TypeAnnotationInspection extends AbstractInspection {
       case _: ScNewTemplateDefinition => true
       case ref: ScReferenceExpression if ref.refName == "???" => true
       case call: ScMethodCall => call.getInvokedExpr match {
-        case ref: ScReferenceExpression if ref.refName.capitalize == ref.refName => true //heuristic for case classes
+        case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for case classes
         case _ => false
       }
       case _ => false
