@@ -197,9 +197,6 @@ object UpdateStrategy {
             Seq(typeElemfromText(t))
           }
         }
-      case someOrNone if Set("_root_.scala.Some", "_root_.scala.None").exists(someOrNone.canonicalText.startsWith) =>
-        val replacement = BaseTypes.get(someOrNone).find(_.canonicalText.startsWith("_root_.scala.Option")).getOrElse(someOrNone)
-        Seq(typeElemFromType(replacement))
       case tp =>
         val project = context.getProject
         tp.extractClass(project) match {
