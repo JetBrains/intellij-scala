@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
@@ -81,7 +80,7 @@ object ScalaBreadcrumbsInfoProvider {
     
     def getSignature(el: Option[ScNamedElement], parameters: Seq[ScParameter], tpe: Option[ScType], needTpe: Boolean = false): String =
       el.map(_.name).getOrElse("") + 
-        limitString(parameters.map(p => p.name + ": " + p.getType.getPresentableText).mkString("(", ", ", ")")) + 
+        limitString(parameters.map(p => p.name + ": " +  p.typeElement.map(_.getText).getOrElse("Any")).mkString("(", ", ", ")")) + 
         (if (needTpe) ": " + tpe.map(_.presentableText).getOrElse("") else "")
 
     def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)
