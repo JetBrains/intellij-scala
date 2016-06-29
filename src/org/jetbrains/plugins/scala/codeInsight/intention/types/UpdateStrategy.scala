@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
+import scala.collection.mutable
+
 /**
  * Pavel.Fatin, 28.04.2010
  */
@@ -203,7 +205,7 @@ object UpdateStrategy {
         tp.extractClass(project) match {
           case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
             val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
-            (sealedType.toSeq :+ tp).map(typeElemFromType)
+            (tp +: sealedType.toSeq).map(typeElemFromType)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(
               "_root_.scala.collection.Seq[",
