@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -60,6 +60,12 @@ class TypeAnnotationInspection extends AbstractInspection {
   private def isSimple(exp: ScExpression): Boolean = {
     exp match {
       case _: ScLiteral => true
+      case _: ScNewTemplateDefinition => true
+      case ref: ScReferenceExpression if ref.refName == "???" => true
+      case call: ScMethodCall => call.getInvokedExpr match {
+        case ref: ScReferenceExpression if ref.refName.capitalize == ref.refName => true //heuristic for case classes
+        case _ => false
+      }
       case _ => false
     }
   }
