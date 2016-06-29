@@ -30,7 +30,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     }
   }
 
-  override def isStable = getEnclosingVariable match {
+  override def isStable: Boolean = getEnclosingVariable match {
     case None => true
     case _ => false
   }
@@ -38,7 +38,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
   override def isVar: Boolean = nameContext.isInstanceOf[ScVariable]
   override def isVal: Boolean = nameContext.isInstanceOf[ScValue]
 
-  def isClassMember = nameContext.getContext match {
+  def isClassMember: Boolean = nameContext.getContext match {
     case _: ScTemplateBody | _: ScEarlyDefinitions => true
     case _ => false
   }

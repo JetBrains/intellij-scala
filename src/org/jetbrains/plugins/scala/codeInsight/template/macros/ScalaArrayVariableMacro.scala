@@ -17,9 +17,9 @@ import scala.collection.mutable.ArrayBuffer
  * @since 24.09.2015.
  */
 class ScalaArrayVariableMacro extends ScalaVariableOfTypeMacro {
-  override def getName = MacroUtil.scalaIdPrefix + "arrayVariable"
+  override def getName: String = MacroUtil.scalaIdPrefix + "arrayVariable"
 
-  override def getPresentableName = MacroUtil.scalaPresentablePrefix + CodeInsightBundle.message("macro.array.variable")
+  override def getPresentableName: String = MacroUtil.scalaPresentablePrefix + CodeInsightBundle.message("macro.array.variable")
 
   override def addLookupItems(exprs: Array[String],
                               context: ExpressionContext,
@@ -27,7 +27,7 @@ class ScalaArrayVariableMacro extends ScalaVariableOfTypeMacro {
                               scType: ScType,
                               project: Project,
                               array: ArrayBuffer[LookupElement])
-                             (implicit typeSystem: TypeSystem) =
+                             (implicit typeSystem: TypeSystem): Unit =
     super.addLookupItems(Array("scala.Array"), context, variant, scType, project, array)
 
   override def getResult(exprs: Array[Expression],

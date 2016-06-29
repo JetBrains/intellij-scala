@@ -932,7 +932,7 @@ object ScalaPsiUtil {
     elem.getPrevSibling
   }
 
-  def isLValue(elem: PsiElement) = elem match {
+  def isLValue(elem: PsiElement): Boolean = elem match {
     case e: ScExpression => e.getParent match {
       case as: ScAssignStmt => as.getLExpression eq e
       case _ => false
@@ -1614,11 +1614,11 @@ object ScalaPsiUtil {
     case _ => true
   }
 
-  def isByNameArgument(expr: ScExpression) = {
+  def isByNameArgument(expr: ScExpression): Boolean = {
     isCanonicalArg(expr) && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
   }
 
-  def isArgumentOfFunctionType(expr: ScExpression) = {
+  def isArgumentOfFunctionType(expr: ScExpression): Boolean = {
     import expr.typeSystem
     isCanonicalArg(expr) && parameterOf(expr).exists(p => FunctionType.isFunctionType(p.paramType))
   }
@@ -1837,7 +1837,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def intersectScopes(scope: SearchScope, scopeOption: Option[SearchScope]) = {
+  def intersectScopes(scope: SearchScope, scopeOption: Option[SearchScope]): SearchScope = {
     scopeOption match {
       case Some(s) => s.intersectWith(scope)
       case None => scope
@@ -1928,7 +1928,7 @@ object ScalaPsiUtil {
     *
     * @return true if language level and flags are correct
     */
-  def isSAMEnabled(e: PsiElement) = e.scalaLanguageLevel match {
+  def isSAMEnabled(e: PsiElement): Boolean = e.scalaLanguageLevel match {
     case Some(lang) if lang < Scala_2_11 => false
     case Some(lang) if lang == Scala_2_11 =>
       val settings = e.module match {
@@ -2089,7 +2089,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def isImplicit(namedElement: PsiNamedElement) = {
+  def isImplicit(namedElement: PsiNamedElement): Boolean = {
     namedElement match {
       case s: ScModifierListOwner => s.hasModifierProperty("implicit")
       case named: ScNamedElement =>

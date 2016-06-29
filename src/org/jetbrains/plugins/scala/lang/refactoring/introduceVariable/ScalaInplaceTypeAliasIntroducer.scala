@@ -57,7 +57,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
                                       oldName: String)
   extends ScalaMemberInplaceRenamer(scNamedElement, substituted, editor, initialName, oldName) {
 
-  override def setAdvertisementText(text: String) = {
+  override def setAdvertisementText(text: String): Unit = {
     myAdvertisementText = "Press ctrl + alt + v" + " to show dialog with more options"
   }
 

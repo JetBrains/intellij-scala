@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.hocon.settings
 
+import javax.swing.JComponent
+
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 
@@ -10,15 +12,15 @@ class HoconProjectSettingsConfigurable(project: Project) extends Configurable {
 
   def getHelpTopic = null
 
-  def isModified = panel.isModified
+  def isModified: Boolean = panel.isModified
 
-  def createComponent() = panel.getMainComponent
+  def createComponent(): JComponent = panel.getMainComponent
 
   def disposeUIResources(): Unit = {
     panel = null
   }
 
-  def apply() = panel.apply()
+  def apply(): Unit = panel.apply()
 
-  def reset() = panel.loadSettings()
+  def reset(): Unit = panel.loadSettings()
 }

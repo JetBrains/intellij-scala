@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -50,7 +51,7 @@ class ScVariableDefinitionImpl private (stub: StubElement[ScVariable], nodeType:
     if (plist != null) plist.patterns.flatMap((p: ScPattern) => p.bindings) else Seq.empty
   }
 
-  def getType(ctx: TypingContext) = typeElement match {
+  def getType(ctx: TypingContext): TypeResult[ScType] = typeElement match {
     case Some(te) => te.getType(ctx)
     case None => expr.map(_.getType(TypingContext.empty))
             .getOrElse(Failure("Cannot infer type without an expression", Some(this)))

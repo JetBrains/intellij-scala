@@ -426,7 +426,7 @@ object Conformance extends api.Conformance {
     private var result: (Boolean, ScUndefinedSubstitutor) = null
     private var undefinedSubst: ScUndefinedSubstitutor = subst
 
-    def getResult = result
+    def getResult: (Boolean, ScUndefinedSubstitutor) = result
 
     override def visitStdType(x: StdType) {
       var rightVisitor: ScalaTypeVisitor =

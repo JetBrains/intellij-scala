@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package components
 
 import java.awt.event.MouseEvent
+import javax.swing.Icon
 
 import com.intellij.ide.DataManager
 import com.intellij.notification._
@@ -82,7 +83,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     }
   }
 
-  def getState = settings
+  def getState: HighlightingSettings = settings
 
   def loadState(state: HighlightingSettings) {
     settings = state
@@ -173,14 +174,14 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     def dispose() {}
 
     object Presentation extends StatusBarWidget.IconPresentation {
-      def getIcon = if (enabled) Icons.TYPED else Icons.UNTYPED
+      def getIcon: Icon = if (enabled) Icons.TYPED else Icons.UNTYPED
 
       def getClickConsumer = ClickConsumer
 
       def getTooltipText = s"$status (click to ${if (enabled) "disable" else "enable"}, or press Ctrl+Shift+Alt+E)"
 
       object ClickConsumer extends Consumer[MouseEvent] {
-        def consume(t: MouseEvent) = toggle()
+        def consume(t: MouseEvent): Unit = toggle()
       }
     }
   }
@@ -198,5 +199,5 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 }
 
 object HighlightingAdvisor {
-  def getInstance(project: Project) = project.getComponent(classOf[HighlightingAdvisor])
+  def getInstance(project: Project): HighlightingAdvisor = project.getComponent(classOf[HighlightingAdvisor])
 }

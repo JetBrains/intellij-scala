@@ -11,12 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
  * 2014-06-26
  */
 class ScalaInfixUnwrapper extends ScalaUnwrapper with ShortTextDescription {
-  override def isApplicableTo(e: PsiElement) = e.getParent match {
+  override def isApplicableTo(e: PsiElement): Boolean = e.getParent match {
     case ScInfixExpr(left, _, right) => e == left || e == right
     case _ => false
   }
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = {
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = {
     element.getParent match {
       case infix: ScInfixExpr =>
         context.extractElement(element, infix)
@@ -25,7 +25,7 @@ class ScalaInfixUnwrapper extends ScalaUnwrapper with ShortTextDescription {
     }
   }
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = {
     super.collectAffectedElements(e, toExtract)
     e.getParent
   }

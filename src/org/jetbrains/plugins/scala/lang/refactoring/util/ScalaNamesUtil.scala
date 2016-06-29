@@ -56,7 +56,7 @@ object ScalaNamesUtil {
 
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
-  def scalaName(element: PsiElement) = element match {
+  def scalaName(element: PsiElement): String = element match {
     case scNamed: ScNamedElement => scNamed.name
     case psiNamed: PsiNamedElement => psiNamed.getName
   }
@@ -95,7 +95,7 @@ object ScalaNamesUtil {
     else Seq(name)
   }
 
-  def toJavaName(name: String) = {
+  def toJavaName(name: String): String = {
     val toEncode = name match {
       case ScalaNamesUtil.isBacktickedName(s) => s
       case _ => name

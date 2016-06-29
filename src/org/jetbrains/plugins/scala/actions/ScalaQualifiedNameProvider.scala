@@ -33,7 +33,7 @@ class ScalaQualifiedNameProvider extends QualifiedNameProvider {
     }
   }
 
-  def qualifiedNameToElement(fqn: String, project: Project) = {
+  def qualifiedNameToElement(fqn: String, project: Project): PsiElement = {
     new JavaQualifiedNameProvider().qualifiedNameToElement(fqn, project) //todo:
   }
 

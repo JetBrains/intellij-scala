@@ -90,7 +90,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def isSynthetic: Boolean = synthNavElement.nonEmpty
   def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
 
-  def hasUnitResultType = {
+  def hasUnitResultType: Boolean = {
     @tailrec
     def hasUnitRT(t: ScType): Boolean = t match {
       case Unit => true
@@ -100,15 +100,15 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     hasUnitRT(methodType)
   }
 
-  def isParameterless = paramClauses.clauses.isEmpty
+  def isParameterless: Boolean = paramClauses.clauses.isEmpty
 
   private val probablyRecursive: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
     override def initialValue(): Boolean = false
   }
-  def isProbablyRecursive = probablyRecursive.get()
+  def isProbablyRecursive: Boolean = probablyRecursive.get()
   def setProbablyRecursive(b: Boolean) {probablyRecursive.set(b)}
 
-  def isEmptyParen = paramClauses.clauses.size == 1 && paramClauses.params.isEmpty
+  def isEmptyParen: Boolean = paramClauses.clauses.size == 1 && paramClauses.params.isEmpty
 
   def addEmptyParens() {
     val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
@@ -259,7 +259,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def returnTypeIsDefined: Boolean = !definedReturnType.isEmpty
 
-  def hasExplicitType = returnTypeElement.isDefined
+  def hasExplicitType: Boolean = returnTypeElement.isDefined
 
   def removeExplicitType() {
     val colon = children.find(_.getNode.getElementType == ScalaTokenTypes.tCOLON)
@@ -273,7 +273,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def parameterList: ScParameters = paramClauses // TODO merge
 
-  def isProcedure = paramClauses.clauses.isEmpty
+  def isProcedure: Boolean = paramClauses.clauses.isEmpty
 
   def importantOrderFunction(): Boolean = false
 
@@ -393,7 +393,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def getTypeParameterList = new FakePsiTypeParameterList(getManager, getLanguage, typeParameters.toArray, this)
 
-  def hasTypeParameters = typeParameters.nonEmpty
+  def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
   def getParameterList: ScParameters = paramClauses
 
@@ -530,7 +530,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def findSuperMethods(checkAccess: Boolean) = PsiMethod.EMPTY_ARRAY
 
-  def findSuperMethods = superMethods.toArray // TODO which other xxxSuperMethods can/should be implemented?
+  def findSuperMethods: Array[PsiMethod] = superMethods.toArray // TODO which other xxxSuperMethods can/should be implemented?
 
   def findDeepestSuperMethods = PsiMethod.EMPTY_ARRAY
 
@@ -541,12 +541,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =
     new util.ArrayList[MethodSignatureBackedByPsiMethod]()
 
-  def getSignature(substitutor: PsiSubstitutor) = MethodSignatureBackedByPsiMethod.create(this, substitutor)
+  def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
   //todo implement me!
   def isVarArgs = false
 
-  def isConstructor = name == "this"
+  def isConstructor: Boolean = name == "this"
 
   def getBody: PsiCodeBlock = null
 
@@ -607,17 +607,17 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     case _ => false
   }
 
-  def hasAssign = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).nonEmpty
+  def hasAssign: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tASSIGN)).nonEmpty
 
   def getHierarchicalMethodSignature: HierarchicalMethodSignature = {
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
   }
 
-  override def isDeprecated = {
+  override def isDeprecated: Boolean = {
     hasAnnotation("scala.deprecated").isDefined || hasAnnotation("java.lang.Deprecated").isDefined
   }
 
-  override def getName = {
+  override def getName: String = {
     val res = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
     if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_mth" + res
     else res

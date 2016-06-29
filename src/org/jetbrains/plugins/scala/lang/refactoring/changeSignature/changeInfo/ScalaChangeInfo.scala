@@ -50,7 +50,7 @@ case class ScalaChangeInfo(newVisibility: String,
     case _ => newName
   }
 
-  override def getNewNameIdentifier = JavaPsiFacade.getElementFactory(project).createIdentifier(newName)
+  override def getNewNameIdentifier: PsiIdentifier = JavaPsiFacade.getElementFactory(project).createIdentifier(newName)
 
   override def getMethod: PsiMethod = myMethod
 

@@ -48,18 +48,18 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
         extends PsiFileBase(viewProvider, fileType.getLanguage)
                 with ScalaFile with FileDeclarationsHolder
                 with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {
-  override def getViewProvider = viewProvider
+  override def getViewProvider: FileViewProvider = viewProvider
 
-  override def getFileType = fileType
+  override def getFileType: LanguageFileType = fileType
 
-  override def toString = "ScalaFile:" + getName
+  override def toString: String = "ScalaFile:" + getName
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
-  def isCompiled = compiled
+  def isCompiled: Boolean = compiled
 
   def sourceName: String = {
     if (isCompiled) {
@@ -384,7 +384,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
 
-  def isScalaPredefinedClassInner = typeDefinitions.length == 1 &&
+  def isScalaPredefinedClassInner: Boolean = typeDefinitions.length == 1 &&
     Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
 
 

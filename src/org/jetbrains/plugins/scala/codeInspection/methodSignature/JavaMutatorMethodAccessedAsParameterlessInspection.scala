@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.ProblemsHolderExt
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddCallParentheses
 import org.jetbrains.plugins.scala.extensions._
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaJavaMutatorMethodAccessedAsParameterless", "Java mutator method accessed as parameterless") {
 
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression if !e.getParent.isInstanceOf[ScMethodCall] &&
             !e.getParent.isInstanceOf[ScInfixExpr] &&
             !e.getParent.isInstanceOf[ScUnderscoreSection] && e.isValid &&

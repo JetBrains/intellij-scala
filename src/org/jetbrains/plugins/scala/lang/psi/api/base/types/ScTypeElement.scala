@@ -67,7 +67,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
 object ScTypeElement {
   // java compatibility
-  def calcType(typeElement: ScTypeElement) = typeElement.calcType
+  def calcType(typeElement: ScTypeElement): ScType = typeElement.calcType
 }
 
 trait ScDesugarizableTypeElement extends ScTypeElement {

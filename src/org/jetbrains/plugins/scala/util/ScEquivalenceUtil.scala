@@ -37,7 +37,7 @@ object ScEquivalenceUtil {
     }
   }
 
-  def arePackagesEquivalent(p1: PsiPackage, p2: PsiPackage) = {
+  def arePackagesEquivalent(p1: PsiPackage, p2: PsiPackage): Boolean = {
     p1 != null && p2 != null &&
       p1.getManager == p2.getManager &&
       p1.getQualifiedName == p2.getQualifiedName

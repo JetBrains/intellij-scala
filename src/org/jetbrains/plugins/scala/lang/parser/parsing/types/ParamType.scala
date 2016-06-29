@@ -42,5 +42,5 @@ trait ParamType {
     }
   }
 
-  def parse(builder: ScalaPsiBuilder) = build(ScalaElementTypes.PARAM_TYPE, builder) { parseInner(builder) }
+  def parse(builder: ScalaPsiBuilder): Boolean = build(ScalaElementTypes.PARAM_TYPE, builder) { parseInner(builder) }
 }

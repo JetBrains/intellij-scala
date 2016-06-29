@@ -24,9 +24,9 @@ trait DesignatorOwner extends ValueType with TypeInTypeSystem {
     case _ => false
   }
 
-  def isStable = isSingleton || element.isInstanceOf[ScObject]
+  def isStable: Boolean = isSingleton || element.isInstanceOf[ScObject]
 
-  override def isFinalType = element match {
+  override def isFinalType: Boolean = element match {
     case clazz: PsiClass if clazz.isEffectivelyFinal => true
     case _ => false
   }

@@ -91,7 +91,7 @@ trait PsiElementExtTrait extends Any {
 
   def children: Iterator[PsiElement] = new ChildrenIterator(repr)
 
-  def isAncestorOf(e: PsiElement) = PsiTreeUtil.isAncestor(repr, e, true)
+  def isAncestorOf(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(repr, e, true)
 
   def depthFirst: Iterator[PsiElement] = depthFirst(DefaultPredicate)
 

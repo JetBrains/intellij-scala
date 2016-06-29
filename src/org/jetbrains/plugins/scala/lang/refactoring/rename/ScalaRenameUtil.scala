@@ -163,7 +163,7 @@ object ScalaRenameUtil {
     RenameUtil.doRenameGenericNamedElement(namedElement, newName, Array.empty[UsageInfo], listener)
   }
 
-  def setterSuffix(name: String) = {
+  def setterSuffix(name: String): String = {
     if (name.endsWith("_=")) "_="
     else if (name.endsWith("_$eq")) "_$eq"
     else ""

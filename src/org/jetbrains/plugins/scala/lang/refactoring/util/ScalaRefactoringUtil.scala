@@ -114,7 +114,7 @@ object ScalaRefactoringUtil {
     result.toArray
   }
 
-  def replaceSingletonTypes(scType: ScType) = scType.recursiveUpdate {
+  def replaceSingletonTypes(scType: ScType): ScType = scType.recursiveUpdate {
     case tp => (tp.isInstanceOf[DesignatorOwner], tp.tryExtractDesignatorSingleton)
   }
 
@@ -135,7 +135,7 @@ object ScalaRefactoringUtil {
     Option(element).filter(_.getTextRange.getEndOffset == endOffset).flatMap(checkTypeElement)
   }
 
-  def getOwner(typeElement: PsiElement) = PsiTreeUtil.getParentOfType(typeElement, classOf[ScTypeParametersOwner], true)
+  def getOwner(typeElement: PsiElement): ScTypeParametersOwner = PsiTreeUtil.getParentOfType(typeElement, classOf[ScTypeParametersOwner], true)
 
   def getTypeParameterOwnerList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
@@ -254,7 +254,7 @@ object ScalaRefactoringUtil {
     val cachedType = element.getType(TypingContext.empty).getOrAny
 
     object ReferenceToFunction {
-      def unapply(refExpr: ScReferenceExpression) = refExpr.bind() match {
+      def unapply(refExpr: ScReferenceExpression): Option[ScFunction] = refExpr.bind() match {
         case Some(srr: ScalaResolveResult) if srr.element.isInstanceOf[ScFunction] => Some(srr.element.asInstanceOf[ScFunction])
         case _ => None
       }
@@ -481,12 +481,12 @@ object ScalaRefactoringUtil {
       var selectionHighlighter: RangeHighlighter = null
       val markupModel = editor.getMarkupModel
 
-      def addHighlighter() = if (selectionHighlighter == null) {
+      def addHighlighter(): Unit = if (selectionHighlighter == null) {
         selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,
           textAttributes, HighlighterTargetArea.EXACT_RANGE)
       }
 
-      def removeHighlighter() = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
+      def removeHighlighter(): Unit = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
     }
 
     val selection = new Selection
@@ -820,7 +820,7 @@ object ScalaRefactoringUtil {
     throw new IntroduceException
   }
 
-  def showErrorHint(text: String, project: Project, editor: Editor, refactoringName: String) = {
+  def showErrorHint(text: String, project: Project, editor: Editor, refactoringName: String): Unit = {
     CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, null)
   }
 

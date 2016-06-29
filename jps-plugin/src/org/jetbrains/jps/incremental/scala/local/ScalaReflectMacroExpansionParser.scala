@@ -61,9 +61,9 @@ object ScalaReflectMacroExpansionParser {
     }
   }
 
-  def reset() = parsingState = ParsingState.INIT
+  def reset(): Unit = parsingState = ParsingState.INIT
 
-  def serializeExpansions(context: CompileContext) = {
+  def serializeExpansions(context: CompileContext): Unit = {
     val file = new File(System.getProperty("java.io.tmpdir") + s"/../../expansion-${context.getProjectDescriptor.getProject.getName}")
     val fo = new BufferedOutputStream(new FileOutputStream(file))
     val so = new ObjectOutputStream(fo)

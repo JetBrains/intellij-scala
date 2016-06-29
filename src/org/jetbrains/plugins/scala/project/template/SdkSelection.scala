@@ -15,7 +15,7 @@ object SdkSelection extends SdkSelection {
 
   override protected def filesChooserDescriptor = new ScalaFilesChooserDescriptor
 
-  def chooseScalaSdkFiles(parentComponent: JComponent) = chooseSdkFiles(parentComponent)
+  def chooseScalaSdkFiles(parentComponent: JComponent): Option[SdkDescriptor] = chooseSdkFiles(parentComponent)
 }
 
 trait SdkSelection {

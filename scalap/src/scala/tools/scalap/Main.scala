@@ -70,9 +70,9 @@ object Main {
     out.flush()
   }
 
-  def isPackageObjectFile(s: String) = s != null && (s.endsWith(".package") || s == "package")
+  def isPackageObjectFile(s: String): Boolean = s != null && (s.endsWith(".package") || s == "package")
 
-  def parseScalaSignature(scalaSig: ScalaSig, isPackageObject: Boolean) = {
+  def parseScalaSignature(scalaSig: ScalaSig, isPackageObject: Boolean): String = {
     val baos = new ByteArrayOutputStream
     val stream = new PrintStream(baos)
     val syms = scalaSig.topLevelClasses ::: scalaSig.topLevelObjects

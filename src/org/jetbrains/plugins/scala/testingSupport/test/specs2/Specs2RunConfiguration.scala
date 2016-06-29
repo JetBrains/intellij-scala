@@ -30,7 +30,7 @@ class Specs2RunConfiguration(override val project: Project,
 
   override def errorMessage: String = "Specs2 is not specified"
 
-  override def currentConfiguration = Specs2RunConfiguration.this
+  override def currentConfiguration: Specs2RunConfiguration = Specs2RunConfiguration.this
 
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz)
 }

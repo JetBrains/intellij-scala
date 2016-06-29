@@ -49,7 +49,7 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
 
   def getName: String = StringRef.toString(name)
 
-  def isDeclaration = declaration
+  def isDeclaration: Boolean = declaration
 
   def getTypeElement: ScTypeElement = {
     if (myTypeElement != null) {

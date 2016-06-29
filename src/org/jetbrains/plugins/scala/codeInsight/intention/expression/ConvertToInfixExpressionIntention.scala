@@ -22,7 +22,7 @@ object ConvertToInfixExpressionIntention {
 }
 
 class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ConvertToInfixExpressionIntention.familyName
+  def getFamilyName: String = ConvertToInfixExpressionIntention.familyName
 
   override def getText: String = getFamilyName
 

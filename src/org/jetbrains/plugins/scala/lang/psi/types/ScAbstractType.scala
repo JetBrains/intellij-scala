@@ -44,13 +44,13 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
     }
   }
 
-  def inferValueType = parameterType
+  def inferValueType: TypeParameterType = parameterType
 
   def simplifyType: ScType = {
     if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
   }
 
-  override def removeAbstracts = simplifyType
+  override def removeAbstracts: ScType = simplifyType
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
     if (visited.contains(this)) {
@@ -89,7 +89,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
     }
   }
 
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitAbstractType(this)
     case _ =>
   }

@@ -37,7 +37,7 @@ trait TypingContext {
   def isUndefined = false
 
   def apply(named: ScNamedElement): TypingContext = new TypingContext {
-    def visited = HashSet(self.visited.toSeq: _*) + named
+    def visited: HashSet[ScNamedElement] = HashSet(self.visited.toSeq: _*) + named
   }
 
   def apply(seq: Seq[ScNamedElement]): TypingContext = seq.foldLeft(TypingContext.empty)((ctx, elem) => ctx(elem))

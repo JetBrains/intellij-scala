@@ -36,15 +36,15 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
     if (res == "java.lang.Object") "scala.Any" else res
   }
 
-  def nameToClass0(str: String) = {
+  def nameToClass0(str: String): String = {
     val res = Names.decode(str.replace('/', '.'))
     if (res == "java.lang.Object") "scala.AnyRef" else res
   }
 
-  def nameToSimpleClass(str: String) =
+  def nameToSimpleClass(str: String): String =
     Names.decode(str.substring(str.lastIndexOf('/') + 1))
 
-  def nameToPackage(str: String) = {
+  def nameToPackage(str: String): String = {
     val inx = str.lastIndexOf('/')
     val name = if (inx == -1) str else str.substring(0, inx).replace('/', '.')
     Names.decode(name)
@@ -110,11 +110,11 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
 
   def getType(n: Int): String = sigToType(getName(n))
 
-  def isStatic(flags: Int) = (flags & 0x0008) != 0
+  def isStatic(flags: Int): Boolean = (flags & 0x0008) != 0
 
-  def isInterface(flags: Int) = (flags & 0x0200) != 0
+  def isInterface(flags: Int): Boolean = (flags & 0x0200) != 0
 
-  def isConstr(name: String) = (name == "<init>")
+  def isConstr(name: String): Boolean = (name == "<init>")
 
   def printField(flags: Int, name: Int, tpe: Int, attribs: List[cf.Attribute]) {
     print(flagsToStr(false, flags))

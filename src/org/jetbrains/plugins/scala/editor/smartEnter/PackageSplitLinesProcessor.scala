@@ -14,7 +14,7 @@ import com.intellij.psi.PsiFile
 class PackageSplitLinesProcessor extends SmartEnterProcessor {
   private val Package = "(\\s*)package .+".r
 
-  def process(project: Project, editor: Editor, psiFile: PsiFile) = {
+  def process(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
 

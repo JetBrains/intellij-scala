@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  */
 
 object InterpolatedStringFormatter extends StringFormatter {
-  def format(parts: Seq[StringPart]) = {
+  def format(parts: Seq[StringPart]): String = {
     val toMultiline = parts.exists {
       case Text(s) => s.contains("\n")
       case i: Injection => i.value == "\n"
@@ -18,7 +18,7 @@ object InterpolatedStringFormatter extends StringFormatter {
     format(parts, toMultiline)
   }
 
-  def format(parts: Seq[StringPart], toMultiline: Boolean) = {
+  def format(parts: Seq[StringPart], toMultiline: Boolean): String = {
     val content = formatContent(parts, toMultiline)
     val prefix = {
       val formattingRequired = parts.exists {

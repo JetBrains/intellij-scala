@@ -35,7 +35,7 @@ object StringConcatenationParser extends StringParser {
     }
   }
 
-  def isString(exp: ScExpression) = exp.getType(TypingContext.empty).toOption match {
+  def isString(exp: ScExpression): Boolean = exp.getType(TypingContext.empty).toOption match {
     case Some(ScDesignatorType(element)) => element.name == "String"
     case Some(ScProjectionType(ScDesignatorType(predef), ta: ScTypeAlias, _))  => predef.name == "Predef" && ta.name == "String"
     case _ => false

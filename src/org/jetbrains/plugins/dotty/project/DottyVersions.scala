@@ -11,7 +11,7 @@ object DottyVersions extends Versions {
 
   override protected val releaseVersionLine = """.+>(\d+.\d+.+)/<.*""".r
 
-  def loadDottyVersions = loadVersionsOf(Dotty)
+  def loadDottyVersions: Array[String] = loadVersionsOf(Dotty)
 
   private object Dotty extends Entity(s"$RepositoryUrl/${GroupId.replace('.', '/')}/$ArtifactId",
     Version(DefaultRevision), Seq(DefaultRevision))

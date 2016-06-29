@@ -14,7 +14,7 @@ class FilterEmptyCheckInspection extends OperationOnCollectionInspection {
 }
 
 object FilterIsEmptyCheck extends SimplificationType {
-  override def hint = InspectionBundle.message("filter.empty.check.hint")
+  override def hint: String = InspectionBundle.message("filter.empty.check.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

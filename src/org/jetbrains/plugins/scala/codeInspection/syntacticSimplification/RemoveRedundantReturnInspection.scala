@@ -4,13 +4,14 @@ package syntacticSimplification
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturnStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
 
 class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundantReturn", "Redundant Return") {
 
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case function: ScFunctionDefinition =>
     for (body <- function.body) {
         val returns = body.calculateReturns()

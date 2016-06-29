@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.codeInsight.generation.ui
 
+import java.lang.Boolean
 import javax.swing.event.{TableModelEvent, TableModelListener}
 
 import com.intellij.ide.wizard.{AbstractWizard, Step, StepAdapter}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.AsyncResult
 import com.intellij.refactoring.classMembers.AbstractMemberInfoModel
-import com.intellij.refactoring.ui.AbstractMemberSelectionPanel
+import com.intellij.refactoring.ui.{AbstractMemberSelectionPanel, AbstractMemberSelectionTable}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -23,7 +25,7 @@ import scala.collection.JavaConversions._
 class ScalaGenerateToStringWizard(project: Project, classMembers: Seq[ScNamedElement]) extends AbstractWizard[Step](
   ScalaBundle.message("org.jetbrains.plugins.scala.codeInsight.generation.ui.toString.title"), project) {
 
-  override def showAndGetOk() = {
+  override def showAndGetOk(): AsyncResult[Boolean] = {
     val result = super.showAndGetOk()
 
     if (this.isOK) {
@@ -35,7 +37,7 @@ class ScalaGenerateToStringWizard(project: Project, classMembers: Seq[ScNamedEle
   }
 
   def getToStringFields: Seq[ScNamedElement] = toStringPanel.getTable.getSelectedMemberInfos.map(_.getMember).toSeq
-  def withFieldNames = toStringPanel.checkBox.isSelected
+  def withFieldNames: Boolean = toStringPanel.checkBox.isSelected
 
   /**
    * Get IntelliJ help ID.
@@ -52,12 +54,12 @@ class ScalaGenerateToStringWizard(project: Project, classMembers: Seq[ScNamedEle
   }
 
   private class ToStringTableModelListener extends TableModelListener {
-    def tableChanged(modelEvent: TableModelEvent) = updateButtons()
+    def tableChanged(modelEvent: TableModelEvent): Unit = updateButtons()
   }
 
   private class ToStringStep(panel: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo]) extends StepAdapter {
-    override def getComponent = panel
-    override def getPreferredFocusedComponent = panel.getTable
+    override def getComponent: AbstractMemberSelectionPanel[ScNamedElement, ScalaMemberInfo] = panel
+    override def getPreferredFocusedComponent: AbstractMemberSelectionTable[ScNamedElement, ScalaMemberInfo] = panel.getTable
   }
 
   override protected def init(): Unit = {

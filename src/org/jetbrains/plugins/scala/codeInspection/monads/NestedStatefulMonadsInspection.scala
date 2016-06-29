@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.monads
 
 import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.codeInspection.monads.NestedStatefulMonadsInspection._
 import org.jetbrains.plugins.scala.codeInspection.monads.StatefulMonads._
@@ -16,7 +17,7 @@ object NestedStatefulMonadsInspection {
 }
 
 final class NestedStatefulMonadsInspection extends AbstractInspection(Annotation) {
-  override def actionFor(holder: ProblemsHolder) = {
+  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case call: ScMethodCall =>
       val project = call.getProject
       call.getType().getOrAny match {

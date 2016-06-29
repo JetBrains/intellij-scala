@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameter, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -79,7 +79,7 @@ object ResolveUtils {
             case _ => false
           })
 
-  def methodType(m : PsiMethod, s : ScSubstitutor, scope: GlobalSearchScope) =
+  def methodType(m : PsiMethod, s : ScSubstitutor, scope: GlobalSearchScope): ValueType =
     FunctionType(s.subst(m.getReturnType.toScType(m.getProject, scope)),
       m.getParameterList.getParameters.map({
         p => val pt = p.getType

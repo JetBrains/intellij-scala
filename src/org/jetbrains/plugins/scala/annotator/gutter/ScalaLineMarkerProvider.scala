@@ -53,14 +53,14 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
     }
   }
 
-  def createMarkerInfo(element: PsiElement) = {
+  def createMarkerInfo(element: PsiElement): LineMarkerInfo[PsiElement] = {
     new LineMarkerInfo[PsiElement](
             element, element.getTextRange, null, Pass.UPDATE_ALL,
             NullableFunction.NULL.asInstanceOf[com.intellij.util.Function[PsiElement,String]],
             null, GutterIconRenderer.Alignment.RIGHT)
   }
 
-  def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]) = {
+  def addSeparatorInfo(info: LineMarkerInfo[_ <: PsiElement]): LineMarkerInfo[_ <: PsiElement] = {
     info.separatorColor = colorsManager.getGlobalScheme.getColor(CodeInsightColors.METHOD_SEPARATORS_COLOR)
     info.separatorPlacement = SeparatorPlacement.TOP
     info
@@ -248,7 +248,7 @@ private object GutterUtil {
     }
   }
 
-  def isAbstract(element: PsiElement) = element match {
+  def isAbstract(element: PsiElement): Boolean = element match {
     case method: ScFunctionDeclaration => true
     case value: ScValueDeclaration => true
     case variable: ScVariableDeclaration => true

@@ -60,7 +60,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   })
 
   class MyElementRenderer(member: ScalaNamedMember) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
-    def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation) = {
+    def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
       element.getDelegate.renderElement(presentation)
 
       val (resultText, tailText) = member match {
@@ -127,7 +127,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   class MyInsertHandler(hasOverride: Boolean = false) extends InsertHandler[LookupElement] {
-    def handleInsert(context: InsertionContext, item: LookupElement) = {
+    def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
       def makeInsertion(): Unit = {
         val elementOption = Option(PsiTreeUtil.getContextOfType(context.getFile.findElementAt(context.getStartOffset),
           classOf[ScModifierListOwner]))

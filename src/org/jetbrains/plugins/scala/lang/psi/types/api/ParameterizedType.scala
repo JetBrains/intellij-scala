@@ -16,7 +16,7 @@ trait ParameterizedType extends TypeInTypeSystem with ValueType {
   val designator: ScType
   val typeArguments: Seq[ScType]
 
-  def substitutor = Option(substitutorCache.get(this)).getOrElse {
+  def substitutor: ScSubstitutor = Option(substitutorCache.get(this)).getOrElse {
     val result = substitutorInner
     substitutorCache.put(this, result)
     result
@@ -43,7 +43,7 @@ trait ParameterizedType extends TypeInTypeSystem with ValueType {
     }
   }
 
-  override def typeDepth = {
+  override def typeDepth: Int = {
     val result = designator.typeDepth
     typeArguments.map(_.typeDepth) match {
       case Seq() => result //todo: shouldn't be possible
@@ -60,7 +60,7 @@ object ParameterizedType {
     ContainerUtil.createConcurrentWeakMap[ParameterizedType, ScSubstitutor]()
 
   def apply(designator: ScType, typeArguments: Seq[ScType])
-           (implicit typeSystem: TypeSystem) = typeSystem.parameterizedType(designator, typeArguments)
+           (implicit typeSystem: TypeSystem): ValueType = typeSystem.parameterizedType(designator, typeArguments)
 
   def unapply(parameterized: ParameterizedType): Option[(ScType, Seq[ScType])] =
     Some(parameterized.designator, parameterized.typeArguments)

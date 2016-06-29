@@ -17,12 +17,12 @@ class ScalaSupportProvider extends FrameworkSupportInModuleProvider {
 
   override def getFrameworkType = ScalaFrameworkType.Instance
 
-  override def isEnabledForModuleType(moduleType: ModuleType[_ <: ModuleBuilder]) = {
+  override def isEnabledForModuleType(moduleType: ModuleType[_ <: ModuleBuilder]): Boolean = {
     val id = moduleType.getId
     id == ModuleTypeId.JAVA_MODULE || id == "PLUGIN_MODULE" // PluginModuleType.getInstance.getId
   }
 
-  override def isSupportAlreadyAdded(module: Module, facetsProvider: FacetsProvider) = module.hasScala
+  override def isSupportAlreadyAdded(module: Module, facetsProvider: FacetsProvider): Boolean = module.hasScala
 
   override def createConfigurable(model: FrameworkSupportModel) = new ScalaSupportConfigurable()
 }

@@ -99,13 +99,13 @@ object ScalaBreadcrumbsInfoProvider {
       "this" + limitString(signature)
     }
     
-    def describeFunction(fun: ScFunction) = if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)
+    def describeFunction(fun: ScFunction): String = if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)
     
-    def describeFunction(fun: ScFunctionExpr) = "λ" + getSignature(fun)
+    def describeFunction(fun: ScFunctionExpr): String = "λ" + getSignature(fun)
     
-    def describeTemplateDef(td: ScTemplateDefinition) = td.name
+    def describeTemplateDef(td: ScTemplateDefinition): String = td.name
     
-    def describeMember(mb: ScMember) = {
+    def describeMember(mb: ScMember): String = {
       mb match {
         case pattern: ScPatternDefinition =>
           val vs = pattern.bindings.map(b => b.name)
@@ -114,7 +114,7 @@ object ScalaBreadcrumbsInfoProvider {
       }
     }
     
-    def describeExpression(expr: ScExpression) = {
+    def describeExpression(expr: ScExpression): String = {
       expr match {
         case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.text).getOrElse(""))}) {...}"
         case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.text).getOrElse(""), "...")})"
@@ -124,11 +124,11 @@ object ScalaBreadcrumbsInfoProvider {
       }
     }
     
-    def describeCaseClause(clause: ScCaseClause) = {
+    def describeCaseClause(clause: ScCaseClause): String = {
       s"case ${limitString(clause.pattern.map(_.text).getOrElse(""))} =>"
     }
     
-    def getTemplateDefTooltip(td: ScTemplateDefinition) = {
+    def getTemplateDefTooltip(td: ScTemplateDefinition): String = {
       (td match {
         case clazz: ScClass => "class"
         case obj: ScObject => "object"
@@ -137,16 +137,16 @@ object ScalaBreadcrumbsInfoProvider {
       }) + " " + describeTemplateDef(td)
     }
     
-    def getFunctionTooltip(fun: ScFunction) = {
+    def getFunctionTooltip(fun: ScFunction): String = {
       describeFunction(fun) + (if (fun.getBody != null) limitText(fun.getBody.getText) else "")
     }
     
-    def getFunctionTooltip(funExpr: ScFunctionExpr) = {
+    def getFunctionTooltip(funExpr: ScFunctionExpr): String = {
       limitText(funExpr.getText)
     }
     
-    def getMemberTooltip(member: ScMember) = limitText(member.getText)
+    def getMemberTooltip(member: ScMember): String = limitText(member.getText)
     
-    def getCaseClauseTooltip(clause: ScCaseClause) = limitText(clause.getText)
+    def getCaseClauseTooltip(clause: ScCaseClause): String = limitText(clause.getText)
   }
 }

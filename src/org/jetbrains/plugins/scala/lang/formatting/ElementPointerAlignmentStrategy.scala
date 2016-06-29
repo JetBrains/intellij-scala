@@ -29,7 +29,7 @@ class ElementPointerAlignmentStrategy(val rootPointer: SmartPsiElementPointer[Ps
     rootPointer.getElement == psiElement
   }
 
-  def getAlignment = myAlignment
+  def getAlignment: Alignment = myAlignment
 }
 
 object ElementPointerAlignmentStrategy {

@@ -9,16 +9,16 @@ class MacroExpansionCollector(private val project: Project) extends ProjectCompo
   private val compilationStatusListener = new CompilationStatusListener {
     override def fileGenerated(outputRoot: String, relativePath: String): Unit = ???
 
-    override def compilationFinished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) = {
+    override def compilationFinished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {
       println(compileContext)
     }
   }
 
-  override def projectOpened() = {
+  override def projectOpened(): Unit = {
     CompilerManager.getInstance(project).addCompilationStatusListener(compilationStatusListener)
   }
 
-  override def projectClosed() = {
+  override def projectClosed(): Unit = {
     CompilerManager.getInstance(project).removeCompilationStatusListener(compilationStatusListener)
   }
 

@@ -30,7 +30,7 @@ case class ScCompoundType(components: Seq[ScType],
   }
 
 
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitCompoundType(this)
     case _ =>
   }
@@ -217,7 +217,7 @@ case class ScCompoundType(components: Seq[ScType],
 object ScCompoundType {
   def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias]): ScCompoundType = {
     val signatureMapVal: mutable.HashMap[Signature, ScType] = new mutable.HashMap[Signature, ScType] {
-      override def elemHashCode(s : Signature) = s.name.hashCode * 31 + {
+      override def elemHashCode(s : Signature): Int = s.name.hashCode * 31 + {
         val length = s.paramLength
         if (length.sum == 0) List(0).hashCode()
         else length.hashCode()

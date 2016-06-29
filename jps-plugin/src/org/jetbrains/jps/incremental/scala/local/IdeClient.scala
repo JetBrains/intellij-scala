@@ -67,7 +67,7 @@ abstract class IdeClient(compilerName: String,
     context.processMessage(new FileDeletedEvent(paths))
   }
 
-  def isCanceled = context.getCancelStatus.isCanceled
+  def isCanceled: Boolean = context.getCancelStatus.isCanceled
 
   def hasReportedErrors: Boolean = hasErrors
 }

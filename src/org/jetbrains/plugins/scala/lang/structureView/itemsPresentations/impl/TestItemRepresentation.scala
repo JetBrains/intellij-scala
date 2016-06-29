@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl
 
+import javax.swing.Icon
+
 import com.intellij.execution.testframework.PoolOfTestIcons._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.icons.Icons
@@ -14,7 +16,7 @@ class TestItemRepresentation(private val element: PsiElement, val testName: Stri
 
   override def getPresentableText: String = testName
 
-  override def getIcon(open: Boolean) = testStatus match {
+  override def getIcon(open: Boolean): Icon = testStatus match {
     case TestStructureViewElement.ignoredStatusId => IGNORED_ICON
     case TestStructureViewElement.pendingStatusId => NOT_RAN
     case _ => Icons.SCALA_TEST_NODE

@@ -24,6 +24,6 @@ class MyNotifierRunner(notifier: Notifier) { outer =>
     }
   }
 
-  def start(arguments: Array[String]) = classRunner.start(arguments:_*)
+  def start(arguments: Array[String]): Option[ExecutedSpecification] = classRunner.start(arguments:_*)
 
 }

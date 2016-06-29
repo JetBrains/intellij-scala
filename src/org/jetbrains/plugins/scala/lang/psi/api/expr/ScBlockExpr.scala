@@ -28,7 +28,7 @@ trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
     }
   }
 
-  override def controlFlowScope = if (isAnonymousFunction) caseClauses else None
+  override def controlFlowScope: Option[ScCaseClauses] = if (isAnonymousFunction) caseClauses else None
 }
 
 object ScBlockExpr {

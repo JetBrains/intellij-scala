@@ -25,7 +25,7 @@ class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with 
 
   override def toString: String = "TuplePattern"
 
-  override def subpatterns =  patternList match {
+  override def subpatterns: Seq[ScPattern] =  patternList match {
     case Some(l) => l.patterns
     case None => Seq.empty
   }

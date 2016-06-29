@@ -40,9 +40,9 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     }
   }
 
-  def getKinds(incomplete: Boolean, completion: Boolean) = StdKinds.stableClass
+  def getKinds(incomplete: Boolean, completion: Boolean): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = StdKinds.stableClass
 
-  def multiResolve(incomplete: Boolean) =
+  def multiResolve(incomplete: Boolean): Array[ResolveResult] =
     ResolveCache.getInstance(getProject).resolveWithCaching(this, MyResolver, true, incomplete)
 
   def getVariants: Array[Object] = {
@@ -57,11 +57,11 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   }
 
   def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
-  def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
   def qualifier = None
 
   object MyResolver extends ResolveCache.PolyVariantResolver[ScTypeProjectionImpl] {
-    def resolve(projection: ScTypeProjectionImpl, incomplete: Boolean) = {
+    def resolve(projection: ScTypeProjectionImpl, incomplete: Boolean): Array[ResolveResult] = {
       projection.doResolve(new ResolveProcessor(projection.getKinds(incomplete), projection, projection.refName))
     }
   }

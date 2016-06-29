@@ -9,7 +9,7 @@ class SbtSystemSettingsControl(settings: SbtSystemSettings) extends ExternalSyst
 
   private val pane = new SbtSettingsPane
 
-  def isModified = ! {
+  def isModified: Boolean = ! {
     pane.isCustomLauncher == settings.customLauncherEnabled &&
       pane.getLauncherPath == settings.customLauncherPath &&
       pane.getMaximumHeapSize == settings.maximumHeapSize &&

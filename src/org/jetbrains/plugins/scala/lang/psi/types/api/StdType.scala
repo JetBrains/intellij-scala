@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScType, ScTypeExt, ScUndefinedSubstitutor}
 
 abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType with NamedType {
   protected val fullName = s"scala.$name"
 
-  override def visitType(visitor: TypeVisitor) = visitor.visitStdType(this)
+  override def visitType(visitor: TypeVisitor): Unit = visitor.visitStdType(this)
 
   /**
     * Return wrapped to option appropriate synthetic class.
@@ -18,13 +18,13 @@ abstract class StdType(val name: String, val tSuper: Option[StdType]) extends Va
     * @param project in which project to find this class
     * @return If possible class to represent this type.
     */
-  def asClass(project: Project) = {
+  def asClass(project: Project): Option[ScSyntheticClass] = {
     val classes = SyntheticClasses.get(project)
     if (classes.isClassesRegistered) classes.byName(name) else None
   }
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem) = (`type` match {
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = (`type` match {
     case stdType: StdType => this == stdType
     case _ =>
       `type`.extractClass() match {

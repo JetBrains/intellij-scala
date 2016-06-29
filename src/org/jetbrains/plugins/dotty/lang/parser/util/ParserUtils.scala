@@ -36,7 +36,7 @@ object ParserUtils {
   }
 
   def parseWithPrefixToken(builder: ScalaPsiBuilder, elementType: ScalaElementType, maybeErrorMessage: Option[String] = None)
-                          (parse: => Boolean) = {
+                          (parse: => Boolean): Boolean = {
     val marker = builder.mark()
     builder.advanceLexer() // ate token
 

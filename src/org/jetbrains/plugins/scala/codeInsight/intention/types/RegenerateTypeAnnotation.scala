@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 class RegenerateTypeAnnotation extends PsiElementBaseIntentionAction {
 
-  def getFamilyName = RegenerateTypeAnnotation.getFamilyName
+  def getFamilyName: String = RegenerateTypeAnnotation.getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     if (element == null || !IntentionAvailabilityChecker.checkIntention(this, element)) {
       false
     } else {
@@ -59,5 +59,5 @@ class RegenerateTypeAnnotation extends PsiElementBaseIntentionAction {
 }
 
 object RegenerateTypeAnnotation {
-  def getFamilyName = ScalaBundle.message("intention.type.annotation.regen.family")
+  def getFamilyName: String = ScalaBundle.message("intention.type.annotation.regen.family")
 }

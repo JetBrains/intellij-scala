@@ -496,7 +496,7 @@ object ScalaPsiElementFactory {
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
 
-  def createStableReferenceElement(name: String, manager: PsiManager) = {
+  def createStableReferenceElement(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
     val file = createScalaFile("class A extends B with " + name, manager)
     val classDef = file.typeDefinitions(0)
     val extendsBlock = classDef.extendsBlock
@@ -909,7 +909,7 @@ object ScalaPsiElementFactory {
     res.substring(0, res.length - 1)
   }
 
-  def getStandardValue(`type`: ScType) = `type` match {
+  def getStandardValue(`type`: ScType): String = `type` match {
     case Unit => "()"
     case Boolean => "false"
     case Char | Int | Byte => "0"

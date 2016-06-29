@@ -7,7 +7,7 @@ package project
 sealed case class ScalaLanguageLevel(ordinal: Int, version: String) extends Named {
   def name: String = "Scala " + version
 
-  override def getName = name
+  override def getName: String = name
 
   private[project] def proxy: ScalaLanguageLevelProxy = ScalaLanguageLevel.LevelToProxy(this)
 

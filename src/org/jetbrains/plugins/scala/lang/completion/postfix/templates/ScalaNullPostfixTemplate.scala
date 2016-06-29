@@ -22,7 +22,7 @@ abstract class ScalaNullPostfixTemplate(val name: String, val example: String) e
     myPsiInfo.createExpression(expression, head, tail)
   }
 
-  override def getSurrounder = ScalaNullPostfixTemplate.surrounder
+  override def getSurrounder: ScalaWithIfConditionSurrounder = ScalaNullPostfixTemplate.surrounder
 }
 
 object ScalaNullPostfixTemplate {

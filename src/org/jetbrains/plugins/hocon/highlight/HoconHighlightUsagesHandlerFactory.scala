@@ -10,7 +10,7 @@ import org.jetbrains.plugins.hocon.psi._
 import scala.annotation.tailrec
 
 class HoconHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactoryBase {
-  def createHighlightUsagesHandler(editor: Editor, file: PsiFile, target: PsiElement) =
+  def createHighlightUsagesHandler(editor: Editor, file: PsiFile, target: PsiElement): HoconHighlightKeyUsagesHandler =
     Iterator.iterate(target)(_.getParent).takeWhile {
       case null | _: PsiFile => false
       case _ => true
@@ -70,6 +70,6 @@ class HoconHighlightKeyUsagesHandler(editor: Editor, psiFile: PsiFile, hkey: HKe
 
   def getTargets = JList(hkey)
 
-  def selectTargets(targets: JList[HKey], selectionConsumer: Consumer[JList[HKey]]) =
+  def selectTargets(targets: JList[HKey], selectionConsumer: Consumer[JList[HKey]]): Unit =
     selectionConsumer.consume(targets)
 }

@@ -36,7 +36,7 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
     new ScPackageContainerStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, prefix, ownNamePart, isExplicit)
   }
 
-  def indexStub(stub: ScPackageContainerStub, sink: IndexSink) = {
+  def indexStub(stub: ScPackageContainerStub, sink: IndexSink): Unit = {
     val prefix = stub.prefix
     var ownNamePart = stub.ownNamePart
     def append(postfix : String) =

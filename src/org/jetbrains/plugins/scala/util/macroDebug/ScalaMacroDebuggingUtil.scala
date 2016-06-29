@@ -107,31 +107,31 @@ object ScalaMacroDebuggingUtil {
   def readPreimageName(file: PsiFile): Option[String] =
     Option(SOURCE_FILE_NAME readAttributeBytes file.getVirtualFile) map (new String(_))
 
-  def getPreimageFile(file: PsiFile) = PREIMAGE_CACHE get file
+  def getPreimageFile(file: PsiFile): Option[PsiFile] = PREIMAGE_CACHE get file
 
-  def isLoaded(file: PsiFile) = SOURCE_CACHE get file.getVirtualFile.getCanonicalPath match {
+  def isLoaded(file: PsiFile): Boolean = SOURCE_CACHE get file.getVirtualFile.getCanonicalPath match {
     case Some(_) => true
     case _ => false
   }
 
-  def tryToLoad(file: PsiFile) = !file.getVirtualFile.isInstanceOf[LightVirtualFile] &&
+  def tryToLoad(file: PsiFile): Boolean = !file.getVirtualFile.isInstanceOf[LightVirtualFile] &&
           (isLoaded(file) || loadCode(file, false) != null)
 
-  def getOffsets(file: PsiFile) = SYNTHETIC_OFFSETS_MAP get file.getVirtualFile.getCanonicalPath
+  def getOffsets(file: PsiFile): Option[List[(Int, Int, Int)]] = SYNTHETIC_OFFSETS_MAP get file.getVirtualFile.getCanonicalPath
 
-  def getOffsetsCount(file: PsiFile) = SYNTHETIC_OFFSETS_MAP get file.getVirtualFile.getCanonicalPath match {
+  def getOffsetsCount(file: PsiFile): Int = SYNTHETIC_OFFSETS_MAP get file.getVirtualFile.getCanonicalPath match {
     case Some(offsets) => offsets.length
     case _ => 0
   }
 
-  def checkMarkers(fileName: String, markersCount: Int) = MARKERS_CACHE get fileName match {
+  def checkMarkers(fileName: String, markersCount: Int): Boolean = MARKERS_CACHE get fileName match {
     case Some(oldCount) => if (oldCount == markersCount) { false } else {
       MARKERS_CACHE += (fileName -> markersCount); true
     }
     case None => MARKERS_CACHE += (fileName -> markersCount); true
   }
 
-  def isMacroCall(element: PsiElement) = element match {
+  def isMacroCall(element: PsiElement): Boolean = element match {
     case methodInvocation: MethodInvocation => methodInvocation.getEffectiveInvokedExpr match {
       case ref: ScReferenceExpression => ref.resolve() match {
         case _: ScMacroDefinition => true

@@ -10,5 +10,5 @@ package patterns
 */
 
 trait ScNamingPattern extends ScBindingPattern {
-  def named = findChildByClassScala(classOf[ScPattern])
+  def named: ScPattern = findChildByClassScala(classOf[ScPattern])
 }

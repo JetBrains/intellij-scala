@@ -28,7 +28,7 @@ class PrettyPrinter {
     this
   }
 
-  def length = printer.length
+  def length: Int = printer.length
   override def toString: String = {
     printer.toString()
   }

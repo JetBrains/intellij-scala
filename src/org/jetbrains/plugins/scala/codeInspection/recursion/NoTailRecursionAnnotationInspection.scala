@@ -3,6 +3,7 @@ package codeInspection.recursion
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScAnnotationsHolder, ScFunctionDefinition}
 
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursionType, ScAnn
  */
 
 class NoTailRecursionAnnotationInspection extends AbstractInspection("No tail recursion annotation") {
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunctionDefinition if f.canBeTailRecursive && !f.hasTailRecursionAnnotation &&
             f.recursionType == RecursionType.TailRecursion =>
       holder.registerProblem(f.nameId, getDisplayName, new AddAnnotationQuickFix(f))

@@ -63,7 +63,7 @@ object ExtractSuperUtil {
     }
   }
 
-  def classPresentableName(clazz: ScTemplateDefinition) = {
+  def classPresentableName(clazz: ScTemplateDefinition): String = {
     clazz match {
       case td: ScTypeDefinition => td.qualifiedName
       case anon: ScNewTemplateDefinition =>
@@ -77,7 +77,7 @@ object ExtractSuperUtil {
     }
   }
 
-  def packageName(clazz: ScTemplateDefinition) = {
+  def packageName(clazz: ScTemplateDefinition): String = {
     clazz.containingFile match {
       case Some(f: ScalaFile) => f.getPackageName
       case _ => ""

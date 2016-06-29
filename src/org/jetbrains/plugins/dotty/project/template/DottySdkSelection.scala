@@ -2,7 +2,7 @@ package org.jetbrains.plugins.dotty.project.template
 
 import javax.swing.JComponent
 
-import org.jetbrains.plugins.scala.project.template.SdkSelection
+import org.jetbrains.plugins.scala.project.template.{SdkDescriptor, SdkSelection}
 
 /**
   * @author adkozlov
@@ -12,5 +12,5 @@ object DottySdkSelection extends SdkSelection {
 
   override protected def filesChooserDescriptor = new DottyFilesChooserDescriptor
 
-  def chooseDottySdkFiles(parentComponent: JComponent) = chooseSdkFiles(parentComponent)
+  def chooseDottySdkFiles(parentComponent: JComponent): Option[SdkDescriptor] = chooseSdkFiles(parentComponent)
 }

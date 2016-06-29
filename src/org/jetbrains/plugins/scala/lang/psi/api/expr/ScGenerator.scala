@@ -22,5 +22,5 @@ trait ScGenerator extends ScalaPsiElement with ScPatterned{
     Option(getNode.findChildByType(ScalaTokenTypes.kVAL)).map(_.getPsi)
   }
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitGenerator(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitGenerator(this)
 }

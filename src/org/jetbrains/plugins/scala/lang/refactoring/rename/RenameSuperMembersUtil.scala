@@ -59,7 +59,7 @@ object RenameSuperMembersUtil {
     }
   }
 
-  def prepareSuperMembers(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) = {
+  def prepareSuperMembers(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
     for (elem <- superMembersToRename) {
       allRenames.put(elem, newName)
       superMembersToRename -= elem

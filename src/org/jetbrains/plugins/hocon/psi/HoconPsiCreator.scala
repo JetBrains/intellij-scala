@@ -8,7 +8,7 @@ object HoconPsiCreator extends PsiCreator {
 
   import org.jetbrains.plugins.hocon.parser.HoconElementType._
 
-  def createElement(ast: ASTNode) = ast.getElementType match {
+  def createElement(ast: ASTNode): ASTWrapperPsiElement = ast.getElementType match {
     case Object => new HObject(ast)
     case ObjectEntries => new HObjectEntries(ast)
     case Include => new HInclude(ast)

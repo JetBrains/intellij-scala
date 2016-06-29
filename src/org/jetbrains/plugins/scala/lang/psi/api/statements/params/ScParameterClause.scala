@@ -22,7 +22,7 @@ trait ScParameterClause extends ScalaPsiElement {
   def effectiveParameters: Seq[ScParameter]
 
   //hack: no ClassParamList present at the moment
-  def unsafeClassParameters = effectiveParameters.asInstanceOf[Seq[ScClassParameter]]
+  def unsafeClassParameters: Seq[ScClassParameter] = effectiveParameters.asInstanceOf[Seq[ScClassParameter]]
 
   def paramTypes: Seq[ScType] = parameters.map(_.getType(TypingContext.empty).getOrAny)
 

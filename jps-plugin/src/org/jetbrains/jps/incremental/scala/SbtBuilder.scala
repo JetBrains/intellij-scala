@@ -26,7 +26,7 @@ import _root_.scala.collection.JavaConverters._
 class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getPresentableName = "Scala SBT builder"
 
-  override def buildStarted(context: CompileContext) = {
+  override def buildStarted(context: CompileContext): Unit = {
     val project: JpsProject = context.getProjectDescriptor.getProject
     if (isScalaProject(project) && !isDisabled(context))
       JavaBuilder.IS_ENABLED.set(context, false)
@@ -106,7 +106,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
       val filter = root.createFileFilter()
 
       FileUtil.processFilesRecursively(root.getRootFile, new Processor[File] {
-        def process(file: File) = {
+        def process(file: File): Boolean = {
           if (file.isFile && filter.accept(file) && !excludeIndex.isExcluded(file)) {
             ResourceUpdater.updateResource(context, root, file, outputRoot)
           }
@@ -172,7 +172,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     for (target <- chunk.getTargets.asScala ++ sourceTargets;
          root <- rootIndex.getTargetRoots(target, context).asScala) {
       FileUtil.processFilesRecursively(root.getRootFile, new Processor[File] {
-        def process(file: File) = {
+        def process(file: File): Boolean = {
           if (!excludeIndex.isExcluded(file)) {
             val path = file.getPath
             if (path.endsWith(".scala") || path.endsWith(".java")) {

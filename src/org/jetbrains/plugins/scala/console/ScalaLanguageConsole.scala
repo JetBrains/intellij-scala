@@ -24,7 +24,7 @@ class ScalaLanguageConsole(project: Project, title: String)
   private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1", project)
   getFile.asInstanceOf[ScalaFile].setContext(scalaFile, scalaFile.getLastChild)
 
-  def getHistory = textBuffer.toString()
+  def getHistory: String = textBuffer.toString()
 
   override def attachToProcess(processHandler: ProcessHandler): Unit = {
     super.attachToProcess(processHandler)

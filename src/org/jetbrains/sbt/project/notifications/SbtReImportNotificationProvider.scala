@@ -38,20 +38,20 @@ class SbtReImportNotificationProvider(project: Project, notifications: EditorNot
     val panel = new EditorNotificationPanel()
     panel.setText(SbtBundle("sbt.notification.reimport.msg", file.getName))
     panel.createActionLabel(SbtBundle("sbt.notification.refreshProject"), new Runnable {
-      override def run() = {
+      override def run(): Unit = {
         refreshProject()
         notifications.updateAllNotifications()
       }
     })
     panel.createActionLabel(SbtBundle("sbt.notification.enableAutoImport"), new Runnable {
-      override def run() = {
+      override def run(): Unit = {
         getProjectSettings(file).foreach(_.setUseOurOwnAutoImport(true))
         refreshProject()
         notifications.updateAllNotifications()
       }
     })
     panel.createActionLabel(SbtBundle("sbt.notification.ignore"), new Runnable {
-      override def run() = {
+      override def run(): Unit = {
         ignoreFile(file)
         notifications.updateAllNotifications()
       }

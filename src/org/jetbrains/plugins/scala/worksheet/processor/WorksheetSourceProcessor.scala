@@ -428,11 +428,11 @@ object WorksheetSourceProcessor {
     
     //kinda utils stuff that shouldn't be overriden
     
-    @inline final def withTempVar(callee: String, withInstance: Boolean = true) =
+    @inline final def withTempVar(callee: String, withInstance: Boolean = true): String =
       s"{val $tempVarName = " + (if (withInstance) instanceName + "." else "") + callee + " ; " + getTempVarInfo +
         eraseClassName + plusInfoDef + "\" = \" + ( " + PRINT_ARRAY_NAME + s"($tempVarName) )" + erasePrefixName + "}"
 
-    @inline final def withPrint(text: String) = getPrintMethodName + "(\"" + getStartText + text + "\")\n"
+    @inline final def withPrint(text: String): String = getPrintMethodName + "(\"" + getStartText + text + "\")\n"
     
     @inline final def withPrecomputeLines(psi: ScalaPsiElement, body: => Unit) {
       val lineNum = psiToLineNumbers(psi)
@@ -445,11 +445,11 @@ object WorksheetSourceProcessor {
       appendPsiLineInfo(psi, numberStr)
     }
 
-    @inline final def variableInstanceName(name: String) = if (name startsWith "`") s"`get$$$$instance$$$$${name.stripPrefix("`")}" else s"get$$$$instance$$$$$name"
+    @inline final def variableInstanceName(name: String): String = if (name startsWith "`") s"`get$$$$instance$$$$${name.stripPrefix("`")}" else s"get$$$$instance$$$$$name"
 
-    @inline final def countNls(str: String) = str.count(_ == '\n')
+    @inline final def countNls(str: String): Int = str.count(_ == '\n')
 
-    @inline final def insertNlsFromWs(psi: PsiElement) = psi.getNextSibling match {
+    @inline final def insertNlsFromWs(psi: PsiElement): String = psi.getNextSibling match {
       case ws: PsiWhiteSpace =>
         val c = countNls(ws.getText)
         if (c == 0) ";" else StringUtil.repeat("\n", c)

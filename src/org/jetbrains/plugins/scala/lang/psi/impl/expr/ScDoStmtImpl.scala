@@ -27,7 +27,7 @@ class ScDoStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDoStm
     }
   }
 
-  def condition = {
+  def condition: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
     if (c == null) None else Some(c) 

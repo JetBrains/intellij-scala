@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package functions
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{&&, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
   * @author Pavel Fatin
   */
 object MakeEtaExpansionExplicit extends AbstractTransformer {
-  def transformation = {
+  def transformation: PartialFunction[PsiElement, Unit] = {
     case (e: ScReferenceExpression) && ReferenceTarget(m: ScFunction) &&
       NonValueType(t: ScMethodType) && ExpectedType(et: ScParameterizedType)
       if !e.getParent.isInstanceOf[ScUnderscoreSection] =>

@@ -382,7 +382,7 @@ case class ScExistentialType(quantified: ScType,
     } else this
   }
 
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialType(this)
     case _ =>
   }
@@ -501,7 +501,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
     }
   }
 
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialArgument(this)
     case _ =>
   }

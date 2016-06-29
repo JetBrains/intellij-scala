@@ -17,7 +17,7 @@ class DesugarForIntention extends PsiElementBaseIntentionAction {
 
   override def getText = "Convert for comprehension to desugared expression"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case e @ Parent(_: ScForStatement) => true
       case _ => false

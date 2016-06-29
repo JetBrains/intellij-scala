@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.ProblemsHolderExt
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddCallParentheses
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -34,7 +35,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSignatureInspection(
   "ScalaEmptyParenMethodAccessedAsParameterless", "Empty-paren method accessed as parameterless") {
 
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression if e.isValid && IntentionAvailabilityChecker.checkInspection(this, e) =>
       e.getParent match {
         case gc: ScGenericCall =>

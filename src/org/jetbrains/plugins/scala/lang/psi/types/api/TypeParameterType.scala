@@ -57,7 +57,7 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
     case _ => false
   }
 
-  override def hashCode() = Seq(name, typeParameters, psiTypeParameter)
+  override def hashCode(): Int = Seq(name, typeParameters, psiTypeParameter)
     .map(_.hashCode())
     .foldLeft(0)((a, b) => 31 * a + b)
 }
@@ -97,19 +97,19 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     hash
   }
 
-  def isInvariant = psiTypeParameter match {
+  def isInvariant: Boolean = psiTypeParameter match {
     case typeParam: ScTypeParam => !typeParam.isCovariant && !typeParam.isContravariant
     case _ => false
   }
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem) =
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {
       case that: TypeParameterType => that.psiTypeParameter eq psiTypeParameter
       case _ => false
     }, substitutor)
 
-  override def visitType(visitor: TypeVisitor) = visitor.visitTypeParameterType(this)
+  override def visitType(visitor: TypeVisitor): Unit = visitor.visitTypeParameterType(this)
 }
 
 object TypeParameterType {

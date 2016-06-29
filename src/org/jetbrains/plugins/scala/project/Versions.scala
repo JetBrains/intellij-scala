@@ -16,9 +16,9 @@ object Versions extends Versions {
 
   override protected val releaseVersionLine = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
 
-  def loadScalaVersions = loadVersionsOf(Scala)
+  def loadScalaVersions: Array[String] = loadVersionsOf(Scala)
 
-  def loadSbtVersions = loadVersionsOf(Sbt)
+  def loadSbtVersions: Array[String] = loadVersionsOf(Sbt)
 
   private object Scala extends Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
     Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.5"))

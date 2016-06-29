@@ -18,7 +18,7 @@ trait IntermediateTreeVisitor {
 
   def escapeKeyword(name: String): String = ScalaNamesUtil.escapeKeyword(name)
 
-  def stringResult = printer.toString
+  def stringResult: String = printer.toString
 
   val rangedElementsMap = new mutable.HashMap[IntermediateNode, TextRange]
 }

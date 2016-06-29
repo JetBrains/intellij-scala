@@ -20,7 +20,7 @@ object RemoveRedundantElseIntention {
 }
 
 class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = RemoveRedundantElseIntention.familyName
+  def getFamilyName: String = RemoveRedundantElseIntention.familyName
 
   override def getText: String = "Remove redundant 'else'"
 

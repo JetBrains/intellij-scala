@@ -54,7 +54,7 @@ class LocalSbtWatcherExec extends SbtWatcherExec {
 
     @volatile private var stop = false
 
-    def startMain() = {
+    def startMain(): ProcessListener = {
       try Executors.newSingleThreadExecutor().submit {
         new Runnable {
           override def run() {
@@ -85,13 +85,13 @@ class LocalSbtWatcherExec extends SbtWatcherExec {
   }
 
   private class MyProcessDescriptor(private val process: Process, private val watcher: Future[_], listener: ProcessListener) {
-    def isRunning = !watcher.isDone
+    def isRunning: Boolean = !watcher.isDone
 
-    def getProcess = process
+    def getProcess: Process = process
 
-    def startListening() = {listener.startMain(); this}
+    def startListening(): MyProcessDescriptor = {listener.startMain(); this}
 
-    def stopListening() = listener.stopMain()
+    def stopListening(): Unit = listener.stopMain()
   }
 
   private def createDescriptor(process: Process, consumer: MessageConsumer) = new MyProcessDescriptor (

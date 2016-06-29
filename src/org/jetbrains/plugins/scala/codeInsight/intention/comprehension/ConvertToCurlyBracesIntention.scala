@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Convert to curly braces"
 
-  override def getText = getFamilyName
+  override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case e @ Parent(_: ScForStatement) =>
         List(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS).contains(e.getNode.getElementType) &&

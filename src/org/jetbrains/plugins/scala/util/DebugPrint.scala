@@ -8,8 +8,8 @@ object DebugPrint {
 
   var dLog : Boolean = true
 
-  def displayLog = dLog
-  def displayLog_= (b: Boolean) = {
+  def displayLog: Boolean = dLog
+  def displayLog_= (b: Boolean): Unit = {
     dLog = b
   }
 

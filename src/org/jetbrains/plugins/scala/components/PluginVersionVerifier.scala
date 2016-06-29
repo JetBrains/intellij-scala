@@ -25,16 +25,16 @@ abstract class ScalaPluginVersionVerifier {
 object ScalaPluginVersionVerifier {
 
   class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] with Serializable {
-    def compare(that: Version) = implicitly[Ordering[(Int, Int, Int)]]
+    def compare(that: Version): Int = implicitly[Ordering[(Int, Int, Int)]]
       .compare((major, minor, build), (that.major, that.minor, that.build))
 
     val presentation: String = if (major == Int.MaxValue) "SNAPSHOT" else s"$major.$minor.$build"
 
-    def isSnapshot = presentation == "SNAPSHOT"
+    def isSnapshot: Boolean = presentation == "SNAPSHOT"
 
-    override def equals(that: Any) = compare(that.asInstanceOf[Version]) == 0
+    override def equals(that: Any): Boolean = compare(that.asInstanceOf[Version]) == 0
 
-    override def toString = presentation
+    override def toString: String = presentation
   }
 
   object Version {
@@ -59,7 +59,7 @@ object ScalaPluginVersionVerifier {
     }
   }
 
-  def getPluginDescriptor = {
+  def getPluginDescriptor: IdeaPluginDescriptorImpl = {
     getClass.getClassLoader match {
       case pluginLoader: PluginClassLoader =>
         PluginManager.getPlugin(pluginLoader.getPluginId).asInstanceOf[IdeaPluginDescriptorImpl]

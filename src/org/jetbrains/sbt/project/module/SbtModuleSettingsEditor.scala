@@ -3,6 +3,7 @@ package project.module
 
 import java.awt.event.{ActionEvent, ActionListener}
 import java.util
+import javax.swing.JPanel
 import javax.swing.table.AbstractTableModel
 
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
@@ -30,7 +31,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
 
   def saveData() {}
 
-  def createComponentImpl() = {
+  def createComponentImpl(): JPanel = {
     myForm.sbtImportsList.setEmptyText(SbtBundle("sbt.settings.noImplicitImportsFound"))
     JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
 
@@ -67,13 +68,13 @@ private class ResolversModel(val resolvers: Seq[SbtResolver]) extends AbstractTa
     SbtBundle("sbt.settings.resolvers.updated")
   )
 
-  def getColumnCount = columns.size
+  def getColumnCount: Int = columns.size
 
-  def getRowCount = resolvers.size
+  def getRowCount: Int = resolvers.size
 
-  override def getColumnName(columnIndex: Int) = columns(columnIndex)
+  override def getColumnName(columnIndex: Int): String = columns(columnIndex)
 
-  def getValueAt(rowIndex: Int, columnIndex: Int) = columnIndex match {
+  def getValueAt(rowIndex: Int, columnIndex: Int): String = columnIndex match {
     case 0 => resolvers(rowIndex).name
     case 1 => resolvers(rowIndex).root
     case 2 =>

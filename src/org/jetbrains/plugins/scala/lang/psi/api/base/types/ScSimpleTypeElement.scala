@@ -20,7 +20,7 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
 
-  def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
+  def singleton: Boolean = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
   def findConstructor: Option[ScConstructor] = {
     def findConstructor(element: ScalaPsiElement) = element.getContext match {

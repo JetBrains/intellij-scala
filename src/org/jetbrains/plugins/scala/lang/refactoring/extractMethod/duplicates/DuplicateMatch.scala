@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -29,17 +30,17 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
 
   def isDuplicate: Boolean = checkElementSeq(pattern.elements, candidates)
 
-  def parameterText(param: ExtractMethodParameter) = parameterValues.get(param) match {
+  def parameterText(param: ExtractMethodParameter): String = parameterValues.get(param) match {
     case Some(e) => e.getText
     case None => throw new IllegalStateException(s"Could not find value of the parameter ${param.newName}")
   }
 
-  def outputName(output: ExtractMethodOutput) = definitionCorrespondence.get(output.fromElement) match {
+  def outputName(output: ExtractMethodOutput): String = definitionCorrespondence.get(output.fromElement) match {
     case Some(td) => td.name
     case None => output.paramName
   }
 
-  def textRange = candidates.head.getTextRange.union(candidates.last.getTextRange)
+  def textRange: TextRange = candidates.head.getTextRange.union(candidates.last.getTextRange)
 
   private def checkElementSeq(subPatterns: Seq[PsiElement], subCandidates: Seq[PsiElement]): Boolean = {
     val filteredP = filtered(subPatterns)

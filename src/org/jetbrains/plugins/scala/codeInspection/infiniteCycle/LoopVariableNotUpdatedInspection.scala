@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 class LoopVariableNotUpdatedInspection extends AbstractInspection("LoopVariableNotUpdatedInspection", "Loop variable not updated inside loop") {
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case ScWhileStmt(
       Some(ScInfixExpr((ref: ScReferenceExpression) && (ResolvesTo(target@Parent(Parent(entity: ScVariable)))), ElementText(operator), _)),
       Some(body)) if !ref.isQualified && ComparisonOperators.contains(operator) && !isMutatedWithing(body, target) =>

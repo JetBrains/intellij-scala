@@ -37,7 +37,7 @@ object ScalaSmartEnterProcessor {
 class ScalaSmartEnterProcessor extends SmartEnterProcessor {
   private final val SMART_ENTER_TIMESTAMP: Key[Long]  = Key.create("smartEnterOriginalTimestamp")
 
-  def process(project: Project, editor: Editor, psiFile: PsiFile) = {
+  def process(project: Project, editor: Editor, psiFile: PsiFile): Boolean = {
     FeatureUsageTracker.getInstance.triggerFeatureUsed("codeassists.complete.statement")
 
     try {

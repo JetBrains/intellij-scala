@@ -14,9 +14,9 @@ class MapGetGetInspection extends OperationOnCollectionInspection {
 
 object MapGetGet extends SimplificationType() {
 
-  def hint = InspectionBundle.message("get.get.hint")
+  def hint: String = InspectionBundle.message("get.get.hint")
 
-  override def getSimplification(expr: ScExpression) = {
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case map`.getOnMap`(key)`.get`() =>
         Some(replace(expr)

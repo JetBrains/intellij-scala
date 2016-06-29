@@ -28,7 +28,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
   private var innerUndefinedSubstitutor = undefSubst
 
-  def getUndefinedSubstitutor = innerUndefinedSubstitutor
+  def getUndefinedSubstitutor: ScUndefinedSubstitutor = innerUndefinedSubstitutor
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     if (!element.isInstanceOf[PsiNamedElement]) return true
@@ -157,7 +157,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
 
   private var innerUndefinedSubstitutor = undefSubst
 
-  def getUndefinedSubstitutor = innerUndefinedSubstitutor
+  def getUndefinedSubstitutor: ScUndefinedSubstitutor = innerUndefinedSubstitutor
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     if (!element.isInstanceOf[PsiNamedElement]) return true

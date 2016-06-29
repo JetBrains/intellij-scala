@@ -49,7 +49,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   @volatile
   private var resolveResultCount: Long = -1L
 
-  def resolveTypesOnly(incomplete: Boolean) = {
+  def resolveTypesOnly(incomplete: Boolean): Array[ResolveResult] = {
 
     @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
     def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoMethods.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
@@ -57,7 +57,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     resolveWithCompiled(incomplete, ImportResolverNoMethods, doResolve)
   }
 
-  def resolveMethodsOnly(incomplete: Boolean) = {
+  def resolveMethodsOnly(incomplete: Boolean): Array[ResolveResult] = {
 
     @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
     def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoTypes.resolve(ResolvableStableCodeReferenceElement.this, incomplete)

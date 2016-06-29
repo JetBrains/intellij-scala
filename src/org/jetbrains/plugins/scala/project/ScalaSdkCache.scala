@@ -44,7 +44,7 @@ class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends Abstra
       .orderEntries().recursively().librariesOnly().exportedOnly()
 
     enumerator.forEachLibrary(new Processor[Library] {
-      override def process(library: Library) = {
+      override def process(library: Library): Boolean = {
         if (library.isScalaSdk) {
           result = Some(new ScalaSdk(library))
           false

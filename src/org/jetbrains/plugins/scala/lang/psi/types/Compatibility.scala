@@ -376,7 +376,7 @@ object Compatibility {
       p.index, Some(p), default)
   }
 
-  def toParameter(p: PsiParameter) = {
+  def toParameter(p: PsiParameter): Parameter = {
     val tp = p.paramType
     new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, None, tp, tp, false, p.isVarArgs, false, p.index,
       p match {

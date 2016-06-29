@@ -36,7 +36,7 @@ class NewPackageObjectAction
     e.getPresentation.setVisible(hasPackage && isEnabled)
   }
 
-  override def getAttributesDefaults(dataContext: DataContext) = {
+  override def getAttributesDefaults(dataContext: DataContext): AttributesDefaults = {
     new AttributesDefaults("package").withFixedName(true)
   }
 }

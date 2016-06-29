@@ -24,7 +24,7 @@ object FlipComparisonInMethodCallExprIntention {
 }
 
 class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = FlipComparisonInMethodCallExprIntention.familyName
+  def getFamilyName: String = FlipComparisonInMethodCallExprIntention.familyName
 
   override def getText: String = getFamilyName
 

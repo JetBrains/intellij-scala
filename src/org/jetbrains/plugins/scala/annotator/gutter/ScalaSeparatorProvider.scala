@@ -19,9 +19,9 @@ trait ScalaSeparatorProvider {
     isKnown(element) && doIfSeparatorNeeded(element)
   }
 
-  def isKnown(element: PsiElement) = groupOf(element).isDefined
+  def isKnown(element: PsiElement): Boolean = groupOf(element).isDefined
 
-  def doIfSeparatorNeeded(element: PsiElement) = {
+  def doIfSeparatorNeeded(element: PsiElement): Boolean = {
     if (isSeparationContainer(element.getParent) && hasElementAbove(element)) {
       val g = getGroup(element)
       if (g.get >= MultilineLevel) {
@@ -32,11 +32,11 @@ trait ScalaSeparatorProvider {
     } else false
   }
 
-  def hasElementAbove(element: PsiElement) = {
+  def hasElementAbove(element: PsiElement): Boolean = {
     getGroupAbove(element) {!_.isInstanceOf[ScImportStmt]}.isDefined
   }
 
-  def getGroup(element: PsiElement) = {
+  def getGroup(element: PsiElement): Option[Int] = {
     for (g <- groupOf(element))
     yield if (isMultiline(element)) MultilineLevel + g else g
   }
@@ -59,7 +59,7 @@ trait ScalaSeparatorProvider {
   }
 
   //TODO remove ".trim" when SCL-1746 will be fixed
-  def isMultiline(element: PsiElement) = {
+  def isMultiline(element: PsiElement): Boolean = {
     element.getText.trim.contains('\n') // trim to bypass SCL-1746
   }
 
@@ -74,7 +74,7 @@ trait ScalaSeparatorProvider {
     true
   }
 
-  def isSeparationBlocker(element: PsiElement) = {
+  def isSeparationBlocker(element: PsiElement): Boolean = {
     element match {
       case _: ScBlock | _: ScIfStmt => true
       case it: ScNewTemplateDefinition if it.extendsBlock != null => true

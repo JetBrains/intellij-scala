@@ -24,7 +24,7 @@ class ScalaElseRemover extends ScalaElseUnwrapperBase {
     }
   }
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = elseBranch(e) match {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = elseBranch(e) match {
     case Some((_, ifStmt: ScIfStmt)) if ifStmt.thenBranch.isDefined =>
       super.collectAffectedElements(e, toExtract)
       ifStmt.thenBranch.get
@@ -34,6 +34,6 @@ class ScalaElseRemover extends ScalaElseUnwrapperBase {
     case _ => e
   }
 
-  override def getDescription(e: PsiElement) = CodeInsightBundle.message("remove.else")
+  override def getDescription(e: PsiElement): String = CodeInsightBundle.message("remove.else")
 }
 

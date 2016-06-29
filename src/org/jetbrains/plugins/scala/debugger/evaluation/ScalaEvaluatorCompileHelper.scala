@@ -34,7 +34,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
       }
     }
 
-    override def sessionDetached(session: DebuggerSession) = {
+    override def sessionDetached(session: DebuggerSession): Unit = {
       clearTempFiles()
 
       if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
@@ -58,13 +58,13 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     tempFiles.clear()
   }
 
-  def tempDir() = {
+  def tempDir(): File = {
     val dir = FileUtil.createTempDirectory("classfilesForDebugger", null, true)
     tempFiles += dir
     dir
   }
 
-  def tempFile() = {
+  def tempFile(): File = {
     val file = FileUtil.createTempFile("FileToCompile", ".scala", true)
     tempFiles += file
     file
@@ -100,7 +100,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
 }
 
 object ScalaEvaluatorCompileHelper {
-  def instance(project: Project) = project.getComponent(classOf[ScalaEvaluatorCompileHelper])
+  def instance(project: Project): ScalaEvaluatorCompileHelper = project.getComponent(classOf[ScalaEvaluatorCompileHelper])
 }
 
 

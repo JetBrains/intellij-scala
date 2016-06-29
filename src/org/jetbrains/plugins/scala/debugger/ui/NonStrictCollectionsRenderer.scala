@@ -25,8 +25,8 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
   import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer.{MethodNotFound, Success}
   import org.jetbrains.plugins.scala.debugger.ui.{NonStrictCollectionsRenderer => companionObject}
 
-  def getStartIndex = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
-  def getEndIndex = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
+  def getStartIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
+  def getEndIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
 
   def getUniqueId = "NonStrictCollectionsRenderer"
 
@@ -131,7 +131,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   }
 
-  def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor) = value match {
+  def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = value match {
     case objectRef: ObjectReferenceImpl => ScalaCollectionRenderer.nonEmpty(objectRef, evaluationContext)
     case _ => false
   }
@@ -148,7 +148,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   private def isStreamView(tpe: Type): Boolean = DebuggerUtils.instanceOf(tpe, ScalaCollectionRenderer.streamViewClassName)
 
-  def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener) = {
+  def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
     val stringBuilder = StringBuilderSpinAllocator.alloc()
 
     descriptor.getValue match {
@@ -202,7 +202,7 @@ object NonStrictCollectionsRenderer {
   private case class Fail[E <: Throwable](exc: E) extends SimpleMethodInvocationResult[E]
   
   private class CollectionElementNodeDescriptor(name: String, project: Project, value: Value) extends ValueDescriptorImpl(project, value) {
-    def calcValue(evaluationContext: EvaluationContextImpl) = value
+    def calcValue(evaluationContext: EvaluationContextImpl): Value = value
 
     def getDescriptorEvaluation(context: DebuggerContext): PsiExpression = {
       try {

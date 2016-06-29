@@ -12,7 +12,7 @@ import com.intellij.CommonBundle
 
 object SbtBundle {
 
-  def apply(key: String, params: AnyRef*) = CommonBundle.message(get(), key, params : _*)
+  def apply(key: String, params: AnyRef*): String = CommonBundle.message(get(), key, params : _*)
 
   private var ourBundle: Reference[ResourceBundle] = null
   private val BUNDLE = "org.jetbrains.sbt.SbtBundle"

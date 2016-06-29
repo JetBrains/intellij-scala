@@ -58,7 +58,7 @@ object ScalaI18nUtil {
     mayBePropertyKey(literal) && isPassedToAnnotatedParam(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
   }
 
-  def mayBePropertyKey(literal: ScLiteral) = {
+  def mayBePropertyKey(literal: ScLiteral): Boolean = {
     def isForbiddenInKey(c: Char) = c == '=' || c == ':' || Character.isWhitespace(c)
 
     literal match {

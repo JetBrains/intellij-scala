@@ -81,7 +81,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
     }
   }
 
-  override def visitFile(file: PsiFile) = file match {
+  override def visitFile(file: PsiFile): Unit = file match {
     case scFile: ScalaFile => scFile.acceptChildren(this)
     case _ =>
   }
@@ -92,17 +92,17 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       pat.pList.patterns.toList.head.bindings(0).getName, canArrange = true), pat, pat.expr.orNull)
   }
 
-  override def visitElement(v: ScalaPsiElement) = v match {
+  override def visitElement(v: ScalaPsiElement): Unit = v match {
     case packaging: ScPackaging => packaging.acceptChildren(this)
     case _ => super.visitElement(v)
   }
 
-  override def visitClass(scClass: ScClass) =
+  override def visitClass(scClass: ScClass): Unit =
     processEntry(
       createNewEntry(scClass.getParent, expandTextRangeToComment(scClass), CLASS, scClass.getName, canArrange = true),
       scClass, scClass.extendsBlock.templateBody.orNull)
   
-  override def visitValueDeclaration(v: ScValueDeclaration) =
+  override def visitValueDeclaration(v: ScValueDeclaration): Unit =
     processEntry(createNewEntry(v.getParent, expandTextRangeToComment(v), VAL, v.getName, canArrange = true), v, null)
 
   override def visitVariableDefinition(varr: ScVariableDefinition) {
@@ -111,7 +111,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
       canArrange = true), varr, varr.expr.orNull)
   }
 
-  override def visitVariableDeclaration(varr: ScVariableDeclaration) =
+  override def visitVariableDeclaration(varr: ScVariableDeclaration): Unit =
     processEntry(createNewEntry(varr.getParent, expandTextRangeToComment(varr), VAR, varr.declaredElements(0).getName, canArrange = true),
       varr, null)
 

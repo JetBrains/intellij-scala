@@ -67,7 +67,7 @@ object GenerationUtil {
     }
   }
 
-  def isVar(elem: ScNamedElement) = ScalaPsiUtil.nameContext(elem) match {
+  def isVar(elem: ScNamedElement): Boolean = ScalaPsiUtil.nameContext(elem) match {
     case _: ScVariable => true
     case param: ScClassParameter if param.isVar => true
     case _ => false

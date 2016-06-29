@@ -24,17 +24,17 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
   def collectDefinitions(): Seq[ScTypedDefinition] = {
     val buffer = ListBuffer[ScTypedDefinition]()
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitFunctionDefinition(fun: ScFunctionDefinition) = {
+      override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
         buffer += fun
         super.visitFunctionDefinition(fun)
       }
 
-      override def visitPatternDefinition(pat: ScPatternDefinition) = {
+      override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
         pat.bindings.foreach(buffer += _)
         super.visitPatternDefinition(pat)
       }
 
-      override def visitVariableDefinition(varr: ScVariableDefinition) = {
+      override def visitVariableDefinition(varr: ScVariableDefinition): Unit = {
         varr.bindings.foreach(buffer += _)
         super.visitVariableDefinition(varr)
       }
@@ -46,7 +46,7 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
   def collectParamOccurences(): Map[ScReferenceExpression, ExtractMethodParameter] = {
     val buffer = mutable.Map[ScReferenceExpression, ExtractMethodParameter]()
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitReferenceExpression(ref: ScReferenceExpression) = {
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
         parameters.find(_.fromElement == ref.resolve)
                 .foreach(p => buffer += (ref -> p))
         super.visitReferenceExpression(ref)
@@ -75,7 +75,7 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
     val result = ListBuffer[DuplicateMatch]()
     val seen = mutable.Set[PsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {
-      override def visitElement(element: ScalaPsiElement) = {
+      override def visitElement(element: ScalaPsiElement): Unit = {
         if (isSignificant(element)) {
           isDuplicateStart(element) match {
             case Some(mtch) if !seen(mtch.candidates(0)) =>

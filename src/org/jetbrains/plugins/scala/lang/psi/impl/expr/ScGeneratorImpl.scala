@@ -26,10 +26,10 @@ class ScGeneratorImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScG
 
   override def toString: String = "Generator"
 
-  def pattern = findChildByClass(classOf[ScPattern])
+  def pattern: ScPattern = findChildByClass(classOf[ScPattern])
 
-  def guard = findChildByClass(classOf[ScGuard])
+  def guard: ScGuard = findChildByClass(classOf[ScGuard])
 
-  def rvalue = findChildByClass(classOf[ScExpression])
+  def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
   
 }

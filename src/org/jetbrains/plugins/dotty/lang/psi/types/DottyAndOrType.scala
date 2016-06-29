@@ -12,7 +12,7 @@ trait DottyAndOrType extends DottyType with ValueType {
 }
 
 case class DottyAndType(override val left: ScType, override val right: ScType) extends DottyAndOrType {
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitAndType(this)
     case _ =>
   }
@@ -23,7 +23,7 @@ object DottyAndType {
 }
 
 case class DottyOrType(override val left: ScType, override val right: ScType) extends DottyAndOrType {
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitOrType(this)
     case _ =>
   }

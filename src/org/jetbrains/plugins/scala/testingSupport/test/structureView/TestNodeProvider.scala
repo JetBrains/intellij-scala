@@ -182,7 +182,7 @@ object TestNodeProvider {
   private def pendingScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
     new TestStructureViewElement(element, name + TestNodeProvider.pendingSuffix, children, TestStructureViewElement.pendingStatusId)
 
-  def getInfixExprTestName(expr: ScInfixExpr) = expr.getNode.getFirstChildNode.getText
+  def getInfixExprTestName(expr: ScInfixExpr): String = expr.getNode.getFirstChildNode.getText
 
   private def checkScMethodCall(expr: ScMethodCall, funName: String, paramNames: List[String]*): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr.findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
@@ -481,7 +481,7 @@ object TestNodeProvider {
     }
   }
 
-  def getUTestLeftHandTestDefinition(element: PsiElement) = findListOfPatternsWithIndex(element) match {
+  def getUTestLeftHandTestDefinition(element: PsiElement): Option[ScMethodCall] = findListOfPatternsWithIndex(element) match {
     case Some((pattern, indexOpt)) if pattern.getParent != null && pattern.getParent.isInstanceOf[ScPatternDefinition] =>
       ((pattern.getParent.getLastChild, indexOpt) match {
         case (suiteMethodCall: ScMethodCall, None) => suiteMethodCall //left-hand is a simple pattern

@@ -31,7 +31,7 @@ class PatternMayNeverMatchInspection extends AbstractInspection(inspectionId, in
 object PatternMayNeverMatchInspection {
   val inspectionId = "PatternMayNeverMatch"
   val inspectionName = InspectionBundle.message("pattern.may.never.match")
-  def message(_expected: ScType, _found: ScType) = {
+  def message(_expected: ScType, _found: ScType): String = {
     val (expected, found) = ScTypePresentation.different(_expected, _found)
     InspectionBundle.message("pattern.may.never.match", expected, found)
   }

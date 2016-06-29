@@ -16,7 +16,7 @@ class IntroduceTypeAliasData {
   var typeAliasInfo: (PsiFile, TextRange) = null
   var isCallModalDialogInProgress: Boolean = false
 
-  def setTypeAlias(inTypeAlias: ScTypeAlias) = {
+  def setTypeAlias(inTypeAlias: ScTypeAlias): Unit = {
     if (inTypeAlias != null) {
       typeAliasInfo = (inTypeAlias.getContainingFile, inTypeAlias.getTextRange)
     }

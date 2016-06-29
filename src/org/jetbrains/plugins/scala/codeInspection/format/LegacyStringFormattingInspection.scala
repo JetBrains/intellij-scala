@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 
 class LegacyStringFormattingInspection extends AbstractInspection {
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case element if FormattedStringParser.extractFormatCall(element).isDefined =>
       holder.registerProblem(element, "Legacy string formatting, an interpolated string can be used instead", new QuickFix(element))
   }

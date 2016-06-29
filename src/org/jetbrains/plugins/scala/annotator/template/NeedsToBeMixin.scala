@@ -68,7 +68,7 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
     }
   }
 
-  def message(kind: String, name: String, member: (String, String)) = {
+  def message(kind: String, name: String, member: (String, String)): String = {
     s"$kind '$name' needs to be mixin, since member '${member._1}' in '${member._2}' is marked 'abstract' and 'override', " +
       s"but no concrete implementation could be found in a base class"
   }

@@ -205,7 +205,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     }
   }
 
-  def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String) = {
+  def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String): Unit = {
     val document = editor.getDocument
     def hasQuoteAt(offset: Int) = {
       val chars = document.getCharsSequence
@@ -220,7 +220,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   }
 
   class ConvertedCode(val data: String, val associations: Array[Association]) extends TextBlockTransferableData {
-    def setOffsets(offsets: Array[Int], _index: Int) = {
+    def setOffsets(offsets: Array[Int], _index: Int): Int = {
       var index = _index
       for (association <- associations) {
         association.range = new TextRange(offsets(index), offsets(index + 1))
@@ -229,7 +229,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       index
     }
 
-    def getOffsets(offsets: Array[Int], _index: Int) = {
+    def getOffsets(offsets: Array[Int], _index: Int): Int = {
       var index = _index
       for (association <- associations) {
         offsets(index) = association.range.getStartOffset
@@ -240,7 +240,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       index
     }
 
-    def getOffsetCount = associations.length * 2
+    def getOffsetCount: Int = associations.length * 2
 
     def getFlavor: DataFlavor = ConvertedCode.Flavor
   }

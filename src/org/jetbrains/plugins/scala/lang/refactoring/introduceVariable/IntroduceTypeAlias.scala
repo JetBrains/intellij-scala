@@ -264,7 +264,7 @@ trait IntroduceTypeAlias {
 
   def runRefactoringForTypes(file: PsiFile, editor: Editor,
                              typeElement: ScTypeElement, typeName: String,
-                             occurrences_ : OccurrenceData, scope: ScopeItem) = {
+                             occurrences_ : OccurrenceData, scope: ScopeItem): Unit = {
 
     val writeAction = new Runnable() {
       def run() {
@@ -284,7 +284,7 @@ trait IntroduceTypeAlias {
                                    scope: ScopeItem): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
     new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
+      def compute(): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
     }
   }
 
@@ -298,7 +298,7 @@ trait IntroduceTypeAlias {
       ScalaBundle.message("choose.scope.for", refactoringName), (elem: ScopeItem) => elem.toString)
   }
 
-  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String, typeAlias: ScTypeAlias) = {
+  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String, typeAlias: ScTypeAlias): Array[ScTypeElement] = {
     def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
       //remove parethesis around typeElement
@@ -337,12 +337,12 @@ trait IntroduceTypeAlias {
       var selectionHighlighter: RangeHighlighter = null
       val markupModel = editor.getMarkupModel
 
-      def addHighlighter() = if (selectionHighlighter == null) {
+      def addHighlighter(): Unit = if (selectionHighlighter == null) {
         selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,
           textAttributes, HighlighterTargetArea.EXACT_RANGE)
       }
 
-      def removeHighlighter() = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
+      def removeHighlighter(): Unit = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
     }
 
     val selection = new Selection

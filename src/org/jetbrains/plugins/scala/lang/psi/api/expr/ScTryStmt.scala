@@ -10,11 +10,11 @@ package expr
 */
 
 trait ScTryStmt extends ScExpression {
-  def tryBlock = findChildByClassScala(classOf[ScTryBlock])
-  def catchBlock = findChild(classOf[ScCatchBlock])
-  def finallyBlock = findChild(classOf[ScFinallyBlock])
+  def tryBlock: ScTryBlock = findChildByClassScala(classOf[ScTryBlock])
+  def catchBlock: Option[ScCatchBlock] = findChild(classOf[ScCatchBlock])
+  def finallyBlock: Option[ScFinallyBlock] = findChild(classOf[ScFinallyBlock])
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitTryExpression(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitTryExpression(this)
 }
 
 object ScTryStmt {

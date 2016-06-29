@@ -105,13 +105,13 @@ extends StubBaseWrapper[ScTemplateDefinition](parent, elemType) with ScTemplateD
 
   def isPackageObject: Boolean = _isPackageObject
 
-  def sourceFileName = mySourceFileName
+  def sourceFileName: String = mySourceFileName
 
-  def qualName = myQualName
+  def qualName: String = myQualName
 
-  def javaQualName = myJavaQualName
+  def javaQualName: String = myJavaQualName
 
-  def getName = myName
+  def getName: String = myName
 
   def methodNames: Array[String] = myMethodNames
 

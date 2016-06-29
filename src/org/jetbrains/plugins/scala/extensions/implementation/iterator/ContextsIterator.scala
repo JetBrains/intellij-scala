@@ -9,9 +9,9 @@ import com.intellij.psi.PsiElement
 class ContextsIterator(element: PsiElement) extends Iterator[PsiElement] {
   private var current = element.getContext
 
-  def hasNext = current != null
+  def hasNext: Boolean = current != null
 
-  def next() = {
+  def next(): PsiElement = {
     val result = current
     current = current.getContext
     result

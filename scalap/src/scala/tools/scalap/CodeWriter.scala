@@ -20,21 +20,21 @@ class CodeWriter(writer: Writer) {
   private var space = false
   private var line = false
 
-  def getWriter = writer
+  def getWriter: Writer = writer
 
-  def getIndentLevel = level
+  def getIndentLevel: Int = level
 
   def setIndentLevel(level: Int): CodeWriter = {
     this.level = level
     this
   }
 
-  def getIndentWidth = if (step == null) -1 else step.length()
+  def getIndentWidth: Int = if (step == null) -1 else step.length()
 
   def setIndentWidth(width: Int): CodeWriter = 
     setIndentString(List.fill(width)(' ').mkString)
 
-  def getIndentString = step;
+  def getIndentString: String = step;
 
   def setIndentString(step: String): CodeWriter = {
     this.step = step

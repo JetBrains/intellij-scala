@@ -49,5 +49,5 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
     }
   }
 
-  override def getCallingExpressionLines = callingExpressionLines
+  override def getCallingExpressionLines: Range[Integer] = callingExpressionLines
 }

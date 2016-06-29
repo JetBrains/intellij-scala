@@ -21,7 +21,7 @@ object InlineImplicitConversionIntention {
 }
 
 class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = InlineImplicitConversionIntention.familyName
+  def getFamilyName: String = InlineImplicitConversionIntention.familyName
 
   override def getText: String = getFamilyName
 

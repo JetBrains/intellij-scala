@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefi
  */
 
 object SealedClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
-  def kind = classOf[ScTemplateDefinition]
+  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     definition.containingScalaFile match {

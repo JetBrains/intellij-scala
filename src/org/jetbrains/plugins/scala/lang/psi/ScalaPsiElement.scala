@@ -17,7 +17,7 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
 
   implicit lazy val typeSystem = getProject.typeSystem
 
-  def isInCompiledFile = getContainingFile match {
+  def isInCompiledFile: Boolean = getContainingFile match {
     case file: ScalaFile => file.isCompiled
     case _ => false
   }
@@ -68,7 +68,7 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
     else node.getPsi.asInstanceOf[T]
   }
 
-  def findFirstChildByType(t: IElementType) = {
+  def findFirstChildByType(t: IElementType): PsiElement = {
     var node = getNode.getFirstChildNode
     while (node != null && node.getElementType != t) {
       node = node.getTreeNext
@@ -86,7 +86,7 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
     buffer.toList
   }
 
-  def findLastChildByType(set: TokenSet) = {
+  def findLastChildByType(set: TokenSet): PsiElement = {
     var node = getNode.getLastChildNode
     while (node != null && !set.contains(node.getElementType)) {
       node = node.getTreePrev

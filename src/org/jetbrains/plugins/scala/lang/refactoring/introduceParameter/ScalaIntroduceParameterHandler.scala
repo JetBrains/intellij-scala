@@ -234,7 +234,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     enclosingMethods
   }
 
-  def createDialog(project: Project, data: ScalaIntroduceParameterData) = {
+  def createDialog(project: Project, data: ScalaIntroduceParameterData): ScalaIntroduceParameterDialog = {
     val paramInfo = new ScalaParameterInfo(data.paramName, -1, data.tp, project, false, false, data.defaultArg, isIntroducedParameter = true)
     val descriptor = createMethodDescriptor(data.methodToSearchFor, paramInfo)
     new ScalaIntroduceParameterDialog(project, descriptor, data)

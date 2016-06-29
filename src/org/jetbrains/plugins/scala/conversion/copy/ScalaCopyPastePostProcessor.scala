@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.settings._
@@ -165,6 +166,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   }
 
   private case class Binding(element: PsiElement, path: String) {
-    def importsHolder = ScalaImportTypeFix.getImportHolder(element, element.getProject)
+    def importsHolder: ScImportsHolder = ScalaImportTypeFix.getImportHolder(element, element.getProject)
   }
 }

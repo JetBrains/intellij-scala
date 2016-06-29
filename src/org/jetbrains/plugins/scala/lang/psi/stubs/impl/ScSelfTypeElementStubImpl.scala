@@ -33,7 +33,7 @@ class ScSelfTypeElementStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
 
   def getName: String = StringRef.toString(name)
 
-  def getClassNames = typeNames
+  def getClassNames: Array[String] = typeNames
 
   def getTypeElementText: String = typeElementText.toString
 }

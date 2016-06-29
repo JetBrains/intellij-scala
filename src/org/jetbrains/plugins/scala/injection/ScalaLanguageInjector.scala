@@ -119,7 +119,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     language.isDefined
   }
 
-  def injectUsingPatterns(registrar: MultiHostRegistrar, host: PsiElement, literals: scala.Seq[ScLiteral]) = {
+  def injectUsingPatterns(registrar: MultiHostRegistrar, host: PsiElement, literals: scala.Seq[ScLiteral]): Boolean = {
     ScalaLanguageInjector withInjectionSupport { support =>
       val injections = myInjectionConfiguration.getInjections(support.getId).toIterator
 
@@ -142,7 +142,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     } getOrElse false
   }
   
-  def injectUsingIntention(registrar: MultiHostRegistrar, element: PsiElement, literals: scala.Seq[ScLiteral]) = {
+  def injectUsingIntention(registrar: MultiHostRegistrar, element: PsiElement, literals: scala.Seq[ScLiteral]): Boolean = {
     val registry = TemporaryPlacesRegistry getInstance element.getProject
 
     element match {
@@ -308,7 +308,7 @@ object ScalaLanguageInjector {
     }
   }
   
-  def withInjectionSupport[T](action: LanguageInjectionSupport => T) = 
+  def withInjectionSupport[T](action: LanguageInjectionSupport => T): Option[T] =
     Extensions getExtensions LanguageInjectionSupport.EP_NAME find (_.getId == "scala") map action
   
   def performSimpleInjection(literals: scala.Seq[ScLiteral], injectedLanguage: InjectedLanguage, 
@@ -322,9 +322,9 @@ object ScalaLanguageInjector {
     InjectorUtils.registerSupport(support, true, registrar)
   }
   
-  def getRangeInElement(element: ScLiteral) = scalaStringLiteralManipulator getRangeInElement element
+  def getRangeInElement(element: ScLiteral): TextRange = scalaStringLiteralManipulator getRangeInElement element
   
-  def isSafeCall(testExpr: ScExpression) = testExpr match {
+  def isSafeCall(testExpr: ScExpression): Boolean = testExpr match {
     case methodInv: MethodInvocation => safeMethodsNames contains methodInv.getEffectiveInvokedExpr.getText 
     case ref: ScReferenceExpression => safeMethodsNames contains ref.refName
     case _ => false

@@ -289,9 +289,9 @@ object ScopeSuggester {
 
 
 abstract class ScopeItem(name: String, availableNames: Array[String]) {
-  def getName = name
+  def getName: String = name
 
-  def getAvailableNames = availableNames
+  def getAvailableNames: Array[String] = availableNames
 
   override def toString: String = name
 }
@@ -307,7 +307,7 @@ case class SimpleScopeItem(name: String,
   val usualOccurrencesRanges = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
   val fileEncloserRange = (fileEncloser.getTextRange, fileEncloser.getContainingFile)
 
-  def setInheretedOccurrences(occurrences: Array[ScTypeElement]) = {
+  def setInheretedOccurrences(occurrences: Array[ScTypeElement]): Unit = {
     if (occurrences != null) {
       occurrencesFromInheretors = occurrences
     }
@@ -357,5 +357,5 @@ case class PackageScopeItem(name: String,
   var occurrences = Array[ScTypeElement]()
   var validator: ScalaCompositeTypeValidator = null
 
-  override def toString = "package " + name
+  override def toString: String = "package " + name
 }

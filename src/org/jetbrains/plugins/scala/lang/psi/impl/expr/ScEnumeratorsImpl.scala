@@ -10,6 +10,8 @@ import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
+import scala.collection.mutable
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
@@ -19,11 +21,11 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override def toString: String = "Enumerators"
 
-  def enumerators = findChildrenByClass[ScEnumerator](classOf[ScEnumerator])
+  def enumerators: mutable.WrappedArray[ScEnumerator] = findChildrenByClass[ScEnumerator](classOf[ScEnumerator])
 
-  def generators = findChildrenByClass[ScGenerator](classOf[ScGenerator])
+  def generators: mutable.WrappedArray[ScGenerator] = findChildrenByClass[ScGenerator](classOf[ScGenerator])
 
-  def guards = findChildrenByClass[ScGuard](classOf[ScGuard])
+  def guards: mutable.WrappedArray[ScGuard] = findChildrenByClass[ScGuard](classOf[ScGuard])
 
   def namings: Seq[ScPatterned] =
     for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])

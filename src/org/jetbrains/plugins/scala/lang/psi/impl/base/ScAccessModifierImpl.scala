@@ -45,7 +45,7 @@ class ScAccessModifierImpl private (stub: StubElement[ScAccessModifier], nodeTyp
     }
   }
 
-  def scope = getReference match {
+  def scope: PsiNamedElement = getReference match {
     case null => PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
     case ref => ref.resolve() match {
       case named: PsiNamedElement => named
@@ -78,23 +78,23 @@ class ScAccessModifierImpl private (stub: StubElement[ScAccessModifier], nodeTyp
     getNode.findChildByType(ScalaTokenTypes.kTHIS) != null
   }
 
-  override def getReference = {
+  override def getReference: PsiReference = {
     val text = idText
     if (text.isEmpty) null else new PsiReference {
-      def getElement = ScAccessModifierImpl.this
-      def getRangeInElement = {
+      def getElement: ScAccessModifierImpl = ScAccessModifierImpl.this
+      def getRangeInElement: TextRange = {
         val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
         new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
       }
-      def getCanonicalText = resolve() match {
+      def getCanonicalText: String = resolve() match {
         case td : ScTypeDefinition => td.qualifiedName
         case p : PsiPackage => p.getQualifiedName
         case _ => null
       }
       def isSoft = false
 
-      def handleElementRename(newElementName: String) = doRename(newElementName)
-      def bindToElement(e : PsiElement) = e match {
+      def handleElementRename(newElementName: String): ScAccessModifierImpl = doRename(newElementName)
+      def bindToElement(e : PsiElement): ScAccessModifierImpl = e match {
         case td : ScTypeDefinition => doRename(td.name)
         case p : PsiPackage => doRename(p.name)
         case _ => throw new IncorrectOperationException("cannot bind to anything but type definition or package")
@@ -107,7 +107,7 @@ class ScAccessModifierImpl private (stub: StubElement[ScAccessModifier], nodeTyp
         ScAccessModifierImpl.this
       }
 
-      def isReferenceTo(element: PsiElement) = element match {
+      def isReferenceTo(element: PsiElement): Boolean = element match {
         case td : ScTypeDefinition => td.name == text.get && resolve == td
         case p : PsiPackage => p.name == text.get && resolve == p
         case _ => false
@@ -159,7 +159,7 @@ class ScAccessModifierImpl private (stub: StubElement[ScAccessModifier], nodeTyp
   }
 
 
-  def access = {
+  def access: _root_.org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier.Type.Value = {
     assert(isPrivate || isProtected)
     if (isPrivate && isThis) ScAccessModifier.Type.THIS_PRIVATE
     else if (isPrivate) ScAccessModifier.Type.PRIVATE

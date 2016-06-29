@@ -11,7 +11,7 @@ trait DottyType extends TypeInTypeSystem {
 
 // is value type?
 case object DottyNoType extends DottyType with ValueType {
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitNoType(this)
     case _ =>
   }

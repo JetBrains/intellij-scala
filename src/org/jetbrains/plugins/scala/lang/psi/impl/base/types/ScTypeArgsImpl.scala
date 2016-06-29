@@ -5,6 +5,8 @@ import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 
+import scala.collection.mutable
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -13,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 class ScTypeArgsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeArgs {
   override def toString: String = "TypeArgumentsList"
 
-  def typeArgs = getChildren
+  def typeArgs: mutable.ArraySeq[ScTypeElement] = getChildren
     .filter(e => TYPE_ELEMENTS_TOKEN_SET.contains(e.getNode.getElementType))
     .map(_.asInstanceOf[ScTypeElement])
 }

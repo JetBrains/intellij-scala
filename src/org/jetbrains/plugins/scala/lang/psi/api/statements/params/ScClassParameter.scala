@@ -19,10 +19,10 @@ trait ScClassParameter extends ScParameter with ScModifierListOwner with ScMembe
   def isPrivateThis: Boolean
 
   /** Is the parmameter is explicitly marked as a val or a var; or a case class parameter that is automatically a val. */
-  def isEffectiveVal = isVal || isVar || isCaseClassVal
+  def isEffectiveVal: Boolean = isVal || isVar || isCaseClassVal
 
   /** Is the parameter automatically a val, due to it's position in a case class parameter list */
-  def isCaseClassVal = containingClass match {
+  def isCaseClassVal: Boolean = containingClass match {
     case c: ScClass if c.isCase =>
       val isInPrimaryConstructorFirstParamSection = c.constructor match {
         case Some(const) => const.effectiveFirstParameterSection.contains(this)

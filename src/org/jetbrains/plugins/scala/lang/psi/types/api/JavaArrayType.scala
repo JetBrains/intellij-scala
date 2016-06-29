@@ -11,7 +11,7 @@ import scala.collection.immutable.HashSet
 
 case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) extends ValueType with TypeInTypeSystem {
 
-  def getParameterizedType(project: Project, scope: GlobalSearchScope) =
+  def getParameterizedType(project: Project, scope: GlobalSearchScope): Option[ValueType] =
     ScalaPsiManager.instance(project).getCachedClasses(scope, "scala.Array")
       .find {
         clazz => clazz.isInstanceOf[ScClass] && clazz.getTypeParameters.length == 1
@@ -38,7 +38,7 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
 
   override def recursiveVarianceUpdateModifiable[T](data: T,
                                                     update: (ScType, Int, T) => (Boolean, ScType, T),
-                                                    variance: Int = 1) =
+                                                    variance: Int = 1): ScType =
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
@@ -46,7 +46,7 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
     }
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem) =
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) =
     `type` match {
       case JavaArrayType(thatArgument) => argument.equiv(thatArgument, substitutor, falseUndef)
       case ParameterizedType(designator, arguments) if arguments.length == 1 =>
@@ -57,7 +57,7 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
       case _ => (false, substitutor)
     }
 
-  override def visitType(visitor: TypeVisitor) = visitor.visitJavaArrayType(this)
+  override def visitType(visitor: TypeVisitor): Unit = visitor.visitJavaArrayType(this)
 
-  override def typeDepth = argument.typeDepth
+  override def typeDepth: Int = argument.typeDepth
 }

@@ -20,7 +20,7 @@ case class ExtractMethodOutput(paramName: String, returnType: ScType, needNewDef
 
 object ExtractMethodOutput {
 
-  def from(variableData: ScalaVariableData) = {
+  def from(variableData: ScalaVariableData): ExtractMethodOutput = {
     val element = variableData.element
     ExtractMethodOutput(element.name, variableData.scType, variableData.isInsideOfElements, element)
   }

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
  */
 
 object FinalClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
-  def kind = classOf[ScTemplateDefinition]
+  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     val newInstance = definition.isInstanceOf[ScNewTemplateDefinition]

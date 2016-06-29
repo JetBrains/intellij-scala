@@ -30,8 +30,8 @@ class FoldSimplificationType(inspection: OperationOnCollectionInspection,
                              opName: String,
                              methodName: String) extends SimplificationType(){
 
-  override def hint = InspectionBundle.message(keyPrefix + ".hint")
-  override def description = InspectionBundle.message(keyPrefix + ".short")
+  override def hint: String = InspectionBundle.message(keyPrefix + ".hint")
+  override def description: String = InspectionBundle.message(keyPrefix + ".short")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
@@ -48,8 +48,8 @@ class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
                                opName: String,
                                methodName: String) extends SimplificationType() {
 
-  override def hint = InspectionBundle.message(keyPrefix + ".hint")
-  override def description = InspectionBundle.message(keyPrefix + ".short")
+  override def hint: String = InspectionBundle.message(keyPrefix + ".hint")
+  override def description: String = InspectionBundle.message(keyPrefix + ".short")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

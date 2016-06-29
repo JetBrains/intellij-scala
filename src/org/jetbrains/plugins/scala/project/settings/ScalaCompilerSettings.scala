@@ -150,7 +150,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     plugins = state.plugins.toSeq
   }
 
-  def getState = {
+  def getState: ScalaCompilerSettingsState = {
     val state = new ScalaCompilerSettingsState()
     state.compileOrder = compileOrder
 

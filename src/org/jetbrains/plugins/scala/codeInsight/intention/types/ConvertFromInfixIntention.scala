@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeE
 class ConvertFromInfixIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Use Prefix Type Syntax"
 
-  override def getText = getFamilyName
+  override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case Parent(Both(ref: ScStableCodeReferenceElement, Parent(Parent(param: ScReferenceableInfixTypeElement)))) => true
       case _ => false

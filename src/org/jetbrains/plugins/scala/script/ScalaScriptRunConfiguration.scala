@@ -40,10 +40,10 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
     else ""
   }
 
-  def getScriptPath = scriptPath
-  def getScriptArgs = scriptArgs
-  def getJavaOptions = javaOptions
-  def getConsoleArgs = consoleArgs
+  def getScriptPath: String = scriptPath
+  def getScriptArgs: String = scriptArgs
+  def getJavaOptions: String = javaOptions
+  def getConsoleArgs: String = consoleArgs
   def getWorkingDirectory: String = workingDirectory
   def setScriptPath(s: String) {
     scriptPath = s
@@ -184,7 +184,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
 
   def getRefactoringElementListener(element: PsiElement): RefactoringElementListener = element match {
     case file: ScalaFile => new RefactoringElementAdapter {
-      def elementRenamedOrMoved(newElement: PsiElement) = {
+      def elementRenamedOrMoved(newElement: PsiElement): Unit = {
         newElement match {
           case f: ScalaFile =>
             val newPath = f.getVirtualFile.getPath

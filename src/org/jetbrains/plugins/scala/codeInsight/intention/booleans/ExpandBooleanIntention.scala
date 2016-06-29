@@ -23,7 +23,7 @@ object ExpandBooleanIntention {
 }
 
 class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ExpandBooleanIntention.familyName
+  def getFamilyName: String = ExpandBooleanIntention.familyName
 
   override def getText: String = "Expand boolean use to 'if else'"
 

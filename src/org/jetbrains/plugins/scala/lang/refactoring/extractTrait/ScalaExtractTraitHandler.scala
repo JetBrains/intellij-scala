@@ -37,7 +37,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
   val REFACTORING_NAME = ScalaBundle.message("extract.trait.title")
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) = {
+  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
     val offset: Int = editor.getCaretModel.getOffset
     editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
     val element: PsiElement = file.findElementAt(offset)
@@ -45,7 +45,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     invokeOnClass(clazz, project, editor)
   }
 
-  override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext) = {
+  override def invoke(project: Project, elements: Array[PsiElement], dataContext: DataContext): Unit = {
     val clazz = elements match {
       case Array(clazz: ScTemplateDefinition) => clazz
       case _ =>
@@ -244,7 +244,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
     private def collectTypeParameters(resolve: PsiElement) {
       val visitor = new ScalaRecursiveElementVisitor {
-        override def visitReference(ref: ScReferenceElement) = {
+        override def visitReference(ref: ScReferenceElement): Unit = {
           ref.resolve() match {
             case tp: ScTypeParam => typeParams += tp
             case _ =>

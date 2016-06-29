@@ -20,18 +20,18 @@ class ScalaLibraryProperties extends LibraryProperties[ScalaLibraryPropertiesSta
     compilerClasspath = state.compilerClasspath.map(path => new File(urlToPath(path)))
   }
 
-  def getState = {
+  def getState: ScalaLibraryPropertiesState = {
     val state = new ScalaLibraryPropertiesState()
     state.languageLevel = languageLevel.proxy
     state.compilerClasspath = compilerClasspath.map(file => pathToUrl(toCanonicalPath(file.getAbsolutePath))).toArray
     state
   }
 
-  override def equals(obj: scala.Any) = obj match {
+  override def equals(obj: scala.Any): Boolean = obj match {
     case that: ScalaLibraryProperties =>
       languageLevel == that.languageLevel && compilerClasspath == that.compilerClasspath
     case _ => false
   }
 
-  override def hashCode() = languageLevel.hashCode * 31 + compilerClasspath.hashCode
+  override def hashCode(): Int = languageLevel.hashCode * 31 + compilerClasspath.hashCode
 }

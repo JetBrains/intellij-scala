@@ -108,7 +108,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
-                                   place: PsiElement) = {
+                                   place: PsiElement): Boolean = {
     ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
   }
 

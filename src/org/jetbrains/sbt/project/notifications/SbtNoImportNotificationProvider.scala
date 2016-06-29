@@ -27,13 +27,13 @@ class SbtNoImportNotificationProvider(project: Project, notifications: EditorNot
     val panel = new EditorNotificationPanel()
     panel.setText(SbtBundle("sbt.notification.noimport.msg", file.getName))
     panel.createActionLabel(SbtBundle("sbt.notification.importProject"), new Runnable {
-      override def run() = {
+      override def run(): Unit = {
         importProject(file)
         notifications.updateAllNotifications()
       }
     })
     panel.createActionLabel(SbtBundle("sbt.notification.ignore"), new Runnable {
-      override def run() = {
+      override def run(): Unit = {
         ignoreFile(file)
         notifications.updateAllNotifications()
       }

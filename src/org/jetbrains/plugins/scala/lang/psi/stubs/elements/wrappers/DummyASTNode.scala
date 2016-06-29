@@ -24,7 +24,7 @@ object DummyASTNode extends TreeElement(ScalaElementTypes.DUMMY_ELEMENT) {
   def replaceAllChildrenToChildrenOf(anotherParent: ASTNode) {}
   def addChild(child: ASTNode, anchorBefore: ASTNode) {}
   def getTextLength: Int = 42
-  def getChildren(filter: TokenSet) = Array[ASTNode]()
+  def getChildren(filter: TokenSet): Array[ASTNode] = Array[ASTNode]()
   def addLeaf(leafType: IElementType, leafText: CharSequence, anchorBefore: ASTNode) {}
   def removeChild(child: ASTNode) {}
   def addChildren(firstChild: ASTNode, firstChildToNotAdd: ASTNode, anchorBefore: ASTNode) {}
@@ -45,5 +45,5 @@ object DummyASTNode extends TreeElement(ScalaElementTypes.DUMMY_ELEMENT) {
   def getChars: CharSequence = textToCharArray.mkString
   def getPsi[T <: PsiElement](p1: Class[T]): T = null.asInstanceOf[T]
 
-  def getInstanceForJava = this
+  def getInstanceForJava: DummyASTNode.type = this
 }

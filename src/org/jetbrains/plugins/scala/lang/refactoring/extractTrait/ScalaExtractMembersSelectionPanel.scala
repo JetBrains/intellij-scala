@@ -16,7 +16,7 @@ class ScalaExtractMembersSelectionPanel(title: String,
                                         abstractColumnHeader: String)
         extends ScalaMemberSelectionPanelBase[ScMember, ScalaExtractMemberInfo](title, memberInfo, abstractColumnHeader) {
 
-  override def createMemberSelectionTable(memberInfos: util.List[ScalaExtractMemberInfo], abstractColumnHeader: String) = {
+  override def createMemberSelectionTable(memberInfos: util.List[ScalaExtractMemberInfo], abstractColumnHeader: String): ScalaExtractMemberSelectionTable = {
     new ScalaExtractMemberSelectionTable(memberInfos, ExtractTraitInfoModel, abstractColumnHeader)
   }
 }

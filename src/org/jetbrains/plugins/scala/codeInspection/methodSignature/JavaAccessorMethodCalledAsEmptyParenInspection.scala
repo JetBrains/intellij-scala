@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.methodSignature
 
 import com.intellij.codeInspection._
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.codeInspection.ProblemsHolderExt
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.RemoveCallParentheses
 import org.jetbrains.plugins.scala.extensions._
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcesso
 class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSignatureInspection(
   "ScalaJavaAccessorMethodCalledAsEmptyParen", "Java accessor method called as empty-paren") {
 
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression => e.getParent match {
       case call: ScMethodCall =>
         call.getParent match {

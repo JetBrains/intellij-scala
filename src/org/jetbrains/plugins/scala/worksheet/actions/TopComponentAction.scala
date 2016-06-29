@@ -22,13 +22,13 @@ trait TopComponentAction extends TopComponentDisplayable {
   
   def shortcutId: Option[String] = None
   
-  def genericText = ScalaBundle message bundleKey
+  def genericText: String = ScalaBundle message bundleKey
   
   def bundleKey: String 
   
   def actionIcon: Icon
   
-  def getActionButton = {
+  def getActionButton: ActionButton = {
     val button = new ActionButton(this, getTemplatePresentation, ActionPlaces.EDITOR_TOOLBAR,
       ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE)
     button setToolTipText genericText

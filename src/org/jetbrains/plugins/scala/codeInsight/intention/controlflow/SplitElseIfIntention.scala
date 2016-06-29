@@ -19,7 +19,7 @@ object SplitElseIfIntention {
 }
 
 class SplitElseIfIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = SplitElseIfIntention.familyName
+  def getFamilyName: String = SplitElseIfIntention.familyName
 
   override def getText: String = "Split 'else if'"
 

@@ -32,7 +32,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
   loadIndexes()
 
 
-  def add(resolver: SbtResolver) = find(resolver) match {
+  def add(resolver: SbtResolver): SbtResolverIndex = find(resolver) match {
     case Some(index) => index
     case None =>
       val newIndex = SbtResolverIndex.create(resolver.kind, resolver.root, getIndexDirectory(resolver.root))
@@ -43,7 +43,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
   def find(resolver: SbtResolver): Option[SbtResolverIndex] =
     indexes find { _.root == resolver.root }
 
-  def dispose() =
+  def dispose(): Unit =
     indexes foreach { _.close() }
 
   def update(resolvers: Seq[SbtResolver]) {
@@ -117,8 +117,8 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 object SbtResolverIndexesManager {
   val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
 
-  def notifyWarning(message: String) =
+  def notifyWarning(message: String): Unit =
     NotificationUtil.showMessage(null, message, title = "Resolver Indexer")
 
-  def apply() = ServiceManager.getService(classOf[SbtResolverIndexesManager])
+  def apply(): SbtResolverIndexesManager = ServiceManager.getService(classOf[SbtResolverIndexesManager])
 }

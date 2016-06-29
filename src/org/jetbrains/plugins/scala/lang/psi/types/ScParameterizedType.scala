@@ -196,7 +196,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitParameterizedType(this)
     case _ =>
   }

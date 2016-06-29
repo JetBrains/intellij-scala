@@ -53,7 +53,7 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
     case _ => None
   }
 
-  def nameInCode = psiParam.map(_.getName)
+  def nameInCode: Option[String] = psiParam.map(_.getName)
 
 }
 
@@ -61,7 +61,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
                        (val project: Project, val scope: GlobalSearchScope) extends NonValueType with TypeInTypeSystem {
   implicit val typeSystem = project.typeSystem
 
-  override def visitType(visitor: TypeVisitor) = visitor.visitMethodType(this)
+  override def visitType(visitor: TypeVisitor): Unit = visitor.visitMethodType(this)
 
   override def typeDepth: Int = returnType.typeDepth
 
@@ -307,10 +307,10 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitTypePolymorphicType(this)
     case _ =>
   }
 
-  override def typeDepth = internalType.typeDepth.max(typeParameters.toArray.depth)
+  override def typeDepth: Int = internalType.typeDepth.max(typeParameters.toArray.depth)
 }

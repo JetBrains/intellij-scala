@@ -4,6 +4,8 @@ package psi
 package api
 package toplevel
 
+import javax.swing.Icon
+
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
@@ -39,7 +41,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  override def getName = ScalaNamesUtil.toJavaName(name)
+  override def getName: String = ScalaNamesUtil.toJavaName(name)
 
   def nameId: PsiElement
 
@@ -72,11 +74,11 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
         case x: ScNewTemplateDefinition => "(<anonymous>)"
         case _ => ""
       }
-      override def getIcon(open: Boolean) = parentMember match {case mem: ScMember => mem.getIcon(0) case _ => null}
+      override def getIcon(open: Boolean): Icon = parentMember match {case mem: ScMember => mem.getIcon(0) case _ => null}
     }
   }
 
-  override def getIcon(flags: Int) =
+  override def getIcon(flags: Int): Icon =
     ScalaPsiUtil.nameContext(this) match {
       case null => null
       case c: ScCaseClause => Icons.PATTERN_VAL

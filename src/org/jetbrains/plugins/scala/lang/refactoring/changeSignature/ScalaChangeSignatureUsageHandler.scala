@@ -343,7 +343,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     clauses.map(toArgs)
   }
 
-  def argsText(change: ChangeInfo, methodUsage: MethodUsageInfo) = {
+  def argsText(change: ChangeInfo, methodUsage: MethodUsageInfo): String = {
     val args = arguments(change, methodUsage)
     if (args.isEmpty && !methodUsage.isInstanceOf[RefExpressionUsage])
       "()"

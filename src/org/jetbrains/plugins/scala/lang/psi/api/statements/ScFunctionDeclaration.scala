@@ -4,6 +4,8 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+
 /**
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
@@ -11,5 +13,5 @@ package statements
 */
 
 trait ScFunctionDeclaration extends ScFunction with ScTypedDeclaration {
-  def typeElement = returnTypeElement
+  def typeElement: Option[ScTypeElement] = returnTypeElement
 }

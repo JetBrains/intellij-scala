@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
  */
 
 object FormattedStringFormatter extends StringFormatter {
-  def format(parts: Seq[StringPart]) = {
+  def format(parts: Seq[StringPart]): String = {
     val bindings = parts.collect {
       case Text(s) => (StringUtil.escapeStringCharacters(s), None)
       case injection @ Injection(expression, specifier) =>

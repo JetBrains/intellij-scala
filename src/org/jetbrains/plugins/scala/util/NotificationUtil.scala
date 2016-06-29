@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package util
 
+import java.net.URL
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.notification._
@@ -20,15 +21,15 @@ object NotificationUtil  {
     private var displayType: NotificationDisplayType = NotificationDisplayType.BALLOON
     private var handler: Handler = IdHandler
     
-    def setGroup(group: String) = {this.group = group; this}
-    def setTitle(title: String) = {this.title = title; this}
-    def setNotificationType(notificationType: NotificationType) = {this.notificationType = notificationType; this}
-    def setDisplayType(displayType: NotificationDisplayType) = {this.displayType = displayType; this}
-    def setHandler(handler: Handler) = {this.handler = handler; this}
+    def setGroup(group: String): NotificationBuilder = {this.group = group; this}
+    def setTitle(title: String): NotificationBuilder = {this.title = title; this}
+    def setNotificationType(notificationType: NotificationType): NotificationBuilder = {this.notificationType = notificationType; this}
+    def setDisplayType(displayType: NotificationDisplayType): NotificationBuilder = {this.displayType = displayType; this}
+    def setHandler(handler: Handler): NotificationBuilder = {this.handler = handler; this}
     
     def notification = new Notification(group, title, message, notificationType, new HyperlinkListener(handler))
-    def show() = Notifications.Bus.notify(notification, project)
-    def show(notification: Notification) = Notifications.Bus.notify(notification, project)
+    def show(): Unit = Notifications.Bus.notify(notification, project)
+    def show(notification: Notification): Unit = Notifications.Bus.notify(notification, project)
   }
   
   def showMessage(project: Project, message: String, 
@@ -59,13 +60,13 @@ object NotificationUtil  {
   }
 
   protected[NotificationUtil] object Link {
-    def unapply(event: HyperlinkEvent) = Option(event.getURL) map (_.getProtocol) collect {
+    def unapply(event: HyperlinkEvent): Option[URL] = Option(event.getURL) map (_.getProtocol) collect {
       case "http" => event.getURL
     }
   }
 
   protected[NotificationUtil] object Action {
-    def unapply(event: HyperlinkEvent) = Option(event.getURL) map (_.getProtocol) collect {
+    def unapply(event: HyperlinkEvent): Option[String] = Option(event.getURL) map (_.getProtocol) collect {
       case "ftp" => event.getURL.getHost
     }
   }

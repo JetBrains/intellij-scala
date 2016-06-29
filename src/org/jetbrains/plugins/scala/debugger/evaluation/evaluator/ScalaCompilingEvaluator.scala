@@ -190,7 +190,7 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
   private var anchorRange: TextRange = null
   
   private var anchor: PsiElement = null
-  def getAnchor = anchor
+  def getAnchor: PsiElement = anchor
 
   init()
 
@@ -293,7 +293,7 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
 private object GeneratedClass {
   var counter = 0
 
-  def apply(fragment: ScalaCodeFragment, context: PsiElement) = {
+  def apply(fragment: ScalaCodeFragment, context: PsiElement): GeneratedClass = {
     counter += 1
     new GeneratedClass(fragment, context, counter)
   }

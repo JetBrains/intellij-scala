@@ -20,8 +20,8 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
 
     new ScalaElementVisitor {
-      def startOffset(element: PsiElement) = element.getTextRange.getStartOffset
-      def endOffset(element: PsiElement) = element.getTextRange.getEndOffset
+      def startOffset(element: PsiElement): Int = element.getTextRange.getStartOffset
+      def endOffset(element: PsiElement): Int = element.getTextRange.getEndOffset
       def shiftInNewFile(offset: Int, semicolonOffset: Int): Int = offset + (if (offset > semicolonOffset) 1 else 0)
 
       override def visitElement(element: PsiElement) {

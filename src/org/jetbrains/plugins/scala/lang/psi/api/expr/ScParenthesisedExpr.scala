@@ -10,9 +10,9 @@ package expr
 */
 
 trait ScParenthesisedExpr extends ScInfixArgumentExpression {
-  def expr = findChild(classOf[ScExpression])
+  def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 }
 
 object ScParenthesisedExpr {
-  def unapply(p: ScParenthesisedExpr) = p.expr
+  def unapply(p: ScParenthesisedExpr): Option[ScExpression] = p.expr
 }

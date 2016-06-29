@@ -62,7 +62,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
   }
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem) = {
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) = left.designatorSingletonType.filter {
       case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
       case _ => false
@@ -91,7 +91,7 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
     }
   }
 
-  override def visitType(visitor: TypeVisitor) = visitor.visitDesignatorType(this)
+  override def visitType(visitor: TypeVisitor): Unit = visitor.visitDesignatorType(this)
 }
 
 object ScDesignatorType {

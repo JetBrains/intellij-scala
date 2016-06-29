@@ -53,11 +53,11 @@ abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
   override def binaryDependency(binary: File, name: String, source: File, publicInherited: Boolean): Unit = {}
   override def binaryDependency(file: File, s: String, file1: File, dependencyContext: DependencyContext): Unit = {}
   override def generatedClass(source: File, module: File, name: String): Unit = {}
-  override def beginSource(p1: File) = {}
+  override def beginSource(p1: File): Unit = {}
   override def endSource(sourcePath: File): Unit = {}
   override def api(sourceFile: File, source: SourceAPI): Unit = {}
   override def problem(what: String, pos: Position, msg: String, severity: Severity, reported: Boolean): Unit = {}
-  override def usedName(p1: File, p2: String) = {}
+  override def usedName(p1: File, p2: String): Unit = {}
 }
 
 private object emptyChanges extends DependencyChanges {

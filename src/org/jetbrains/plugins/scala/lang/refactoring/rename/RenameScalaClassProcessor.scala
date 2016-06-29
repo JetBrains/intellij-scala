@@ -6,7 +6,7 @@ import javax.swing.{JCheckBox, JComponent, JPanel}
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameDialog, RenameJavaClassProcessor}
 import com.intellij.usageView.UsageInfo
@@ -39,7 +39,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     }
   }
 
-  override def findReferences(element: PsiElement) = ScalaRenameUtil.replaceImportClassReferences(ScalaRenameUtil.findReferences(element))
+  override def findReferences(element: PsiElement): util.Collection[PsiReference] = ScalaRenameUtil.replaceImportClassReferences(ScalaRenameUtil.findReferences(element))
 
   override def prepareRenaming(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]) {
     element match {

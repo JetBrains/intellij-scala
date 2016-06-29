@@ -54,14 +54,14 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None) extends ResolveResult {
   if (element == null) throw new NullPointerException("element is null")
 
-  def getElement = element
+  def getElement: PsiNamedElement = element
 
   lazy val name: String = element.name
 
   /**
    * this is important to get precedence information
    */
-  def getActualElement = {
+  def getActualElement: PsiNamedElement = {
     parentElement match {
       case Some(e) => e
       case None => element
@@ -79,7 +79,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
     }
   }
 
-  def isValidResult = isAccessible && isApplicable()
+  def isValidResult: Boolean = isAccessible && isApplicable()
 
   def isCyclicReference = false
 
@@ -122,7 +122,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
   override def hashCode: Int =
     element.hashCode + innerResolveResult.hashCode() * 31 + nameShadow.hashCode() * 31 * 31 + implicitFunction.hashCode() * 31 * 31
 
-  override def toString =  {
+  override def toString: String =  {
     val name = element match {
       case named: ScNamedElement => named.name
       case it => it.toString

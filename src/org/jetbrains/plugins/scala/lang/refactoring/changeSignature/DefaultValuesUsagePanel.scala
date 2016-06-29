@@ -49,13 +49,13 @@ class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPa
 
   def isModifyCalls: Boolean = myRbModifyCalls.isSelected
 
-  def forceIsModifyCalls() = {
+  def forceIsModifyCalls(): Unit = {
     myRbModifyCalls.setSelected(true)
     myRbModifyCalls.setEnabled(false)
     myRbAddDefaultArg.setEnabled(false)
   }
 
-  def release() = {
+  def release(): Unit = {
     myRbModifyCalls.setEnabled(true)
     myRbAddDefaultArg.setEnabled(true)
   }

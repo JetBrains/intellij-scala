@@ -14,7 +14,7 @@ class MapGetOrElseBooleanInspection extends OperationOnCollectionInspection {
 }
 
 abstract class MapGetOrElseBoolean(defaultValue: String, newMethodName: String, hintKey: String) extends SimplificationType() {
-  def hint = InspectionBundle.message(hintKey)
+  def hint: String = InspectionBundle.message(hintKey)
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

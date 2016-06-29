@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.hocon.ref
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{ElementManipulators, PsiElement, PsiReference}
 import org.jetbrains.plugins.hocon.psi.HKey
 
@@ -7,13 +8,13 @@ import org.jetbrains.plugins.hocon.psi.HKey
   * @author ghik
   */
 class HKeySelfReference(key: HKey) extends PsiReference {
-  def getVariants = Array.empty
+  def getVariants: Array[AnyRef] = Array.empty
 
-  def getCanonicalText = key.stringValue
+  def getCanonicalText: String = key.stringValue
 
   def getElement: PsiElement = key
 
-  def isReferenceTo(element: PsiElement) =
+  def isReferenceTo(element: PsiElement): Boolean =
     element == resolve()
 
   def bindToElement(element: PsiElement): PsiElement = null
@@ -23,7 +24,7 @@ class HKeySelfReference(key: HKey) extends PsiReference {
 
   def isSoft = true
 
-  def getRangeInElement = ElementManipulators.getValueTextRange(key)
+  def getRangeInElement: TextRange = ElementManipulators.getValueTextRange(key)
 
   def resolve(): PsiElement = key
 }

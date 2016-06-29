@@ -22,7 +22,7 @@ class SbtLocalSettings(project: Project)
   var sbtSupportSuggested = false
   var lastUpdateTimestamp = 0L
 
-  def getState = {
+  def getState: SbtLocalSettingsState = {
     val state = new SbtLocalSettingsState
     fillState(state)
     state.setSbtSupportSuggested(sbtSupportSuggested)
@@ -45,5 +45,5 @@ class SbtLocalSettingsState extends AbstractExternalSystemLocalSettings.State {
 }
 
 object SbtLocalSettings {
-  def getInstance(project: Project) = ServiceManager.getService(project, classOf[SbtLocalSettings])
+  def getInstance(project: Project): SbtLocalSettings = ServiceManager.getService(project, classOf[SbtLocalSettings])
 }

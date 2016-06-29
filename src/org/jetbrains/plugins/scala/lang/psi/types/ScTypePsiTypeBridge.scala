@@ -212,7 +212,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
   }
 
   @tailrec
-  override def extractClass(`type`: ScType, project: Project) = `type` match {
+  override def extractClass(`type`: ScType, project: Project): Option[PsiClass] = `type` match {
     case p@ParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
     case _ => super.extractClass(`type`, project)
   }

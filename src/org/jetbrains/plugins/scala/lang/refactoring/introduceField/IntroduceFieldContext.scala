@@ -42,5 +42,5 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
     case _ => throw new IntroduceException
   }
 
-  def canBeInitLocally(replaceAll: Boolean) = ScalaIntroduceFieldHandlerBase.canBeInitInLocalScope(this, replaceAll)
+  def canBeInitLocally(replaceAll: Boolean): Boolean = ScalaIntroduceFieldHandlerBase.canBeInitInLocalScope(this, replaceAll)
 }

@@ -48,7 +48,7 @@ trait SdkDescriptor {
 
   protected def libraryProperties: ScalaLibraryProperties
 
-  def createNewLibraryConfiguration() = {
+  def createNewLibraryConfiguration(): NewLibraryConfiguration = {
     new NewLibraryConfiguration(libraryName, libraryType, libraryProperties) {
       override def addRoots(editor: LibraryEditor): Unit = {
         libraryFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, OrderRootType.CLASSES))

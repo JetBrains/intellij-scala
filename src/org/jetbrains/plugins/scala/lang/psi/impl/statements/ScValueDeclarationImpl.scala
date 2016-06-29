@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -30,9 +31,9 @@ class ScValueDeclarationImpl private (stub: StubElement[ScValue], nodeType: IEle
 
   override def toString: String = "ScValueDeclaration: " + declaredElements.map(_.name).mkString(", ")
 
-  def declaredElements = getIdList.fieldIds
+  def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  override def getType(ctx: TypingContext) = typeElement match {
+  override def getType(ctx: TypingContext): TypeResult[ScType] = typeElement match {
     case None => Failure(ScalaBundle.message("no.type.element.found", getText), Some(this))
     case Some(te) => te.getType(ctx)
   }

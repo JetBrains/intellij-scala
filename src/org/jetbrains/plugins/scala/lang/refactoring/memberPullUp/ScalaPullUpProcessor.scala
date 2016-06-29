@@ -31,13 +31,13 @@ class ScalaPullUpProcessor(project: Project,
   override def createUsageViewDescriptor(usages: Array[UsageInfo]): UsageViewDescriptor =
     new PullUpUsageViewDescriptor
 
-  override def getCommandName = RefactoringBundle.message("pullUp.command", sourceClass.name)
+  override def getCommandName: String = RefactoringBundle.message("pullUp.command", sourceClass.name)
 
-  override def performRefactoring(usages: Array[UsageInfo]) = {
+  override def performRefactoring(usages: Array[UsageInfo]): Unit = {
 
   }
 
-  override def findUsages() = Array[UsageInfo]()
+  override def findUsages(): Array[UsageInfo] = Array[UsageInfo]()
 
   /**
    * Should be invoked in write action
@@ -133,7 +133,7 @@ class ScalaPullUpProcessor(project: Project,
         copy.setModifierProperty("override", value = false)
         Seq(copy.assignment, copy.body).flatten.foreach(_.delete())
         copy.accept(new ScalaRecursiveElementVisitor() {
-          override def visitSimpleTypeElement(te: ScSimpleTypeElement) = {
+          override def visitSimpleTypeElement(te: ScSimpleTypeElement): Unit = {
             val tpe = te.calcType
             te.replace(ScalaPsiElementFactory.createTypeElementFromText(tpe.canonicalText, te.getManager))
           }

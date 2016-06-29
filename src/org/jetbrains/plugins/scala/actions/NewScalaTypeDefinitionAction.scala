@@ -113,7 +113,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private val SCALA_EXTENSION = ".scala"
 
-  def checkPackageExists(directory: PsiDirectory) = {
+  def checkPackageExists(directory: PsiDirectory): Boolean = {
     JavaDirectoryService.getInstance.getPackage(directory) != null
   }
 }

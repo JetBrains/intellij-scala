@@ -66,7 +66,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var isInSimpleStringNoBraces: Boolean = false
   var isInInterpolatedString: Boolean = false
 
-  def isNamedParameterOrAssignment = isNamedParameter || isAssignment
+  def isNamedParameterOrAssignment: Boolean = isNamedParameter || isAssignment
 
   val containingClass = containingClass0.getOrElse(ScalaPsiUtil.nameContext(element) match {
     case memb: PsiMember => memb.containingClass

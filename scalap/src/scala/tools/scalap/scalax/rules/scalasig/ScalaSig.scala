@@ -38,7 +38,7 @@ object ScalaSigParser {
 }
 
 object ScalaSigAttributeParsers extends ByteCodeReader  {
-  def parse(byteCode : ByteCode) = expect(scalaSig)(byteCode)
+  def parse(byteCode : ByteCode): ScalaSig = expect(scalaSig)(byteCode)
 
   val nat = apply {
     def natN(in : ByteCode, x : Int) : Result[ByteCode, Int, Nothing] = in.nextByte match {
@@ -63,23 +63,23 @@ object ScalaSigAttributeParsers extends ByteCodeReader  {
 case class ScalaSig(majorVersion : Int, minorVersion : Int, table : Seq[Int ~ ByteCode]) extends DefaultMemoisable {
 
   case class Entry(index : Int, entryType : Int, byteCode : ByteCode) extends DefaultMemoisable {
-    def scalaSig = ScalaSig.this
+    def scalaSig: ScalaSig = ScalaSig.this
 
     def setByteCode(byteCode : ByteCode) = Entry(index, entryType, byteCode)
   }
 
-  def hasEntry(index : Int) = table isDefinedAt index
+  def hasEntry(index : Int): Boolean = table isDefinedAt index
 
-  def getEntry(index : Int) = {
+  def getEntry(index : Int): Entry = {
     val entryType ~ byteCode = table(index)
     Entry(index, entryType, byteCode)
   }
 
-  def parseEntry(index : Int) = applyRule(ScalaSigParsers.parseEntry(ScalaSigEntryParsers.entry)(index))
+  def parseEntry(index : Int): Any = applyRule(ScalaSigParsers.parseEntry(ScalaSigEntryParsers.entry)(index))
 
-  implicit def applyRule[A](parser : ScalaSigParsers.Parser[A]) = ScalaSigParsers.expect(parser)(this)
+  implicit def applyRule[A](parser : ScalaSigParsers.Parser[A]): A = ScalaSigParsers.expect(parser)(this)
 
-  override def toString = "ScalaSig version " + majorVersion + "." + minorVersion + {
+  override def toString: String = "ScalaSig version " + majorVersion + "." + minorVersion + {
     for (i <- 0 until table.size) yield i + ":\t" + parseEntry(i) // + "\n\t" + getEntry(i)
   }.mkString("\n", "\n", "")
 
@@ -91,19 +91,19 @@ case class ScalaSig(majorVersion : Int, minorVersion : Int, table : Seq[Int ~ By
 
 object ScalaSigParsers extends RulesWithState with MemoisableRules {
   type S = ScalaSig
-  type Parser[A] = Rule[A, String]
+  type Parser[A] = Rule2[A, String]
 
   val symTab = read(_.table)
   val size = symTab ^^ (_.size)
 
-  def entry(index : Int) = memo(("entry", index)) {
+  def entry(index : Int): Rule[ScalaSig, ScalaSig#Entry, Int, Nothing] = memo(("entry", index)) {
     cond(_ hasEntry index) -~ read(_ getEntry index) >-> { entry => Success(entry, entry.entryType) }
   }
 
   def parseEntry[A](parser : ScalaSigEntryParsers.EntryParser[A])(index : Int) : Parser[A] =
     entry(index) -~ parser >> { a => entry => Success(entry.scalaSig, a) }
 
-  def allEntries[A](f : ScalaSigEntryParsers.EntryParser[A]) = size >> { n => anyOf((0 until n) map parseEntry(f)) }
+  def allEntries[A](f : ScalaSigEntryParsers.EntryParser[A]): Rule[ScalaSig, ScalaSig, List[A], String] = size >> { n => anyOf((0 until n) map parseEntry(f)) }
 
   lazy val entries = allEntries(ScalaSigEntryParsers.entry) as "entries"
   lazy val symbols = allEntries(ScalaSigEntryParsers.symbol) as "symbols"
@@ -118,18 +118,18 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   import ScalaSigAttributeParsers.{longValue, nat, utf8}
 
   type S = ScalaSig#Entry
-  type EntryParser[A] = Rule[A, String]
+  type EntryParser[A] = Rule2[A, String]
 
   implicit def byteCodeEntryParser[A](rule : ScalaSigAttributeParsers.Parser[A]) : EntryParser[A] = apply { entry =>
     rule(entry.byteCode) mapOut (entry setByteCode _)
   }
 
-  def toEntry[A](index : Int) = apply { sigEntry =>
+  def toEntry[A](index : Int): Rule[ScalaSig#Entry, ScalaSig#Entry, Int, Nothing] = apply { sigEntry =>
     ScalaSigParsers.entry(index)(sigEntry.scalaSig) }
 
-  def parseEntry[A](parser : EntryParser[A])(index : Int) = (toEntry(index) -~ parser)
+  def parseEntry[A](parser : EntryParser[A])(index : Int): Rule[ScalaSig#Entry, ScalaSig#Entry, A, String] = (toEntry(index) -~ parser)
 
-  implicit def entryType(code : Int) = key filter (_ == code)
+  implicit def entryType(code : Int): Rule[ScalaSig#Entry, ScalaSig#Entry, Int, Nothing] = key filter (_ == code)
 
   val index = read(_.index)
   val key = read(_.entryType)
@@ -152,9 +152,9 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
 
   val symbolInfo = nameRef ~ symbolRef ~ nat ~ (symbolRef?) ~ ref ~ get ^~~~~~^ SymbolInfo
 
-  def symHeader(key: Int) = (key -~ none | (key + 64) -~ nat)
+  def symHeader(key: Int): Rule[ScalaSig#Entry, ScalaSig#Entry, Any, String] = (key -~ none | (key + 64) -~ nat)
 
-  def symbolEntry(key : Int) = symHeader(key) -~ symbolInfo
+  def symbolEntry(key : Int): Rule[ScalaSig#Entry, ScalaSig#Entry, SymbolInfo, String] = symHeader(key) -~ symbolInfo
 
   /***************************************************
    * Symbol table attribute format:
@@ -267,7 +267,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
 
   //for now, support only constants and arrays of constants
   lazy val annotArgArray  = 44 -~ (oneOf(constantRef, constAnnotArgRef)*).map(_.toArray)
-  lazy val constAnnotArgRef:  Rule[Any, String] = oneOf(constantRef, refTo(annotArgArray))
+  lazy val constAnnotArgRef:  Rule2[Any, String] = oneOf(constantRef, refTo(annotArgArray))
   lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constAnnotArgRef?) ~ (nameRef ~ constAnnotArgRef*) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
   lazy val children = 41 -~ (nat*) ^^ Children //sym_Ref {sym_Ref}
   lazy val annotInfo = 43 -~ (nat*) ^^ AnnotInfo // attarg_Ref {constant_Ref attarg_Ref}
@@ -275,11 +275,11 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   lazy val topLevelClass = classSymbol filter isTopLevelClass
   lazy val topLevelObject = objectSymbol filter isTopLevel
 
-  def isTopLevel(symbol : Symbol) = symbol.parent match {
+  def isTopLevel(symbol : Symbol): Boolean = symbol.parent match {
     case Some(ext : ExternalSymbol) => true
     case _ => false
   }
-  def isTopLevelClass (symbol : Symbol) = !symbol.isModule && isTopLevel(symbol)
+  def isTopLevelClass (symbol : Symbol): Boolean = !symbol.isModule && isTopLevel(symbol)
 }
 
   case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any], values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}

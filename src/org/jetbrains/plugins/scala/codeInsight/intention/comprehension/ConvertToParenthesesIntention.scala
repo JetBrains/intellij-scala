@@ -24,9 +24,9 @@ object ConvertToParenthesesIntention {
 class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = FamilyName
 
-  override def getText = getFamilyName
+  override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case e @ Parent(_: ScForStatement) =>
         List(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tRBRACE).contains(e.getNode.getElementType) && 

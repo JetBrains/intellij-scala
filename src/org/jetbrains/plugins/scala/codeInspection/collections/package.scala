@@ -31,8 +31,8 @@ import scala.annotation.tailrec
  * @author Nikolay.Tropin
  */
 package object collections {
-  def likeCollectionClasses = ScalaApplicationSettings.getInstance().getLikeCollectionClasses
-  def likeOptionClasses = ScalaApplicationSettings.getInstance().getLikeOptionClasses
+  def likeCollectionClasses: Array[String] = ScalaApplicationSettings.getInstance().getLikeCollectionClasses
+  def likeOptionClasses: Array[String] = ScalaApplicationSettings.getInstance().getLikeOptionClasses
 
   val monadicMethods = Set("map", "flatMap", "filter", "withFilter")
   val foldMethodNames = Set("foldLeft", "/:", "foldRight", ":\\", "fold")
@@ -382,11 +382,11 @@ package object collections {
 
   def isMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenMap", expr)
 
-  def isSortedSet(expr: ScExpression) = isExpressionOfType("scala.collection.SortedSet", expr)
+  def isSortedSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedSet", expr)
 
-  def isSortedMap(expr: ScExpression) = isExpressionOfType("scala.collection.SortedMap", expr)
+  def isSortedMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedMap", expr)
 
-  def isIterator(expr: ScExpression) = isExpressionOfType("scala.collection.Iterator", expr)
+  def isIterator(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.Iterator", expr)
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
@@ -450,9 +450,9 @@ package object collections {
     }
   }
 
-  def exprsWithSideEffects(expr: ScExpression) = CachedValuesManager.getCachedValue(expr, new SideEffectsProvider(expr))
+  def exprsWithSideEffects(expr: ScExpression): Seq[ScExpression] = CachedValuesManager.getCachedValue(expr, new SideEffectsProvider(expr))
 
-  def hasSideEffects(expr: ScExpression) = exprsWithSideEffects(expr).nonEmpty
+  def hasSideEffects(expr: ScExpression): Boolean = exprsWithSideEffects(expr).nonEmpty
 
   def rightRangeInParent(expr: ScExpression, parent: ScExpression): TextRange = {
     if (expr == parent) return TextRange.create(0, expr.getTextLength)

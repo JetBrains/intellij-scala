@@ -28,7 +28,7 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
     }
   }
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) = {
+  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
     UsageTrigger.trigger(ScalaBundle.message("rename.local.id"))
     super.invoke(project, editor, file, dataContext)
   }

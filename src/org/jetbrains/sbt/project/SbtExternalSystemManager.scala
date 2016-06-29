@@ -16,7 +16,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.Pair
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.util.Function
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.settings._
@@ -52,15 +54,15 @@ class SbtExternalSystemManager
 
   def getSystemId = SbtProjectSystem.Id
 
-  def getSettingsProvider = SbtSystemSettings.getInstance _
+  def getSettingsProvider: Function[Project, SbtSystemSettings] = SbtSystemSettings.getInstance _
 
-  def getLocalSettingsProvider = SbtLocalSettings.getInstance _
+  def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
 
-  def getExecutionSettingsProvider = SbtExternalSystemManager.executionSettingsFor _
+  def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] = SbtExternalSystemManager.executionSettingsFor _
 
-  def getProjectResolverClass = classOf[SbtProjectResolver]
+  def getProjectResolverClass: Class[SbtProjectResolver] = classOf[SbtProjectResolver]
 
-  def getTaskManagerClass = classOf[SbtTaskManager]
+  def getTaskManagerClass: Class[SbtTaskManager] = classOf[SbtTaskManager]
 
   def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
 
@@ -68,7 +70,7 @@ class SbtExternalSystemManager
 }
 
 object SbtExternalSystemManager {
-  def executionSettingsFor(project: Project, path: String) = {
+  def executionSettingsFor(project: Project, path: String): SbtExecutionSettings = {
     val settings = SbtSystemSettings.getInstance(project)
     val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
 

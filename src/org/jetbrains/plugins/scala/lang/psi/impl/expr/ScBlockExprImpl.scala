@@ -52,7 +52,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
     null
   }
 
-  override def accept(visitor: ScalaElementVisitor) = {visitor.visitBlockExpression(this)}
+  override def accept(visitor: ScalaElementVisitor): Unit = {visitor.visitBlockExpression(this)}
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

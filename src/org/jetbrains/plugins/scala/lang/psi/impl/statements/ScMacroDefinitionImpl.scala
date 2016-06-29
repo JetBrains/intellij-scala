@@ -86,7 +86,7 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
     super.getType(ctx)
   }
 
-  def doGetType() = {
+  def doGetType(): ScType = {
     name match {
       case "doMacro" =>
         ScalaPsiElementFactory.createTypeElementFromText("(Int, String)", getManager).getType().get

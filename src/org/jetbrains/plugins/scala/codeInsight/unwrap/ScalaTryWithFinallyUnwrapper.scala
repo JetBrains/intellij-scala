@@ -11,12 +11,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTryStmt
  * 2014-06-27
  */
 class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
-  override def isApplicableTo(e: PsiElement) = e.getParent match {
+  override def isApplicableTo(e: PsiElement): Boolean = e.getParent match {
     case ScTryStmt(tryBl, _, Some(finBl)) if finBl.expression.isDefined && (tryBl == e || finBl == e)  => true
     case _ => false
   }
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = element.getParent match {
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element.getParent match {
     case stmt @ ScTryStmt(tryBl, _, Some(finBl)) if finBl.expression.isDefined =>
       context.extractBlockOrSingleStatement(tryBl, stmt)
       context.insertNewLine()
@@ -25,9 +25,9 @@ class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
     case _ =>
   }
 
-  override def getDescription(e: PsiElement) = ScalaBundle.message("unwrap.try.with.finally")
+  override def getDescription(e: PsiElement): String = ScalaBundle.message("unwrap.try.with.finally")
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = e.getParent match {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = e.getParent match {
     case stmt: ScTryStmt =>
       super.collectAffectedElements(e, toExtract)
       stmt

@@ -21,7 +21,7 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
 
   override def getText = "Import additional identifiers from qualifier"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     check(project, editor, element).isDefined
   }
 

@@ -137,7 +137,7 @@ object ScPackageImpl {
     }
   }
 
-  def findPackage(project: Project, pName: String) = {
+  def findPackage(project: Project, pName: String): ScPackageImpl = {
     ScPackageImpl(ScalaPsiManager.instance(project).getCachedPackage(pName).orNull)
   }
 

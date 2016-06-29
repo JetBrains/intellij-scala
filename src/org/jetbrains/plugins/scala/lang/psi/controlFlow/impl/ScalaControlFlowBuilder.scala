@@ -42,7 +42,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myInstructions.toSeq
   }
 
-  def inc = {
+  def inc: Int = {
     val num = myInstructionNum
     myInstructionNum += 1
     num

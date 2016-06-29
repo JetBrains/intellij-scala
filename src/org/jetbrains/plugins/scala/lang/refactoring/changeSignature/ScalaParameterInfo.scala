@@ -94,7 +94,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
   override def getTypeText: String =
     if (scType != null) getTypeWrapper.getTypeText else null
 
-  def typeText = {
+  def typeText: String = {
     val baseText = Option(scType).fold("")(_.presentableText)
     if (isRepeatedParameter) baseText + "*"
     else if (isByName) " => " + baseText
@@ -107,7 +107,7 @@ object ScalaParameterInfo {
 
   def apply(project: Project) = new ScalaParameterInfo("", -1, null, project, false, false)
 
-  def keywordsAndAnnotations(p: ScParameter) = {
+  def keywordsAndAnnotations(p: ScParameter): String = {
     val nameId = p.nameId
     val elems = p.children.takeWhile(_ != nameId)
     elems.map(_.getText).mkString

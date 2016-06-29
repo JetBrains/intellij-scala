@@ -37,7 +37,7 @@ object Packaging {
   def pluginVersion: String =
     Option(System.getProperty("plugin.version")).getOrElse("SNAPSHOT")
 
-  def replaceInFile(f: File, source: String, target: String) = {
+  def replaceInFile(f: File, source: String, target: String): Unit = {
     if (!(source == null) && !(target == null)) {
       IO.writeLines(f, IO.readLines(f) map { _.replace(source, target) })
     }

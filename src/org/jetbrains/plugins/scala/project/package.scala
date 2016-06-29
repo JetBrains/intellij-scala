@@ -78,7 +78,7 @@ package object project {
       model.commit()
     }
 
-    def attach(libraries: Seq[Library]) = {
+    def attach(libraries: Seq[Library]): Unit = {
       val model = ModuleRootManager.getInstance(module).getModifiableModel
       libraries.foreach(model.addLibraryEntry)
       model.commit()

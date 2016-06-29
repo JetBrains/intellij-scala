@@ -85,7 +85,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     ScalaPsiManager.instance(getProject).cachedDeepIsInheritor(this, annotation)
   }
 
-  def getType(ctx: TypingContext)  = {
+  def getType(ctx: TypingContext): Success[ScType] = {
     val parentClass: ScTemplateDefinition = containingClass
     if (typeParameters.isEmpty) {
       if (parentClass != null) {
@@ -284,7 +284,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
         case p => '(' + p + ')'
       }
 
-      override def getIcon(open: Boolean) = ScTypeDefinitionImpl.this.getIcon(0)
+      override def getIcon(open: Boolean): Icon = ScTypeDefinitionImpl.this.getIcon(0)
     }
   }
 
@@ -338,7 +338,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     }
   }
 
-  override def getTypeParameters = typeParameters.toArray
+  override def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
 
   override def getSupers: Array[PsiClass] = {
     val direct = extendsBlock.supers.toArray

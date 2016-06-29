@@ -19,9 +19,9 @@ import scala.collection.JavaConverters._
 class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, SbtFileType) with ScDeclarationSequenceHolder{
   override def isScriptFile(withCashing: Boolean) = false
 
-  override def immediateTypeDefinitions = Seq.empty
+  override def immediateTypeDefinitions: Seq[Nothing] = Seq.empty
 
-  override def packagings = Seq.empty
+  override def packagings: Seq[Nothing] = Seq.empty
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = 
     super[ScalaFileImpl].processDeclarations(processor, state, lastParent, place) &&

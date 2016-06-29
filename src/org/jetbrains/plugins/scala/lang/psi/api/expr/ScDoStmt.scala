@@ -25,7 +25,7 @@ trait ScDoStmt extends ScExpression {
   def hasExprBody: Boolean
 
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitDoStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitDoStatement(this)
 }
 
 object ScDoStmt {

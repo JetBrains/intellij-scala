@@ -71,8 +71,8 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
   def getLikeCollectionClasses: Array[String] = settings.getLikeCollectionClasses
   def getLikeOptionClasses: Array[String] = settings.getLikeOptionClasses
-  def setLikeCollectionClasses(values: Array[String]) = settings.setLikeCollectionClasses(values)
-  def setLikeOptionClasses(values: Array[String]) = settings.setLikeOptionClasses(values)
+  def setLikeCollectionClasses(values: Array[String]): Unit = settings.setLikeCollectionClasses(values)
+  def setLikeOptionClasses(values: Array[String]): Unit = settings.setLikeOptionClasses(values)
 
   def possibleSimplificationTypes: Array[SimplificationType]
   def getSimplificationTypesEnabled: Array[java.lang.Boolean]

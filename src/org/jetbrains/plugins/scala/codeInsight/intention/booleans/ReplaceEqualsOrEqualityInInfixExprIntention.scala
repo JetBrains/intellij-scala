@@ -21,7 +21,7 @@ object ReplaceEqualsOrEqualityInInfixExprIntention {
 }
 
 class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ReplaceEqualsOrEqualityInInfixExprIntention.familyName
+  def getFamilyName: String = ReplaceEqualsOrEqualityInInfixExprIntention.familyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)

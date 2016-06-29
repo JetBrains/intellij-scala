@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElement
 */
 
 trait ScPrefixExpr extends ScExpression with ScSugarCallExpr {
-  def operand = findChildrenByClassScala(classOf[ScExpression]).apply(1)
+  def operand: ScExpression = findChildrenByClassScala(classOf[ScExpression]).apply(1)
 
   def operation : ScReferenceExpression = findChildrenByClassScala(classOf[ScExpression]).apply(0) match {
     case re : ScReferenceExpression => re

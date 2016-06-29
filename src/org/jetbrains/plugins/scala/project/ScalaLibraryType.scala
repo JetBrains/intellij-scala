@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package project
 
-import com.intellij.openapi.roots.libraries.{LibraryProperties, LibraryType}
-import com.intellij.openapi.roots.libraries.ui.{LibraryPropertiesEditor, LibraryEditorComponent}
+import com.intellij.openapi.roots.libraries.{LibraryProperties, LibraryType, NewLibraryConfiguration}
+import com.intellij.openapi.roots.libraries.ui.{LibraryEditorComponent, LibraryPropertiesEditor}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.template.ScalaLibraryDescription
@@ -19,7 +19,7 @@ class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryK
 
   def getCreateActionName = "Scala SDK"
 
-  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile, project: Project) =
+  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile, project: Project): NewLibraryConfiguration =
     ScalaLibraryDescription.createNewLibrary(parentComponent, contextDirectory)
 
   def createPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]): LibraryPropertiesEditor =

@@ -52,13 +52,13 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
   val project = ref.getProject
 } with HintAction {
 
-  def getText =
+  def getText: String =
     if (classes.length == 1) ScalaBundle.message("import.with", classes(0).qualifiedName)
     else ScalaBundle.message("import.class")
 
-  def getFamilyName = ScalaBundle.message("import.class")
+  def getFamilyName: String = ScalaBundle.message("import.class")
 
-  def isAvailable(project: Project, editor: Editor, file: PsiFile) = file.isInstanceOf[ScalaFile]
+  def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {

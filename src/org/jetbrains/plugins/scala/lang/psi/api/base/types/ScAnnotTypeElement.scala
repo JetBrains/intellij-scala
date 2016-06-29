@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 trait ScAnnotTypeElement extends ScTypeElement {
   override protected val typeName = "TypeWithAnnotation"
 
-  def typeElement = findChildByClassScala(classOf[ScTypeElement])
+  def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
   protected def innerType(ctx: TypingContext) = typeElement.getType(ctx)
 }

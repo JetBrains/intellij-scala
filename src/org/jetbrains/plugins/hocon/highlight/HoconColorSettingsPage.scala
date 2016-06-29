@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.hocon.highlight
 
+import java.util
+
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
-import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorSettingsPage}
+import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterFactory}
+import com.intellij.openapi.options.colors.{AttributesDescriptor, ColorDescriptor, ColorSettingsPage}
 import org.jetbrains.plugins.hocon.highlight.{HoconHighlighterColors => HHC}
 import org.jetbrains.plugins.hocon.lang.HoconLanguage
 
@@ -12,7 +15,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
   def getIcon =
     AllIcons.FileTypes.Config
 
-  def getDemoText =
+  def getDemoText: String =
     s"""<hashcomment># hash comment</hashcomment>
        |<doubleslashcomment>// double slash comment<doubleslashcomment>
        |
@@ -31,7 +34,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
        |<braces>}</braces>
        |""".stripMargin.trim
 
-  def getAdditionalHighlightingTagToDescriptorMap = Map(
+  def getAdditionalHighlightingTagToDescriptorMap: util.Map[String, TextAttributesKey] = Map(
     "badchar" -> HHC.BadCharacter,
     "hashcomment" -> HHC.HashComment,
     "doubleslashcomment" -> HHC.DoubleSlashComment,
@@ -58,13 +61,13 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "substkey" -> HHC.SubstitutionKey
   ).asJava
 
-  def getHighlighter =
+  def getHighlighter: SyntaxHighlighter =
     SyntaxHighlighterFactory.getSyntaxHighlighter(HoconLanguage, null, null)
 
   def getDisplayName =
     "HOCON"
 
-  def getColorDescriptors =
+  def getColorDescriptors: Array[ColorDescriptor] =
     Array.empty
 
   def getAttributeDescriptors =

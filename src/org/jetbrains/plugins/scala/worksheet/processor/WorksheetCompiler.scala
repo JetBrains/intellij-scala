@@ -135,18 +135,18 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
 
   val CONFIG_ERROR_HEADER = "Worksheet configuration error:"
 
-  def getCompileKey = Key.create[String]("scala.worksheet.compilation")
-  def getOriginalFileKey = Key.create[String]("scala.worksheet.original.file")
+  def getCompileKey: Key[String] = Key.create[String]("scala.worksheet.compilation")
+  def getOriginalFileKey: Key[String] = Key.create[String]("scala.worksheet.original.file")
 
-  def isMakeBeforeRun(file: PsiFile) = isEnabled(file, MAKE_BEFORE_RUN)
+  def isMakeBeforeRun(file: PsiFile): Boolean = isEnabled(file, MAKE_BEFORE_RUN)
 
-  def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = {
+  def setMakeBeforeRun(file: PsiFile, isMake: Boolean): Unit = {
     setEnabled(file, MAKE_BEFORE_RUN, isMake)
   }
   
-  def getModuleForCpName(file: PsiFile) = FileAttributeUtilCache.readAttribute(CP_MODULE_NAME, file)
+  def getModuleForCpName(file: PsiFile): Option[String] = FileAttributeUtilCache.readAttribute(CP_MODULE_NAME, file)
   
-  def setModuleForCpName(file: PsiFile, moduleName: String) = FileAttributeUtilCache.writeAttribute(CP_MODULE_NAME, file, moduleName)  
+  def setModuleForCpName(file: PsiFile, moduleName: String): Unit = FileAttributeUtilCache.writeAttribute(CP_MODULE_NAME, file, moduleName)
 
   def getRunType(project: Project): WorksheetMakeType = {
     if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {

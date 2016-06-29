@@ -27,7 +27,7 @@ trait ScArgumentExprList extends ScArguments {
   def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
 
   //TODO java helper (should be removed later)
-  def exprsArray = exprs.toArray
+  def exprsArray: Array[ScExpression] = exprs.toArray
 
   /**
    * Number of clause.

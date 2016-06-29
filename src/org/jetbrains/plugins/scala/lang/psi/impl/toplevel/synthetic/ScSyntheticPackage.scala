@@ -36,15 +36,15 @@ abstract class ScSyntheticPackage(name: String, manager: PsiManager)
     throw new IncorrectOperationException("cannot set name: nonphysical element")
   }
   override def getText = ""
-  override def toString = "Scala Synthetic Package " + getQualifiedName
+  override def toString: String = "Scala Synthetic Package " + getQualifiedName
   def getDirectories(scope: GlobalSearchScope) = PsiDirectory.EMPTY_ARRAY
-  def getModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
+  def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
   def hasModifierProperty(s: String) = false
   def getAnnotationList = null
-  override def getName = name
+  override def getName: String = name
   def setName(newName: String) = throw new IncorrectOperationException("cannot set name: nonphysical element")
   override def copy = throw new IncorrectOperationException("cannot copy: nonphysical element")
-  override def getContainingFile = SyntheticClasses.get(manager.getProject).file
+  override def getContainingFile: PsiFile = SyntheticClasses.get(manager.getProject).file
   def occursInPackagePrefixes = VirtualFile.EMPTY_ARRAY
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -97,12 +97,12 @@ object ScSyntheticPackage {
           new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
             override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
             def containsClassNamed(name: String): Boolean = false
-            def getQualifiedName = fqn
+            def getQualifiedName: String = fqn
             def getClasses: Array[PsiClass] = Array.empty
             def getClasses(scope: GlobalSearchScope): Array[PsiClass] = Array.empty
-            def getParentPackage = ScPackageImpl.findPackage(project, pname)
+            def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, pname)
             def getSubPackages: Array[PsiPackage] = Array.empty
-            def getSubPackages(scope: GlobalSearchScope) = Array.empty
+            def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = Array.empty
             def getContainer: PsiQualifiedNamedElement = null
             def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = Array.empty
           }
@@ -126,9 +126,9 @@ object ScSyntheticPackage {
             getClasses.exists(n => ScalaNamesUtil.equivalentFqn(n.name, name))
           }
 
-          def getQualifiedName = fqn
+          def getQualifiedName: String = fqn
 
-          def getClasses = {
+          def getClasses: Array[PsiClass] = {
             Array(pkgs.flatMap(p =>
               if (ScalaNamesUtil.cleanFqn(p.fqn).length == cleanName.length)
                 p.typeDefs.flatMap {
@@ -139,15 +139,15 @@ object ScSyntheticPackage {
               else Seq.empty): _*)
           }
 
-          def getClasses(scope: GlobalSearchScope) =
+          def getClasses(scope: GlobalSearchScope): Array[PsiClass] =
             getClasses.filter{clazz => {
               val file = clazz.getContainingFile.getVirtualFile
               file != null && scope.contains(file)
             }}
 
-          def getParentPackage = ScPackageImpl.findPackage(project, pname)
+          def getParentPackage: ScPackageImpl = ScPackageImpl.findPackage(project, pname)
 
-          def getSubPackages = {
+          def getSubPackages: Array[PsiPackage] = {
             val buff = new HashSet[PsiPackage]
             pkgs.foreach{
               p =>
@@ -179,7 +179,7 @@ object ScSyntheticPackage {
             }
             buff.toArray
           }
-          def getSubPackages(scope: GlobalSearchScope) = getSubPackages
+          def getSubPackages(scope: GlobalSearchScope): Array[PsiPackage] = getSubPackages
 
 
           def getContainer: PsiQualifiedNamedElement = null
@@ -190,5 +190,5 @@ object ScSyntheticPackage {
 }
 
 class SyntheticPackageCreator(project: Project) {
-  def getPackage(fqn: String) = ScSyntheticPackage.get(fqn, project)
+  def getPackage(fqn: String): ScSyntheticPackage = ScSyntheticPackage.get(fqn, project)
 }

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 */
 
 trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement {
-  def isQualified = qualifier.isDefined
+  def isQualified: Boolean = qualifier.isDefined
 
   def qualifier: Option[ScExpression] = getFirstChild match {case e: ScExpression => Some(e) case _ => None}
 
@@ -66,7 +66,7 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
 
   def shapeType: TypeResult[ScType]
 
-  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport) = {
+  override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement = {
     if (useFullQualifiedName) {
       super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
     } else {

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.forwardReferenceInspection
 
 import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * Alefas
  */
 class ForwardReferenceInspection extends AbstractInspection {
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case ref: ScReferenceExpression =>
       val member: ScMember = PsiTreeUtil.getParentOfType(ref, classOf[ScMember])
       if (member != null) {

@@ -38,13 +38,13 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case _ => customSettings.KEEP_BLANK_LINES_IN_OBJECTS
     }
 
-  def getFirstSpacing(parent: ASTNode, firstChild: ASTNode) =
+  def getFirstSpacing(parent: ASTNode, firstChild: ASTNode): Spacing =
     if (Comment.contains(firstChild.getElementType))
       beforeCommentOnNewLineSpacing(parent, firstChild)
     else
       Spacing.createSpacing(0, 0, 0, true, getMaxBlankLines(parent.getElementType, firstChild.getElementType))
 
-  def getSpacing(parent: ASTNode, leftChild: ASTNode, rightChild: ASTNode) = {
+  def getSpacing(parent: ASTNode, leftChild: ASTNode, rightChild: ASTNode): Spacing = {
 
     val keepLineBreaks = commonSettings.KEEP_LINE_BREAKS
     val maxBlankLines = getMaxBlankLines(parent.getElementType, rightChild.getElementType)
@@ -211,7 +211,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
   }
 
 
-  def getWrap(wrapCache: WrapCache, parent: ASTNode, child: ASTNode) =
+  def getWrap(wrapCache: WrapCache, parent: ASTNode, child: ASTNode): Wrap =
     (parent.getElementType, child.getElementType) match {
       case (Object, Include | KeyedField.extractor()) =>
         wrapCache.objectEntryWrap
@@ -231,7 +231,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case _ => null
     }
 
-  def getAlignment(alignmentCache: AlignmentCache, parent: ASTNode, child: ASTNode) =
+  def getAlignment(alignmentCache: AlignmentCache, parent: ASTNode, child: ASTNode): Alignment =
     (parent.getElementType, child.getElementType) match {
       case (Object, Include | KeyedField.extractor() | Comment.extractor()) =>
         alignmentCache.objectEntryAlignment
@@ -242,7 +242,7 @@ class HoconFormatter(settings: CodeStyleSettings) {
       case _ => null
     }
 
-  def getIndent(parent: ASTNode, child: ASTNode) =
+  def getIndent(parent: ASTNode, child: ASTNode): Indent =
     (parent.getElementType, child.getElementType) match {
       case (Object, Include | KeyedField.extractor() | Comma | Comment.extractor()) |
            (Array, Value.extractor() | Comma | Comment.extractor()) =>
@@ -255,13 +255,13 @@ class HoconFormatter(settings: CodeStyleSettings) {
 
     }
 
-  def getChildIndent(parent: ASTNode) = parent.getElementType match {
+  def getChildIndent(parent: ASTNode): Indent = parent.getElementType match {
     case Object | Array => Indent.getNormalIndent
     case Include | KeyedField.extractor() => Indent.getContinuationIndent
     case _ => Indent.getNoneIndent
   }
 
-  def getChildAlignment(alignmentCache: AlignmentCache, parent: ASTNode) = parent.getElementType match {
+  def getChildAlignment(alignmentCache: AlignmentCache, parent: ASTNode): Alignment = parent.getElementType match {
     case Object => alignmentCache.objectEntryAlignment
     case Array => alignmentCache.arrayValueAlignment
     case _ => null

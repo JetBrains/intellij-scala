@@ -59,7 +59,7 @@ object ScalaCollectionRenderer {
 
   val sizeLabelRenderer = createSizeLabelRenderer()
 
-  def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext) = {
+  def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
       case ct: ClassType if ct.name.startsWith("scala.collection") &&
         !DebuggerUtils.instanceOf(ct, streamClassName) && !DebuggerUtils.instanceOf(ct, iteratorClassName) => true
@@ -67,14 +67,14 @@ object ScalaCollectionRenderer {
     }
   }
 
-  def nonEmpty(value: Value, evaluationContext: EvaluationContext) = {
+  def nonEmpty(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
       case ct: ClassType if ct.name.toLowerCase.contains("empty") || ct.name.contains("Nil") => false
       case _ => evaluateBoolean(value, evaluationContext, nonEmptyEval)
     }
   }
 
-  def size(value: Value, evaluationContext: EvaluationContext) = evaluateInt(value, evaluationContext, sizeEval)
+  def size(value: Value, evaluationContext: EvaluationContext): Int = evaluateInt(value, evaluationContext, sizeEval)
 
   /**
    * util method for collection displaying in debugger
@@ -82,7 +82,7 @@ object ScalaCollectionRenderer {
     * @param name name encoded for jvm (for example, scala.collection.immutable.$colon$colon)
    * @return decoded nonqualified part (:: in example)
    */
-  def transformName(name: String) = getNonQualifiedName(NameTransformer decode name)
+  def transformName(name: String): String = getNonQualifiedName(NameTransformer decode name)
 
   private def getNonQualifiedName(fullName: String): String = {
     val index =

@@ -32,7 +32,7 @@ trait ScMatchStmt extends ScExpression {
     else cc.caseClauses
   }
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitMatchStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitMatchStatement(this)
 }
 
 object ScMatchStmt {

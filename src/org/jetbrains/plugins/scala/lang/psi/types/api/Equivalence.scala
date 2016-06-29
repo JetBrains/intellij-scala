@@ -20,9 +20,9 @@ trait Equivalence extends TypeSystemOwner {
     override def initialValue(): Boolean = false
   }
 
-  final def equiv(left: ScType, right: ScType) = equivInner(left, right)._1
+  final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right)._1
 
-  final def clearCache() = cache.clear()
+  final def clearCache(): Unit = cache.clear()
 
   /**
     * @param falseUndef use false to consider undef type equals to any type

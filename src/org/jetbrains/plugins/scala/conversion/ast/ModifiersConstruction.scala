@@ -44,7 +44,7 @@ case class ModifiersConstruction(annotations: Seq[IntermediateNode], modifiers: 
     this
   }
 
-  def noModifiers = annotations.isEmpty && modifiers.isEmpty
+  def noModifiers: Boolean = annotations.isEmpty && modifiers.isEmpty
 
   val accessModifiers = Seq(ModifierType.PUBLIC, ModifierType.PRIVATE, ModifierType.PROTECTED, ModifierType.PACKAGE_LOCAL)
 }

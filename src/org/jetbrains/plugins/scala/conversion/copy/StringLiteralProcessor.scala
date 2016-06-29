@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
  */
 
 class StringLiteralProcessor extends CopyPastePreProcessor {
-  def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String) = {
+  def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
     val literal = startOffsets.zip(endOffsets).forall { case (a, b) =>
         val e = file.findElementAt(a);
         e.isInstanceOf[PsiElement] && e.getLanguage == ScalaFileType.SCALA_LANGUAGE && e.getNode != null &&

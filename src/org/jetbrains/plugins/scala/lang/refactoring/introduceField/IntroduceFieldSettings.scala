@@ -4,6 +4,7 @@ package lang.refactoring.introduceField
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.VisibilityLevel
 
 /**
  * Nikolay.Tropin
@@ -49,27 +50,27 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
 
   if (initInDeclarationEnabled && initLocallyEnabled) initInDeclaration = scalaSettings.INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION
 
-  def defineVar = isVar
+  def defineVar: Boolean = isVar
   def defineVar_=(value: Boolean) {isVar = value}
   def setDefineVar(value: Boolean) {defineVar = value}
 
-  def replaceAll = replAll
+  def replaceAll: Boolean = replAll
   def replaceAll_=(value: Boolean) {
     replAll = value
     initLocallyEnabled = replaceAll && canBeInitLocalIfReplaceAll || !replaceAll && canBeInitLocalOneOccurrence
   }
   def setReplaceAll(value: Boolean) {replaceAll = value}
 
-  def visibilityLevel = visLevel
+  def visibilityLevel: VisibilityLevel = visLevel
   def visibilityLevel_=(value: ScalaApplicationSettings.VisibilityLevel) {visLevel = value}
   def setVisibilityLelel(value: ScalaApplicationSettings.VisibilityLevel) {visibilityLevel = value}
 
-  def explicitType = explType
+  def explicitType: Boolean = explType
   def explicitType_=(value: Boolean) {explType = value}
   def setExplicitType(value: Boolean) {explicitType = value}
 
 
-  def initInDeclaration = initInDecl
+  def initInDeclaration: Boolean = initInDecl
   def initInDeclaration_=(value: Boolean) {
     if (value && initInDeclarationEnabled || !value && initLocallyEnabled) {
       initInDecl = value
@@ -83,7 +84,7 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
   }
   def setInitInDeclaration(value: Boolean) {initInDeclaration = value}
 
-  def initInDeclarationEnabled = initInDeclEn
+  def initInDeclarationEnabled: Boolean = initInDeclEn
   def initInDeclarationEnabled_=(value: Boolean) {
     initInDeclEn = value
     if (!initInDeclarationEnabled) {
@@ -95,7 +96,7 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
     }
   }
 
-  def initLocallyEnabled = initLocEn
+  def initLocallyEnabled: Boolean = initLocEn
   def initLocallyEnabled_=(value: Boolean) {
     initLocEn = value
     if (!initLocallyEnabled) {

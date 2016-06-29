@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project.template
 
 import com.intellij.ide.util.projectWizard.WizardContext
-import com.intellij.platform.ProjectTemplatesFactory
+import com.intellij.platform.{ProjectTemplate, ProjectTemplatesFactory}
 import org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory
 import org.jetbrains.sbt.project.template.activator.ScalaActivatorProjectTemplate
 
@@ -13,6 +13,6 @@ import org.jetbrains.sbt.project.template.activator.ScalaActivatorProjectTemplat
 class SbtProjectTemplateFactory extends ProjectTemplatesFactory {
   override def getGroups = Array(ScalaProjectTemplatesFactory.Group)
 
-  override def createTemplates(group: String, context: WizardContext) =
+  override def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] =
     if (context.isCreatingNewProject) Array(new SbtProjectTemplate(), new ScalaActivatorProjectTemplate) else Array.empty
 }

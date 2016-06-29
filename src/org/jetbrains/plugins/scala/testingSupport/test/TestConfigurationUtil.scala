@@ -151,8 +151,8 @@ object TestConfigurationUtil {
   def getStaticTestName(element: PsiElement, allowSymbolLiterals: Boolean = false): Option[String] =
     getStaticTestNameRaw(element, allowSymbolLiterals).map(_.trim)
 
-  def getStaticTestNameOrDefault(element: PsiElement, default: String, allowSymbolLiterals: Boolean) =
+  def getStaticTestNameOrDefault(element: PsiElement, default: String, allowSymbolLiterals: Boolean): String =
     getStaticTestName(element, allowSymbolLiterals).getOrElse(default)
 
-  def escapeTestName(testName: String) = testName.replace("\\", "\\\\").replace("\n", "\\n")
+  def escapeTestName(testName: String): String = testName.replace("\\", "\\\\").replace("\n", "\\n")
 }

@@ -71,7 +71,7 @@ class ScPrimaryConstructorImpl private (stub: StubElement[ScPrimaryConstructor],
   def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =
     new ArrayList[MethodSignatureBackedByPsiMethod]()
 
-  def getSignature(substitutor: PsiSubstitutor) = MethodSignatureBackedByPsiMethod.create(this, substitutor)
+  def getSignature(substitutor: PsiSubstitutor): MethodSignatureBackedByPsiMethod = MethodSignatureBackedByPsiMethod.create(this, substitutor)
 
   def getTypeParameters = PsiTypeParameter.EMPTY_ARRAY
 
@@ -82,7 +82,7 @@ class ScPrimaryConstructorImpl private (stub: StubElement[ScPrimaryConstructor],
 
   def getBody = null
 
-  def getThrowsList = findChildByClass(classOf[ScAnnotations])
+  def getThrowsList: ScAnnotations = findChildByClass(classOf[ScAnnotations])
 
   def getTypeParameterList = null
 

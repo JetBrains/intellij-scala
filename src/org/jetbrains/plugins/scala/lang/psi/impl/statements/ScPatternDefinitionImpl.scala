@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -47,9 +48,9 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition
     } else Seq.empty
   }
 
-  def declaredElements = bindings
+  def declaredElements: Seq[ScBindingPattern] = bindings
 
-  def getType(ctx: TypingContext) = {
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
     typeElement match {
       case Some(te) => te.getType(ctx)
       case None => expr.map(_.getType(ctx)).getOrElse(Failure("Cannot infer type without an expression", Some(this)))

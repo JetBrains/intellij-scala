@@ -21,5 +21,5 @@ trait ShortTextDescription {
     if (text.length > 20) text.substring(0, 17) + "..." else text
   }
 
-  override def getDescription(e: PsiElement) = CodeInsightBundle.message("unwrap.with.placeholder", shortText(e))
+  override def getDescription(e: PsiElement): String = CodeInsightBundle.message("unwrap.with.placeholder", shortText(e))
 }

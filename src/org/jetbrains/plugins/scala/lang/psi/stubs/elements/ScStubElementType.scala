@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubElement
 abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String)
 extends IStubElementTypeWrapper[S, T](debugName) {
 
-  def getExternalId = "sc." + super.toString
+  def getExternalId: String = "sc." + super.toString
 
-  def isCompiled(stub: S) = {
+  def isCompiled(stub: S): Boolean = {
     var parent = stub
     while (!parent.isInstanceOf[PsiFileStub[_ <: PsiFile]]) {
       parent = parent.getParentStub.asInstanceOf[S]

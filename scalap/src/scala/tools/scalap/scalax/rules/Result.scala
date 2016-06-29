@@ -19,7 +19,7 @@ package rules;
  * @see the Scala parser combinator
  */
 case class ~[+A, +B](_1 : A, _2 : B) {
-  override def toString = "(" + _1 + " ~ " + _2 + ")"
+  override def toString: String = "(" + _1 + " ~ " + _2 + ")"
 }
   
 
@@ -55,11 +55,11 @@ sealed abstract class NoSuccess[+X] extends Result[Nothing, Nothing, X] {
 
   def toOption = None
   
-  def map[B](f : Nothing => B) = this
-  def mapOut[Out2](f : Nothing => Out2) = this
-  def map[Out2, B](f : (Nothing, Nothing) => (Out2, B)) = this
-  def flatMap[Out2, B](f : (Nothing, Nothing) => Result[Out2, B, Nothing]) = this
-  def orElse[Out2, B](other : => Result[Out2, B, Nothing]) = other
+  def map[B](f : Nothing => B): NoSuccess[X] = this
+  def mapOut[Out2](f : Nothing => Out2): NoSuccess[X] = this
+  def map[Out2, B](f : (Nothing, Nothing) => (Out2, B)): NoSuccess[X] = this
+  def flatMap[Out2, B](f : (Nothing, Nothing) => Result[Out2, B, Nothing]): NoSuccess[X] = this
+  def orElse[Out2, B](other : => Result[Out2, B, Nothing]): Result[Out2, B, Nothing] = other
 }
 
 case object Failure extends NoSuccess[Nothing] {

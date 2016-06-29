@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
   * @author Pavel Fatin
   */
 class ReplaceQuickFix(family: String, name: String, substitution: String) extends LocalQuickFix {
-  override def getFamilyName = family
+  override def getFamilyName: String = family
 
-  override def getName = name
+  override def getName: String = name
 
   override def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
     val element = descriptor.getPsiElement

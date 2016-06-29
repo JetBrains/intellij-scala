@@ -9,7 +9,7 @@ import com.intellij.openapi.util.Key
  * @author Pavel Fatin
  */
 object Downloader extends Downloader {
-  def downloadScala(version: String, listener: String => Unit) = download(version, listener)
+  def downloadScala(version: String, listener: String => Unit): Unit = download(version, listener)
 
   override protected def sbtCommandsFor(version: String) = Seq(s"""set scalaVersion := "$version"""") ++
     super.sbtCommandsFor(version)

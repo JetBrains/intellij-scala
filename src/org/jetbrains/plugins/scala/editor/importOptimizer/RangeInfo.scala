@@ -11,7 +11,7 @@ case class RangeInfo(firstPsi: PsiAnchor,
                      usedImportedNames: Set[String],
                      isLocal: Boolean) {
 
-  def startOffset = firstPsi.getStartOffset
+  def startOffset: Int = firstPsi.getStartOffset
 
-  def endOffset = lastPsi.getEndOffset
+  def endOffset: Int = lastPsi.getEndOffset
 }

@@ -19,7 +19,7 @@ class MacroExpansionProvider extends LineMarkerProvider {
 
   def getLineMarkerInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = null
 
-  override def collectSlowLineMarkers(elements: util.List[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) = {
+  override def collectSlowLineMarkers(elements: util.List[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]): Unit = {
     val expansions = elements.map(p => (p, p.getCopyableUserData(MacroExpandAction.EXPANDED_KEY))).filter(_._2 != null)
 
     val res = expansions.map { case (current, saved) =>
@@ -28,7 +28,7 @@ class MacroExpansionProvider extends LineMarkerProvider {
           def fun(param: PsiElement): String = "Undo Macro Expansion"
         },
         new GutterIconNavigationHandler[PsiElement] {
-          def navigate(mouseEvent: MouseEvent, elt: PsiElement) = {
+          def navigate(mouseEvent: MouseEvent, elt: PsiElement): Unit = {
             inWriteAction {
               val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(saved, PsiManager.getInstance(current.getProject))
               current.replace(newPsi)

@@ -130,7 +130,7 @@ private object MyConsumer {
 }
 
 private class MyElementRenderer(name: String, typed: Boolean) extends LookupElementRenderer[LookupElementDecorator[LookupElement]] {
-  def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation) = {
+  def renderElement(element: LookupElementDecorator[LookupElement], presentation: LookupElementPresentation): Unit = {
     element.getDelegate.renderElement(presentation)
 
     val text = if (typed) name + ": " + presentation.getItemText else name
@@ -144,7 +144,7 @@ private class MyElementRenderer(name: String, typed: Boolean) extends LookupElem
 }
 
 private class MyInsertHandler(name: String, typed: Boolean) extends InsertHandler[LookupElement] {
-  def handleInsert(context: InsertionContext, item: LookupElement) = {
+  def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
     val begin = context.getStartOffset
     val end = context.getTailOffset
 

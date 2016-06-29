@@ -10,7 +10,7 @@ package expr
 */
 
 trait ScThrowStmt extends ScExpression {
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitThrowExpression(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitThrowExpression(this)
 
   def body: Option[ScExpression]
 }

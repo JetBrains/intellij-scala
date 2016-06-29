@@ -67,7 +67,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
     }
   }
 
-  override def positionCaret(editor: Editor, toEditMethodBody: Boolean) =
+  override def positionCaret(editor: Editor, toEditMethodBody: Boolean): Unit =
     member match {
       case _: ScMember => ScalaGenerationInfo.positionCaret(editor, member)
       case _ => super.positionCaret(editor, toEditMethodBody)

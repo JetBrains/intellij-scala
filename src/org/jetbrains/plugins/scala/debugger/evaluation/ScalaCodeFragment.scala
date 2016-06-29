@@ -31,7 +31,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 } with ScalaFileImpl(provider) with JavaCodeFragment with ScDeclarationSequenceHolder {
   getViewProvider.forceCachedPsi(this)
 
-  override def getViewProvider = provider
+  override def getViewProvider: SingleRootFileViewProvider = provider
 
   private var thisType: PsiType = null
   private var superType: PsiType = null

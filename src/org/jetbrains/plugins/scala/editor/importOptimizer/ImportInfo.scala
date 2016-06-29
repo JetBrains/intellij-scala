@@ -75,7 +75,7 @@ case class ImportInfo(prefixQualifier: String,
     )
   }
 
-  def isSimpleWildcard = hasWildcard && singleNames.isEmpty && renames.isEmpty && hiddenNames.isEmpty
+  def isSimpleWildcard: Boolean = hasWildcard && singleNames.isEmpty && renames.isEmpty && hiddenNames.isEmpty
 
   def namesFromWildcard: Set[String] = {
     if (hasWildcard) allNames -- singleNames -- renames.keySet

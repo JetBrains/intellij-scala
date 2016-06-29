@@ -20,7 +20,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -54,7 +54,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     getLastChild.asInstanceOf[ScExtendsBlock]
   }
 
-  def refs = {
+  def refs: Seq[(ScTypeElement, Option[(PsiClass, ScSubstitutor)])] = {
     extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
       val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap {
         _.extractClassType(getProject)
@@ -63,7 +63,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
   }
 
-  def innerExtendsListTypes = {
+  def innerExtendsListTypes: Array[PsiClassType] = {
     val eb = extendsBlock
     if (eb != null) {
       val tp = eb.templateParents
@@ -168,16 +168,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     extendsBlock.selfTypeElement
   }
 
-  def selfType = extendsBlock.selfType
+  def selfType: Option[ScType] = extendsBlock.selfType
 
   def superTypes: List[ScType] = extendsBlock.superTypes
   def supers: Seq[PsiClass] = extendsBlock.supers
 
-  def allTypeAliases = TypeDefinitionMembers.getTypes(this).allFirstSeq().flatMap(n => n.map {
+  def allTypeAliases: Seq[(PsiNamedElement, ScSubstitutor)] = TypeDefinitionMembers.getTypes(this).allFirstSeq().flatMap(n => n.map {
     case (_, x) => (x.info, x.substitutor)
   }) ++ syntheticTypeDefinitions.filter(!_.isObject).map((_, ScSubstitutor.empty))
 
-  def allTypeAliasesIncludingSelfType = {
+  def allTypeAliasesIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
@@ -193,7 +193,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
   }
 
-  def allVals = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
+  def allVals: Seq[(PsiNamedElement, ScSubstitutor)] = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
     case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
       (x.info.namedElement match {
         case v =>
@@ -204,7 +204,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
           }
       })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
 
-  def allValsIncludingSelfType = {
+  def allValsIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
@@ -252,9 +252,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
   }
 
-  def allSignatures = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(_.map { case (_, n) => n.info })
+  def allSignatures: Seq[Signature] = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(_.map { case (_, n) => n.info })
 
-  def allSignaturesIncludingSelfType = {
+  def allSignaturesIncludingSelfType: Seq[Signature] = {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
@@ -270,7 +270,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
   }
 
-  def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile(false) case _ => false}
+  def isScriptFileClass: Boolean = getContainingFile match {case file: ScalaFile => file.isScriptFile(false) case _ => false}
 
   def processDeclarations(processor: PsiScopeProcessor,
                           oldState: ResolveState,

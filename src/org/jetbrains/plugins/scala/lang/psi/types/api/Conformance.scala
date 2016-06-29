@@ -49,7 +49,7 @@ trait Conformance extends TypeSystemOwner {
     res.copy(_2 = substitutor + res._2)
   }
 
-  final def clearCache() = cache.clear()
+  final def clearCache(): Unit = cache.clear()
 
   protected def computable(left: ScType, right: ScType,
                            visited: Set[PsiClass],

@@ -7,7 +7,7 @@ import java.util
 import java.util.Collections
 import javax.swing.JComponent
 
-import com.intellij.openapi.roots.libraries.PersistentLibraryKind
+import com.intellij.openapi.roots.libraries.{NewLibraryConfiguration, PersistentLibraryKind}
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.util.SystemInfo
@@ -24,11 +24,11 @@ object ScalaLibraryDescription extends ScalaLibraryDescription {
 
   override protected val sdkDescriptor = ScalaSdkDescriptor
 
-  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]) = {
+  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]): SdkSelectionDialog = {
     new SdkSelectionDialog(parentComponent, provider)
   }
 
-  override def sdks(contextDirectory: VirtualFile) = super.sdks(contextDirectory) ++
+  override def sdks(contextDirectory: VirtualFile): Seq[SdkChoice] = super.sdks(contextDirectory) ++
     systemSdks.sortBy(_.version).map(SdkChoice(_, "System"))
 
   override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL
@@ -95,9 +95,9 @@ trait ScalaLibraryDescription extends CustomLibraryDescription {
       mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
   }
 
-  def getSuitableLibraryKinds = Collections.singleton(libraryKind)
+  def getSuitableLibraryKinds: util.Set[PersistentLibraryKind[ScalaLibraryProperties]] = Collections.singleton(libraryKind)
 
-  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
+  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
     implicit val ordering = implicitly[Ordering[Version]].reverse
     Option(dialog(parentComponent, () => sdks(contextDirectory).asJava).open())
       .map(_.createNewLibraryConfiguration())

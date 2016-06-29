@@ -26,5 +26,5 @@ object WorksheetProcessManager {
     if (p != null) p.stop()
   }
 
-  def running(file: VirtualFile) = processes containsKey file
+  def running(file: VirtualFile): Boolean = processes containsKey file
 }

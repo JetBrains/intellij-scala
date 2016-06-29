@@ -26,7 +26,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
   private val (baseSize, hh, wh) = calculateDeltas(base)
 
   
-  def initTopPanel(panel: JPanel, file: VirtualFile, run: Boolean, exec: Option[CompilationProcess]) = {
+  def initTopPanel(panel: JPanel, file: VirtualFile, run: Boolean, exec: Option[CompilationProcess]): Option[InteractiveStatusDisplay] = {
     val layout = new BoxLayout(panel, BoxLayout.LINE_AXIS)
     panel setLayout layout
     panel setAlignmentX 0.0f //leftmost
@@ -151,7 +151,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     WorksheetUiConstructor.createFiller(baseSize.height + hh, wh)
   }
   
-  def createFiller() = WorksheetUiConstructor.createFiller(baseSize.height + hh, wh)
+  def createFiller(): Component = WorksheetUiConstructor.createFiller(baseSize.height + hh, wh)
 }
 
 object WorksheetUiConstructor {
@@ -170,7 +170,7 @@ object WorksheetUiConstructor {
     parent.add(child, 0)  
   }
 
-  def createSplitter() = {
+  def createSplitter(): JSeparator = {
     val separator = new JSeparator(SwingConstants.VERTICAL)
     val size = new Dimension(separator.getPreferredSize.width, separator.getMaximumSize.height)
     separator setMaximumSize size
@@ -178,5 +178,5 @@ object WorksheetUiConstructor {
     separator
   }
 
-  def createFiller(h: Int, w: Int) = Box.createRigidArea(new Dimension(w, h))
+  def createFiller(h: Int, w: Int): Component = Box.createRigidArea(new Dimension(w, h))
 }

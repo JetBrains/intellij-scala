@@ -25,7 +25,7 @@ object DottyLibraryDescription extends ScalaLibraryDescription {
   override protected def mavenSdks = sdksIn(Seq(mavenRepository / "me" / "d-d",
     mavenRepository / "jline" / "jline", mavenScalaRoot))
 
-  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]) = {
+  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]): DottySdkSelectionDialog = {
     new DottySdkSelectionDialog(parentComponent, provider)
   }
 

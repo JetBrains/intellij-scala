@@ -23,5 +23,5 @@ class ScGuardImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScGuard 
 
   override def toString: String = "Guard"
 
-  def expr = findChild(classOf[ScExpression])
+  def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 }

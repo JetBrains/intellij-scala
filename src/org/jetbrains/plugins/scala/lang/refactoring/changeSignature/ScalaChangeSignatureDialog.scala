@@ -279,7 +279,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     }
   }
 
-  def parametersTable = Option(myParametersList).map(_.getTable).orNull
+  def parametersTable: JBTable = Option(myParametersList).map(_.getTable).orNull
 
   protected def getDefaultValuesPanel = defaultValuesUsagePanel
 
@@ -445,7 +445,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     }
   }
 
-  def clauseSeparatorColor = {
+  def clauseSeparatorColor: Color = {
     val background = getContentPane.getBackground
     if (UIUtil.isUnderDarcula) background.brighter.brighter else background.darker()
   }

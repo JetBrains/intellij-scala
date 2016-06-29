@@ -212,7 +212,7 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
     }
   }
 
-  def has(prop: IElementType) = {
+  def has(prop: IElementType): Boolean = {
     val modifier = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
     prop match {
       case ScalaTokenTypes.kPRIVATE if modifier != null => modifier.access match {

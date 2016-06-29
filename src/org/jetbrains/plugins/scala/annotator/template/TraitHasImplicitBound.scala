@@ -6,7 +6,7 @@ import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 object TraitHasImplicitBound extends AnnotatorPart[ScTrait] {
-  def kind = classOf[ScTrait]
+  def kind: Class[ScTrait] = classOf[ScTrait]
 
   def annotate(definition: ScTrait, holder: AnnotationHolder, typeAware: Boolean) {
     val contextBoundElements = definition.typeParameters.flatMap(p => p.contextBoundTypeElement)

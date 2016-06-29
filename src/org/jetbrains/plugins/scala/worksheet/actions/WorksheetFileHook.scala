@@ -201,7 +201,7 @@ object WorksheetFileHook {
     
     file2panel.put(file, new WeakReference[MyPanel](this))
     
-    override def equals(obj: Any) = obj.isInstanceOf[MyPanel]
+    override def equals(obj: Any): Boolean = obj.isInstanceOf[MyPanel]
 
     override def hashCode() = Integer.MAX_VALUE
   }
@@ -210,5 +210,5 @@ object WorksheetFileHook {
 
   private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel get file)
 
-  def instance(project: Project) = project.getComponent(classOf[WorksheetFileHook])
+  def instance(project: Project): WorksheetFileHook = project.getComponent(classOf[WorksheetFileHook])
 }

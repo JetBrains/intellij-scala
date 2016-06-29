@@ -23,9 +23,9 @@ trait ScParameters extends ScalaPsiElement with PsiParameterList {
     this
   }
 
-  def getParameterIndex(p: PsiParameter) = params.indexOf(List(p))
+  def getParameterIndex(p: PsiParameter): Int = params.indexOf(List(p))
 
-  def getParametersCount = params.length
+  def getParametersCount: Int = params.length
 
   override def getParameters: Array[PsiParameter] = params.toArray
 }

@@ -42,5 +42,5 @@ trait ScImportExpr extends ScalaPsiElement {
     }
   }
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitImportExpr(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitImportExpr(this)
 }

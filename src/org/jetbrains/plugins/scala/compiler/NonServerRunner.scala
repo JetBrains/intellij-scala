@@ -114,7 +114,7 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
       reader.close()
     }
 
-    override def readAvailable() = {
+    override def readAvailable(): Boolean = {
       var read = false
       
       while (reader.ready()) {
