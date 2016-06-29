@@ -73,7 +73,7 @@ trait BuildFileModifier {
     val vcsChanges = filesToWorkingCopies.toSeq.map{case (original, copy) =>
       val originalRevision = new SimpleContentRevision(VfsUtilCore.loadText(original), VcsUtil getFilePath original, "original")
       val copyRevision = new CurrentContentRevision(VcsUtil getFilePath copy) {
-        override def getVirtualFile = copy
+        override def getVirtualFile: LightVirtualFile = copy
       }
       val isModified = changes.contains(copy)
       assert(!fileStatusMap.contains(copy))

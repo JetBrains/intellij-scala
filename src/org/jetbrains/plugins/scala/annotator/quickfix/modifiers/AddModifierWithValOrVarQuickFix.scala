@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 class AddModifierWithValOrVarQuickFix(member: ScModifierListOwner, modifier: String, addVal: Boolean)
         extends AddModifierQuickFix(member, modifier) {
-  override def invoke(project: Project, editor: Editor, file: PsiFile) = {
+  override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val psiKeyword =
       if (addVal) {
         val decl = ScalaPsiElementFactory.createDeclarationFromText("val x", member.getParent, member)

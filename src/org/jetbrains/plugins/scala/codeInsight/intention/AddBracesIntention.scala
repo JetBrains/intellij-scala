@@ -22,7 +22,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
 
   override def getText = "Add braces around single line expression"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = 
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     check(project, editor, element).isDefined && IntentionAvailabilityChecker.checkIntention(this, element)
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {

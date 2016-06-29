@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  */
 
 object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
-  def THIS = this
+  def THIS: AbstractInstantiation.type = this
 
-  def kind = classOf[ScTemplateDefinition]
+  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     val newObject = definition.isInstanceOf[ScNewTemplateDefinition]

@@ -63,15 +63,15 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
 
-  def setupIntegrationTestClassPath() = addIntegrationTestsClasspath = true
+  def setupIntegrationTestClassPath(): Unit = addIntegrationTestsClasspath = true
 
   def getAdditionalTestParams(testName: String): Seq[String] = Seq()
 
-  def currentConfiguration = AbstractTestRunConfiguration.this
+  def currentConfiguration: AbstractTestRunConfiguration = AbstractTestRunConfiguration.this
 
   def suitePaths: List[String]
 
-  final def javaSuitePaths = {
+  final def javaSuitePaths: java.util.List[String] = {
     import scala.collection.JavaConverters._
     suitePaths.asJava
   }
@@ -88,13 +88,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   private var javaOptions = ""
   private var workingDirectory = ""
 
-  def getTestClassPath = testClassPath
+  def getTestClassPath: String = testClassPath
 
-  def getTestPackagePath = testPackagePath
+  def getTestPackagePath: String = testPackagePath
 
-  def getTestArgs = testArgs
+  def getTestArgs: String = testArgs
 
-  def getJavaOptions = javaOptions
+  def getJavaOptions: String = javaOptions
 
   def getWorkingDirectory: String = ExternalizablePath.localPathValue(workingDirectory)
 
@@ -118,7 +118,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     workingDirectory = ExternalizablePath.urlValue(s)
   }
 
-  def initWorkingDir() = if (workingDirectory == null || workingDirectory.trim.isEmpty) setWorkingDirectory(provideDefaultWorkingDir)
+  def initWorkingDir(): Unit = if (workingDirectory == null || workingDirectory.trim.isEmpty) setWorkingDirectory(provideDefaultWorkingDir)
 
   private def provideDefaultWorkingDir = {
     val module = getModule
@@ -137,7 +137,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   @BeanProperty
   var showProgressMessages = true
 
-  def splitTests = testName.split("\n").filter(!_.isEmpty)
+  def splitTests: Array[String] = testName.split("\n").filter(!_.isEmpty)
 
   private var generatedName: String = ""
 
@@ -145,9 +145,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     generatedName = name
   }
 
-  override def isGeneratedName = getName == null || getName.equals(suggestedName)
+  override def isGeneratedName: Boolean = getName == null || getName.equals(suggestedName)
 
-  override def suggestedName = generatedName
+  override def suggestedName: String = generatedName
 
   def apply(configuration: TestRunConfigurationForm) {
     testKind = configuration.getSelectedKind
@@ -220,9 +220,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     path
   }
 
-  def getEnvVariables = envs
+  def getEnvVariables: java.util.Map[String, String] = envs
 
-  def setEnvVariables(variables: java.util.Map[String, String]) = {
+  def setEnvVariables(variables: java.util.Map[String, String]): Unit = {
     envs = variables
   }
 
@@ -610,7 +610,7 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
       this.failedTests = Option(failedTests).map(_.distinct).orNull
     }
 
-    def getFailedTests = failedTests
+    def getFailedTests: Seq[(String, String)] = failedTests
 
     def getClasses: Seq[String]
 

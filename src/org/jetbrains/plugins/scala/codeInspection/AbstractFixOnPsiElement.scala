@@ -25,7 +25,7 @@ abstract class AbstractFixOnPsiElement[T <: PsiElement](name: String, startEleme
 
   override def getText: String = name
 
-  override def getFamilyName = getText
+  override def getFamilyName: String = getText
 
   def getElement: T = {
     try {
@@ -53,7 +53,7 @@ abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](nam
 
   override def getText: String = name
 
-  override def getFamilyName = getText
+  override def getFamilyName: String = getText
 
   def getFirstElement: T = {
     try {

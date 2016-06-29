@@ -9,9 +9,9 @@ import com.intellij.psi.PsiElement
 class ChildrenIterator(element: PsiElement) extends Iterator[PsiElement] {
   private var current = element.getFirstChild
 
-  def hasNext = current != null
+  def hasNext: Boolean = current != null
 
-  def next() = {
+  def next(): PsiElement = {
     val result = current
     current = current.getNextSibling
     result

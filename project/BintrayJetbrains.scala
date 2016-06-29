@@ -2,10 +2,10 @@ import sbt._
 
 object BintrayJetbrains {
 
-  def jbBintrayResolver(name: String, repo: String, patterns: Patterns) =
+  def jbBintrayResolver(name: String, repo: String, patterns: Patterns): URLRepository =
     Resolver.url(name, url(s"http://dl.bintray.com/jetbrains/$repo"))(patterns)
 
-  def jbSbtResolver(name: String, patterns: Patterns) =
+  def jbSbtResolver(name: String, patterns: Patterns): URLRepository =
     jbBintrayResolver(name, "sbt-plugins", patterns)
 
   object Resolvers {

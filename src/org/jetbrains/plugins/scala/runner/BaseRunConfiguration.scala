@@ -21,10 +21,10 @@ abstract class BaseRunConfiguration(val project: Project, val configurationFacto
   def mainClass:String
   val defaultJavaOptions = "-Djline.terminal=NONE"
   val useJavaCp = "-usejavacp"
-  def ensureUsesJavaCpByDefault(s: String) = if (s == null || s.isEmpty) useJavaCp else s
+  def ensureUsesJavaCpByDefault(s: String): String = if (s == null || s.isEmpty) useJavaCp else s
   private var myConsoleArgs = ""
-  def consoleArgs = ensureUsesJavaCpByDefault(this.myConsoleArgs)
-  def consoleArgs_=(s: String) = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
+  def consoleArgs: String = ensureUsesJavaCpByDefault(this.myConsoleArgs)
+  def consoleArgs_=(s: String): Unit = this.myConsoleArgs = ensureUsesJavaCpByDefault(s)
   var javaOptions = defaultJavaOptions
   var workingDirectory = Option(getProject.getBaseDir) map (_.getPath) getOrElse ""
   def getModule: Module = getConfigurationModule.getModule

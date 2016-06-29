@@ -45,7 +45,7 @@ object ActivatorRepoProcessor {
     val CATEGORY = new Key("category")
     val DESCRIPTION = new Key("description")
 
-    def from(doc: Document) =
+    def from(doc: Document): (String, DocData) =
       (NAME getValue doc, DocData(TEMPLATE_ID getValue doc, TITLE getValue doc, AUTHOR_NAME getValue doc,
         SOURCE_LINK getValue doc, CATEGORY getValue doc, DESCRIPTION getValue doc, TAGS getValue doc))
   }
