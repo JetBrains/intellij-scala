@@ -11,7 +11,7 @@ import com.intellij.openapi.util.TextRange
  */
 
 case class Associations(associations: Seq[Association]) extends TextBlockTransferableData with Cloneable {
-  def setOffsets(offsets: Array[Int], _index: Int) = {
+  def setOffsets(offsets: Array[Int], _index: Int): Int = {
     var index = _index
     for (association <- associations) {
       association.range = new TextRange(offsets(index), offsets(index + 1))
@@ -20,7 +20,7 @@ case class Associations(associations: Seq[Association]) extends TextBlockTransfe
     index
   }
 
-  def getOffsets(offsets: Array[Int], _index: Int) = {
+  def getOffsets(offsets: Array[Int], _index: Int): Int = {
     var index = _index
     for (association <- associations) {
       offsets(index) = association.range.getStartOffset
@@ -31,11 +31,11 @@ case class Associations(associations: Seq[Association]) extends TextBlockTransfe
     index
   }
 
-  def getOffsetCount = associations.length * 2
+  def getOffsetCount: Int = associations.length * 2
 
   def getFlavor = Associations.Flavor
 
-  override def clone() = copy()
+  override def clone(): Associations = copy()
 }
 
 object Associations {

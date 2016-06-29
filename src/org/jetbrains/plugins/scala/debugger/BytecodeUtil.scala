@@ -100,7 +100,7 @@ private[debugger] object BytecodeUtil {
     }
   }
 
-  def isIconst_0(codeIndex: Int, bytecodes: Array[Byte]) = {
+  def isIconst_0(codeIndex: Int, bytecodes: Array[Byte]): Boolean = {
     if (codeIndex < 0 || codeIndex > bytecodes.length - 1) false
     else bytecodes(codeIndex) == iconst_0
   }

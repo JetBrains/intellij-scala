@@ -29,7 +29,7 @@ abstract class AbstractDataService[E, I](key: Key[E]) extends AbstractProjectDat
                      project: Project,
                      modelsProvider: IdeModifiableModelsProvider): Importer[E]
 
-  def getTargetDataKey = key
+  def getTargetDataKey: Key[E] = key
 
   override final def importData(toImport: util.Collection[DataNode[E]],
                                 projectData: ProjectData,

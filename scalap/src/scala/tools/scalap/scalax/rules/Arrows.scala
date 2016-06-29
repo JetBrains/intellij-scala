@@ -9,13 +9,13 @@ trait Arrows extends UnitFunctors  {
   type M[+B] = Arr[Nothing, B]
   
   def arrow[A, B](f : A => B) : Arr[A, B]
-  def diag[A] = arrow[A, (A, A)] { a => (a, a) }
+  def diag[A]: Arr[A, (A, A)] = arrow[A, (A, A)] { a => (a, a) }
   
   override def unit[B](b : => B) : M[B] = arrow { any : Any => b }
   
   trait Arrow[-A, +B] extends Functor[B] { this : Arr[A, B] =>
     
-    def map[C](f : B => C) = comp(arrow(f))
+    def map[C](f : B => C): Arr[A, C] = comp(arrow(f))
     def comp[C](bc : => Arr[B, C]) : Arr[A, C]
     def fst[C] : Arr[(A, C), (B, C)]
   }

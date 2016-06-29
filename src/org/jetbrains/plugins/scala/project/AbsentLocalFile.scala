@@ -28,7 +28,7 @@ class AbsentLocalFile(url: String, path: String) extends VirtualFile {
 
   def isDirectory = throw new UnsupportedOperationException()
 
-  def getPath = path
+  def getPath: String = path
 
   def isWritable = throw new UnsupportedOperationException()
 
@@ -38,7 +38,7 @@ class AbsentLocalFile(url: String, path: String) extends VirtualFile {
 
   def getInputStream = throw new UnsupportedOperationException()
 
-  override def getUrl = url
+  override def getUrl: String = url
 }
 
 object AbsentLocalFileSystem extends VirtualFileSystem {
@@ -75,5 +75,5 @@ object AbsentLocalFileSystem extends VirtualFileSystem {
 
   def deleteFile(requestor: AnyRef, vFile: VirtualFile) = throw new UnsupportedOperationException()
 
-  override def extractPresentableUrl(path: String) = path.replace('/', File.separatorChar)
+  override def extractPresentableUrl(path: String): String = path.replace('/', File.separatorChar)
 }

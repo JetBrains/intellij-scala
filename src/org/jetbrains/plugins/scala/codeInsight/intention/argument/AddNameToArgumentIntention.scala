@@ -16,11 +16,11 @@ object AddNameToArgumentIntention {
 }
 
 class AddNameToArgumentIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = AddNameToArgumentIntention.familyName
+  def getFamilyName: String = AddNameToArgumentIntention.familyName
 
   override def getText = "Use named arguments for current and subsequent arguments"
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
      IntentionUtils.addNameToArgumentsFix(element, onlyBoolean = false).isDefined
   }
 

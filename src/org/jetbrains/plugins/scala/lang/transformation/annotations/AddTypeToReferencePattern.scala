@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.transformation.annotations
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScPatternArgumentList, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.transformation._
   * @author Pavel Fatin
   */
 object AddTypeToReferencePattern extends AbstractTransformer {
-  def transformation = {
+  def transformation: PartialFunction[PsiElement, Unit] = {
     case (e: ScReferencePattern) && Parent(_: ScCaseClause | _: ScGenerator | _: ScPattern | _: ScPatternArgumentList) && Typeable(t)
       if !e.nextSibling.exists(_.getText == ":") =>
 

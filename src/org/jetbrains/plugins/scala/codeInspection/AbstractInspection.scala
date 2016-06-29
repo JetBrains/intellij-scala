@@ -26,11 +26,11 @@ abstract class AbstractInspection(id: String, name: String) extends LocalInspect
 object AbstractInspection {
   private val CapitalLetterPattern = "(?<!=.)\\p{Lu}".r
 
-  def formatId(aClass: Class[_]) = {
+  def formatId(aClass: Class[_]): String = {
     aClass.getSimpleName.stripSuffix("Inspection")
   }
 
-  def formatName(aClass: Class[_]) = {
+  def formatName(aClass: Class[_]): String = {
     val id = formatId(aClass)
     CapitalLetterPattern.replaceAllIn(id, it => s" ${it.group(0).toLowerCase}")
   }

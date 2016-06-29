@@ -10,7 +10,7 @@ import com.intellij.openapi.vcs.changes.{ContentRevision, Change}
 class BuildFileChange (val beforeRevision: ContentRevision, val afterRevision: ContentRevision,
                       val buildFileStatus: BuildFileModifiedStatus) extends Change(beforeRevision, afterRevision, buildFileStatus.getChangeStatus) {
 
-  override def getOriginText(project: Project) = buildFileStatus.getOriginText
+  override def getOriginText(project: Project): String = buildFileStatus.getOriginText
 
 }
 

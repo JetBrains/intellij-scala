@@ -21,7 +21,7 @@ abstract class AbstractFormatConversionIntention(name: String,
                                                  eager: Boolean = false) extends PsiElementBaseIntentionAction {
   setText(name)
 
-  override def getFamilyName = name
+  override def getFamilyName: String = name
 
   private def findTargetIn(element: PsiElement): Option[(PsiElement, Seq[StringPart])] = {
     val candidates = {

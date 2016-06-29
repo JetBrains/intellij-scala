@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.transformation.annotations
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
@@ -10,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.transformation._
   * @author Pavel Fatin
   */
 object AddTypeToUnderscoreParameter extends AbstractTransformer {
-  def transformation = {
+  def transformation: PartialFunction[PsiElement, Unit] = {
     case (e: ScUnderscoreSection) && Typeable(t) if !e.nextSibling.exists(_.getText == ":") =>
       val annotation = annotationFor(t, e)
 

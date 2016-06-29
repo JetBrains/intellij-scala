@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection._
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.RemoveParentheses
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -12,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 class AccessorLikeMethodIsEmptyParenInspection extends AbstractMethodSignatureInspection(
   "ScalaAccessorLikeMethodIsEmptyParen", "Method with accessor-like name is empty-paren") {
 
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunction if f.hasQueryLikeName && f.isEmptyParen && !f.hasUnitResultType &&
         f.superMethods.isEmpty && !isScalaJSFacade(f.getContainingClass) =>
       holder.registerProblem(f.nameId, getDisplayName, new RemoveParentheses(f))

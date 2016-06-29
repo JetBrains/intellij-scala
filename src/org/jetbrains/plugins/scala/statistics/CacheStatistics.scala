@@ -117,7 +117,7 @@ object CacheStatistics {
     caches.values().asScala.foreach (c => logger.info(c.toString))
   }
 
-  def apply(id: String, name: String) = Option(caches.get(id)) match {
+  def apply(id: String, name: String): CacheStatistics = Option(caches.get(id)) match {
     case Some(res) => res
     case _ => synchronized {
       Option(caches.get(id)) match {

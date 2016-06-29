@@ -107,7 +107,7 @@ object Bounds extends api.Bounds {
       }
     }
 
-    def isEmpty = typeNamedElement.isEmpty
+    def isEmpty: Boolean = typeNamedElement.isEmpty
 
     val projectionOption = {
       def projectionOption(tp: ScType): Option[ScType] = tp match {

@@ -70,7 +70,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
     }
   }
 
-  def isPredefPriority = knownPriority.contains(PrecedenceTypes.SCALA_PREDEF)
+  def isPredefPriority: Boolean = knownPriority.contains(PrecedenceTypes.SCALA_PREDEF)
 
   def specialPriority: Option[Int] = knownPriority
 
@@ -115,10 +115,10 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   def setClassKind(classKind: Boolean) {
     this.classKind = classKind
   }
-  def getClassKind = {
+  def getClassKind: Boolean = {
     classKind && getClassKindInner
   }
-  def getClassKindInner = {
+  def getClassKindInner: Boolean = {
       (kinds contains ResolveTargets.CLASS) ||
       (kinds contains ResolveTargets.OBJECT) ||
       (kinds contains ResolveTargets.METHOD)

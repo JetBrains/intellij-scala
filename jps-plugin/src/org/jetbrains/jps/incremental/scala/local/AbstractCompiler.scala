@@ -57,7 +57,7 @@ abstract class AbstractCompiler extends Compiler {
       client.progress("Phase " + phase + " on " + unitName)
     }
 
-    def advance(current: Int, total: Int) = {
+    def advance(current: Int, total: Int): Boolean = {
       client.progress("", Some(current.toFloat / total.toFloat))
       !client.isCanceled
     }
@@ -70,13 +70,13 @@ abstract class AbstractCompiler extends Compiler {
       entries = Nil
     }
 
-    def hasErrors = entries.exists(_.severity == Severity.Error)
+    def hasErrors: Boolean = entries.exists(_.severity == Severity.Error)
 
-    def hasWarnings = entries.exists(_.severity == Severity.Warn)
+    def hasWarnings: Boolean = entries.exists(_.severity == Severity.Warn)
 
     def printSummary() {}
 
-    def problems = entries.reverse.toArray
+    def problems: Array[Problem] = entries.reverse.toArray
 
     def log(pos: Position, msg: String, sev: Severity) {
       entries ::= new Problem {

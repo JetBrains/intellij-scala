@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 class AdjustTypesIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName = "Adjust types"
 
-  override def getText = getFamilyName
+  override def getText: String = getFamilyName
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val file = element.getContainingFile match {
