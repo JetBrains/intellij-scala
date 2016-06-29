@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.editor.selectioner
 
+import java.util
+
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
@@ -13,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes._
  * @author Pavel Fatin
  */
 class ScalaAttributeValueSelectioner extends ExtendWordSelectionHandlerBase {
-  def canSelect(e: PsiElement) = isPartOfAttributeValue(e)
+  def canSelect(e: PsiElement): Boolean = isPartOfAttributeValue(e)
 
-  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor) = {
+  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): util.List[TextRange] = {
     val result = super.select(e, editorText, cursorOffset, editor)
 
     val start = e.prevElements.toSeq.takeWhile(isPartOfAttributeValue).last

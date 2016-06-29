@@ -268,7 +268,7 @@ object ScalaExtractMethodUtils {
     }
   }
 
-  def outputTypeText(settings: ScalaExtractMethodSettings) = {
+  def outputTypeText(settings: ScalaExtractMethodSettings): String = {
     if (settings.innerClassSettings.needClass) settings.innerClassSettings.className
     else {
       val outputs = settings.outputs
@@ -283,7 +283,7 @@ object ScalaExtractMethodUtils {
   /**
    * methods for Unit tests
    */
-  def getParameters(myInput: Array[VariableInfo], elements: Array[PsiElement]) = {
+  def getParameters(myInput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodParameter] = {
     var buffer: ArrayBuffer[VariableData] = new ArrayBuffer[VariableData]
     for (input <- myInput) {
       var d: VariableData = ScalaExtractMethodUtils.convertVariableData(input, elements)
@@ -315,7 +315,7 @@ object ScalaExtractMethodUtils {
     s"$name$colon$byNameArrow$typeText"
   }
 
-  def previewSignatureText(settings: ScalaExtractMethodSettings) = {
+  def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
     def nameAndType(param: ExtractMethodParameter): String =
       this.typedName(param.newName, param.tp.presentableText, param.fromElement.getProject, param.isCallByNameParameter)
 

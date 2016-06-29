@@ -13,11 +13,11 @@ trait TypeSystem {
   val bridge: ScTypePsiTypeBridge
   protected val presentation: ScTypePresentation
 
-  def presentableText = presentation.presentableText _
+  def presentableText: (ScType) => String = presentation.presentableText _
 
-  def canonicalText = presentation.canonicalText _
+  def canonicalText: (ScType) => String = presentation.canonicalText _
 
-  def urlText = presentation.urlText _
+  def urlText: (ScType) => String = presentation.urlText _
 
   def andType(types: Seq[ScType]): ScType
 
@@ -29,7 +29,7 @@ trait TypeSystemOwner {
 }
 
 trait TypeInTypeSystem extends ScType with TypeSystemOwner {
-  override final def presentableText = typeSystem.presentableText(this)
+  override final def presentableText: String = typeSystem.presentableText(this)
 
-  override final def canonicalText = typeSystem.canonicalText(this)
+  override final def canonicalText: String = typeSystem.canonicalText(this)
 }

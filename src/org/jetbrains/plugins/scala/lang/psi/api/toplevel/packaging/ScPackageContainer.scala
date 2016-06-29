@@ -16,7 +16,7 @@ trait ScPackageContainer extends ScalaPsiElement {
   def prefix : String
   def ownNamePart : String
 
-  def fqn = concat(prefix, ownNamePart)
+  def fqn: String = concat(prefix, ownNamePart)
 
   def isExplicit: Boolean
 

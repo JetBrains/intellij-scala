@@ -21,7 +21,7 @@ object ReplaceEqualsOrEqualityInMethodCallExprIntention {
 }
 
 class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ReplaceEqualsOrEqualityInMethodCallExprIntention.familyName
+  def getFamilyName: String = ReplaceEqualsOrEqualityInMethodCallExprIntention.familyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)

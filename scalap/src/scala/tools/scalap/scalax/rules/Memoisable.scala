@@ -18,12 +18,12 @@ import scala.collection.mutable.HashMap
 import scala.language.reflectiveCalls
 
 trait MemoisableRules extends Rules {
-  def memo[In <: Memoisable, Out, A, X](key : AnyRef)(toRule : => In => Result[Out, A, X]) = {
+  def memo[In <: Memoisable, Out, A, X](key : AnyRef)(toRule : => In => Result[Out, A, X]): Rule[In, Out, A, X] = {
     lazy val rule = toRule
     from[In] { in => in.memo(key, rule(in)) }
   }
   
-  override def ruleWithName[In, Out, A, X](name : String, f : In => rules.Result[Out, A, X]) = super.ruleWithName(name, (in : In) => in match {
+  override def ruleWithName[In, Out, A, X](name : String, f : In => rules.Result[Out, A, X]): Rule[In, Out, A, X] with Name = super.ruleWithName(name, (in : In) => in match {
       case s : Memoisable => s.memo(name, f(in))
       case _ => f(in)
     })
@@ -41,7 +41,7 @@ object DefaultMemoisable {
 trait DefaultMemoisable extends Memoisable {
   protected val map = new HashMap[AnyRef, Any]
 
-  def memo[A](key : AnyRef, a : => A) = {
+  def memo[A](key : AnyRef, a : => A): A = {
     map.getOrElseUpdate(key, compute(key, a)).asInstanceOf[A]
   }
   

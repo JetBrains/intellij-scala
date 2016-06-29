@@ -3,9 +3,9 @@ package project.template
 
 import java.awt.FlowLayout
 import java.io.File
-import javax.swing.{JPanel, JCheckBox}
+import javax.swing.{JCheckBox, JPanel}
 
-import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
@@ -13,7 +13,7 @@ import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExtern
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemBundle, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel}
+import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.Condition
@@ -34,9 +34,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   private var scalaVersion = Versions.DefaultScalaVersion
 
-  def getModuleType = JavaModuleType.getModuleType
+  def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
-  override def createModule(moduleModel: ModifiableModuleModel) = {
+  override def createModule(moduleModel: ModifiableModuleModel): Module = {
     val root = getModuleFileDirectory.toFile
 
     if (root.exists) {
@@ -167,7 +167,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
 // TODO Allow to specify Scala and SBT versions in the project wizard UI
 private object SbtModuleBuilder {
-  def formatProjectDefinition(name: String, scalaVersion: String) =
+  def formatProjectDefinition(name: String, scalaVersion: String): String =
     s"""name := "$name"
       |
       |version := "1.0"

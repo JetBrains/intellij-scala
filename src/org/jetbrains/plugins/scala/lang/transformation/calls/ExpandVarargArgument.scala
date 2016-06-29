@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package calls
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ReferenceTarget
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -11,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
   */
 object ExpandVarargArgument extends AbstractTransformer {
   // TODO improve array detection
-  def transformation = {
+  def transformation: PartialFunction[PsiElement, Unit] = {
     case e @ ScMethodCall(r @ ReferenceTarget(f: ScFunctionDefinition), as)
       if f.parameters.exists(_.isRepeatedParameter) &&
         !r.text.contains("Array") &&

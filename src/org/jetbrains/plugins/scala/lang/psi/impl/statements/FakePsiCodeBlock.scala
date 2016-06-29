@@ -26,7 +26,7 @@ final class FakePsiCodeBlock(body: ScExpression) extends LightElement(body.getMa
 
   override def getTextOffset: Int = body.getTextOffset
 
-  override def getContainingFile = body.getContainingFile
+  override def getContainingFile: PsiFile = body.getContainingFile
 
   override def toString = s"FakePsiCodeBlock(${body.toString}})"
 }
@@ -36,7 +36,7 @@ final class FakePsiStatement(elem: PsiElement) extends LightElement(elem.getMana
 
   override def getTextOffset: Int = elem.getTextOffset
 
-  override def getContainingFile = elem.getContainingFile
+  override def getContainingFile: PsiFile = elem.getContainingFile
 
   override def toString = s"FakePsiStatement(${elem.toString})"
 }

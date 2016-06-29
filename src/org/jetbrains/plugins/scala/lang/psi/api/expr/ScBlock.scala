@@ -180,7 +180,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   def hasCaseClauses: Boolean = false
   def isInCatchBlock: Boolean = getContext.isInstanceOf[ScCatchBlock]
-  def isAnonymousFunction = hasCaseClauses && !isInCatchBlock
+  def isAnonymousFunction: Boolean = hasCaseClauses && !isInCatchBlock
 
   def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
   def statements: Seq[ScBlockStatement] = findChildrenByClassScala(classOf[ScBlockStatement]).toSeq
@@ -192,8 +192,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     case _ => None
   }
 
-  def lastExpr = findLastChild(classOf[ScExpression])
-  def lastStatement = findLastChild(classOf[ScBlockStatement])
+  def lastExpr: Option[ScExpression] = findLastChild(classOf[ScExpression])
+  def lastStatement: Option[ScBlockStatement] = findLastChild(classOf[ScBlockStatement])
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
     getNode.addChild(decl.getNode,before.getNode)

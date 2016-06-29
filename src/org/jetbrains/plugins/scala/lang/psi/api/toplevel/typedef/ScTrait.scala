@@ -15,6 +15,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 trait ScTrait extends ScTypeDefinition {
   def getTraitToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTRAIT)
-  def getObjectClassOrTraitToken = getTraitToken
+  def getObjectClassOrTraitToken: PsiElement = getTraitToken
   def fakeCompanionClass: PsiClass
 }

@@ -5,7 +5,7 @@ import java.{lang => jl, util => ju}
 
 import com.intellij.lang.PsiBuilder.Marker
 import com.intellij.lang.WhitespacesAndCommentsBinder.TokenTextGetter
-import com.intellij.lang.{PsiBuilder, PsiParser, WhitespacesAndCommentsBinder, WhitespacesBinders}
+import com.intellij.lang._
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.hocon.CommonUtil._
 import org.jetbrains.plugins.hocon.HoconConstants._
@@ -18,7 +18,7 @@ import scala.util.matching.Regex
 
 class HoconPsiParser extends PsiParser {
 
-  def parse(root: IElementType, builder: PsiBuilder) = {
+  def parse(root: IElementType, builder: PsiBuilder): ASTNode = {
     val file = builder.mark()
     new Parser(builder).parseFile()
     file.done(root)
@@ -28,7 +28,7 @@ class HoconPsiParser extends PsiParser {
   class Parser(builder: PsiBuilder) {
 
     object DocumentationCommentsBinder extends WhitespacesAndCommentsBinder {
-      override def getEdgePosition(tokens: ju.List[IElementType], atStreamEdge: Boolean, getter: TokenTextGetter) = {
+      override def getEdgePosition(tokens: ju.List[IElementType], atStreamEdge: Boolean, getter: TokenTextGetter): Int = {
 
         @tailrec
         def goThrough(commentToken: IElementType, resultSoFar: Int, i: Int): Int = {
@@ -54,7 +54,7 @@ class HoconPsiParser extends PsiParser {
     // beware of rollbacks!
     var newLineSuppressedIndex: Int = 0
 
-    def newLinesBeforeCurrentToken =
+    def newLinesBeforeCurrentToken: Boolean =
       builder.rawTokenIndex > newLineSuppressedIndex && builder.rawLookup(-1) == LineBreakingWhitespace
 
     def suppressNewLine(): Unit = {
@@ -65,14 +65,14 @@ class HoconPsiParser extends PsiParser {
       builder.advanceLexer()
     }
 
-    def matches(matcher: Matcher) =
+    def matches(matcher: Matcher): Boolean =
       (matcher.tokenSet.contains(builder.getTokenType) && (!matcher.requireNoNewLine || !newLinesBeforeCurrentToken)) ||
         (matcher.matchNewLine && newLinesBeforeCurrentToken) || (matcher.matchEof && builder.eof)
 
-    def matchesUnquoted(str: String) =
+    def matchesUnquoted(str: String): Boolean =
       matches(UnquotedChars) && builder.getTokenText == str
 
-    def matchesUnquoted(pattern: Regex) =
+    def matchesUnquoted(pattern: Regex): Boolean =
       matches(UnquotedChars) && pattern.pattern.matcher(builder.getTokenText).matches
 
     def pass(matcher: Matcher): Boolean = {
@@ -132,7 +132,7 @@ class HoconPsiParser extends PsiParser {
       marker.done(stringType)
     }
 
-    def parseObject() = {
+    def parseObject(): Unit = {
       val marker = builder.mark()
 
       advanceLexer()
@@ -144,7 +144,7 @@ class HoconPsiParser extends PsiParser {
       marker.done(Object)
     }
 
-    def parseObjectEntries(insideObject: Boolean) = {
+    def parseObjectEntries(insideObject: Boolean): Unit = {
       val marker = builder.mark()
 
       while (!matches(RBrace.orEof)) {
@@ -168,7 +168,7 @@ class HoconPsiParser extends PsiParser {
       errorUntil(ValueEnding.orNewLineOrEof, "unexpected token", onlyNonEmpty = true)
     }
 
-    def parseInclude() = {
+    def parseInclude(): Unit = {
       val marker = builder.mark()
       advanceLexer()
       parseIncluded()

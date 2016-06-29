@@ -17,10 +17,10 @@ class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
 
   override def getIcon = Sbt.Icon
 
-  override def canImport(entry: VirtualFile, project: Project) =
+  override def canImport(entry: VirtualFile, project: Project): Boolean =
     SbtProjectImportProvider.canImport(entry)
 
-  override def getPathToBeImported(file: VirtualFile) =
+  override def getPathToBeImported(file: VirtualFile): String =
     SbtProjectImportProvider.projectRootOf(file).getPath
 }
 

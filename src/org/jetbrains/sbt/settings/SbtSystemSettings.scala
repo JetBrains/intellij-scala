@@ -66,7 +66,7 @@ class SbtSystemSettings(project: Project)
     }
   }
 
-  def getState = {
+  def getState: SbtSystemSettingsState = {
     val state = new SbtSystemSettingsState()
     fillState(state)
     state.customLauncherEnabled = customLauncherEnabled
@@ -115,7 +115,7 @@ class SbtSystemSettings(project: Project)
 }
 
 object SbtSystemSettings {
-  def getInstance(project: Project) = ServiceManager.getService(project, classOf[SbtSystemSettings])
+  def getInstance(project: Project): SbtSystemSettings = ServiceManager.getService(project, classOf[SbtSystemSettings])
 }
 
 class SbtSystemSettingsState extends AbstractExternalSystemSettings.State[SbtProjectSettings] {

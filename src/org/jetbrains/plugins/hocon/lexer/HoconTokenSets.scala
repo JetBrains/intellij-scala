@@ -27,11 +27,11 @@ object HoconTokenSets {
   val ObjectEntryStart = PathStart | UnquotedChars
 
   case class Matcher(tokenSet: TokenSet, requireNoNewLine: Boolean, matchNewLine: Boolean, matchEof: Boolean) {
-    def noNewLine = copy(requireNoNewLine = true)
+    def noNewLine: Matcher = copy(requireNoNewLine = true)
 
-    def orNewLineOrEof = copy(matchNewLine = true, matchEof = true)
+    def orNewLineOrEof: Matcher = copy(matchNewLine = true, matchEof = true)
 
-    def orEof = copy(matchEof = true)
+    def orEof: Matcher = copy(matchEof = true)
   }
 
   implicit def token2Matcher(token: HoconTokenType): Matcher =

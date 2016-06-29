@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 */
 
 trait ScReturnStmt extends ScExpression {
-  def expr = findChild(classOf[ScExpression])
+  def expr: Option[ScExpression] = findChild(classOf[ScExpression])
 
   def returnKeyword: PsiElement
 
   def returnFunction: Option[ScFunctionDefinition]
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitReturnStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitReturnStatement(this)
 }

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 */
 
 trait ScTypedPattern extends ScBindingPattern  {
-  def typePattern = findChild(classOf[ScTypePattern])
+  def typePattern: Option[ScTypePattern] = findChild(classOf[ScTypePattern])
 }
 
 object ScTypedPattern {

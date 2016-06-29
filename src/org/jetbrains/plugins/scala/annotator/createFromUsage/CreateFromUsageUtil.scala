@@ -25,13 +25,13 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
  */
 object CreateFromUsageUtil {
 
-  def uniqueNames(names: Seq[String]) = {
+  def uniqueNames(names: Seq[String]): List[String] = {
     names.foldLeft(List[String]()) { (r, h) =>
       (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r
     }.reverse
   }
   
-  def nameByType(tp: ScType) = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
+  def nameByType(tp: ScType): String = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
   
   def nameAndTypeForArg(arg: PsiElement): (String, ScType) = arg match {
     case ref: ScReferenceExpression => (ref.refName, ref.getType().getOrAny)
@@ -45,12 +45,12 @@ object CreateFromUsageUtil {
     case _ => ("value", Any)
   }
   
-  def paramsText(args: Seq[PsiElement]) = {
+  def paramsText(args: Seq[PsiElement]): String = {
     val (names, types) = args.map(nameAndTypeForArg).unzip
     (uniqueNames(names), types).zipped.map((name, tpe) => s"$name: ${tpe.canonicalText}").mkString("(", ", ", ")")
   }
 
-  def parametersText(ref: ScReferenceElement) = {
+  def parametersText(ref: ScReferenceElement): String = {
     ref.getParent match {
       case p: ScPattern =>
         paramsText(patternArgs(p))
@@ -115,13 +115,13 @@ object CreateFromUsageUtil {
     FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
   }
 
-  def unapplyMethodText(pattern: ScPattern) = {
+  def unapplyMethodText(pattern: ScPattern): String = {
     val pType = pattern.expectedType.getOrElse(Any)
     val pName = nameByType(pType)
     s"def unapply($pName: ${pType.canonicalText}): ${unapplyMethodTypeText(pattern)} = ???"
   }
 
-  def unapplyMethodTypeText(pattern: ScPattern) = {
+  def unapplyMethodTypeText(pattern: ScPattern): String = {
     val types = CreateFromUsageUtil.patternArgs(pattern).map(_.getType(TypingContext.empty).getOrAny)
     val typesText = types.map(_.canonicalText).mkString(", ")
     types.size match {

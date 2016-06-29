@@ -22,11 +22,11 @@ object ScalaXmlTokenTypes {
     tp
   }
   
-  def getByName(name: String) = allTypes.get(name)
+  def getByName(name: String): Option[IElementType] = allTypes.get(name)
 
-  def substitute(tpe: IElementType) = if (tpe == null) null else getByName(tpe.toString) getOrElse tpe
+  def substitute(tpe: IElementType): IElementType = if (tpe == null) null else getByName(tpe.toString) getOrElse tpe
 
-  def isSubstituted(name: String) = allTypes.get(name).isDefined
+  def isSubstituted(name: String): Boolean = allTypes.get(name).isDefined
   
   val XML_EQ = create("XML_EQ")
 

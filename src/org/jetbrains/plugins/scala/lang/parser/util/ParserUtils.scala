@@ -11,11 +11,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.util.DebugPrint
 
 import scala.annotation.tailrec
+import scala.collection.immutable.IndexedSeq
 
 
 object ParserUtils extends ParserUtilsBase {
 
-  def lookAheadSeq(n: Int)(builder: PsiBuilder) = (1 to n).map(i => {
+  def lookAheadSeq(n: Int)(builder: PsiBuilder): IndexedSeq[IElementType] = (1 to n).map(i => {
     val token = if (!builder.eof) builder.getTokenType else null
     builder.advanceLexer()
     token
@@ -69,7 +70,7 @@ object ParserUtils extends ParserUtilsBase {
     parsed
   }
 
-  def isAssignmentOperator(id: String) = id.charAt(id.length - 1) match {
+  def isAssignmentOperator(id: String): Boolean = id.charAt(id.length - 1) match {
     case '=' if id != "<=" && id != ">=" && id != "!=" && (id.charAt(0) != '=' || id == "=") => true
     case _ => false
   }

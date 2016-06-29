@@ -65,7 +65,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
 
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
 
-  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit) = s match {
+  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit): Unit = s match {
     case t: SymbolInfoSymbol =>
       for (a <- t.attributes) {
         indent; print(toString(a))
@@ -644,7 +644,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     }
   }
 
-  def getVariance(t: TypeSymbol) = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
+  def getVariance(t: TypeSymbol): String = if (t.isCovariant) "+" else if (t.isContravariant) "-" else ""
 
   def toString(symbol: Symbol): String = symbol match {
     case symbol: TypeSymbol =>

@@ -112,7 +112,7 @@ object IntroduceImplicitParameterIntention {
 }
 
 class IntroduceImplicitParameterIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = familyName
+  def getFamilyName: String = familyName
 
   override def getText: String = getFamilyName
 

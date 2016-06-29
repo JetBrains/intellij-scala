@@ -15,18 +15,18 @@ import scala.annotation.tailrec
  */
 class ScalaMethodCallArgUnwrapper extends ScalaUnwrapper with ShortTextDescription {
 
-  override def getDescription(e: PsiElement) = super.getDescription(e)
+  override def getDescription(e: PsiElement): String = super.getDescription(e)
 
-  override def isApplicableTo(e: PsiElement) = forMethodCallArg(e)((_, _) => true)(false)
+  override def isApplicableTo(e: PsiElement): Boolean = forMethodCallArg(e)((_, _) => true)(false)
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = {
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = {
     forMethodCallArg(element) { (expr, call) =>
       context.extractBlockOrSingleStatement(expr, call)
       context.delete(call)
     } {}
   }
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = {
     forMethodCallArg[PsiElement](e) { (expr, call) =>
       super.collectAffectedElements(e, toExtract)
       call

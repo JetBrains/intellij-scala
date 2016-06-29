@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
  */
 
 object MultipleInheritance extends AnnotatorPart[ScTemplateDefinition] {
-  def kind = classOf[ScTemplateDefinition]
+  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     definition.refs.map{case (s: ScTypeElement, o: Option[(PsiClass, ScSubstitutor)]) => (s, o.map(_._1))}.

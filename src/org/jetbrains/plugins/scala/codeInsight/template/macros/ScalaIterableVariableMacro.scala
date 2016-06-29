@@ -28,7 +28,7 @@ class ScalaIterableVariableMacro extends ScalaVariableOfTypeMacro {
                               scType: ScType,
                               project: Project,
                               array: ArrayBuffer[LookupElement])
-                             (implicit typeSystem: TypeSystem) =
+                             (implicit typeSystem: TypeSystem): Unit =
     super.addLookupItems(Array(ScalaVariableOfTypeMacro.iterableId), context, variant, scType, project, array)
 
   override def getResult(exprs: Array[Expression],

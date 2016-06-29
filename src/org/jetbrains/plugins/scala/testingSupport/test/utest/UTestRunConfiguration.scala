@@ -47,5 +47,5 @@ class UTestRunConfiguration(override val project: Project,
 
   override def errorMessage: String = "utest is not specified"
 
-  override def currentConfiguration = UTestRunConfiguration.this
+  override def currentConfiguration: UTestRunConfiguration = UTestRunConfiguration.this
 }

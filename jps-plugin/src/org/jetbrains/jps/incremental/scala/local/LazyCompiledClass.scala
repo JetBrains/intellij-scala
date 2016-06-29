@@ -17,7 +17,7 @@ private class LazyCompiledClass(outputFile: File, sourceFile: File, className: S
   private var loadedContent: Option[BinaryContent] = None
   private var contentIsSet = false
 
-  override def getContent = {
+  override def getContent: BinaryContent = {
     if (contentIsSet) super.getContent else loadedContent.getOrElse {
       val content = new BinaryContent(FileUtil.loadFileBytes(outputFile))
       loadedContent = Some(content)

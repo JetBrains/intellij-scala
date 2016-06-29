@@ -29,13 +29,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 class ScalaMacroEvaluator(project: Project) extends ProjectComponent with ScalaMacroTypeable {
 
-  override def projectOpened() = ()
+  override def projectOpened(): Unit = ()
 
-  override def projectClosed() = ()
+  override def projectClosed(): Unit = ()
 
-  override def initComponent() = ()
+  override def initComponent(): Unit = ()
 
-  override def disposeComponent() = ()
+  override def disposeComponent(): Unit = ()
 
   override def getComponentName = "ScalaMacroEvaluator"
 
@@ -60,7 +60,7 @@ class ScalaMacroEvaluator(project: Project) extends ProjectComponent with ScalaM
 }
 
 object ScalaMacroEvaluator {
-  def getInstance(project: Project) = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
+  def getInstance(project: Project): ScalaMacroEvaluator = ServiceManager.getService(project, classOf[ScalaMacroEvaluator])
 }
 
 trait MacroRule {
@@ -69,7 +69,7 @@ trait MacroRule {
 }
 
 case class MatchRule(name: String, clazz: String, typeable: ScalaMacroTypeable) extends MacroRule {
-  def isApplicable(fun: ScFunction) = {
+  def isApplicable(fun: ScFunction): Boolean = {
     fun.name == name && fun.containingClass.qualifiedName == clazz
   }
 }

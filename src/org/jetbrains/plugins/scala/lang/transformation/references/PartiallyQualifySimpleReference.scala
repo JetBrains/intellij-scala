@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package references
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.parseElement
 
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.parseEle
   * @author Pavel Fatin
   */
 object PartiallyQualifySimpleReference extends AbstractTransformer {
-  def transformation = {
+  def transformation: PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression
       if !e.getParent.isInstanceOf[ScReferenceExpression] && !e.text.contains(".") =>
 

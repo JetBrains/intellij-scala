@@ -28,7 +28,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def toString: String = "NamingPattern: " + name
 
-  def nameId = findChildByType[PsiElement](TokenSets.ID_SET)
+  def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
   def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
@@ -49,7 +49,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
-                                   place: PsiElement) = {
+                                   place: PsiElement): Boolean = {
     if (isStable) {
       ScalaPsiUtil.processImportLastParent(processor, state, place, lastParent, getType(TypingContext.empty))
     } else true

@@ -35,7 +35,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   import LibraryInjectorLoader._
 
   class DynamicClassLoader(urls: Array[URL], parent: ClassLoader) extends java.net.URLClassLoader(urls, parent) {
-    def addUrl(url: URL) = {
+    def addUrl(url: URL): Unit = {
       super.addURL(url)
     }
   }
@@ -60,7 +60,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
   private var jarCache: InjectorPersistentCache = null
-  def getJarCache = jarCache
+  def getJarCache: InjectorPersistentCache = jarCache
   private val loadedInjectors: mutable.HashMap[Class[_], mutable.HashSet[String]] = mutable.HashMap()
 
   private val myLibraryTableListener = new LibraryTable.Listener {
@@ -91,7 +91,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 //    init()
   }
 
-  def init() = {
+  def init(): Unit = {
     initialized.set(true)
     if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions) {
       DumbService.getInstance(project).smartInvokeLater {
@@ -114,13 +114,13 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   override def getComponentName: String = "ScalaLibraryInjectorLoader"
 
-  @inline def invokeLater(f: => Unit) = ApplicationManager.getApplication.invokeLater(toRunnable(f))
+  @inline def invokeLater(f: => Unit): Unit = ApplicationManager.getApplication.invokeLater(toRunnable(f))
 
   @inline def toRunnable(f: => Unit) = new Runnable { override def run(): Unit = f }
 
-  @inline def inReadAction(f: => Unit) = ApplicationManager.getApplication.runReadAction(toRunnable(f))
+  @inline def inReadAction(f: => Unit): Unit = ApplicationManager.getApplication.runReadAction(toRunnable(f))
 
-  @inline def inWriteAction[T](f: => T) = ApplicationManager.getApplication.runWriteAction(toRunnable(f))
+  @inline def inWriteAction[T](f: => T): Unit = ApplicationManager.getApplication.runWriteAction(toRunnable(f))
 
   def getInjectorClasses[T](interface: Class[T]): Seq[Class[T]] = {
     if (!initialized.get()) init()
@@ -495,5 +495,5 @@ object LibraryInjectorLoader {
   val INJECTOR_MANIFEST_NAME = "intellij-compat.xml"
   val INJECTOR_MODULE_NAME   = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
 
-  def getInstance(project: Project) = project.getComponent(classOf[LibraryInjectorLoader])
+  def getInstance(project: Project): LibraryInjectorLoader = project.getComponent(classOf[LibraryInjectorLoader])
 }

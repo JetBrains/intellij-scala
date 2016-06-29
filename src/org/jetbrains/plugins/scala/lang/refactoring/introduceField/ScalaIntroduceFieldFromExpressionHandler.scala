@@ -153,7 +153,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
 
   def runRefactoring(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]) {
     val runnable = new Runnable {
-      def run() = runRefactoringInside(ifc, settings)
+      def run(): Unit = runRefactoringInside(ifc, settings)
     }
     ScalaUtils.runWriteAction(runnable, ifc.project, REFACTORING_NAME)
     ifc.editor.getSelectionModel.removeSelection()

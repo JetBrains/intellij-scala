@@ -28,7 +28,7 @@ trait ScConstructor extends ScalaPsiElement {
     case _ => None
   }
 
-  def args = findChild(classOf[ScArgumentExprList])
+  def args: Option[ScArgumentExprList] = findChild(classOf[ScArgumentExprList])
 
   def arguments: Seq[ScArgumentExprList] =
     Seq(findChildrenByClassScala(classOf[ScArgumentExprList]): _*)

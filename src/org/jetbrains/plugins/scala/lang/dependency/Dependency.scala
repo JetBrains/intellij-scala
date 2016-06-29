@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
  */
 
 case class Dependency(kind: DependencyKind, source: PsiElement, target: PsiElement, path: Path) {
-  def isExternal = source.getContainingFile != target.getContainingFile
+  def isExternal: Boolean = source.getContainingFile != target.getContainingFile
 
   // It's better to re-bind references rather than to add imports
   // directly and re-resolve references afterwards.

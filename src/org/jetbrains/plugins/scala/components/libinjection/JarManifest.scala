@@ -20,7 +20,7 @@ case class InjectorDescriptor(version: Int, iface: String, impl: String, sources
 case class PluginDescriptor(since: Version, until: Version, injectors: Seq[InjectorDescriptor])
 
 case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String, modTimeStamp: Long)(val isBlackListed: Boolean, val isLoaded: Boolean) {
-  def serialize() = {
+  def serialize(): Elem = {
     <intellij-compat>
       {for (PluginDescriptor(since, until, injtors) <- pluginDescriptors) {
       <scala-plugin since-version={since.toString} until-version={until.toString}>

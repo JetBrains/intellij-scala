@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 class RedundantBlockInspection extends AbstractInspection {
 
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
       if block.hasRBrace && block.getFirstChild.getText == "{" &&
               blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>

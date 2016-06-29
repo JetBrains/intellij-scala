@@ -13,7 +13,7 @@ import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerData, SbtData}
 import org.jetbrains.jps.incremental.scala.local.LocalServer
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
+import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, ProjectSettings}
 import org.jetbrains.jps.incremental.scala.remote.RemoteServer
 import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.module.JpsModule
@@ -48,7 +48,7 @@ object ScalaBuilder {
     }
   }
 
-  def checkIncrementalTypeChange(context: CompileContext) = {
+  def checkIncrementalTypeChange(context: CompileContext): Unit = {
     def storageFile: Option[File] = {
       val projectDir = context.getProjectDescriptor.dataManager.getDataPaths.getDataStorageRoot
       if (projectDir != null)
@@ -127,7 +127,7 @@ object ScalaBuilder {
     chunk.getModules.exists(_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
   }
 
-  def projectSettings(context: CompileContext) = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
+  def projectSettings(context: CompileContext): ProjectSettings = SettingsManager.getProjectSettings(context.getProjectDescriptor.getProject)
 
   def isMakeProject(context: CompileContext): Boolean = JavaBuilderUtil.isCompileJavaIncrementally(context) && {
     for {
@@ -146,7 +146,7 @@ object ScalaBuilder {
 
   private val lock = new Object()
 
-  def localServer = {
+  def localServer: Server = {
     lock.synchronized {
       val server = cachedServer.getOrElse(new LocalServer())
       cachedServer = Some(server)

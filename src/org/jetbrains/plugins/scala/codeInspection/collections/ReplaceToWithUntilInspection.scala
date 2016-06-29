@@ -14,7 +14,7 @@ class ReplaceToWithUntilInspection extends OperationOnCollectionInspection {
 
 object ReplaceToWithUntil extends SimplificationType {
 
-  def hint = InspectionBundle.message("replace.to.with.until")
+  def hint: String = InspectionBundle.message("replace.to.with.until")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

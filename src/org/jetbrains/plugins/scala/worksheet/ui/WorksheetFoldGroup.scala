@@ -24,7 +24,7 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
   private val regions = mutable.ArrayBuffer[FoldRegionInfo]()
   private val unfolded = new util.TreeMap[Int, Int]()
 
-  def left2rightOffset(left: Int) = {
+  def left2rightOffset(left: Int): Int = {
     val key: Int = unfolded floorKey left
 
     if (key == 0) left else {
@@ -48,7 +48,7 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
     traverseAndChange(collapsedRegion, expand = false)
   }
 
-  def getCorrespondInfo = regions map {
+  def getCorrespondInfo: ArrayBuffer[(Int, Int, Int, Int, Int)] = regions map {
     case FoldRegionInfo(region: WorksheetFoldRegionDelegate, _, leftStart, spaces, lsLength) =>
       (region.getStartOffset, region.getEndOffset, leftStart, spaces, lsLength)
   }

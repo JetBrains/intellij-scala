@@ -114,7 +114,7 @@ trait IntroduceExpressions {
         }
 
         val chooser = new OccurrencesChooser[TextRange](editor) {
-          override def getOccurrenceRange(occurrence: TextRange) = occurrence
+          override def getOccurrenceRange(occurrence: TextRange): TextRange = occurrence
         }
 
         if (occurrences.isEmpty) {
@@ -349,7 +349,7 @@ trait IntroduceExpressions {
                         replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[SmartPsiElementPointer[PsiElement]] = {
 
     new Computable[SmartPsiElementPointer[PsiElement]]() {
-      def compute() = runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
+      def compute(): SmartPsiElementPointer[PsiElement] = runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
         varType, replaceAllOccurrences, isVariable)
     }
 

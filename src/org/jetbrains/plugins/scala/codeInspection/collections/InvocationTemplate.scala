@@ -15,7 +15,7 @@ class InvocationTemplate(nameCondition: String => Boolean) {
   private class Condition[T](f: T => Boolean) {
     def and(other: T => Boolean): Condition[T] = new Condition[T](x => f(x) && other(x))
 
-    def apply(t: T) = f(t)
+    def apply(t: T): Boolean = f(t)
   }
 
   private var refCondition = new Condition[ScReferenceExpression](_ => true)

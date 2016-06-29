@@ -44,7 +44,7 @@ class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor
 object ScalaPrefixPackageCompletionContributor {
 
   def completePrefixPackageNames(dummyPosition: PsiElement, parameters: CompletionParameters,
-                                 context: ProcessingContext, result: CompletionResultSet) = {
+                                 context: ProcessingContext, result: CompletionResultSet): Unit = {
     val position = dummyPosition
     val project = position.getProject
 
@@ -85,7 +85,7 @@ object ScalaPrefixPackageCompletionContributor {
 
   }
 
-  def prefixPackages(project: Project) = {
+  def prefixPackages(project: Project): Seq[String] = {
     def stripLastWord(pattern: String) = pattern.split('.').dropRight(1).mkString(".")
     
     val settings = ScalaCodeStyleSettings.getInstance(project)

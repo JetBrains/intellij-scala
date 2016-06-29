@@ -50,7 +50,7 @@ object TypeAdjuster extends ApplicationAdapter {
     replaceAndAddImports(rInfos, addImports)
   }
 
-  def markToAdjust(element: PsiElement) = {
+  def markToAdjust(element: PsiElement): Any = {
     if (element != null && element.isValid) {
       val manager = SmartPointerManager.getInstance(element.getProject)
       markedElements += manager.createSmartPsiElementPointer(element)

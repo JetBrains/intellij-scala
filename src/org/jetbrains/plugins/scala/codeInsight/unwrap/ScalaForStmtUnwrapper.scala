@@ -10,17 +10,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
  * 2014-06-27
  */
 class ScalaForStmtUnwrapper extends ScalaUnwrapper {
-  override def isApplicableTo(e: PsiElement) = e match {
+  override def isApplicableTo(e: PsiElement): Boolean = e match {
     case fSt: ScForStatement => fSt.body.isDefined
     case _ => false
   }
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = element match {
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element match {
     case fSt: ScForStatement if fSt.body.isDefined =>
       context.extractBlockOrSingleStatement(fSt.body.get, fSt)
       context.delete(fSt)
     case _ =>
   }
 
-  override def getDescription(e: PsiElement) = CodeInsightBundle.message("unwrap.for")
+  override def getDescription(e: PsiElement): String = CodeInsightBundle.message("unwrap.for")
 }

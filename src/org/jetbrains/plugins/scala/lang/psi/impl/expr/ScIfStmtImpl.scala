@@ -29,13 +29,13 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
 
   override def toString: String = "IfStatement"
 
-  def condition = {
+  def condition: Option[ScExpression] = {
     val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     val c = if (rpar != null) PsiTreeUtil.getPrevSiblingOfType(rpar, classOf[ScExpression]) else null
     Option(c)
   }
 
-  def thenBranch = {
+  def thenBranch: Option[ScExpression] = {
     val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
     val t =
       if (kElse != null) PsiTreeUtil.getPrevSiblingOfType(kElse, classOf[ScExpression])
@@ -50,18 +50,18 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
     }
   }
 
-  def elseBranch = {
+  def elseBranch: Option[ScExpression] = {
     val kElse = findChildByType[PsiElement](ScalaTokenTypes.kELSE)
     val e = if (kElse != null) PsiTreeUtil.getNextSiblingOfType(kElse, classOf[ScExpression]) else null
     Option(e)
   }
 
-  def getLeftParenthesis = {
+  def getLeftParenthesis: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     Option(leftParenthesis)
   }
 
-  def getRightParenthesis = {
+  def getRightParenthesis: Option[PsiElement] = {
     val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     Option(rightParenthesis)
   }

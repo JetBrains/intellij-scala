@@ -22,7 +22,7 @@ object MergeIfToOrIntention {
 }
 
 class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = MergeIfToOrIntention.familyName
+  def getFamilyName: String = MergeIfToOrIntention.familyName
 
   override def getText: String = "Merge sequential 'if's"
 

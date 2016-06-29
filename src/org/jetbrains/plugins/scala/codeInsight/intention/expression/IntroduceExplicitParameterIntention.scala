@@ -40,7 +40,7 @@ object IntroduceExplicitParameterIntention {
 }
 
 class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = IntroduceExplicitParameterIntention.familyName
+  def getFamilyName: String = IntroduceExplicitParameterIntention.familyName
 
   override def getText: String = getFamilyName
 

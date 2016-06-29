@@ -9,7 +9,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -26,7 +27,7 @@ class ScLiteralPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   override def toString: String = "LiteralPattern"
 
-  override def getType(ctx: TypingContext) = {
+  override def getType(ctx: TypingContext): TypeResult[ScType] = {
     getLiteral.getType(TypingContext.empty)
   }
 }

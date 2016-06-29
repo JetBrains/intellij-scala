@@ -11,19 +11,19 @@ trait InjectorCacheException extends LibraryInjectorException
 trait InjectorIOException extends LibraryInjectorException
 
 object Error {
-  def compilationError(cause: String) = {
+  def compilationError(cause: String): Nothing = {
     throw new Exception(cause) with InjectorCompileException
   }
 
-  def cacheSaveError(cause: Throwable) = {
+  def cacheSaveError(cause: Throwable): Nothing = {
     throw new Exception("Failed to save injector cache", cause) with InjectorCacheException
   }
 
-  def noJarFound(path: File) = {
+  def noJarFound(path: File): Nothing = {
     throw new Exception(s"Failed to locate source jar file - $path") with InjectorIOException
   }
 
-  def extractFailed(injectorName: String, outDir: File) = {
+  def extractFailed(injectorName: String, outDir: File): Nothing = {
     throw new Exception(s"Failed to extract injector sources for $injectorName - failed to create directory $outDir")
       with InjectorIOException
   }

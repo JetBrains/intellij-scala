@@ -843,7 +843,7 @@ object getDummyBlocks {
   private class StringLineScalaBlock(myTextRange: TextRange, mainNode: ASTNode, myParentBlock: ScalaBlock,
                                      myAlignment: Alignment, myIndent: Indent, myWrap: Wrap, mySettings: CodeStyleSettings)
           extends ScalaBlock(myParentBlock, mainNode, null, myAlignment, myIndent, myWrap, mySettings) {
-    override def getTextRange = myTextRange
+    override def getTextRange: TextRange = myTextRange
 
     override def isLeaf = true
 
@@ -859,7 +859,7 @@ object getDummyBlocks {
       mySubBlocks
     }
 
-    override def getSpacing(child1: Block, child2: Block) = Spacing.getReadOnlySpacing
+    override def getSpacing(child1: Block, child2: Block): Spacing = Spacing.getReadOnlySpacing
   }
 
   def getSubBlock(block: ScalaBlock, scalaSettings: ScalaCodeStyleSettings, node: ASTNode, lastNode: ASTNode = null,

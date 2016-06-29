@@ -20,7 +20,7 @@ sealed abstract class TypeResult[+T] {
   def foreach[B](f: T => B)
   def get: T
   def isEmpty : Boolean
-  def isDefined = !isEmpty
+  def isDefined: Boolean = !isEmpty
   def getOrElse[U >: T](default: => U): U = if (isEmpty) default else this.get
   def toOption: Option[T] = if (isEmpty) None else Some(this.get)
 
@@ -58,17 +58,17 @@ object TypeResult {
 }
 
 case class Success[+T](result: T, elem: Option[PsiElement]) extends TypeResult[T] { self =>
-  def flatMap[U](f: (T) => TypeResult[U]) = f(result)
+  def flatMap[U](f: (T) => TypeResult[U]): TypeResult[U] = f(result)
   def map[U](f: T => U) = Success(f(result), elem)
-  def filter(f: T => Boolean) = if (f(result)) Success(result, elem) else Failure("Wrong type", elem)
+  def filter(f: T => Boolean): TypeResult[T] = if (f(result)) Success(result, elem) else Failure("Wrong type", elem)
   def withFilter(f: (T) => Boolean): TypeResultWithFilter[T] = new TypeResultWithFilter[T](this, f)
   def foreach[B](f: T => B): Unit = f(result)
-  def get = result
+  def get: T = result
   def isEmpty = false
 
   def innerFailures: List[Failure] = List()
   def apply(fail: Failure) = new Success(result, elem) {
-    override def innerFailures = fail :: self.innerFailures
+    override def innerFailures: List[Failure] = fail :: self.innerFailures
   }
   def isCyclic = false
 }
@@ -81,14 +81,14 @@ class TypeResultWithFilter[+T](self: TypeResult[T], p: T => Boolean) {
 }
 
 case class Failure(cause: String, place: Option[PsiElement]) extends TypeResult[Nothing] {
-  def flatMap[U](f: Nothing => TypeResult[U]) = this
-  def map[U](f: Nothing => U) = this
+  def flatMap[U](f: Nothing => TypeResult[U]): Failure = this
+  def map[U](f: Nothing => U): Failure = this
   def foreach[B](f: Nothing => B) {}
   def withFilter(f: (Nothing) => Boolean): TypeResultWithFilter[Nothing] = new TypeResultWithFilter[Nothing](this, f)
-  def filter(f: Nothing => Boolean) = this
+  def filter(f: Nothing => Boolean): Failure = this
   def get = throw new NoSuchElementException("Failure.get")
   def isEmpty = true
 
-  def apply(fail: Failure) = this
+  def apply(fail: Failure): Failure = this
   def isCyclic = false
 }

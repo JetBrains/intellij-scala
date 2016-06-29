@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 object InterpolatedStringParser extends StringParser {
   private val FormatSpecifierPattern = "^%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])".r
 
-  def parse(element: PsiElement) = parse(element, checkStripMargin = true)
+  def parse(element: PsiElement): Option[Seq[StringPart]] = parse(element, checkStripMargin = true)
 
   def parse(element: PsiElement, checkStripMargin: Boolean): Option[Seq[StringPart]] = {
     if (checkStripMargin) element match {

@@ -73,10 +73,10 @@ sealed trait FunctionType {
 object FunctionType extends FunctionType {
   override protected val typeName = "scala.Function"
 
-  def apply(returnType: ScType, parameters: Seq[ScType])(project: Project, scope: GlobalSearchScope) =
+  def apply(returnType: ScType, parameters: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType =
     innerApply(s"$typeName${parameters.length}", parameters :+ returnType)(project, scope)
 
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem) =
+  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[(ScType, Seq[ScType])] =
     innerUnapply(`type`) match {
       case Some(typeArguments) =>
         val (parameters, Seq(resultType)) = typeArguments.splitAt(typeArguments.length - 1)
@@ -84,16 +84,16 @@ object FunctionType extends FunctionType {
       case _ => None
     }
 
-  def isFunctionType(`type`: ScType)(implicit typeSystem: TypeSystem) = unapply(`type`).isDefined
+  def isFunctionType(`type`: ScType)(implicit typeSystem: TypeSystem): Boolean = unapply(`type`).isDefined
 }
 
 object PartialFunctionType extends FunctionType {
   override protected val typeName = "scala.PartialFunction"
 
-  def apply(returnType: ScType, parameter: ScType)(project: Project, scope: GlobalSearchScope) =
+  def apply(returnType: ScType, parameter: ScType)(project: Project, scope: GlobalSearchScope): ValueType =
     innerApply(typeName, Seq(parameter, returnType))(project, scope)
 
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem) =
+  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[(ScType, ScType)] =
     innerUnapply(`type`) match {
       case Some(typeArguments) if typeArguments.length == 2 => Some(typeArguments(1), typeArguments.head)
       case _ => None
@@ -105,8 +105,8 @@ object TupleType extends FunctionType {
 
   override protected def isValid(definition: ScTypeDefinition) = definition.isInstanceOf[ScClass]
 
-  def apply(components: Seq[ScType])(project: Project, scope: GlobalSearchScope) =
+  def apply(components: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType =
     innerApply(s"$typeName${components.length}", components)(project, scope)
 
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem) = innerUnapply(`type`)
+  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[Seq[ScType]] = innerUnapply(`type`)
 }

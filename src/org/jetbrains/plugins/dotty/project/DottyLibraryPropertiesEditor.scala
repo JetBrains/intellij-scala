@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.dotty.project
 
 import java.awt.event.{ActionEvent, ActionListener}
+import javax.swing.JComponent
 
 import com.intellij.openapi.roots.libraries.ui.{LibraryEditorComponent, LibraryPropertiesEditor}
 import com.intellij.openapi.ui.Messages
@@ -37,9 +38,9 @@ class DottyLibraryPropertiesEditor(editorComponent: LibraryEditorComponent[Scala
   private val form = new DottyLibraryEditorForm()
   form.setUpdateSnapshotAction(updateSnapshotAction)
 
-  def createComponent() = form.getComponent
+  def createComponent(): JComponent = form.getComponent
 
-  def isModified = form.getState != properties.getState
+  def isModified: Boolean = form.getState != properties.getState
 
   def reset() {
     form.setState(properties.getState)

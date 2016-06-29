@@ -10,7 +10,7 @@ import java.util.regex.Pattern
  */
 case class SbtResolver(kind: SbtResolver.Kind.Value, name: String, root: String) {
   import org.jetbrains.sbt.resolvers.SbtResolver._
-  def associatedIndex = SbtResolverIndexesManager().find(this)
+  def associatedIndex: Option[SbtResolverIndex] = SbtResolverIndexesManager().find(this)
 
   override def toString = s"$root$DELIMITER$kind$DELIMITER$name"
 }
@@ -21,7 +21,7 @@ object SbtResolver {
     val Ivy   = Value(1, "ivy")
   }
 
-  def localCacheResolver(localCachePath: Option[String]) = {
+  def localCacheResolver(localCachePath: Option[String]): SbtResolver = {
     val defaultPath = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
     SbtResolver(Kind.Ivy, "Local cache", localCachePath getOrElse defaultPath)
   }

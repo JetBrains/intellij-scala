@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
+import scala.collection.generic.FilterMonadic
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
@@ -151,8 +152,8 @@ abstract class MixinNodes {
     }
 
     private class MultiMap extends mutable.HashMap[T, mutable.Set[Node]] with collection.mutable.MultiMap[T, Node] {
-      override def elemHashCode(t : T) = computeHashCode(t)
-      override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
+      override def elemHashCode(t : T): Int = computeHashCode(t)
+      override def elemEquals(t1 : T, t2 : T): Boolean = equiv(t1, t2)
       override def makeSet = new mutable.LinkedHashSet[Node]
     }
 
@@ -215,7 +216,7 @@ abstract class MixinNodes {
       publics.filter(p).toSeq ++ privates.map.values.flatten.filter(p)
     }
 
-    def withFilter(p: ((T, Node)) => Boolean) = {
+    def withFilter(p: ((T, Node)) => Boolean): FilterMonadic[(T, Node), Seq[(T, Node)]] = {
       (publics.toSeq ++ privates.map.values.flatten).withFilter(p)
     }
 
@@ -271,8 +272,8 @@ abstract class MixinNodes {
   }
 
   class NodesMap extends mutable.HashMap[T, Node] {
-    override def elemHashCode(t: T) = computeHashCode(t)
-    override def elemEquals(t1 : T, t2 : T) = equiv(t1, t2)
+    override def elemHashCode(t: T): Int = computeHashCode(t)
+    override def elemEquals(t1 : T, t2 : T): Boolean = equiv(t1, t2)
 
     /**
      * Use this method if you are sure, that map contains key
@@ -432,7 +433,7 @@ abstract class MixinNodes {
     map
   }
 
-  def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
+  def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
     var res : ScSubstitutor = ScSubstitutor.empty
     for (typeParameter <- superClass.getTypeParameters) {
       res = res bindT(typeParameter.nameAndId, derived.subst(superSubst.subst(TypeParameterType(typeParameter, None))))

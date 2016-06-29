@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
  */
 
 class TypeAnnotationInspection extends AbstractInspection {
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
       val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
 

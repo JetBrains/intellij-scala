@@ -21,10 +21,10 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
   private val cachedStamp = mutable.HashMap[PsiFile, Long]()
 
   private val listener = new DebuggerManagerAdapter {
-    override def sessionDetached(session: DebuggerSession) = clear()
+    override def sessionDetached(session: DebuggerSession): Unit = clear()
   }
 
-  override def projectOpened() = {
+  override def projectOpened(): Unit = {
     DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
   }
 
@@ -77,5 +77,5 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
 }
 
 object ScalaEvaluatorCache {
-  def getInstance(project: Project) = project.getComponent(classOf[ScalaEvaluatorCache])
+  def getInstance(project: Project): ScalaEvaluatorCache = project.getComponent(classOf[ScalaEvaluatorCache])
 }

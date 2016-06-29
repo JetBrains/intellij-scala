@@ -149,7 +149,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
 
-  def getKinds(incomplete: Boolean, completion: Boolean = false) = {
+  def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {
       case _ if completion => StdKinds.refExprQualRef // SC-3092
       case _: ScReferenceExpression => StdKinds.refExprQualRef
@@ -169,7 +169,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     convertBindToType(this.bind())
   }
 
-  def shapeType = {
+  def shapeType: TypeResult[ScType] = {
     convertBindToType(shapeResolve match {
       case Array(bind: ScalaResolveResult) if bind.isApplicable() => Some(bind)
       case _ => None

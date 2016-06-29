@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
  */
 
 object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
-  def kind = classOf[ScTemplateDefinition]
+  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if(!typeAware) return
@@ -44,7 +44,7 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
     }
   }
 
-  def message(kind: String, name: String, member: (String, String)) = {
+  def message(kind: String, name: String, member: (String, String)): String = {
     "%s '%s' must either be declared abstract or implement abstract member '%s' in '%s'".format(kind, name, member._1, member._2)
   }
 }

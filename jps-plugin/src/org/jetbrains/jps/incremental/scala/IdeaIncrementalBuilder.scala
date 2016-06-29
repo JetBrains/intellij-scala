@@ -139,7 +139,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     }
 
     dirtyFilesHolder.processDirtyFiles(new FileProcessor[JavaSourceRootDescriptor, ModuleBuildTarget] {
-      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor) = checkAndCollectFile(file)
+      def apply(target: ModuleBuildTarget, file: File, root: JavaSourceRootDescriptor): Boolean = checkAndCollectFile(file)
     })
 
     for {
@@ -147,7 +147,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
       tempRoot <- project.getBuildRootIndex.getTempTargetRoots(target, context).asScala
     } {
       FileUtil.processFilesRecursively(tempRoot.getRootFile, new Processor[File] {
-        def process(file: File) = checkAndCollectFile(file)
+        def process(file: File): Boolean = checkAndCollectFile(file)
       })
     }
 

@@ -400,7 +400,7 @@ object JavaToScala {
   def hanldleAssociations(element: PsiElement, result: IntermediateNode)
                          (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                           refs: Seq[ReferenceData] = Seq.empty,
-                          withComments: Boolean = false) = {
+                          withComments: Boolean = false): Any = {
     element match {
       case expression: PsiNewExpression if expression.getClassReference != null =>
         associations ++= associationFor(expression.getClassReference)

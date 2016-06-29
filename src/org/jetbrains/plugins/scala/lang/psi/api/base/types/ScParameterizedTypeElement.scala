@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 trait ScParameterizedTypeElement extends ScDesugarizableTypeElement {
   override protected val typeName = "ParametrizedType"
 
-  def typeArgList = findChildByClassScala(classOf[ScTypeArgs])
+  def typeArgList: ScTypeArgs = findChildByClassScala(classOf[ScTypeArgs])
 
-  def typeElement = findChildByClassScala(classOf[ScTypeElement])
+  def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def findConstructor = getContext match {
+  def findConstructor: Option[ScConstructor] = getContext match {
     case constructor: ScConstructor => Some(constructor)
     case _ => None
   }

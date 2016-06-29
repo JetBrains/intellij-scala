@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTuple}
  * 2014-06-26
  */
 class ScalaTupleUnwrapper extends ScalaUnwrapper with ShortTextDescription {
-  override def isApplicableTo(e: PsiElement) = forTupledExpression(e)((_, _) => true)(false)
+  override def isApplicableTo(e: PsiElement): Boolean = forTupledExpression(e)((_, _) => true)(false)
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = {
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = {
     forTupledExpression(element){ (expr, tuple) =>
       context.extractElement(expr, tuple)
       context.delete(tuple)
@@ -22,7 +22,7 @@ class ScalaTupleUnwrapper extends ScalaUnwrapper with ShortTextDescription {
   }
 
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = {
     forTupledExpression[PsiElement](e){ (expr, tuple) =>
       super.collectAffectedElements(e, toExtract)
       tuple

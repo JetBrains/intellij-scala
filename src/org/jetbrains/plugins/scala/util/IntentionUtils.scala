@@ -102,7 +102,7 @@ object IntentionUtils {
     }
   }
 
-  def negateAndValidateExpression(expr: ScExpression, manager: PsiManager, buf: scala.StringBuilder) = {
+  def negateAndValidateExpression(expr: ScExpression, manager: PsiManager, buf: scala.StringBuilder): (ScExpression, ScExpression, Int) = {
     val parent =
       if (expr.getParent != null && expr.getParent.isInstanceOf[ScParenthesisedExpr]) expr.getParent.getParent
       else expr.getParent

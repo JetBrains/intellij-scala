@@ -24,7 +24,7 @@ class HoconFoldingBuilder extends FoldingBuilder {
   def isCollapsedByDefault(node: ASTNode) =
     false
 
-  def getPlaceholderText(node: ASTNode) = node.getElementType match {
+  def getPlaceholderText(node: ASTNode): String = node.getElementType match {
     case Object => "{...}"
     case Array => "[...]"
     case MultilineString => "\"\"\"...\"\"\""

@@ -102,7 +102,7 @@ object RemoteServerConnector {
     
     private var hasErrors = false
 
-    def isCompiledWithErrors = hasErrors
+    def isCompiledWithErrors: Boolean = hasErrors
     
     override def progress(text: String, done: Option[Float]) {
       consumer.progress(text, done)

@@ -35,7 +35,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   private val name = ref.refName
 
 
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     implicit val typeSystem = project.typeSystem
     def goodQualifier = ref.qualifier match {
       case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => true
@@ -103,7 +103,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
 
   private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement])(implicit typeSystem: TypeSystem) {
     val renderer = new PsiElementListCellRenderer[PsiElement] {
-      override def getElementText(element: PsiElement) = element match {
+      override def getElementText(element: PsiElement): String = element match {
         case f: PsiFile => "New file"
         case td: ScTypeDefinition if td.isTopLevel => "Top level in this file"
         case _ childOf (tb: ScTemplateBody) =>
@@ -215,7 +215,7 @@ class CreateObjectQuickFix(ref: ScReferenceElement)
 class CreateTraitQuickFix(ref: ScReferenceElement)
         extends CreateTypeDefinitionQuickFix(ref, "trait", Trait) {
   
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     super.isAvailable(project, editor, file) && parametersText(ref).isEmpty
   }
 }

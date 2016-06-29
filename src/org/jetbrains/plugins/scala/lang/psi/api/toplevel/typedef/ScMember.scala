@@ -106,7 +106,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     containingClass == null
   }
 
-  override def hasModifierProperty(name: String) = {
+  override def hasModifierProperty(name: String): Boolean = {
     name match {
       case PsiModifier.PUBLIC =>
         !hasModifierProperty("private") && !hasModifierProperty("protected")

@@ -87,7 +87,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
   }
 
-  override def getDefaultCommonSettings = {
+  override def getDefaultCommonSettings: CommonCodeStyleSettings = {
     val commonCodeStyleSettings = new CommonCodeStyleSettings(getLanguage)
     val indentOptions = commonCodeStyleSettings.initIndentOptions
     indentOptions.INDENT_SIZE = 2
@@ -98,7 +98,7 @@ class HoconLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
   override def getIndentOptionsEditor = new SmartIndentOptionsEditor
 
-  def getCodeSample(settingsType: SettingsType) = settingsType match {
+  def getCodeSample(settingsType: SettingsType): String = settingsType match {
     case SettingsType.INDENT_SETTINGS =>
       """object {
         |  key = value

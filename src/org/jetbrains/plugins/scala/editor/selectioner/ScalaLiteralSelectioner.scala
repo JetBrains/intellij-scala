@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package editor.selectioner
 
+import java.util
+
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
@@ -13,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
  */
 
 class ScalaLiteralSelectioner extends ExtendWordSelectionHandlerBase {
-  def canSelect(e: PsiElement) = isStringLiteral(e) || isStringLiteral(e.getParent)
+  def canSelect(e: PsiElement): Boolean = isStringLiteral(e) || isStringLiteral(e.getParent)
 
-  def isStringLiteral(e: PsiElement) = e match {
+  def isStringLiteral(e: PsiElement): Boolean = e match {
     case l: ScLiteral =>
       val children = l.getNode.getChildren(null)
       children.length == 1 && (children(0).getElementType == ScalaTokenTypes.tSTRING ||
@@ -24,7 +26,7 @@ class ScalaLiteralSelectioner extends ExtendWordSelectionHandlerBase {
   }
 
 
-  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor) = {
+  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): util.List[TextRange] = {
     val list = super.select(e, editorText, cursorOffset, editor)
     val r = e.getTextRange
     val text = e.getText

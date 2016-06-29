@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import com.intellij.psi.PsiTypeParameter
+import com.intellij.psi.{PsiElement, PsiTypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getPsiElementId
 
 /**
@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getPsiElementId
 package object params {
 
   implicit class PsiTypeParameterExt(val typeParameter: PsiTypeParameter) extends AnyVal {
-    def nameAndId = getPsiElementId(typeParameter)
+    def nameAndId: (String, PsiElement) = getPsiElementId(typeParameter)
   }
 
 }

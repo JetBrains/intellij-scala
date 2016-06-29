@@ -167,11 +167,11 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     returnType
   }
 
-  override def getNameIdentifier = function.getNameIdentifier
+  override def getNameIdentifier: PsiIdentifier = function.getNameIdentifier
 
   override def isWritable: Boolean = getContainingFile.isWritable
 
-  override def setName(name: String) = {
+  override def setName(name: String): PsiElement = {
     if (forDefault.isEmpty && !function.isConstructor) function.setName(name)
     else this
   }

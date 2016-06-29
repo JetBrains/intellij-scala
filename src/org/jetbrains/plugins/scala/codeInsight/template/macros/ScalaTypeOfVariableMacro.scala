@@ -17,7 +17,7 @@ class ScalaTypeOfVariableMacro extends ScalaMacro {
             flatMap(_.getType().toOption).map(new ScalaTypeResult(_)).orNull
   }
 
-  override def calculateQuickResult(params: Array[Expression], context: ExpressionContext) = calculateResult(params, context)
+  override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)
 
   override def isAcceptableInContext(context: TemplateContextType): Boolean = context.isInstanceOf[ScalaCodeContextType]
 

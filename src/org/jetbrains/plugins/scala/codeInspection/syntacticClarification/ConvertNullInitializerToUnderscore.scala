@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConvertNullInitializerToUnderscore._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -23,7 +24,7 @@ class ConvertNullInitializerToUnderscore extends AbstractInspection(inspectionId
     expr.getFirstChild.getNode.getElementType == ScalaTokenTypes.kNULL
   }
 
-  override def actionFor(holder: ProblemsHolder) = {
+  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case variable: ScVariableDefinition if !variable.isLocal && variable.expr.nonEmpty && variable.hasExplicitType =>
       variable.declaredType.get match {
         case valType: api.ValType if valType ne api.Unit =>

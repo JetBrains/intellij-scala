@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScVariableStub
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,9 +29,9 @@ class ScVariableDeclarationImpl private (stub: StubElement[ScVariable], nodeType
 
   override def toString: String = "ScVariableDeclaration: " + declaredElements.map(_.name).mkString(", ")
 
-  def getType(ctx: TypingContext) = wrap(typeElement) flatMap {_.getType(TypingContext.empty)}
+  def getType(ctx: TypingContext): TypeResult[ScType] = wrap(typeElement) flatMap {_.getType(TypingContext.empty)}
 
-  def declaredElements = getIdList.fieldIds
+  def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
   def typeElement: Option[ScTypeElement] = {
     val stub = getStub

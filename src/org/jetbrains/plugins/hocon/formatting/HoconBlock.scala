@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.hocon.formatting
 
+import java.util
+
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi.TokenType
@@ -26,17 +28,17 @@ class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap:
   }
   private val alignmentCache = new formatter.AlignmentCache
 
-  override def getIndent = indent
+  override def getIndent: Indent = indent
 
   override def getChildAttributes(newChildIndex: Int) =
     new ChildAttributes(formatter.getChildIndent(node), formatter.getChildAlignment(alignmentCache, node))
 
-  def buildChildren() = children.asJava
+  def buildChildren(): util.List[Block] = children.asJava
 
-  def isLeaf =
+  def isLeaf: Boolean =
     formatter.getChildren(node).isEmpty
 
-  def getSpacing(child1: Block, child2: Block) =
+  def getSpacing(child1: Block, child2: Block): Spacing =
     if (child1 == null)
       formatter.getFirstSpacing(node, child2.asInstanceOf[HoconBlock].getNode)
     else
@@ -53,7 +55,7 @@ class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap:
       formatter.getWrap(wrapCache, node, child),
       formatter.getAlignment(alignmentCache, node, child))
 
-  override def toString =
+  override def toString: String =
     s"${node.getElementType}[${node.getText.replaceAllLiterally("\n", "\\n")}]${node.getTextRange}" + {
       if (isLeaf) "" else children.mkString("\n", "\n", "").indent("  ")
     }

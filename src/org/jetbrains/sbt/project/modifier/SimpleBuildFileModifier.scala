@@ -73,7 +73,7 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String], val resolvers: S
 
 object SimpleBuildFileModifier {
 
-  def newLine(project: IJProject) = ScalaPsiElementFactory.createNewLine(PsiManager.getInstance(project))
+  def newLine(project: IJProject): PsiElement = ScalaPsiElementFactory.createNewLine(PsiManager.getInstance(project))
 
   def createSeqString(normalIndent: String, seq: Seq[String]): String =
     "Seq(\n" + seq.tail.fold(normalIndent + seq.head)(_ + ",\n" + normalIndent + _) + "\n)"
@@ -118,12 +118,12 @@ object SimpleBuildFileModifier {
   }
 
   def addElementToBuildFile(module: IJModule, locationProvider: BuildFileModificationLocationProvider,
-                            elementType: BuildFileElementType, buildFile: PsiFile, psiElement: PsiElement) = {
+                            elementType: BuildFileElementType, buildFile: PsiFile, psiElement: PsiElement): Option[VirtualFile] = {
     addElementsToBuildFile(module, locationProvider, elementType, buildFile, psiElement)
   }
 
   def removeElementFromBuildFile(module: IJModule, locationProvider: BuildFileModificationLocationProvider,
-                                 buildFile: PsiFile, elementType: BuildFileElementType, elementCondition: PsiElement => Boolean) = {
+                                 buildFile: PsiFile, elementType: BuildFileElementType, elementCondition: PsiElement => Boolean): Option[PsiFile] = {
     locationProvider.getModifyOrRemoveElement(module, elementType, elementCondition, buildFile) match {
       case Some(element) =>
         val res = element.getContainingFile
@@ -135,7 +135,7 @@ object SimpleBuildFileModifier {
 
   def modifyElementInBuildFile(module: IJModule, locationProvider: BuildFileModificationLocationProvider,
                                elementType: BuildFileElementType, buildFile: PsiFile,
-                               elementCondition: PsiElement => Boolean, modifyFunction: PsiElement => PsiElement) = {
+                               elementCondition: PsiElement => Boolean, modifyFunction: PsiElement => PsiElement): Option[PsiFile] = {
     locationProvider.getModifyOrRemoveElement(module, elementType, elementCondition, buildFile) match {
       case Some(element) =>
         val res = element.getContainingFile

@@ -106,7 +106,7 @@ trait PsiClassFake extends PsiClass with PsiReferenceList {
 
   def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = Array[PsiMethod]()
 
-  def getMethods = Array[PsiMethod]()
+  def getMethods: Array[PsiMethod] = Array[PsiMethod]()
 
   def getQualifiedName: String = null
 

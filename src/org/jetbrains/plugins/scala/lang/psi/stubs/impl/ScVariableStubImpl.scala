@@ -51,7 +51,7 @@ extends StubBaseWrapper[ScVariable](parent, elemType) with ScVariableStub {
 
   def getNames: Array[String] = for (name <- names) yield StringRef.toString(name) //todo: remove it
 
-  def isDeclaration = declaration
+  def isDeclaration: Boolean = declaration
 
   def getPatternsContainer: Option[ScPatternList] = {
     if (isDeclaration) return None

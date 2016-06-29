@@ -12,7 +12,7 @@ class ScalaArrangementDependency(anchor: ScalaArrangementEntry) {
 
   def addDependentMethodInfo(info: ScalaArrangementDependency) {methodsInfo = info::methodsInfo}
 
-  def getDependentMethodInfos = methodsInfo
+  def getDependentMethodInfos: List[ScalaArrangementDependency] = methodsInfo
 
-  def getAnchorMethod = anchor
+  def getAnchorMethod: ScalaArrangementEntry = anchor
 }

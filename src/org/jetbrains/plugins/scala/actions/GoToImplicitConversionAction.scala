@@ -35,13 +35,13 @@ import scala.collection.mutable.ArrayBuffer
 object GoToImplicitConversionAction {
   var popup: JBPopup = null
 
-  def getPopup = popup
+  def getPopup: JBPopup = popup
 
   def setPopup(p: JBPopup) {
     popup = p
   }
 
-  def getList = JListCompatibility.GoToImplicitConversionAction.getList
+  def getList: JList[_] = JListCompatibility.GoToImplicitConversionAction.getList
 }
 
 class GoToImplicitConversionAction extends AnAction("Go to implicit conversion action") {

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ScEnumeratorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnumerator {
   override def toString: String = "Enumerator"
   def pattern: ScPattern = findChildByClass(classOf[ScPattern])
-  def rvalue = findChildByClass(classOf[ScExpression])
+  def rvalue: ScExpression = findChildByClass(classOf[ScExpression])
 
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {

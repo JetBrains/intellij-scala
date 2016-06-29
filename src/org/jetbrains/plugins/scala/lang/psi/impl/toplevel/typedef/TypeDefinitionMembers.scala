@@ -40,7 +40,7 @@ object TypeDefinitionMembers {
     }
   }
 
-  def isAbstract(s: PhysicalSignature) = s.method match {
+  def isAbstract(s: PhysicalSignature): Boolean = s.method match {
     case _: ScFunctionDeclaration => true
     case _: ScFunctionDefinition => false
     case m if m.hasModifierProperty(PsiModifier.ABSTRACT) => true
@@ -50,11 +50,11 @@ object TypeDefinitionMembers {
   object ParameterlessNodes extends MixinNodes {
     type T = Signature
 
-    def equiv(s1: Signature, s2: Signature) = s1 equiv s2
+    def equiv(s1: Signature, s2: Signature): Boolean = s1 equiv s2
 
-    def computeHashCode(s: Signature) = s.simpleHashCode
+    def computeHashCode(s: Signature): Int = s.simpleHashCode
 
-    def elemName(t: Signature) = t.name
+    def elemName(t: Signature): String = t.name
 
 
     def same(t1: Signature, t2: Signature): Boolean = {
@@ -79,7 +79,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def isAbstract(s: Signature) = s match {
+    def isAbstract(s: Signature): Boolean = s match {
       case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
       case s: Signature => s.namedElement match {
         case _: ScFieldId => true
@@ -89,7 +89,7 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def isImplicit(t: Signature) = ScalaPsiUtil.isImplicit(t.namedElement)
+    def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
                    (implicit typeSystem: TypeSystem) {
@@ -224,13 +224,13 @@ object TypeDefinitionMembers {
 
   object TypeNodes extends MixinNodes {
     type T = PsiNamedElement //class or type alias
-    def equiv(t1: PsiNamedElement, t2: PsiNamedElement) = t1.name == t2.name
+    def equiv(t1: PsiNamedElement, t2: PsiNamedElement): Boolean = t1.name == t2.name
 
-    def computeHashCode(t: PsiNamedElement) = t.name.hashCode
+    def computeHashCode(t: PsiNamedElement): Int = t.name.hashCode
 
-    def elemName(t: PsiNamedElement) = t.name
+    def elemName(t: PsiNamedElement): String = t.name
 
-    def isAbstract(t: PsiNamedElement) = t match {
+    def isAbstract(t: PsiNamedElement): Boolean = t match {
       case _: ScTypeAliasDeclaration => true
       case _ => false
     }
@@ -289,11 +289,11 @@ object TypeDefinitionMembers {
   object SignatureNodes extends MixinNodes {
     type T = Signature
 
-    def equiv(s1: Signature, s2: Signature) = s1 equiv s2
+    def equiv(s1: Signature, s2: Signature): Boolean = s1 equiv s2
 
-    def computeHashCode(s: Signature) = s.simpleHashCode
+    def computeHashCode(s: Signature): Int = s.simpleHashCode
 
-    def elemName(t: Signature) = t.name
+    def elemName(t: Signature): String = t.name
 
     def same(t1: Signature, t2: Signature): Boolean = {
       t1.namedElement eq t2.namedElement
@@ -317,7 +317,7 @@ object TypeDefinitionMembers {
       }
     }
 
-    def isAbstract(s: Signature) = s match {
+    def isAbstract(s: Signature): Boolean = s match {
       case phys: PhysicalSignature => TypeDefinitionMembers.this.isAbstract(phys)
       case s: Signature => s.namedElement match {
         case _: ScFieldId => true
@@ -327,7 +327,7 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def isImplicit(t: Signature) = ScalaPsiUtil.isImplicit(t.namedElement)
+    def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
                    (implicit typeSystem: TypeSystem) {
@@ -730,7 +730,7 @@ object TypeDefinitionMembers {
 
   class Lazy[T](private var thunk: () => T) {
     private var value: T = _
-    def apply() = {
+    def apply(): T = {
       if (value == null) {
         value = thunk()
         require(value != null)
@@ -1017,26 +1017,26 @@ object TypeDefinitionMembers {
 
   import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 
-  def shouldProcessVals(processor: PsiScopeProcessor) = processor match {
+  def shouldProcessVals(processor: PsiScopeProcessor): Boolean = processor match {
     case BaseProcessor(kinds) => (kinds contains VAR) || (kinds contains VAL) || (kinds contains OBJECT)
     case _ =>
       val hint: ElementClassHint = processor.getHint(ElementClassHint.KEY)
       hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.VARIABLE)
   }
 
-  def shouldProcessMethods(processor: PsiScopeProcessor) = processor match {
+  def shouldProcessMethods(processor: PsiScopeProcessor): Boolean = processor match {
     case BaseProcessor(kinds) => kinds contains METHOD
     case _ =>
       val hint = processor.getHint(ElementClassHint.KEY)
       hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.METHOD)
   }
 
-  def shouldProcessMethodRefs(processor: PsiScopeProcessor) = processor match {
+  def shouldProcessMethodRefs(processor: PsiScopeProcessor): Boolean = processor match {
     case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAR) || (kinds contains VAL)
     case _ => true
   }
 
-  def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
+  def shouldProcessTypes(processor: PsiScopeProcessor): Boolean = processor match {
     case b: BaseProcessor if b.isImplicitProcessor => false
     case BaseProcessor(kinds) => (kinds contains CLASS) || (kinds contains METHOD)
     case _ => false //important: do not process inner classes!

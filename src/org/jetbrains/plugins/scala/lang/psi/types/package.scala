@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType}
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
@@ -36,7 +36,7 @@ package object types {
     }
 
     def weakConforms(`type`: ScType)
-                    (implicit typeSystem: TypeSystem) = {
+                    (implicit typeSystem: TypeSystem): Boolean = {
       conforms(`type`, new ScUndefinedSubstitutor(), checkWeak = true)._1
     }
 
@@ -47,15 +47,15 @@ package object types {
       typeSystem.conformance.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
     }
 
-    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+    def lub(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.lub(scType, `type`, checkWeak)
     }
 
-    def removeUndefines() = scType.recursiveUpdate {
+    def removeUndefines(): ScType = scType.recursiveUpdate {
       case u: UndefinedType => (true, Any)
       case tp: ScType => (false, tp)
     }
@@ -63,18 +63,18 @@ package object types {
     def toPsiType(project: Project,
                   scope: GlobalSearchScope,
                   noPrimitives: Boolean = false,
-                  skolemToWildcard: Boolean = false) = {
+                  skolemToWildcard: Boolean = false): PsiType = {
       project.typeSystem.bridge.toPsiType(scType, project, scope, noPrimitives, skolemToWildcard)
     }
 
     def extractClass(project: Project = null)
-                    (implicit typeSystem: TypeSystem) = {
+                    (implicit typeSystem: TypeSystem): Option[PsiClass] = {
       typeSystem.bridge.extractClass(scType, project)
     }
 
     def extractClassType(project: Project = null,
                          visitedAlias: HashSet[ScTypeAlias] = HashSet.empty)
-                        (implicit typeSystem: TypeSystem) = {
+                        (implicit typeSystem: TypeSystem): Option[(PsiClass, ScSubstitutor)] = {
       typeSystem.bridge.extractClassType(scType, project, visitedAlias)
     }
 
@@ -96,12 +96,12 @@ package object types {
       if (updated) result.removeAliasDefinitions(visited + scType, expandableOnly) else scType
     }
 
-    def extractDesignatorSingleton = scType match {
+    def extractDesignatorSingleton: Option[ScType] = scType match {
       case desinatorOwner: DesignatorOwner => desinatorOwner.designatorSingletonType
       case _ => None
     }
 
-    def tryExtractDesignatorSingleton = extractDesignatorSingleton.getOrElse(scType)
+    def tryExtractDesignatorSingleton: ScType = extractDesignatorSingleton.getOrElse(scType)
 
     /**
       * Returns named element associated with type.
@@ -130,11 +130,11 @@ package object types {
   }
 
   implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {
-    def glb(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+    def glb(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.glb(types, checkWeak)
     }
 
-    def lub(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+    def lub(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.glb(types, checkWeak)
     }
   }

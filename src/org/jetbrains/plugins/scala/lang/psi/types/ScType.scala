@@ -30,7 +30,7 @@ trait ScType {
 
   protected def isAliasTypeInner: Option[AliasType] = None
 
-  override final def toString = presentableText
+  override final def toString: String = presentableText
 
   def isValue: Boolean
 
@@ -110,7 +110,7 @@ trait ScType {
 trait NamedType extends ScType {
   val name: String
 
-  override def presentableText = name
+  override def presentableText: String = name
 
-  override def canonicalText = name
+  override def canonicalText: String = name
 }

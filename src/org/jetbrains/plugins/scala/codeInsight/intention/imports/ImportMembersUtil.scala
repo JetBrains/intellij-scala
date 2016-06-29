@@ -23,7 +23,7 @@ import scala.collection.JavaConversions._
 object ImportMembersUtil {
   def isInImport(element: PsiElement): Boolean = PsiTreeUtil.getParentOfType(element, classOf[ScImportExpr]) != null
 
-  def hasQualifier(ref: ScReferenceElement) = {
+  def hasQualifier(ref: ScReferenceElement): Boolean = {
     ref match {
       case _ childOf (ScInfixExpr(qual: ScReferenceExpression, `ref`, _)) => true
       case _ childOf (ScPostfixExpr(qual: ScReferenceExpression, `ref`)) => true

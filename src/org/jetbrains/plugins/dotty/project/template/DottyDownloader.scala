@@ -18,7 +18,7 @@ object DottyDownloader extends Downloader {
   final val ArtifactId = "dotty_2.11"
   final val DefaultRevision = "0.1-SNAPSHOT"
 
-  def downloadDotty(version: String, listener: String => Unit) = download(version, listener)
+  def downloadDotty(version: String, listener: String => Unit): Unit = download(version, listener)
 
   private def collectDependencies(pomFileUrl: String): Seq[Dependency] = {
     def toDependency(content: Content): Option[Dependency] = content match {

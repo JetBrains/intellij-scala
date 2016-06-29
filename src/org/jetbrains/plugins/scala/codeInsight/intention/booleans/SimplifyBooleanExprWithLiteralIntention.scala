@@ -22,7 +22,7 @@ object SimplifyBooleanExprWithLiteralIntention {
 }
 
 class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAction{
-  def getFamilyName = SimplifyBooleanExprWithLiteralIntention.familyName
+  def getFamilyName: String = SimplifyBooleanExprWithLiteralIntention.familyName
 
   override def getText = "Simplify boolean expression"
 

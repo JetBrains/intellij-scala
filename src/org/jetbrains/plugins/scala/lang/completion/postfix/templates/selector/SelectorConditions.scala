@@ -57,17 +57,17 @@ object SelectorConditions {
   class ExpandedCondition[T](source: Condition[T]) extends Condition[T] {
     override def value(t: T): Boolean = source.value(t)
 
-    def ||(other: Condition[_ >: T]) = {
+    def ||(other: Condition[_ >: T]): Condition[T] = {
       def f(t: T) = value(t) || other.value(t)
       new Condition[T] {
-        override def value(t: T) = f(t)
+        override def value(t: T): Boolean = f(t)
       }
     }
 
-    def &&(other: Condition[_ >: T]) = {
+    def &&(other: Condition[_ >: T]): Condition[T] = {
       def f(t: T) = value(t) && other.value(t)
       new Condition[T] {
-        override def value(t: T) = f(t)
+        override def value(t: T): Boolean = f(t)
       }
     }
 

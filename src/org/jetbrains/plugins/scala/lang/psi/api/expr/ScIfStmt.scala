@@ -18,7 +18,7 @@ trait ScIfStmt extends ScExpression {
   def elseBranch : Option[ScExpression]
   def getLeftParenthesis : Option[PsiElement]
   def getRightParenthesis : Option[PsiElement]
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitIfStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitIfStatement(this)
 }
 
 object ScIfStmt {

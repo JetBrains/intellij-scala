@@ -9,9 +9,9 @@ import com.intellij.psi.PsiElement
 class NextSiblignsIterator(element: PsiElement) extends Iterator[PsiElement] {
   private var current = element.getNextSibling
 
-  def hasNext = current != null
+  def hasNext: Boolean = current != null
 
-  def next() = {
+  def next(): PsiElement = {
     val result = current
     current = current.getNextSibling
     result

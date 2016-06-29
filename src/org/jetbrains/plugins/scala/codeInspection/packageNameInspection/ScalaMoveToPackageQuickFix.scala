@@ -60,7 +60,7 @@ class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
 }
 
 object ScalaMoveToPackageQuickFix {
-  def hint(fileName: String, packageName: String) = {
+  def hint(fileName: String, packageName: String): String = {
     val packageText = if (packageName.nonEmpty) s"Package $packageName" else "Default Package"
     s"Move File $fileName To $packageText"
   }

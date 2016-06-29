@@ -30,7 +30,7 @@ object RemoveApplyIntention {
 }
 
 class RemoveApplyIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = RemoveApplyIntention.familyName
+  def getFamilyName: String = RemoveApplyIntention.familyName
 
   override def getText: String = getFamilyName
 

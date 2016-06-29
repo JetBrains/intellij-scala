@@ -11,5 +11,5 @@ package expr
 trait ScGuard extends ScalaPsiElement {
   def expr: Option[ScExpression]
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitGuard(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitGuard(this)
 }

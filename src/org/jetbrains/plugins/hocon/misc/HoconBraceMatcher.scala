@@ -19,9 +19,9 @@ class HoconBraceMatcher extends PairedBraceMatcher {
   private val AllowsPairedBraceBefore =
     WhitespaceOrComment | Comma | RBrace | RBracket
 
-  def isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType) =
+  def isPairedBracesAllowedBeforeType(lbraceType: IElementType, contextType: IElementType): Boolean =
     AllowsPairedBraceBefore.contains(contextType)
 
-  def getCodeConstructStart(file: PsiFile, openingBraceOffset: Int) =
+  def getCodeConstructStart(file: PsiFile, openingBraceOffset: Int): Int =
     openingBraceOffset
 }

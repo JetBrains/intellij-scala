@@ -10,7 +10,7 @@ package scalasig
 object SourceFileAttributeParser extends ByteCodeReader {
   val sourceFile = u2 ^^ SourceFileInfo
 
-  def parse(byteCode: ByteCode) = expect(sourceFile)(byteCode)
+  def parse(byteCode: ByteCode): SourceFileInfo = expect(sourceFile)(byteCode)
 }
 
 /**

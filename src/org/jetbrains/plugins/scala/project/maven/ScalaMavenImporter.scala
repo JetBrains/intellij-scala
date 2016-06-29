@@ -41,7 +41,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
   }
 
   // exclude "default" plugins, should be done inside IDEA's MavenImporter itself
-  override def isApplicable(mavenProject: MavenProject) = validConfigurationIn(mavenProject).isDefined
+  override def isApplicable(mavenProject: MavenProject): Boolean = validConfigurationIn(mavenProject).isDefined
 
   override def preProcess(module: Module, mavenProject: MavenProject, changes: MavenProjectChanges, modelsProvider: IdeModifiableModelsProvider) {}
 
@@ -109,7 +109,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
 private object ScalaMavenImporter {
   implicit class RichMavenProject(val project: MavenProject) extends AnyVal {
-    def localPathTo(id: MavenId) = project.getLocalRepository / id.getGroupId.replaceAll("\\.", "/") /
+    def localPathTo(id: MavenId): File = project.getLocalRepository / id.getGroupId.replaceAll("\\.", "/") /
             id.getArtifactId / id.getVersion / "%s-%s.jar".format(id.getArtifactId, id.getVersion)
   }
 
@@ -172,5 +172,5 @@ private class ScalaConfiguration(project: MavenProject) {
   private def element(name: String): Option[Element] =
     compilerConfigurations.flatMap(_.getChild(name).toOption.toSeq).headOption
 
-  def valid = compilerPlugin.isDefined && compilerVersion.isDefined
+  def valid: Boolean = compilerPlugin.isDefined && compilerVersion.isDefined
 }

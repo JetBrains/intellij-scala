@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.components
 import java.io.{File, IOException}
 import java.lang.reflect.Field
 import java.net.URLEncoder
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{Future, TimeUnit}
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.plugins._
@@ -26,6 +26,7 @@ import com.intellij.util.io.HttpRequests.Request
 import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
 import scala.xml.transform.{RewriteRule, RuleTransformer}
@@ -35,7 +36,7 @@ class InvalidRepoException(what: String) extends Exception(what)
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
 
-  def pluginDescriptor = ScalaPluginVersionVerifier.getPluginDescriptor
+  def pluginDescriptor: IdeaPluginDescriptorImpl = ScalaPluginVersionVerifier.getPluginDescriptor
 
   private val scalaPluginId = "1347"
 
@@ -70,7 +71,7 @@ object ScalaPluginUpdater {
 
   val currentVersion = FOURTEEN_ONE
 
-  def currentRepo = knownVersions(currentVersion)
+  def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
 
   val updGroupId = "ScalaPluginUpdate"
   val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
@@ -79,7 +80,7 @@ object ScalaPluginUpdater {
   var savedPluginVersion = ""
 
   private val updateListener = new DocumentAdapter() {
-    override def documentChanged(e: DocumentEvent) = {
+    override def documentChanged(e: DocumentEvent): Unit = {
       val file = FileDocumentManager.getInstance().getFile(e.getDocument)
       if (file != null && file.getFileType == ScalaFileType.SCALA_FILE_TYPE)
         scheduleUpdate()
@@ -87,7 +88,7 @@ object ScalaPluginUpdater {
   }
 
   @throws(classOf[InvalidRepoException])
-  def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
+  def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch): AnyVal = {
     if(currentRepo(branch).isEmpty)
       throw new InvalidRepoException(s"Branch $branch is unavailable for IDEA version $currentVersion")
 
@@ -113,7 +114,7 @@ object ScalaPluginUpdater {
   }
 
   @throws(classOf[InvalidRepoException])
-  def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch) = {
+  def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch): Any = {
     doUpdatePluginHosts(branch)
     if(UpdateSettings.getInstance().isCheckNeeded) {
       UpdateChecker.updateAndShowResult()
@@ -127,19 +128,19 @@ object ScalaPluginUpdater {
     else Release
   }
 
-  def pluginIsEap = {
+  def pluginIsEap: Boolean = {
     val updateSettings = UpdateSettings.getInstance()
     updateSettings.getStoredPluginHosts.contains(currentRepo(EAP))
   }
 
-  def pluginIsNightly = {
+  def pluginIsNightly: Boolean = {
     val updateSettings = UpdateSettings.getInstance()
     updateSettings.getStoredPluginHosts.contains(currentRepo(Nightly))
   }
 
-  def pluginIsRelease = !pluginIsEap && !pluginIsNightly
+  def pluginIsRelease: Boolean = !pluginIsEap && !pluginIsNightly
 
-  def uninstallPlugin() = {
+  def uninstallPlugin(): Unit = {
     val pluginId: PluginId = pluginDescriptor.getPluginId
     pluginDescriptor.setDeleted(true)
 
@@ -157,7 +158,7 @@ object ScalaPluginUpdater {
     }
   }
 
-  def upgradeRepo() = {
+  def upgradeRepo(): Unit = {
     val updateSettings = UpdateSettings.getInstance()
     for {
       (version, repo) <- knownVersions
@@ -178,7 +179,7 @@ object ScalaPluginUpdater {
     }
   }
 
-  def postCheckIdeaCompatibility(branch: ScalaApplicationSettings.pluginBranch) = {
+  def postCheckIdeaCompatibility(branch: ScalaApplicationSettings.pluginBranch): Unit = {
     import scala.xml._
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val localBuildNumber = infoImpl.getBuild
@@ -218,7 +219,7 @@ object ScalaPluginUpdater {
     def getPlatformUpdateResult = {
       val a = ApplicationInfoEx.getInstanceEx.getUpdateUrls.getCheckingUrl
       val info = HttpRequests.request(a).connect(new HttpRequests.RequestProcessor[Option[UpdatesInfo]] {
-        def process(request: HttpRequests.Request) = {
+        def process(request: HttpRequests.Request): Option[UpdatesInfo] = {
           try { Some(new UpdatesInfo(JDOMUtil.loadDocument(request.getInputStream).detachRootElement)) }
           catch { case e: JDOMException => LOG.info(e); None }
         }
@@ -272,7 +273,7 @@ object ScalaPluginUpdater {
     EditorFactory.getInstance().getEventMulticaster.removeDocumentListener(updateListener)
     if (lastUpdateTime == 0L || System.currentTimeMillis() - lastUpdateTime > TimeUnit.DAYS.toMillis(1)) {
       ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
-        override def run() = {
+        override def run(): Unit = {
           val buildNumber = ApplicationInfo.getInstance().getBuild.asString()
           val pluginVersion = pluginDescriptor.getVersion
           val os = URLEncoder.encode(SystemInfo.OS_NAME + " " + SystemInfo.OS_VERSION, CharsetToolkit.UTF8)
@@ -282,7 +283,7 @@ object ScalaPluginUpdater {
           doneUpdating = true
           try {
             HttpRequests.request(url).connect(new HttpRequests.RequestProcessor[Unit] {
-              override def process(request: Request) = JDOMUtil.load(request.getReader())
+              override def process(request: Request): Unit = JDOMUtil.load(request.getReader())
             })
           } catch {
             case e: Throwable => LOG.warn(e)
@@ -301,7 +302,7 @@ object ScalaPluginUpdater {
 
   // this hack uses fake plugin.xml deserialization to downgrade plugin version
   // at least it's not using reflection
-  def patchPluginVersion(newVersion: String) = {
+  def patchPluginVersion(newVersion: String): Boolean = {
     import scala.xml._
     val versionPatcher = new RewriteRule {
       override def transform(n: Node): NodeSeq = n match {
@@ -329,7 +330,7 @@ object ScalaPluginUpdater {
   }
 
   @deprecated("Unsafe method, use patchPluginVersion instead", "")
-  def patchPluginVersionReflection() = {
+  def patchPluginVersionReflection(): Unit = {
     // crime of reflection goes below - workaround until force updating is available
     try {
       val hack: Field = classOf[IdeaPluginDescriptorImpl].getDeclaredField("myVersion")
@@ -367,7 +368,7 @@ object ScalaPluginUpdater {
     }
   }
 
-  def invokeLater(f: => Unit) = ApplicationManager.getApplication.executeOnPooledThread(toRunnable(f))
+  def invokeLater(f: => Unit): Future[_] = ApplicationManager.getApplication.executeOnPooledThread(toRunnable(f))
 
   def toRunnable(f: => Unit) = new Runnable { override def run(): Unit = f }
 }

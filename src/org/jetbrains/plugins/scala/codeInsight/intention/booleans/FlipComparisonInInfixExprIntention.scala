@@ -23,7 +23,7 @@ object FlipComparisonInInfixExprIntention {
 }
 
 class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = FlipComparisonInInfixExprIntention.familyName
+  def getFamilyName: String = FlipComparisonInInfixExprIntention.familyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)

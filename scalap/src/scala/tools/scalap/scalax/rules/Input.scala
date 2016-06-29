@@ -23,8 +23,8 @@ trait Input[+A] extends Iterable[A] {
     private var input : Input[A] = Input.this
     private var result = input.next
 
-    def hasNext = result != Failure
-    def next = {
+    def hasNext: Boolean = result != Failure
+    def next: A = {
       val Success(input, value) = result
       this.input = input
       this.result = input.next

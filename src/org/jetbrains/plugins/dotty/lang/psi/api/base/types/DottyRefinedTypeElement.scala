@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScRefinement, ScType
 trait DottyRefinedTypeElement extends ScTypeElement {
   override val typeName = "RefinedType"
 
-  def typeElement = findChildByClassScala(classOf[ScTypeElement])
+  def typeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def refinement = findChildByClassScala(classOf[ScRefinement])
+  def refinement: ScRefinement = findChildByClassScala(classOf[ScRefinement])
 }

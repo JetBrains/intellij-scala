@@ -152,7 +152,7 @@ class IncludedFileReference(refSet: FileReferenceSet, range: TextRange, index: I
   }
 
   override def innerResolveInContext(text: String, context: PsiFileSystemItem, result: ju.Collection[ResolveResult],
-                                     caseSensitive: Boolean) =
+                                     caseSensitive: Boolean): Unit =
     if (lacksExtension(text)) {
       def resolveWithExt(ext: String) =
         super.innerResolveInContext(text + ext, context, result, caseSensitive)

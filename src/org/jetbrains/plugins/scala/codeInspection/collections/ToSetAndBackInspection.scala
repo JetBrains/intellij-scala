@@ -29,7 +29,7 @@ object ToSetAndBackToDistinct extends SimplificationType {
   }
 
   def sameCollectionType(tp1: ScType, tp2: ScType)
-                        (implicit typeSystem: TypeSystem) = {
+                        (implicit typeSystem: TypeSystem): Boolean = {
     (tp1, tp2) match {
       case (ParameterizedType(des1, _), ParameterizedType(des2, _)) if des1.equiv(des2) => true
       case _ => false

@@ -3,6 +3,7 @@ package codeInspection.format
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ProblemsHolderExt}
 import org.jetbrains.plugins.scala.format.{Injection, Span, _}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -45,7 +46,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
  */
 
 class ScalaMalformedFormatStringInspection extends AbstractInspection {
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case element =>
       val representation = FormattedStringParser.parse(element)
               .orElse(PrintStringParser.parse(element))

@@ -29,7 +29,7 @@ extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter claus
     new ScParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, implic)
   }
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]) = {
+  def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]): ScParamClauseStubImpl[ParentPsi] = {
     new ScParamClauseStubImpl(parentStub, this, psi.isImplicit)     
   }
 

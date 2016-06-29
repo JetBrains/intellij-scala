@@ -9,11 +9,11 @@ import org.jetbrains.plugins.scala.project.ProjectExt
   * @author adkozlov
   */
 trait ScalaMacro extends Macro {
-  override def calculateResult(params: Array[Expression], context: ExpressionContext) = {
+  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     innerCalculateResult(params, context)
   }
 
-  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext) = {
+  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     innerCalculateLookupItems(params, context)
   }
 

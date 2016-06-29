@@ -20,6 +20,6 @@ object SbtResolverUtils {
     case _ => Seq.empty
   }
 
-  def joinGroupArtifact(group: String, artifact: String) = group + ":" + artifact
-  def joinGroupArtifact(artifact: ArtifactInfo) = artifact.getGroupId + ":" + artifact.getArtifactId
+  def joinGroupArtifact(group: String, artifact: String): String = group + ":" + artifact
+  def joinGroupArtifact(artifact: ArtifactInfo): String = artifact.getGroupId + ":" + artifact.getArtifactId
 }

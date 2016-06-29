@@ -19,7 +19,7 @@ object MergeIfToAndIntention {
 }
 
 class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = MergeIfToAndIntention.familyName
+  def getFamilyName: String = MergeIfToAndIntention.familyName
 
   override def getText: String = "Merge nested 'if's"
 

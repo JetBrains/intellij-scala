@@ -4,7 +4,7 @@ import javax.swing.{Icon, JComponent}
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.ui.{LibraryEditorComponent, LibraryPropertiesEditor}
-import com.intellij.openapi.roots.libraries.{LibraryProperties, LibraryType}
+import com.intellij.openapi.roots.libraries.{LibraryProperties, LibraryType, NewLibraryConfiguration}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.dotty.project.template.DottyLibraryDescription
 import org.jetbrains.plugins.scala.icons.Icons
@@ -21,7 +21,7 @@ class DottyLibraryType extends LibraryType[ScalaLibraryProperties](DottyLibraryK
 
   def getCreateActionName = "Dotty SDK"
 
-  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile, project: Project) =
+  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile, project: Project): NewLibraryConfiguration =
     DottyLibraryDescription.createNewLibrary(parentComponent, contextDirectory)
 
   def createPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]): LibraryPropertiesEditor =
@@ -30,6 +30,6 @@ class DottyLibraryType extends LibraryType[ScalaLibraryProperties](DottyLibraryK
 
 object DottyLibraryType {
 
-  def instance = Option(LibraryType.findByKind(DottyLibraryKind).asInstanceOf[DottyLibraryType])
+  def instance: DottyLibraryType = Option(LibraryType.findByKind(DottyLibraryKind).asInstanceOf[DottyLibraryType])
     .getOrElse(throw new NoSuchElementException("Dotty library type not found"))
 }

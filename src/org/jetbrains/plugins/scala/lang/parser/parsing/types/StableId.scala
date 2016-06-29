@@ -161,7 +161,7 @@ object StableId extends ParserNode {
     }
   }
 
-  def stopAtImportEnd(builder: ScalaPsiBuilder, forImport: Boolean) = forImport && isImportEnd(builder)
+  def stopAtImportEnd(builder: ScalaPsiBuilder, forImport: Boolean): Boolean = forImport && isImportEnd(builder)
 
   def isImportEnd(builder: ScalaPsiBuilder): Boolean = {
     lookAhead(builder, tDOT, tUNDER) || lookAhead(builder, tDOT, tLBRACE)

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.hocon.psi.{HoconPsiElementFactory, HKey}
 class HKeyManipulator extends AbstractElementManipulator[HKey] {
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
 
-  def handleContentChange(key: HKey, range: TextRange, newContent: String) = {
+  def handleContentChange(key: HKey, range: TextRange, newContent: String): HKey = {
     val psiManager = PsiManager.getInstance(key.getProject)
     val allStringTypes = key.keyParts.map(_.stringType).toSet
 

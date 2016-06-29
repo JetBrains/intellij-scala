@@ -19,6 +19,6 @@ class ScParameterTypeImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def toString: String = "ParameterType"
 
-  def typeElement = findChildByClass(classOf[ScTypeElement])
+  def typeElement: ScTypeElement = findChildByClass(classOf[ScTypeElement])
 
 }

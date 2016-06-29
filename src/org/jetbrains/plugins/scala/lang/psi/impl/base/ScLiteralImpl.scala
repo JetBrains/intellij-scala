@@ -5,11 +5,12 @@ package impl
 package base
 
 import java.lang.StringBuilder
+import java.util
 import java.util.Random
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.injection.InjectedLanguageManager
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
@@ -140,27 +141,27 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     }
   }
 
-  def getInjectedPsi = if (getValue.isInstanceOf[String]) InjectedLanguageManager.getInstance(getProject).getInjectedPsiFiles(this) else null
+  def getInjectedPsi: util.List[Pair[PsiElement, TextRange]] = if (getValue.isInstanceOf[String]) InjectedLanguageManager.getInstance(getProject).getInjectedPsiFiles(this) else null
 
   def processInjectedPsi(visitor: PsiLanguageInjectionHost.InjectedPsiVisitor) {
     InjectedLanguageUtil.enumerate(this, visitor)
   }
 
-  def updateText(text: String)  = {
+  def updateText(text: String): ScLiteralImpl = {
     val valueNode = getNode.getFirstChildNode
     assert(valueNode.isInstanceOf[LeafElement])
     valueNode.asInstanceOf[LeafElement].replaceWithText(text)
     this
   }
 
-  def createLiteralTextEscaper = if (isMultiLineString) new PassthroughLiteralEscaper(this) else new ScLiteralEscaper(this)
+  def createLiteralTextEscaper: LiteralTextEscaper[ScLiteralImpl] = if (isMultiLineString) new PassthroughLiteralEscaper(this) else new ScLiteralEscaper(this)
 
-  def isString = getFirstChild.getNode.getElementType match {
+  def isString: Boolean = getFirstChild.getNode.getElementType match {
     case ScalaTokenTypes.tMULTILINE_STRING | ScalaTokenTypes.tSTRING => true
     case _ => false
   }
 
-  def isMultiLineString = getFirstChild.getNode.getElementType match {
+  def isMultiLineString: Boolean = getFirstChild.getNode.getElementType match {
     case ScalaTokenTypes.tMULTILINE_STRING => true
     case _ => false
   }

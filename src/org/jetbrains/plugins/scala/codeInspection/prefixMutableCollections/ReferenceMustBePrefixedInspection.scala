@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JavaPsiFacade, PsiClass}
+import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  */
 
 class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayName) {
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case ref: ScReferenceElement if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
       ref.bind() match {
         case Some(r: ScalaResolveResult) if r.nameShadow.isEmpty =>

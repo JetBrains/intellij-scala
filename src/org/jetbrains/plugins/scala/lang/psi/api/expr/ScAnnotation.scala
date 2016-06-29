@@ -5,6 +5,7 @@ package api
 package expr
 
 import com.intellij.psi.PsiAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /**
@@ -25,7 +26,7 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
    * Nullable</code> psiElement.
    * @return constructor element
    */
-  def constructor = annotationExpr.constr
+  def constructor: ScConstructor = annotationExpr.constr
 
   def typeElement: ScTypeElement
 }

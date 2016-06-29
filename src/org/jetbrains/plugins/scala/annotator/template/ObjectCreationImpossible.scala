@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.overrideImplement.{ScAliasMember, ScalaOIUtil
  */
 
 object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
-  def kind = classOf[ScTemplateDefinition]
+  def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if(!typeAware) return
@@ -53,7 +53,7 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
     }
   }
 
-  def message(members: (String, String)*) = {
+  def message(members: (String, String)*): String = {
     "Object creation impossible, since %s".format(
       members.map(p => " member %s in %s is not defined".format(p._1, p._2)).mkString("; "))
   }

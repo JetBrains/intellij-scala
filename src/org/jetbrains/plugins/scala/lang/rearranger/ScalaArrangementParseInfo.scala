@@ -39,8 +39,8 @@ class ScalaArrangementParseInfo {
 
   def entries: immutable.List[ScalaArrangementEntry] = myEntries.toList
 
-  def javaProperties = javaPropertiesData.values
-  def scalaProperties = scalaPropertiesData.values
+  def javaProperties: Iterable[ScalaPropertyInfo] = javaPropertiesData.values
+  def scalaProperties: Iterable[ScalaPropertyInfo] = scalaPropertiesData.values
 
   def registerDependency(caller: ScFunction, callee: ScFunction) {
     currentMethodDependencyRoots -= callee
@@ -60,7 +60,7 @@ class ScalaArrangementParseInfo {
     rebuildMethodDependencies = true
   }
 
-  def getMethodDependencyRoots = {
+  def getMethodDependencyRoots: mutable.Buffer[ScalaArrangementDependency] = {
     if (rebuildMethodDependencies) {
       dependencyRoots.clear()
       val cache = new mutable.HashMap[ScFunction, ScalaArrangementDependency]

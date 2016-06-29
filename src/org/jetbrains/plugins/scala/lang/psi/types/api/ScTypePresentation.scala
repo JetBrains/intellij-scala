@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   * @author adkozlov
   */
 trait ScTypePresentation extends TypeSystemOwner {
-  final def presentableText(`type`: ScType) = typeText(`type`, {
+  final def presentableText(`type`: ScType): String = typeText(`type`, {
     case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
     case e => e.name
   }, {
@@ -26,7 +26,7 @@ trait ScTypePresentation extends TypeSystemOwner {
   }
   )
 
-  final def urlText(`type`: ScType) = {
+  final def urlText(`type`: ScType): String = {
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
       e match {
         case o: ScObject if withPoint && o.qualifiedName == "scala.Predef" => ""
@@ -40,7 +40,7 @@ trait ScTypePresentation extends TypeSystemOwner {
     typeText(`type`, nameFun(_, withPoint = false), nameFun(_, withPoint = true))
   }
 
-  final def canonicalText(`type`: ScType) = {
+  final def canonicalText(`type`: ScType): String = {
     def removeKeywords(s: String): String =
       ScalaNamesUtil.escapeKeywordsFqn(s)
 

@@ -56,7 +56,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def getConstructor = {
+  def getConstructor: Option[ScConstructor] = {
     getContext match {
       case s: ScSimpleTypeElement =>
         s.getContext match {
@@ -72,7 +72,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  def isConstructorReference = getConstructor.nonEmpty
+  def isConstructorReference: Boolean = getConstructor.nonEmpty
 
   override def toString: String = "CodeReferenceElement: " + getText
 

@@ -17,11 +17,11 @@ class ScalaRunConfigurationRefactoringListenerProvider extends RunConfigurationR
     if (listener == null) return null
 
     new RefactoringElementListener {
-      def elementMoved(newElement: PsiElement) = newElement match {
+      def elementMoved(newElement: PsiElement): Unit = newElement match {
         case td: ScTemplateDefinition => listener.elementMoved(wrap(td))
         case _ =>
       }
-      def elementRenamed(newElement: PsiElement) = newElement match {
+      def elementRenamed(newElement: PsiElement): Unit = newElement match {
         case td: ScTemplateDefinition => listener.elementRenamed(wrap(td))
         case _ =>
       }

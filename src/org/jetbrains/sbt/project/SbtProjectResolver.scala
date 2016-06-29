@@ -380,7 +380,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       DependencyScope.COMPILE
   }
 
-  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener) = {
+  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = {
     if (runner != null)
       runner.cancel()
     false

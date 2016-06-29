@@ -26,7 +26,7 @@ trait ScForStatement extends ScExpression {
   def body: Option[ScExpression] = findChild(classOf[ScExpression])
   def getLeftParenthesis : Option[PsiElement]
   def getRightParenthesis : Option[PsiElement]
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitForExpression(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitForExpression(this)
 }
 
 object ScForStatement {

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScReferencePatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -47,7 +47,7 @@ class ScReferencePatternImpl private (stub: StubElement[ScReferencePattern], nod
 
   override def toString: String = "ReferencePattern: " + name
 
-  override def getType(ctx: TypingContext) = {
+  override def getType(ctx: TypingContext): TypeResult[ScType] = {
     expectedType match {
       case Some(x) => Success(x, Some(this))
       case _ => Failure("Cannot define expected type", Some(this))
@@ -58,7 +58,7 @@ class ScReferencePatternImpl private (stub: StubElement[ScReferencePattern], nod
     PsiReferenceService.getService.getContributedReferences(this)
   }
 
-  override def getNavigationElement = getContainingFile match {
+  override def getNavigationElement: PsiElement = getContainingFile match {
     case sf: ScalaFile if sf.isCompiled => {
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScMember]) // there is no complicated pattern-based declarations in decompiled files
       if (parent != null) {

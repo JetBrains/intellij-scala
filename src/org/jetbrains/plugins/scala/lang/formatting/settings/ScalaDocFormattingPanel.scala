@@ -43,7 +43,7 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
 
   override def getSettingsType = LanguageCodeStyleSettingsProvider.SettingsType.LANGUAGE_SPECIFIC
 
-  override def getPanel = myScaladocPanel
+  override def getPanel: JPanel = myScaladocPanel
 
   protected override def initTables(): Unit = {
     initCustomOptions(ScalaDocFormattingPanel.ALIGNMENT_GROUP)

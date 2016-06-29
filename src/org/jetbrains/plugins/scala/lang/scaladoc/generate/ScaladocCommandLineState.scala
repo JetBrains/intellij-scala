@@ -150,7 +150,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     result.result()
   }
 
-  def createJavaParameters() = {
+  def createJavaParameters(): JavaParameters = {
     import scala.collection.JavaConversions._
     val MutableHashSet = collection.mutable.HashSet
 

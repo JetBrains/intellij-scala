@@ -31,15 +31,15 @@ class ScalaArrangementEntry(parent: ArrangementEntry, startOffset: Int, endOffse
     res
   }
 
-  def getType = entryType
+  def getType: ArrangementSettingsToken = entryType
 
-  def addModifier(mod: ArrangementSettingsToken) = modifiers.add(mod)
+  def addModifier(mod: ArrangementSettingsToken): Boolean = modifiers.add(mod)
 
   override def toString = s"[$startOffset, $endOffset)" //text range represented by this entry
 
-  override def hashCode = startOffset + endOffset
+  override def hashCode: Int = startOffset + endOffset
 
-  override def equals(o: Any) = o match {
+  override def equals(o: Any): Boolean = o match {
     case other: ScalaArrangementEntry => other.getStartOffset == startOffset && other.getEndOffset == endOffset &&
             other.getType == entryType && other.getParent == parent
     case _                            => false

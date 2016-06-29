@@ -29,15 +29,15 @@ class TemplateListModel(val items: Array[(String, ActivatorRepoProcessor.DocData
 
   override def getElementAtAdapter(i: Int): AnyRef = getItem(i)
 
-  def getId(i: Int) = getItem(i).id
+  def getId(i: Int): String = getItem(i).id
 
-  def getAuthorAt(id: String) = getData(id).author
+  def getAuthorAt(id: String): String = getData(id).author
 
-  def getDescriptionAt(id: String) = getData(id).desc
+  def getDescriptionAt(id: String): String = getData(id).desc
 
-  def getSourceAt(id: String) = getData(id).src
+  def getSourceAt(id: String): String = getData(id).src
 
-  def getTagsAt(id: String) = getData(id).tags
+  def getTagsAt(id: String): String = getData(id).tags
 
   private def getItem(i: Int): FullTemplateData = if (i < indexedItems.length && i > -1) indexedItems(i) else dumbFullData
   

@@ -18,7 +18,7 @@ class TypeAwareHighlightingApplicationState extends ApplicationComponent with
   import org.jetbrains.plugins.scala.components.TypeAwareHighlightingApplicationState.TypeAwareHighlightingApplicationSettings
   private var myState = new TypeAwareHighlightingApplicationSettings
   
-  def suggest() = myState.getSUGGEST_TYPE_AWARE_HIGHLIGHTING_ENABLED
+  def suggest(): Boolean = myState.getSUGGEST_TYPE_AWARE_HIGHLIGHTING_ENABLED
   def setSuggest(b: Boolean) {
     myState setSUGGEST_TYPE_AWARE_HIGHLIGHTING_ENABLED b
   }
@@ -46,5 +46,5 @@ object TypeAwareHighlightingApplicationState {
     var SUGGEST_TYPE_AWARE_HIGHLIGHTING_ENABLED: Boolean = false
   }
   
-  def getInstance = ApplicationManager.getApplication getComponent classOf[TypeAwareHighlightingApplicationState]
+  def getInstance: TypeAwareHighlightingApplicationState = ApplicationManager.getApplication getComponent classOf[TypeAwareHighlightingApplicationState]
 }

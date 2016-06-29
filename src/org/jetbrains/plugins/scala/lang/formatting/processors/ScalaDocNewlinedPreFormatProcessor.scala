@@ -180,7 +180,7 @@ object ScalaDocNewlinedPreFormatProcessor {
     case _ => false
   }
 
-  def isParamTag(element: PsiElement) = isNamedTag(element, "@param", "@tparam")
+  def isParamTag(element: PsiElement): Boolean = isNamedTag(element, "@param", "@tparam")
 
-  def isReturnTag(element: PsiElement) = isNamedTag(element, "@return")
+  def isReturnTag(element: PsiElement): Boolean = isNamedTag(element, "@return")
 }

@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala
 package project
 
-import com.intellij.openapi.roots.libraries.ui.{LibraryPropertiesEditor, LibraryEditorComponent}
+import javax.swing.JComponent
+
+import com.intellij.openapi.roots.libraries.ui.{LibraryEditorComponent, LibraryPropertiesEditor}
 
 /**
  * @author Pavel Fatin
@@ -9,9 +11,9 @@ import com.intellij.openapi.roots.libraries.ui.{LibraryPropertiesEditor, Library
 private class ScalaLibraryPropertiesEditor(editorComponent: LibraryEditorComponent[ScalaLibraryProperties]) extends LibraryPropertiesEditor {
   private val form = new ScalaLibraryEditorForm()
 
-  def createComponent() = form.getComponent
+  def createComponent(): JComponent = form.getComponent
 
-  def isModified = form.getState != properties.getState
+  def isModified: Boolean = form.getState != properties.getState
 
   def reset() {
     form.setState(properties.getState)

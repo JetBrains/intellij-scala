@@ -18,9 +18,9 @@ sealed class InstructionImpl(override val num: Int,
   private val mySucc = new ArrayBuffer[Instruction]
   private val myPred = new ArrayBuffer[Instruction]
 
-  def pred() = myPred
+  def pred(): ArrayBuffer[Instruction] = myPred
 
-  def succ() = mySucc
+  def succ(): ArrayBuffer[Instruction] = mySucc
 
   def addPred(p: Instruction) {
     myPred += p
@@ -31,7 +31,7 @@ sealed class InstructionImpl(override val num: Int,
   }
 
 
-  override def toString = {
+  override def toString: String = {
     val builder = new StringBuilder
     builder.append(num)
     builder.append("(")
@@ -55,7 +55,7 @@ case class DefinitionInstruction(override val num: Int,
         extends InstructionImpl(num, Some(namedElement)) {
   private val myName = namedElement.name
 
-  def getName = myName
+  def getName: String = myName
 
   override protected def getPresentation = s"${defType.name} $getName"
 }
@@ -66,6 +66,6 @@ case class ReadWriteVariableInstruction(override val num: Int,
                                     write: Boolean)
         extends InstructionImpl(num, Some(ref)) {
   private val myName = ref.getText
-  def getName = myName
+  def getName: String = myName
   override protected def getPresentation = (if (write) "WRITE " else "READ ") + getName
 }

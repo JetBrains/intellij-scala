@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclarationsOwner
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /**
  * @author ilyas
@@ -27,14 +28,14 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScFieldId with ScIm
 
   override def toString: String = "Field identifier: " + name
 
-  def getType(ctx: TypingContext) = getParent/*id list*/.getParent match {
+  def getType(ctx: TypingContext): TypeResult[ScType] = getParent/*id list*/.getParent match {
     case typed : ScTypedDeclaration => typed.getType(ctx)
     //partial matching
   }
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  override def isStable = getContext match {
+  override def isStable: Boolean = getContext match {
     case l: ScIdList => l.getContext match {
       case _: ScVariable => false
       case _ => true

@@ -73,19 +73,19 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (id == null) None else findSuper(id)
   }
 
-  override def getReference = {
+  override def getReference: PsiReference = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
-      def getElement = ScSuperReferenceImpl.this
-      def getRangeInElement = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
-      def getCanonicalText = resolve match {
+      def getElement: ScSuperReferenceImpl = ScSuperReferenceImpl.this
+      def getRangeInElement: TextRange = new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
+      def getCanonicalText: String = resolve match {
         case c : PsiClass => c.qualifiedName
         case _ => null
       }
       def isSoft: Boolean = false
 
-      def handleElementRename(newElementName: String) = doRename(newElementName)
-      def bindToElement(e : PsiElement) = e match {
+      def handleElementRename(newElementName: String): ScSuperReferenceImpl = doRename(newElementName)
+      def bindToElement(e : PsiElement): ScSuperReferenceImpl = e match {
         case c : PsiClass => doRename(c.name)
         case _ => throw new IncorrectOperationException("cannot bind to anything but class")
       }
@@ -96,12 +96,12 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         ScSuperReferenceImpl.this
       }
 
-      def isReferenceTo(element: PsiElement) = element match {
+      def isReferenceTo(element: PsiElement): Boolean = element match {
         case c : PsiClass => c.name == id.getText && resolve == c
         case _ => false
       }
 
-      def resolve = {
+      def resolve: PsiClass = {
         def resolveNoHack: PsiClass = {
           findSuper(id) match {
             case Some(t) => t.extractClass() match {

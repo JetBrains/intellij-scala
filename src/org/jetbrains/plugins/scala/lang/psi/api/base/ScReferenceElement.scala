@@ -33,7 +33,7 @@ import scala.collection.{Set, mutable}
  */
 
 trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement {
-  override def getReference = this
+  override def getReference: ScReferenceElement = this
 
   def nameId: PsiElement
 
@@ -51,7 +51,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   private def patternNeedBackticks(name: String) = name != "" && name.charAt(0).isLower && getParent.isInstanceOf[ScStableReferenceElementPattern]
 
-  def getElement = this
+  def getElement: ScReferenceElement = this
 
   def getRangeInElement: TextRange = {
     val start = nameId.getTextRange.getStartOffset - getTextRange.getStartOffset

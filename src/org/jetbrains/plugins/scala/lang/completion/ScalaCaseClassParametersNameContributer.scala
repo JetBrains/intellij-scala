@@ -51,7 +51,7 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
       byTypeCompletionsItems(position, corespondedParameter, result)
     }
 
-    def byTypeCompletionsItems(position: PsiElement, parameter: Option[ScParameter], result: CompletionResultSet) = {
+    def byTypeCompletionsItems(position: PsiElement, parameter: Option[ScParameter], result: CompletionResultSet): Unit = {
       position.getContext match {
         case pattern: ScPattern if pattern.expectedType.isDefined && parameter.isDefined =>
           val lookups =

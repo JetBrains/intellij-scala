@@ -8,6 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
@@ -59,7 +60,7 @@ object MacroUtil {
     }
   }
 
-  def getPrimaryConbstructorParams(context: ExpressionContext) =
+  def getPrimaryConbstructorParams(context: ExpressionContext): Option[ScParameters] =
     Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[PsiClass])).map {
     case obj: ScObject => obj.fakeCompanionClassOrCompanionClass
     case other => other

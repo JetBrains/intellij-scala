@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -59,7 +60,7 @@ package object extensions {
       hasVoidReturnType || hasMutatorLikeName
     }
 
-    def hasQueryLikeName = {
+    def hasQueryLikeName: Boolean = {
       def startsWith(name: String, prefix: String) =
         name.length > prefix.length && name.startsWith(prefix) && name.charAt(prefix.length).isUpper
 
@@ -71,14 +72,14 @@ package object extensions {
       }
     }
 
-    def hasMutatorLikeName = repr.getName match {
+    def hasMutatorLikeName: Boolean = repr.getName match {
       case MutatorNamePattern() => true
       case _ => false
     }
 
-    def hasVoidReturnType = repr.getReturnType == PsiType.VOID
+    def hasVoidReturnType: Boolean = repr.getReturnType == PsiType.VOID
 
-    def hasNoParams = repr.getParameterList.getParameters.isEmpty
+    def hasNoParams: Boolean = repr.getParameterList.getParameters.isEmpty
   }
 
   object PsiMethodExt {
@@ -160,7 +161,7 @@ package object extensions {
 
     def getOrElse[H >: T](default: H): H = if (v == null) default else v
 
-    def collectOption[B](pf : scala.PartialFunction[T, B]) = Some(v).collect(pf)
+    def collectOption[B](pf : scala.PartialFunction[T, B]): Option[B] = Some(v).collect(pf)
   }
 
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
@@ -171,17 +172,17 @@ package object extensions {
     def seq[A](a: A*): Seq[A] = if (b) Seq(a: _*) else Seq.empty
 
     // looks better withing expressions than { if (???) ??? else ??? } block
-    def fold[T](ifTrue: => T, ifFalse: => T) = if (b) ifTrue else ifFalse
+    def fold[T](ifTrue: => T, ifFalse: => T): T = if (b) ifTrue else ifFalse
 
     def toInt: Int = if (b) 1 else 0
   }
 
   implicit class StringExt(val s: String) extends AnyVal{
-    def startsWith(c: Char) = !s.isEmpty && s.charAt(0) == c
+    def startsWith(c: Char): Boolean = !s.isEmpty && s.charAt(0) == c
 
-    def endsWith(c: Char) = !s.isEmpty && s.charAt(s.length - 1) == c
+    def endsWith(c: Char): Boolean = !s.isEmpty && s.charAt(s.length - 1) == c
 
-    def parenthesisedIf(condition: Boolean) = if (condition) "(" + s + ")" else s
+    def parenthesisedIf(condition: Boolean): String = if (condition) "(" + s + ")" else s
   }
 
   implicit class PsiElementExt(override val repr: PsiElement) extends AnyVal with PsiElementExtTrait {
@@ -192,7 +193,7 @@ package object extensions {
       }
     }
 
-    def typeSystem = repr.getProject.typeSystem
+    def typeSystem: TypeSystem = repr.getProject.typeSystem
 
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
       def lift: PsiType => Option[ScType] = _.toScType(repr.getProject, repr.getResolveScope).toOption
@@ -224,7 +225,7 @@ package object extensions {
                  scope: GlobalSearchScope = null,
                  visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
                  paramTopLevel: Boolean = false,
-                 treatJavaObjectAsAny: Boolean = true) = {
+                 treatJavaObjectAsAny: Boolean = true): ScType = {
       project.typeSystem.bridge.toScType(`type`, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
     }
   }
@@ -380,7 +381,7 @@ package object extensions {
   }
 
   implicit class PipedObject[T](val value: T) extends AnyVal {
-    def |>[R](f: T => R) = f(value)
+    def |>[R](f: T => R): R = f(value)
   }
 
   implicit class IteratorExt[A](val delegate: Iterator[A]) extends AnyVal {
@@ -397,7 +398,7 @@ package object extensions {
   }
 
   implicit class RegexExt(val regex: Regex) extends AnyVal {
-    def matches(s: String) = regex.pattern.matcher(s).matches
+    def matches(s: String): Boolean = regex.pattern.matcher(s).matches
   }
 
   import scala.language.implicitConversions

@@ -33,7 +33,7 @@ object OccurrenceData {
 class OccurrenceData(typeElement: ScTypeElement, usualOccurrence: Array[ScTypeElement], isReplaceAllUsual: Boolean,
                      companiomObjOccurrence: Array[ScTypeElement], isReplaceInCompanion: Boolean,
                      extendedClassOccurrence: Array[ScTypeElement], isReplaceInExtendedClasses: Boolean) {
-  def getUsualOccurrences = {
+  def getUsualOccurrences: Array[ScTypeElement] = {
     if (isReplaceAllUsual) {
       usualOccurrence
     } else {
@@ -41,13 +41,13 @@ class OccurrenceData(typeElement: ScTypeElement, usualOccurrence: Array[ScTypeEl
     }
   }
 
-  def getCompanionObjOccurrences = getOccurrences(companiomObjOccurrence, isReplaceInCompanion)
+  def getCompanionObjOccurrences: Array[ScTypeElement] = getOccurrences(companiomObjOccurrence, isReplaceInCompanion)
 
-  def getExtendedOccurrences = getOccurrences(extendedClassOccurrence, isReplaceInExtendedClasses)
+  def getExtendedOccurrences: Array[ScTypeElement] = getOccurrences(extendedClassOccurrence, isReplaceInExtendedClasses)
 
-  def getOccurrencesCount = getAllOccurrences.length
+  def getOccurrencesCount: Int = getAllOccurrences.length
 
-  def getAllOccurrences = getUsualOccurrences ++ getCompanionObjOccurrences ++ getExtendedOccurrences
+  def getAllOccurrences: Array[ScTypeElement] = getUsualOccurrences ++ getCompanionObjOccurrences ++ getExtendedOccurrences
 
   private def getOccurrences(occ: Array[ScTypeElement], needAll: Boolean): Array[ScTypeElement] = {
     if (needAll) {

@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 trait ScGenericCall extends ScExpression {
 
-  def referencedExpr = findChildByClassScala(classOf[ScExpression])
+  def referencedExpr: ScExpression = findChildByClassScala(classOf[ScExpression])
 
-  def typeArgs = findChild(classOf[ScTypeArgs])
+  def typeArgs: Option[ScTypeArgs] = findChild(classOf[ScTypeArgs])
 
   def arguments : Seq[ScTypeElement] = (for (t <- typeArgs) yield t.typeArgs) match {
     case Some(x) => x

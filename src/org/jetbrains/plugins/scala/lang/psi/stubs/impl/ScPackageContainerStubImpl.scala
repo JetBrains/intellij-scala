@@ -41,7 +41,7 @@ extends StubBaseWrapper[ScPackageContainer](parent, elemType) with ScPackageCont
     myExplicit = explicit
   }
 
-  def prefix = StringRef.toString(myPrefix)
-  def ownNamePart = StringRef.toString(myOwnNamePart)
-  def isExplicit = myExplicit
+  def prefix: String = StringRef.toString(myPrefix)
+  def ownNamePart: String = StringRef.toString(myOwnNamePart)
+  def isExplicit: Boolean = myExplicit
 }

@@ -63,7 +63,7 @@ object MethodRepr {
     }
   }
 
-  def apply(itself: ScExpression, optionalBase: Option[ScExpression], optionalMethodRef: Option[ScReferenceExpression], args: Seq[ScExpression]) = {
+  def apply(itself: ScExpression, optionalBase: Option[ScExpression], optionalMethodRef: Option[ScReferenceExpression], args: Seq[ScExpression]): MethodRepr = {
     new MethodRepr(itself, optionalBase, optionalMethodRef, args)
   }
 

@@ -402,16 +402,16 @@ object DebuggerUtil {
     unwrapRuntimeRef(evaluated, _ == "scala.runtime.ObjectRef")
   }
 
-  def unwrapScalaRuntimeRef(value: AnyRef) = {
+  def unwrapScalaRuntimeRef(value: AnyRef): AnyRef = {
     unwrapRuntimeRef(value, isScalaRuntimeRef)
   }
 
-  def isScalaRuntimeRef(typeFqn: String) = {
+  def isScalaRuntimeRef(typeFqn: String): Boolean = {
     typeFqn.startsWith("scala.runtime.") && typeFqn.endsWith("Ref")
   }
 
   object scalaRuntimeRefTo {
-    def unapply(objRef: ObjectReference) = {
+    def unapply(objRef: ObjectReference): Option[AnyRef] = {
       val typeName = objRef.referenceType().name()
       if (isScalaRuntimeRef(typeName)) Some(unwrapScalaRuntimeRef(objRef))
       else None
@@ -524,7 +524,7 @@ object DebuggerUtil {
     }
   }
 
-  def generatesAnonClass(newTd: ScNewTemplateDefinition) = {
+  def generatesAnonClass(newTd: ScNewTemplateDefinition): Boolean = {
     val extBl = newTd.extendsBlock
     extBl.templateBody.nonEmpty || extBl.templateParents.exists(_.typeElementsWithoutConstructor.nonEmpty)
   }

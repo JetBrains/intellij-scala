@@ -43,7 +43,7 @@ class LegacyProjectFormatNotifier(project: Project) extends AbstractProjectCompo
 }
 
 object LegacyProjectFormatNotifier {
-  def Message = "<html>" +
+  def Message: String = "<html>" +
           "<p>This IDEA project is converted from an SBT project by <b>gen-idea</b> tool," +
           "<br />which currently relies on a legacy Scala project model.</p>" +
           "<br />" +

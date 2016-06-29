@@ -46,7 +46,7 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
       .map(_.getPrevSibling)
       .foreach(deleteIfWhitespace)
 
-  def deleteIfWhitespace(element: PsiElement) =
+  def deleteIfWhitespace(element: PsiElement): Unit =
     if(element.isInstanceOf[PsiWhiteSpace]) element.delete()
 
   private def removeCaseKeyword(clause: ScCaseClause) =

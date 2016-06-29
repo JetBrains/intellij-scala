@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.project.settings
 
+import javax.swing.JPanel
+
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
@@ -15,9 +17,9 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
   
   private val profiles = form.getProfilesPanel
 
-  def createComponent() = form.getContentPanel
+  def createComponent(): JPanel = form.getContentPanel
 
-  def isModified = form.getIncrementalityType != configuration.incrementalityType ||
+  def isModified: Boolean = form.getIncrementalityType != configuration.incrementalityType ||
           profiles.getDefaultProfile.getSettings.getState != configuration.defaultProfile.getSettings.getState ||
           !profiles.getModuleProfiles.asScala.corresponds(configuration.customProfiles)(_.getSettings.getState == _.getSettings.getState)
 

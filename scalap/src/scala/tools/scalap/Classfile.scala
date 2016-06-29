@@ -25,9 +25,9 @@ class Classfile(in: ByteArrayReader) {
   val fields = readMembers(true)
   val methods = readMembers(false)
   val attribs = readAttribs
-  def scalaSigAttribute = attribs find (_.toString == Main.SCALA_SIG)
+  def scalaSigAttribute: Option[Attribute] = attribs find (_.toString == Main.SCALA_SIG)
   
-  def readAttribs = {
+  def readAttribs: List[Attribute] = {
     val n = in.nextChar
     var attribs: List[Attribute] = Nil
     var i = 0
@@ -38,7 +38,7 @@ class Classfile(in: ByteArrayReader) {
     attribs
   }
 
-  def readMembers(field: Boolean) = {
+  def readMembers(field: Boolean): List[Member] = {
     val n = in.nextChar
     var members: List[Member] = Nil
     var i = 0
@@ -49,7 +49,7 @@ class Classfile(in: ByteArrayReader) {
     members
   }
 
-  def readInterfaces = {
+  def readInterfaces: List[Int] = {
     val n = in.nextChar
     var intfs: List[Int] = Nil
     var i = 0
@@ -62,14 +62,14 @@ class Classfile(in: ByteArrayReader) {
 
   class Pool() {
     sealed abstract class PoolEntry(val tag: Int) {
-      def typeString = constantTagToString(tag)
+      def typeString: String = constantTagToString(tag)
     }
-    case class UTF8(str: String) extends PoolEntry(CONSTANT_UTF8) { override def toString = "\"" + str + "\"" }
-    case class ClassRef(classId: Int) extends PoolEntry(CONSTANT_CLASS) { override def toString = "Class(%s)".format(entries(classId)) }
+    case class UTF8(str: String) extends PoolEntry(CONSTANT_UTF8) { override def toString: String = "\"" + str + "\"" }
+    case class ClassRef(classId: Int) extends PoolEntry(CONSTANT_CLASS) { override def toString: String = "Class(%s)".format(entries(classId)) }
     case class FieldRef(classId: Int, memberId: Int) extends PoolEntry(CONSTANT_FIELDREF)
     case class MethodRef(classId: Int, memberId: Int) extends PoolEntry(CONSTANT_METHODREF) { 
       // //Method java/lang/Object."<init>":()V
-      override def toString() = "Method %s.\"%s\"".format(entries(classId), entries(memberId))
+      override def toString(): String = "Method %s.\"%s\"".format(entries(classId), entries(memberId))
     }
     case class IntfMethodRef(classId: Int, memberId: Int) extends PoolEntry(CONSTANT_INTFMETHODREF)
     case class StringConst(strId: Int) extends PoolEntry(CONSTANT_STRING)
@@ -110,9 +110,9 @@ class Classfile(in: ByteArrayReader) {
     }
     
     lazy val length = entries.length
-    def apply(x: Int) = entries(x)
-    def stringOf(x: Int) = apply(x).toString
-    override def toString = (
+    def apply(x: Int): PoolEntry = entries(x)
+    def stringOf(x: Int): String = apply(x).toString
+    override def toString: String = (
       for ((x, i) <- entries.zipWithIndex ; if x != null) yield 
         "const #%d = %s\t%s\n".format(i + 1, x.typeString, x)
     ).mkString
@@ -121,7 +121,7 @@ class Classfile(in: ByteArrayReader) {
   /** **/
   case class Member(field: Boolean, flags: Int, name: Int, tpe: Int, attribs: List[Attribute])
   case class Attribute(name: Int, data: Array[Byte]) {
-    override def toString = (pool(name): @unchecked) match {
+    override def toString: String = (pool(name): @unchecked) match {
       case pool.UTF8(s) => s
     }
     def reader: ByteArrayReader = new ByteArrayReader(data)

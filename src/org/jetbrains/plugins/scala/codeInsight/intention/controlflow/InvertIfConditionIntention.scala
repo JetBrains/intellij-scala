@@ -20,7 +20,7 @@ object InvertIfConditionIntention {
 }
 
 class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = InvertIfConditionIntention.familyName
+  def getFamilyName: String = InvertIfConditionIntention.familyName
 
   override def getText: String = getFamilyName
 

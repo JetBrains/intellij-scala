@@ -22,6 +22,6 @@ class FakeAnonymousClassConstructor(templ: ScNewTemplateDefinition, interfaceNam
     case _ => false
   }
 
-  override def hashCode() = navElement.hashCode() + 31 * getName.hashCode
+  override def hashCode(): Int = navElement.hashCode() + 31 * getName.hashCode
 }
 

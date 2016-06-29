@@ -67,7 +67,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     }
   }
 
-  def isExtraSettingModified = {
+  def isExtraSettingModified: Boolean = {
     val settings = getInitialSettings
 
     selectedJdkName != settings.jdkName ||
@@ -100,5 +100,5 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)
 
-  def validate(sbtProjectSettings: SbtProjectSettings) = selectedJdkName.isDefined
+  def validate(sbtProjectSettings: SbtProjectSettings): Boolean = selectedJdkName.isDefined
 }

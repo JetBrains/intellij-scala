@@ -28,12 +28,12 @@ class ScCatchBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScC
     }
   }
 
-  def getLeftParenthesis = {
+  def getLeftParenthesis: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
     if (leftParenthesis == null) None else Some(leftParenthesis)
   }
 
-  def getRightParenthesis = {
+  def getRightParenthesis: Option[PsiElement] = {
     val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
     if (rightParenthesis == null) None else Some(rightParenthesis)
   }

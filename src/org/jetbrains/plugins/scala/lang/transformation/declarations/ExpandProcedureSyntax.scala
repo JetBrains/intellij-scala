@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package declarations
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 
@@ -8,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
   * @author Pavel Fatin
   */
 object ExpandProcedureSyntax extends AbstractTransformer {
-  def transformation = {
+  def transformation: PartialFunction[PsiElement, Unit] = {
     case (e: ScFunctionDefinition) if !e.hasAssign =>
       val prototype = code"def f(): Unit = ()".asInstanceOf[ScFunctionDefinition]
       val colon = prototype.getParameterList.getNextSibling

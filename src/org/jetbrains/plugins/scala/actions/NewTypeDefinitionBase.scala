@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  */
 abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](txt: String, description: String, icon: Icon)
   extends CreateTemplateInPackageAction[T](txt, description, icon, JavaModuleSourceRootTypes.SOURCES) {
-  override def checkPackageExists(psiDirectory: PsiDirectory) = JavaDirectoryService.getInstance.getPackage(psiDirectory) != null
+  override def checkPackageExists(psiDirectory: PsiDirectory): Boolean = JavaDirectoryService.getInstance.getPackage(psiDirectory) != null
 
   override def getNavigationElement(t: T): PsiElement = t.extendsBlock
 

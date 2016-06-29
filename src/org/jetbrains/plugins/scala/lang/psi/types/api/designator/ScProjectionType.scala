@@ -75,7 +75,7 @@ class ScProjectionType private(val projected: ScType,
     } else None
   }
 
-  override def isStable = (projected match {
+  override def isStable: Boolean = (projected match {
     case designatorOwner: DesignatorOwner => designatorOwner.isStable
     case _ => false
   }) && super.isStable
@@ -308,13 +308,13 @@ class ScProjectionType private(val projected: ScType,
     }
   }
 
-  override def isFinalType = actualElement match {
+  override def isFinalType: Boolean = actualElement match {
     case cl: PsiClass if cl.isEffectivelyFinal => true
     case alias: ScTypeAliasDefinition => alias.aliasedType.exists(_.isFinalType)
     case _ => false
   }
 
-  override def visitType(visitor: TypeVisitor) = visitor.visitProjectionType(this)
+  override def visitType(visitor: TypeVisitor): Unit = visitor.visitProjectionType(this)
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[ScProjectionType]
 

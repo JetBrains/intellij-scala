@@ -66,7 +66,7 @@ object TypeConstruction {
 case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
   var assocoationMap = Seq[(IntermediateNode, Option[String])]()
 
-  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
+  def getAssociations: Seq[(IntermediateNode, String)] = assocoationMap.collect { case (n, Some(value)) => (n, value) }
 
   override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
 }
@@ -74,7 +74,7 @@ case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[Intermed
 case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode with TypedElement {
   var assocoationMap = Seq[(IntermediateNode, Option[String])]()
 
-  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
+  def getAssociations: Seq[(IntermediateNode, String)] = assocoationMap.collect { case (n, Some(value)) => (n, value) }
 
   override def getType: TypeConstruction =
     iNode.asInstanceOf[TypedElement].getType

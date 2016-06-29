@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
  */
 
 abstract sealed class ValueUsed(val pointer: ValueUsed.Pointer) {
-  def isValid = Option(pointer.getElement).exists(_.isValid)
+  def isValid: Boolean = Option(pointer.getElement).exists(_.isValid)
 
   override def toString: String = Option(pointer.getElement).map(_.name).getOrElse("No element")
 }
@@ -16,7 +16,7 @@ abstract sealed class ValueUsed(val pointer: ValueUsed.Pointer) {
 object ValueUsed {
   type Pointer = SmartPsiElementPointer[PsiNamedElement]
 
-  def createPointer(e: PsiNamedElement) = SmartPointerManager.getInstance(e.getProject).createSmartPsiElementPointer(e)
+  def createPointer(e: PsiNamedElement): SmartPsiElementPointer[PsiNamedElement] = SmartPointerManager.getInstance(e.getProject).createSmartPsiElementPointer(e)
 
   def unapply(v: ValueUsed): Option[PsiNamedElement] = {
     Option(v.pointer.getElement)

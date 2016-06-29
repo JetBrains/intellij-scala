@@ -35,7 +35,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
       filter(_.getContainingFile == getContainingFile).toArray.distinct
   })
 
-  def canBeTailRecursive = getParent match {
+  def canBeTailRecursive: Boolean = getParent match {
     case (_: ScTemplateBody) && Parent(Parent(owner: ScTypeDefinition)) =>
       val ownerModifiers = owner.getModifierList
       val methodModifiers = getModifierList

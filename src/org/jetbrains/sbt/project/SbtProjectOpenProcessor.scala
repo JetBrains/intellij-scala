@@ -18,9 +18,9 @@ class SbtProjectOpenProcessor(builder: SbtProjectImportBuilder) extends ProjectO
   // TODO Don't depend on file extensions in ProjectOpenProcessorBase.doOpenProject to discover a project root (IDEA)
   def getSupportedExtensions = Array(Sbt.BuildFile, Sbt.ProjectDirectory)
 
-  override def canOpenProject(file: VirtualFile) = SbtProjectImportProvider.canImport(file)
+  override def canOpenProject(file: VirtualFile): Boolean = SbtProjectImportProvider.canImport(file)
 
-  override def doQuickImport(file: VirtualFile, wizardContext: WizardContext) = {
+  override def doQuickImport(file: VirtualFile, wizardContext: WizardContext): Boolean = {
     val path = SbtProjectImportProvider.projectRootOf(file).getPath
 
     val dialog = new AddModuleWizard(null, path, new SbtProjectImportProvider(getBuilder))

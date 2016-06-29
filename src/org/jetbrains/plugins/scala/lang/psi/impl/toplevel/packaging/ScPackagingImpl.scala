@@ -55,7 +55,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
     }
   }
 
-  def getPackageName = ownNamePart
+  def getPackageName: String = ownNamePart
 
   def isExplicit: Boolean = {
     val stub = getStub
@@ -89,7 +89,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
     parentPackageName(this)
   }
 
-  def typeDefs = {
+  def typeDefs: Seq[ScTypeDefinition] = {
     val stub = getStub
     if (stub != null) {
       stub.getChildrenByType(TokenSet.create(
@@ -112,7 +112,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
     }
   }
 
-  def declaredElements = {
+  def declaredElements: Seq[ScPackageImpl] = {
     val _prefix = prefix
     val packageName = getPackageName
     val topRefName = if (packageName.indexOf(".") != -1) {

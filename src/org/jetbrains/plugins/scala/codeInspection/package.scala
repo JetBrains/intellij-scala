@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.codeInspection.ProblemsHolder
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 package object codeInspection {
 
   implicit class ProblemsHolderExt(val holder: ProblemsHolder) extends AnyVal {
-    def typeSystem = holder.getProject.typeSystem
+    def typeSystem: TypeSystem = holder.getProject.typeSystem
   }
 
 }

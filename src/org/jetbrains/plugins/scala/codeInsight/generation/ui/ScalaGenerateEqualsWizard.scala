@@ -29,8 +29,8 @@ class ScalaGenerateEqualsWizard(project: Project, aClass: PsiClass, needEquals: 
     if(panel == null) Seq.empty
     else panel.getTable.getSelectedMemberInfos.map(_.getMember).toSeq
 
-  def getEqualsFields = getSelectedFields(myEqualsPanel)
-  def getHashCodeFields = getSelectedFields(myHashCodePanel)
+  def getEqualsFields: Seq[ScNamedElement] = getSelectedFields(myEqualsPanel)
+  def getHashCodeFields: Seq[ScNamedElement] = getSelectedFields(myHashCodePanel)
 }
 
 private class ScalaGenerateEqualsWizardBuilder(aClass: PsiClass, needEquals: Boolean, needHashCode: Boolean)

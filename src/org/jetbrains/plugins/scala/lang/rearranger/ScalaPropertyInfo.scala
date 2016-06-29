@@ -7,5 +7,5 @@ package lang.rearranger
  */
 class ScalaPropertyInfo (val getter: ScalaArrangementEntry,
                              val setter: ScalaArrangementEntry) {
-  def isComplete = getter != null && setter != null
+  def isComplete: Boolean = getter != null && setter != null
 }

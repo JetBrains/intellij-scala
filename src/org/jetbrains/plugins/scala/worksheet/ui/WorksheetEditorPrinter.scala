@@ -67,9 +67,9 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
   originalEditor.asInstanceOf[EditorImpl].setScrollToCaret(false)
   worksheetViewer.asInstanceOf[EditorImpl].setScrollToCaret(false)
   
-  def getViewerEditor = worksheetViewer
+  def getViewerEditor: Editor = worksheetViewer
   
-  def getOriginalEditor = originalEditor
+  def getOriginalEditor: Editor = originalEditor
   
   def scheduleWorksheetUpdate() {
     timer.start()
@@ -214,7 +214,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
 //    incUpdate(str)
   }
   
-  def getCurrentText = prefix + outputBuffer.toString()
+  def getCurrentText: String = prefix + outputBuffer.toString()
 
   def internalError(errorMessage: String) {
     extensions.invokeLater {
@@ -322,7 +322,7 @@ object WorksheetEditorPrinter {
 
   private val patched = new util.WeakHashMap[Editor, String]()
 
-  def getPatched = patched
+  def getPatched: util.WeakHashMap[Editor, String] = patched
 
   private def synch(originalEditor: Editor, worksheetViewer: Editor,
                     diffSplitter: Option[WorksheetDiffSplitters.SimpleWorksheetSplitter] = None,
@@ -418,9 +418,9 @@ object WorksheetEditorPrinter {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, 0.5f.toString)
   }
 
-  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor, virtualFile, isPlain = true)
+  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile): WorksheetEditorPrinter = newUiFor(editor, virtualFile, isPlain = true)
 
-  def newMacrosheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor,  virtualFile, isPlain = false)
+  def newMacrosheetUiFor(editor: Editor, virtualFile: VirtualFile): WorksheetEditorPrinter = newUiFor(editor,  virtualFile, isPlain = false)
 
   def newUiFor(editor: Editor, virtualFile: VirtualFile, isPlain: Boolean) =
     new WorksheetEditorPrinter(editor, createRightSideViewer(editor, virtualFile, getOrCreateViewerEditorFor(editor, isPlain)),
@@ -430,9 +430,9 @@ object WorksheetEditorPrinter {
       }
     )
 
-  def createWorksheetEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, isPlain = true)
+  def createWorksheetEditor(editor: Editor): Editor = getOrCreateViewerEditorFor(editor, isPlain = true)
 
-  def createMacroEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, isPlain = false)
+  def createMacroEditor(editor: Editor): Editor = getOrCreateViewerEditorFor(editor, isPlain = false)
 
   def createRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent
@@ -515,7 +515,7 @@ object WorksheetEditorPrinter {
       case jComp: JComponent =>
         jComp.putClientProperty(
           DataManager.CLIENT_PROPERTY_DATA_PROVIDER, new DataProvider {
-            override def getData(dataId: String) = if (CommonDataKeys.HOST_EDITOR.is(dataId)) editor else null
+            override def getData(dataId: String): Editor = if (CommonDataKeys.HOST_EDITOR.is(dataId)) editor else null
           })
       case _ =>
     }

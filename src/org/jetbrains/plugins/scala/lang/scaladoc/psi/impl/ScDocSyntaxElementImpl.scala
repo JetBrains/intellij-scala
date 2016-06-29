@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
  */
 
 class ScDocSyntaxElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocSyntaxElement{
-  override def toString = "DocSyntaxElement " + getFlags
+  override def toString: String = "DocSyntaxElement " + getFlags
 
   override def accept(visitor: PsiElementVisitor) {
     visitor match {

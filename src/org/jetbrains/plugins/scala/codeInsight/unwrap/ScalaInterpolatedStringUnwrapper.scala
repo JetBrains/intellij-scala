@@ -14,17 +14,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  */
 class ScalaInterpolatedStringUnwrapper extends ScalaUnwrapper {
   
-  override def isApplicableTo(e: PsiElement) = forInjection(e)((_, _) => true)(false)
+  override def isApplicableTo(e: PsiElement): Boolean = forInjection(e)((_, _) => true)(false)
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = forInjection(element){
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = forInjection(element){
     (expr, lit) =>
       context.extractBlockOrSingleStatement(expr, lit)
       context.delete(lit)
   } {}
   
-  override def getDescription(e: PsiElement) = ScalaBundle.message("unwrap.interpolated.string.injection")
+  override def getDescription(e: PsiElement): String = ScalaBundle.message("unwrap.interpolated.string.injection")
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = forInjection[PsiElement](e) {
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = forInjection[PsiElement](e) {
     (expr, lit) =>
       super.collectAffectedElements(expr, toExtract)
       lit

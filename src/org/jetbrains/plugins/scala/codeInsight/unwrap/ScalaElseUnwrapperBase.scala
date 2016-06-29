@@ -14,9 +14,9 @@ import scala.annotation.tailrec
  */
 abstract class ScalaElseUnwrapperBase extends ScalaUnwrapper {
 
-  override def isApplicableTo(e: PsiElement) = elseBranch(e).isDefined
+  override def isApplicableTo(e: PsiElement): Boolean = elseBranch(e).isDefined
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = elseBranch(element) match {
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = elseBranch(element) match {
     case Some((ifStmt, expr)) => unwrapElseBranch(expr, ifStmt, context)
     case _ =>
   }

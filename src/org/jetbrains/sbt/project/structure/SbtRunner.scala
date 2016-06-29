@@ -150,7 +150,7 @@ object SbtRunner {
     (file << deep) / "launcher"
   }
 
-  def getDefaultLauncher = getSbtLauncherDir / "sbt-launch.jar"
+  def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
 
   private val SinceSbtVersion = "0.12.4"
 

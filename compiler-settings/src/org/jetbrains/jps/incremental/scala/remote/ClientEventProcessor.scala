@@ -40,7 +40,7 @@ class ClientEventProcessor(client: Client) {
 }
 
 class ServerException(message: String, lines: Array[String]) extends Exception {
-  override def getMessage = message
+  override def getMessage: String = message
 
   override def printStackTrace(s: PrintWriter) {
     lines.foreach(s.println)

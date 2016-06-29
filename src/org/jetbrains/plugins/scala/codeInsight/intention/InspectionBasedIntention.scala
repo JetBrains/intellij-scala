@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
   * @author Pavel Fatin
   */
 class InspectionBasedIntention(family: String, text: String, inspection: LocalInspectionTool) extends PsiElementBaseIntentionAction {
-  override def getFamilyName = family
+  override def getFamilyName: String = family
 
-  override def getText = text
+  override def getText: String = text
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     findProblemFrom(element).foreach { descriptor =>
@@ -26,7 +26,7 @@ class InspectionBasedIntention(family: String, text: String, inspection: LocalIn
     }
   }
 
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement) = findProblemFrom(element).isDefined
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = findProblemFrom(element).isDefined
 
   private def findProblemFrom(element: PsiElement): Option[ProblemDescriptor] = {
     val holder = new ProblemsHolder(InspectionManager.getInstance(element.getProject), element.getContainingFile, true)

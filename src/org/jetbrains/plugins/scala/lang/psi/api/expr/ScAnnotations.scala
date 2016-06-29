@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
  */
 
 trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
-  def getReferenceElements = Array[PsiJavaCodeReferenceElement]()
+  def getReferenceElements: Array[PsiJavaCodeReferenceElement] = Array[PsiJavaCodeReferenceElement]()
 
 
   def foldFuns(initial: Any)(fail: Any)(l: List[PartialFunction[Any, _]]): Any = l match {
@@ -68,7 +68,7 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
     }
   }
 
-  def getReferencedTypes = getExceptionTypes
+  def getReferencedTypes: Array[PsiClassType] = getExceptionTypes
 
   //todo return appropriate roles
   def getRole = PsiReferenceList.Role.THROWS_LIST

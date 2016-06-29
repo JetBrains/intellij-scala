@@ -695,7 +695,7 @@ object ScalaPositionManager {
     try location.lineNumber() - 1
     catch {case ie: InternalError => -1}
 
-  def cachedSourceName(refType: ReferenceType) = {
+  def cachedSourceName(refType: ReferenceType): Option[String] = {
     ScalaPositionManager.instance(refType).map(_.caches).flatMap(_.cachedSourceName(refType))
   }
 
@@ -746,7 +746,7 @@ object ScalaPositionManager {
     }
   }
 
-  def isLambda(element: PsiElement) = {
+  def isLambda(element: PsiElement): Boolean = {
     ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element) && !isInsideMacro(element)
   }
 
@@ -760,7 +760,7 @@ object ScalaPositionManager {
     lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
   }
 
-  def isAnonfunType(refType: ReferenceType) = {
+  def isAnonfunType(refType: ReferenceType): Boolean = {
     refType match {
       case ct: ClassType =>
         val supClass = ct.superclass()
@@ -831,7 +831,7 @@ object ScalaPositionManager {
 
   def isInsideMacro(elem: PsiElement): Boolean = InsideMacro.unapply(elem).isDefined
 
-  def shouldSkip(location: Location, debugProcess: DebugProcess) = {
+  def shouldSkip(location: Location, debugProcess: DebugProcess): Boolean = {
     ScalaPositionManager.instance(debugProcess).forall(_.shouldSkip(location))
   }
 
@@ -845,7 +845,7 @@ object ScalaPositionManager {
     }
   }
 
-  def isDelayedInit(cl: PsiClass) = cl match {
+  def isDelayedInit(cl: PsiClass): Boolean = cl match {
     case obj: ScObject =>
       val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
       val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull

@@ -14,7 +14,7 @@ object ScalaTestHighlighterUtil {
       "scenario", "like", "pending", "it", "they", "behavior", "describe", "property", "test")
 
   //TODO it is possible for this to create some false-positives, but it is very unlikely
-  def isHighlightableScalaTestKeyword(classFqn: String, methodName: String, project: Project) =
+  def isHighlightableScalaTestKeyword(classFqn: String, methodName: String, project: Project): Boolean =
     classFqn != null && ScalaProjectSettings.getInstance(project).isCustomScalatestSyntaxHighlighting &&
       classFqn.startsWith("org.scalatest") && scalaTestKeywords.contains(methodName)
 }

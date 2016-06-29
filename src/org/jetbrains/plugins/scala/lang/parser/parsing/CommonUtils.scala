@@ -21,7 +21,7 @@ trait CommonUtils {
   protected val blockExpr: BlockExpr
   protected val pattern: Pattern
 
-  def parseInterpolatedString(builder: ScalaPsiBuilder, isPattern: Boolean) = {
+  def parseInterpolatedString(builder: ScalaPsiBuilder, isPattern: Boolean): Unit = {
     val prefixMarker = builder.mark()
     builder.advanceLexer()
     prefixMarker.done(

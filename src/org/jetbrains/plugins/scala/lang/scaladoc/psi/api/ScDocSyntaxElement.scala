@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 trait ScDocSyntaxElement extends ScalaPsiElement {
   private var flags: Int = 0
   
-  def getFlags = flags
+  def getFlags: Int = flags
   
   def setFlag(flag: Int) {
     flags |= flag

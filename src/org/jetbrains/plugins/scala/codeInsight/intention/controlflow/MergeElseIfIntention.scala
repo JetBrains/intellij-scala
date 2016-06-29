@@ -20,7 +20,7 @@ object MergeElseIfIntention {
 }
 
 class MergeElseIfIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = MergeElseIfIntention.familyName
+  def getFamilyName: String = MergeElseIfIntention.familyName
 
   override def getText: String = "Merge 'else if'"
 

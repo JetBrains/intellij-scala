@@ -20,7 +20,7 @@ object ReplaceWhileWithDoWhileIntention {
 }
 
 class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = ReplaceWhileWithDoWhileIntention.familyName
+  def getFamilyName: String = ReplaceWhileWithDoWhileIntention.familyName
 
   override def getText: String = ReplaceWhileWithDoWhileIntention.familyName
 

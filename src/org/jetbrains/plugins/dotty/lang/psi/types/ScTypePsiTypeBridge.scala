@@ -39,7 +39,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     }
   }
 
-  override def toPsiType(`type`: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean, skolemToWildcard: Boolean) = {
+  override def toPsiType(`type`: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean, skolemToWildcard: Boolean): PsiType = {
     def createComponent: ScType => PsiType =
       toPsiType(_, project, scope, noPrimitives, skolemToWildcard)
 

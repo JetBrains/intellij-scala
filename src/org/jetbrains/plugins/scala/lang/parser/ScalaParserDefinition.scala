@@ -21,12 +21,12 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
 
   private var hasDotty = false
 
-  def createLexer(project: Project) = {
+  def createLexer(project: Project): ScalaLexer = {
     val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
     new ScalaLexer(treatDocCommentAsBlockComment)
   }
 
-  def createParser(project: Project) = {
+  def createParser(project: Project): ScalaParser = {
     hasDotty = project.hasDotty
     if (hasDotty) new DottyParser else new ScalaParser
   }

@@ -37,7 +37,7 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
     new ScExtendsBlockStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, baseClasses)
   }
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScExtendsBlock, parentStub: StubElement[ParentPsi]) = {
+  def createStubImpl[ParentPsi <: PsiElement](psi: ScExtendsBlock, parentStub: StubElement[ParentPsi]): ScExtendsBlockStubImpl[ParentPsi] = {
     val baseNames = psi.directSupersNames
     new ScExtendsBlockStubImpl(parentStub, this, baseNames.toArray)
   }

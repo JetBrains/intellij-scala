@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
   * @author Pavel Fatin
   */
 object ExpandForComprehension extends AbstractTransformer {
-  def transformation = {
+  def transformation: PartialFunction[PsiElement, Unit] = {
     case e: ScForStatement => desugarRecursively(e)
   }
 

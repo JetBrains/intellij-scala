@@ -153,7 +153,7 @@ object ScalaMoveUtil {
     }
   }
 
-  def saveMoveDestination(@NotNull element: PsiElement, moveDestination: PsiDirectory) = {
+  def saveMoveDestination(@NotNull element: PsiElement, moveDestination: PsiDirectory): Unit = {
     val classes = element match {
       case c: PsiClass => Seq(c)
       case f: ScalaFile => f.typeDefinitions

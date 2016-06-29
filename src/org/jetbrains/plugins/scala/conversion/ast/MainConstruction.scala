@@ -9,7 +9,7 @@ import scala.collection.mutable.ArrayBuffer
 case class MainConstruction() extends IntermediateNode {
   val children = new ArrayBuffer[IntermediateNode]()
 
-  def addChild(child: IntermediateNode) = children += child
+  def addChild(child: IntermediateNode): children.type = children += child
 
-  def addChildren(inChildren: Array[IntermediateNode]) = children ++= inChildren
+  def addChildren(inChildren: Array[IntermediateNode]): children.type = children ++= inChildren
 }

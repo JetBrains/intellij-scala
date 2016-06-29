@@ -30,25 +30,25 @@ case class Text(s: String) extends StringPart {
 }
 
 case class Injection(expression: ScExpression, specifier: Option[Specifier]) extends StringPart {
-  def text = expression.getText
+  def text: String = expression.getText
 
-  def value = expression match {
+  def value: String = expression match {
     case literal: ScLiteral => literal.getValue.toString
     case block: ScBlockExpr => block.exprs.headOption.map(_.getText).mkString
     case element => element.getText
   }
 
-  def format = specifier.map(_.format).getOrElse("")
+  def format: String = specifier.map(_.format).getOrElse("")
 
   def expressionType: Option[ScType] = expression.getType(TypingContext.empty).toOption
 
-  def isLiteral = expression.isInstanceOf[ScLiteral]
+  def isLiteral: Boolean = expression.isInstanceOf[ScLiteral]
 
-  def isAlphanumericIdentifier = !isLiteral && expression.getText.forall(it => it.isLetter || it.isDigit)
+  def isAlphanumericIdentifier: Boolean = !isLiteral && expression.getText.forall(it => it.isLetter || it.isDigit)
 
-  def isFormattingRequired = specifier.exists(_.format.length > 2)
+  def isFormattingRequired: Boolean = specifier.exists(_.format.length > 2)
 
-  def isComplexBlock = expression match {
+  def isComplexBlock: Boolean = expression match {
     case block: ScBlockExpr => block.exprs.length > 1
     case _ => false
   }

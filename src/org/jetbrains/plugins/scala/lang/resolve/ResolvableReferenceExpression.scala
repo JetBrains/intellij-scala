@@ -54,21 +54,21 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     else shapeResolveImpl
   }
 
-  def isAssignmentOperator = {
+  def isAssignmentOperator: Boolean = {
     val context = getContext
     (context.isInstanceOf[ScInfixExpr] || context.isInstanceOf[ScMethodCall]) &&
             refName.endsWith("=") &&
             !(refName.startsWith("=") || Seq("!=", "<=", ">=").contains(refName) || refName.exists(_.isLetterOrDigit))
   }
 
-  def isUnaryOperator = {
+  def isUnaryOperator: Boolean = {
     getContext match {
       case pref: ScPrefixExpr if pref.operation == this => true
       case _ => false
     }
   }
 
-  def rightAssoc = refName.endsWith(":")
+  def rightAssoc: Boolean = refName.endsWith(":")
 
   def doResolve(ref: ResolvableReferenceExpression, processor: BaseProcessor,
                 accessibilityCheck: Boolean = true): Array[ResolveResult] = {

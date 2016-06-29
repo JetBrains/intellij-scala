@@ -61,7 +61,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     }
   }
 
-  def newTemplate = {
+  def newTemplate: Option[ScNewTemplateDefinition] = {
     getContext match {
       case parents: ScClassParents =>
         parents.getContext match {

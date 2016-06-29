@@ -67,7 +67,7 @@ extends StubBaseWrapper[ScValue](parent, elemType) with ScValueStub {
 
   def getNames: Array[String] = for (name <- names) yield StringRef.toString(name) //todo: remove it if unused
 
-  def isDeclaration = declaration
+  def isDeclaration: Boolean = declaration
 
   def getPatternsContainer: Option[ScPatternList] = {
     if (isDeclaration) return None

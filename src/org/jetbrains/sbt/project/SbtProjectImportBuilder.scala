@@ -26,7 +26,7 @@ class SbtProjectImportBuilder(projectDataManager: ProjectDataManager)
 
   def onProjectInit(project: Project) {}
 
-  def getExternalProjectConfigToUse(file: File) = file
+  def getExternalProjectConfigToUse(file: File): File = file
 
   def applyExtraSettings(context: WizardContext) {}
 }

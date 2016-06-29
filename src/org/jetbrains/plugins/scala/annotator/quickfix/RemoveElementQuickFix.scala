@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
  */
 
 class RemoveElementQuickFix(element: PsiElement, description: String) extends IntentionAction {
-  def getText = description
+  def getText: String = description
 
   def getFamilyName = ""
 

@@ -45,7 +45,7 @@ import scala.util.Random
  * Date: 16.05.2008
  */
 abstract class ScalaCompletionContributor extends CompletionContributor {
-  def positionFromParameters(parameters: CompletionParameters) = ScalaCompletionUtil.positionFromParameters(parameters)
+  def positionFromParameters(parameters: CompletionParameters): PsiElement = ScalaCompletionUtil.positionFromParameters(parameters)
 }
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {

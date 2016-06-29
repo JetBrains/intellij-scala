@@ -4,6 +4,8 @@ package psi
 package impl
 package statements
 
+import javax.swing.Icon
+
 import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
@@ -27,7 +29,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDefiniti
   def this(node: ASTNode) = {this(null, null, node)}
   def this(stub: ScTypeAliasStub) = {this(stub, ScalaElementTypes.TYPE_DEFINITION, null)}
 
-  def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
+  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null =>
       val name = getStub.asInstanceOf[ScTypeAliasStub].getName
       val id = ScalaPsiElementFactory.createIdentifier(name, getManager)
@@ -49,10 +51,10 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDefiniti
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
-      def getPresentableText = name
+      def getPresentableText: String = name
       def getTextAttributesKey: TextAttributesKey = null
       def getLocationString: String = "(" + ScTypeAliasDefinitionImpl.this.containingClass.qualifiedName + ")"
-      override def getIcon(open: Boolean) = ScTypeAliasDefinitionImpl.this.getIcon(0)
+      override def getIcon(open: Boolean): Icon = ScTypeAliasDefinitionImpl.this.getIcon(0)
     }
   }
 

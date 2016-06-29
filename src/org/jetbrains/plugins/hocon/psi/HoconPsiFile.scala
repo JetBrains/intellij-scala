@@ -16,7 +16,7 @@ class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElem
   def getFileType: FileType =
     HoconFileType
 
-  def toplevelEntries = {
+  def toplevelEntries: HObjectEntries = {
     @tailrec
     def entriesInner(child: PsiElement): HObjectEntries = child match {
       case obj: HObject => obj.entries
@@ -29,7 +29,7 @@ class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElem
     entriesInner(getFirstChild)
   }
 
-  def toplevelObject = getFirstChild match {
+  def toplevelObject: Option[HObject] = getFirstChild match {
     case obj: HObject => Some(obj)
     case _ => None
   }

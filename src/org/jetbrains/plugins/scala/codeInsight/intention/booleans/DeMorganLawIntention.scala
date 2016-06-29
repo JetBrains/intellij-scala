@@ -21,7 +21,7 @@ object DeMorganLawIntention {
 }
 
 class DeMorganLawIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = DeMorganLawIntention.familyName
+  def getFamilyName: String = DeMorganLawIntention.familyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val infixExpr: ScInfixExpr = PsiTreeUtil.getParentOfType(element, classOf[ScInfixExpr], false)

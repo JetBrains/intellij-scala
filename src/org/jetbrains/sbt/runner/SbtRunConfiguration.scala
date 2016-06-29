@@ -91,9 +91,9 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   def getJavaOptions: String = javaOptions
 
-  def getEnvironmentVariables = envirnomentVariables
+  def getEnvironmentVariables: util.Map[String, String] = envirnomentVariables
 
-  def getWorkingDir = if (StringUtil.isEmpty(workingDirectory)) project.getBaseDir.getPath else workingDirectory
+  def getWorkingDir: String = if (StringUtil.isEmpty(workingDirectory)) project.getBaseDir.getPath else workingDirectory
 
   class SbtComandLineState(configuration: SbtRunConfiguration, envirnoment: ExecutionEnvironment)
           extends JavaCommandLineState(envirnoment) {

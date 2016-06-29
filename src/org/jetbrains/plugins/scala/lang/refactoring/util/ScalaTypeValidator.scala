@@ -54,7 +54,7 @@ class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
     buf.toArray
   }
 
-  def getForbiddenNames(position: PsiElement, name: String) = {
+  def getForbiddenNames(position: PsiElement, name: String): ArrayBuffer[(PsiNamedElement, String)] = {
     class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
       val buf = new ArrayBuffer[(PsiNamedElement, String)]
 

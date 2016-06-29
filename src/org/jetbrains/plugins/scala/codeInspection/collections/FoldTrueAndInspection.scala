@@ -15,7 +15,7 @@ class FoldTrueAndInspection extends OperationOnCollectionInspection {
 
 object FoldTrueAnd extends SimplificationType(){
 
-  def hint = InspectionBundle.message("fold.true.and.hint")
+  def hint: String = InspectionBundle.message("fold.true.and.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {

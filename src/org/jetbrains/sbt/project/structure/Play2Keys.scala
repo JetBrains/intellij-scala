@@ -71,7 +71,7 @@ object Play2Keys {
     class SeqStringParsedValue(parsed: Seq[String]) extends ParsedValue[Seq[String]](parsed)
 
     abstract class ParsedKey[T](val name: String) {
-      def in(allKeys: Map[String, Map[String, ParsedValue[_]]]) = allKeys get name
+      def in(allKeys: Map[String, Map[String, ParsedValue[_]]]): Option[Map[String, ParsedValue[_]]] = allKeys get name
 
       def in(projectName: String, allKeys: Map[String, Map[String, ParsedValue[_]]]): Option[T] = {
         allIn(allKeys).find(_._1 == projectName).map(_._2)

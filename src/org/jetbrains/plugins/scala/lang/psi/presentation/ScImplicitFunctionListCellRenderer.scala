@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
  */
 class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImplicitFunctionListCellRendererAdapter {
   def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
-                                          value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean) = {
+                                          value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
     val attrFirstPart = EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_FIRST_PART)
     val attrSecondPart =  EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_SECOND_PART)
     val implicitFirstPart =  if (attrFirstPart == null)
@@ -74,7 +74,7 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
     comp
   }
 
-  override def getElementText(element: PsiNamedElement) = {
+  override def getElementText(element: PsiNamedElement): String = {
     element match {
       case method: ScFunction =>
         method.name + PresentationUtil.presentationString(method.paramClauses) + ": " +

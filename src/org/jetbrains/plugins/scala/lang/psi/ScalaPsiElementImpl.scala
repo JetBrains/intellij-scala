@@ -55,7 +55,7 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
-  override def findLastChildByType(t: TokenSet) = {
+  override def findLastChildByType(t: TokenSet): PsiElement = {
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
@@ -143,7 +143,7 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement](stub: StubElement[T], 
     super[ScalaPsiElement].findLastChildByType(t)
   }
 
-  override def findLastChildByType(t: TokenSet) = {
+  override def findLastChildByType(t: TokenSet): PsiElement = {
     super[ScalaPsiElement].findLastChildByType(t)
   }
 

@@ -23,7 +23,7 @@ import scala.collection.JavaConverters._
 abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData] extends CopyPastePostProcessor[T] {
   @NotNull
   override final def collectTransferableData(file: PsiFile, editor: Editor,
-                                             startOffsets: Array[Int], endOffsets: Array[Int]) = {
+                                             startOffsets: Array[Int], endOffsets: Array[Int]): util.List[T] = {
 
     val result = collectTransferableData0(file, editor, startOffsets, endOffsets)
 
@@ -35,7 +35,7 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData] ex
                                          startOffsets: Array[Int], endOffsets: Array[Int]): T
 
   @NotNull
-  override final def extractTransferableData(content: Transferable) = {
+  override final def extractTransferableData(content: Transferable): util.List[T] = {
     val result = extractTransferableData0(content)
 
     if (result == null) emptyList() else singletonList(result)

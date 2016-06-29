@@ -15,7 +15,7 @@ class ScalaTypeResult(val myType: ScType) extends Result {
     text == toString
   }
 
-  override def toString = myType.canonicalText
+  override def toString: String = myType.canonicalText
 
   override def handleFocused(psiFile: PsiFile, document: Document, segmentStart: Int, segmentEnd: Int): Unit = {}
 }

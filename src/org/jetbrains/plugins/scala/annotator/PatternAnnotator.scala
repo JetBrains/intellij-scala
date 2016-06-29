@@ -38,7 +38,7 @@ trait PatternAnnotator {
 object PatternAnnotator {
 
   def checkPattern(pattern: ScPattern, holder: AnnotationHolder)
-                  (implicit typeSystem: TypeSystem = pattern.typeSystem) = {
+                  (implicit typeSystem: TypeSystem = pattern.typeSystem): Unit = {
     for {
       pType <- PatternAnnotatorUtil.patternType(pattern)
       eType <- pattern.expectedType

@@ -35,7 +35,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def isObject: Boolean = false
 
-  def isTopLevel = !parentsInFile.exists(_.isInstanceOf[ScTypeDefinition])
+  def isTopLevel: Boolean = !parentsInFile.exists(_.isInstanceOf[ScTypeDefinition])
 
   def getPath: String = {
     val qualName = qualifiedName

@@ -103,7 +103,7 @@ object ScUnderScoreSectionUtil {
     }
   }
 
-  def isUnderscoreFunction(expr: PsiElement) = underscores(expr).length > 0
+  def isUnderscoreFunction(expr: PsiElement): Boolean = underscores(expr).length > 0
 
   def underscores(expr: PsiElement): Seq[ScUnderscoreSection] = {
     if (expr.getText.indexOf('_') == -1) return Seq.empty

@@ -57,7 +57,7 @@ case class TypeAliasSignature(name: String,
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
-  def getType = ta match {
+  def getType: Option[ScType] = ta match {
     case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
     case _ => None
   }
@@ -154,7 +154,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
     (true, undefSubst)
   }
 
-  override def equals(that: Any) = that match {
+  override def equals(that: Any): Boolean = that match {
     case s: Signature => equiv(s) && parameterlessKind == s.parameterlessKind
     case _ => false
   }
@@ -223,7 +223,7 @@ object Signature {
     definition
   )
 
-  def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]) = {
+  def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]): ScSubstitutor = {
     var result = subst
     val iterator1 = tps1.iterator
     val iterator2 = tps2.iterator
@@ -280,5 +280,5 @@ class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubst
                        (implicit override val typeSystem: TypeSystem)
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
           method.getTypeParameters.instantiate, substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
-  override def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
+  override def isJava: Boolean = method.getLanguage == JavaFileType.INSTANCE.getLanguage
 }

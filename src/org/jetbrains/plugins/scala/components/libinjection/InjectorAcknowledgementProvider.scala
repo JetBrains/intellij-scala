@@ -22,15 +22,15 @@ trait InjectorAcknowledgementProvider {
 
 // enable injector loading in tests, accept all injectors
 class TestAcknowledgementProvider extends InjectorAcknowledgementProvider {
-  override def askGlobalInjectorEnable(acceptCallback: => Any) = acceptCallback
-  override def showReviewDialogAndFilter(candidates: ManifestToDescriptors) = (candidates, Seq.empty)
+  override def askGlobalInjectorEnable(acceptCallback: => Any): Unit = acceptCallback
+  override def showReviewDialogAndFilter(candidates: ManifestToDescriptors): (ManifestToDescriptors, Seq[Nothing]) = (candidates, Seq.empty)
 }
 
 class UIAcknowledgementProvider(private val GROUP: NotificationGroup,
                                 private val project: Project)(implicit val LOG: Logger)
   extends InjectorAcknowledgementProvider
 {
-  override def askGlobalInjectorEnable(acceptCallback: => Any) = {
+  override def askGlobalInjectorEnable(acceptCallback: => Any): Unit = {
     val message = s"Some of your project's libraries have IDEA support features.</p>Would you like to load them?" +
       s"""<p/><a href="Yes">Yes</a> """ +
       s"""<a href="No">No</a>"""
@@ -44,7 +44,7 @@ class UIAcknowledgementProvider(private val GROUP: NotificationGroup,
     GROUP.createNotification("IDEA Extensions", message, NotificationType.INFORMATION, listener).notify(project)
   }
 
-  override def showReviewDialogAndFilter(candidates: ManifestToDescriptors) = {
+  override def showReviewDialogAndFilter(candidates: ManifestToDescriptors): (Seq[(JarManifest, Seq[InjectorDescriptor])], Seq[(JarManifest, Seq[InjectorDescriptor])]) = {
    candidates.partition { candidate =>
       val dialog = new InjectorReviewDialog(project, candidate, LOG)
       dialog.showAndGet()

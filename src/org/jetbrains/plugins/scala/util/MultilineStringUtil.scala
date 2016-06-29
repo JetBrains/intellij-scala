@@ -70,7 +70,7 @@ object MultilineStringUtil {
     true
   }
 
-  def hasMarginChars(element: PsiElement, marginChar: String) = {
+  def hasMarginChars(element: PsiElement, marginChar: String): Boolean = {
     element.getText.replace("\r", "").split(s"\n[ \t]*${escapeForRegexp(marginChar)}").length > 1
   }
 
@@ -158,9 +158,9 @@ object MultilineStringUtil {
     case _ => false
   }
 
-  def interpolatorPrefixLength(literal: ScLiteral) = interpolatorPrefix(literal).length
+  def interpolatorPrefixLength(literal: ScLiteral): Int = interpolatorPrefix(literal).length
 
-  def interpolatorPrefix(literal: ScLiteral) = literal match {
+  def interpolatorPrefix(literal: ScLiteral): String = literal match {
     case isl: ScInterpolatedStringLiteral if isl.reference.isDefined => isl.reference.get.refName
     case _ => ""
   }
@@ -288,20 +288,20 @@ class MultilineStringSettings(project: Project) {
     }
   }
 
-  def getSmartSpaces(count: Int) = if (useTabs) {
+  def getSmartSpaces(count: Int): String = if (useTabs) {
     StringUtil.repeat("\t", count/tabSize) + StringUtil.repeat(" ", count%tabSize)
   } else {
     StringUtil.repeat(" ", count)
   }
 
-  def getSmartLength(line: String) = if (useTabs) line.length + line.count(_ == '\t')*(tabSize - 1) else line.length
+  def getSmartLength(line: String): Int = if (useTabs) line.length + line.count(_ == '\t')*(tabSize - 1) else line.length
 
-  def prefixLength(line: String) = if (useTabs) {
+  def prefixLength(line: String): Int = if (useTabs) {
     val tabsCount = line prefixLength (_ == '\t')
     tabsCount*tabSize + line.substring(tabsCount).prefixLength(_ == ' ')
   } else {
     line prefixLength (_ == ' ')
   }
 
-  def getPrefix(line: String) = getSmartSpaces(prefixLength(line))
+  def getPrefix(line: String): String = getSmartSpaces(prefixLength(line))
 }

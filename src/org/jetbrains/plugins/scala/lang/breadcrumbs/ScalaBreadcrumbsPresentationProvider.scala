@@ -29,7 +29,7 @@ object ScalaBreadcrumbsPresentationProvider {
     override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = color
   }
   
-  def getColorFor(el: PsiElement) = el match {
+  def getColorFor(el: PsiElement): Color = el match {
     case _: ScTemplateDefinition => getClassColor //Color.CYAN
     case _: ScFunction => getOtherColor //Color.GREEN
     case _: ScFunctionExpr => getOtherColor //Color.LIGHT_GRAY

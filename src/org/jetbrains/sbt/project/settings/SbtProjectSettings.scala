@@ -15,7 +15,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
 
   def jdkName: Option[String] = Option(jdk)
 
-  def jdkName_=(name: Option[String]) = jdk = name.orNull
+  def jdkName_=(name: Option[String]): Unit = jdk = name.orNull
 
   @Nullable
   @BeanProperty
@@ -37,7 +37,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var useOurOwnAutoImport: Boolean = false
 
-  override def clone() = {
+  override def clone(): SbtProjectSettings = {
     val result = new SbtProjectSettings()
     copyTo(result)
     result.jdk = jdk

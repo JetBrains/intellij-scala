@@ -15,9 +15,9 @@ import scala.beans.BeanProperty
   )
 )
 class HoconProjectSettings extends PersistentStateComponent[HoconProjectSettings] with ExportableComponent {
-  def getState = this
+  def getState: HoconProjectSettings = this
 
-  def loadState(state: HoconProjectSettings) =
+  def loadState(state: HoconProjectSettings): Unit =
     XmlSerializerUtil.copyBean(state, this)
 
   def getPresentableName = "HOCON Project Settings"
@@ -30,6 +30,6 @@ class HoconProjectSettings extends PersistentStateComponent[HoconProjectSettings
 }
 
 object HoconProjectSettings {
-  def getInstance(project: Project) =
+  def getInstance(project: Project): HoconProjectSettings =
     ServiceManager.getService(project, classOf[HoconProjectSettings])
 }

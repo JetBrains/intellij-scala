@@ -26,7 +26,7 @@ object ExistsEquals extends SimplificationType {
     }
   }
 
-  override def hint = InspectionBundle.message("exists.equals.hint")
+  override def hint: String = InspectionBundle.message("exists.equals.hint")
 
   def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression)
                                (implicit typeSystem: TypeSystem): Boolean = {

@@ -3,7 +3,7 @@ package compiler
 
 import java.awt.Point
 import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
-import javax.swing.Timer
+import javax.swing.{Icon, Timer}
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
@@ -54,7 +54,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      timer.stop()
    }
 
-   def getComponentName = getClass.getSimpleName
+   def getComponentName: String = getClass.getSimpleName
 
    def configureWidget() {
      if (ApplicationManager.getApplication.isUnitTestMode) return
@@ -103,11 +103,11 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      def dispose() {}
 
      object Presentation extends StatusBarWidget.IconPresentation {
-       def getIcon = if(running) IconRunning else IconStopped
+       def getIcon: Icon = if(running) IconRunning else IconStopped
 
        def getClickConsumer = ClickConsumer
 
-       def getTooltipText = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
+       def getTooltipText: String = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
 
        object ClickConsumer extends Consumer[MouseEvent] {
          def consume(t: MouseEvent) {
@@ -197,7 +197,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
  }
 
 object CompileServerManager {
-  def instance(project: Project) = project.getComponent(classOf[CompileServerManager])
+  def instance(project: Project): CompileServerManager = project.getComponent(classOf[CompileServerManager])
 
   def showCompileServerSettingsDialog(): Unit = {
     ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")

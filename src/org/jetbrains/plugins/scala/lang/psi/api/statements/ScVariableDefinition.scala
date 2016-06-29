@@ -19,7 +19,7 @@ trait ScVariableDefinition extends ScVariable {
 
   def bindings: Seq[ScBindingPattern]
 
-  def declaredElements = bindings
+  def declaredElements: Seq[ScBindingPattern] = bindings
 
   def expr: Option[ScExpression]
 
@@ -34,6 +34,6 @@ trait ScVariableDefinition extends ScVariable {
 
 object ScVariableDefinition {
   object expr {
-    def unapply(definition: ScVariableDefinition) = definition.expr
+    def unapply(definition: ScVariableDefinition): Option[ScExpression] = definition.expr
   }
 }

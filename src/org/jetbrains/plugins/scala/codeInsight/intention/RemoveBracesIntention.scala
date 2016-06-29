@@ -24,9 +24,9 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 class RemoveBracesIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Remove braces"
 
-  override def getText = getFamilyName
+  override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) =
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     check(project, editor, element).isDefined && IntentionAvailabilityChecker.checkIntention(this, element)
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {

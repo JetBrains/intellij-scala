@@ -51,7 +51,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
-  def fileName = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
+  def fileName: String = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
 
   def importedQualifierEvaluator(ref: ScReferenceElement, resolveResult: ScalaResolveResult): Evaluator = {
     val message = ScalaBundle.message("cannot.evaluate.imported.reference")
@@ -390,7 +390,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def classOfFunctionEvaluator(ref: ScReferenceExpression) = {
+  def classOfFunctionEvaluator(ref: ScReferenceExpression): Evaluator = {
     val clazzJVMName = ref.getContext match {
       case gen: ScGenericCall =>
         gen.arguments.head.getType(TypingContext.empty).map {
@@ -1254,7 +1254,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def valOrVarDefinitionEvaluator(pList: ScPatternList, expr: ScExpression)
-                                 (implicit typeSystem: TypeSystem) = {
+                                 (implicit typeSystem: TypeSystem): ScalaBlockExpressionEvaluator = {
     val evaluators = ArrayBuffer[Evaluator]()
     val exprEval = new ScalaCachingEvaluator(evaluatorFor(expr))
     evaluators += exprEval
@@ -1425,7 +1425,7 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def isOfPrimitiveType(param: PsiParameter) = param match { //todo specialized type parameters
+  def isOfPrimitiveType(param: PsiParameter): Boolean = param match { //todo specialized type parameters
     case p: ScParameter =>
       val tp: ScType = p.getType(TypingContext.empty).getOrAny
       isPrimitiveScType(tp)
@@ -1436,7 +1436,7 @@ object ScalaEvaluatorBuilderUtil {
     case _ => false
   }
 
-  def isPrimitiveScType(tp: ScType) = {
+  def isPrimitiveScType(tp: ScType): Boolean = {
     Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
   }
 
@@ -1488,7 +1488,7 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def isAnonfunInsideSuperCall(elem: PsiElement) = {
+  def isAnonfunInsideSuperCall(elem: PsiElement): Boolean = {
     def isInsideSuperCall(td: ScTypeDefinition) = {
       val extBlock = td.extendsBlock
       PsiTreeUtil.getParentOfType(elem, classOf[ScEarlyDefinitions], classOf[ScConstructor]) match {

@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.editor.autoimport
 
+import javax.swing.JComponent
+
 import com.intellij.application.options.editor.AutoImportOptionsProvider
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -11,7 +13,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
   private var form: ScalaAutoImportOptionsProviderForm = null
 
-  def createComponent() = {
+  def createComponent(): JComponent = {
     form = new ScalaAutoImportOptionsProviderForm()
     form.getComponent
   }

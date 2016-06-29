@@ -14,19 +14,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMatchStmt
  */
 class ScalaMatchUnwrapper extends ScalaUnwrapper {
   
-  override def isApplicableTo(e: PsiElement) = forCaseClauseInMatch(e)((_, _) => true)(false)
+  override def isApplicableTo(e: PsiElement): Boolean = forCaseClauseInMatch(e)((_, _) => true)(false)
 
-  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext) = forCaseClauseInMatch(element) { (cl, m) =>
+  override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = forCaseClauseInMatch(element) { (cl, m) =>
     context.extractBlockOrSingleStatement(cl.expr.get, m)
     context.delete(m)
   } {}
 
-  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]) = forCaseClauseInMatch[PsiElement](e) { (cl, m) =>
+  override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = forCaseClauseInMatch[PsiElement](e) { (cl, m) =>
     super.collectAffectedElements(e, toExtract)
     m
   }(e)
 
-  override def getDescription(e: PsiElement) = ScalaBundle.message("unwrap.case.clause")
+  override def getDescription(e: PsiElement): String = ScalaBundle.message("unwrap.case.clause")
 
   private def forCaseClauseInMatch[T](e: PsiElement)(ifInClause: (ScCaseClause, ScMatchStmt) => T)(ifNot: => T): T = {
     e match {

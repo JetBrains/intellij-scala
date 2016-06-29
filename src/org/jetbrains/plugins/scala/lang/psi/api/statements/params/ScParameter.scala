@@ -10,7 +10,7 @@ import javax.swing.Icon
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -39,7 +39,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def isWildcard: Boolean = "_" == name
 
-  def isVarArgs = isRepeatedParameter
+  def isVarArgs: Boolean = isRepeatedParameter
 
   def computeConstantValue = null
 
@@ -77,7 +77,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     }
   }
 
-  def getDeclarationScope = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
+  def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
 
   def deprecatedName: Option[String]
 
@@ -94,7 +94,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     clause.isImplicit
   }
 
-  def index = getParent.getParent match {
+  def index: Int = getParent.getParent match {
     case parameters: ScParameters => parameters.params.indexOf(this)
     case _ => getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
   }
@@ -105,7 +105,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     else res
   }
 
-  abstract override def getUseScope = {
+  abstract override def getUseScope: SearchScope = {
     val specificScope = getDeclarationScope match {
       case null => GlobalSearchScope.EMPTY_SCOPE
       case expr: ScFunctionExpr => new LocalSearchScope(expr)

@@ -15,7 +15,7 @@ class HStringManipulator extends AbstractElementManipulator[HString] {
   import org.jetbrains.plugins.hocon.lexer.HoconTokenType._
   import org.jetbrains.plugins.hocon.parser.HoconElementType._
 
-  def handleContentChange(str: HString, range: TextRange, newContent: String) = {
+  def handleContentChange(str: HString, range: TextRange, newContent: String): HString = {
     val strType = str.stringType
     val oldText = str.getText
 
@@ -42,7 +42,7 @@ class HStringManipulator extends AbstractElementManipulator[HString] {
     str
   }
 
-  override def getRangeInElement(element: HString) = element.stringType match {
+  override def getRangeInElement(element: HString): TextRange = element.stringType match {
     case UnquotedString =>
       new TextRange(0, element.getTextLength)
     case QuotedString =>

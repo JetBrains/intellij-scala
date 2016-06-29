@@ -5,9 +5,11 @@ package impl
 package statements
 package params
 
+import javax.swing.Icon
+
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
@@ -98,9 +100,9 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
 
   def owner: ScTypeParametersOwner = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
-  override def getUseScope  = new LocalSearchScope(owner).intersectWith(super.getUseScope)
+  override def getUseScope: SearchScope = new LocalSearchScope(owner).intersectWith(super.getUseScope)
 
-  def nameId = findLastChildByType(TokenSets.ID_SET)
+  def nameId: PsiElement = findLastChildByType(TokenSets.ID_SET)
 
   override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
 
@@ -132,7 +134,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
     } else super.upperTypeElement
   }
 
-  override def getIcon(flags: Int) = {
+  override def getIcon(flags: Int): Icon = {
     Icons.TYPE_ALIAS
   }
 

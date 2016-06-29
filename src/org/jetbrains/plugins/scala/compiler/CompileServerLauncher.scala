@@ -159,7 +159,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
   def port: Option[Int] = serverInstance.map(_.port)
 
-  def getComponentName = getClass.getSimpleName
+  def getComponentName: String = getClass.getSimpleName
 }
 
 object CompileServerLauncher {

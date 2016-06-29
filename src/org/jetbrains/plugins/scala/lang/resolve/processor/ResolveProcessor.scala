@@ -106,7 +106,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
 
   override def isUpdateHistory: Boolean = true
 
-  override def changedLevel = {
+  override def changedLevel: Boolean = {
     addChangedLevelToHistory()
 
     def update: Boolean = {
@@ -226,7 +226,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   }
 
   object ScalaNameHint extends NameHint {
-    def getName(state: ResolveState) = {
+    def getName(state: ResolveState): String = {
       val stateName = state.get(ResolverEnv.nameKey)
       if (stateName == null) name else stateName
     }

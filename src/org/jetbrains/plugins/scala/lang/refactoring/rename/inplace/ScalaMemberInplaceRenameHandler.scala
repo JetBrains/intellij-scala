@@ -24,7 +24,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
   }
 
 
-  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) = {
+  override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext): Unit = {
     UsageTrigger.trigger(ScalaBundle.message("rename.member.id"))
     super.invoke(project, editor, file, dataContext)
   }

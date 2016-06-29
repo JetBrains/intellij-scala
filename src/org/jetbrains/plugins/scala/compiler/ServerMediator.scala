@@ -129,7 +129,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
     result
   }
 
-  def getComponentName = getClass.getSimpleName
+  def getComponentName: String = getClass.getSimpleName
 
   def initComponent() {}
 

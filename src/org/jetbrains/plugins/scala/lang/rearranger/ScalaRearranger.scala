@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.rearranger
 
+import java.util
+
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Pair, TextRange}
@@ -43,7 +45,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
   }
 
   override def parse(root: PsiElement, document: Document,
-                              ranges: java.util.Collection[TextRange], settings: ArrangementSettings) = {
+                              ranges: java.util.Collection[TextRange], settings: ArrangementSettings): util.List[ScalaArrangementEntry] = {
     UsageTrigger.trigger(ScalaRearranger.featureId)
     val info = new ScalaArrangementParseInfo
     root.accept(new ScalaArrangementVisitor(info, document, ranges, getGroupingRules(settings)))
@@ -90,23 +92,23 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     result
   }
 
-  override def getDefaultSettings = ScalaRearranger.defaultSettings
+  override def getDefaultSettings: StdArrangementSettings = ScalaRearranger.defaultSettings
 
   override def getSerializer = ScalaRearranger.SETTINGS_SERIALIZER
 
-  override def getSupportedGroupingTokens =
+  override def getSupportedGroupingTokens: util.List[CompositeArrangementSettingsToken] =
     seqAsJavaList(immutable.List(new CompositeArrangementSettingsToken(DEPENDENT_METHODS, BREADTH_FIRST, DEPTH_FIRST),
       new CompositeArrangementSettingsToken(JAVA_GETTERS_AND_SETTERS),
       new CompositeArrangementSettingsToken(SCALA_GETTERS_AND_SETTERS),
       new CompositeArrangementSettingsToken(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS)
     ))
 
-  override def getSupportedMatchingTokens =
+  override def getSupportedMatchingTokens: util.List[CompositeArrangementSettingsToken] =
     seqAsJavaList(immutable.List(new CompositeArrangementSettingsToken(General.TYPE,
       scalaTypesValues.toList), new CompositeArrangementSettingsToken(General.MODIFIER, scalaModifiers.toList),
       new CompositeArrangementSettingsToken(General.ORDER, Order.KEEP, Order.BY_NAME)))
 
-  override def isEnabled(token: ArrangementSettingsToken, current: ArrangementMatchCondition) =
+  override def isEnabled(token: ArrangementSettingsToken, current: ArrangementMatchCondition): Boolean =
     (scalaTypesValues.contains(token) || supportedOrders.contains(token)) ||
             (if (current != null) {
               val tokenType = ArrangementUtil.parseType(current)
@@ -121,7 +123,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
 
   override def buildMatcher(condition: ArrangementMatchCondition) = throw new IllegalArgumentException("Can't build a matcher for condition " + condition)
 
-  override def getMutexes = seqAsJavaList(immutable.List(scalaAccessModifiersValues, scalaTypesValues))
+  override def getMutexes: util.List[util.Set[ArrangementSettingsToken]] = seqAsJavaList(immutable.List(scalaAccessModifiersValues, scalaTypesValues))
 
   private def setupUtilityMethods(info: ScalaArrangementParseInfo, orderType: ArrangementSettingsToken) {
     if (DEPTH_FIRST == orderType) {

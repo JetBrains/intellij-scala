@@ -67,7 +67,7 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
 
   def getName: String = StringRef.toString(name)
 
-  def isDeclaration = declaration
+  def isDeclaration: Boolean = declaration
 
   def getAnnotations: Array[String] = annotations.map(StringRef.toString)
 

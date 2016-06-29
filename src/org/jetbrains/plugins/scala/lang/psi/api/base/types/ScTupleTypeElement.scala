@@ -12,11 +12,11 @@ package types
 trait ScTupleTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "TupleType"
 
-  def typeList = findChildByClassScala(classOf[ScTypes])
+  def typeList: ScTypes = findChildByClassScala(classOf[ScTypes])
 
-  def components = typeList.types
+  def components: Seq[ScTypeElement] = typeList.types
 
-  override def desugarizedText = {
+  override def desugarizedText: String = {
     val componentsTexts = components.map(_.getText)
     s"_root_.scala.Tuple${componentsTexts.length}${componentsTexts.mkString("[", ",", "]")}"
   }

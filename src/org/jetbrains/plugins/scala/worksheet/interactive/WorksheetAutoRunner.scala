@@ -33,7 +33,7 @@ object WorksheetAutoRunner extends WorksheetPerFileConfig {
     setEnabled(file, AUTORUN, autorun)
   }
 
-  def getInstance(project: Project) = project.getComponent(classOf[WorksheetAutoRunner])
+  def getInstance(project: Project): WorksheetAutoRunner = project.getComponent(classOf[WorksheetAutoRunner])
 }
 
 class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends ProjectComponent {
@@ -51,7 +51,7 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
 
   override def getComponentName: String = "WorksheetAutoRunner"
 
-  def getAutoRunDelay = ScalaProjectSettings.getInstance(project).getAutoRunDelay
+  def getAutoRunDelay: Int = ScalaProjectSettings.getInstance(project).getAutoRunDelay
   
   def addListener(document: Document) {
     if (listeners.get(document) == null) {

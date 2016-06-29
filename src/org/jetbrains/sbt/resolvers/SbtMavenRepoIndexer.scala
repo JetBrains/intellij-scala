@@ -77,11 +77,11 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
 
   private def updateLocal(progressIndicator: Option[ProgressIndicator]) {
     val scannerListener = new ArtifactScanningListener {
-      override def scanningStarted(p1: IndexingContext) = progressIndicator foreach { indicator =>
+      override def scanningStarted(p1: IndexingContext): Unit = progressIndicator foreach { indicator =>
         indicator.setText2(SbtBundle("sbt.resolverIndexer.progress.scanning"))
         indicator.setFraction(0.0)
       }
-      override def scanningFinished(p1: IndexingContext, p2: ScanningResult) =
+      override def scanningFinished(p1: IndexingContext, p2: ScanningResult): Unit =
         progressIndicator foreach { _.setFraction(0.5) }
       override def artifactError(p1: ArtifactContext, p2: Exception) {}
       override def artifactDiscovered(p1: ArtifactContext): Unit =
@@ -111,13 +111,13 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
   private def updateRemote(progressIndicator: Option[ProgressIndicator]) {
     val transferListener = new AbstractTransferListener {
       var downloadedBytes = 0
-      override def transferProgress(evt: TransferEvent, bytes: Array[Byte], length: Int) =
+      override def transferProgress(evt: TransferEvent, bytes: Array[Byte], length: Int): Unit =
         progressIndicator foreach { indicator =>
           downloadedBytes += length
           val done = (downloadedBytes.toFloat / evt.getResource.getContentLength) / 2.0
           indicator.setFraction(done)
         }
-      override def transferStarted(evt: TransferEvent) =
+      override def transferStarted(evt: TransferEvent): Unit =
         progressIndicator foreach { indicator =>
           indicator.setText2(SbtBundle("sbt.resolverIndexer.progress.downloading"))
           indicator.setFraction(0.0)

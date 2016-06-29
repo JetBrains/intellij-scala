@@ -115,7 +115,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           val group = FoldingGroup.newGroup("typelambda")
           val range1 = new TextRange(nodeTextRange.getStartOffset, typeParamClause.getTextRange.getStartOffset)
           val d1 = new FoldingDescriptor(node, range1, group) {
-            override def getPlaceholderText = typeName
+            override def getPlaceholderText: String = typeName
           }
           val range2 = new TextRange(aliasedType.getTextRange.getEndOffset, nodeTextRange.getEndOffset)
           val d2 = new FoldingDescriptor(aliasedType.getNode, range2, group) {

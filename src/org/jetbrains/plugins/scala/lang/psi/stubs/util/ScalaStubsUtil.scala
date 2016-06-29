@@ -104,7 +104,7 @@ object ScalaStubsUtil {
       }
       processClass(clazz)
       ClassInheritorsSearch.search(clazz, scope, true).forEach(new Processor[PsiClass] {
-        def process(t: PsiClass) = {
+        def process(t: PsiClass): Boolean = {
           processClass(t)
           true
         }
@@ -123,7 +123,7 @@ object ScalaStubsUtil {
     dataStream.writeName(stub.getFileName)
   }
   
-  def deserializeFileStubElement(dataStream: StubInputStream, parentStub: Object) = {
+  def deserializeFileStubElement(dataStream: StubInputStream, parentStub: Object): ScFileStubImpl = {
     val script = dataStream.readBoolean
     val compiled = dataStream.readBoolean
     val packName = dataStream.readName

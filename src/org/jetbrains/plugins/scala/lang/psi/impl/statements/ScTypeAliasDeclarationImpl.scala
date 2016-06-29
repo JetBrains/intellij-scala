@@ -4,6 +4,8 @@ package psi
 package impl
 package statements
 
+import javax.swing.Icon
+
 import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
@@ -18,8 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -39,19 +42,19 @@ class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeTy
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
-  def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
+  def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
     case n => n
   }
   
   override def toString: String = "ScTypeAliasDeclaration: " + name
 
-  def lowerBound = lowerTypeElement match {
+  def lowerBound: TypeResult[ScType] = lowerTypeElement match {
       case Some(te) => te.getType(TypingContext.empty)
       case None => Success(Nothing, Some(this))
   }
 
-  def upperBound = upperTypeElement match {
+  def upperBound: TypeResult[ScType] = upperTypeElement match {
       case Some(te) => te.getType(TypingContext.empty)
       case None => Success(Any, Some(this))
   }
@@ -92,7 +95,7 @@ class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeTy
       def getPresentableText: String = name
       def getTextAttributesKey: TextAttributesKey = null
       def getLocationString: String = "(" + ScTypeAliasDeclarationImpl.this.containingClass.qualifiedName + ")"
-      override def getIcon(open: Boolean) = ScTypeAliasDeclarationImpl.this.getIcon(0)
+      override def getIcon(open: Boolean): Icon = ScTypeAliasDeclarationImpl.this.getIcon(0)
     }
   }
 

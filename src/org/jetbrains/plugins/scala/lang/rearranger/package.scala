@@ -110,11 +110,11 @@ package object rearranger {
           VAR -> (commonModifiers + OVERRIDE), MACRO -> (commonModifiers + OVERRIDE),
           CONSTRUCTOR -> scalaAccessModifiersValues, OBJECT -> commonModifiers)
 
-  def getModifierByName(modifierName: String) = {
+  def getModifierByName(modifierName: String): Option[ArrangementSettingsToken] = {
     scalaModifiersByName.get(modifierName)
   }
 
-  def getTokenById(modifierId: String) = {
+  def getTokenById(modifierId: String): Option[ArrangementSettingsToken] = {
     scalaTokensById.get(modifierId)
   }
 

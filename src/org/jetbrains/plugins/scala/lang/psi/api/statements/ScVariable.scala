@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingCont
 trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder
                   with ScAnnotationsHolder with ScCommentOwner with ScModifiableTypedDeclaration {
   self =>
-  def varKeyword = findChildrenByType(ScalaTokenTypes.kVAR).apply(0)
+  def varKeyword: PsiElement = findChildrenByType(ScalaTokenTypes.kVAR).apply(0)
 
   def declaredElements: Seq[ScTypedDefinition]
 
@@ -59,7 +59,7 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
 
   def getVarToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAR)
 
-  override def isDeprecated =
+  override def isDeprecated: Boolean =
     hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
 
   override def modifiableReturnType: Option[ScType] = getType(TypingContext.empty).toOption

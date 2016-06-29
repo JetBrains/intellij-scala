@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
   */
 class DottyParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   with ScParameterizedTypeElement with DottyDesugarizableTypeElement {
-  override def desugarizedText = {
+  override def desugarizedText: String = {
     val designatorText = typeElement.getText
 
     val arguments = typeArgList.typeArgs.map {

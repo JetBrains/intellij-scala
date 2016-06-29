@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package project.template
 
 import java.util
+import javax.swing.JComponent
 
 import com.intellij.facet.impl.ui.libraries.{LibraryCompositionSettings, LibraryOptionsPanel}
 import com.intellij.framework.library.FrameworkLibraryVersionFilter
@@ -47,7 +48,7 @@ class ScalaModuleBuilder(languageName: String, libraryDescription: CustomLibrary
       javaStep.updateDataModel()
     }
 
-    override def getComponent = libraryPanel.getMainPanel
+    override def getComponent: JComponent = libraryPanel.getMainPanel
 
     override def disposeUIResources() {
       super.disposeUIResources()
@@ -55,6 +56,6 @@ class ScalaModuleBuilder(languageName: String, libraryDescription: CustomLibrary
       Disposer.dispose(libraryPanel)
     }
 
-    override def validate = super.validate && (javaStep == null || javaStep.validate)
+    override def validate: Boolean = super.validate && (javaStep == null || javaStep.validate)
   }
 }

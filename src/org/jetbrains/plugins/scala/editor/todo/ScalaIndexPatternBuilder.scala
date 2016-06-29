@@ -30,7 +30,7 @@ class ScalaIndexPatternBuilder extends IndexPatternBuilder {
 
   def getCommentStartDelta(tokenType: IElementType) = 0
 
-  def getCommentEndDelta(tokenType: IElementType) = tokenType match {
+  def getCommentEndDelta(tokenType: IElementType): Int = tokenType match {
     case ScalaTokenTypes.tBLOCK_COMMENT => 2
     case ScalaDocElementTypes.SCALA_DOC_COMMENT => 2
     case _ => 0

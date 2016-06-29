@@ -38,9 +38,9 @@ object ReachingDefinitions {
   object ReachingDefinitionsLattice extends Semilattice[RDSet] {
     val bottom: RDSet = Set()
 
-    def join(ins: Iterable[RDSet]) = ins.foldLeft(bottom)(_ ++ _)
+    def join(ins: Iterable[RDSet]): RDSet = ins.foldLeft(bottom)(_ ++ _)
 
-    def eq(e1: RDSet, e2: RDSet) = e1 == e2 // todo is this correct?
+    def eq(e1: RDSet, e2: RDSet): Boolean = e1 == e2 // todo is this correct?
   }
 
 }

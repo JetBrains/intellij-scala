@@ -29,7 +29,7 @@ object WorksheetDiffSplitters {
   private val COLOR2 = Color.LIGHT_GRAY
 
   def createSimpleSplitter(originalEditor: Editor, viewerEditor: Editor,
-                           intervals: Iterable[(Int, Int)], changes: Iterable[(Int, Int)], prop: Float) = {
+                           intervals: Iterable[(Int, Int)], changes: Iterable[(Int, Int)], prop: Float): SimpleWorksheetSplitter = {
     new SimpleWorksheetSplitter(originalEditor, viewerEditor, intervals, changes, prop)
   }
 
@@ -39,7 +39,7 @@ object WorksheetDiffSplitters {
 
     private lazy val lineBlocks = createLineBlocks(originalEditor.getDocument, viewerEditor.getDocument, originalEditor.getProject)
 
-    override def getEditor(side: FragmentSide) = side match {
+    override def getEditor(side: FragmentSide): Editor = side match {
       case FragmentSide.SIDE1 => left.get()
       case FragmentSide.SIDE2 => right.get()
     }
@@ -81,11 +81,11 @@ object WorksheetDiffSplitters {
       override def visibleAreaChanged(e: VisibleAreaEvent): Unit = redrawDiffs()
     }
 
-    def getIntervals = intervals
+    def getIntervals: Iterable[(Int, Int)] = intervals
 
-    def getChanges = changes
+    def getChanges: Iterable[(Int, Int)] = changes
 
-    def update(newIntervals: Iterable[(Int, Int)], newChanges: Iterable[(Int, Int)]) = {
+    def update(newIntervals: Iterable[(Int, Int)], newChanges: Iterable[(Int, Int)]): Unit = {
       intervals = newIntervals
       changes = newChanges
       redrawDiffs()

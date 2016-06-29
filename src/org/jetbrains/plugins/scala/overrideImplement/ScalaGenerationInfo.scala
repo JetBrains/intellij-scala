@@ -83,7 +83,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
 }
 
 object ScalaGenerationInfo {
-  def defaultValue(returnType: ScType, file: PsiFile) = {
+  def defaultValue(returnType: ScType, file: PsiFile): String = {
     val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
 
     if (file.scalaLanguageLevel.exists(_ < Scala_2_10)) standardValue else "???"
@@ -205,7 +205,7 @@ object ScalaGenerationInfo {
     added.asInstanceOf[ScFunction]
   }
 
-  def toAddOverrideToImplemented =
+  def toAddOverrideToImplemented: Boolean =
     if (ApplicationManager.getApplication.isUnitTestMode) false
     else ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED
 

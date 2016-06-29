@@ -16,7 +16,7 @@ case class DottyRefinedType(designator: ScType,
 
   override protected def substitutorInner = ScSubstitutor.empty
 
-  override def visitType(visitor: TypeVisitor) = visitor match {
+  override def visitType(visitor: TypeVisitor): Unit = visitor match {
     case dottyVisitor: DottyTypeVisitor => dottyVisitor.visitRefinedType(this)
     case _ =>
   }

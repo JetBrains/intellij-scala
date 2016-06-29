@@ -32,7 +32,7 @@ import scala.collection.mutable.ArrayBuilder
 class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTagValue with ScDocReferenceElement {
   def nameId: PsiElement = this
 
-  override def getName = getText
+  override def getName: String = getText
 
   def qualifier: Option[ScalaPsiElement] = None
 
@@ -45,7 +45,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       ScalaNamesUtil.equivalent(a.name, refName)).
             map(new ScalaResolveResult(_))
 
-  override def toString = "ScalaDocTagValue: " + getText
+  override def toString: String = "ScalaDocTagValue: " + getText
 
   def getValue: String = getText
 
@@ -61,7 +61,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   override  def getCanonicalText: String = if (getFirstChild == null) null else getFirstChild.getText
 
-  override def isReferenceTo(element: PsiElement) = {
+  override def isReferenceTo(element: PsiElement): Boolean = {
     if (resolve() == null || resolve() != element) false else true
   }
 

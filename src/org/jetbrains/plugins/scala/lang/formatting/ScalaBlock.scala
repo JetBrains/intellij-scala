@@ -37,25 +37,25 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
 
   protected var mySubBlocks: util.List[Block] = null
 
-  override def getNode = myNode
+  override def getNode: ASTNode = myNode
 
-  def getSettings = mySettings
+  def getSettings: CodeStyleSettings = mySettings
 
-  def getCommonSettings = mySettings.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+  def getCommonSettings: CommonCodeStyleSettings = mySettings.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
 
-  def getTextRange =
+  def getTextRange: TextRange =
     if (myLastNode == null) myNode.getTextRange
     else new TextRange(myNode.getTextRange.getStartOffset, myLastNode.getTextRange.getEndOffset)
 
-  def getIndent = myIndent
+  def getIndent: Indent = myIndent
 
-  def getWrap = myWrap
+  def getWrap: Wrap = myWrap
 
-  def getAlignment = myAlignment
+  def getAlignment: Alignment = myAlignment
 
-  def isLeaf = isLeaf(myNode)
+  def isLeaf: Boolean = isLeaf(myNode)
 
-  def isIncomplete = isIncomplete(myNode)
+  def isIncomplete: Boolean = isIncomplete(myNode)
 
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
@@ -142,7 +142,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     owner != null && (owner.isInstanceOf[ScPrimaryConstructor] || owner.isInstanceOf[ScFunction])
   }
 
-  def getSpacing(child1: Block, child2: Block) = {
+  def getSpacing(child1: Block, child2: Block): Spacing = {
     ScalaSpacingProcessor.getSpacing(child1.asInstanceOf[ScalaBlock], child2.asInstanceOf[ScalaBlock])
   }
 
@@ -188,7 +188,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     _suggestedWrap
   }
 
-  def getChildBlockLastNode(childNode: ASTNode) = subBlocksContext.flatMap(_.childrenAdditionalContexts.get(childNode)).
+  def getChildBlockLastNode(childNode: ASTNode): ASTNode = subBlocksContext.flatMap(_.childrenAdditionalContexts.get(childNode)).
     map(_.getLastNode(childNode)).orNull
 
   def getCustomAlignment(childNode: ASTNode): Option[Alignment] = subBlocksContext

@@ -20,7 +20,7 @@ trait ScWhileStmt extends ScExpression {
 
   def getRightParenthesis : Option[PsiElement]
 
-  override def accept(visitor: ScalaElementVisitor) = visitor.visitWhileStatement(this)
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitWhileStatement(this)
 }
 
 object ScWhileStmt {

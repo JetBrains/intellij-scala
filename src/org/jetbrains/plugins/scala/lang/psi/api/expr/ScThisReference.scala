@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 */
 
 trait ScThisReference extends ScExpression with ScPathElement {
-  def reference = findChild(classOf[ScStableCodeReferenceElement])
+  def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
 
   def refTemplate : Option[ScTemplateDefinition]
 }

@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
   * @author yole
   */
 class ScalaSemicolonSelectioner extends ExtendWordSelectionHandlerBase {
-  def canSelect(e: PsiElement) = e.isInstanceOf[ScBlockStatement]
+  def canSelect(e: PsiElement): Boolean = e.isInstanceOf[ScBlockStatement]
 
-  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor) = {
+  override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): util.ArrayList[TextRange] = {
     val treeNext: ASTNode = e.getNode.getTreeNext
     val result = new util.ArrayList[TextRange]
     if (treeNext != null && treeNext.getElementType == ScalaTokenTypes.tSEMICOLON) {

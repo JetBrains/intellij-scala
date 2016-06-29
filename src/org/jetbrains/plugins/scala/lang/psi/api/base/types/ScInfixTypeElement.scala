@@ -11,9 +11,9 @@ package types
 */
 
 trait ScInfixTypeElement extends ScTypeElement {
-  def leftTypeElement = findChildByClassScala(classOf[ScTypeElement])
+  def leftTypeElement: ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def rightTypeElement = findChildrenByClassScala(classOf[ScTypeElement]) match {
+  def rightTypeElement: Option[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]) match {
     case Array(_, right) => Some(right)
     case _ => None
   }
@@ -22,7 +22,7 @@ trait ScInfixTypeElement extends ScTypeElement {
 trait ScReferenceableInfixTypeElement extends ScInfixTypeElement with ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "InfixType"
 
-  def reference = findChildByClassScala(classOf[ScStableCodeReferenceElement])
+  def reference: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 
   override def desugarizedText = s"${reference.getText}[${leftTypeElement.getText}, ${rightTypeElement.map(_.getText).getOrElse("Nothing")}]"
 }

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
@@ -69,12 +69,12 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     findChild(classOf[ScPrimaryConstructor])
   }
 
-  def parameters = constructor match {
+  def parameters: Seq[ScClassParameter] = constructor match {
     case Some(c) => c.effectiveParameterClauses.flatMap(_.unsafeClassParameters)
     case None => Seq.empty
   }
 
-  override def members = constructor match {
+  override def members: Seq[ScMember] = constructor match {
     case Some(c) => super.members ++ Seq(c)
     case _ => super.members
   }

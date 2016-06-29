@@ -73,7 +73,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
   override def toString: String =
     s"ScSubstitutor($tvMap, $aliasesMap, $updateThisType)${ if (follower != null) " >> " + follower.toString else "" }"
 
-  def bindT(name : (String, PsiElement), t: ScType) = {
+  def bindT(name : (String, PsiElement), t: ScType): ScSubstitutor = {
     val res = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
     res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
@@ -81,7 +81,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
     res
   }
 
-  def bindA(name: String, f: () => ScType) = {
+  def bindA(name: String, f: () => ScType): ScSubstitutor = {
     val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension(f))), updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
     res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined

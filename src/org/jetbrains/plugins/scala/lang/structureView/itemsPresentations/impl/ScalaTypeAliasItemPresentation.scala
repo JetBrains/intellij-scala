@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
  */
  
 class ScalaTypeAliasItemPresentation(private val element: ScTypeAlias, isInherited: Boolean) extends ScalaItemPresentation(element) {
-  def getPresentableText = ScalaElementPresentation.getTypeAliasPresentableText(myElement.asInstanceOf[ScTypeAlias])
+  def getPresentableText: String = ScalaElementPresentation.getTypeAliasPresentableText(myElement.asInstanceOf[ScTypeAlias])
 
   override def getTextAttributesKey: TextAttributesKey = {
     if (isInherited) CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES else null

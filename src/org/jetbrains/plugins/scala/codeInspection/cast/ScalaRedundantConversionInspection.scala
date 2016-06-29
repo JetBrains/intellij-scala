@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
  */
 
 class ScalaRedundantConversionInspection extends AbstractInspection("Redundant conversion") {
-  def actionFor(holder: ProblemsHolder) = {
+  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case element @ ScReferenceExpression.withQualifier(qualifier) && PsiReferenceEx.resolve(target) =>
       process(element, qualifier, target, qualifier.getTextLength, holder)
     case element @ ScPostfixExpr(operand, operator @ PsiReferenceEx.resolve(target)) =>

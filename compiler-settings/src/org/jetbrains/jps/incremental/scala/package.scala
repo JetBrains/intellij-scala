@@ -33,7 +33,7 @@ package object scala {
   implicit def toRightBiasedEither[A, B](either: Either[A, B]): Either.RightProjection[A, B] = either.right
 
   implicit class PipedObject[T](val v: T) extends AnyVal {
-    def |>[R](f: T => R) = f(v)
+    def |>[R](f: T => R): R = f(v)
   }
 
   def readProperty(classLoader: ClassLoader, resource: String, name: String): Option[String] = {

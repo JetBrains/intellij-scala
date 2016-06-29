@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Use Infix Type Syntax"
 
-  override def getText = getFamilyName
+  override def getText: String = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = {
+  def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
       case Parent(Both(ref: ScStableCodeReferenceElement, Parent(Parent(param: ScParameterizedTypeElement))))
        if param.typeArgList.typeArgs.size == 2 && !ref.refName.forall(_.isLetterOrDigit)  => true

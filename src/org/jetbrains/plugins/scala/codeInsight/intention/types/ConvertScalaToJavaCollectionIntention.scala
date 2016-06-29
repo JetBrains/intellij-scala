@@ -21,12 +21,12 @@ class ConvertScalaToJavaCollectionIntention extends BaseJavaConvertersIntention(
 
   val alreadyConvertedPrefixes: Set[String] = Set("java.")
 
-  override def getText = ScalaBundle.message("convert.scala.to.java.collection.hint")
+  override def getText: String = ScalaBundle.message("convert.scala.to.java.collection.hint")
 
-  def getFamilyName = ConvertScalaToJavaCollectionIntention.getFamilyName
+  def getFamilyName: String = ConvertScalaToJavaCollectionIntention.getFamilyName
 
 }
 
 object ConvertScalaToJavaCollectionIntention {
-  def getFamilyName = ScalaBundle.message("convert.scala.to.java.collection.name")
+  def getFamilyName: String = ScalaBundle.message("convert.scala.to.java.collection.name")
 }

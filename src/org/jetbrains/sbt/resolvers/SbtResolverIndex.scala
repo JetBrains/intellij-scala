@@ -78,13 +78,13 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
     groupArtifactToVersionMap.close()
   }
 
-  def groups() = Option(groupToArtifactMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
-  def groups(artifact: String) = artifactToGroupMap.getOrEmpty(artifact)
+  def groups(): Set[String] = Option(groupToArtifactMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
+  def groups(artifact: String): Set[String] = artifactToGroupMap.getOrEmpty(artifact)
 
-  def artifacts() = Option(artifactToGroupMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
-  def artifacts(group: String) = groupToArtifactMap.getOrEmpty(group)
+  def artifacts(): Set[String] = Option(artifactToGroupMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
+  def artifacts(group: String): Set[String] = groupToArtifactMap.getOrEmpty(group)
 
-  def versions(group: String, artifact: String) =
+  def versions(group: String, artifact: String): Set[String] =
     groupArtifactToVersionMap.getOrEmpty(SbtResolverUtils.joinGroupArtifact(group, artifact))
 
   def isLocal: Boolean = kind == SbtResolver.Kind.Ivy || root.startsWith("file:")
@@ -126,13 +126,13 @@ object SbtResolverIndex {
     val KIND = "kind"
   }
 
-  def create(kind: SbtResolver.Kind.Value, root: String, indexDir: File) = {
+  def create(kind: SbtResolver.Kind.Value, root: String, indexDir: File): SbtResolverIndex = {
     val index = new SbtResolverIndex(kind, root, NO_TIMESTAMP, indexDir)
     index.store()
     index
   }
 
-  def load(indexDir: File) = {
+  def load(indexDir: File): SbtResolverIndex = {
     val propFile = indexDir / Paths.PROPERTIES_FILE
     val props = new Properties()
 

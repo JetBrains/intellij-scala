@@ -20,7 +20,7 @@ object SplitIfIntention {
 }
 
 class SplitIfIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = SplitIfIntention.familyName
+  def getFamilyName: String = SplitIfIntention.familyName
 
   override def getText: String = "Split into 2 'if's"
 

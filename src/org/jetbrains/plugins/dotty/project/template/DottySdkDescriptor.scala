@@ -29,7 +29,7 @@ case class DottySdkDescriptor(version: Option[Version],
     properties
   }
 
-  def mainDottyJar = compilerFiles.find { f =>
+  def mainDottyJar: Option[File] = compilerFiles.find { f =>
     val fileName = f.getName
     fileName.startsWith("dotty") && !fileName.startsWith(DottyArtifact.Interfaces.prefix)
   }
