@@ -852,5 +852,44 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testJavaTypeParameterRaw(): Unit = {
+    val scala =
+      """
+        |object Moo {
+        |  def main(args: Array[String]): Unit = {
+        |    val stub = new Stub[PsiElement]
+        |    val first = stub.getChildren.get(0)
+        |    val psi: PsiElement = first.getPsi
+        |  }
+        |}
+      """.stripMargin
+    val java =
+      """
+        |import java.util.List;
+        |
+        |public class Stub<T extends PsiElement> {
+        |    public List<Stub> getChildren() {
+        |        return null;
+        |    }
+        |    public T getPsi() {
+        |        return null;
+        |    }
+        |}
+        |
+        |class PsiElement {}
+        |
+        |class BaseComponent {}
+        |
+        |interface ComponentManager {
+        |    BaseComponent getComponent(String var1);
+        |
+        |    <T> T getComponent(Class<T> var1);
+        |
+        |    <T> T getComponent(Class<T> var1, T var2);
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }
 
