@@ -199,7 +199,6 @@ trait OverridingAnnotator {
                 case cp: ScClassParameter if cp.isVal => annotVal()
                 case cp: ScClassParameter if cp.isVar => annotVar()
                 case f: ScFieldId if f.isVal => annotVal()
-                case f: ScFieldId if f.isVar => annotVar()
                 case _ =>
               }
             case _ =>
