@@ -119,7 +119,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         val refTypes = param.getExtendsList.getReferencedTypes
         if (refTypes.nonEmpty) {
           paramText = paramText + refTypes.map((typez: PsiType) => {
-            substitutor.subst(typez.toScType(param.getProject)).presentableText
+            substitutor.subst(typez.toScType()(param.typeSystem)).presentableText
           }).mkString(" <: ", " with ", "")
         }
         if (isBold) "<b>" + paramText + "</b>" else paramText

@@ -78,18 +78,18 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
           case (sign: PhysicalSignature, i: Int) =>
             //i  can be -1 (it's update method)
             val methodName = sign.method.name
+            implicit val typeSystem = sign.typeSystem
 
             val subst = sign.substitutor
             val returnType = sign.method match {
               case function: ScFunction => subst.subst(function.returnType.getOrAny)
-              case method: PsiMethod => subst.subst(method.getReturnType.toScType(method.getProject))
+              case method: PsiMethod => subst.subst(method.getReturnType.toScType())
             }
 
             val oneArgCaseClassMethod: Boolean = sign.method match {
               case function: ScFunction => ScPattern.isOneArgCaseClassMethod(function)
               case _ => false
             }
-            import sign.typeSystem
             val params = ScPattern.extractorParameters(returnType, args, oneArgCaseClassMethod).zipWithIndex
 
             if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))

@@ -61,6 +61,8 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
 
   private def addSuperCallCompletions(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
     val position = positionFromParameters(parameters)
+    implicit val typeSystem = position.typeSystem
+
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
     val call = PsiTreeUtil.getContextOfType(position, classOf[ScMethodCall])
@@ -82,9 +84,8 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                   else Seq.empty
                 case ScalaResolveResult(method: PsiMethod, subst) =>
                   if (index != 0) Seq.empty
-                  else method.getParameterList.getParameters.toSeq.map {
-                    case p: PsiParameter =>
-                      (p.name, subst.subst(p.getType.toScType(position.getProject, position.getResolveScope)))
+                  else method.getParameterList.getParameters.toSeq.map { p =>
+                    (p.name, subst.subst(p.getType.toScType()))
                   }
                 case _ => Seq.empty
               }.filter(_.length > 1)
@@ -130,7 +131,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                     if (index != 0) Seq.empty
                     else c.getParameterList.getParameters.toSeq.map {
                       case p: PsiParameter =>
-                        (p.name, subst.subst(p.getType.toScType(typeElement.getProject, typeElement.getResolveScope)))
+                        (p.name, subst.subst(p.getType.toScType()))
                     }
                 }.filter(_.length > 1)
               case _ => Seq.empty

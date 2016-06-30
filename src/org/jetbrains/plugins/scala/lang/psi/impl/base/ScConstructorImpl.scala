@@ -160,7 +160,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
               val params = clazz.getMethods.flatMap {
                 case p: PsiAnnotationMethod =>
-                  val paramType = subst.subst(p.getReturnType.toScType(getProject, getResolveScope))
+                  val paramType = subst.subst(p.getReturnType.toScType())
                   Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
                 case _ => Seq.empty
               }

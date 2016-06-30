@@ -20,13 +20,8 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
     *                             See SCL-3036 and SCL-2375
     */
-  def toScType(`type`: PsiType,
-               project: Project,
-               scope: GlobalSearchScope = null,
-               visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
-               paramTopLevel: Boolean = false,
-               treatJavaObjectAsAny: Boolean = true): ScType = `type` match {
-    case arrayType: PsiArrayType => JavaArrayType(toScType(arrayType.getComponentType, project, scope))
+  def toScType(`type`: PsiType, visitedRawTypes: HashSet[PsiClass] = HashSet.empty, paramTopLevel: Boolean = false, treatJavaObjectAsAny: Boolean = true): ScType = `type` match {
+    case arrayType: PsiArrayType => JavaArrayType(toScType(arrayType.getComponentType))
     case PsiType.VOID => Unit
     case PsiType.BOOLEAN => Boolean
     case PsiType.CHAR => Char
@@ -43,7 +38,7 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
       if (types.isEmpty) {
         if (paramTopLevel && treatJavaObjectAsAny) Any else AnyRef
       } else {
-        toScType(types.get(0), project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+        toScType(types.get(0), visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
       }
     case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
   }

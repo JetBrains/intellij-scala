@@ -12,7 +12,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
@@ -196,7 +195,7 @@ package object extensions {
     def typeSystem: TypeSystem = repr.getProject.typeSystem
 
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
-      def lift: PsiType => Option[ScType] = _.toScType(repr.getProject, repr.getResolveScope).toOption
+      def lift: PsiType => Option[ScType] = _.toScType()(typeSystem).toOption
 
       (repr match {
         case e: ScPrimaryConstructor => None
@@ -221,13 +220,9 @@ package object extensions {
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
-    def toScType(project: Project,
-                 scope: GlobalSearchScope = null,
-                 visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
-                 paramTopLevel: Boolean = false,
-                 treatJavaObjectAsAny: Boolean = true): ScType = {
-      project.typeSystem.bridge.toScType(`type`, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
-    }
+    def toScType(visitedRawTypes: HashSet[PsiClass] = HashSet.empty, paramTopLevel: Boolean = false, treatJavaObjectAsAny: Boolean = true)
+                (implicit typeSystem: TypeSystem): ScType =
+      typeSystem.bridge.toScType(`type`, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
   }
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {
@@ -560,7 +555,7 @@ package object extensions {
       param match {
         case f: FakePsiParameter => f.parameter.paramType
         case param: ScParameter => param.getType(TypingContext.empty).getOrAny
-        case _ => param.getType.toScType(param.getProject, param.getResolveScope, paramTopLevel = true)
+        case _ => param.getType.toScType(paramTopLevel = true)(param.typeSystem)
       }
     }
 
@@ -573,8 +568,7 @@ package object extensions {
             case p: PsiArrayType if param.isVarArgs => p.getComponentType
             case tp => tp
           }
-          paramType.toScType(param.getProject, param.getResolveScope, paramTopLevel = true,
-            treatJavaObjectAsAny = treatJavaObjectAsAny)
+          paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)(param.typeSystem)
       }
     }
 

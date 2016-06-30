@@ -85,7 +85,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                             if (arg.upper.equiv(api.Any)) {
                               val listTypes: Array[PsiClassType] = param.getExtendsListTypes
                               if (listTypes.isEmpty) api.Any
-                              else subst.subst(listTypes.toSeq.map(_.toScType(getProject, param.getResolveScope)).glb(checkWeak = true))
+                              else subst.subst(listTypes.toSeq.map(_.toScType()).glb(checkWeak = true))
                             } else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)
                         case (tp: ScType, _) => tp

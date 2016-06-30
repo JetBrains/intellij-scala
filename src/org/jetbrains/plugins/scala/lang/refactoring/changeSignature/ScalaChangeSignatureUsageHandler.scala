@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ListBuffer
 
@@ -32,7 +33,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
   protected def handleChangedName(change: ChangeInfo, usage: UsageInfo): Unit = {
     if (!change.isNameChanged) return
-    
+
     val nameId = usage match {
       case ScalaNamedElementUsageInfo(scUsage) => scUsage.namedElement.nameId
       case MethodCallUsageInfo(ref, _) => ref.nameId
@@ -399,6 +400,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
   private def parameterListText(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): String = {
     val project = change.getMethod.getProject
+    implicit val typeSystem = project.typeSystem
 
     def paramType(paramInfo: ParameterInfo) = {
       val method = change.getMethod
@@ -410,7 +412,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           `=> ` + text + `*`
         case jInfo: JavaParameterInfo =>
           val javaType = jInfo.createType(method, method.getManager)
-          val scType = UsageUtil.substitutor(usage).subst(javaType.toScType(method.getProject))
+          val scType = UsageUtil.substitutor(usage).subst(javaType.toScType())
           (scType, javaType) match {
             case (JavaArrayType(argument), _: PsiEllipsisType) => argument.canonicalText + "*"
             case _ => scType.canonicalText

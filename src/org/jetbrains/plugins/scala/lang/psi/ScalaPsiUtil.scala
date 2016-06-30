@@ -612,7 +612,7 @@ object ScalaPsiUtil {
           case clazz: PsiClass          =>
             clazz.getSuperTypes.foreach {
               tp =>
-                val stp = tp.toScType(project, scope)
+                val stp = tp.toScType()
                 collectParts(subst.subst(stp))
             }
         }
@@ -1294,7 +1294,8 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type` : PsiType): PsiType = {
-        substitutor.subst(`type`.toScType(project, scope)).toPsiType(project, scope)
+        implicit val typeSystem = project.typeSystem
+        substitutor.subst(`type`.toScType()).toPsiType(project, scope)
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
@@ -2010,9 +2011,9 @@ object ScalaPsiUtil {
               //need to generate ScType for Java method
               val method = abst.head
               val project = method.getProject
-              val returnType: ScType = method.getReturnType.toScType(project, scalaScope)
+              val returnType: ScType = method.getReturnType.toScType()
               val params: Array[ScType] = method.getParameterList.getParameters.map {
-                param: PsiParameter => param.getTypeElement.getType.toScType(project, scalaScope)
+                param: PsiParameter => param.getTypeElement.getType.toScType()
               }
               val fun = FunctionType(returnType, params)(project, scalaScope)
               val subbed = sub.subst(fun)

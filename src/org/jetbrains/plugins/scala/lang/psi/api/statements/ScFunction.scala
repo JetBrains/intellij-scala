@@ -168,7 +168,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
               case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
             }
-            Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType(getProject, getResolveScope)))
+            Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
           case _ => None
         }
         superReturnType
@@ -209,7 +209,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
-            Success(m.getReturnType.toScType(getProject, getResolveScope), Some(this))
+            Success(m.getReturnType.toScType(), Some(this))
           case _ => Failure("No defined return type", Some(this))
         }
     }

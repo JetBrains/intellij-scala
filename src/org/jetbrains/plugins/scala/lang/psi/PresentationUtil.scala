@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
@@ -42,7 +43,8 @@ object PresentationUtil {
       case tp: ScType => substitutor.subst(tp).presentableText
       case tp: PsiEllipsisType =>
         presentationString(tp.getComponentType, substitutor) + "*"
-      case tp: PsiType => presentationString(tp.toScType(DecompilerUtil.obtainProject), substitutor)
+      case tp: PsiType =>
+        presentationString(tp.toScType()(DecompilerUtil.obtainProject.typeSystem), substitutor)
       case tp: ScTypeParamClause =>
         tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
       case param: ScTypeParam =>

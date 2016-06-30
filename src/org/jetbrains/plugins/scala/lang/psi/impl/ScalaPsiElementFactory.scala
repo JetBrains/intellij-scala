@@ -51,6 +51,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable
 
@@ -94,8 +95,8 @@ class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory 
   def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
 
   def createParameter(name: String, `type`: PsiType): PsiParameter = {
-    val scType = `type`.toScType(manager.getProject)
-    ScalaPsiElementFactory.createParameterFromText(s"$name : ${scType.canonicalText}", manager)
+    implicit val typeSystem = manager.getProject.typeSystem
+    ScalaPsiElementFactory.createParameterFromText(s"$name : ${`type`.toScType().canonicalText}", manager)
   }
 
   def createParameterList(names: Array[String], types: Array[PsiType]): PsiParameterList = throw new IncorrectOperationException
@@ -746,6 +747,8 @@ object ScalaPsiElementFactory {
     val method = sign.method
     // do not substitute aliases
     val substitutor = sign.substitutor
+
+    implicit val typeSystem = method.typeSystem
     method match {
       case method: ScFunction =>
         builder ++= method.getFirstChild.getText
@@ -818,7 +821,7 @@ object ScalaPsiElementFactory {
             val extendsTypes = param.getExtendsListTypes
             val extendsTypesText = if (extendsTypes.nonEmpty) {
               val typeTexts = extendsTypes.map((t: PsiClassType) =>
-                substitutor.subst(t.toScType(method.getProject)).canonicalText)
+                substitutor.subst(t.toScType()).canonicalText)
               typeTexts.mkString(" <: "," with ", "")
             } else ""
             param.name + extendsTypesText
@@ -839,7 +842,7 @@ object ScalaPsiElementFactory {
             }
             val pName: String = ScalaNamesUtil.escapeKeyword(paramName)
             val colon = if (pName.endsWith("_")) " : " else ": "
-            val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType(method.getProject))
+            val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType())
             val typeText = scType match {
               case AnyRef => "scala.Any"
               case JavaArrayType(argument) if param.isVarArgs => argument.canonicalText + "*"
@@ -850,7 +853,7 @@ object ScalaPsiElementFactory {
           builder ++= params.mkString("(", ", ", ")")
         }
 
-        val retType = substitutor.subst(method.getReturnType.toScType(method.getProject))
+        val retType = substitutor.subst(method.getReturnType.toScType())
         val retAndBody =
           if (needsInferType) {
             val typeText = if (retType == api.Any) "AnyRef" else retType.canonicalText

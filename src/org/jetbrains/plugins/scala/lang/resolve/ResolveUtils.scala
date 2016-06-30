@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 
 import _root_.scala.collection.Set
 
@@ -79,19 +79,24 @@ object ResolveUtils {
             case _ => false
           })
 
-  def methodType(m : PsiMethod, s : ScSubstitutor, scope: GlobalSearchScope): ValueType =
-    FunctionType(s.subst(m.getReturnType.toScType(m.getProject, scope)),
+  def methodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope): ValueType = {
+    implicit val typeSystem = m.typeSystem
+
+    FunctionType(s.subst(m.getReturnType.toScType()),
       m.getParameterList.getParameters.map({
         p => val pt = p.getType
-        //scala hack: Objects in java are modelled as Any in scala
+          //scala hack: Objects in java are modelled as Any in scala
           if (pt.equalsToText("java.lang.Object")) Any
-        else s.subst(pt.toScType(m.getProject, scope))
+          else s.subst(pt.toScType())
       }).toSeq)(m.getProject, scope)
+  }
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
+    implicit val typeSystem = m.typeSystem
+
     val retType: ScType = (m, returnType) match {
       case (f: FakePsiMethod, None) => s.subst(f.retType)
-      case (_, None) => s.subst(m.getReturnType.toScType(m.getProject, scope))
+      case (_, None) => s.subst(m.getReturnType.toScType())
       case (_, Some(x)) => x
     }
     new ScMethodType(retType,

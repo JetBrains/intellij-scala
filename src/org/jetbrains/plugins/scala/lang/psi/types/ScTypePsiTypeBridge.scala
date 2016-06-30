@@ -24,12 +24,7 @@ import scala.collection.immutable.HashSet
 object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
   override implicit lazy val typeSystem = ScalaTypeSystem
 
-  override def toScType(psiType: PsiType,
-                        project: Project,
-                        scope: GlobalSearchScope,
-                        visitedRawTypes: HashSet[PsiClass],
-                        paramTopLevel: Boolean,
-                        treatJavaObjectAsAny: Boolean): ScType = {
+  override def toScType(psiType: PsiType, visitedRawTypes: HashSet[PsiClass], paramTopLevel: Boolean, treatJavaObjectAsAny: Boolean): ScType = {
     psiType match {
       case classType: PsiClassType =>
         val result = classType.resolveGenerics
@@ -75,8 +70,8 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                   ScExistentialArgument(s"_$$${index += 1; index}", Nil, Nothing,
                     arrayOfTypes.length match {
                       case 0 => Any
-                      case 1 => toScType(arrayOfTypes.apply(0), project, scope, visitedRawTypes + clazz)
-                      case _ => ScCompoundType(arrayOfTypes.map(toScType(_, project, scope, visitedRawTypes + clazz)),
+                      case 1 => toScType(arrayOfTypes.apply(0), visitedRawTypes + clazz)
+                      case _ => ScCompoundType(arrayOfTypes.map((psiType: PsiClassType) => toScType(psiType, visitedRawTypes + clazz)),
                         Map.empty, Map.empty)
                     })
                 }
@@ -86,10 +81,10 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                 ScParameterizedType(des, tps.map { tp =>
                   def convertInnerJavaWildcardToExistentialType(wild: PsiWildcardType) = {
                     val lower: ScType =
-                      if (wild.isSuper) toScType(wild.getSuperBound, project, scope, visitedRawTypes, paramTopLevel = true)
+                      if (wild.isSuper) toScType(wild.getSuperBound, visitedRawTypes, paramTopLevel = true)
                       else Nothing
                     val upper: ScType =
-                      if (wild.isExtends) toScType(wild.getExtendsBound, project, scope, visitedRawTypes, paramTopLevel = true)
+                      if (wild.isExtends) toScType(wild.getExtendsBound, visitedRawTypes, paramTopLevel = true)
                       else Any
                     ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper)
                   }
@@ -98,7 +93,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                   psiType match {
                     case wild: PsiWildcardType => convertInnerJavaWildcardToExistentialType(wild)
                     case capture: PsiCapturedWildcardType => convertInnerJavaWildcardToExistentialType(capture.getWildcard)
-                    case _ if psiType != null => toScType(psiType, project, scope, visitedRawTypes)
+                    case _ if psiType != null => toScType(psiType, visitedRawTypes)
                     case _ => TypeParameterType(tp, None)
                   }
                   }).unpackedType
@@ -106,16 +101,16 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           case _ => Nothing
         }
       case wild: PsiWildcardType => ScExistentialType.simpleExistential("_$1", Nil,
-        if (wild.isSuper) toScType(wild.getSuperBound, project, scope, visitedRawTypes) else Nothing,
-        if (wild.isExtends) toScType(wild.getExtendsBound, project, scope, visitedRawTypes) else Any)
+        if (wild.isSuper) toScType(wild.getSuperBound, visitedRawTypes) else Nothing,
+        if (wild.isExtends) toScType(wild.getExtendsBound, visitedRawTypes) else Any)
       case capture: PsiCapturedWildcardType =>
-        toScType(capture.getWildcard, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+        toScType(capture.getWildcard, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
       case null => Any
       case d: PsiDisjunctionType => Any
       case p: PsiIntersectionType =>
-        ScCompoundType(p.getConjuncts.map(toScType(_, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)),
+        ScCompoundType(p.getConjuncts.map((psiType: PsiType) => toScType(psiType, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)),
           Map.empty, Map.empty)
-      case _ => super.toScType(psiType, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      case _ => super.toScType(psiType, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
     }
   }
 

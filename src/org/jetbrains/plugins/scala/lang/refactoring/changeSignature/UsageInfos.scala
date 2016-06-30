@@ -188,7 +188,7 @@ private[changeSignature] object UsageUtil {
       case sc: ScalaChangeInfo => sc.newType
       case jc: JavaChangeInfo =>
         val method = jc.getMethod
-        jc.getNewReturnType.getType(method.getParameterList, method.getManager).toScType(method.getProject)
+        jc.getNewReturnType.getType(method.getParameterList, method.getManager).toScType()(method.typeSystem)
       case _ => return None
     }
 

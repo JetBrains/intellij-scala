@@ -158,7 +158,7 @@ private[expr] object ExpectedTypes {
                     //for named parameters
                     Array((subst.subst(p.getType(TypingContext.empty).getOrAny), p.typeElement))
                   case f: PsiField =>
-                    Array((subst.subst(f.getType.toScType(f.getProject, expr.getResolveScope)), None))
+                    Array((subst.subst(f.getType.toScType()), None))
                   case _ => Array.empty
                 }
               case _ => Array.empty

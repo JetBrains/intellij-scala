@@ -25,7 +25,7 @@ object BaseTypes {
         reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases) ++ Seq(tp) else Seq(tp)))
       case ScDesignatorType(c : PsiClass) =>
         reduce(c.getSuperTypes.flatMap { p => {
-          val tp = p.toScType(c.getProject)
+          val tp = p.toScType()
           (if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases)
           else Seq()) ++ Seq(tp)
         }
@@ -62,7 +62,7 @@ object BaseTypes {
           case Some(clazz) =>
             val s = p.substitutor
             reduce(clazz.getSuperTypes.flatMap { t => {
-              val substituted = s.subst(t.toScType(clazz.getProject))
+              val substituted = s.subst(t.toScType())
               (if (!notAll) BaseTypes.get(substituted, notAll, visitedAliases = visitedAliases)
               else Seq()) ++ Seq(substituted)
             }
@@ -81,7 +81,7 @@ object BaseTypes {
           case c : PsiClass =>
             reduce(c.getSuperTypes.flatMap {st =>
             {
-              val substituted = s.subst(st.toScType(c.getProject))
+              val substituted = s.subst(st.toScType())
               (if (!notAll) BaseTypes.get(substituted, visitedAliases = visitedAliases)
               else Seq()) ++ Seq(substituted)
             }

@@ -299,7 +299,8 @@ class ScalaPsiManager(val project: Project) {
   }
 
   private def andType(psiTypes: Seq[PsiType]): ScType = {
-    project.typeSystem.andType(psiTypes.map(_.toScType(project)))
+    implicit val typeSystem = project.typeSystem
+    typeSystem.andType(psiTypes.map(_.toScType()))
   }
 
   def getStableTypeAliasesNames: Seq[String] = {

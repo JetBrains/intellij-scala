@@ -59,7 +59,7 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
               val psiManager = ScalaPsiManager.instance(project)
               val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map").orNull
               val mapClass = ScalaType.designator(mapPsiClass)
-              val paramClass = firstParam.getType.toScType(project)
+              val paramClass = firstParam.getType.toScType()
               val conformanceType = paramClass match {
                 case parameterizedType: ScParameterizedType => parameterizedType.designator
                 case _ => paramClass

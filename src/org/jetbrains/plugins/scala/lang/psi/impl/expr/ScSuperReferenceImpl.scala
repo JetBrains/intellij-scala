@@ -156,7 +156,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   private def superTypes: Option[Seq[ScType]] = reference match {
     case Some(q) => q.resolve() match {
-      case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType(getProject, getResolveScope)))
+      case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType()))
       case _ => None
     }
     case None =>

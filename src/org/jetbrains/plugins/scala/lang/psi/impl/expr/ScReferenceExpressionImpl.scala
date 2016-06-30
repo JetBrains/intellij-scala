@@ -379,7 +379,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           clazz.typeParameters.map(TypeParameterType(_, Some(s)))))
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
       case Some(ScalaResolveResult(field: PsiField, s)) =>
-        s.subst(field.getType.toScType(field.getProject, getResolveScope))
+        s.subst(field.getType.toScType())
       case Some(ScalaResolveResult(method: PsiMethod, s)) =>
         if (method.getName == "getClass" && method.containingClass != null &&
           method.containingClass.getQualifiedName == "java.lang.Object") {
