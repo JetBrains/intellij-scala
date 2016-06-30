@@ -34,11 +34,13 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     case PsiType.NULL => Null
     case null => Any
     case diamondType: PsiDiamondType =>
-      val types = diamondType.resolveInferredTypes().getInferredTypes
-      if (types.isEmpty) {
-        if (paramTopLevel && treatJavaObjectAsAny) Any else AnyRef
-      } else {
-        toScType(types.get(0), visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      import scala.collection.JavaConversions._
+      diamondType.resolveInferredTypes().getInferredTypes.toList map {
+        toScType(_, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      } match {
+        case Nil if paramTopLevel && treatJavaObjectAsAny => Any
+        case Nil => AnyRef
+        case head :: _ => head
       }
     case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
   }
