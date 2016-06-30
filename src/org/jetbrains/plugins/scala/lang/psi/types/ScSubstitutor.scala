@@ -585,14 +585,28 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] 
 
   def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
 
-  lazy val additionalNames: Set[Name] = {
-    //We need to exclude Nothing names from this set, see SCL-5736
-    lowerAdditionalMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ upperAdditionalMap.keySet
+  private var additionalNamesInner: Set[Name] = _
+
+  def additionalNames: Set[Name] = {
+    if (additionalNamesInner != null) additionalNamesInner
+    else {
+      //We need to exclude Nothing names from this set, see SCL-5736
+      val res = lowerAdditionalMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ upperAdditionalMap.keySet
+      additionalNamesInner = res
+      res
+    }
   }
 
-  lazy val names: Set[Name] = {
-    //We need to exclude Nothing names from this set, see SCL-5736
-    upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
+  private var namesInner: Set[Name] = _
+
+  def names: Set[Name] = {
+    if (namesInner != null) namesInner
+    else {
+      //We need to exclude Nothing names from this set, see SCL-5736
+      val res = upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
+      namesInner = res
+      res
+    }
   }
 
   import scala.collection.immutable.{HashMap => IHashMap}
