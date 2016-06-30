@@ -10,7 +10,38 @@ import org.jetbrains.plugins.scala.annotator._
  */
 class JavaHighlightingTest extends JavaHighlitghtingTestBase {
 
-  def testProtected() = {
+  def testSignatures(): Unit = {
+    val scala =
+      """
+        |class Moo extends Koo {
+        |  override def foo = {
+        |    new Blargle {
+        |      def bar: Int = -1
+        |    }
+        |  }
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |interface Blargle {
+        |    public int bar();
+        |}
+        |public interface Foo {
+        |    public Blargle foo();
+        |}
+        |
+        |class Koo implements Foo {
+        |    @Override
+        |    public Blargle foo() {
+        |        return null;
+        |    }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
+  def testProtected(): Unit = {
     val scala =
       """
         |class MeaningOfLifeSpec {
@@ -73,7 +104,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
   }
 
 
-  def testSCL7069() = {
+  def testSCL7069(): Unit = {
     val scala =
       """
         |package z
@@ -151,7 +182,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     }
   }
 
-  def testSCL9029() = {
+  def testSCL9029(): Unit = {
     val scala =
       """
         |package scl9029
@@ -277,7 +308,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromJavaCode(scala, java, "SCL5617"))
   }
 
-  def testCaseClassImplement() = {
+  def testCaseClassImplement(): Unit = {
     val scala = "case class CaseClass()"
     val java =
       """

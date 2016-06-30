@@ -70,6 +70,8 @@ class ScLightFunctionDefinition(pTypes: List[List[ScType]], tParams: List[TypePa
 
   override def hasAnnotation(clazz: PsiClass): Boolean = fun.hasAnnotation(clazz)
 
+  override def hasParameterClause: Boolean = fun.hasParameterClause
+
   override def annotationNames: Seq[String] = fun.annotationNames
 
   override def annotations: Seq[ScAnnotation] = fun.annotations
