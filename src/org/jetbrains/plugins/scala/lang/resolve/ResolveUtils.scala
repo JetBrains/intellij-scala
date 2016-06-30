@@ -104,7 +104,7 @@ object ResolveUtils {
         case f: FakePsiMethod => f.params.toSeq
         case _ =>
           m.getParameterList.getParameters.map { param =>
-            val scType = s.subst(param.exactParamType())
+            val scType = s.subst(param.paramType())
             new Parameter("", None, scType, scType, false, param.isVarArgs, false, param.index, Some(param))
           }
       }, false)(m.getProject, scope)

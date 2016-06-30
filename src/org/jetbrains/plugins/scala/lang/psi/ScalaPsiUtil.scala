@@ -754,7 +754,7 @@ object ScalaPsiUtil {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }
-          p.exactParamType(treatJavaObjectAsAny)
+          p.paramType(treatJavaObjectAsAny = treatJavaObjectAsAny)
       }
     )
   }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.types
 
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiParameterExt}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem, ValType}
@@ -18,7 +18,7 @@ object ValueClassType {
       case ExtractClass(cl: ScClass) if isValueClass(cl) =>
         cl.constructors match {
           case Array(pc: ScPrimaryConstructor) =>
-            pc.parameters.headOption.map(_.exactParamType())
+            pc.parameters.headOption.map(_.paramType())
           case _ => None
         }
       case _ => None

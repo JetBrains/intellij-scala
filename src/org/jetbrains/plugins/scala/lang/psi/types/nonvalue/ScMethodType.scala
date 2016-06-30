@@ -45,7 +45,8 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   }
 
   def this(param: PsiParameter) {
-    this(param.getName, None, param.paramType, param.paramType, false, param.isVarArgs, false, param.index, Some(param))
+    this(param.getName, None, param.paramType(exact = false), param.paramType(exact = false), false,
+      param.isVarArgs, false, param.index, Some(param))
   }
 
   def paramInCode: Option[ScParameter] = psiParam match {

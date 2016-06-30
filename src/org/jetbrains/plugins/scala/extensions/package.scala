@@ -551,36 +551,24 @@ package object extensions {
   }
 
   implicit class PsiParameterExt(val param: PsiParameter) extends AnyVal {
-    def paramType: ScType = {
-      param match {
-        case f: FakePsiParameter => f.parameter.paramType
-        case param: ScParameter => param.getType(TypingContext.empty).getOrAny
-        case _ => param.getType.toScType(paramTopLevel = true)(param.typeSystem)
-      }
+    def paramType(exact: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
+      case parameter: FakePsiParameter => parameter.parameter.paramType
+      case parameter: ScParameter => parameter.getType(TypingContext.empty).getOrAny
+      case _ =>
+        val paramType = param.getType match {
+          case arrayType: PsiArrayType if exact && param.isVarArgs =>
+            arrayType.getComponentType
+          case tp => tp
+        }
+        paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)(param.typeSystem)
     }
 
-    def exactParamType(treatJavaObjectAsAny: Boolean = true): ScType = {
-      param match {
-        case f: FakePsiParameter => f.parameter.paramType
-        case param: ScParameter => param.getType(TypingContext.empty).getOrAny
-        case _ =>
-          val paramType = param.getType match {
-            case p: PsiArrayType if param.isVarArgs => p.getComponentType
-            case tp => tp
-          }
-          paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)(param.typeSystem)
-      }
-    }
-
-    def index: Int = {
-      param match {
-        case f: FakePsiParameter => f.parameter.index
-        case p: ScParameter => p.index
-        case _ =>
-          param.getParent match {
-            case pList: PsiParameterList => pList.getParameterIndex(param)
-            case _ => -1
-          }
+    def index: Int = param match {
+      case parameter: FakePsiParameter => parameter.parameter.index
+      case parameter: ScParameter => parameter.index
+      case _ => param.getParent match {
+        case list: PsiParameterList => list.getParameterIndex(param)
+        case _ => -1
       }
     }
   }

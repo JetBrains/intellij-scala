@@ -391,7 +391,7 @@ object Compatibility {
   }
 
   def toParameter(p: PsiParameter): Parameter = {
-    val tp = p.paramType
+    val tp = p.paramType(exact = false)
     Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, None, tp, tp, false, p.isVarArgs, false, p.index,
       p match {
         case param: ScParameter => Some(param)
@@ -505,7 +505,7 @@ object Compatibility {
           return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p))))
 
         checkConformanceExt(checkNames = false, parameters = parameters.map {
-          case param: PsiParameter => new Parameter("", None, substitutor.subst(param.exactParamType()),
+          case param: PsiParameter => new Parameter("", None, substitutor.subst(param.paramType()),
             false, param.isVarArgs, false, -1)
         }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
 
