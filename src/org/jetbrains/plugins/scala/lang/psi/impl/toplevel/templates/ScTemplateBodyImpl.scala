@@ -33,28 +33,28 @@ class ScTemplateBodyImpl private (stub: StubElement[ScTemplateBody], nodeType: I
 
   override def toString: String = "ScTemplateBody"
 
-  def aliases: Array[ScTypeAlias] = {
+  def aliases: Seq[ScTypeAlias] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(TokenSets.ALIASES_SET, JavaArrayFactoryUtil.ScTypeAliasFactory)
-    } else findChildrenByClass(classOf[ScTypeAlias])
+      stub.getChildrenByType(TokenSets.ALIASES_SET, JavaArrayFactoryUtil.ScTypeAliasFactory).toSeq
+    } else findChildrenByClass(classOf[ScTypeAlias]).toSeq
   }
 
-  def functions: Array[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, JavaArrayFactoryUtil.ScFunctionFactory).filterNot(_.isLocal)
+  def functions: Seq[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, JavaArrayFactoryUtil.ScFunctionFactory).toSeq.filterNot(_.isLocal)
 
   def typeDefinitions: Seq[ScTypeDefinition] =
-    getStubOrPsiChildren(TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory).filterNot(_.isLocal)
+    getStubOrPsiChildren(TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory).toSeq.filterNot(_.isLocal)
 
-  def members: Array[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).filterNot(_.isLocal)
+  def members: Seq[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq.filterNot(_.isLocal)
 
-  def holders: Array[ScDeclaredElementsHolder] =
-    getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, JavaArrayFactoryUtil.ScDeclaredElementsHolderFactory).filterNot {
+  def holders: Seq[ScDeclaredElementsHolder] =
+    getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, JavaArrayFactoryUtil.ScDeclaredElementsHolderFactory).toSeq.filterNot {
       case s: ScMember => s.isLocal
       case _ => false
     }
 
-  def exprs: Array[ScExpression] =
-    getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, JavaArrayFactoryUtil.ScExpressionFactory).filterNot {
+  def exprs: Seq[ScExpression] =
+    getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, JavaArrayFactoryUtil.ScExpressionFactory).toSeq.filterNot {
       case s: ScMember => s.isLocal
       case _ => false
     }

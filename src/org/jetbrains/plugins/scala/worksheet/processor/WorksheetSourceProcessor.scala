@@ -296,7 +296,7 @@ object WorksheetSourceProcessor {
     }
 
     protected def processLocalImport(imp: ScImportStmt): Boolean = {
-      if (imp.importExprs.length < 1) return false
+      if (imp.importExprs.size < 1) return false
 
       var currentQual = imp.importExprs(0).qualifier
       var lastFound: Option[(ScStableCodeReferenceElement, PsiElement)] = None

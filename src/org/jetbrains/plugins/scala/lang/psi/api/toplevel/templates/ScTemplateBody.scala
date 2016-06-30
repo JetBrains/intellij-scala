@@ -17,17 +17,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 */
 
 trait ScTemplateBody extends ScalaPsiElement with ScControlFlowOwner {
-  def members: Array[ScMember]
+  def members: Seq[ScMember]
 
-  def holders: Array[ScDeclaredElementsHolder]
+  def holders: Seq[ScDeclaredElementsHolder]
 
-  def functions: Array[ScFunction]
+  def functions: Seq[ScFunction]
 
-  def aliases: Array[ScTypeAlias]
+  def aliases: Seq[ScTypeAlias]
 
   def typeDefinitions: Seq[ScTypeDefinition]
 
-  def exprs: Array[ScExpression]
+  def exprs: Seq[ScExpression]
 
   def selfTypeElement: Option[ScSelfTypeElement]
 }

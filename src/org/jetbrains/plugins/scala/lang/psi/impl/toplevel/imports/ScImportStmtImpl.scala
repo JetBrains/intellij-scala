@@ -49,8 +49,8 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
 
   import com.intellij.psi.scope._
 
-  def importExprs: Array[ScImportExpr] =
-    getStubOrPsiChildren(ScalaElementTypes.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory)
+  def importExprs: Seq[ScImportExpr] =
+    getStubOrPsiChildren(ScalaElementTypes.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

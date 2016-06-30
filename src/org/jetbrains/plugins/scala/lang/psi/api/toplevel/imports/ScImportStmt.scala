@@ -12,5 +12,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 */
 
 trait ScImportStmt extends ScBlockStatement {
-  def importExprs: Array[ScImportExpr]
+  def importExprs: Seq[ScImportExpr]
 }
