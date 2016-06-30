@@ -63,18 +63,17 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
 
 object TypeParameter {
   def apply(typeParameter: PsiTypeParameter): TypeParameter = {
-    val (typeParameters, maybeLower, maybeUpper) = typeParameter match {
+    val (typeParameters, lazyLower, lazyUpper) = typeParameter match {
       case typeParam: ScTypeParam =>
-        (typeParam.typeParameters, typeParam.lowerBound.toOption, typeParam.upperBound.toOption)
+        (typeParam.typeParameters, () => typeParam.lowerBound.getOrNothing, () => typeParam.upperBound.getOrAny)
       case _ =>
         val manager = ScalaPsiManager.instance(typeParameter.getProject)
-        val upper = manager.javaPsiTypeParameterUpperType(typeParameter)
-        (Seq.empty, None, Some(upper))
+        (Seq.empty, () => Nothing, () => manager.javaPsiTypeParameterUpperType(typeParameter))
     }
     TypeParameter(
       typeParameters.map(TypeParameter(_)),
-      new Suspension(maybeLower.getOrElse(Nothing)),
-      new Suspension(maybeUpper.getOrElse(Any)),
+      new Suspension(lazyLower),
+      new Suspension(lazyUpper),
       typeParameter)
   }
 }
