@@ -296,4 +296,31 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |//((String, A)) => (String, A)
       """.stripMargin)
   }
+
+  def test10471(): Unit = {
+    val code =
+      """
+        |package outer {
+        |  package a {
+        |    class Foo
+        |  }
+        |  package object a {
+        |    class B
+        |    implicit def string2Foo(s: String): Foo = new Foo
+        |  }
+        |}
+        |
+        |package b {
+        |  import outer.a.Foo
+        |
+        |  object Moo {
+        |    def baz(m: Foo): Foo = {
+        |      /*start*/""/*end*/
+        |    }
+        |  }
+        |}
+        |//Foo
+      """.stripMargin
+    doTest(code)
+  }
 }
