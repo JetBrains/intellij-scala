@@ -3,6 +3,7 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.12.0-M4"
+  val scala211Version = "2.11.6"
   val sbtVersion = "0.13.11"
   val ideaVersion = "163.4396.1"
   val sbtStructureVersion = "6.0.2"
@@ -189,7 +190,7 @@ object DependencyGroups {
     "com.lihaoyi" % "utest_2.10" % "0.4.3" % "provided",
     "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
-    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2",
+    "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
     "org.specs2" % "specs2_2.10" % "2.4.6",
     "org.scalaz" % "scalaz-core_2.10" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0",

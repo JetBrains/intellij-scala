@@ -17,7 +17,7 @@ import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.plugin.scala.util.MacroExpansion
+import org.jetbrains.jps.incremental.scala.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

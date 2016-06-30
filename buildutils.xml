@@ -7,6 +7,12 @@
             </fileset>
             <mapper type="glob" from="*" to="scala-library.jar"/>
         </move>
+        <move todir="out/plugin/Scala/lib/jps">
+            <fileset dir="out/plugin/Scala/lib/jps">
+                <include name="scala-library*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="scala-library-211.jar"/>
+        </move>
     </target>
 
     <target name="rename.sbt.structure.0.12">

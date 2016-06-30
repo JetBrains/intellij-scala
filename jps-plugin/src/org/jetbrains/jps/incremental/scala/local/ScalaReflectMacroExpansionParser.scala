@@ -1,11 +1,11 @@
 package org.jetbrains.jps.incremental.scala.local
 
-import java.io.{BufferedOutputStream, ObjectOutputStream, File, FileOutputStream}
+import java.io.{BufferedOutputStream, File, FileOutputStream, ObjectOutputStream}
 import java.util.regex.Pattern
 
 import com.intellij.openapi.application.PathManager
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.plugin.scala.util.{Place, MacroExpansion}
+import org.jetbrains.plugin.scala.util.{MacroExpansion, Place}
 
 import scala.collection.mutable
 

@@ -27,7 +27,7 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, scalap % "test->test;compile->compile", macroAnnotations)
+  .dependsOn(scalap % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -36,6 +36,7 @@ lazy val scalaCommunity: Project =
     scalacOptions in Global += "-target:jvm-1.8",
     //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
+    libraryDependencies += Dependencies.nailgun,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
@@ -59,23 +60,20 @@ lazy val scalaCommunity: Project =
 
 lazy val jpsPlugin  =
   newProject("jpsPlugin", file("jps-plugin"))
-  .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
+    scalaVersion := Versions.scala211Version,
+    unmanagedSourceDirectories in Compile += baseDirectory.value / ".." /"compiler-settings" / "src",
     libraryDependencies ++= Seq(Dependencies.nailgun) ++ DependencyGroups.sbtBundled,
     unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "dotty")
   )
-
-lazy val compilerSettings =
-  newProject("compilerSettings", file("compiler-settings"))
-  .enablePlugins(SbtIdeaPlugin)
-  .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val scalaRunner =
   newProject("scalaRunner", file("ScalaRunner"))
   .settings(
     libraryDependencies ++= DependencyGroups.scalaRunner,
     scalaVersion := "2.11.6",
+    version := "1.0.0",
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6"
   )
@@ -85,7 +83,7 @@ lazy val runners =
   .dependsOn(scalaRunner)
   .settings(
     libraryDependencies ++= DependencyGroups.runners,
-    scalaVersion := "2.11.6",
+    scalaVersion := Versions.scala211Version,
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6"
   )
@@ -95,7 +93,7 @@ lazy val nailgunRunners =
   .dependsOn(scalaRunner)
   .settings(
     libraryDependencies += Dependencies.nailgun,
-    scalaVersion := "2.11.6"
+    scalaVersion := Versions.scala211Version
   )
 
 lazy val scalap =
@@ -277,8 +275,6 @@ lazy val pluginPackagerCommunity =
           "lib/scala-plugin.jar"),
         Artifact(pack.in(scalap, Compile).value,
           "lib/scalap.jar"),
-        Artifact(pack.in(compilerSettings, Compile).value,
-          "lib/compiler-settings.jar"),
         Artifact(pack.in(nailgunRunners, Compile).value,
           "lib/scala-nailgun-runner.jar"),
         MergedArtifact(Seq(
