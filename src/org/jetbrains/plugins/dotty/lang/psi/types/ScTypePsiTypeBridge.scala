@@ -21,16 +21,16 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
   override implicit lazy val typeSystem = DottyTypeSystem
 
   override def toScType(`type`: PsiType,
-                        visitedRawTypes: HashSet[PsiClass],
-                        paramTopLevel: Boolean,
-                        treatJavaObjectAsAny: Boolean): ScType = `type` match {
+                        treatJavaObjectAsAny: Boolean)
+                       (implicit visitedRawTypes: HashSet[PsiClass],
+                        paramTopLevel: Boolean): ScType = `type` match {
     case classType: PsiClassType => Any
     case wildcardType: PsiWildcardType => Any
     case disjunctionType: PsiDisjunctionType =>
       DottyOrType(disjunctionType.getDisjunctions.map {
-        toScType(_, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+        toScType(_, treatJavaObjectAsAny)
       })
-    case _ => super.toScType(`type`, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+    case _ => super.toScType(`type`, treatJavaObjectAsAny)
   }
 
   override def toPsiType(`type`: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean, skolemToWildcard: Boolean): PsiType = {

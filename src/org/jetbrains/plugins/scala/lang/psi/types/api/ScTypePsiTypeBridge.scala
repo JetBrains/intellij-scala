@@ -22,9 +22,9 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     *                             See SCL-3036 and SCL-2375
     */
   def toScType(`type`: PsiType,
-               visitedRawTypes: HashSet[PsiClass],
-               paramTopLevel: Boolean,
-               treatJavaObjectAsAny: Boolean): ScType = `type` match {
+               treatJavaObjectAsAny: Boolean)
+              (implicit visitedRawTypes: HashSet[PsiClass],
+               paramTopLevel: Boolean): ScType = `type` match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID => Unit
@@ -41,17 +41,17 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     case diamondType: PsiDiamondType =>
       import scala.collection.JavaConversions._
       diamondType.resolveInferredTypes().getInferredTypes.toList map {
-        toScType(_, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+        toScType(_, treatJavaObjectAsAny)
       } match {
         case Nil if paramTopLevel && treatJavaObjectAsAny => Any
         case Nil => AnyRef
         case head :: _ => head
       }
     case wildcardType: PsiCapturedWildcardType =>
-      toScType(wildcardType.getWildcard, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      toScType(wildcardType.getWildcard, treatJavaObjectAsAny)
     case intersectionType: PsiIntersectionType =>
       typeSystem.andType(intersectionType.getConjuncts.map {
-        toScType(_, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+        toScType(_, treatJavaObjectAsAny)
       })
     case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
   }

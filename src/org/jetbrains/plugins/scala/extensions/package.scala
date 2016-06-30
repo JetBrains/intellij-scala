@@ -220,9 +220,34 @@ package object extensions {
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
-    def toScType(visitedRawTypes: HashSet[PsiClass] = HashSet.empty, paramTopLevel: Boolean = false, treatJavaObjectAsAny: Boolean = true)
+    def toScType(visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
+                 paramTopLevel: Boolean = false,
+                 treatJavaObjectAsAny: Boolean = true)
                 (implicit typeSystem: TypeSystem): ScType =
-      typeSystem.bridge.toScType(`type`, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      typeSystem.bridge.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
+  }
+
+  implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
+    def lower(implicit typeSystem: TypeSystem,
+              visitedRawTypes: HashSet[PsiClass],
+              paramTopLevel: Boolean): Option[ScType] = bound(`type`.isSuper match {
+      case true => Some(`type`.getSuperBound)
+      case _ => None
+    })
+
+    def upper(implicit typeSystem: TypeSystem,
+              visitedRawTypes: HashSet[PsiClass],
+              paramTopLevel: Boolean): Option[ScType] = bound(`type`.isExtends match {
+      case true => Some(`type`.getExtendsBound)
+      case _ => None
+    })
+
+    private def bound(maybeBound: Option[PsiType])
+                     (implicit typeSystem: TypeSystem,
+                      visitedRawTypes: HashSet[PsiClass],
+                      paramTopLevel: Boolean) = maybeBound map {
+      _.toScType(visitedRawTypes, paramTopLevel = paramTopLevel)
+    }
   }
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {
