@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
@@ -20,8 +21,11 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
     *                             See SCL-3036 and SCL-2375
     */
-  def toScType(`type`: PsiType, visitedRawTypes: HashSet[PsiClass] = HashSet.empty, paramTopLevel: Boolean = false, treatJavaObjectAsAny: Boolean = true): ScType = `type` match {
-    case arrayType: PsiArrayType => JavaArrayType(toScType(arrayType.getComponentType))
+  def toScType(`type`: PsiType,
+               visitedRawTypes: HashSet[PsiClass],
+               paramTopLevel: Boolean,
+               treatJavaObjectAsAny: Boolean): ScType = `type` match {
+    case arrayType: PsiArrayType => JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID => Unit
     case PsiType.BOOLEAN => Boolean
     case PsiType.CHAR => Char
