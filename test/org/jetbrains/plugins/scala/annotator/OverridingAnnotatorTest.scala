@@ -167,7 +167,7 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
   def testOverrideVarWithFunctions(): Unit = {
     val code =
       """
-        |
+        |object ppp {
         |abstract class Parent {
         |  var id: Int
         |}
@@ -176,6 +176,7 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |  def id = 0
         |  def id_=(v: Int) {
         |  }
+        |}
         |}
       """.stripMargin
     assertMatches(messages(code)) {
@@ -210,9 +211,7 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       Error("bar", "method bar cannot override a mutable variable"),
       Error("oof", "method oof needs to be a stable, immutable value"),
       Error("rab", "method rab cannot override a mutable variable"),
-      Error("afoo", "method afoo needs to be a stable, immutable value"),
-      Error("abar", "method abar cannot override a mutable variable")
-      ) =>
+      Error("afoo", "method afoo needs to be a stable, immutable value")) =>
     }
   }
 
