@@ -13,11 +13,11 @@ trait TypeSystem {
   val bridge: ScTypePsiTypeBridge
   protected val presentation: ScTypePresentation
 
-  def presentableText: (ScType) => String = presentation.presentableText _
+  final def presentableText: ScType => String = presentation.presentableText
 
-  def canonicalText: (ScType) => String = presentation.canonicalText _
+  final def canonicalText: ScType => String = presentation.canonicalText
 
-  def urlText: (ScType) => String = presentation.urlText _
+  final def urlText: ScType => String = presentation.urlText
 
   def andType(types: Seq[ScType]): ScType
 
