@@ -108,14 +108,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case wild: PsiWildcardType => ScExistentialType.simpleExistential("_$1", Nil,
         lower(wild, paramTopLevel = false),
         upper(wild, paramTopLevel = false))
-      case capture: PsiCapturedWildcardType =>
-        toScType(capture.getWildcard, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
-      case null => Any
       case d: PsiDisjunctionType => Any
-      case p: PsiIntersectionType =>
-        ScCompoundType(p.getConjuncts.map {
-          toScType(_, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
-        })
       case _ => super.toScType(psiType, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
     }
   }

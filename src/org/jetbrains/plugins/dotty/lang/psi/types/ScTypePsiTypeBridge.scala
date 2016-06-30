@@ -20,18 +20,17 @@ import scala.collection.immutable.HashSet
 object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
   override implicit lazy val typeSystem = DottyTypeSystem
 
-  override def toScType(`type`: PsiType, visitedRawTypes: HashSet[PsiClass], paramTopLevel: Boolean, treatJavaObjectAsAny: Boolean): ScType = {
-    def createComponent: PsiType => ScType =
-      (`type`: PsiType) => toScType(`type`, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
-
-    `type` match {
-      case classType: PsiClassType => Any
-      case wildcard: PsiWildcardType => Any
-      case wildcard: PsiCapturedWildcardType => Any
-      case disjunction: PsiDisjunctionType => DottyOrType(disjunction.getDisjunctions.map(createComponent))
-      case intersection: PsiIntersectionType => DottyAndType(intersection.getConjuncts.map(createComponent))
-      case _ => super.toScType(`type`, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
-    }
+  override def toScType(`type`: PsiType,
+                        visitedRawTypes: HashSet[PsiClass],
+                        paramTopLevel: Boolean,
+                        treatJavaObjectAsAny: Boolean): ScType = `type` match {
+    case classType: PsiClassType => Any
+    case wildcardType: PsiWildcardType => Any
+    case disjunctionType: PsiDisjunctionType =>
+      DottyOrType(disjunctionType.getDisjunctions.map {
+        toScType(_, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      })
+    case _ => super.toScType(`type`, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
   }
 
   override def toPsiType(`type`: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean, skolemToWildcard: Boolean): PsiType = {

@@ -25,7 +25,8 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
                visitedRawTypes: HashSet[PsiClass],
                paramTopLevel: Boolean,
                treatJavaObjectAsAny: Boolean): ScType = `type` match {
-    case arrayType: PsiArrayType => JavaArrayType(arrayType.getComponentType.toScType())
+    case arrayType: PsiArrayType =>
+      JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID => Unit
     case PsiType.BOOLEAN => Boolean
     case PsiType.CHAR => Char
@@ -46,6 +47,12 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
         case Nil => AnyRef
         case head :: _ => head
       }
+    case wildcardType: PsiCapturedWildcardType =>
+      toScType(wildcardType.getWildcard, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+    case intersectionType: PsiIntersectionType =>
+      typeSystem.andType(intersectionType.getConjuncts.map {
+        toScType(_, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      })
     case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
   }
 
