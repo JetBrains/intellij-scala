@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
   * @since 29/06/16
   */
 class ScFunctionDeclarationRangeHandler extends DeclarationRangeHandler[ScFunction] {
-  override def getDeclarationRange(container: ScFunction): TextRange = {
-    val function: ScFunction = container.asInstanceOf[ScFunction]
+  override def getDeclarationRange(function: ScFunction): TextRange = {
     val textRange: TextRange = function.getModifierList.getTextRange
     val startOffset: Int =
       if (textRange != null) textRange.getStartOffset
