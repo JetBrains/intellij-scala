@@ -33,8 +33,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -1725,17 +1725,23 @@ object ScalaPsiUtil {
   }
 
   def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = {
-      val result = collection.mutable.Set[(ScReferenceElement, String)]()
-      if (holder != null) {
-        val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
-        importExprs.flatMap(_.selectors).filter(_.importedName != "_").foreach { s =>
-          if (s.reference.refName != s.importedName) result += ((s.reference, s.importedName))
-        }
-        result.toSet
-      }
-      else Set.empty
-    }
+    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = Option(holder) map {
+      _.getImportStatements
+    } map {
+      _ flatMap {
+        _.importExprs
+      } flatMap {
+        _.selectors
+      } filter {
+        _.importedName != "_"
+      } filter {
+        _.reference != null
+      } map { selector =>
+        (selector.reference.asInstanceOf[ScReferenceElement], selector.importedName)
+      } filter {
+        case (reference, name) => reference.refName != name
+      } toSet
+    } getOrElse Set.empty
 
     if (position != null && position.getLanguage.getID != "Scala")
       return Set.empty
