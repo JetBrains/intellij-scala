@@ -153,6 +153,27 @@ object Compatibility {
                                   matchedArgs: Seq[(Parameter, ScExpression)] = Seq(),
                                   matchedTypes: Seq[(Parameter, ScType)] = Seq())
 
+  def collectSimpleProblems(exprs: Seq[Expression], parameters: Seq[Parameter]): Seq[ApplicabilityProblem] = {
+    val problems = new ArrayBuffer[ApplicabilityProblem]()
+    exprs.foldLeft(parameters) { (parameters, expression) =>
+      if (expression.expr == null) parameters.tail
+      else expression.expr match {
+        case a: ScAssignStmt if a.assignName.nonEmpty =>
+          parameters.find(_.name == a.assignName.get) match {
+            case Some(parameter) =>
+              parameters.filter(_ ne parameter)
+            case None => parameters.tail
+          }
+        case _ => parameters.tail
+      }
+    }.foreach { param =>
+      if (!param.isRepeated && !param.isDefault) {
+        problems += MissedValueParameter(param)
+      }
+    }
+    problems
+  }
+
   def checkConformanceExt(checkNames: Boolean,
                           parameters: Seq[Parameter],
                           exprs: Seq[Expression],
@@ -181,14 +202,7 @@ object Compatibility {
 
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
     if (exprs.length < minParams) {
-      val count = minParams - exprs.length
-      val problems = new ArrayBuffer[ApplicabilityProblem]()
-      parameters.reverseIterator.foreach { param =>
-        if (!param.isRepeated && !param.isDefault && problems.length < count) {
-          problems += new MissedValueParameter(param)
-        }
-      }
-      return ConformanceExtResult(problems.toSeq, undefSubst)
+      return ConformanceExtResult(collectSimpleProblems(exprs, parameters), undefSubst)
     }
 
     if (parameters.isEmpty)
@@ -427,11 +441,12 @@ object Compatibility {
 
         val obligatory = parameters.filter(p => !p.isDefaultParam && !p.isRepeatedParameter)
         val shortage = obligatory.size - exprs.length
-        if (shortage > 0)
-          return ConformanceExtResult(obligatory.takeRight(shortage).
-                  map(p => MissedValueParameter(toParameter(p, substitutor))))
+        val params = parameters.map(toParameter(_, substitutor))
+        if (shortage > 0) {
+          return ConformanceExtResult(collectSimpleProblems(exprs, params))
+        }
 
-        val res = checkConformanceExt(checkNames = true, parameters = parameters.map(toParameter(_, substitutor)),
+        val res = checkConformanceExt(checkNames = true, parameters = params,
           exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
         res
       case constructor: ScPrimaryConstructor =>
