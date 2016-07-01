@@ -354,9 +354,10 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String])
-                   (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = {
     if (expr == null) return false
+
+    implicit val typeSystem = expr.typeSystem
     expr.getType() match {
       case Success(tp, _) =>
         tp.tryExtractDesignatorSingleton match {
