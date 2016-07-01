@@ -1,5 +1,3 @@
-1
-
 object SCL10091 {
 
   implicit class ExampleOps(val ec: StringContext) {

@@ -846,37 +846,34 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         ScalaBundle.message(key, prefix.getText))
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
     }
-    
-    ref.resolve() match {
-      case r: ScFunction =>
-        val elementsMap = mutable.HashMap[Int, PsiElement]()
-        val params = new mutable.StringBuilder("(")
 
-        injections.foreach { i =>
-          elementsMap += params.length -> i
-          params.append(i.getText).append(",")
+    if (ref.resolve() != null) {
+      val elementsMap = mutable.HashMap[Int, PsiElement]()
+      val params = new mutable.StringBuilder("(")
+
+      injections.foreach { i =>
+        elementsMap += params.length -> i
+        params.append(i.getText).append(",")
+      }
+      if (injections.length > 0) params.setCharAt(params.length - 1, ')') else params.append(')')
+      val expr = l.getStringContextExpression.get
+      val shift = expr match {
+        case ScMethodCall(invoked, _) => invoked.getTextRange.getEndOffset
+        case _ => return
+      }
+
+      val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession).getOrElse(new AnnotationSession(l.getContainingFile))) {
+        override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
+          createErrorAnnotation(elt.getTextRange, message)
+
+        override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
+          holder.createErrorAnnotation(elementsMap.getOrElse(range.getStartOffset - shift, prefix), message)
         }
-        if (injections.length > 0) params.setCharAt(params.length - 1, ')') else params.append(')')
-        val expr = l.getStringContextExpression.get
-        val shift = expr match {
-          case ScMethodCall(invoked, _) => invoked.getTextRange.getEndOffset
-          case _ => return
-        }
+      }
 
-        val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession)
-                .getOrElse(new AnnotationSession(l.getContainingFile))) {
-          override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
-            createErrorAnnotation(elt.getTextRange, message)
-
-          override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-            holder.createErrorAnnotation(elementsMap.getOrElse(range.getStartOffset - shift, prefix), message)
-          }
-        }
-
-        annotateReference(expr.asInstanceOf[ScMethodCall].getEffectiveInvokedExpr.
-          asInstanceOf[ScReferenceElement], fakeAnnotator)
-      case _ => annotateBadPrefix("cannot.resolve.in.StringContext")
-    }
+      annotateReference(expr.asInstanceOf[ScMethodCall].getEffectiveInvokedExpr.
+        asInstanceOf[ScReferenceElement], fakeAnnotator)
+    } else annotateBadPrefix("cannot.resolve.in.StringContext")
   }
 
   private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {

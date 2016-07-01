@@ -22,9 +22,7 @@ class ScInterpolatedStringPartReference(node: ASTNode) extends ScReferenceExpres
 
     parent.getStringContextExpression match {
       case Some(expr) => expr.getFirstChild.getLastChild.findReferenceAt(0) match {
-        case ref: PsiPolyVariantReference =>
-          val resolve1 = ref.multiResolve(incomplete)
-          resolve1.filter(_.getElement.isInstanceOf[ScFunction])
+        case ref: PsiPolyVariantReference => ref.multiResolve(incomplete)
         case _ => Array[ResolveResult]()
       }
       case _ => Array[ResolveResult]()
