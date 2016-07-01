@@ -804,4 +804,62 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testUnaryMethods(): Unit = doTest()
 
   def testTupleAnonymous(): Unit = doTest()
+
+  def test10471A(): Unit = {
+    val code =
+      """
+        |package outer {
+        |  package a {
+        |    class Foo
+        |  }
+        |  package object a {
+        |    class B
+        |    implicit def string2Foo(s: String): Foo = new Foo
+        |  }
+        |}
+        |
+        |package b {
+        |  import outer.a.Foo
+        |
+        |  object Moo {
+        |    def baz(m: Foo): Foo = {
+        |      /*start*/""/*end*/
+        |    }
+        |  }
+        |}
+        |//Foo
+      """.stripMargin
+    doTest(code)
+  }
+
+  def test10471B(): Unit = {
+    val code =
+      """
+        |package outer {
+        |
+        |  import outer.a.c.Foo
+        |  package a {
+        |    package c {
+        |      class Foo
+        |
+        |    }
+        |  }
+        |  package object a {
+        |    implicit def string2Foo(s: String): Foo = new Foo
+        |  }
+        |}
+        |
+        |package b {
+        |  import outer.a.c.Foo
+        |
+        |  object Moo {
+        |    def baz(m: Foo): Foo = {
+        |      /*start*/""/*end*/
+        |    }
+        |  }
+        |}
+        |//Foo
+      """.stripMargin
+    doTest(code)
+  }
 }

@@ -13,11 +13,12 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
@@ -161,7 +162,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
   }
   
   def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
-    Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(getPackageName, scope))
+    Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(fullPackageName, scope))
   }
 
 
@@ -186,5 +187,11 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
   override protected def childBeforeFirstImport: Option[PsiElement] = {
     if (isExplicit) Option(findChildByType[PsiElement](ScalaTokenTypes.tLBRACE))
     else reference
+  }
+
+  override def parentScalaPackage: Option[ScPackageLike] = {
+    Option(PsiTreeUtil.getContextOfType(this, true, classOf[ScPackageLike])).orElse {
+      ScalaPsiUtil.parentPackage(fullPackageName, getProject)
+    }
   }
 }

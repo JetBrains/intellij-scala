@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
@@ -661,10 +661,17 @@ object ScalaPsiUtil {
         case _                           =>
           tp.extractClassType(project) match {
             case Some((clazz, subst)) =>
-              val packObjects = clazz.contexts.flatMap {
-                case x: ScPackageLike => x.findPackageObject(scope).toIterator
-                case _                => Iterator()
+              var packObjects = new ArrayBuffer[ScTypeDefinition]()
+
+              @tailrec
+              def packageObjectsInImplicitScope(packOpt: Option[ScPackageLike]): Unit = packOpt match {
+                case Some(pack) =>
+                  pack.findPackageObject(scope).foreach(packObjects += _)
+                  packageObjectsInImplicitScope(pack.parentScalaPackage)
+                case _ =>
               }
+
+              packageObjectsInImplicitScope(Option(ScalaPsiUtil.contextOfType(clazz, strict = false, classOf[ScPackageLike])))
               parts += tp
               packObjects.foreach(p => parts += ScDesignatorType(p))
 
@@ -743,6 +750,18 @@ object ScalaPsiUtil {
     cachedResult = res.values.flatten.toSeq
     implicitObjectsCache.put(cacheKey, cachedResult)
     cachedResult
+  }
+
+  def parentPackage(packageFqn: String, project: Project): Option[ScPackageImpl] = {
+    if (packageFqn.length == 0) None
+    else {
+      val lastDot: Int = packageFqn.lastIndexOf('.')
+      val name =
+        if (lastDot < 0) ""
+        else packageFqn.substring(0, lastDot)
+      val psiPack = ScalaPsiManager.instance(project).getCachedPackage(name).orNull
+      Option(ScPackageImpl(psiPack))
+    }
   }
 
   def mapToLazyTypesSeq(elems: Seq[PsiParameter]): Seq[() => ScType] = {
