@@ -380,7 +380,9 @@ object ScalaImportOptimizer {
       val postfix =
         if (groupStrings.length > 1 || renames.nonEmpty || hiddenNames.nonEmpty) groupStrings.mkString(s"{$space", ", ", s"$space}")
         else groupStrings(0)
-      s"import $root${relative.getOrElse(prefixQualifier)}.$postfix"
+      val prefix = s"$root${relative.getOrElse(prefixQualifier)}"
+      val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
+      s"import $prefix$dotOrNot$postfix"
     }
 
     def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String =
