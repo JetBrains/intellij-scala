@@ -56,7 +56,6 @@ object CachedWithRecursionGuard {
         val updatedRhs = q"""
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
           $fun
-          $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           $cachesUtilFQN.getWithRecursionPreventingWithRollback[$providerType, $retTp]($element, $keyVarName, $builder, $defaultValue)
           """
         val updatedDef = DefDef(mods, name, tpParams, params, retTp, updatedRhs)

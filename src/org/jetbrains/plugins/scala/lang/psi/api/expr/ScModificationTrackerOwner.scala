@@ -52,20 +52,12 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
       case f: ScFunction => f.returnTypeElement match {
         case Some(ret) =>  true
         case None if !f.hasAssign => true
-        case _ =>
-          if (checkForChangedReturn) {
-            CachesUtil.addModificationFunctionsReturnType(f)
-          }
-          true
+        case _ => false
       }
       case v: ScValue if !checkForChangedReturn || v.typeElement.isDefined => true
-      case v: ScValue =>
-        CachesUtil.addModificationFunctionsReturnType(v)
-        true
+      case v: ScValue => false
       case v: ScVariable if !checkForChangedReturn || v.typeElement.isDefined => true
-      case v: ScVariable =>
-        CachesUtil.addModificationFunctionsReturnType(v)
-        true
+      case v: ScVariable => false
       case _: ScWhileStmt => true
       case _: ScFinallyBlock => true
       case _: ScDoStmt => true
