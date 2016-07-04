@@ -13,7 +13,7 @@ import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
-import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
+import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -92,7 +92,7 @@ object JavaToScala {
   def convertPsiToIntermdeiate(element: PsiElement, externalProperties: ExternalProperties)
                               (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                                refs: Seq[ReferenceData] = Seq.empty,
-                               withComments: Boolean = false): IntermediateNode = {
+                               usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): IntermediateNode = {
     if (element == null) return LiteralExpression("")
     if (element.getLanguage != JavaLanguage.INSTANCE) LiteralExpression("")
     val result: IntermediateNode = element match {
@@ -103,7 +103,7 @@ object JavaToScala {
       case e: PsiExpressionStatement => convertPsiToIntermdeiate(e.getExpression, externalProperties)
       case l: PsiLiteralExpression => LiteralExpression(l.getText)
       case n: PsiIdentifier => NameIdentifier(n.getText)
-      case t: PsiTypeElement => TypeConstruction.createStringTypePresentation(t.getType, t.getProject)
+      case t: PsiTypeElement => TypeConstruction.createIntermediateTypePresentation(t.getType, t.getProject)
       case w: PsiWhiteSpace => LiteralExpression(w.getText)
       case r: PsiReturnStatement => ReturnStatement(convertPsiToIntermdeiate(r.getReturnValue, externalProperties))
       case t: PsiThrowStatement => ThrowStatement(convertPsiToIntermdeiate(t.getException, externalProperties))
@@ -282,14 +282,14 @@ object JavaToScala {
         val needVar = if (parent.isEmpty) false else isVar(l, parent)
         val initalizer = Option(l.getInitializer).map(convertPsiToIntermdeiate(_, externalProperties))
         val name = convertPsiToIntermdeiate(l.getNameIdentifier, externalProperties)
-        LocalVariable(handleModifierList(l), name, TypeConstruction.createStringTypePresentation(l.getType, l.getProject),
+        LocalVariable(handleModifierList(l), name, TypeConstruction.createIntermediateTypePresentation(l.getType, l.getProject),
           needVar, initalizer)
       case f: PsiField =>
         val modifiers = handleModifierList(f)
         val needVar = isVar(f, Option(f.getContainingClass))
         val initalizer = Option(f.getInitializer).map(convertPsiToIntermdeiate(_, externalProperties))
         val name = convertPsiToIntermdeiate(f.getNameIdentifier, externalProperties)
-        FieldConstruction(modifiers, name, TypeConstruction.createStringTypePresentation(f.getType, f.getProject),
+        FieldConstruction(modifiers, name, TypeConstruction.createIntermediateTypePresentation(f.getType, f.getProject),
           needVar, initalizer)
       case p: PsiParameterList =>
         ParameterListConstruction(p.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)))
@@ -356,19 +356,19 @@ object JavaToScala {
         if (p.isVarArgs) {
           p.getType match {
             case at: PsiArrayType =>
-              val scCompType = TypeConstruction.createStringTypePresentation(at.getComponentType, p.getProject)
-              ParameterConstruction(modifiers, name, scCompType, isArray = true)
+              val scCompType = TypeConstruction.createIntermediateTypePresentation(at.getComponentType, p.getProject)
+              ParameterConstruction(modifiers, name, scCompType, None, isArray = true)
             case t =>
-              ParameterConstruction(modifiers, name, TypeConstruction.createStringTypePresentation(t, p.getProject), isArray = false) // should not happen
+              ParameterConstruction(modifiers, name, TypeConstruction.createIntermediateTypePresentation(t, p.getProject), None, isArray = false) // should not happen
           }
         } else
-          ParameterConstruction(modifiers, name, TypeConstruction.createStringTypePresentation(p.getType, p.getProject), isArray = false)
+          ParameterConstruction(modifiers, name, TypeConstruction.createIntermediateTypePresentation(p.getType, p.getProject), None, isArray = false)
 
       case n: PsiNewExpression =>
         if (n.getAnonymousClass != null) {
           return AnonymousClassExpression(convertPsiToIntermdeiate(n.getAnonymousClass, externalProperties))
         }
-        val mtype = TypeConstruction.createStringTypePresentation(n.getType, n.getProject)
+        val mtype = TypeConstruction.createIntermediateTypePresentation(n.getType, n.getProject)
         if (n.getArrayInitializer != null) {
           NewExpression(mtype, n.getArrayInitializer.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)),
             withArrayInitalizer = true)
@@ -423,17 +423,18 @@ object JavaToScala {
         else NotSupported(None, "break //todo: break is not supported")
       case c: PsiContinueStatement =>
         if (c.getLabelIdentifier != null)
-          NotSupported(None, "continue " +  c.getLabelIdentifier.getText + " //todo: continue is not supported")
+          NotSupported(None, "continue " + c.getLabelIdentifier.getText + " //todo: continue is not supported")
         else NotSupported(None, "continue //todo: continue is not supported")
       case s: PsiLabeledStatement =>
         val statements = Option(s.getStatement).map(convertPsiToIntermdeiate(_, externalProperties))
-        NotSupported(statements, s.getLabelIdentifier.getText +  " //todo: labels is not supported")
+        NotSupported(statements, s.getLabelIdentifier.getText + " //todo: labels is not supported")
       case e: PsiEmptyStatement => EmptyConstruction()
       case e: PsiErrorElement => EmptyConstruction()
       case e => LiteralExpression(e.getText)
     }
 
     hanldleAssociations(element, result)
+    result.setComments(CommentsCollector.allCommentsForElement(element))
     result
   }
 
@@ -441,7 +442,7 @@ object JavaToScala {
   def hanldleAssociations(element: PsiElement, result: IntermediateNode)
                          (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                           refs: Seq[ReferenceData] = Seq.empty,
-                          withComments: Boolean = false): Any = {
+                          usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()) = {
     element match {
       case expression: PsiNewExpression if expression.getClassReference != null =>
         associations ++= associationFor(expression.getClassReference)
@@ -478,7 +479,7 @@ object JavaToScala {
   def createClass(inClass: PsiClass, externalProperties: ExternalProperties)
                  (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                   refs: Seq[ReferenceData] = Seq.empty,
-                  withComments: Boolean = false): IntermediateNode = {
+                  usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): IntermediateNode = {
 
     def extendList: Seq[PsiJavaCodeReferenceElement] = {
       val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
@@ -548,7 +549,7 @@ object JavaToScala {
                       companionObject: IntermediateNode, extendList: Seq[PsiJavaCodeReferenceElement]): IntermediateNode = {
 
       def handleAnonymousClass(clazz: PsiAnonymousClass): IntermediateNode = {
-        val tp = TypeConstruction.createStringTypePresentation(clazz.getBaseClassType, clazz.getProject)
+        val tp = TypeConstruction.createIntermediateTypePresentation(clazz.getBaseClassType, clazz.getProject)
         val argList = convertPsiToIntermdeiate(clazz.getArgumentList, externalProperties)
         AnonymousClass(tp, argList, classMembers.map(convertPsiToIntermdeiate(_, externalProperties)),
           extendList.map(convertPsiToIntermdeiate(_, externalProperties)))
@@ -603,6 +604,16 @@ object JavaToScala {
         updatedMembers.map(convertPsiToIntermdeiate(_, externalProperties))
       }
 
+      def getDropComments(dropMembes: Option[Seq[PsiMember]]): Option[ArrayBuffer[LiteralExpression]] = {
+        if (dropMembes.isDefined) {
+          val result = new ArrayBuffer[PsiElement]()
+          result ++= dropMembes.get
+          Some(result.flatMap(CommentsCollector.getAllInsideComments).map(CommentsCollector.convertComment))
+        } else {
+          None
+        }
+      }
+
       if (classMembers.nonEmpty || objectMembers.isEmpty) {
         context.get().push((false, inClass.qualifiedName))
         try {
@@ -615,6 +626,8 @@ object JavaToScala {
               val classType = if (inClass.isInterface) ClassType.INTERFACE else ClassType.CLASS
               val members = updateMembersAndConvert(dropMembers)
 
+              val dropComments = getDropComments(dropMembers)
+              if (primaryConstructor.isDefined && dropComments.isDefined) primaryConstructor.get.setAfterComments(dropComments.get)
               ClassConstruction(name, primaryConstructor, members, modifiers, Some(typeParams),
                 None, classType, companionObject, Some(extendList.map(convertPsiToIntermdeiate(_, externalProperties))))
           }
@@ -668,7 +681,7 @@ object JavaToScala {
   def handlePrimaryConstructor(constructors: Seq[PsiMethod])
                               (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                                refs: Seq[ReferenceData] = Seq.empty,
-                               withComments: Boolean = false): (Option[Seq[PsiMember]], Option[PrimaryConstruction]) = {
+                               usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): (Option[Seq[PsiMember]], Option[PrimaryConstruction]) = {
 
     val dropFields = new ArrayBuffer[PsiField]()
     def createPrimaryConstructor(constructor: PsiMethod): PrimaryConstruction = {
@@ -732,21 +745,24 @@ object JavaToScala {
 
       def createContructor: PrimaryConstruction = {
         val params = constructor.getParameterList.getParameters
-        val updatedParams = new ArrayBuffer[(IntermediateNode, IntermediateNode, Boolean)]()
+        val updatedParams = new ArrayBuffer[IntermediateNode]()
         val dropStatements = new ArrayBuffer[PsiExpressionStatement]()
         for (param <- params) {
           val fieldInfo = getCorrespondedFieldInfo(param)
           val updatedField = if (fieldInfo.isEmpty) {
             val p = convertPsiToIntermdeiate(param, null).asInstanceOf[ParameterConstruction]
-            (p.name, p.scCompType, false)
+            p.isVar = Some(false)
+            p
           } else {
             fieldInfo.foreach {
               case (field, statement) =>
                 dropFields += field
                 dropStatements += statement
             }
-            val p = convertPsiToIntermdeiate(fieldInfo.head._1, WithReferenceExpression(true)).asInstanceOf[FieldConstruction]
-            (p.name, p.ftype, p.isVar)
+            val fieldConverted = convertPsiToIntermdeiate(fieldInfo.head._1, WithReferenceExpression(true)).asInstanceOf[FieldConstruction]
+            val param = ParameterConstruction(EmptyConstruction(), fieldConverted.name, fieldConverted.ftype, Some(fieldConverted.isVar), isArray = false)
+            param.setComments(fieldConverted.comments)
+            param
           }
           updatedParams += updatedField
         }
@@ -756,8 +772,8 @@ object JavaToScala {
         getStatements(constructor).map {
           statements =>
             PrimaryConstruction(updatedParams, superCall,
-              statements.filter(notContains(_, dropStatements))
-                .map(convertPsiToIntermdeiate(_, WithReferenceExpression(true))), handleModifierList(constructor))
+              Option(statements.filter(notContains(_, dropStatements))
+                .map(convertPsiToIntermdeiate(_, WithReferenceExpression(true)))), handleModifierList(constructor))
         }.orNull
       }
 
@@ -810,7 +826,7 @@ object JavaToScala {
   def handleModifierList(owner: PsiModifierListOwner)
                         (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                          refs: Seq[ReferenceData] = Seq.empty,
-                         withComments: Boolean = false): IntermediateNode = {
+                         usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): IntermediateNode = {
 
     val annotationDropList = Seq("java.lang.Override", "org.jetbrains.annotations.Nullable",
       "org.jetbrains.annotations.NotNull", "org.jetbrains.annotations.NonNls")
@@ -880,22 +896,24 @@ object JavaToScala {
       modifiers
     }
 
-    ModifiersConstruction(handleAnnotations, handleModifiers)
+    val ml = ModifiersConstruction(handleAnnotations, handleModifiers)
+    ml.setComments(CommentsCollector.allCommentsForElement(owner.getModifierList))
+    ml
   }
 
-
-  def convertPsisToText(elements: Array[PsiElement]): String = {
+  def convertPsisToText(elements: Array[PsiElement],
+                        dropElements: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): String = {
     val resultNode = new MainConstruction
     for (part <- elements) {
-      resultNode.addChild(convertPsiToIntermdeiate(part, null))
+      resultNode.addChild(convertPsiToIntermdeiate(part, null)(new ListBuffer(), Seq.empty, dropElements))
     }
-    val visitor = new SimplePrintVisitor
+    val visitor = new PrintWithComments
     visitor.visit(resultNode)
     visitor.stringResult
   }
 
   def convertPsiToText(element: PsiElement): String = {
-    val visitor = new SimplePrintVisitor
+    val visitor = new PrintWithComments
     visitor.visit(convertPsiToIntermdeiate(element, null))
     visitor.stringResult
   }
