@@ -73,12 +73,12 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
     override def afterLibraryRemoved(newLibrary: Library): Unit = {
       if (!skippedLibs.contains(newLibrary.getName))
-        init()
+        initialized.set(false)
     }
 
     override def afterLibraryAdded(newLibrary: Library): Unit = {
       if (!skippedLibs.contains(newLibrary.getName))
-        init()
+        initialized.set(false)
     }
   }
 
