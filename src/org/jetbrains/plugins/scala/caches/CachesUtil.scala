@@ -244,6 +244,7 @@ object CachesUtil {
 
   //used in macro!
   def libraryAwareDependencyItem(element: PsiElement): ModificationTracker = {
+    return enclosingModificationOwner(element)
     val rootManager = ProjectRootManager.getInstance(element.getProject)
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled && rootManager.getFileIndex.isInLibraryClasses(element.getContainingFile.getVirtualFile) =>
