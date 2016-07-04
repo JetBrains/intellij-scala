@@ -13,8 +13,8 @@ trait Constructor
 
 case class ConstructorSimply(modifiers: IntermediateNode, typeParams: Seq[IntermediateNode],
                              params: IntermediateNode, body: Option[IntermediateNode]) extends IntermediateNode
-case class PrimaryConstruction(params: Seq[(IntermediateNode, IntermediateNode, Boolean)], superCall: IntermediateNode,
-                               body: Seq[IntermediateNode],  modifiers: IntermediateNode)
+case class PrimaryConstruction(params: Seq[IntermediateNode], superCall: IntermediateNode,
+                               body: Option[Seq[IntermediateNode]],  modifiers: IntermediateNode)
   extends IntermediateNode with Constructor
 
 

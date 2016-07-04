@@ -13,16 +13,17 @@ import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
-import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
+import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
@@ -42,7 +43,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
-        !file.isInstanceOf[PsiJavaFile]) return null
+      !file.isInstanceOf[PsiJavaFile]) return null
 
     sealed trait Part
     case class ElementPart(elem: PsiElement) extends Part
@@ -100,17 +101,20 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       val resultNode = new MainConstruction
       val topElements = getTopElements
       val data = getRefs
+      val usedComments = mutable.HashSet[PsiElement]()
       for (part <- topElements) {
         part match {
           case TextPart(s) =>
             resultNode.addChild(LiteralExpression(s))
+          case ElementPart(comment: PsiComment) =>
+            usedComments += comment
           case ElementPart(element) =>
-            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, withComments = true)
+            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, usedComments)
             resultNode.addChild(result)
         }
       }
 
-      val visitor = new SimplePrintVisitor
+      val visitor = new PrintWithComments
       visitor.visit(resultNode)
       val text = visitor.stringResult
       val rangeMap = visitor.rangedElementsMap
