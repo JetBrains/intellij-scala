@@ -116,7 +116,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.nonEmpty) {
-            return marker(x.getObjectToken, icon, typez)
+            return marker(x.getObjectClassOrTraitToken, icon, typez)
           }
         case (td : ScTypeDefinition, _: ScTemplateBody) if !td.isObject =>
           val signature = ScalaPsiUtil.superTypeMembers(td, withSelfType = true)

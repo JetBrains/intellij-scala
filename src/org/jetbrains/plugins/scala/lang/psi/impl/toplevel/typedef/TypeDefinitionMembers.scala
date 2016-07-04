@@ -484,12 +484,10 @@ object TypeDefinitionMembers {
       }
     }
 
-    def forAllSignatureNodes(c: PsiClass)(action: Node => Unit): Unit = {
-      for {
-        signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
-        (_, node) <- signature
-      } action(node)
-    }
+    def forAllSignatureNodes(c: PsiClass): Seq[Node] = for {
+      signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
+      (_, node) <- signature
+    } yield node
   }
 
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}

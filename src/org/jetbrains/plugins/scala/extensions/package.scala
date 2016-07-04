@@ -15,11 +15,12 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
@@ -28,6 +29,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole.DefinitionRole
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, StaticPsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -289,9 +293,7 @@ package object extensions {
     }
 
 
-    def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean)
-                                (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
-
+    def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean): Seq[(PsiMethod, String)] = {
       def concreteClassFor(typedDef: ScTypedDefinition): Option[PsiClass] = {
         if (typedDef.isAbstractMember) return None
         clazz match {
@@ -320,27 +322,55 @@ package object extensions {
       }
 
       node.info.namedElement match {
-        case fun: ScFunction if !fun.isConstructor =>
-          val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
-          wrappers.foreach(processMethod)
-          wrappers.foreach(w => processName(w.name))
+        case function: ScFunction if !function.isConstructor =>
+          function.getFunctionWrappers(isStatic, function.isAbstractMember, concreteClassFor(function)) map (wrapper => (wrapper, wrapper.name))
         case method: PsiMethod if !method.isConstructor =>
-          if (isStatic) {
-            if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
-              processMethod(StaticPsiMethodWrapper.getWrapper(method, clazz))
-              processName(method.getName)
-            }
-          }
-          else {
-            processMethod(method)
-            processName(method.getName)
-          }
-        case t: ScTypedDefinition if t.isVal || t.isVar ||
-          (t.isInstanceOf[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
+          val maybeWrapper = if (isStatic) {
+            Option(method.containingClass) filter {
+              _.qualifiedName != "java.lang.Object"
+            } map (_ => StaticPsiMethodWrapper.getWrapper(method, clazz))
+          } else Some(method)
 
-          PsiTypedDefinitionWrapper.processWrappersFor(t, concreteClassFor(t), node.info.name, isStatic, isInterface, processMethod, processName)
-        case _ =>
+          maybeWrapper.toSeq map (wrapper => (wrapper, wrapper.getName))
+        case definition: ScTypedDefinition if definition.isVal || definition.isVar ||
+          (definition.isInstanceOf[ScClassParameter] && definition.asInstanceOf[ScClassParameter].isCaseClassVal) =>
+          typedDefinitionWrappers(definition, node.info.name) map {
+            case (role, name) =>
+              (definition.getTypedDefinitionWrapper(isStatic, isInterface, role, concreteClassFor(definition)), name)
+          }
+        case _ => Seq.empty
       }
+    }
+
+    private def typedDefinitionWrappers(definition: ScTypedDefinition, nodeName: String): Seq[(DefinitionRole, String)] = {
+      val name = definition.name
+
+      val regularCase = nodeName == name match {
+        case true => Seq((DefinitionRole.SIMPLE_ROLE, "")) ++
+          (if (definition.isVar) Seq((DefinitionRole.EQ, "_eq")) else Seq.empty)
+        case _ => Seq.empty
+      }
+
+      def propertyCase(getterPrefix: String, getterRole: DefinitionRole) = {
+        val capitalizedName = name.capitalize
+        if (nodeName == getterPrefix + capitalizedName) Some(getterRole, getterPrefix)
+        else if (definition.isVar && nodeName == "set" + capitalizedName) Some(DefinitionRole.SETTER, "set")
+        else None
+      }
+
+      val maybePropertyCase = definition.nameContext match {
+        case holder: ScAnnotationsHolder if isBeanProperty(holder) =>
+          propertyCase("get", DefinitionRole.GETTER)
+        case holder: ScAnnotationsHolder if isBooleanBeanProperty(holder) =>
+          propertyCase("is", DefinitionRole.IS_GETTER)
+        case _ => None
+      }
+
+      (regularCase map {
+        case (role, suffix) => (role, name + suffix)
+      }) ++ (maybePropertyCase map {
+        case (role, prefix) => (role, prefix + definition.getName.capitalize)
+      })
     }
 
     def namedElements: Seq[PsiNamedElement] = {

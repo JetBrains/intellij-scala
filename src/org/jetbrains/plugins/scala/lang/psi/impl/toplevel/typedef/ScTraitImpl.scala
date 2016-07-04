@@ -9,18 +9,13 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author Alexander Podkhalyuzin
@@ -61,40 +56,16 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
-
-  override def isInterface: Boolean = true
-
-  def fakeCompanionClass: PsiClass = new PsiClassWrapper(this, getQualifiedName + "$class", getName + "$class")
-
-  override def getMethods: Array[PsiMethod] = {
-    getAllMethods.filter(_.containingClass == this)
-  }
+  override def isInterface = true
 
   override def hasModifierProperty(name: String): Boolean = name match {
-    case PsiModifier.ABSTRACT if isInterface => true
+    case PsiModifier.ABSTRACT => true
     case _ => super.hasModifierProperty(name)
   }
 
-  override def getAllMethods: Array[PsiMethod] = {
-    val res = new ArrayBuffer[PsiMethod]()
-    res ++= getConstructors
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = true)(res += _)
-    }
-
-    for (synthetic <- syntheticMethodsNoOverride) {
-      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-        ScSubstitutor.empty),
-        isStatic = false, isInterface = isInterface)(res += _)
-    }
-    res.toArray
-  }
+  override protected def isInterfaceNode(node: SignatureNodes.Node) = true
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
-
-  override def getInterfaces: Array[PsiClass] = {
-    getSupers.filter(_.isInterface)
-  }
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
     SyntheticMembersInjector.inject(this, withOverride = false)
