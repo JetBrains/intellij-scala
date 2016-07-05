@@ -12,14 +12,16 @@ import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
  * Date: 08.07.13
  */
 class ScalaArrangementEntry(parent: ArrangementEntry, startOffset: Int, endOffset: Int,
-        entryType: ArrangementSettingsToken, name: String, canBeMatched: Boolean)
-        extends DefaultArrangementEntry(parent, startOffset, endOffset, canBeMatched) with TypeAwareArrangementEntry
-        with NameAwareArrangementEntry with ModifierAwareArrangementEntry {
+                            entryType: ArrangementSettingsToken, name: String, canBeMatched: Boolean,
+                            val innerEntryType: Option[ArrangementSettingsToken])
+  extends DefaultArrangementEntry(parent, startOffset, endOffset, canBeMatched) with TypeAwareArrangementEntry
+    with NameAwareArrangementEntry with ModifierAwareArrangementEntry {
 
   val modifiers = new util.HashSet[ArrangementSettingsToken]
 
-  def this( parent: ArrangementEntry, range: TextRange, entryType: ArrangementSettingsToken, name: String, canBeMatched: Boolean) =
-  this(parent, range.getStartOffset, range.getEndOffset, entryType, name, canBeMatched)
+  def this( parent: ArrangementEntry, range: TextRange, entryType: ArrangementSettingsToken, name: String,
+            canBeMatched: Boolean, innerEntryType: Option[ArrangementSettingsToken] = None) =
+  this(parent, range.getStartOffset, range.getEndOffset, entryType, name, canBeMatched, innerEntryType)
 
   override def getName: String = name
 
@@ -44,4 +46,7 @@ class ScalaArrangementEntry(parent: ArrangementEntry, startOffset: Int, endOffse
             other.getType == entryType && other.getParent == parent
     case _                            => false
   }
+
+  def spansTextRange(range: TextRange) =
+    range.getStartOffset == getStartOffset && range.getEndOffset == getEndOffset
 }
