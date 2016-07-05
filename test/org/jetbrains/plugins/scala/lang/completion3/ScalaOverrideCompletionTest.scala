@@ -18,6 +18,9 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       |  var intVariable = 43
       |  type A
       |  def abstractFoo
+      |
+      |  @throws(classOf[Exception])
+      |  def annotFoo(int: Int): Int = 45
       |}
     """
 
@@ -239,5 +242,27 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
 
     val result = activeLookup.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
     assert(result.isEmpty, "Override is not enable at this place")
+  }
+
+  def testWithAnnotation(): Unit ={
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   annotFoo<caret>
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val outText =
+      """
+        |class Inheritor extends Base {
+        |  @throws(classOf[Exception])
+        |  override def annotFoo(int: Int): Int = super.annotFoo(int)
+        |}
+      """
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("override") && le.getLookupString.contains("annotFoo")).get, '\t')
+    checkResultByText(handleText(baseText + outText))
   }
 }

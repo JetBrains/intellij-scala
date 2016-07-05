@@ -134,7 +134,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
 
         elementOption.foreach { element =>
           TypeAdjuster.markToAdjust(element)
-          if (!hasOverride && ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED) {
+          if (!hasOverride && !element.hasModifierProperty("override") && ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED) {
             element.setModifierProperty("override", value = true)
           }
           ScalaGenerationInfo.positionCaret(context.getEditor, element.asInstanceOf[PsiMember])
@@ -153,7 +153,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
         val fun = if (full)
           ScalaPsiElementFactory.createOverrideImplementMethod(mm.sign, mm.getElement.getManager,
-            needsOverrideModifier = false, needsInferType = needsInferType: Boolean, mBody)
+            needsOverrideModifier = true, needsInferType = needsInferType: Boolean, mBody)
         else ScalaPsiElementFactory.createMethodFromSignature(mm.sign, mm.getElement.getManager,
           needsInferType = needsInferType, mBody)
         fun.getText
@@ -173,7 +173,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       //remove val, var, def or type
       case -1 => text
       case part => text.substring(part + 1)
-    } else "override " + text
+    } else if (classMember.isInstanceOf[ScMethodMember]) text else "override " + text
   }
 
   private def handleMembers(classMembers: Iterable[ClassMember], td: ScTemplateDefinition,
