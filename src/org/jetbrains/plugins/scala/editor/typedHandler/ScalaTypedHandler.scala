@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.editor.typedHandler
 
+import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
+import com.intellij.codeInsight.lookup.impl.actions.ChooseItemAction.CompletingStatement
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
+import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScVariable, ScFunction, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -366,7 +368,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def scheduleAutopopup(file: PsiFile, editor: Editor, project: Project): Unit = {
     AutoPopupController.getInstance(project).scheduleAutoPopup(
-      editor, new Condition[PsiFile] {
+      editor, CompletionType.BASIC, new Condition[PsiFile] {
         def value(t: PsiFile): Boolean = t == file
       }
     )

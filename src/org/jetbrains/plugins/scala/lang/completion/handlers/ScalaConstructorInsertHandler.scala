@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion.handlers
 
 import com.intellij.codeInsight.AutoPopupController
-import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
+import com.intellij.codeInsight.completion.{CompletionType, InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.util.PsiTreeUtil
@@ -44,7 +44,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
           context.setLaterRunnable(new Runnable {
             def run() {
               AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-                context.getEditor, new Condition[PsiFile] {
+                context.getEditor, CompletionType.BASIC, new Condition[PsiFile] {
                   def value(t: PsiFile): Boolean = t == context.getFile
                 }
               )

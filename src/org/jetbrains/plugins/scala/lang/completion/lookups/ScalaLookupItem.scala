@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.completion.lookups
 
 import com.intellij.codeInsight.AutoPopupController
-import com.intellij.codeInsight.completion.InsertionContext
+import com.intellij.codeInsight.completion.{CompletionType, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupItem}
 import com.intellij.openapi.util.Condition
 import com.intellij.psi._
@@ -274,7 +274,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             context.setLaterRunnable(new Runnable {
               def run() {
                 AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-                  context.getEditor, new Condition[PsiFile] {
+                  context.getEditor, CompletionType.BASIC, new Condition[PsiFile] {
                     def value(t: PsiFile): Boolean = t == context.getFile
                   }
                 )
