@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
@@ -93,7 +93,7 @@ object PsiTypedDefinitionWrapper {
   def methodText(b: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean, role: DefinitionRole): String = {
     val builder = new StringBuilder
 
-    nameContext(b) match {
+    ScalaPsiUtil.nameContext(b) match {
       case m: ScModifierListOwner =>
         builder.append(JavaConversionUtil.annotationsAndModifiers(m, isStatic))
       case _ =>
@@ -106,15 +106,15 @@ object PsiTypedDefinitionWrapper {
       case _ => builder.append("java.lang.Object")
     }
 
-    val name = b.getName
     builder.append(" ")
-    builder.append(role match {
-      case SIMPLE_ROLE => name
-      case GETTER => "get" + name.capitalize
-      case IS_GETTER => "is" + name.capitalize
-      case SETTER => "set" + name.capitalize
-      case EQ => name + "_$eq"
-    })
+    val name = role match {
+      case SIMPLE_ROLE => b.getName
+      case GETTER => "get" + b.getName.capitalize
+      case IS_GETTER => "is" + b.getName.capitalize
+      case SETTER => "set" + b.getName.capitalize
+      case EQ => b.getName + "_$eq"
+    }
+    builder.append(name)
     if (role != SETTER && role != EQ) {
       builder.append("()")
     } else {
@@ -123,7 +123,7 @@ object PsiTypedDefinitionWrapper {
         case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, b.getProject, b.getResolveScope))
         case _ => builder.append("java.lang.Object")
       }
-      builder.append(" ").append(name).append(")")
+      builder.append(" ").append(b.getName).append(")")
     }
 
     val holder = PsiTreeUtil.getContextOfType(b, classOf[ScAnnotationsHolder])
@@ -137,5 +137,42 @@ object PsiTypedDefinitionWrapper {
       builder.append(";")
 
     builder.toString()
+  }
+
+  def processWrappersFor(t: ScTypedDefinition, cClass: Option[PsiClass], nodeName: String, isStatic: Boolean, isInterface: Boolean,
+                 processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit  = {
+    if (nodeName == t.name) {
+      processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SIMPLE_ROLE, cClass))
+      processName(t.name)
+      if (t.isVar) {
+        processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = EQ, cClass))
+        processName(t.name + "_eq")
+      }
+    }
+    t.nameContext match {
+      case s: ScAnnotationsHolder =>
+        val beanProperty = ScalaPsiUtil.isBeanProperty(s)
+        val booleanBeanProperty = ScalaPsiUtil.isBooleanBeanProperty(s)
+        if (beanProperty) {
+          if (nodeName == "get" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = GETTER, cClass))
+            processName("get" + t.getName.capitalize)
+          }
+          if (t.isVar && nodeName == "set" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SETTER, cClass))
+            processName("set" + t.getName.capitalize)
+          }
+        } else if (booleanBeanProperty) {
+          if (nodeName == "is" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = IS_GETTER, cClass))
+            processName("is" + t.getName.capitalize)
+          }
+          if (t.isVar && nodeName == "set" + t.name.capitalize) {
+            processMethod(t.getTypedDefinitionWrapper(isStatic, isInterface, role = SETTER, cClass))
+            processName("set" + t.getName.capitalize)
+          }
+        }
+      case _ =>
+    }
   }
 }

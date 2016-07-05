@@ -25,10 +25,13 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   }
 
   def constructors: Array[PsiMethod] = {
-    (secondaryConstructors ++ constructor).toArray
+    (secondaryConstructors ++ constructor.toSeq).toArray
   }
 
-  def clauses: Option[ScParameters] = constructor.map(_.parameterList)
+  def clauses: Option[ScParameters] = constructor match {
+    case Some(x: ScPrimaryConstructor) => Some(x.parameterList)
+    case None => None
+  }
 
   def addEmptyParens() {
     clauses match {
@@ -105,7 +108,9 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
 
   def getSyntheticImplicitMethod: Option[ScFunction]
 
-  def getObjectClassOrTraitToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
+  def getClassToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
+
+  def getObjectClassOrTraitToken: PsiElement = getClassToken
 
   override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitClass(this)
 }

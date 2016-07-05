@@ -7,7 +7,6 @@ package typedef
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 */
 
 trait ScTrait extends ScTypeDefinition {
-  def getObjectClassOrTraitToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTRAIT)
-
-  def fakeCompanionClass: PsiClass = new PsiClassWrapper(this, getQualifiedName + "$class", getName + "$class")
+  def getTraitToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTRAIT)
+  def getObjectClassOrTraitToken: PsiElement = getTraitToken
+  def fakeCompanionClass: PsiClass
 }
