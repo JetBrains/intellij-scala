@@ -5,10 +5,11 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
@@ -16,7 +17,19 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 * Date: 20.02.2008
 */
 
-trait ScClass extends ScTypeDefinition with ScConstructorOwner {
+trait ScClass extends ScTypeDefinition with ScParameterOwner {
+  def constructor: Option[ScPrimaryConstructor]
+
+  def secondaryConstructors: Seq[ScFunction] = {
+    functions.filter(_.isConstructor)
+  }
+
+  def constructors: Array[PsiMethod] = {
+    (secondaryConstructors ++ constructor).toArray
+  }
+
+  def clauses: Option[ScParameters] = constructor.map(_.parameterList)
+
   def addEmptyParens() {
     clauses match {
       case Some(c) =>
