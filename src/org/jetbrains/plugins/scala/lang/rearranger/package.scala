@@ -25,10 +25,15 @@ package object rearranger {
   val SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS_UI = "Split into unarrangeable blocks by expressions"
   val SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS: ArrangementSettingsToken =
     StdArrangementSettingsToken.token(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS_ID, SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS_UI, StdArrangementTokenType.GROUPING) //TODO: use name from bundle
+  val SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS_ID = "SCALA_SPLIT_BY_IMPLICITS"
+  val SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS_UI = "Split into unarrangeable blocks by implicits"
+  val SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS: ArrangementSettingsToken =
+    StdArrangementSettingsToken.token(SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS_ID, SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS_UI, StdArrangementTokenType.GROUPING) //TODO: use name from bundle
 
   val scalaGroupingRules = immutable.HashMap(SCALA_GETTERS_AND_SETTERS.getId -> SCALA_GETTERS_AND_SETTERS,
     JAVA_GETTERS_AND_SETTERS.getId -> JAVA_GETTERS_AND_SETTERS,
-    SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS.getId -> SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS)
+    SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS.getId -> SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_EXPRESSIONS,
+    SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS.getId -> SPLIT_INTO_UNARRANGEABLE_BLOCKS_BY_IMPLICITS)
 
   //access modifiers
   val scalaAccessModifiersByName = immutable.ListMap("public" -> PUBLIC, "protected" -> PROTECTED, "private" -> PRIVATE)
@@ -117,5 +122,4 @@ package object rearranger {
   def getTokenById(modifierId: String): Option[ArrangementSettingsToken] = {
     scalaTokensById.get(modifierId)
   }
-
 }
