@@ -71,9 +71,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
 
   def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScTemplateDefinitionStub) = {
-    this(stub, ScalaElementTypes.objectDefinition, null)
-  }
+  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.OBJECT_DEF, null)}
 
   override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
 

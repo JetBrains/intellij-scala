@@ -11,14 +11,11 @@ import com.intellij.openapi.roots.ui.configuration.libraryEditor.{ExistingLibrar
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
-import org.jetbrains.plugins.dotty.lang.DottyTokenSets
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.ElementTypes
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.{ScalaTokenSets, TokenSets}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
 import scala.annotation.tailrec
@@ -171,16 +168,10 @@ package object project {
       ProjectLibraryTable.getInstance(project).removeLibrary(library)
     }
 
-    def typeSystem: TypeSystem = if (hasDotty) DottyTypeSystem else ScalaTypeSystem
-
-    def tokenSets: TokenSets = if (hasDotty) DottyTokenSets else ScalaTokenSets
-
-    def elementTypes: ElementTypes = tokenSets.elementTypes
+    def typeSystem: TypeSystem = typeSystemIn(project)
   }
 
-  def typeSystemIn(project: Project): TypeSystem = project.typeSystem
-
-  def elementTypesIn(project: Project): ElementTypes = project.elementTypes
+  def typeSystemIn(project: Project): TypeSystem = if (project.hasDotty) DottyTypeSystem else ScalaTypeSystem
 
   class ScalaModule(val module: Module) {
     def sdk: ScalaSdk = module.scalaSdk.map(new ScalaSdk(_)).getOrElse {

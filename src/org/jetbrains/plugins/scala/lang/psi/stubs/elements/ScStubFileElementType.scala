@@ -3,50 +3,37 @@ package lang
 package psi
 package stubs
 package elements
-
 import com.intellij.lang.Language
 import com.intellij.psi.StubBuilder
 import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubFileElementWrapper
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**
  * @author ilyas
  */
 
-class ScStubFileElementType(val debugName: String, language: Language)
-  extends IStubFileElementWrapper[ScalaFile, ScFileStub](debugName, language) with ScStubSerializer[ScFileStub] {
+class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[ScalaFile, ScFileStub]("scala.FILE", lang) {
 
-  def this() = this("file", ScalaFileType.SCALA_LANGUAGE)
+  override def getStubVersion: Int = StubVersion.STUB_VERSION
 
-  def this(language: Language) = this("file", language)
+  override def getBuilder: StubBuilder = new ScalaFileStubBuilder()
 
-  override def getStubVersion = StubVersion.STUB_VERSION
-
-  override def getBuilder: StubBuilder = new ScalaFileStubBuilder
-
-  override def getExternalId = super.getExternalId
+  override def getExternalId = "scala.FILE"
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Object): ScFileStub = {
-    val isScript = dataStream.readBoolean
-    val isCompiled = dataStream.readBoolean
-    getBuilder.asInstanceOf[ScalaFileStubBuilder].fileStub(null,
-      dataStream.readName,
-      dataStream.readName,
-      isCompiled,
-      isScript)
+    ScalaStubsUtil.deserializeFileStubElement(dataStream, parentStub)
   }
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeBoolean(stub.isScript)
-    dataStream.writeBoolean(stub.isCompiled)
-    dataStream.writeName(stub.packageName)
-    dataStream.writeName(stub.getFileName)
+    ScalaStubsUtil.serializeFileStubElement(stub, dataStream)
   }
 
-  def indexStub(stub: ScFileStub, sink: IndexSink) {
+  def indexStub(stub: ScFileStub, sink: IndexSink){
   }
+
 }
 
 object StubVersion {

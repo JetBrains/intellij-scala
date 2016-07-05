@@ -14,6 +14,5 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTraitImpl
  */
 class ScTraitDefinitionElementType extends ScTemplateDefinitionElementType[ScTrait]("trait definition") {
   def createElement(node: ASTNode): PsiElement = new ScTraitImpl(node)
-
-  def createPsi(stub: ScTemplateDefinitionStub): ScTrait = new ScTraitImpl(stub)
+  def createPsi(stub: ScTemplateDefinitionStub) = new ScTraitImpl(stub)
 }

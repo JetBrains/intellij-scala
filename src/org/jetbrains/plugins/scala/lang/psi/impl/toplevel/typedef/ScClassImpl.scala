@@ -47,10 +47,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   }
 
   def this(node: ASTNode) = {this(null, null, node)}
-
-  def this(stub: ScTemplateDefinitionStub) = {
-    this(stub, ScalaElementTypes.classDefinition, null)
-  }
+  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.CLASS_DEF, null)}
 
   override def toString: String = "ScClass: " + name
 

@@ -27,8 +27,6 @@ object TmplDef extends TmplDef {
   override protected val objectDef = ObjectDef
   override protected val traitDef = TraitDef
   override protected val annotation = Annotation
-
-  override protected val elementTypes = ScalaElementTypes
 }
 
 trait TmplDef {
@@ -36,8 +34,6 @@ trait TmplDef {
   protected val objectDef: ObjectDef
   protected val traitDef: TraitDef
   protected val annotation: Annotation
-
-  protected val elementTypes: ElementTypes
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()
@@ -91,14 +87,14 @@ trait TmplDef {
   }
 
   private def templateParser(tokenType: IElementType, caseState: Boolean) = tokenType match {
-    case ScalaTokenTypes.kCLASS => Some(classDef.parse _, elementTypes.classDefinition)
-    case ScalaTokenTypes.kOBJECT => Some(objectDef.parse _, elementTypes.objectDefinition)
+    case ScalaTokenTypes.kCLASS => Some(classDef.parse _, ScalaElementTypes.CLASS_DEF)
+    case ScalaTokenTypes.kOBJECT => Some(objectDef.parse _, ScalaElementTypes.OBJECT_DEF)
     case ScalaTokenTypes.kTRAIT =>
       def parse(builder: ScalaPsiBuilder): Boolean = {
         val result = traitDef.parse(builder)
         if (caseState) true else result
       }
-      Some(parse _, elementTypes.traitDefinition)
+      Some(parse _, ScalaElementTypes.TRAIT_DEF)
     case _ => None
   }
 }

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -43,7 +42,7 @@ trait ScToplevelElement extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null) {
-      stub.getChildrenByType[ScTypeDefinition](getProject.tokenSets.templateDefinitionSet, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+      stub.getChildrenByType[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     } else findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq
   }
 

@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
 
@@ -230,17 +229,15 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   }
 
   override def isRegionCollapsedByDefault(node: ASTNode): Boolean = {
-    val psi = node.getPsi
-    psi.getContainingFile match {
+    node.getPsi.getContainingFile match {
       case sc: ScalaFile if sc.isWorksheetFile => return false
       case _ =>
     }
 
-    val file = psi.getProject.elementTypes.file
-    if (node.getTreeParent.getElementType == file &&
+    if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
             node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING &&
             ScalaCodeFoldingSettings.getInstance().isCollapseFileHeaders) true
-    else if (node.getTreeParent.getElementType == file &&
+    else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
             node.getElementType == ScalaElementTypes.IMPORT_STMT &&
             ScalaCodeFoldingSettings.getInstance().isCollapseImports) true
     else if (node.getTreeParent != null &&
@@ -274,20 +271,20 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case ScalaElementTypes.BLOCK_EXPR
           if ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case ScalaElementTypes.SIMPLE_TYPE => true
-        case _ if psi.isInstanceOf[ScBlockExpr] &&
+        case _ if node.getPsi.isInstanceOf[ScBlockExpr] &&
                 node.getTreeParent.getElementType == ScalaElementTypes.ARG_EXPRS &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies => true
         case _ if node.getTreeParent.getElementType == ScalaElementTypes.FUNCTION_DEFINITION &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseMethodCallBodies &&
                 isMultilineFuncBody(node.getTreeParent.getPsi.asInstanceOf[ScFunctionDefinition])._1 => true
-        case _ if psi.isInstanceOf[ScTypeProjection] &&
+        case _ if node.getPsi.isInstanceOf[ScTypeProjection] &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
-        case _ if psi.isInstanceOf[ScTypeElement] &&
+        case _ if node.getPsi.isInstanceOf[ScTypeElement] &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseTypeLambdas => true
-        case _ if psi.isInstanceOf[ScLiteral] &&
-          psi.asInstanceOf[ScLiteral].isMultiLineString &&
+        case _ if node.getPsi.isInstanceOf[ScLiteral] &&
+                node.getPsi.asInstanceOf[ScLiteral].isMultiLineString &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseMultilineStrings => true
-        case _ if psi.isInstanceOf[ScArgumentExprList] &&
+        case _ if node.getPsi.isInstanceOf[ScArgumentExprList] &&
                 ScalaCodeFoldingSettings.getInstance().isCollapseMultilineBlocks => true
         case _ => false
       }
