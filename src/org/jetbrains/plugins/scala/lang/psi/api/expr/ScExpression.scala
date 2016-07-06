@@ -212,9 +212,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 expected.removeAbstracts match {
                   case FunctionType(_, params) =>
                   case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
-                    ScalaPsiUtil.toSAMType(expect, getResolveScope, ScExpression.this.scalaLanguageLevelOrDefault) match {
-                      case Some(_) =>
-                      case _ => res = updateType(retType)
+                    val languageLevel = ScExpression.this.scalaLanguageLevelOrDefault
+                    if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, getResolveScope, languageLevel).isEmpty) {
+                      res = updateType(retType)
                     }
                   case _ => res = updateType(retType)
                 }
@@ -404,10 +404,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             new Parameter("", None, tpe, false, false, false, index)
         }
         val methType =
-          new ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
+          ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
             fromUnderscore = true).tr.getOrAny,
-            params, false)(getProject, getResolveScope)
-        new Success(methType, Some(ScExpression.this))
+            params, isImplicit = false)(getProject, getResolveScope)
+        Success(methType, Some(ScExpression.this))
       }
     }
   }
