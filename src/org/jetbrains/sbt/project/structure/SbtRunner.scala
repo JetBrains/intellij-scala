@@ -50,10 +50,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     }
   }
 
-  private def checkFilePresence: Option[String] = {
-    val files = Stream("SBT launcher" -> SbtLauncher)
-    files.map((check _).tupled).flatten.headOption
-  }
+  private def checkFilePresence: Option[String] = check("SBT launcher", SbtLauncher)
 
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
