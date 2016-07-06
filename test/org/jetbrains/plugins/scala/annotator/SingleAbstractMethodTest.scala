@@ -270,7 +270,6 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
         |def len(s: String): Int  = s.length
         |
         |val f: F[String, Int] = len
-        |
       """.stripMargin
     checkCodeHasNoErrors(code)
   }
@@ -657,6 +656,31 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
         |((x: Int) => x): SelfTp3[Int] //this compiles with 2.12-M4
       """.stripMargin
     checkCodeHasNoErrors(code)
+  }
+
+  def testNoEtaExpansionFromMethodType(): Unit = {
+    val code =
+      """
+        |package testNoEtaExpansionFromMethodType
+        |
+        |object Moo {
+        |  def foo(request: Request123): Unit = {
+        |    copyStreamContent(request.getInputStream)
+        |  }
+        |
+        |  def copyStreamContent(inputStream: InputStream): Int = -1
+        |}
+        |
+        |trait InputStream {
+        |  def write(s: String): Unit = {}
+        |  def bar(): Int
+        |}
+        |trait Request123 {
+        |  def getInputStream(): InputStream
+        |}
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code, None)
   }
 }
 
