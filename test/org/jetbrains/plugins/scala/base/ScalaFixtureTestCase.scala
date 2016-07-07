@@ -16,7 +16,7 @@ abstract class ScalaFixtureTestCase(private val scalaVersion: ScalaSdkVersion = 
 
   protected def rootPath = TestUtils.getTestDataPath + "/"
 
-  var libLoader: ScalaLibraryLoader = null
+  var libLoader: ScalaLibraryLoader = _
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -27,6 +27,7 @@ abstract class ScalaFixtureTestCase(private val scalaVersion: ScalaSdkVersion = 
 
   override def tearDown(): Unit = {
     libLoader.clean()
+    libLoader = null
     super.tearDown()
   }
 
