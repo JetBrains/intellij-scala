@@ -25,7 +25,7 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with TestFixtureProvider {
   protected val CARET_MARKER = ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
-  private var libLoader: ScalaLibraryLoader = null
+  private var libLoader: ScalaLibraryLoader = _
 
   override protected def setUp() {
     super.setUp()
@@ -187,12 +187,13 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
           }
         }, "", null)
         myFixture.checkResult(assumedStub, /*stripTrailingSpaces = */true)
-      case _ => assert(false, "There is no fixes with such hint.")
+      case _ => assert(assertion = false, "There is no fixes with such hint.")
     }
   }
 
   protected override def tearDown() {
     libLoader.clean()
+    libLoader = null
     super.tearDown()
   }
 

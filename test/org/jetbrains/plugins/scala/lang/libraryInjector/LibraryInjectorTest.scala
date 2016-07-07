@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
   val LIBRARY_NAME = "dummy_lib.jar"
-  private var scalaLibraryLoader: ScalaLibraryLoader = null
+  private var scalaLibraryLoader: ScalaLibraryLoader = _
 
   trait Zipable {
     def zip(toDir: File): File = ???
@@ -77,6 +77,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     CompilerTestUtil.disableExternalCompiler(myProject)
     CompileServerLauncher.instance.stop()
     scalaLibraryLoader.clean()
+    scalaLibraryLoader = null
     super.tearDown()
   }
 

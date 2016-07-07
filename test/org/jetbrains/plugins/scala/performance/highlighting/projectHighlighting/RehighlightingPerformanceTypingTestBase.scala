@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
   */
 abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImportingTestCase {
 
-  var myCodeInsightTestFixture: CodeInsightTestFixture = null
+  var myCodeInsightTestFixture: CodeInsightTestFixture = _
 
-  var libLoader: ScalaLibraryLoader = null
+  var libLoader: ScalaLibraryLoader = _
 
   override def setUp(): Unit = {
     super.setUp()
