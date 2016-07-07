@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
@@ -57,7 +58,8 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
   }
 
   def getValType: Option[StdType] = element match {
-    case clazz: PsiClass => StdType.QualNameToType.get(clazz.qualifiedName)
+    case clazz: PsiClass if !clazz.isInstanceOf[ScObject] =>
+      StdType.QualNameToType.get(clazz.qualifiedName)
     case _ => None
   }
 
