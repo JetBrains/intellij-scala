@@ -5,13 +5,12 @@ import java.io._
 import java.nio.charset.Charset
 import java.util.Properties
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.jar.{JarEntry, JarFile}
+import java.util.jar.JarFile
 
 import com.intellij.execution.process.OSProcessHandler
 import org.jetbrains.sbt.project.structure.SbtRunner._
 
 import scala.collection.JavaConverters._
-import scala.util.matching.Regex
 import scala.xml.{Elem, XML}
 
 /**
@@ -35,7 +34,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
             resolveJavadocs.seq("resolveJavadocs") ++
             resolveSbtClassifiers.seq("resolveSbtClassifiers")
 
-    checkFilePresence.fold(read0(directory, options.mkString(", "))(listener))(it => Left(new FileNotFoundException(it)))
+    checkLauncherPresence.fold(read0(directory, options.mkString(", "))(listener))(it => Left(new FileNotFoundException(it)))
   }
 
   private def read0(directory: File, options: String)(listener: (String) => Unit): Either[Exception, Elem] = {
@@ -50,7 +49,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     }
   }
 
-  private def checkFilePresence: Option[String] = check("SBT launcher", SbtLauncher)
+  private def checkLauncherPresence: Option[String] = check("SBT launcher", SbtLauncher)
 
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
@@ -61,7 +60,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
       val sbtCommands = Seq(
         s"""set shellPrompt := { _ => "" }""",
         s"""set SettingKey[Option[File]]("sbt-structure-output-file") in Global := Some(file("${path(structureFile)}"))""",
-        s"""set SettingKey[String]("sbt-structure-options") in Global := "${options}" """,
+        s"""set SettingKey[String]("sbt-structure-options") in Global := "$options" """,
         s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.CreateTasks""",
         s"""*/*:dump-structure""",
         s"""exit""")
@@ -109,7 +108,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
           writer.close()
         } else {
           output.append(text)
-          listener(text)
+          listener(text)  
         }
       case (OutputType.StdErr, text) =>
         output.append(text)
@@ -229,4 +228,3 @@ object SbtRunner {
     }
   }
 }
-
