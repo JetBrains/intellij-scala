@@ -2,14 +2,15 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
-import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConvertNullInitializerToUnderscore
+import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection
 
 /**
   * Created by a.tsukanov on 27.05.2016.
   */
-class ConvertNullInitializerToUnderscoreInspectionTest extends ScalaLightInspectionFixtureTestAdapter{
-  override protected def annotation: String = ConvertNullInitializerToUnderscore.inspectionName
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertNullInitializerToUnderscore]
+class VariableNullInitializerInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+  override protected def annotation: String = VariableNullInitializerInspection.inspectionName
+
+  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
   def testSimpleCase(): Unit = {
     def testType(typeName: String): Unit = {
