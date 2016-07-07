@@ -30,7 +30,7 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   private var deleteProjectAtTearDown = false
-  private var scalaLibraryLoader: ScalaLibraryLoader = null
+  private var scalaLibraryLoader: ScalaLibraryLoader = _
 
   override def setUp(): Unit = {
     super.setUp()
@@ -86,6 +86,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     CompileServerLauncher.instance.stop()
     val baseDir = getBaseDir
     scalaLibraryLoader.clean()
+    scalaLibraryLoader = null
     super.tearDown()
 
     if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
@@ -126,7 +127,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   }
 
   private class ErrorReportingCallback(semaphore: Semaphore) extends CompileStatusNotification {
-    private var myError: Throwable = null
+    private var myError: Throwable = _
     private val myMessages = ListBuffer[String]()
 
     def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {
