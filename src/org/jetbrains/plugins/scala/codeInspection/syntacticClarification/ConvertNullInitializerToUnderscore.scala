@@ -20,36 +20,40 @@ class ConvertNullInitializerToUnderscore extends AbstractInspection(inspectionId
     holder.registerProblem(variable.expr.get, inspectionName, fix)
   }
 
-  private def isNull(expr: ScExpression): Boolean = {
-    expr.getFirstChild.getNode.getElementType == ScalaTokenTypes.kNULL
-  }
-
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case variable: ScVariableDefinition if !variable.isLocal && variable.expr.nonEmpty && variable.hasExplicitType =>
       variable.declaredType.get match {
         case valType: api.ValType if valType ne api.Unit =>
         case declaredType  =>
           val expr = variable.expr.get
-          if (expr.isValid && isNull(expr))
+          if (expr.isValid && ConvertNullInitializerToUnderscore.isNull(expr))
               registerProblem(holder, variable)
       }
   }
 }
 
-class ConvertNullInitializerToUnderscoreQuickFix(variable: ScVariableDefinition)
-  extends AbstractFixOnPsiElement(inspectionName, variable) {
+class ConvertNullInitializerToUnderscoreQuickFix(e: ScVariableDefinition)
+  extends AbstractFixOnPsiElement(inspectionName, e) {
 
   override def doApplyFix(project: Project): Unit = {
-    val psiManager = variable.getManager
-    val expression = ScalaPsiElementFactory.createExpressionFromText("_", psiManager)
-    val name = variable.declaredNames.mkString(", ")
-    val typeName = variable.typeElement.get.text
+    val variable: ScVariableDefinition = getElement
+    if (variable == null) return
 
-    variable.replace(ScalaPsiElementFactory.createDeclaration(name, typeName, isVariable = true, expression, psiManager))
+    val psiManager = variable.getManager
+    variable.expr match {
+      case Some(expr) if ConvertNullInitializerToUnderscore.isNull(expr) =>
+        val under = ScalaPsiElementFactory.createExpressionFromText("_", psiManager)
+        expr.replace(under)
+      case _ =>
+    }
   }
 }
 
 object ConvertNullInitializerToUnderscore {
   val inspectionName = InspectionBundle.message("convert.null.initializer.to.underscore")
   val inspectionId = "ScalaConvertNullInitializerToUnderscore"
+
+  def isNull(expr: ScExpression): Boolean = {
+    expr.getFirstChild.getNode.getElementType == ScalaTokenTypes.kNULL
+  }
 }
