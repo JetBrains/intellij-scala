@@ -335,6 +335,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
         case _ => refPatt.getType(TypingContext.empty).getOrAny
       }
       case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
+      case f: PsiField => f.getType.toScType()
       case _ => Nothing
     }
 

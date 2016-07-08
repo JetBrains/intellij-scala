@@ -922,5 +922,21 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testSCL10478(): Unit = {
+    val scala =
+      """
+        |class Moo(parameter: String) extends Parent[String]() {
+        |  var typeText: String = parameter
+        |}
+      """.stripMargin
+    val java =
+      """
+        |public abstract class Parent<P> {
+        |    public final P parameter = null;
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }
 
