@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeAnnotation
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.application.options.CodeStyleSchemesConfigurable
+import com.intellij.codeInspection.{LocalQuickFixBase, ProblemDescriptor, ProblemsHolder}
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
-import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
+import org.jetbrains.plugins.scala.lang.formatting.settings._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,7 +19,6 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 /**
  * Pavel Fatin
  */
-
 class TypeAnnotationInspection extends AbstractInspection {
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
@@ -108,7 +109,9 @@ class TypeAnnotationInspection extends AbstractInspection {
             (!isSimple || simplePolicy == TypeAnnotationPolicy.Regular.ordinal) &&
             (overridingPolicy == TypeAnnotationPolicy.Regular.ordinal || !isOverriding)) {
       holder.registerProblem(element, s"$name requires an explicit type annotation (according to Code Style settings)",
-        new AddTypeAnnotationQuickFix(element))
+        new AddTypeAnnotationQuickFix(element),
+        new LearnWhyQuickFix(),
+        new ModifyCodeStyleQuickFix())
     }
   }
 
@@ -116,6 +119,19 @@ class TypeAnnotationInspection extends AbstractInspection {
     def doApplyFix(project: Project): Unit = {
       val elem = getElement
       ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, elem)(project.typeSystem)
+    }
+  }
+
+  private class LearnWhyQuickFix extends LocalQuickFixBase("Learn Why...") {
+    def applyFix(project: Project, problemDescriptor: ProblemDescriptor) {
+      DesktopUtils.browse("http://blog.jetbrains.com/scala/2016/07/11/beyond-code-style/")
+    }
+  }
+
+  private class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {
+    def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit = {
+      // TODO Select the Scala / Type Annotations page
+      ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[CodeStyleSchemesConfigurable])
     }
   }
 }
