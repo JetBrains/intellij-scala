@@ -888,10 +888,10 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection"
                          displayName="Unnecessary Partial Function" groupPath="Scala" groupName="General" shortName="UnnecessaryPartialFunction"
                          id="UnnecessaryPartialFunction" level="WARNING" enabledByDefault="true" language="Scala"/>
-        <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
-                        displayName="All Errors Tool" groupPath="Scala" groupName="General"
-                        shortName="ScalaAllErrors" level="WARNING"
-                        enabledByDefault="false" language="Scala"/>-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection"
+                        displayName="Annotator Based Error Inspection" groupPath="Scala" groupName="Internal" isInternal="true"
+                        shortName="AnnotatorBasedErrorInspection" level="ERROR"
+                        enabledByDefault="false" language="Scala"/>
 
         <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"
