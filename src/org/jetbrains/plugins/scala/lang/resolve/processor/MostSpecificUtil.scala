@@ -215,7 +215,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
         }
         u.getSubstitutor.isDefined
       case (_, m2: PsiMethod) => true
-      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e2, r2.implicitCase), getType(e1, r1.implicitCase))
+      case (e1, e2) =>
+        val t1: ScType = getType(e1, r1.implicitCase)
+        val t2: ScType = getType(e2, r2.implicitCase)
+        t1.conforms(t2)
     }
   }
 

@@ -38,8 +38,6 @@ object Compatibility {
 
   private implicit val typeSystem = ScalaTypeSystem
 
-  def compatibleWithViewApplicability(l : ScType, r : ScType): Boolean = r conforms l
-
   case class Expression(expr: ScExpression) {
     var typez: ScType = null
     var place: PsiElement = null
