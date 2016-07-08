@@ -12,7 +12,7 @@ class ScalaUnusedSymbolInspection extends LocalInspectionTool with UnfairLocalIn
   override def isEnabledByDefault: Boolean = true
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    new PsiElementVisitor {}
+    PsiElementVisitor.EMPTY_VISITOR
   }
 }
 

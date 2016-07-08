@@ -8,13 +8,8 @@ import com.intellij.psi._
 import com.intellij.psi.util.{PsiFormatUtil, PsiFormatUtilBase}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 
 class ScalaFindUsagesProvider extends FindUsagesProvider {
@@ -32,36 +27,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
   override def getHelpId(psiElement: PsiElement): String = null
 
   @NotNull
-  override def getType(element: PsiElement): String = {
-      element match {
-      case _: ScTypeAlias => "type"
-      case _: ScClass => "class"
-      case _: ScObject => "object"
-      case _: ScTrait => "trait"
-      case c: PsiClass if !c.isInstanceOf[PsiClassFake] => if (c.isInterface) "interface" else "class"
-      case _: PsiMethod => "method"
-      case _: ScTypeParam => "type parameter"
-      case _: ScBindingPattern =>
-        var parent = element
-        while (parent match {case null | _: ScValue | _: ScVariable => false case _ => true}) parent = parent.getParent
-        parent match {
-          case null => "pattern"
-          case _ => "variable"
-        }
-      case _: PsiField => "field"
-      case _: PsiParameter => "parameter"
-      case _: PsiVariable => "variable"
-      case f: ScFieldId =>
-        ScalaPsiUtil.nameContext(f) match {
-          case v: ScValue => "pattern"
-          case v: ScVariable => "variable"
-          case _ => "pattern"
-        }
-      case _ => ""
-    }
-  }
-
-
+  override def getType(element: PsiElement): String = ScalaFindUsagesUtil.getType(element)
 
   @NotNull
   override def getDescriptiveName(element: PsiElement): String = {

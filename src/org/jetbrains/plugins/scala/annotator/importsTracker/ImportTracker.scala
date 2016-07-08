@@ -28,16 +28,13 @@ class ImportTracker {
     val buff = new ArrayBuffer[ImportUsed]
     val iter = file.getAllImportUsed.iterator
     val refHolder = ScalaRefCountHolder getInstance file
-    val runnable = new Runnable {
-      def run() {
-        while (iter.nonEmpty) {
-          val used = iter.next()
-          if (refHolder.isRedundant(used)) buff += used
-        }
+
+    refHolder.retrieveUnusedReferencesInfo { () =>
+      while (iter.nonEmpty) {
+        val used = iter.next()
+        if (refHolder.isRedundant(used)) buff += used
       }
     }
-    
-    refHolder retrieveUnusedReferencesInfo runnable
     buff.toArray
   }
 }

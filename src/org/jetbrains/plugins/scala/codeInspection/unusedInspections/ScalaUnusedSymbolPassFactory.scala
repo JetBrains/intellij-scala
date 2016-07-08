@@ -6,6 +6,7 @@ import com.intellij.codeHighlighting.{Pass, TextEditorHighlightingPass, TextEdit
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class ScalaUnusedSymbolPassFactory(project: Project)
         extends TextEditorHighlightingPassFactory {
@@ -16,8 +17,9 @@ class ScalaUnusedSymbolPassFactory(project: Project)
 
   def projectOpened() {}
 
-  def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = {
-    new ScalaUnusedSymbolPass(file, editor)
+  def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = file match {
+    case scalaFile: ScalaFile => new ScalaUnusedSymbolPass(scalaFile, editor)
+    case _ => null
   }
 
   def initComponent() {}
