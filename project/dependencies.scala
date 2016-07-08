@@ -3,7 +3,7 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.11.6"
-  val sbtVersion = "0.13.9"
+  val sbtVersion = "0.13.11"
   val ideaVersion = "162.1120.6"
   val sbtStructureVersion = "5.1.2"
   val luceneVersion = "4.8.1"
@@ -173,7 +173,7 @@ object DependencyGroups {
   val sbtLaunchTestDownloader =
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
-        "0.13.9")
+        "0.13.9", "0.13.11")
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(

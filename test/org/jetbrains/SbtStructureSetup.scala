@@ -26,7 +26,7 @@ trait SbtStructureSetup {
     }
   }
 
-  private val LauncherVersion = "0.13.8"
+  private val LauncherVersion = "0.13.11"
   private val SbtStructureVersion = "5.1.0"
   private val CustomSbtLauncher = IvyCacheDir / "org.scala-sbt" / "sbt-launch" / "jars" / s"sbt-launch-$LauncherVersion.jar"
   private val CustomSbtStructure = IvyCacheDir / "scala_2.10" / "sbt_0.13" / "org.jetbrains" / "sbt-structure-extractor-0-13" / "jars" / s"sbt-structure-extractor-0-13-$SbtStructureVersion.jar"
