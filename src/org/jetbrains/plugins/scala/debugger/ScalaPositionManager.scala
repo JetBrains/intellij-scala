@@ -125,8 +125,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           val delayedBodyName = if (isDelayedInit(td)) Seq(s"$qName$delayedInitBody") else Nil
           (qName +: delayedBodyName).foreach(addExactClasses)
         case elem =>
-          val namePattern = NamePattern.forElement(elem)
-          namePatterns ++= Option(namePattern)
+          namePatterns ++= Option(NamePattern.forElement(elem)).orElse(Some(new NamePattern(elem)))
       }
     }
     val packageName: Option[String] = Option(inReadAction(file.asInstanceOf[ScalaFile].getPackageName))
