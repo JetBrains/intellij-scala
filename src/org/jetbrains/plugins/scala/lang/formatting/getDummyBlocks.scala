@@ -556,7 +556,9 @@ object getDummyBlocks {
     val first = extBlock.getFirstChild
     val last = tempBody match {
       case None => extBlock.getLastChild
-      case Some(x) => x.getPrevSibling
+      case Some(x) =>
+        val p = x.getPrevSibling
+        if (p.isInstanceOf[PsiWhiteSpace]) p.getPrevSibling else p
     }
     if (last != null) {
       val indent = ScalaIndentProcessor.getChildIndent(block, first.getNode)
