@@ -1715,5 +1715,33 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL6267() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+
+    val before =
+      """
+        |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
+        |import java.util.UUID
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
+  def testSCL6267_1() = {
+    val before =
+      """
+        |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
+        |import java.util.UUID
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _}
+        |// collision with Matcher's have 'symbol implicit
+        |import java.util.UUID
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

@@ -492,7 +492,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (rightElementType != ScalaTokenTypes.tSEMICOLON) {
         leftPsi.getParent match {
           case _: ScEarlyDefinitions | _: ScTemplateBody | _: ScalaFile | _: ScPackaging =>
-            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks,
+            return if (rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
+              if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE) COMMON_SPACING else ON_NEW_LINE
+            } else Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks,
               keepBlankLinesInCode)
           case _ =>
         }
