@@ -650,10 +650,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
     }
 
-    if (leftPsi.isInstanceOf[ScFunction] || leftPsi.isInstanceOf[ScValue] || leftPsi.isInstanceOf[ScVariable] || leftPsi.isInstanceOf[ScTypeAlias]) {
+    if (leftPsi.isInstanceOf[ScFunction] || leftPsi.isInstanceOf[ScValue] || leftPsi.isInstanceOf[ScVariable] ||
+      leftPsi.isInstanceOf[ScTypeAlias] || leftPsi.isInstanceOf[ScExpression]) {
       if (rightElementType != tSEMICOLON) {
         leftPsi.getParent match {
-          case b @ (_: ScEarlyDefinitions | _: ScTemplateBody) =>
+          case b @ (_: ScEarlyDefinitions | _: ScTemplateBody | _: ScBlock) =>
             val p = PsiTreeUtil.getParentOfType(b, classOf[ScTemplateDefinition])
             val setting = leftPsi match {
               case _: ScFunction if p.isInstanceOf[ScTrait] => settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE
