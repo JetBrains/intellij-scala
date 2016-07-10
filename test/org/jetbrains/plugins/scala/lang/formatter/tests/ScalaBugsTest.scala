@@ -1692,5 +1692,28 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL10477() = {
+
+    getCommonSettings.KEEP_LINE_BREAKS = false
+
+    val before =
+      """
+        |class A {
+        |  def foo() = {
+        |    val logFile = "README.md"
+        |    foo()
+        |    var foobar = "foobar"
+        |    type A = Int
+        |    foo()
+        |    var foobar1 = "foobar"
+        |    type A1 = Int
+        |    val logFile1 = "README.md"
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
