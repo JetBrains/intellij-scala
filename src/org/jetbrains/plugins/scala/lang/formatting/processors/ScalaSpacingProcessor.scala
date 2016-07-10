@@ -336,7 +336,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case l: ScLiteral if l.isMultiLineString && rightNode == leftNode =>
         val marginChar = "" + MultilineStringUtil.getMarginChar(leftPsi)
 
-        if (leftString == marginChar && rightString != "\"\"\"" && rightString != marginChar) {
+        if (leftString == marginChar && rightString != marginChar) {
           return Spacing.getReadOnlySpacing
         }
       case _ =>
