@@ -176,7 +176,7 @@ object MethodResolveProcessor {
                           proc: MethodResolveProcessor): ConformanceExtResult = {
     import proc._
     val problems = new ArrayBuffer[ApplicabilityProblem]()
-    
+
     val realResolveResult = c.innerResolveResult match {
       case Some(rr) => rr
       case _ => c
@@ -272,8 +272,8 @@ object MethodResolveProcessor {
     def constructorCompatibility(constr: ScMethodLike with PsiNamedElement): ConformanceExtResult = {
       val classTypeParameters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
       if (typeArgElements.isEmpty || typeArgElements.length == classTypeParameters.length) {
-        val result = 
-          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, 
+        val result =
+          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
             ref.getResolveScope, isShapeResolve)
         problems ++= result.problems
         result.copy(problems)
@@ -282,12 +282,12 @@ object MethodResolveProcessor {
         ConformanceExtResult(problems)
       }
     }
-    
+
     def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
       val classTypeParmeters = constr.containingClass.getTypeParameters
       if (typeArgElements.isEmpty || typeArgElements.length == classTypeParmeters.length) {
-        val result = 
-          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, 
+        val result =
+          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
             ref.getResolveScope, isShapeResolve)
         problems ++= result.problems
         result.copy(problems)
@@ -299,12 +299,12 @@ object MethodResolveProcessor {
 
     val result = element match {
       //objects
-      case obj: PsiClass => 
+      case obj: PsiClass =>
         ConformanceExtResult(problems)
-      case a: ScTypeAlias => 
+      case a: ScTypeAlias =>
         ConformanceExtResult(problems)
       //Implicit Application
-      case f: ScFunction if f.hasMalformedSignature => 
+      case f: ScFunction if f.hasMalformedSignature =>
         problems += new MalformedDefinition
         ConformanceExtResult(problems)
       case c: ScPrimaryConstructor if c.hasMalformedSignature =>
@@ -571,6 +571,22 @@ object MethodResolveProcessor {
         }
         else r
       })
+    }
+
+    //choose alternative with by name params
+    if (argumentClauses.nonEmpty && filtered.size > 1 && !isShapeResolve) {
+      argumentClauses.head.map(assignmemt => assignmemt.expr).
+        collect { case assignment: ScAssignStmt => assignment.assignName }.foreach { listOfNames =>
+
+        filtered = filtered.filter(r =>
+          r.element match {
+            case func: ScFunction if func.hasParameterClause =>
+              val paramsNames = func.parameterList.params.map(_.name)
+              listOfNames.find(str => !paramsNames.contains(str)).forall(_.isEmpty)
+            case _ => false
+          }
+        )
+      }
     }
 
     //remove default parameters alternatives

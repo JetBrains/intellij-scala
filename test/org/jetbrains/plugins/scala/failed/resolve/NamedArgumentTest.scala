@@ -9,8 +9,6 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class NamedArgumentTest extends FailedResolveTest("namedArgument") {
 
-  def testSCL9926(): Unit = doTest() //apply method
-
   def testSCL10487(): Unit = doTest() //apply method
 
 }

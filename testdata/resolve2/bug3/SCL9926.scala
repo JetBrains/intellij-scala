@@ -6,4 +6,4 @@ object X {
 
 class X[T](g: T) {}
 
-val y = X(<ref>init = 4)
+val y = X(/*resolved: true*/init = 4)
