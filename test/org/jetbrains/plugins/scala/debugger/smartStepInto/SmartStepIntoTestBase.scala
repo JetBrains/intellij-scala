@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import com.intellij.debugger.actions.SmartStepTarget
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 
@@ -12,7 +12,9 @@ import scala.collection.JavaConverters._
  */
 class SmartStepIntoTest extends SmartStepIntoTestBase with ScalaVersion_2_11
 
-class SmartStepIntoTest_212 extends SmartStepIntoTestBase with ScalaVersion_2_12 {
+class SmartStepIntoTest_212 extends SmartStepIntoTestBase with ScalaVersion_2_12
+
+class SmartStepIntoTest_212_OLD extends SmartStepIntoTestBase with ScalaVersion_2_12_OLD {
   override def testByNameArgument(): Unit = {
     runDebugger() {
       waitForBreakpoint()

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
 
 /**
  * User: Alefas
@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class ScalaFieldEvaluationTest extends ScalaFieldEvaluationTestBase with ScalaVersion_2_11
 class ScalaFieldEvaluationTest_212 extends ScalaFieldEvaluationTestBase with ScalaVersion_2_12
+class ScalaFieldEvaluationTest_212_OLD extends ScalaFieldEvaluationTestBase with ScalaVersion_2_12_OLD
 
 abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
 
