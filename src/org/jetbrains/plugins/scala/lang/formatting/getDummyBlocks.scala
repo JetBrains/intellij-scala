@@ -706,8 +706,7 @@ object getDummyBlocks {
           (node.getStartOffset + acc + linePrefixLength, node.getStartOffset + acc + line.length,
               Indent.getSpaceIndent(0, true), alignment)
         else if (trimmedLine.startsWith("\"\"\"") && acc == 0) {
-          if (Option(node.getTreePrev).exists(_.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE) &&
-          line.length > 3) {
+          if (trimmedLine.startsWith("\"\"\"|") && line.length > 3) {
             //split beginning of interpolated string (s"""|<string>) to facilitate alignment in difficult cases
             // first, add block for opening quotes
             subBlocks.add(new StringLineScalaBlock(new TextRange(node.getStartOffset, node.getStartOffset + 3), node,
