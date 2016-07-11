@@ -151,6 +151,6 @@ object SbtExternalSystemManager {
     val useCredentials = useProxy && http.PROXY_AUTHENTICATION
 
     useProxy.seq(s"-Dhttp.proxyHost=${http.PROXY_HOST}", s"-Dhttp.proxyPort=${http.PROXY_PORT}") ++
-      useCredentials.seq(s"-Dhttp.proxyUser=${http.PROXY_LOGIN}", s"-Dhttp.proxyPassword=${http.getPlainProxyPassword}")
+      useCredentials.seq(s"-Dhttp.proxyUser=${http.getProxyLogin}", s"-Dhttp.proxyPassword=${http.getPlainProxyPassword}")
   }
 }
