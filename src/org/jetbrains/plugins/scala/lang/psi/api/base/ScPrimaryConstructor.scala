@@ -120,7 +120,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     for {
       first <- parameterList.clauses.headOption
       if first.hasRepeatedParam
-      if hasAnnotation("scala.annotation.varargs").isDefined
+      if hasAnnotation("scala.annotation.varargs")
     } {
       buffer += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
     }

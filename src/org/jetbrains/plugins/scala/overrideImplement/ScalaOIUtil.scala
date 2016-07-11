@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.{ClassMember => JClassMember, GenerateMembersUtil}
+import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -157,7 +157,7 @@ object ScalaOIUtil {
   private def needOverride(sign: PhysicalSignature, clazz: ScTemplateDefinition): Boolean = {
     sign.method match {
       case _ if isProductAbstractMethod(sign.method, clazz) => true
-      case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None => false
+      case f: ScFunctionDeclaration if !f.isNative => false
       case x if x.name == "$tag" || x.name == "$init$"=> false
       case x: ScFunction if x.isSyntheticCopy => false
       case x if x.containingClass == clazz => false
@@ -194,7 +194,7 @@ object ScalaOIUtil {
               !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
       case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
               !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
-      case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None => true
+      case x: ScFunctionDeclaration if !x.isNative => true
       case _ => false
     }
   }

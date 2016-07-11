@@ -45,9 +45,16 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
         case _ => false
       }
     }
+
+    val annotationNames = psi.annotations map {
+      _.annotationExpr.constr.typeElement.getText
+    } map { text =>
+      text.substring(text.lastIndexOf('.') + 1)
+    }
+
     val isImplicit = psi.hasModifierProperty("implicit")
     new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.name, psi.isInstanceOf[ScFunctionDeclaration],
-      psi.annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit, psi.containingClass == null)
+      annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit, psi.containingClass == null)
   }
 
   def serialize(stub: ScFunctionStub, dataStream: StubOutputStream) {

@@ -141,8 +141,8 @@ object ScalaPsiUtil {
                 contains(annot.typeElement.getText.replace(" ", ""))
       }
     } else {
-      s.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined ||
-        s.hasAnnotation("scala.beans.BooleanBeanProperty").isDefined
+      s.hasAnnotation("scala.reflect.BooleanBeanProperty") ||
+        s.hasAnnotation("scala.beans.BooleanBeanProperty")
     }
   }
 
@@ -154,8 +154,8 @@ object ScalaPsiUtil {
                 contains(annot.typeElement.getText.replace(" ", ""))
       }
     } else {
-      s.hasAnnotation("scala.reflect.BeanProperty").isDefined ||
-        s.hasAnnotation("scala.beans.BeanProperty").isDefined
+      s.hasAnnotation("scala.reflect.BeanProperty") ||
+        s.hasAnnotation("scala.beans.BeanProperty")
     }
   }
 

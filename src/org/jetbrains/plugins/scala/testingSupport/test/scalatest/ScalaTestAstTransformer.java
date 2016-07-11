@@ -137,7 +137,7 @@ public class ScalaTestAstTransformer {
         String finderClassName = null;
         Annotation[] annotations = null;
         for (String annotationFqn: annotationFqns) {
-            Option<ScAnnotation> annotationOption = suiteTypeDef.hasAnnotation(annotationFqn);
+            Option<ScAnnotation> annotationOption = suiteTypeDef.annotations(annotationFqn).headOption();
             if (annotationOption.isDefined() && annotationOption.get() != null) {
                 ScAnnotation styleAnnotation = annotationOption.get();
                 try {

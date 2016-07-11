@@ -23,7 +23,7 @@ object LightUtil {
    */
   def getThrowsSection(holder: ScAnnotationsHolder)
                       (implicit typeSystem: TypeSystem = holder.typeSystem): String = {
-    val throwAnnotations = holder.allMatchingAnnotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
+    val throwAnnotations = holder.annotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
       case (accumulator, annotation) =>
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.getType(TypingContext.empty) match {

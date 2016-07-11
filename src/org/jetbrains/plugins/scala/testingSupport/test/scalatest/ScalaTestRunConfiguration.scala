@@ -77,8 +77,7 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
   override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = {
     val hasConfigMapAnnotation = clazz match {
       case classDef: ScTypeDefinition =>
-        val annotation = classDef.hasAnnotation(wrapWithAnnotationFqn)
-        annotation.isDefined
+        classDef.hasAnnotation(wrapWithAnnotationFqn)
       case _ => false
     }
     if (hasConfigMapAnnotation) {

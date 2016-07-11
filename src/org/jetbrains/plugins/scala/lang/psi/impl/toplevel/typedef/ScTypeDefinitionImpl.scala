@@ -390,7 +390,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     if (stub != null) {
       return stub.asInstanceOf[ScTemplateDefinitionStub].isDeprecated
     }
-    hasAnnotation("scala.deprecated").isDefined || hasAnnotation("java.lang.Deprecated").isDefined
+    hasAnnotation("scala.deprecated") || hasAnnotation("java.lang.Deprecated")
   }
 
   override def getInnerClasses: Array[PsiClass] = {

@@ -20,7 +20,7 @@ object MacroInferUtil {
   //todo fix decompiler and replace parameter by ScMacroDefinition
   def checkMacro(f: ScFunction, expectedType: Option[ScType], place: PsiElement)
                 (implicit typeSystem: TypeSystem): Option[ScType] = {
-    if (!f.isInstanceOf[ScMacroDefinition] && f.hasAnnotation("scala.reflect.macros.internal.macroImpl").isEmpty) {
+    if (!f.isInstanceOf[ScMacroDefinition] && !f.hasAnnotation("scala.reflect.macros.internal.macroImpl")) {
       return None
     }
 
@@ -103,7 +103,7 @@ object MacroInferUtil {
     n match {
       case f: ScMacroDefinition => Some(f)
       //todo: fix decompiler to avoid this check:
-      case f: ScFunction if f.hasAnnotation("scala.reflect.macros.internal.macroImpl").isDefined => Some(f)
+      case f: ScFunction if f.hasAnnotation("scala.reflect.macros.internal.macroImpl") => Some(f)
       case _ => None
     }
   }

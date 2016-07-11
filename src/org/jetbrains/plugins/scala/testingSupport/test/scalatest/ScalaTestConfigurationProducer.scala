@@ -600,7 +600,7 @@ class ScalaTestConfigurationProducer extends {
       var fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition], false)
       while (fun != null) {
         if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.containingClass == clazz) {
-          if (fun.hasAnnotation(annot).isDefined) {
+          if (fun.hasAnnotation(annot)) {
             return Some(fun.name)
           }
         }

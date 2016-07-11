@@ -49,7 +49,7 @@ class ScalaMacroEvaluator(project: Project) extends ProjectComponent with ScalaM
     n match {
       case f: ScMacroDefinition => Some(f)
       //todo: fix decompiler to avoid this check:
-      case f: ScFunction if f.hasAnnotation("scala.reflect.macros.internal.macroImpl").isDefined => Some(f)
+      case f: ScFunction if f.hasAnnotation("scala.reflect.macros.internal.macroImpl") => Some(f)
       case _ => None
     }
   }

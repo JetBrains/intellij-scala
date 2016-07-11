@@ -120,9 +120,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def isNative: Boolean = {
-    hasAnnotation("scala.native").isDefined
-  }
+  def isNative: Boolean = hasAnnotation("scala.native")
 
   override def hasModifierProperty(name: String): Boolean = {
     if (name == "abstract") {
@@ -398,7 +396,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   @tailrec
   private def isJavaVarargs: Boolean = {
-    if (hasAnnotation("scala.annotation.varargs").isDefined) true
+    if (hasAnnotation("scala.annotation.varargs")) true
     else {
       superMethod match {
         case Some(f: ScFunction) => f.isJavaVarargs
@@ -557,7 +555,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
 
     override def getReferencedTypes: Array[PsiClassType] = {
-      hasAnnotation("scala.throws") match {
+      annotations("scala.throws").headOption match {
         case Some(annotation) =>
           annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
             _.getType(TypingContext.empty) match {
@@ -612,9 +610,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
   }
 
-  override def isDeprecated: Boolean = {
-    hasAnnotation("scala.deprecated").isDefined || hasAnnotation("java.lang.Deprecated").isDefined
-  }
+  override def isDeprecated: Boolean =
+    hasAnnotation("scala.deprecated") || hasAnnotation("java.lang.Deprecated")
 
   override def getName: String = {
     val res = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName

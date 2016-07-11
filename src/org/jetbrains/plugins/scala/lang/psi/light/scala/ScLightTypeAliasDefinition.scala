@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement}
+import com.intellij.psi.{PsiAnnotation, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
@@ -51,11 +51,7 @@ class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefin
 
   override def addAnnotation(qualifiedName: String): PsiAnnotation = ta.addAnnotation(qualifiedName)
 
-  override def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = ta.hasAnnotation(qualifiedName)
-
-  override def hasAnnotation(clazz: PsiClass): Boolean = ta.hasAnnotation(clazz)
-
-  override def annotationNames: Seq[String] = ta.annotationNames
+  override def hasAnnotation(qualifiedName: String): Boolean = ta.hasAnnotation(qualifiedName)
 
   override def annotations: Seq[ScAnnotation] = ta.annotations
 
