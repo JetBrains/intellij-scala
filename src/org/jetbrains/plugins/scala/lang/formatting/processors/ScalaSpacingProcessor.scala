@@ -333,17 +333,14 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     def allLinesHaveMargin(literalText: String) = literalText.split("\n").map(_.trim).
-      forall(line => line == "\"\"\"" || line.startsWith("|"))
+      forall(line => line.startsWith("|") || line.startsWith("\"\"\""))
 
     leftPsi match {
       case l: ScLiteral if l.isMultiLineString && rightNode == leftNode =>
         val marginChar = "" + MultilineStringUtil.getMarginChar(leftPsi)
 
-        if (leftString == marginChar && rightString != marginChar) {
-          return Spacing.getReadOnlySpacing
-        } else if (leftString == "\"\"\"") {
-          return if (allLinesHaveMargin(l.getTextRange.substring(fileText))) NO_SPACING_WITH_NEWLINE else Spacing.getReadOnlySpacing
-        }
+        return if (allLinesHaveMargin(l.getTextRange.substring(fileText)) &&
+          (leftString != marginChar || rightString == marginChar)) NO_SPACING_WITH_NEWLINE else Spacing.getReadOnlySpacing
       case _ =>
     }
 

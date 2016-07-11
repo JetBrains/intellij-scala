@@ -1771,5 +1771,11 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL10520() = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+    val before = "\"\"\"\n  |foo\n  |bar\n\"\"\""
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
