@@ -12,22 +12,22 @@ class ContravarianceTest extends TypeInferenceTestBase {
   def testScl4123() = {
     val text =
       s"""object Test {
-        |  class A
-        |  class C
-        |  class B extends C
-        |
+          |  class A
+          |  class C
+          |  class B extends C
+          |
         |  class Z[-T] //in case of covariant or invariant, all is ok
-        |
+          |
         |  def goo[A, BB >: A](x: A): Z[BB] = new Z[BB]
-        |  val zzzzzz = goo(new B) //here type is Z[Any], according to the compiler it's Z[B]
-        |  ${START}zzzzzz$END
-        |}
-        |
+          |  val zzzzzz = goo(new B) //here type is Z[Any], according to the compiler it's Z[B]
+          |  ${START}zzzzzz$END
+          |}
+          |
         |//Test.Z[B]""".stripMargin
     doTest(text)
   }
 
-  def testSCL10110(): Unit ={
+  def testSCL10110(): Unit = {
     doTest(
       s"""
          |object Error {
@@ -52,7 +52,7 @@ class ContravarianceTest extends TypeInferenceTestBase {
        """.stripMargin)
   }
 
-  def testSCL10238a(): Unit ={
+  def testSCL10238a(): Unit = {
     doTest(
       s"""
          |class Foo[A](superfoos: Seq[Foo[_ >: A]])         |
@@ -61,7 +61,7 @@ class ContravarianceTest extends TypeInferenceTestBase {
        """.stripMargin)
   }
 
-  def testSCL10238b(): Unit ={
+  def testSCL10238b(): Unit = {
     doTest(
       s"""
          |class Foo[A](foos: Seq[Foo[A]])         |
@@ -70,12 +70,43 @@ class ContravarianceTest extends TypeInferenceTestBase {
        """.stripMargin)
   }
 
-  def testSCL10238c(): Unit ={
+  def testSCL10238c(): Unit = {
     doTest(
       s"""
          |class Foo[A](underfoos: Seq[Foo[_ <: A]])         |
          |class Bar[A](underbars: Seq[Bar[_ <: A]]) extends Foo[A](${START}underbars$END)
          |//Seq[Foo[_ <: A]]
+       """.stripMargin)
+  }
+
+  def testSCL10510(): Unit = {
+    doTest(
+      s"""
+         |trait Person {
+         |  type P <: Person
+         |  def playWith(person : P) = {}
+         |}
+         |
+         |trait DuplicatingPerson extends Person {
+         |  type DP <: Person
+         |  type DPP <: DP#P
+         |  def duplicate(personToDuplicate : DP) : DPP = personToDuplicate.asInstanceOf[DPP]
+         |}
+         |
+         |trait Scientist extends DuplicatingPerson {
+         |  type P = Scientist
+         |}
+         |
+         |trait MadScientist extends DuplicatingPerson {
+         |  type P = MadScientist
+         |  type DP = Scientist
+         |  val scientist = duplicate(new Scientist {})
+         |}
+         |
+         |val scientist = new Scientist {}
+         |val madScientist = new MadScientist {}
+         |madScientist.scientist.playWith(${START}scientist$END)
+         |//madScientist.P
        """.stripMargin)
   }
 }
