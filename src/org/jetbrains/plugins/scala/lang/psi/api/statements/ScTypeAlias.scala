@@ -38,9 +38,6 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsH
     }
   }
 
-  override def isDeprecated: Boolean =
-    hasAnnotation("scala.deprecated") || hasAnnotation("java.lang.Deprecated")
-
   def getTypeToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kTYPE)
 
   def getOriginalElement: PsiElement = {

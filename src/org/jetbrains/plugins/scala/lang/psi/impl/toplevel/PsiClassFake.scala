@@ -8,16 +8,16 @@ import _root_.java.util.{Collection, Collections, List}
 
 import com.intellij.openapi.util.Pair
 import com.intellij.psi.PsiReferenceList.Role
-import com.intellij.psi.javadoc.PsiDocComment
+import com.intellij.psi._
 import com.intellij.psi.meta.PsiMetaData
-import com.intellij.psi.{PsiClass, PsiElement, _};
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner;
 
 
 /**
  * @author ilyas
  */
 
-trait PsiClassFake extends PsiClass with PsiReferenceList {
+trait PsiClassFake extends PsiClass with PsiReferenceList with ScDocCommentOwner {
   //todo: this methods from PsiReferenceList to avoid NPE. It's possible for asking different roles, so we can
   //todo: have problems for simple implementation of them
   def getRole: Role = Role.EXTENDS_LIST
@@ -89,10 +89,6 @@ trait PsiClassFake extends PsiClass with PsiReferenceList {
   def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
 
   def hasModifierProperty(name: String): Boolean = name.equals(PsiModifier.PUBLIC)
-
-  def getDocComment: PsiDocComment = null
-
-  def isDeprecated: Boolean = false
 
   def getMetaData: PsiMetaData = null
 

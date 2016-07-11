@@ -384,13 +384,10 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
 
-
-  override def isDeprecated: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTemplateDefinitionStub].isDeprecated
-    }
-    hasAnnotation("scala.deprecated") || hasAnnotation("java.lang.Deprecated")
+  override def isDeprecated: Boolean = Option(getStub) map {
+    _.asInstanceOf[ScTemplateDefinitionStub].isDeprecated
+  } getOrElse {
+    super[PsiClassFake].isDeprecated
   }
 
   override def getInnerClasses: Array[PsiClass] = {

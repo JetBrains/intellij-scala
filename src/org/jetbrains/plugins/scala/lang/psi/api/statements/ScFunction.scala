@@ -610,9 +610,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
   }
 
-  override def isDeprecated: Boolean =
-    hasAnnotation("scala.deprecated") || hasAnnotation("java.lang.Deprecated")
-
   override def getName: String = {
     val res = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
     if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_mth" + res
