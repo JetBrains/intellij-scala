@@ -180,7 +180,7 @@ object DebuggerUtil {
     val valueClassParameter = function.containingClass match {
       case cl: ScClass if ValueClassType.isValueClass(cl) =>
         cl.constructors match {
-          case Array(pc: ScPrimaryConstructor) => pc.parameters.headOption
+          case Seq(pc: ScPrimaryConstructor) => pc.parameters.headOption
           case _ => None
         }
       case _ => None

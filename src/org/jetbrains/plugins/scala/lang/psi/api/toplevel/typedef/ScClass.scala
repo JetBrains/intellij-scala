@@ -5,47 +5,24 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
 
-trait ScClass extends ScTypeDefinition with ScParameterOwner {
-  def constructor: Option[ScPrimaryConstructor]
-
-  def secondaryConstructors: Seq[ScFunction] = {
-    functions.filter(_.isConstructor)
-  }
-
-  def constructors: Array[PsiMethod] = {
-    (secondaryConstructors ++ constructor.toSeq).toArray
-  }
-
-  def clauses: Option[ScParameters] = constructor match {
-    case Some(x: ScPrimaryConstructor) => Some(x.parameterList)
-    case None => None
-  }
-
-  def addEmptyParens() {
-    clauses match {
-      case Some(c) =>
-        val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
-        c.addClause(clause)
-      case _ =>
+trait ScClass extends ScTypeDefinition with ScConstructorOwner {
+  protected def typeParamString: String =
+    typeParameters map {
+      ScalaPsiUtil.typeParamString
+    } match {
+      case Seq() => ""
+      case seq => seq.mkString("[", ", ", "]")
     }
-  }
-
-  protected def typeParamString : String = {
-    if (typeParameters.nonEmpty) typeParameters.map(ScalaPsiUtil.typeParamString).mkString("[", ", ", "]")
-    else ""
-  }
 
   def tooBigForUnapply: Boolean = constructor.exists(_.parameters.length > 22)
 

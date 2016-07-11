@@ -274,11 +274,10 @@ package object extensions {
       }
     }
 
-    def constructors: Array[PsiMethod] = {
+    def constructors: Seq[PsiMethod] =
       clazz match {
-        case c: ScClass => c.constructors
+        case c: ScConstructorOwner => c.constructors
         case _ => clazz.getConstructors
-      }
     }
 
     def isEffectivelyFinal: Boolean = clazz match {

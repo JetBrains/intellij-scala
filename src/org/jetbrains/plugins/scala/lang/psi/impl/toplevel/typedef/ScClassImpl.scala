@@ -59,25 +59,14 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   override def getIconInner = Icons.CLASS
 
-  def constructor: Option[ScPrimaryConstructor] = {
-    val stub = getStub
-    if (stub != null) {
-      val array =
-        stub.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory)
-      return array.headOption
+  override def constructor: Option[ScPrimaryConstructor] =
+    Option(getStub).toSeq flatMap {
+      _.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR,
+        JavaArrayFactoryUtil.ScPrimaryConstructorFactory).toSeq
+    } match {
+      case Seq(constructor) => Some(constructor)
+      case _ => super.constructor
     }
-    findChild(classOf[ScPrimaryConstructor])
-  }
-
-  def parameters: Seq[ScClassParameter] = constructor match {
-    case Some(c) => c.effectiveParameterClauses.flatMap(_.unsafeClassParameters)
-    case None => Seq.empty
-  }
-
-  override def members: Seq[ScMember] = constructor match {
-    case Some(c) => super.members ++ Seq(c)
-    case _ => super.members
-  }
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}

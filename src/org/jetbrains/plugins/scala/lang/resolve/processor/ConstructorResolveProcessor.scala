@@ -37,7 +37,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
       if (accessibility && !accessible) return true
       named match {
         case clazz: PsiClass =>
-          val constructors: Array[PsiMethod] =
+          val constructors =
             if (accessibility) clazz.constructors.filter(isAccessible(_, ref))
             else clazz.constructors
           if (constructors.isEmpty) {
@@ -47,7 +47,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
               fromType = fromType, isAccessible = accessible))
           }
           else {
-            addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst, getImports(state), nameShadow0,
+            addResults(constructors.map(constr => new ScalaResolveResult(constr, subst, getImports(state), nameShadow0,
               parentElement = Some(clazz), boundClass = getBoundClass(state), fromType = fromType,
               isAccessible = isAccessible(constr, ref) && accessible
             )))
@@ -63,12 +63,12 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           })
           tp.extractClassType() match {
             case Some((clazz, s)) =>
-              val constructors: Array[PsiMethod] =
+              val constructors =
                 if (accessibility) clazz.constructors.filter(isAccessible(_, ref))
                 else clazz.constructors
               if (constructors.isEmpty) addResult(r)
               else {
-                addResults(constructors.toSeq.map(constr => new ScalaResolveResult(constr, subst.followed(s), getImports(state),
+                addResults(constructors.map(constr => new ScalaResolveResult(constr, subst.followed(s), getImports(state),
                     nameShadow0, parentElement = Some(ta), boundClass = getBoundClass(state), fromType = fromType,
                     isAccessible = isAccessible(constr, ref) && accessible
                 )))
