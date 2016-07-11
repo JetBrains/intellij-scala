@@ -1777,5 +1777,31 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL8889() = {
+    val before =
+      """
+        |object MyObj {
+        |  def :=(t: (String, String)) = ???
+        |}
+        |
+        |MyObj:=("toto", "tata")
+        |MyObj:=(("toto", "tata"))
+        |MyObj:=Tuple2("toto", "tata")
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |object MyObj {
+        |  def :=(t: (String, String)) = ???
+        |}
+        |
+        |MyObj := ("toto", "tata")
+        |MyObj := (("toto", "tata"))
+        |MyObj := Tuple2("toto", "tata")
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
