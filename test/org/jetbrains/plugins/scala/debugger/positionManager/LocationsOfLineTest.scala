@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
-import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
 
 /**
  * @author Nikolay.Tropin
@@ -8,7 +8,9 @@ import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersio
 
 class LocationOfLineTest extends LocationsOfLineTestBase with ScalaVersion_2_11
 
-class LocationOfLineTest_212 extends LocationsOfLineTestBase with ScalaVersion_2_12 {
+class LocationOfLineTest_212 extends LocationsOfLineTestBase with ScalaVersion_2_12
+
+class LocationOfLineTest_212_OLD extends LocationsOfLineTestBase with ScalaVersion_2_12_OLD {
 
   override def testLambdas(): Unit = {
     checkLocationsOfLine(

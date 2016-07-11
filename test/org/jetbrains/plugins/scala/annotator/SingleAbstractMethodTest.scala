@@ -520,7 +520,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
 
 }
 
-class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_12) {
+class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_12_OLD) {
   def testFunctionSAM() {
     val code =
       """

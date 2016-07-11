@@ -10,13 +10,17 @@ import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
 
 /**
  * User: Dmitry Naydanov
  * Date: 9/5/12
  */
-class ScalaCollectionRendererTest extends ScalaDebuggerTestCase with ScalaVersion_2_11 {
+class ScalaCollectionRendererTest_211 extends ScalaCollectionRendererTestBase with ScalaVersion_2_11
+class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase with ScalaVersion_2_12
+class ScalaCollectionRendererTest_212_OLD extends ScalaCollectionRendererTestBase with ScalaVersion_2_12_OLD
+
+abstract class ScalaCollectionRendererTestBase extends ScalaDebuggerTestCase with ScalaVersion_2_11 {
   private val COMMON_FILE_NAME = "dummy.scala"
   private val UNIQUE_ID = "uniqueID"
 

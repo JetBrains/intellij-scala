@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
 
 /**
  * Nikolay.Tropin
@@ -10,7 +10,9 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase with ScalaVersion_2_11
 
-class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12 {
+class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12
+
+class InAnonFunEvaluationTest_212_OLD extends InAnonFunEvaluationTestBase with ScalaVersion_2_12_OLD {
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
     runDebugger() {

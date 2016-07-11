@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.stepInto
 
 import com.intellij.debugger.settings.DebuggerSettings
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
 
 /**
  * @author Nikolay.Tropin
@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class StepIntoTest extends StepIntoTestBase with ScalaVersion_2_11
 class StepIntoTest_212 extends StepIntoTestBase with ScalaVersion_2_12
+class StepIntoTest_212_OLD extends StepIntoTestBase with ScalaVersion_2_12_OLD
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   def doStepInto(): Unit = {
