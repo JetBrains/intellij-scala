@@ -18,7 +18,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def getID: String = "ScalaSyntacticSugar"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
+    if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
 
     object QualifiedName {
       def unapply(p: PsiElement): Option[String] = p match {

@@ -42,7 +42,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
   override def getDisplayName: String = InspectionBundle.message("applied.type.lambda.can.be.simplified")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
+    if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
 
     def addInfo(paramType: ScParameterizedTypeElement, replacementText: => String) = {
       val fixes = Array[LocalQuickFix](new SimplifyAppliedTypeLambdaQuickFix(paramType, replacementText))

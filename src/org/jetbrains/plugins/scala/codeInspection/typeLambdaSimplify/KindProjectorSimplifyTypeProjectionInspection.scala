@@ -154,7 +154,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
             }
           }
         }
-      case _ => new PsiElementVisitor {}
+      case _ => PsiElementVisitor.EMPTY_VISITOR
     }
   }
 

@@ -390,6 +390,18 @@ object ScalaPsiUtil {
     } else None
   }
 
+  def isLocalOrPrivate(elem: PsiElement): Boolean = {
+    elem.getContext match {
+      case _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions => false
+      case _: ScTemplateBody =>
+        elem match {
+          case mem: ScMember if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) => true
+          case _ => false
+        }
+      case _ => true
+    }
+  }
+
   @tailrec
   def findCall(place: PsiElement): Option[ScMethodCall] = {
     place.getContext match {
