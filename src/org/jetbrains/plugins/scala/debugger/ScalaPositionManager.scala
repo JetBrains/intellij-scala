@@ -756,8 +756,13 @@ object ScalaPositionManager {
 
   def isIndyLambda(m: Method): Boolean = {
     val name = m.name()
-    val lastDollar = name.lastIndexOf('$')
-    lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
+    def isBeforeM5indyLambda = {
+      val lastDollar = name.lastIndexOf('$')
+      lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
+    }
+    def isAfterM5indyLambda = name.startsWith("$anonfun$") && !name.endsWith("$adapted")
+
+    isAfterM5indyLambda || isBeforeM5indyLambda
   }
 
   def isAnonfunType(refType: ReferenceType): Boolean = {
