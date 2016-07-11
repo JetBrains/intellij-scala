@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -159,7 +159,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                       case sVar: ScVariable if sVar.isLocal =>
                         el.isLocalVariable = true
                         addElement(el)
-                      case caseClasuse: ScCaseClause =>
+                      case _: ScCaseClause | _: ScEnumerator | _: ScGenerator =>
                         el.isLocalVariable = true
                         addElement(el)
                       case memb: PsiMember =>
