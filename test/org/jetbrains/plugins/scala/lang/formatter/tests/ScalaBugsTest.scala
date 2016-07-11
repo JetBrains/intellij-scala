@@ -1743,5 +1743,33 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL5032() = {
+    val before =
+      """
+        |collection.map { item =>
+        |  item.property
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL4890() = {
+    getScalaSettings.ALIGN_IF_ELSE = true
+    val before =
+      """
+        |val recentProgresses = if (guids.nonEmpty) Nil
+        |                       else {
+        |                         unblob(statuses.flatMap { sum =>
+        |                           for {
+        |                             prog <- sum.progresses
+        |                             if prog.scanTime >= oldest
+        |                             if systemGuids.isEmpty || systemGuids.contains(prog.systemGuid)
+        |                           } yield prog
+        |                         })
+        |                       }
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
