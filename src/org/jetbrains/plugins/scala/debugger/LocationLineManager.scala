@@ -192,9 +192,9 @@ trait LocationLineManager {
         loadLocations.foreach(cacheCustomLine(_, -1))
       }
 
-      def skipBaseLineExtraLocations(method: Method, baseLine: Int): Unit = {
-        val locations = locationsOfLine(method, baseLine).filter(!customizedLocationsCache.contains(_))
-        if (locations.size <= 1) return
+      def skipBaseLineExtraLocations(method: Method, locations: Seq[Location]): Unit = {
+        val filtered = locations.filter(!customizedLocationsCache.contains(_))
+        if (filtered.size <= 1) return
 
         val bytecodes =
           try method.bytecodes()
@@ -202,7 +202,7 @@ trait LocationLineManager {
             case t: Throwable => return
           }
 
-        val tail: Seq[Location] = locations.tail
+        val tail: Seq[Location] = filtered.tail
 
         val loadExpressionValueLocations = tail.filter { l =>
           BytecodeUtil.readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
@@ -213,6 +213,15 @@ trait LocationLineManager {
         }
 
         (loadExpressionValueLocations ++ returnLocations).foreach(cacheCustomLine(_, -1))
+      }
+
+      def skipGotoLocations(method: Method, possibleLocations: Seq[Location]): Unit = {
+        val bytecodes =
+          try method.bytecodes()
+          catch {case t: Throwable => return }
+
+        val gotos = possibleLocations.filter(loc => BytecodeUtil.isGoto(loc.codeIndex().toInt, bytecodes))
+        gotos.foreach(cacheCustomLine(_, -1))
       }
 
       def customizeFor(caseClauses: ScCaseClauses): Unit = {
@@ -237,16 +246,20 @@ trait LocationLineManager {
           caseLinesLocations = caseLines.map(locationsOfLine(m, _))
           if caseLinesLocations.exists(_.nonEmpty)
         } {
-          skipTypeCheckOptimization(m, caseLinesLocations.flatten)
+          val flattenCaseLines = caseLinesLocations.flatten
+          skipTypeCheckOptimization(m, flattenCaseLines)
+          skipGotoLocations(m, flattenCaseLines)
           skipReturnValueAssignment(m, caseLinesLocations)
         }
 
         for {
           m <- methods
           line <- baseLine
-          if locationsOfLine(m, line).size > 1
+          locations = locationsOfLine(m, line)
+          if locations.size > 1
         } {
-          skipBaseLineExtraLocations(m, line)
+          skipBaseLineExtraLocations(m, locations)
+          skipGotoLocations(m, locations)
         }
       }
 
