@@ -219,7 +219,6 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     file = null
   }
 
-  private implicit val typeSystem = project.typeSystem
   private var classesInitialized: Boolean = false
   def isClassesRegistered: Boolean = classesInitialized
 
@@ -232,6 +231,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   var file : PsiFile = _
 
   def registerClasses() {
+    implicit val typeSystem = project.typeSystem
+
     all = new mutable.HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
       "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, "")
