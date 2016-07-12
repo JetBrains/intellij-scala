@@ -1803,5 +1803,13 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL9990() = {
+    getScalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL = false
+    val before = "Seq(1, 2, 3).map { case x => x * x }"
+    val after = "Seq(1, 2, 3).map{ case x => x * x }"
+
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
