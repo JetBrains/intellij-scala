@@ -94,7 +94,7 @@ object WorksheetSourceProcessor {
     val objectPrologue = s"$packStmt ${if (project.hasDotty) "" else s" import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n"} object $name { \n"
 
     val classRes = new StringBuilder(s"final class $classPrologue { \n")
-    val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion("", " : Unit = ", " : Unit = ", "")} { \n val $instanceName = new $name \n")
+    val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion("", " : Unit = ", " : Unit = ", " : Unit = ")} { \n val $instanceName = new $name \n")
     
     val mySourceBuilder = if (moduleOpt exists (_.hasDotty)) new DottySourceBuilder(classRes, objectRes, iterNumber, srcFile,
       moduleOpt, ifEditor, macroPrinterName, packOpt, objectPrologue)
@@ -183,7 +183,7 @@ object WorksheetSourceProcessor {
 
     protected def getImportInfoString(imp: ScImportStmt): String = {
       val text = imp.getText
-      s"$getTypePrinterName.printImportInfo({$text;}"
+      s"$getTypePrinterName.printImportInfo({$text;})"
     }
 
     protected def getFunDefInfoString(fun: ScFunction): String = {
