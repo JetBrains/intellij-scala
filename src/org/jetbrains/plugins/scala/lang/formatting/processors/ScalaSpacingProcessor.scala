@@ -425,6 +425,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
             else return WITHOUT_SPACING_DEPENDENT(range)
         }
       } else {
+        val isNoSpaceArgBrace = rightPsi.getParent.isInstanceOf[ScMethodCall] && rightPsi.isInstanceOf[ScArguments] &&
+          !scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL
         rightPsi.getParent match {
           case fun: ScFunction =>
             settings.METHOD_BRACE_STYLE match {
@@ -447,11 +449,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               case CommonCodeStyleSettings.NEXT_LINE_SHIFTED => return ON_NEW_LINE
               case CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => return ON_NEW_LINE
               case CommonCodeStyleSettings.END_OF_LINE =>
-                return WITH_SPACING_NO_KEEP //todo: spacing settings
+                return if (isNoSpaceArgBrace) WITHOUT_SPACING_NO_KEEP else WITH_SPACING_NO_KEEP //todo: spacing settings
               case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED =>
                 val startOffset = parent.getTextRange.getStartOffset
                 val range = new TextRange(startOffset, rightPsi.getTextRange.getStartOffset)
-                return WITH_SPACING_DEPENDENT(range) //todo: spacing settings
+                return if (isNoSpaceArgBrace) WITHOUT_SPACING_DEPENDENT(range) else WITH_SPACING_DEPENDENT(range) //todo: spacing settings
             }
         }
       }
