@@ -14,15 +14,15 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveRes
 import scala.collection.Set
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 30.04.2010
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 30.04.2010
+  */
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
                                   typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
                                   shapeResolve: Boolean, allConstructors: Boolean)
                                  (implicit override val typeSystem: TypeSystem)
-        extends MethodResolveProcessor(constr, refName, args, typeArgs, Seq.empty, kinds,
-          isShapeResolve = shapeResolve, enableTupling = true) {
+  extends MethodResolveProcessor(constr, refName, args, typeArgs, Seq.empty, kinds,
+    isShapeResolve = shapeResolve, enableTupling = true) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]
     val fromType = getFromType(state)
@@ -83,16 +83,20 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
   }
 
   override def candidatesS: Set[ScalaResolveResult] = {
-    if (!allConstructors) {
-      val superCandidates = super.candidatesS
-      if (superCandidates.size <= 1) superCandidates
-      else {
-        superCandidates.map(constr => new ScalaResolveResult(constr.getActualElement, constr.substitutor,
-          constr.importsUsed, boundClass = constr.boundClass, fromType = constr.fromType,
-          isAccessible = constr.isAccessible))
-      }
-    } else {
-      super.candidatesS
+    def updateResult(result: ScalaResolveResult) =
+      new ScalaResolveResult(result.getActualElement,
+        result.substitutor,
+        result.importsUsed,
+        boundClass = result.boundClass,
+        fromType = result.fromType,
+        isAccessible = result.isAccessible)
+
+    val candidates = super.candidatesS
+    candidates.toSeq match {
+      case _ if allConstructors => candidates
+      case Seq() => Set.empty
+      case Seq(result: ScalaResolveResult) => Set(result)
+      case _ => candidates.map(updateResult)
     }
   }
 }
