@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api
 
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern.extractProductParts
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -22,23 +22,48 @@ object MacroInferUtil {
                  expectedType: Option[ScType],
                  place: PsiElement)
                 (implicit typeSystem: TypeSystem): Option[ScType] = {
-    def calcProduct() = this.calcProduct(expectedType, place)
+    def getClass(className: String) = Some(place.getProject) map {
+      ScalaPsiManager.instance
+    } map {
+      _.getCachedClass(s"shapeless.$className", place.getResolveScope, ClassCategory.TYPE)
+    }
 
-    Option(function) collect {
-      case IsMacro(macroFunction) => macroFunction
-    } map {
-      new Checker(_)
-    } map {
-      _.withCheck("product", "Generic", calcProduct)
-    } map {
-      _.withCheck("apply", "LowPriorityGeneric", calcProduct)
-    } flatMap {
-      _.check()
+    val maybeGenericClass = getClass("Generic")
+    val maybeGenericClassCompanion = maybeGenericClass flatMap {
+      ScalaPsiUtil.getCompanionModule
+    } collect {
+      case scObject: ScObject => scObject
+    }
+
+    val classes: Seq[PsiClass] = (maybeGenericClass ++ maybeGenericClassCompanion ++ getClass("HNil") ++ getClass("::")).toSeq
+    classes match {
+      case Seq(genericClass: ScTypeDefinition, genericClassCompanion: ScObject, nilClass: PsiClass, consClass: PsiClass) =>
+        def createGenericType(`type`: ScType) = extractProductParts(`type`, place).foldRight(ScDesignatorType(nilClass): ScType) {
+          case (part, resultType) => ScParameterizedType(ScDesignatorType(consClass), Seq(part, resultType))
+        } match {
+          case _: ScDesignatorType => None
+          case result => Some(result)
+        }
+
+        def calcProduct() = this.calcProduct(expectedType, genericClass, genericClassCompanion, createGenericType)
+
+        Option(function) collect {
+          case IsMacro(macroFunction) => macroFunction
+        } map {
+          new Checker(_)
+        } map {
+          _.withCheck("product", "Generic", calcProduct)
+        } map {
+          _.withCheck("apply", "LowPriorityGeneric", calcProduct)
+        } flatMap {
+          _.check()
+        }
+      case _ => None
     }
   }
 
-  class Checker(function: ScFunction,
-                checkers: List[() => Option[ScType]] = Nil) {
+  private class Checker(function: ScFunction,
+                        checkers: List[() => Option[ScType]] = Nil) {
 
     def withCheck(functionName: String,
                   className: String,
@@ -64,46 +89,38 @@ object MacroInferUtil {
       }
   }
 
-  def calcProduct(expectedType: Option[ScType], place: PsiElement): Option[ScType] = expectedType match {
-    case Some(tp) =>
-      val manager = ScalaPsiManager.instance(place.getProject)
-      val clazz = manager.getCachedClass("shapeless.Generic", place.getResolveScope, ClassCategory.TYPE)
-      clazz match {
-        case c: ScTypeDefinition =>
-          val tpt = c.typeParameters
-          if (tpt.isEmpty) return None
-          val undef = UndefinedType(TypeParameterType(tpt.head))
-          val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
-          val (res, undefSubst) = tp.conforms(genericType, new ScUndefinedSubstitutor())
-          if (!res) return None
-          undefSubst.getSubstitutor match {
-            case Some(subst) =>
-              val productLikeType = subst.subst(undef)
-              val parts = ScPattern.extractProductParts(productLikeType, place)
-              if (parts.isEmpty) return None
-              val coloncolon = manager.getCachedClass("shapeless.::", place.getResolveScope, ClassCategory.TYPE)
-              if (coloncolon == null) return None
-              val hnil = manager.getCachedClass("shapeless.HNil", place.getResolveScope, ClassCategory.TYPE)
-              if (hnil == null) return None
-              val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {
-                case (part, resultType) => ScParameterizedType(ScDesignatorType(coloncolon), Seq(part, resultType))
+  private def calcProduct(maybeExpectedType: Option[ScType],
+                          clazz: ScTypeDefinition,
+                          classCompanion: ScObject,
+                          createGenericType: ScType => Option[ScType])
+                         (implicit typeSystem: TypeSystem): Option[ScType] = {
+    val maybeProjectionType = classCompanion.members collect {
+      case alias: ScTypeAlias => alias
+    } find {
+      _.name == "Aux"
+    } map {
+      ScProjectionType(ScDesignatorType(classCompanion), _, superReference = false)
+    }
+
+    clazz.typeParameters.headOption map { typeParameter =>
+      UndefinedType(TypeParameterType(typeParameter))
+    } flatMap { undefinedType =>
+      maybeExpectedType flatMap {
+        _.conforms(ScParameterizedType(ScDesignatorType(clazz), Seq(undefinedType)), new ScUndefinedSubstitutor()) match {
+          case (true, substitutor) =>
+            substitutor.getSubstitutor map {
+              _.subst(undefinedType)
+            } flatMap { productLikeType =>
+              createGenericType(productLikeType) flatMap { resultType =>
+                maybeProjectionType map {
+                  ScParameterizedType(_, Seq(productLikeType, resultType))
+                }
               }
-              ScalaPsiUtil.getCompanionModule(c) match {
-                case Some(obj: ScObject) =>
-                  val elem = obj.members.find {
-                    case a: ScTypeAlias if a.name == "Aux" => true
-                    case _ => false
-                  }
-                  if (elem.isEmpty) return None
-                  Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement],
-                    superReference = false), Seq(productLikeType, repr)))
-                case _ => None
-              }
-            case _ => None
-          }
-        case _ => None
+            }
+          case _ => None
+        }
       }
-    case None => None
+    }
   }
 
   private object IsMacro {
@@ -113,4 +130,5 @@ object MacroInferUtil {
         function
     }
   }
+
 }
