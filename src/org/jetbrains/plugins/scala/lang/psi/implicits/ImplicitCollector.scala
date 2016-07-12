@@ -415,12 +415,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     }
                   }
 
-                  val funType = if (MacroInferUtil.isMacro(fun).isDefined) {
-                    MacroInferUtil.checkMacro(fun, Some(tp), place) match {
-                      case Some(newTp) => newTp
-                      case _ => _funType
-                    }
-                  } else _funType
+                  val funType = MacroInferUtil.checkMacro(fun, Some(tp), place) getOrElse _funType
                   var substedFunType: ScType = funType
 
                   if (fun.hasTypeParameters && noReturnType) {

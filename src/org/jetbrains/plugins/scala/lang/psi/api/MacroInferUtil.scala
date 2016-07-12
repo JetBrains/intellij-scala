@@ -20,8 +20,9 @@ object MacroInferUtil {
   //todo fix decompiler and replace parameter by ScMacroDefinition
   def checkMacro(f: ScFunction, expectedType: Option[ScType], place: PsiElement)
                 (implicit typeSystem: TypeSystem): Option[ScType] = {
-    if (!f.isInstanceOf[ScMacroDefinition] && !f.hasAnnotation("scala.reflect.macros.internal.macroImpl")) {
-      return None
+    f match {
+      case IsMacro(_) =>
+      case _ => return None
     }
 
     class Checker(l: List[() => Option[ScType]] = List.empty) {
@@ -99,12 +100,11 @@ object MacroInferUtil {
       check()
   }
 
-  def isMacro(n: PsiNamedElement): Option[ScFunction] = {
-    n match {
-      case f: ScMacroDefinition => Some(f)
-      //todo: fix decompiler to avoid this check:
-      case f: ScFunction if f.hasAnnotation("scala.reflect.macros.internal.macroImpl") => Some(f)
-      case _ => None
+  private object IsMacro {
+    def unapply(element: PsiNamedElement): Option[ScFunction] = Option(element) collect {
+      case function: ScMacroDefinition => function
+      case function: ScFunction if function.hasAnnotation("scala.reflect.macros.internal.macroImpl") =>
+        function
     }
   }
 }
