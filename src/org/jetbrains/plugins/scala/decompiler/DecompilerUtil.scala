@@ -192,5 +192,7 @@ object DecompilerUtil {
     val ireturn = 0xAC.toByte
     val lreturn = 0xAD.toByte
     val voidReturn = 0xB1.toByte
+
+    val goto = 0xA7.toByte
   }
 }
