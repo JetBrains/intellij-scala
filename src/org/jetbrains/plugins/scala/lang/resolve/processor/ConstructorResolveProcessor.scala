@@ -43,15 +43,16 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           constructorIsAccessible(constructor)
         case _ => true
       } map {
-        (_, substitutor, Some(clazz))
+        (_, substitutor, Some(named))
       }
 
-      def orDefault(tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiClass])] = Seq.empty) = tuples match {
+      def orDefault(tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = Seq.empty) =
+        tuples match {
         case Seq() => Seq((named, defaultSubstitutor, None))
         case seq => seq
       }
 
-      val tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiClass])] = named match {
+      val tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = named match {
         case clazz: PsiClass =>
           orDefault(constructors(clazz, defaultSubstitutor))
         case declaration: ScTypeAliasDeclaration =>
