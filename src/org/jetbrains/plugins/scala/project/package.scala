@@ -11,9 +11,11 @@ import com.intellij.openapi.roots.ui.configuration.libraryEditor.{ExistingLibrar
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
+import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.{ElementTypes, ScalaElementTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
@@ -171,9 +173,13 @@ package object project {
     }
 
     def typeSystem: TypeSystem = typeSystemIn(project)
+
+    def elementTypes: ElementTypes = elementTypesIn(project)
   }
 
   def typeSystemIn(project: Project): TypeSystem = if (project.hasDotty) DottyTypeSystem else ScalaTypeSystem
+
+  def elementTypesIn(project: Project): ElementTypes = if (project.hasDotty) DottyElementTypes else ScalaElementTypes
 
   class ScalaModule(val module: Module) {
     def sdk: ScalaSdk = module.scalaSdk.map(new ScalaSdk(_)).getOrElse {

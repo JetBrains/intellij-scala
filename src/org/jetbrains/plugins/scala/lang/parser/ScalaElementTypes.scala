@@ -20,8 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassPa
  * Date: 02.10.2006
  *
  */
-object ScalaElementTypes {
+object ScalaElementTypes extends ElementTypes
 
+trait ElementTypes {
   val DUMMY_ELEMENT = new ScalaElementType("Dummy Elemnet")
 
 
