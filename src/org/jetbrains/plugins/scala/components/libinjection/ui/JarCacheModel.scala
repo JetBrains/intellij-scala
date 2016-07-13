@@ -12,18 +12,24 @@ class JarCacheModel(val cache: InjectorPersistentCache) extends AbstractListMode
   import scala.collection.JavaConversions._
   override def getElementAt(i: Int): JarManifest = cache.cache.values().toSeq.get(i)
 
+  var modified = false
+
   override def getSize: Int = cache.cache.size()
 
   def remove(o: Any, idx: Int): Unit = {
+    modified = true
     val manifest = o.asInstanceOf[JarManifest]
     cache.cache.remove(manifest.jarPath)
     fireIntervalRemoved(o, idx, idx)
   }
 
   def setIgnored(o: Any, idx: Int): Unit = {
+    modified = true
     val manifest = o.asInstanceOf[JarManifest]
     cache.cache.update(manifest.jarPath, manifest.copy()(isBlackListed = !manifest.isBlackListed, isLoaded = manifest.isLoaded))
     fireContentsChanged(o, idx, idx)
   }
+
+  def commit() = cache.saveJarCache
 
 }

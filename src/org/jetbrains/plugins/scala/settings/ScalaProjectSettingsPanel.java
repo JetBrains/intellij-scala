@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
+import org.jetbrains.plugins.scala.components.libinjection.InjectorPersistentCache;
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader$;
 import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheModel;
 import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheRenderer;
@@ -84,7 +85,10 @@ public class ScalaProjectSettingsPanel {
     updateChannel.setModel(new EnumComboBoxModel(ScalaApplicationSettings.pluginBranch.class));
 
 
-    librariesList = new JBList(new JarCacheModel(LibraryInjectorLoader$.MODULE$.getInstance(myProject).getJarCache()));
+    InjectorPersistentCache jarCache = (myProject != null && !myProject.isDefault())
+            ? LibraryInjectorLoader$.MODULE$.getInstance(myProject).getJarCache()
+            : LibraryInjectorLoader$.MODULE$.verifyAndLoadCache();
+    librariesList = new JBList(new JarCacheModel(jarCache));
     librariesList.setCellRenderer(new JarCacheRenderer());
 
     librariesPanel.setLayout(new BorderLayout());
@@ -191,6 +195,9 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
     scalaProjectSettings.setEnableLibraryExtensions(enableScalaPluginExtensionsCheckBox.isSelected());
 
+    if (myProject != null && myProject.isDefault())
+      ((JarCacheModel) librariesList.getModel()).commit();
+
     injectionPrefixTable.saveSettings(scalaProjectSettings);
   }
 
@@ -221,26 +228,26 @@ public class ScalaProjectSettingsPanel {
     if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
     if (!scalaProjectSettings.getBasePackages().equals(
-        getBasePackages())) return true;
+            getBasePackages())) return true;
     if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
-        scalaTestDefaultSuperClass.getText())) return true;
+            scalaTestDefaultSuperClass.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
-        showImplicitConversionsInCheckBox.isSelected()) return true;
+            showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
-        showArgumentsToByNameParametersCheckBox.isSelected()) return true;
+            showArgumentsToByNameParametersCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() !=
-        customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
+            customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeBlockExpressions() !=
-        includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
+            includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeLiterals() !=
-        includeLiteralsCheckBox.isSelected()) return true;
+            includeLiteralsCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-        (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
+            (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
-        (Integer) outputSpinner.getValue()) return true;
+            (Integer) outputSpinner.getValue()) return true;
     if (scalaProjectSettings.isInProcessMode() !=
-        runWorksheetInTheCheckBox.isSelected()) return true;
+            runWorksheetInTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
       return true;
@@ -248,13 +255,13 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.isSearchAllSymbols() !=
-        searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+            searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
-        enableConversionOnCopyCheckBox.isSelected()) return true;
+            enableConversionOnCopyCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isDontShowConversionDialog() !=
-        donTShowDialogCheckBox.isSelected()) return true;
+            donTShowDialogCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-        treatDocCommentAsBlockComment.isSelected()) return true;
+            treatDocCommentAsBlockComment.isSelected()) return true;
 
     if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -272,13 +279,16 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-        collectionHighlightingChooser.getSelectedIndex()) return true;
+            collectionHighlightingChooser.getSelectedIndex()) return true;
 
     if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
     if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
 
     if (scalaProjectSettings.isEnableLibraryExtensions() != enableScalaPluginExtensionsCheckBox.isSelected())
+      return true;
+
+    if (((JarCacheModel) librariesList.getModel()).modified())
       return true;
 
     return false;
@@ -601,7 +611,7 @@ public class ScalaProjectSettingsPanel {
     protected JComponent createCenterPanel() {
       JComponent res = new JPanel();
       res.add(new JLabel("Changes in ScalaTest highlighting will be processed correctly only on freshly highlighted files." +
-          "For best experience please restart Intellij IDEA"));
+              "For best experience please restart Intellij IDEA"));
       return res;
     }
 

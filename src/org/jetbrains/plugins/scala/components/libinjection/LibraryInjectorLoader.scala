@@ -29,10 +29,46 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest])
+@SerialVersionUID(-8361292897316544896L)
+case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest]) {
+  def saveJarCache() = {
+    val stream = new ObjectOutputStream(
+      new BufferedOutputStream(
+        new FileOutputStream(LibraryInjectorLoader.myInjectorCacheIndex)
+      ))
+    try {
+      stream.writeObject(this)
+      stream.flush()
+    } catch {
+      case e: Throwable =>
+        Error.cacheSaveError(e)
+    } finally {
+      stream.close()
+    }
+  }
+}
+object InjectorPersistentCache {
+  def loadJarCache: InjectorPersistentCache = {
+    import LibraryInjectorLoader.LOG
+    var stream: ObjectInputStream = null
+    try {
+      stream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(LibraryInjectorLoader.myInjectorCacheIndex)))
+      val cache = stream.readObject().asInstanceOf[InjectorPersistentCache]
+      LOG.trace(s"Loaded cache with ${cache.cache.size()} entries")
+      cache
+    } catch {
+      case e: Throwable =>
+        LOG.warn(s"Failed to load injector cache, continuing with empty(${e.getMessage})")
+        InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.getOrElse(Version.Snapshot), new util.HashMap())
+    } finally {
+      if (stream != null) stream.close()
+    }
+  }
+}
 
 class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   import LibraryInjectorLoader._
+  import LibraryInjectorLoader.LOG
 
   class DynamicClassLoader(urls: Array[URL], parent: ClassLoader) extends java.net.URLClassLoader(urls, parent) {
     def addUrl(url: URL): Unit = {
@@ -43,18 +79,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   type AttributedManifest = (JarManifest, Seq[InjectorDescriptor])
   type ManifestToDescriptors = Seq[AttributedManifest]
 
-
-  val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
-  val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
   private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
   private val initialized = new AtomicBoolean(false)
-  implicit private val LOG = Logger.getInstance(getClass)
-  private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
+
   private val ackProvider = {
     if (ApplicationManager.getApplication.isUnitTestMode)
       new TestAcknowledgementProvider
     else
-      new UIAcknowledgementProvider(GROUP, project)
+      new UIAcknowledgementProvider(GROUP, project)(LOG)
   }
 
   // reset cache if plugin has been updated
@@ -83,11 +115,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   override def projectClosed(): Unit = {
-    saveJarCache(jarCache, myInjectorCacheIndex)
+    jarCache.saveJarCache
   }
 
   override def projectOpened(): Unit = {
-    jarCache = verifyLibraryCache(loadJarCache(myInjectorCacheIndex))
+    jarCache = verifyAndLoadCache
 //    init()
   }
 
@@ -130,42 +162,6 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   def getInjectorInstances[T](interface: Class[T]): Seq[T] = {
     if (!initialized.get()) init()
     getInjectorClasses(interface).map(_.newInstance())
-  }
-
-  private def loadJarCache(f: File): InjectorPersistentCache = {
-    var stream: ObjectInputStream = null
-    try {
-      stream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))
-      val cache = stream.readObject().asInstanceOf[InjectorPersistentCache]
-      LOG.trace(s"Loaded cache with ${cache.cache.size()} entries")
-      cache
-    } catch {
-      case e: Throwable =>
-        LOG.warn(s"Failed to load injector cache, continuing with empty(${e.getMessage})")
-        InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.getOrElse(Version.Snapshot), new util.HashMap())
-    } finally {
-      if (stream != null) stream.close()
-    }
-  }
-
-  private def saveJarCache(c: InjectorPersistentCache, f: File) = {
-    val stream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)))
-    try {
-      stream.writeObject(c)
-      stream.flush()
-    } catch {
-      case e: Throwable =>
-        Error.cacheSaveError(e)
-    } finally {
-      stream.close()
-    }
-  }
-
-  private def verifyLibraryCache(cache: InjectorPersistentCache): InjectorPersistentCache = {
-    if (ScalaPluginVersionVerifier.getPluginVersion.exists(_ != cache.pluginVersion))
-      InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, new util.HashMap())
-    else
-      cache
   }
 
   private def verifyManifest(manifest: JarManifest): Option[JarManifest] = {
@@ -494,6 +490,21 @@ object LibraryInjectorLoader {
   val HELPER_LIBRARY_NAME    = "scala-plugin-dev"
   val INJECTOR_MANIFEST_NAME = "intellij-compat.xml"
   val INJECTOR_MODULE_NAME   = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
+  val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
+  val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
+  implicit val LOG = Logger.getInstance(getClass)
+  private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
 
   def getInstance(project: Project): LibraryInjectorLoader = project.getComponent(classOf[LibraryInjectorLoader])
+
+  private def verifyLibraryCache(cache: InjectorPersistentCache): InjectorPersistentCache = {
+    if (ScalaPluginVersionVerifier.getPluginVersion.exists(_ != cache.pluginVersion))
+      InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, new util.HashMap())
+    else
+      cache
+  }
+
+  def verifyAndLoadCache: InjectorPersistentCache = {
+    verifyLibraryCache(InjectorPersistentCache.loadJarCache)
+  }
 }
