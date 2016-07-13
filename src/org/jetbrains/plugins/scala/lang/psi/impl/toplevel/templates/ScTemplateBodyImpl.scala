@@ -43,7 +43,7 @@ class ScTemplateBodyImpl private (stub: StubElement[ScTemplateBody], nodeType: I
   def functions: Seq[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, JavaArrayFactoryUtil.ScFunctionFactory).toSeq.filterNot(_.isLocal)
 
   def typeDefinitions: Seq[ScTypeDefinition] =
-    getStubOrPsiChildren(TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory).toSeq.filterNot(_.isLocal)
+    getStubOrPsiChildren(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory).toSeq.filterNot(_.isLocal)
 
   def members: Seq[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq.filterNot(_.isLocal)
 
@@ -54,7 +54,7 @@ class ScTemplateBodyImpl private (stub: StubElement[ScTemplateBody], nodeType: I
     }
 
   def exprs: Seq[ScExpression] =
-    getStubOrPsiChildren(TokenSets.EXPRESSION_BIT_SET, JavaArrayFactoryUtil.ScExpressionFactory).toSeq.filterNot {
+    getStubOrPsiChildren(TokenSets.EXPRESSION_SET, JavaArrayFactoryUtil.ScExpressionFactory).toSeq.filterNot {
       case s: ScMember => s.isLocal
       case _ => false
     }

@@ -12,7 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -93,11 +93,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
   def typeDefs: Seq[ScTypeDefinition] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(TokenSet.create(
-        ScalaElementTypes.OBJECT_DEF,
-        ScalaElementTypes.CLASS_DEF,
-        ScalaElementTypes.TRAIT_DEF
-        ), JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+      stub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     } else {
       val buffer = new ArrayBuffer[ScTypeDefinition]
       var curr = getFirstChild

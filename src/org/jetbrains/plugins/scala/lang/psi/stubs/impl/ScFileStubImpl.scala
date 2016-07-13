@@ -4,7 +4,7 @@ package psi
 package stubs
 package impl
 import com.intellij.psi.PsiClass
-import com.intellij.psi.tree.{IStubFileElementType, TokenSet}
+import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -30,10 +30,8 @@ class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](
     this.script = script
   }
 
-  def getClasses: Array[PsiClass] = {
-    import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
-    getChildrenByType(TokenSet.create(CLASS_DEF, OBJECT_DEF, TRAIT_DEF), PsiClass.ARRAY_FACTORY)
-  }
+  def getClasses: Array[PsiClass] =
+    getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, PsiClass.ARRAY_FACTORY)
 
   def getFileName: String = StringRef.toString(sourceFileName)
 

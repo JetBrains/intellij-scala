@@ -42,7 +42,7 @@ trait ScToplevelElement extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null) {
-      stub.getChildrenByType[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+      stub.getChildrenByType[ScTypeDefinition](TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     } else findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq
   }
 

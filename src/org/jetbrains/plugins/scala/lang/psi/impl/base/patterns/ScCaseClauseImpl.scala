@@ -8,9 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
@@ -59,12 +57,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
                 g.startOffsetInParent == lastParent.startOffsetInParent => if (!process) return false
               case _ =>
                 //todo: is this good? Maybe parser => always expression.
-                val last = findLastChildByType(TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION,
-                  ScalaElementTypes.FUNCTION_DEFINITION, ScalaElementTypes.PATTERN_DEFINITION,
-                  ScalaElementTypes.VALUE_DECLARATION, ScalaElementTypes.VARIABLE_DECLARATION,
-                  ScalaElementTypes.VARIABLE_DEFINITION, ScalaElementTypes.TYPE_DECLARATION,
-                  ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.CLASS_DEF,
-                  ScalaElementTypes.TRAIT_DEF, ScalaElementTypes.OBJECT_DEF))
+                val last = findLastChildByType(TokenSets.MEMBERS)
                 if (last != null && lastParent != null && last.startOffsetInParent == lastParent.startOffsetInParent) {
                   if (!process) return false
                 }
