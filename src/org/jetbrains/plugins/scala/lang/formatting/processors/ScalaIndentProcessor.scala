@@ -234,6 +234,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getNormalIndent
       case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
         Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
+      case _: ScTuple =>
+        if (scalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE &&
+          child.getElementType == ScalaTokenTypes.tRPARENTHESIS) Indent.getSpaceIndent(0, scalaSettings.ALIGN_TUPLE_ELEMENTS)
+        else Indent.getContinuationWithoutFirstIndent(scalaSettings.ALIGN_TUPLE_ELEMENTS)
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs =>
         Indent.getContinuationWithoutFirstIndent
