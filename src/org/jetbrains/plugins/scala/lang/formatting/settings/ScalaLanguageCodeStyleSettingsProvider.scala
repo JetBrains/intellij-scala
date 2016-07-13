@@ -142,7 +142,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("KEEP_XML_FORMATTING", "Keep xml formatting", XML_FORMATTING)
       showCustomOption("KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST", "Do not format one-line lambdas in arg list",
         CodeStyleSettingsCustomizable.WRAPPING_KEEP)
-      showCustomOption("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", "Do not align block expression parameters", CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+      showCustomOption("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", "Do not align block expression parameters",
+        CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+      showCustomOption("DO_NOT_INDENT_TUPLES_CLOSE_BRACE", "Do not indent tuples closing parenthesis", TUPLES_WRAP)
+      showCustomOption("ALIGN_TUPLE_ELEMENTS", "Align tuple elements", TUPLES_WRAP)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -194,6 +197,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   private val ANONYMOUS_METHOD = "Anonymous method definition"
   private val CLASS_DEFINITION = "Class definition"
   private val XML_FORMATTING = "Xml formatting"
+  private val TUPLES_WRAP = "Tuple"
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = {
     val commonCodeStyleSettings: CommonCodeStyleSettings = new CommonCodeStyleSettings(getLanguage)

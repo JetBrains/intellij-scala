@@ -1811,5 +1811,63 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL4291() = {
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
+    val before =
+      """
+        |(
+        |  a,
+        |  b
+        |  )
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |(
+        |  a,
+        |  b
+        |)
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL4291_1() = {
+    getScalaSettings.ALIGN_TUPLE_ELEMENTS = true
+    val before =
+      """
+        |val foo = (
+        |a,
+        |b
+        |)
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |val foo = (
+        |            a,
+        |            b
+        |            )
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL4291_2() = {
+    getScalaSettings.ALIGN_TUPLE_ELEMENTS = true
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
+    val before =
+      """
+        |val foo = (
+        |a,
+        |b
+        |)
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |val foo = (
+        |            a,
+        |            b
+        |          )
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
