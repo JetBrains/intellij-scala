@@ -19,21 +19,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-abstract class ScalaInspectionBasedHighlightingPass(file: ScalaFile, document: Document) extends TextEditorHighlightingPass(file.getProject, document) {
+abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option[Document], inspection: HighlightingPassInspection)
+  extends TextEditorHighlightingPass(file.getProject, document.orNull) {
+
   private val highlightInfos = mutable.Buffer[HighlightInfo]()
 
   private val inspectionSuppressor = new ScalaInspectionSuppressor
 
-  val inspectionShortName: String
-
-  def shouldProcessElement(elem: PsiElement): Boolean
-
-  def processElement(elem: PsiElement): Seq[Annotation]
-
   private def profile = InspectionProjectProfileManager.getInstance(myProject).getInspectionProfile
 
   def isEnabled(element: PsiElement): Boolean = {
-    profile.isToolEnabled(highlightKey, element) && !inspectionSuppressor.isSuppressedFor(element, inspectionShortName)
+    profile.isToolEnabled(highlightKey, element) && !inspectionSuppressor.isSuppressedFor(element, inspection.getShortName)
   }
 
   def severity: HighlightSeverity = {
@@ -42,7 +38,7 @@ abstract class ScalaInspectionBasedHighlightingPass(file: ScalaFile, document: D
     }.getOrElse(HighlightSeverity.WEAK_WARNING)
   }
 
-  def highlightKey: HighlightDisplayKey = HighlightDisplayKey.find(inspectionShortName)
+  def highlightKey: HighlightDisplayKey = HighlightDisplayKey.find(inspection.getShortName)
 
   override def doCollectInformation(progress: ProgressIndicator): Unit = {
     if (shouldHighlightFile) {
@@ -65,8 +61,19 @@ abstract class ScalaInspectionBasedHighlightingPass(file: ScalaFile, document: D
 
   private def processFile(): Unit = {
     if (isEnabled(file)) {
-      val annotations = file.depthFirst.filter(shouldProcessElement).map(processElement).flatten
-      highlightInfos ++= annotations.map(HighlightInfo.fromAnnotation)
+      val infos: Iterator[ProblemInfo] = file.depthFirst.filter {
+        inspection.shouldProcessElement
+      } filter {
+        isEnabled
+      } flatMap {
+        inspection.invoke
+      }
+      highlightInfos ++= infos.map { info =>
+        val range = info.element.getTextRange
+        val annotation = new Annotation(range.getStartOffset, range.getEndOffset, severity, info.message, info.message)
+        info.fixes.foreach(annotation.registerFix(_, range, highlightKey))
+        HighlightInfo.fromAnnotation(annotation)
+      }
     }
   }
 

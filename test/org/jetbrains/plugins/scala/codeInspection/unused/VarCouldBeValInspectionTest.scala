@@ -17,7 +17,7 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
     val code =
       s"""
          |class Foo {
-         |  private ${START}var s = 0$END
+         |  private ${START}var$END s = 0
          |  println(s)
          |}
       """.stripMargin
@@ -44,7 +44,7 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
       s"""
          |object Foo {
          |  def foo(): Unit = {
-         |    ${START}var s = 0$END
+         |    ${START}var$END s = 0
          |    val z = s
          |  }
          |}
@@ -88,7 +88,7 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
     val code =
       s"""
          |class Foo {
-         |  private ${START}var (a, b): String = ???$END
+         |  private ${START}var$END (a, b): String = ???
          |  println(b)
          |  println(a)
          |}
@@ -152,7 +152,7 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
       s"""
         |object Koo {
         |  def foo(): Unit = {
-        |    ${START}var d = 1$END
+        |    ${START}var$END d = 1
         |    d + 1
         |  }
         |}

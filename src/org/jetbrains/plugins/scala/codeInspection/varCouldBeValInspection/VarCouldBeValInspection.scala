@@ -2,17 +2,42 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package varCouldBeValInspection
 
-import com.intellij.codeInspection._
-import com.intellij.codeInspection.ex.UnfairLocalInspectionTool
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{HighlightingPassInspection, ProblemInfo}
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
-// This is checked in ScalaLocalVarCouldBeValPass, the inspection is to allow this to be
-// turned on/off in the Inspections settings.
-class VarCouldBeValInspection extends LocalInspectionTool with UnfairLocalInspectionTool {
+class VarCouldBeValInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
 
-  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    PsiElementVisitor.EMPTY_VISITOR
+  override def invoke(element: PsiElement): Seq[ProblemInfo] = element match {
+    case varDef: ScVariableDefinition =>
+      var couldBeVal = true
+      var used = false
+      varDef.declaredElements.foreach { elem =>
+        val holder = ScalaRefCountHolder.getInstance(element.getContainingFile)
+        holder.retrieveUnusedReferencesInfo { () =>
+          if (holder.isValueWriteUsed(elem)) {
+            couldBeVal = false
+          }
+          if (holder.isValueUsed(elem)) {
+            used = true
+          }
+        }
+      }
+      if (couldBeVal && used) {
+        Seq(ProblemInfo(varDef.varKeyword, VarCouldBeValInspection.Annotation, Seq(new VarToValFix(varDef))))
+      } else Seq.empty
+    case _ => Seq.empty
+  }
+
+  override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
+    case f: ScFunction if ScFunction.isSpecial(f.name) => false
+    case m: ScMember if m.hasModifierProperty(ScalaKeyword.IMPLICIT) => false
+    case _ => ScalaPsiUtil.isLocalOrPrivate(elem)
   }
 }
 

@@ -18,7 +18,7 @@ class ScalaLocalVarCouldBeValPassFactory(project: Project) extends TextEditorHig
   def projectOpened() {}
 
   def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = file match {
-    case scalaFile: ScalaFile => new ScalaLocalVarCouldBeValPass(scalaFile, editor.getDocument)
+    case scalaFile: ScalaFile => new ScalaLocalVarCouldBeValPass(scalaFile, Option(editor.getDocument))
     case _ => null
   }
 
