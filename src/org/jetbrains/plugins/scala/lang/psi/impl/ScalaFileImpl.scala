@@ -65,7 +65,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     if (isCompiled) {
       val stub = getStub
       if (stub != null) {
-        return stub.getFileName
+        return stub.sourceName
       }
       val virtualFile = getVirtualFile
       DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray).sourceName
