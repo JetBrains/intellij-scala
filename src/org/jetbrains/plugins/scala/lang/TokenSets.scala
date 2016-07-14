@@ -8,7 +8,6 @@ package lang
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
@@ -71,21 +70,21 @@ object TokenSets {
 
   val SELF_TYPE_ID = TokenSet.create(ScalaTokenTypes.kTHIS, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tUNDER)
 
-  val ALIASES_SET = TokenSet.create(ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.TYPE_DEFINITION)
+  val ALIASES_SET = TokenSet.create(TYPE_DECLARATION, TYPE_DEFINITION)
 
-  val FUNCTIONS = TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION, ScalaElementTypes.FUNCTION_DEFINITION, ScalaElementTypes.MACRO_DEFINITION)
+  val FUNCTIONS = TokenSet.create(FUNCTION_DECLARATION, FUNCTION_DEFINITION, MACRO_DEFINITION)
 
-  private val VALUES = TokenSet.create(ScalaElementTypes.VALUE_DECLARATION, ScalaElementTypes.PATTERN_DEFINITION)
+  private val VALUES = TokenSet.create(VALUE_DECLARATION, PATTERN_DEFINITION)
 
-  private val VARIABLES = TokenSet.create(ScalaElementTypes.VARIABLE_DECLARATION, ScalaElementTypes.VARIABLE_DEFINITION)
+  private val VARIABLES = TokenSet.create(VARIABLE_DECLARATION, VARIABLE_DEFINITION)
 
-  val TEMPLATE_PARENTS = TokenSet.create(ScalaElementTypes.CLASS_PARENTS, ScalaElementTypes.TRAIT_PARENTS)
+  val TEMPLATE_PARENTS = TokenSet.create(CLASS_PARENTS, TRAIT_PARENTS)
 
   val MEMBERS = TokenSet.orSet(TokenSet.orSet(FUNCTIONS, TokenSet.orSet(
       ALIASES_SET, TokenSet.orSet(
       TYPE_DEFINITIONS_SET, TokenSet.orSet(
           VALUES, TokenSet.orSet(
-            VARIABLES, TokenSet.create(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
+          VARIABLES, TokenSet.create(PRIMARY_CONSTRUCTOR)
           )
         )
       )

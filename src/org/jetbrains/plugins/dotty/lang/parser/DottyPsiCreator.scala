@@ -3,7 +3,7 @@ package org.jetbrains.plugins.dotty.lang.parser
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes._
+import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes.{REFINED_TYPE, TYPE_ARGUMENT_NAME, WITH_TYPE}
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
