@@ -1880,5 +1880,49 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL5025() = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    getScalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = true
+    val before =
+      """
+        |multipleParams(delay = 3,
+        |param2 = 4,
+        |param3 = 5){
+        |println("foo")
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |multipleParams(delay = 3,
+        |               param2 = 4,
+        |               param3 = 5) {
+        |  println("foo")
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL5025_1() = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    getScalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = true
+    val before =
+      """
+        |abstract class Simulation {
+        |  def afterDelay(delay: Int)(block: => Unit) {
+        |    val item = WorkItem(time = currentTime + delay, action = () => block)
+        |    agenda = insert(agenda, item)
+        |  }
+        |
+        |  def run() {
+        |    afterDelay(0) {
+        |      println("*** simulation started, time = " + currentTime + " ***")
+        |    }
+        |    while (!agenda.isEmpty) next()
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
