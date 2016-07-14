@@ -1995,5 +1995,22 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL6576() = {
+    getScalaSettings.INDENT_FIRST_PARAMETER_CLAUSE = true
+    val before =
+      """
+        |implicit def foo
+        |(a: Int)
+        |(b: Int) = ???
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |implicit def foo
+        |  (a: Int)
+        |  (b: Int) = ???
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
