@@ -3,10 +3,13 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
-import com.sun.jdi.{AbsentInformationException, ObjectReference, Value}
+import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+
+import scala.collection.JavaConverters._
 
 /**
  * User: Alefas
@@ -62,8 +65,32 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
       objRef = thisRef
     }
     if (objRef == null) {
+      isStaticInterfaceMethod(context) match {
+        case Some(iType) =>
+          objRef = findInOtherFrame(context, iType).orNull
+        case None =>
+      }
+    }
+    if (objRef == null) {
       throw EvaluationException(DebuggerBundle.message("evaluation.error.this.not.avalilable"))
     }
     objRef
+  }
+
+  def isStaticInterfaceMethod(context: EvaluationContextImpl): Option[InterfaceType] = {
+    val proxy = context.getFrameProxy
+    val location = proxy.location()
+    location.declaringType() match {
+      case i: InterfaceType if location.method().isStatic => Some(i)
+      case _ => None
+    }
+  }
+
+  def findInOtherFrame(context: EvaluationContextImpl, rt: ReferenceType): Option[Value] = {
+    val threadProxy = context.getFrameProxy.threadProxy()
+    threadProxy.frames().asScala.collectFirst {
+      case frame if frame.thisObject() != null && DebuggerUtilsEx.isAssignableFrom(rt.name(), frame.thisObject().referenceType()) =>
+        frame.thisObject()
+    }
   }
 }

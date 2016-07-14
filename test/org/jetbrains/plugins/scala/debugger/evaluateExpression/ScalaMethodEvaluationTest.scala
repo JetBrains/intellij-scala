@@ -18,10 +18,10 @@ class ScalaMethodEvaluationTest_212 extends ScalaMethodEvaluationTestBase with S
 }
 
 class ScalaMethodEvaluationTest_212_OLD extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_OLD {
-
-  override def testPrivateInTrait(): Unit = {} //SCL-10132
-
-  override def testLocalsInTrait(): Unit = {}  //SCL-10132
+//
+//  override def testPrivateInTrait(): Unit = {} //SCL-10132
+//
+//  override def testLocalsInTrait(): Unit = {}  //SCL-10132
 }
 
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
