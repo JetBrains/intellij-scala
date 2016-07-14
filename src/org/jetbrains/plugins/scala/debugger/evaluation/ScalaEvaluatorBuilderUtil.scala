@@ -60,7 +60,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         element match {
           case obj: ScObject => stableObjectEvaluator(obj)
           case cl: PsiClass if cl.getLanguage.isInstanceOf[JavaLanguage] =>
-            new TypeEvaluator(JVMNameUtil.getJVMQualifiedName(cl))
+            new ScalaTypeEvaluator(JVMNameUtil.getJVMQualifiedName(cl))
           case _ =>
             val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(element.name, ref.getContext, ref)
             evaluatorFor(expr)
@@ -410,7 +410,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def valueClassInstanceEvaluator(value: Evaluator, innerType: ScType, classType: ScType)
                                  (implicit typeSystem: TypeSystem): Evaluator = {
-    val valueClassType = new TypeEvaluator(DebuggerUtil.getJVMQualifiedName(classType))
+    val valueClassType = new ScalaTypeEvaluator(DebuggerUtil.getJVMQualifiedName(classType))
     val innerJvmName = DebuggerUtil.getJVMStringForType(innerType, isParam = true)
     val signature = JVMNameUtil.getJVMRawText(s"($innerJvmName)V")
     new ScalaDuplexEvaluator(new ScalaNewClassInstanceEvaluator(valueClassType, signature, Array(value)), value)
@@ -514,7 +514,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     ref.qualifier match {
       case Some(qual) =>
         if (field.hasModifierPropertyScala("static")) {
-          val eval = new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
+          val eval = new ScalaTypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
           val name = field.name
           new ScalaFieldEvaluator(eval, name)
         } else {
@@ -551,7 +551,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val boxEval = boxEvaluator(evaluatorFor(qual))
         ScalaMethodEvaluator(boxEval, method.name, signature, argEvals, None, methodPosition)
       case Some(q) if method.hasModifierPropertyScala("static") =>
-        val eval = new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
+        val eval = new ScalaTypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
         val name = method.name
         ScalaMethodEvaluator(eval, name, signature, argEvals, None, methodPosition)
       case Some(q) =>
@@ -636,7 +636,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(r) if r.tuplingUsed => throw EvaluationException(ScalaBundle.message("tupling.not.supported"))
       case None => throw EvaluationException(ScalaBundle.message("cannot.evaluate.method", funName))
       case Some(r @ privateTraitMethod(tr, fun)) =>
-        val traitTypeEval = new TypeEvaluator(DebuggerUtil.getClassJVMName(tr, withPostfix = true))
+        val traitTypeEval = new ScalaTypeEvaluator(DebuggerUtil.getClassJVMName(tr, withPostfix = true))
         val qualEval = qualEvaluator(r)
         val withTraitImpl = new ScalaMethodEvaluator(traitTypeEval, name, null, qualEval +: argEvaluators)
         val withDefault = new ScalaMethodEvaluator(qualEval, name, null, argEvaluators, traitImplementation(fun))
@@ -977,7 +977,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                 evaluatorFor(expr)
               case Some(clazz) =>
                 val jvmName = DebuggerUtil.getClassJVMName(clazz)
-                val typeEvaluator = new TypeEvaluator(jvmName)
+                val typeEvaluator = new ScalaTypeEvaluator(jvmName)
                 val argumentEvaluators = constructorArgumentsEvaluators(templ, constr, clazz)
                 constr.reference.map(_.resolve()) match {
                   case Some(named: PsiNamedElement) =>

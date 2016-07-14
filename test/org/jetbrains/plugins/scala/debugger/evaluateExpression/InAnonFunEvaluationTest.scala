@@ -9,10 +9,10 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 
 class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase with ScalaVersion_2_11
+class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTest_212_Base with ScalaVersion_2_12
+class InAnonFunEvaluationTest_212_OLD extends InAnonFunEvaluationTest_212_Base with ScalaVersion_2_12_OLD
 
-class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12
-
-class InAnonFunEvaluationTest_212_OLD extends InAnonFunEvaluationTestBase with ScalaVersion_2_12_OLD {
+abstract class InAnonFunEvaluationTest_212_Base extends InAnonFunEvaluationTestBase {
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
     runDebugger() {
