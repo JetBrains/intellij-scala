@@ -178,14 +178,14 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
           child.getElementType != ScalaTokenTypes.tLPARENTHESIS) Indent.getNormalIndent
         else Indent.getNoneIndent
-      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
-              | _: ScFinallyBlock | _: ScCatchBlock | _: ScValue | _: ScVariable=>
+      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement | _: ScFinallyBlock | _: ScCatchBlock |
+           _: ScValue | _: ScVariable | _: ScTypeAlias =>
         if (child.getElementType == ScalaTokenTypes.kYIELD) Indent.getNormalIndent
         else child.getPsi match {
           case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
               settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
           case _: ScBlockExpr => Indent.getNoneIndent
-          case _: ScExpression => Indent.getNormalIndent
+          case _: ScExpression | _: ScTypeElement => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
       case _: ScCaseClause =>
