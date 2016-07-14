@@ -1975,5 +1975,16 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL6696() = {
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
+    val before =
+      """
+        |val a = (52,
+        |  52
+        |)
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
