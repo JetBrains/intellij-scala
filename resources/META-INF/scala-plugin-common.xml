@@ -243,6 +243,10 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
         <!--/Handler-->
 
+        <!--Enter Handler for braces in closure braced blocks-->
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterBetweenClosureBracesHandler"/>
+        <!--/Handler-->
+
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitTypeEnterHandler" order="first"/>
 
         <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
