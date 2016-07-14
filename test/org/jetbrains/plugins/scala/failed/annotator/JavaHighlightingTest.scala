@@ -209,4 +209,39 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testSCL10531(): Unit = {
+    val java =
+      """
+        |public interface Id {
+        |    static scala.Option<Id> unapply(Id id) {
+        |        // Can't define this in Scala because the static forwarder in companion class
+        |        // conflicts with the interface trait.  Should be fixed in 2.12.
+        |        // https://github.com/scala/scala-dev/issues/59
+        |        if (id == NoId.instance()) {
+        |            return scala.Option.empty();
+        |        }
+        |        return scala.Option.apply(id);
+        |    }
+        |}
+        |
+        |class NoId {
+        |    public static Id instance() {
+        |        return null;
+        |    }
+        |}
+      """.stripMargin
+
+    val scala =
+      """
+        |class mc {
+        |  NoId.instance() match {
+        |    case Id(id) =>
+        |      true
+        |  }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }
