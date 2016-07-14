@@ -1869,5 +1869,16 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL4743() = {
+    getCommonSettings.ELSE_ON_NEW_LINE = false
+    val before =
+      """
+        |def f = if (true) 1 else {
+        |  0
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
