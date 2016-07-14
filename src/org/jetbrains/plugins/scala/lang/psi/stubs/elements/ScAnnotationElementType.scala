@@ -5,6 +5,7 @@ package stubs
 package elements
 
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
@@ -17,20 +18,20 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 22.06.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 22.06.2009
+  */
 
 class ScAnnotationElementType[Func <: ScAnnotation]
-        extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
+  extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getTypeText)
   }
 
-  def createPsi(stub: ScAnnotationStub): ScAnnotation = {
-    new ScAnnotationImpl(stub)
-  }
+  override def createElement(node: ASTNode): ScAnnotation = new ScAnnotationImpl(node)
+
+  override def createPsi(stub: ScAnnotationStub): ScAnnotation = new ScAnnotationImpl(stub)
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScAnnotation, parentStub: StubElement[ParentPsi]): ScAnnotationStub = {
     val name = psi.typeElement match {
@@ -64,7 +65,6 @@ class ScAnnotationElementType[Func <: ScAnnotation]
   }
 
   def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
-
     val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null && name != "") {
       sink.occurrence(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, name)

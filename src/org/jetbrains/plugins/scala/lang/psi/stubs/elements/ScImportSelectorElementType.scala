@@ -5,19 +5,21 @@ package stubs
 package elements
 
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelectorImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorStubImpl
+
 /**
- * User: Alexander Podkhalyuzin
- * Date: 20.06.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 20.06.2009
+  */
 
 class ScImportSelectorElementType[Func <: ScImportSelector]
-        extends ScStubElementType[ScImportSelectorStub, ScImportSelector]("import selector") {
+  extends ScStubElementType[ScImportSelectorStub, ScImportSelector]("import selector") {
   def serialize(stub: ScImportSelectorStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.asInstanceOf[ScImportSelectorStubImpl[_ <: PsiElement]].referenceText.toString)
     dataStream.writeName(stub.importedName)
@@ -40,7 +42,7 @@ class ScImportSelectorElementType[Func <: ScImportSelector]
 
   def indexStub(stub: ScImportSelectorStub, sink: IndexSink): Unit = {}
 
-  def createPsi(stub: ScImportSelectorStub): ScImportSelector = {
-    new ScImportSelectorImpl(stub)
-  }
+  override def createPsi(stub: ScImportSelectorStub): ScImportSelector = new ScImportSelectorImpl(stub)
+
+  override def createElement(node: ASTNode): ScImportSelector = new ScImportSelectorImpl(node)
 }

@@ -4,18 +4,20 @@ package psi
 package stubs
 package elements
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportStmtImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportStmtStubImpl
+
 /**
- * User: Alexander Podkhalyuzin
- * Date: 18.06.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 18.06.2009
+  */
 
 class ScImportStmtElementType[Func <: ScImportStmt]
-        extends ScStubElementType[ScImportStmtStub, ScImportStmt]("import statement") {
+  extends ScStubElementType[ScImportStmtStub, ScImportStmt]("import statement") {
   def serialize(stub: ScImportStmtStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getImportText)
   }
@@ -31,7 +33,7 @@ class ScImportStmtElementType[Func <: ScImportStmt]
 
   def indexStub(stub: ScImportStmtStub, sink: IndexSink): Unit = {}
 
-  def createPsi(stub: ScImportStmtStub): ScImportStmt = {
-    new ScImportStmtImpl(stub)
-  }
+  override def createPsi(stub: ScImportStmtStub): ScImportStmt = new ScImportStmtImpl(stub)
+
+  override def createElement(node: ASTNode): ScImportStmt = new ScImportStmtImpl(node)
 }

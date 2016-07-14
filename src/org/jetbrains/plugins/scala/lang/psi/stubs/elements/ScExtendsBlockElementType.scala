@@ -3,21 +3,23 @@ package lang
 package psi
 package stubs
 package elements
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
+
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
 
 class ScExtendsBlockElementType
-extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
+  extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
 
   def serialize(stub: ScExtendsBlockStub, dataStream: StubOutputStream) {
     dataStream.writeInt(stub.getBaseClasses.length)
@@ -42,7 +44,9 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
     new ScExtendsBlockStubImpl(parentStub, this, baseNames.toArray)
   }
 
-  def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)
+  override def createElement(node: ASTNode): ScExtendsBlock = new ScExtendsBlockImpl(node)
+
+  override def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)
 
   override def isLeftBound = true
 }

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScClassImpl
  * @author ilyas
  */
 class ScClassDefinitionElementType extends ScTemplateDefinitionElementType[ScClass]("class definition") {
-  def createElement(node: ASTNode): ScClass = new ScClassImpl(node)
+  override def createElement(node: ASTNode): ScClass = new ScClassImpl(node)
 
-  def createPsi(stub: ScTemplateDefinitionStub): ScClass = new ScClassImpl(stub)
+  override def createPsi(stub: ScTemplateDefinitionStub): ScClass = new ScClassImpl(stub)
 }

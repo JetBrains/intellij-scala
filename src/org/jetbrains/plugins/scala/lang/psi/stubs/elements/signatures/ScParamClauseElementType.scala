@@ -5,19 +5,20 @@ package stubs
 package elements
 package signatures
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterClauseImpl
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParamClauseStubImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 19.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 19.10.2008
+  */
 
 class ScParamClauseElementType
-extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
+  extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
   def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.isImplicit)
   }
@@ -30,10 +31,10 @@ extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter claus
   }
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]): ScParamClauseStubImpl[ParentPsi] = {
-    new ScParamClauseStubImpl(parentStub, this, psi.isImplicit)     
+    new ScParamClauseStubImpl(parentStub, this, psi.isImplicit)
   }
 
-  def createPsi(stub: ScParamClauseStub): ScParameterClause = {
-    new ScParameterClauseImpl(stub)
-  }
+  override def createPsi(stub: ScParamClauseStub): ScParameterClause = new ScParameterClauseImpl(stub)
+
+  override def createElement(node: ASTNode): ScParameterClause = new ScParameterClauseImpl(node)
 }

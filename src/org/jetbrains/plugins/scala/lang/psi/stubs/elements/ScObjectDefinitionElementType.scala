@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
  * @author ilyas
  */
 class ScObjectDefinitionElementType extends ScTemplateDefinitionElementType[ScObject]("object definition") {
-  def createElement(node: ASTNode): ScObject = new ScObjectImpl(node)
+  override def createElement(node: ASTNode): ScObject = new ScObjectImpl(node)
 
-  def createPsi(stub: ScTemplateDefinitionStub): ScObject = new ScObjectImpl(stub)
+  override def createPsi(stub: ScTemplateDefinitionStub): ScObject = new ScObjectImpl(stub)
 }

@@ -4,29 +4,30 @@ package psi
 package stubs
 package elements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScModifiersStubImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 21.01.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 21.01.2009
+  */
 
 class ScModifiersElementType(debugName: String)
-        extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
+  extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
   def serialize(stub: ScModifiersStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.hasExplicitModifiers)
     dataStream.writeInt(stub.getModifiers.length)
     for (modifier <- stub.getModifiers) dataStream.writeName(modifier)
   }
 
-  def createPsi(stub: ScModifiersStub): ScModifierList = {
-    new ScModifierListImpl(stub)
-  }
+  override def createElement(node: ASTNode): ScModifierList = new ScModifierListImpl(node)
+
+  override def createPsi(stub: ScModifiersStub): ScModifierList = new ScModifierListImpl(stub)
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScModifierList, parentStub: StubElement[ParentPsi]): ScModifiersStub = {
     val modifiers: Array[String] = psi.getModifiersStrings

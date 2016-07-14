@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTraitImpl
  * @author ilyas
  */
 class ScTraitDefinitionElementType extends ScTemplateDefinitionElementType[ScTrait]("trait definition") {
-  def createElement(node: ASTNode): ScTrait = new ScTraitImpl(node)
+  override def createElement(node: ASTNode): ScTrait = new ScTraitImpl(node)
 
-  def createPsi(stub: ScTemplateDefinitionStub): ScTrait = new ScTraitImpl(stub)
+  override def createPsi(stub: ScTemplateDefinitionStub): ScTrait = new ScTraitImpl(stub)
 }

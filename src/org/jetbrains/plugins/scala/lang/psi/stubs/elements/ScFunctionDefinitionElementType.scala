@@ -4,10 +4,9 @@ package psi
 package stubs
 package elements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
  */
 
 class ScFunctionDefinitionElementType extends ScFunctionElementType[ScFunction]("function definition"){
-  def createElement(node: ASTNode): PsiElement = new ScFunctionDefinitionImpl(node)
+  override def createElement(node: ASTNode): ScFunctionDefinition = new ScFunctionDefinitionImpl(node)
 
-  def createPsi(stub: ScFunctionStub) = new ScFunctionDefinitionImpl(stub)
+  override def createPsi(stub: ScFunctionStub): ScFunctionDefinition = new ScFunctionDefinitionImpl(stub)
 }

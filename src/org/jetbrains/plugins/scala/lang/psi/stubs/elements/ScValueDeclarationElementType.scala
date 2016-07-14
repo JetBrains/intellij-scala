@@ -5,18 +5,17 @@ package stubs
 package elements
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScValueDeclarationImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScValueDeclarationImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 17.10.2008
+  */
 
-class ScValueDeclarationElementType extends ScValueElementType[ScValue]("value declaration"){
-  def createElement(node: ASTNode): PsiElement = new ScValueDeclarationImpl(node)
+class ScValueDeclarationElementType extends ScValueElementType[ScValue]("value declaration") {
+  override def createElement(node: ASTNode): ScValueDeclaration = new ScValueDeclarationImpl(node)
 
-  def createPsi(stub: ScValueStub) = new ScValueDeclarationImpl(stub)
+  override def createPsi(stub: ScValueStub): ScValueDeclaration = new ScValueDeclarationImpl(stub)
 }

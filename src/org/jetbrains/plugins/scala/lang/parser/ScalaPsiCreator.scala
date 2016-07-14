@@ -11,136 +11,32 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
-import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.ScalaDocPsiCreator
 
-object ScalaPsiCreator extends ScalaPsiCreator {
-
-}
+object ScalaPsiCreator extends ScalaPsiCreator
 
 trait ScalaPsiCreator extends PsiCreator {
-  def createElement(node: ASTNode): PsiElement =     
+  def createElement(node: ASTNode): PsiElement =
     node.getElementType match {
-     case s: SelfPsiCreator => s.createElement(node)
-
-     case _: ScalaDocElementType => ScalaDocPsiCreator.createElement(node)
-    /*****************************************************/
-    /********************** TOP **************************/
-    /*****************************************************/
-
-      case ScalaElementTypes.PACKAGING => new ScPackagingImpl(node)
-
-      /***************************************************/
-      /********************* IMPORT **********************/
-      /***************************************************/
-
-      case ScalaElementTypes.IMPORT_STMT => new ScImportStmtImpl(node)
-      case ScalaElementTypes.IMPORT_EXPR => new ScImportExprImpl(node)
-      case ScalaElementTypes.IMPORT_SELECTORS => new ScImportSelectorsImpl(node)
-      case ScalaElementTypes.IMPORT_SELECTOR => new ScImportSelectorImpl(node)
-
-      /***************************************************/
-      /********************** DEF ************************/
-      /***************************************************/
-
-      case ScalaElementTypes.CLASS_DEF => new ScClassImpl(node)
-      case ScalaElementTypes.OBJECT_DEF => new ScObjectImpl(node)
-      case ScalaElementTypes.TRAIT_DEF => new ScTraitImpl(node)
-
-      /***************** class ***************/
+      case s: SelfPsiCreator => s.createElement(node)
+      case _: ScalaDocElementType => ScalaDocPsiCreator.createElement(node)
       case ScalaElementTypes.REQUIRES_BLOCK => new ScRequiresBlockImpl(node)
-      case ScalaElementTypes.EXTENDS_BLOCK => new ScExtendsBlockImpl(node)
-
-      /***************************************************/
-      /******************** TEMPLATES ********************/
-      /***************************************************/
-
-      /******************* parents ****************/
-      case ScalaElementTypes.CLASS_PARENTS => new ScClassParentsImpl(node)
-      case ScalaElementTypes.TRAIT_PARENTS => new ScTraitParentsImpl(node)
-
-      /******************* body *******************/
-      case ScalaElementTypes.TEMPLATE_BODY => new ScTemplateBodyImpl(node)
-
-
-      /***************************************************/
-      /*************** TEMPLATE STATEMENTS ***************/
-      /***************************************************/
-
-      /*************** DECLARATION ***************/
-      case ScalaElementTypes.VALUE_DECLARATION => new ScValueDeclarationImpl(node)
-      case ScalaElementTypes.VARIABLE_DECLARATION => new ScVariableDeclarationImpl(node)
-      case ScalaElementTypes.FUNCTION_DECLARATION => new ScFunctionDeclarationImpl(node)
-      case ScalaElementTypes.TYPE_DECLARATION => new ScTypeAliasDeclarationImpl(node)
-
-      /*************** DEFINITION ***************/
-      case ScalaElementTypes.PATTERN_DEFINITION => new ScPatternDefinitionImpl(node)
-      case ScalaElementTypes.VARIABLE_DEFINITION => new ScVariableDefinitionImpl(node)
-      case ScalaElementTypes.FUNCTION_DEFINITION => new ScFunctionDefinitionImpl(node)
-      case ScalaElementTypes.MACRO_DEFINITION => new ScMacroDefinitionImpl(node)
-      case ScalaElementTypes.TYPE_DEFINITION => new ScTypeAliasDefinitionImpl(node)
-      case ScalaElementTypes.EARLY_DEFINITIONS => new ScEarlyDefinitionsImpl(node)
-
-      /********** function definition: supplementary constructor *************/
       case ScalaElementTypes.SELF_INVOCATION => new ScSelfInvocationImpl(node)
       case ScalaElementTypes.CONSTR_EXPR => new ScConstrExprImpl(node)
-      case ScalaElementTypes.PRIMARY_CONSTRUCTOR => new ScPrimaryConstructorImpl(node)
-
-      /**************** function ******************/
       case ScalaElementTypes.CONSTRUCTOR => new ScConstructorImpl(node)
-
-      /**************** variable ******************/
-      case ScalaElementTypes.IDENTIFIER_LIST => new ScIdListImpl(node)
-      case ScalaElementTypes.FIELD_ID => new ScFieldIdImpl(node)
       case ScalaElementTypes.REFERENCE => new ScStableCodeReferenceElementImpl(node)
-
-      /**************** pattern ******************/
-      case ScalaElementTypes.PATTERN_LIST => new ScPatternListImpl(node)
-
-      /***************************************************/
-      /********* PARAMETERS AND TYPE PARAMETERS **********/
-      /***************************************************/
-
-      /******************** parameters *******************/
-      case ScalaElementTypes.PARAM_CLAUSE => new ScParameterClauseImpl(node)
-      case ScalaElementTypes.PARAM_CLAUSES => new ScParametersImpl(node)
-      /*********** class ************/
-      case ScalaElementTypes.CLASS_PARAM => new ScClassParameterImpl(node)
-      case ScalaElementTypes.PARAM => new ScParameterImpl(node)
       case ScalaElementTypes.PARAM_TYPE => new ScParameterTypeImpl(node)
-      /***************** type parameters ****************/
-      case ScalaElementTypes.TYPE_PARAM_CLAUSE => new ScTypeParamClauseImpl(node)
-      /********** function **********/
-      case ScalaElementTypes.TYPE_PARAM => new ScTypeParamImpl(node)
-      /***************************************************/
-      /************* MODIFIERS AND ATTRIBUTES ************/
-      /***************************************************/
-
-      /************** modifiers **************/
-      case ScalaElementTypes.MODIFIERS => new ScModifierListImpl(node)
-      case ScalaElementTypes.ACCESS_MODIFIER => new ScAccessModifierImpl(node)
-
-      /************* annotation *************/
-      case ScalaElementTypes.ANNOTATION => new ScAnnotationImpl(node)
       case ScalaElementTypes.ANNOTATION_EXPR => new ScAnnotationExprImpl(node)
-      case ScalaElementTypes.ANNOTATIONS => new ScAnnotationsImpl(node)
       case ScalaElementTypes.NAME_VALUE_PAIR => new ScNameValuePairImpl(node)
-
       case _ => inner(node)
     }
 
 
   //to prevent stack overflow in type checker let's introduce helper method
   protected def inner(node: ASTNode): PsiElement = node.getElementType match {
-
-
 
   /********************** TOKENS **********************/
   /********************* LITERALS *********************/
@@ -165,7 +61,6 @@ trait ScalaPsiCreator extends PsiCreator {
     case ScalaElementTypes.ANNOT_TYPE => new ScAnnotTypeElementImpl(node)
     case ScalaElementTypes.SEQUENCE_ARG => new ScSequenceArgImpl(node)
     case ScalaElementTypes.EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl(node)
-    case ScalaElementTypes.SELF_TYPE => new ScSelfTypeElementImpl(node)
     case ScalaElementTypes.EXISTENTIAL_TYPE => new ScExistentialTypeElementImpl(node)
     case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeElementImpl(node)
     case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl(node)
@@ -217,7 +112,6 @@ trait ScalaPsiCreator extends PsiCreator {
     case ScalaElementTypes.ASSIGN_STMT => new ScAssignStmtImpl(node)
     case ScalaElementTypes.TYPED_EXPR_STMT => new ScTypedStmtImpl(node)
     case ScalaElementTypes.MATCH_STMT => new ScMatchStmtImpl(node)
-    case ScalaElementTypes.NEW_TEMPLATE => new ScNewTemplateDefinitionImpl(node)
     case _ => inner2(node)
   }
 
@@ -238,7 +132,6 @@ trait ScalaPsiCreator extends PsiCreator {
     case ScalaElementTypes.CASE_CLAUSES => new ScCaseClausesImpl(node)
     case ScalaElementTypes.LITERAL_PATTERN => new ScLiteralPatternImpl(node)
     case ScalaElementTypes.INTERPOLATION_PATTERN => new ScInterpolationPatternImpl(node)
-    case ScalaElementTypes.REFERENCE_PATTERN => new ScReferencePatternImpl(node)
     case ScalaElementTypes.STABLE_REFERENCE_PATTERN => new ScStableReferenceElementPatternImpl(node)
     case ScalaElementTypes.PATTERN_IN_PARENTHESIS => new ScParenthesisedPatternImpl(node)
 

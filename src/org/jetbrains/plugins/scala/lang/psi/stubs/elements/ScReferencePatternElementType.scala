@@ -5,18 +5,20 @@ package stubs
 package elements
 
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScReferencePatternImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScReferencePatternStubImpl
+
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.07.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 17.07.2009
+  */
 
 class ScReferencePatternElementType[Func <: ScReferencePattern]
-extends ScStubElementType[ScReferencePatternStub, ScReferencePattern]("reference pattern") {
+  extends ScStubElementType[ScReferencePatternStub, ScReferencePattern]("reference pattern") {
   def createStubImpl[ParentPsi <: PsiElement](psi: ScReferencePattern, parentStub: StubElement[ParentPsi]): ScReferencePatternStub = {
     new ScReferencePatternStubImpl[ParentPsi](parentStub, this, psi.name)
   }
@@ -25,9 +27,9 @@ extends ScStubElementType[ScReferencePatternStub, ScReferencePattern]("reference
     dataStream.writeName(stub.getName)
   }
 
-  def createPsi(stub: ScReferencePatternStub): ScReferencePattern = {
-    new ScReferencePatternImpl(stub)
-  }
+  override def createElement(node: ASTNode): ScReferencePattern = new ScReferencePatternImpl(node)
+
+  override def createPsi(stub: ScReferencePatternStub): ScReferencePattern = new ScReferencePatternImpl(stub)
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScReferencePatternStub = {
     val name = dataStream.readName

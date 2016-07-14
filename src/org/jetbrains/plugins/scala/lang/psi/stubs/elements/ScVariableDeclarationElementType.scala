@@ -4,19 +4,17 @@ package psi
 package stubs
 package elements
 
-
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScVariableDeclarationImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScVariableDeclarationImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 18.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 18.10.2008
+  */
 
-class ScVariableDeclarationElementType extends ScVariableElementType[ScVariable]("variable declaration"){
-  def createElement(node: ASTNode): PsiElement = new ScVariableDeclarationImpl(node)
+class ScVariableDeclarationElementType extends ScVariableElementType[ScVariable]("variable declaration") {
+  override def createElement(node: ASTNode): ScVariableDeclaration = new ScVariableDeclarationImpl(node)
 
-  def createPsi(stub: ScVariableStub) = new ScVariableDeclarationImpl(stub)
+  override def createPsi(stub: ScVariableStub): ScVariableDeclaration = new ScVariableDeclarationImpl(stub)
 }

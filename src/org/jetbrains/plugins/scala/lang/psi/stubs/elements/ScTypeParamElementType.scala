@@ -4,7 +4,7 @@ package psi
 package stubs
 package elements
 
-
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io._
@@ -15,12 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamStubImpl
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.06.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 17.06.2009
+  */
 
 class ScTypeParamElementType[Func <: ScTypeParam]
-        extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
+  extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
   def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getUpperText)
@@ -36,9 +36,9 @@ class ScTypeParamElementType[Func <: ScTypeParam]
 
   def indexStub(stub: ScTypeParamStub, sink: IndexSink) {}
 
-  def createPsi(stub: ScTypeParamStub): ScTypeParam = {
-    new ScTypeParamImpl(stub)
-  }
+  override def createElement(node: ASTNode): ScTypeParam = new ScTypeParamImpl(node)
+
+  override def createPsi(stub: ScTypeParamStub): ScTypeParam = new ScTypeParamImpl(stub)
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScTypeParam, parentStub: StubElement[ParentPsi]): ScTypeParamStub = {
     val upperText = psi.upperTypeElement match {

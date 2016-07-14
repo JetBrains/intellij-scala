@@ -5,6 +5,7 @@ package stubs
 package elements
 
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
@@ -24,9 +25,9 @@ class ScTypeParamClauseElementType[Func <: ScTypeParamClause]
 
   def indexStub(stub: ScTypeParamClauseStub, sink: IndexSink) {}
 
-  def createPsi(stub: ScTypeParamClauseStub): ScTypeParamClause = {
-    new ScTypeParamClauseImpl(stub)
-  }
+  override def createElement(node: ASTNode): ScTypeParamClause = new ScTypeParamClauseImpl(node)
+
+  override def createPsi(stub: ScTypeParamClauseStub): ScTypeParamClause = new ScTypeParamClauseImpl(stub)
 
   def createStubImpl[ParentPsi <: PsiElement](psi: ScTypeParamClause, parentStub: StubElement[ParentPsi]): ScTypeParamClauseStub = {
     new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.getText)

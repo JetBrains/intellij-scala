@@ -4,18 +4,17 @@ package psi
 package stubs
 package elements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDeclarationImpl
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDeclarationImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 18.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 18.10.2008
+  */
 
-class ScTypeAliasDeclarationElementType extends ScTypeAliasElementType[ScTypeAlias]("type alias declaration"){
-  def createElement(node: ASTNode): PsiElement = new ScTypeAliasDeclarationImpl(node)
+class ScTypeAliasDeclarationElementType extends ScTypeAliasElementType[ScTypeAlias]("type alias declaration") {
+  override def createElement(node: ASTNode): ScTypeAliasDeclaration = new ScTypeAliasDeclarationImpl(node)
 
-  def createPsi(stub: ScTypeAliasStub) = new ScTypeAliasDeclarationImpl(stub)
+  override def createPsi(stub: ScTypeAliasStub): ScTypeAliasDeclaration = new ScTypeAliasDeclarationImpl(stub)
 }
