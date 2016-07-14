@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
 object DottyPsiCreator extends ScalaPsiCreator {
   private val idTokenSet = TokenSet.create(REFERENCE, ScalaTokenTypes.tAND, ScalaTokenTypes.tOR)
 
-  override protected def inner(node: ASTNode): PsiElement = node.getElementType match {
+  override protected def types(node: ASTNode): PsiElement = node.getElementType match {
     case TYPE => new DottyFunctionalTypeElementImpl(node)
     case ANNOT_TYPE => new DottyAnnotTypeElementImpl(node)
     case INFIX_TYPE => node.findChildByType(idTokenSet).getElementType match {
@@ -31,6 +31,6 @@ object DottyPsiCreator extends ScalaPsiCreator {
     case TUPLE_TYPE => new DottyTupleTypeElementImpl(node)
     case TYPE_ARGUMENT_NAME => new DottyTypeArgumentNameElementImpl(node)
     case TYPE_ARGS => new DottyTypeArgsImpl(node)
-    case _ => super.inner(node)
+    case _ => super.types(node)
   }
 }
