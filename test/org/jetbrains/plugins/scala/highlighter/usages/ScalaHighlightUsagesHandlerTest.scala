@@ -208,15 +208,15 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
     assert(createHandler == null)
   }
 
-  def doTest(fileText: String, usages: Seq[String]): Unit = {
+  def doTest(fileText: String, expected: Seq[String]): Unit = {
     import scala.collection.JavaConversions._
     myFixture.configureByText("dummy.scala", fileText)
     val handler = createHandler
     val targets = handler.getTargets
-    val textUsages: Seq[String] = targets.map { elem =>
-      elem.getText
-    }
-    Assert.assertEquals(s"actual: $textUsages, expected: $usages", textUsages, usages)
+    Assert.assertEquals(1, targets.size())
+    handler.computeUsages(targets)
+    val actualUsages: Seq[String] = handler.getReadUsages.map(_.substring(getFile.getText))
+    Assert.assertEquals(s"actual: $actualUsages, expected: $expected", expected, actualUsages)
   }
 
   def createHandler: HighlightUsagesHandlerBase[PsiElement] = {
