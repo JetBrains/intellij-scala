@@ -1986,5 +1986,14 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL7001() = {
+    val before =
+      """
+        |type Set =
+        |  Int => Boolean
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
