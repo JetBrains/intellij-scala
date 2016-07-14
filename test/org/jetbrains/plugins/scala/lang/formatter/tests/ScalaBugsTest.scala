@@ -1924,5 +1924,44 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL5585() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
+    val before =
+      """|trait Foo {}
+         |
+         |class Bar extends Foo
+         |  with Foo
+         |{}
+         |
+         |class Baz {}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL5585_1() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
+    val before =
+      """
+        |trait Foo {}
+        |
+        |class Bar extends Foo
+        |  with Foo {}
+        |
+        |class Baz {}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |trait Foo {}
+        |
+        |class Bar extends Foo
+        |  with Foo
+        |{}
+        |
+        |class Baz {}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
