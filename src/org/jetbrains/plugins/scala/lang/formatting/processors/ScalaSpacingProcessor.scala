@@ -736,10 +736,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       while (lastNode != null && (ScalaPsiUtil.isLineTerminator(lastNode.getPsi) ||
               lastNode.getPsi.isInstanceOf[PsiWhiteSpace])) lastNode = lastNode.getTreePrev
       if (lastNode == null) return WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
-      else if (getText(lastNode, fileText).endsWith("}")) {
-        if (settings.ELSE_ON_NEW_LINE) return ON_NEW_LINE
-        else return WITH_SPACING
-      } else return WITH_SPACING_DEPENDENT(rightNode.getTreeParent.getTextRange)
+      else return if (settings.ELSE_ON_NEW_LINE) ON_NEW_LINE else WITH_SPACING
     }
 
     if (leftElementType == ScalaElementTypes.MODIFIERS) {
