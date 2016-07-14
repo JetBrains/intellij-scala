@@ -169,6 +169,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
               settings.METHOD_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
           case _: ScBlockExpr => Indent.getNoneIndent
           case _: ScExpression => Indent.getNormalIndent
+          case _: ScParameters if scalaSettings.INDENT_FIRST_PARAMETER_CLAUSE => Indent.getContinuationIndent
           case _ => Indent.getNoneIndent
         }
       case _: ScMethodCall => processMethodCall
