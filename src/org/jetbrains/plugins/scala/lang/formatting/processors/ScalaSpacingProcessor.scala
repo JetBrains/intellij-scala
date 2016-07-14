@@ -510,7 +510,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (leftElementType != ScalaTokenTypes.tSEMICOLON || !prevNotWithspace(leftPsi).isInstanceOf[ScImportStmt]) {
         rightPsi.getParent match {
           case _: ScEarlyDefinitions | _: ScTemplateBody | _: ScalaFile | _: ScPackaging =>
-            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks,
+            return Spacing.createSpacing(0, 0, settings.BLANK_LINES_BEFORE_IMPORTS + 1, keepLineBreaks,
               keepBlankLinesInCode)
           case _ =>
         }

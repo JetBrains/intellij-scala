@@ -1963,5 +1963,17 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL6438() = {
+    getCommonSettings.BLANK_LINES_BEFORE_IMPORTS = 0
+    val before =
+      """
+        |object O {
+        |  import foo.bar
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
