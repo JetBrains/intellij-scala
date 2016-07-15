@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getPsiElementId
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 
@@ -27,7 +28,7 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
                          lowerType: Suspension,
                          upperType: Suspension,
                          psiTypeParameter: PsiTypeParameter) {
-  val nameAndId = psiTypeParameter.nameAndId
+  val nameAndId = getPsiElementId(psiTypeParameter)
 
   val name = nameAndId._1
 
@@ -82,7 +83,7 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
                              lowerType: Suspension,
                              upperType: Suspension,
                              psiTypeParameter: PsiTypeParameter) extends ValueType with NamedType {
-  val nameAndId = psiTypeParameter.nameAndId
+  val nameAndId = getPsiElementId(psiTypeParameter)
 
   override val name = nameAndId._1
 

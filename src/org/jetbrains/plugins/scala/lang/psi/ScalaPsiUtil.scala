@@ -836,6 +836,23 @@ object ScalaPsiUtil {
     res
   }
 
+  def getPsiElementId(elem: PsiNamedElement): (String, PsiElement) = {
+    try {
+      (elem.name, elem match {
+        case typeParam: ScTypeParam => typeParam.getPsiElementId
+        case p: PsiTypeParameter =>
+          val cc = for {
+            owner <- Option(p.getOwner)
+            clazz <- Option(owner.containingClass)
+          } yield clazz
+          cc.orNull
+        case _ => elem
+      })
+    } catch {
+      case _ : PsiInvalidElementAccessException => null
+    }
+  }
+
   def getSettings(project: Project): ScalaCodeStyleSettings = {
     CodeStyleSettingsManager.getSettings(project).getCustomSettings(classOf[ScalaCodeStyleSettings])
   }
@@ -994,23 +1011,23 @@ object ScalaPsiUtil {
     isPlaceTdAncestor(td, newTd)
   }
 
-  def typesCallSubstitutor(tp: Seq[(String, Long)], typeArgs: Seq[ScType]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, Long), ScType]
+  def typesCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScType]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
     for (i <- 0 until math.min(tp.length, typeArgs.length)) {
       map += ((tp(i), typeArgs(i)))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
-  def genericCallSubstitutor(tp: Seq[(String, Long)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, Long), ScType]
+  def genericCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
     for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
       map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType(TypingContext.empty).getOrAny))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
-  def genericCallSubstitutor(tp: Seq[(String, Long)], gen: ScGenericCall): ScSubstitutor = {
+  def genericCallSubstitutor(tp: Seq[(String, PsiElement)], gen: ScGenericCall): ScSubstitutor = {
     val typeArgs: Seq[ScTypeElement] = gen.arguments
     genericCallSubstitutor(tp, typeArgs)
   }

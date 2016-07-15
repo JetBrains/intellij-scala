@@ -42,7 +42,7 @@ class ScLightTypeParam(t: TypeParameter, tParam: ScTypeParam)
 
   override def getOffsetInFile: Int = tParam.getOffsetInFile
 
-  override def getPsiElementId: Long = tParam.getPsiElementId
+  override def getPsiElementId: PsiElement = tParam.getPsiElementId
 
   override def owner: ScTypeParametersOwner = tParam.owner
 

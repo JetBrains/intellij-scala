@@ -1223,8 +1223,8 @@ object Conformance extends api.Conformance {
               undefinedSubst = t._2
             }
             if (result == null) {
-              val filterFunction: (((String, Long), HashSet[ScType])) => Boolean = {
-                case (id: (String, Long), types: HashSet[ScType]) =>
+              val filterFunction: (((String, PsiElement), HashSet[ScType])) => Boolean = {
+                case (id: (String, PsiElement), types: HashSet[ScType]) =>
                   !tptsMap.values.exists(_.nameAndId == id)
               }
               val newUndefSubst = new ScUndefinedSubstitutor(
@@ -1514,7 +1514,7 @@ object Conformance extends api.Conformance {
             undefinedSubst = t._2
             i = i + 1
           }
-          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, Long), ScType] ++ typeParameters1.zip(typeParameters2).map {
+          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++ typeParameters1.zip(typeParameters2).map {
             case (key, TypeParameter(_, lowerType, upperType, psiTypeParameter)) => (key.nameAndId,
               TypeParameterType(
                 (psiTypeParameter match {

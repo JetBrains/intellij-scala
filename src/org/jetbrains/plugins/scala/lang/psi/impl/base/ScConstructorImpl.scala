@@ -125,7 +125,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       s.getParent match {
         case p: ScParameterizedTypeElement =>
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, Long), ScType] ++ zipped.map {
+          val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map {
             case (arg, typeParam) =>
               (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
           }, Map.empty, None)

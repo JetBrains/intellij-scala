@@ -492,7 +492,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
     r match {
       case exist: ScExistentialArgument =>
         var undefinedSubst = uSubst
-        val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, -1), p._2)}
+        val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, null), p._2)}
         val t = lower.equiv(s.subst(exist.lower), undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
