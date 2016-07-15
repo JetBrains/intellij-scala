@@ -2012,5 +2012,27 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL5032_1() = {
+
+    val before =
+      """
+        |collection.map { _ => doStuff()
+        |item.property}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |collection.map { _ =>
+        |  doStuff()
+        |  item.property
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL5032_2() = {
+    val before = "collection.map { _ => item.property }"
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
