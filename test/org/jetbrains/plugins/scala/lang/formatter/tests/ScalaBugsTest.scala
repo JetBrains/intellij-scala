@@ -2080,6 +2080,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       """.stripMargin.replace("\r", "")
     doTextTest(before)
   }
+
   def testSCL10527_2() = {
     getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     val before =
@@ -2088,6 +2089,26 @@ bars foreach {case (x, y) => list.add(x + y)}
         |class Foo
         |  {
         |  }
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7048() = {
+    getCommonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES = true
+    val before =
+      """
+        |foo( a, b, c )
+        |bar()
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7048_1() = {
+    getCommonSettings.SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES = true
+    val before =
+      """
+        |foo(a, b, c)
+        |bar( )
       """.stripMargin.replace("\r", "")
     doTextTest(before)
   }
