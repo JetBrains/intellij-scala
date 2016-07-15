@@ -2125,5 +2125,32 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL7453() = {
+    getCommonSettings.METHOD_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    getScalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = true
+    getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    getCommonSettings.BLANK_LINES_AFTER_CLASS_HEADER = 1
+    val before =
+      """
+        |case class ImAClass(something1: Int, something2: Int, something3: Int, something4: Int, something5: Int) {
+        |  val uselessVal = 1
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |case class ImAClass(
+        |    something1: Int,
+        |    something2: Int,
+        |    something3: Int,
+        |    something4: Int,
+        |    something5: Int) {
+        |
+        |  val uselessVal = 1
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
