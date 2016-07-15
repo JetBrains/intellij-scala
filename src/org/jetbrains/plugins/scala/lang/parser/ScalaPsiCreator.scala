@@ -7,7 +7,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiUtilCore
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.ScalaDocPsiCreator
 
@@ -23,19 +22,10 @@ trait ScalaPsiCreator extends PsiCreator {
   protected def types(node: ASTNode): PsiElement = node.getElementType match {
     case ScalaElementTypes.SIMPLE_TYPE => new ScSimpleTypeElementImpl(node)
     case ScalaElementTypes.TUPLE_TYPE => new ScTupleTypeElementImpl(node)
-    case ScalaElementTypes.TYPE_IN_PARENTHESIS => new ScParenthesisedTypeElementImpl(node)
     case ScalaElementTypes.TYPE => new ScFunctionalTypeElementImpl(node)
-    case ScalaElementTypes.COMPOUND_TYPE => new ScCompoundTypeElementImpl(node)
     case ScalaElementTypes.INFIX_TYPE => new ScInfixTypeElementImpl(node)
-    case ScalaElementTypes.REFINEMENT => new ScRefinementImpl(node)
-    case ScalaElementTypes.REFINEMENTS => new ScRefinementsImpl(node)
-    case ScalaElementTypes.TYPES => new ScTypesImpl(node)
     case ScalaElementTypes.TYPE_ARGS => new ScTypeArgsImpl(node)
-    case ScalaElementTypes.ASCRIPTION => new ScAscriptionImpl(node)
     case ScalaElementTypes.ANNOT_TYPE => new ScAnnotTypeElementImpl(node)
-    case ScalaElementTypes.SEQUENCE_ARG => new ScSequenceArgImpl(node)
-    case ScalaElementTypes.EXISTENTIAL_CLAUSE => new ScExistentialClauseImpl(node)
-    case ScalaElementTypes.EXISTENTIAL_TYPE => new ScExistentialTypeElementImpl(node)
     case ScalaElementTypes.WILDCARD_TYPE => new ScWildcardTypeElementImpl(node)
     case ScalaElementTypes.TYPE_PROJECTION => new ScTypeProjectionImpl(node)
     case ScalaElementTypes.TYPE_GENERIC_CALL => new ScParameterizedTypeElementImpl(node)

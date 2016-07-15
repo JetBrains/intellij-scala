@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, Sca
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScConstructorImpl, ScInterpolatedStringLiteralImpl, ScLiteralImpl, ScStableCodeReferenceElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
@@ -26,7 +27,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassPa
   * Date: 02.10.2006
   *
   */
-object ScalaElementTypes extends ElementTypes
+object ScalaElementTypes extends ElementTypes {
+  val COMPOUND_TYPE = new ScalaElementType("compound type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScCompoundTypeElementImpl(node)
+  }
+  val EXISTENTIAL_TYPE = new ScalaElementType("existential type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScExistentialTypeElementImpl(node)
+  }
+  val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScExistentialClauseImpl(node)
+  }
+}
 
 trait ElementTypes {
   val DUMMY_ELEMENT = new ScalaElementType("Dummy Element")
@@ -87,28 +98,29 @@ trait ElementTypes {
   /** ***********************************************************************************/
   /** ************************************ TYPES ****************************************/
   /** ***********************************************************************************/
-  val STABLE_ID = new ScalaElementType("stable id")
-  val STABLE_ID_ID = new ScalaElementType("stable id")
   val SIMPLE_TYPE = new ScalaElementType("simple type")
-  val COMPOUND_TYPE = new ScalaElementType("Compound type")
-  val INFIX_TYPE = new ScalaElementType("Infix type")
+  val INFIX_TYPE = new ScalaElementType("infix type")
   val TYPE = new ScalaElementType("common type")
-  val TYPES = new ScalaElementType("common type")
-  val REFINE_STAT = new ScalaElementType("refinement statement")
-  val REFINEMENTS = new ScalaElementType("refinements")
+  val TYPES = new ScalaElementType("common type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScTypesImpl(node)
+  }
   val TYPE_ARGS = new ScalaElementType("type arguments")
   val ANNOT_TYPE = new ScalaElementType("annotation type")
   val SELF_TYPE = new ScSelfTypeElementElementType
-  val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause")
   val WILDCARD_TYPE = new ScalaElementType("wildcard type")
-  val ASCRIPTION = new ScalaElementType("ascription")
+  val ASCRIPTION = new ScalaElementType("ascription") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScAscriptionImpl(node)
+  }
   val TUPLE_TYPE = new ScalaElementType("tuple type")
-  val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis")
+  val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScParenthesisedTypeElementImpl(node)
+  }
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
-  val EXISTENTIAL_TYPE = new ScalaElementType("existential type")
   val TYPE_PROJECTION = new ScalaElementType("type projection")
   val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
-  val SEQUENCE_ARG = new ScalaElementType("sequence argument type")
+  val SEQUENCE_ARG = new ScalaElementType("sequence argument type") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScSequenceArgImpl(node)
+  }
   val TYPE_VARIABLE = new ScalaElementType("type variable")
 
   /** ***********************************************************************************/
@@ -391,7 +403,9 @@ trait ElementTypes {
     override def createElement(node: ASTNode): PsiElement = new ScTypePatternImpl(node)
   }
 
-  val REFINEMENT = new ScalaElementType("refinement")
+  val REFINEMENT = new ScalaElementType("refinement") with SelfPsiCreator {
+    override def createElement(node: ASTNode): PsiElement = new ScRefinementImpl(node)
+  }
 
   /** ************************************* XML *************************************/
 

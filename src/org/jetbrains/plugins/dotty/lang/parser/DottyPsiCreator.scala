@@ -3,7 +3,6 @@ package org.jetbrains.plugins.dotty.lang.parser
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes.{REFINED_TYPE, TYPE_ARGUMENT_NAME, WITH_TYPE}
 import org.jetbrains.plugins.dotty.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
@@ -23,13 +22,10 @@ object DottyPsiCreator extends ScalaPsiCreator {
       case ScalaTokenTypes.tAND => new DottyAndTypeElementImpl(node)
       case ScalaTokenTypes.tOR => new DottyOrTypeElementImpl(node)
     }
-    case REFINED_TYPE => new DottyRefinedTypeElementImpl(node)
     case SIMPLE_TYPE => new DottySimpleTypeElementImpl(node)
     case WILDCARD_TYPE => new DottyWildcardTypeElementImpl(node)
     case TYPE_GENERIC_CALL => new DottyParameterizedTypeElementImpl(node)
-    case WITH_TYPE => new DottyAndTypeElementImpl(node)
     case TUPLE_TYPE => new DottyTupleTypeElementImpl(node)
-    case TYPE_ARGUMENT_NAME => new DottyTypeArgumentNameElementImpl(node)
     case TYPE_ARGS => new DottyTypeArgsImpl(node)
     case _ => super.types(node)
   }
