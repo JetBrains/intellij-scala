@@ -2034,5 +2034,63 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL10527() = {
+    val before =
+      """
+        |def xyz(arg: String): String =
+        |  "good formatting"
+        |
+        |/**
+        |  *
+        |  * @param arg
+        |  * @return
+        |  */
+        |def xyz1(arg: string): String =
+        |  "wrong formatting"
+        |
+        |val x =
+        |  42
+        |
+        |//someComment
+        |val x1 =
+        |  42
+        |
+        |var y =
+        |  42
+        |
+        |/*Other comment*/
+        |var y1 =
+        |  42
+        |
+        |//comment
+        |type T =
+        |  Int
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL10527_1() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+    val before =
+      """
+        |//comment
+        |class Foo
+        |{
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+  def testSCL10527_2() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
+    val before =
+      """
+        |//comment
+        |class Foo
+        |  {
+        |  }
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
