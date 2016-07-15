@@ -239,20 +239,23 @@ object CachesUtil {
     result
   }
 
-  //used in macro!
-  def libraryAwareDependencyItem(element: PsiElement): ModificationTracker = {
-    return enclosingModificationOwner(element)
-    val rootManager = ProjectRootManager.getInstance(element.getProject)
+  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Object = {
     element.getContainingFile match {
-      case file: ScalaFile if file.isCompiled && rootManager.getFileIndex.isInLibraryClasses(element.getContainingFile.getVirtualFile) =>
-        rootManager
-      case cls: ClsFileImpl =>
-        rootManager
-      case _ => enclosingModificationOwner(element)
+      case file: ScalaFile if file.isCompiled =>
+        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
+          return dep_item
+        }
+        var dir = file.getParent
+        while (dir != null) {
+          if (dir.getName == "scala-library.jar") return ModificationTracker.NEVER_CHANGED
+          dir = dir.getParent
+        }
+        ProjectRootManager.getInstance(element.getProject)
+      case cls: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
+      case _ => dep_item
     }
   }
 
-  //used in macro!
   def enclosingModificationOwner(elem: PsiElement): ModificationTracker = {
     @tailrec
     def calc(element: PsiElement): ModificationTracker = {
