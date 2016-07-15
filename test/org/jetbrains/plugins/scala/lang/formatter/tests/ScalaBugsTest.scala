@@ -1832,6 +1832,7 @@ bars foreach {case (x, y) => list.add(x + y)}
 
   def testSCL4291_1() = {
     getScalaSettings.ALIGN_TUPLE_ELEMENTS = true
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = false
     val before =
       """
         |val foo = (
@@ -2109,6 +2110,17 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |foo(a, b, c)
         |bar( )
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7171() = {
+    val before =
+      """
+        |_ fold(
+        |  _ => ???,
+        |  _ => ???
+        |)
       """.stripMargin.replace("\r", "")
     doTextTest(before)
   }
