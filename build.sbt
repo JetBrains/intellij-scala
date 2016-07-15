@@ -242,7 +242,8 @@ lazy val pluginPackagerCommunity =
     ).map { (a,b,c,d) => a ++ b ++ c ++ d },
     mappings := {
       import Packaging.PackageEntry._
-      val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
+      val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml,
+        Dependencies.sbtStructureCore, Dependencies.scalastyle_2_11)
       val librariesToCopyAsIs = DependencyGroups.scalaCommunity.filterNot { lib =>
         crossLibraries.contains(lib) || lib == Dependencies.scalaLibrary
       }
@@ -285,7 +286,7 @@ lazy val pluginPackagerCommunity =
           "lib/scala-library.jar")
       ) ++
         crossLibraries.map { lib =>
-          Library(lib.copy(name = lib.name + "_2.11"), s"lib/${lib.name}.jar")
+          Library(lib.copy(name = lib.name + "_2.12.0-M4"), s"lib/${lib.name}.jar")
         } ++
         librariesToCopyAsIs.map { lib =>
           Library(lib, s"lib/${lib.name}.jar")
