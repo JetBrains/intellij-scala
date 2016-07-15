@@ -8,7 +8,15 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 
 class StepIntoTest extends StepIntoTestBase with ScalaVersion_2_11
-class StepIntoTest_212 extends StepIntoTestBase with ScalaVersion_2_12
+class StepIntoTest_212 extends StepIntoTestBase with ScalaVersion_2_12 {
+  override def testTraitMethod() {
+    runDebugger() {
+      waitForBreakpoint()
+      doStepInto()
+      checkLocation("RRR.scala", "foo$", 3)
+    }
+  }
+}
 class StepIntoTest_212_OLD extends StepIntoTestBase with ScalaVersion_2_12_OLD
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
