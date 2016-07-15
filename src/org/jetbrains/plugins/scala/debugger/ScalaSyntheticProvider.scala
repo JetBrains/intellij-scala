@@ -91,6 +91,19 @@ object ScalaSyntheticProvider {
 
   private def hasTraitWithImplementation(m: Method): Boolean = {
     m.declaringType() match {
+      case it: InterfaceType =>
+        val implMethods = it.methodsByName(m.name + "$")
+        if (implMethods.isEmpty) false
+        else {
+          val typeNames = m.argumentTypeNames().asScala
+          val argCount = typeNames.size
+          implMethods.asScala.exists { impl =>
+            val implTypeNames = impl.argumentTypeNames().asScala
+            val implArgCount = implTypeNames.size
+            implArgCount == argCount + 1 && implTypeNames.tail == typeNames ||
+              implArgCount == argCount && implTypeNames == typeNames
+          }
+        }
       case ct: ClassType =>
         val interfaces = ct.allInterfaces().asScala
         val vm = ct.virtualMachine()
