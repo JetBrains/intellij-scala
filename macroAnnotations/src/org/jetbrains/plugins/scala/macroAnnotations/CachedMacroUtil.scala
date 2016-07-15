@@ -118,8 +118,6 @@ object CachedMacroUtil {
         ModCount.values.find(_.toString == v.toString) match {
           case Some(ModCount.getBlockModificationCount) =>
             q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
-          case Some(ModCount.getLibraryAwareCount) =>
-            q"$cachesUtilFQN.libraryAwareDependencyItem($psiElement)"
           case Some(ModCount.getOutOfCodeBlockModificationCount) =>
             q"$scalaPsiManagerFQN.instance($psiElement.getProject).getModificationTracker"
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
@@ -138,5 +136,4 @@ object ModCount extends Enumeration {
   val getOutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
   val getJavaStructureModificationCount = Value("getJavaStructureModificationCount")
   val getBlockModificationCount = Value("getBlockModificationCount")
-  val getLibraryAwareCount = Value("getLibraryAwareCount")
 }
