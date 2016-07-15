@@ -8,7 +8,28 @@ import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersio
 
 class LocationOfLineTest extends LocationsOfLineTestBase with ScalaVersion_2_11
 
-class LocationOfLineTest_212 extends LocationsOfLineTestBase with ScalaVersion_2_12
+class LocationOfLineTest_212 extends LocationsOfLineTestBase with ScalaVersion_2_12 {
+  override def testLambdas(): Unit = {
+    checkLocationsOfLine(
+      Set(Loc("Lambdas$", "main", 4), Loc("Lambdas$", "$anonfun$main$1", 4)),
+      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "$anonfun$main$2", 5), Loc("Lambdas$", "$anonfun$main$3", 5)),
+      Set(Loc("Lambdas$", "$anonfun$main$4", 6))
+    )
+  }
+
+  override def testMultilevel(): Unit = {
+    checkLocationsOfLine(
+      Set(Loc("Multilevel$This$1", "<init>", 18)),  //location for constructor is customized
+      Set(Loc("Multilevel$This$1", "<init>", 4)),
+      Set(Loc("Multilevel$This$1", "foo", 6)),
+      Set(Loc("Multilevel$This$1$$anon$1", "<init>", 6)),
+      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
+      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
+      Set(Loc("Multilevel$This$1$$anon$1", "$anonfun$run$1", 9)),
+      Set(Loc("Multilevel$", "main", 18))
+    )
+  }
+}
 
 class LocationOfLineTest_212_OLD extends LocationsOfLineTestBase with ScalaVersion_2_12_OLD {
 
@@ -148,7 +169,7 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
         |        ${offsetMarker}val runnable = ${offsetMarker}new Runnable {
         |          def run() {
         |            ${offsetMarker}val x = $offsetMarker() => {
-        |              ${offsetMarker}This.this.x
+        |              ${offsetMarker}This.this.x + 1
         |              "stop here"$bp
         |            }
         |            x()

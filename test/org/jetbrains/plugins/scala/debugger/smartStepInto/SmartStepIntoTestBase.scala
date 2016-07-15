@@ -12,7 +12,20 @@ import scala.collection.JavaConverters._
  */
 class SmartStepIntoTest extends SmartStepIntoTestBase with ScalaVersion_2_11
 
-class SmartStepIntoTest_212 extends SmartStepIntoTestBase with ScalaVersion_2_12
+class SmartStepIntoTest_212 extends SmartStepIntoTestBase with ScalaVersion_2_12 {
+  override def testByNameArgument(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      checkSmartStepTargets("inTryBlock(String)", "u: => String")
+      checkSmartStepInto("inTryBlock(String)", "ByNameArgument.scala", "inTryBlock", 5)
+    }
+    runDebugger() {
+      waitForBreakpoint()
+      checkSmartStepInto("u: => String", "ByNameArgument.scala", "$anonfun$main$1", 14)
+    }
+  }
+
+}
 
 class SmartStepIntoTest_212_OLD extends SmartStepIntoTestBase with ScalaVersion_2_12_OLD {
   override def testByNameArgument(): Unit = {

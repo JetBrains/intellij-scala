@@ -10,19 +10,9 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase with ScalaVersion_2_11
 
-class ScalaMethodEvaluationTest_212 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12 {
+class ScalaMethodEvaluationTest_212 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12
 
-//  override def testPrivateInTrait(): Unit = {} //SCL-10132
-//
-//  override def testLocalsInTrait(): Unit = {}  //SCL-10132
-}
-
-class ScalaMethodEvaluationTest_212_OLD extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_OLD {
-//
-//  override def testPrivateInTrait(): Unit = {} //SCL-10132
-//
-//  override def testLocalsInTrait(): Unit = {}  //SCL-10132
-}
+class ScalaMethodEvaluationTest_212_OLD extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_OLD
 
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   
