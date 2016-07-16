@@ -41,7 +41,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "SPACE_BEFORE_CLASS_LBRACE", "SPACE_BEFORE_METHOD_LBRACE", "SPACE_BEFORE_IF_LBRACE",
         "SPACE_BEFORE_WHILE_LBRACE", "SPACE_BEFORE_DO_LBRACE", "SPACE_BEFORE_FOR_LBRACE", "SPACE_BEFORE_TRY_LBRACE",
         "SPACE_BEFORE_CATCH_LBRACE", "SPACE_BEFORE_FINALLY_LBRACE", "SPACE_BEFORE_WHILE_PARENTHESES",
-        "SPACE_AFTER_SEMICOLON", "SPACE_BEFORE_ELSE_LBRACE", "SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES")
+        "SPACE_AFTER_SEMICOLON", "SPACE_BEFORE_ELSE_LBRACE", "SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES",
+        "SPACE_BEFORE_TYPE_PARAMETER_LIST")
     }
 
     //blank lines
@@ -108,6 +109,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
+    consumer.renameStandardOption("SPACE_BEFORE_TYPE_PARAMETER_LIST", "Before opening square bracket")
 
     //Custom options
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
@@ -174,6 +176,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("NEWLINE_AFTER_ANNOTATIONS", "Newline after annotations", CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("KEEP_COMMENTS_ON_SAME_LINE", "Keep one-line comments on same line", CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST", "Before opening square bracket", CodeStyleSettingsCustomizable.SPACES_IN_TYPE_PARAMETERS)
     }
 
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {
@@ -216,9 +219,13 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   override def getIndentOptionsEditor = new SmartIndentOptionsEditor
 
   private val GENERAL_CODE_SAMPLE =
-    "class A {\n" +
-            "  def foo(): Int = 1\n" +
-            "}"
+    """
+      |class A {
+      |  def foo[A](): Int = 42
+      |
+      |  foo[Int]( )
+      |}
+    """.stripMargin.trim
 
   private val WRAPPING_AND_BRACES_SAMPLE =
     "class A {\n" +
