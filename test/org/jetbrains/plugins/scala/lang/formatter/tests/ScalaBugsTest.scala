@@ -2152,5 +2152,19 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL7690() = {
+    getCommonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = true
+    val before = "bar[A, B]()"
+    val after = "bar [A, B]()"
+    doTextTest(before, after)
+  }
+
+  def testSCL7690_1() = {
+    getScalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = true
+    val before = "def bar[A, B]: Int = 42"
+    val after = "def bar [A, B]: Int = 42"
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

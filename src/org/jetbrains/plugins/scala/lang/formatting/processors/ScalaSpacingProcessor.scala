@@ -879,6 +879,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               !leftPsi.isInstanceOf[ScArguments])
         return WITH_SPACING
       else if (scalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL && rightString.startsWith("{")) return WITH_SPACING
+      else if (settings.SPACE_BEFORE_TYPE_PARAMETER_LIST && rightString.startsWith("[")) return WITH_SPACING
       else return WITHOUT_SPACING
     }
     if (rightNode.getTreeParent.getPsi.isInstanceOf[ScSelfInvocation] &&
@@ -1051,7 +1052,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightString.length > 0 &&
             rightString(0) == '[') {
-      return WITHOUT_SPACING
+      return if (scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST) WITH_SPACING else WITHOUT_SPACING
     }
 
     //processing before left brace
