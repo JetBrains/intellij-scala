@@ -344,6 +344,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
 
+    def isCommentGrabbingPsi(element: PsiElement) = rightPsi match {
+      case _: ScValue | _: ScVariable => true
+      case _ => false
+    }
+    if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE &&
+      (rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT || isCommentGrabbingPsi(rightPsi) &&
+      rightPsi.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLINE_COMMENT)) {
+      return COMMON_SPACING
+    }
+
     if (rightElementType == tRPARENTHESIS &&
             (rightPsi.getParent.isInstanceOf[ScParenthesisedExpr] ||
                     rightPsi.getParent.isInstanceOf[ScParameterizedTypeElement] ||
@@ -500,7 +510,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         leftPsi.getParent match {
           case _: ScEarlyDefinitions | _: ScTemplateBody | _: ScalaFile | _: ScPackaging =>
             return if (rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT) {
-              if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE) COMMON_SPACING else ON_NEW_LINE
+              ON_NEW_LINE
             } else Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_IMPORTS + 1, keepLineBreaks,
               keepBlankLinesInCode)
           case _ =>
@@ -550,7 +560,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case _ =>
         }
       }
-      if (rightPsi.isInstanceOf[PsiComment] && scalaSettings.KEEP_COMMENTS_ON_SAME_LINE) return WITH_SPACING
     }
 
     if (rightPsi.isInstanceOf[ScTypeDefinition]) {
