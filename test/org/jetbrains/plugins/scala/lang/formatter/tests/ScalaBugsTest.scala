@@ -2198,5 +2198,11 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL9072() = {
+    val before = "whenReady(dao.findNetworkRule(\"A12345\")) {          _ => ()          }"
+    val after = "whenReady(dao.findNetworkRule(\"A12345\")) { _ => () }"
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
