@@ -853,7 +853,7 @@ object getDummyBlocks {
     override def getChildAttributes(newChildIndex: Int): ChildAttributes =
       new ChildAttributes(Indent.getNoneIndent, null)
 
-    override def getSubBlocks(): util.List[Block] = {
+    override def getSubBlocks: util.List[Block] = {
       if (mySubBlocks == null) {
         mySubBlocks = new util.ArrayList[Block]()
       }
