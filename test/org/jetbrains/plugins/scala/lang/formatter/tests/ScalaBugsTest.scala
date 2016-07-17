@@ -2198,6 +2198,38 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL_10545() = {
+    getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |42 match {
+        |  case 42 => {
+        |    42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL_10545_1() = {
+    getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |42 match {
+        |  case 42 => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |42 match {
+        |  case 42 => {
+        |    42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
   def testSCL9072() = {
     val before = "whenReady(dao.findNetworkRule(\"A12345\")) {          _ => ()          }"
     val after = "whenReady(dao.findNetworkRule(\"A12345\")) { _ => () }"
