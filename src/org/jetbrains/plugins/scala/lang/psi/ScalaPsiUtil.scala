@@ -1188,6 +1188,12 @@ object ScalaPsiUtil {
     else getParentWithProperty(element.getParent, strict = false, property)
   }
 
+  @tailrec
+  def getParent(element: PsiElement, level: Int): Option[PsiElement] =
+    if (level == 0) Some(element) else
+    if (element.parent.isEmpty) None
+    else getParent(element.getParent, level - 1)
+
   def contextOfType[T <: PsiElement](element: PsiElement, strict: Boolean, clazz: Class[T]): T = {
     var el: PsiElement = if (!strict) element else {
       if (element == null) return null.asInstanceOf[T]

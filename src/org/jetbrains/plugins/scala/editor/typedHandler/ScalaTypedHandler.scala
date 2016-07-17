@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScIfStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScEnumerators, ScIfStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -93,6 +93,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
           case ScalaTokenTypes.tDOT => myTask = indentRefExprDot(file)
           case ScalaTokenTypes.tCOMMA => myTask = indentParametersComma(file)
           case ScalaTokenTypes.tASSIGN => myTask = indentDefinitionAssign(file)
+          case ScalaTokenTypes.tSEMICOLON => myTask = indentForGenerators(file)
           case _ =>
         })
       }
@@ -297,7 +298,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def indentParametersComma(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
     indentElement(file)(document, project, element, offset, _ => true,
-      elem => Option(elem.getParent).map(_.getParent).exists {
+      ScalaPsiUtil.getParent(_, 2).exists {
         case _: ScParameterClause | _: ScArgumentExprList => true
         case _ => false
       })
@@ -305,15 +306,20 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def indentDefinitionAssign(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
     indentElement(file)(document, project, element, offset, _ => true,
-      elem => Option(elem.getParent).map(_.getParent).exists {
+      ScalaPsiUtil.getParent(_, 2).exists {
         case _: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias => true
         case _ => false
       })
   }
 
+  private def indentForGenerators(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
+    indentElement(file)(document, project, element, offset, ScalaPsiUtil.isLineTerminator,
+      ScalaPsiUtil.getParent(_, 3).exists{_.isInstanceOf[ScEnumerators]})
+  }
+
   private def indentValBraceStyle(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
     indentElement(file)(document, project, element, offset, ScalaPsiUtil.isLineTerminator,
-      _.parent.flatMap(_.parent).exists(_.isInstanceOf[ScValue]))
+      ScalaPsiUtil.getParent(_, 2).exists(_.isInstanceOf[ScValue]))
   }
 
   private def indentElement(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int,

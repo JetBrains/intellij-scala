@@ -70,7 +70,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
       })
     parent match {
       case m: ScMatchStmt =>
-        if (m.caseClauses.length == 0) {
+        if (m.caseClauses.isEmpty) {
           new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
         } else {
           val indent = if (mySettings.INDENT_CASE_FROM_SWITCH) Indent.getSpaceIndent(2 * indentSize)
