@@ -2166,5 +2166,37 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL9066() = {
+    getScalaSettings.TRY_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |try {
+        |  42
+        |} catch {
+        |  case _: Exception => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9066_1() = {
+    getScalaSettings.TRY_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |try 42 catch {
+        |  case _: Exception => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |try {
+        |  42
+        |} catch {
+        |  case _: Exception => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
