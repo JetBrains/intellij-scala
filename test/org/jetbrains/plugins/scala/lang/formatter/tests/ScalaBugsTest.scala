@@ -2236,5 +2236,29 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL9321() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """
+        |object Test {
+        |  println(42) //before val
+        |  val x = 42 //before var
+        |  var y = 42 //before def
+        |
+        |  def z = 42 //before type
+        |
+        |  type F = Int //before class
+        |
+        |  class Inner //before object
+        |
+        |  object OInner //before trait
+        |
+        |  trait TInner
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
