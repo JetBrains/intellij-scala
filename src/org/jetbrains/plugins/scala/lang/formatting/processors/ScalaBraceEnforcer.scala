@@ -130,6 +130,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
   private def processExpression(expr: ScExpression, stmt: PsiElement, option: Int) {
     expr match {
       case b: ScBlockExpr =>
+      case c: ScBlock if c.firstChild.exists(_.isInstanceOf[ScBlockExpr]) && c.firstChild == c.lastChild =>
       case _ =>
         if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
           (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
