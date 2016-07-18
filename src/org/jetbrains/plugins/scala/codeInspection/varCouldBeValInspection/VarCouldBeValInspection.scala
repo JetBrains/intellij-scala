@@ -5,10 +5,8 @@ package varCouldBeValInspection
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{HighlightingPassInspection, ProblemInfo}
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 
 class VarCouldBeValInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
@@ -35,9 +33,8 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
   }
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
-    case f: ScFunction if ScFunction.isSpecial(f.name) => false
-    case m: ScMember if m.hasModifierProperty(ScalaKeyword.IMPLICIT) => false
-    case _ => ScalaPsiUtil.isLocalOrPrivate(elem)
+    case _: ScVariableDefinition => ScalaPsiUtil.isLocalOrPrivate(elem)
+    case _ => false
   }
 }
 
