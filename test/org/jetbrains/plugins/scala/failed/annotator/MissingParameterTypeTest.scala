@@ -19,4 +19,12 @@ class MissingParameterTypeTest extends BadCodeGreenTestBase {
     //missing parameter type for expanded function ((x$1) => processStrings((x$1: _*)))
     doTest(text)
   }
+
+  def testScl10539(): Unit = {
+    val text =
+      s"""class Foo(x: Int)(y: Int)
+          |val foo = new Foo${CARET_MARKER}(1)
+      """.stripMargin
+    doTest(text)
+  }
 }
