@@ -27,6 +27,35 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
 
   override protected def annotation: String = InspectionBundle.message("convert.expression.to.sam")
 
+  def testOverloads(): Unit = {
+    val code =
+      """
+        |object Bug1 {
+        |
+        |  trait SAM1 {
+        |    def foo(): Int
+        |  }
+        |
+        |  trait SAM2 {
+        |    def foo(): String
+        |  }
+        |
+        |  def foo(s: SAM1): Unit = {
+        |
+        |  }
+        |
+        |  def foo(s: SAM2): Unit = {
+        |
+        |  }
+        |
+        |  foo(new SAM1 {
+        |    override def foo(): Int = 2
+        |  })
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
+
   def testThreadRunnable(): Unit = {
     val code =
       s"""
