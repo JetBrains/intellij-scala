@@ -76,6 +76,36 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     checkTextHasNoErrors(code)
   }
 
+  def testInfix(): Unit = {
+    val code =
+      s"""
+         |object Koo {
+         |  def foo(r: Runnable) = r.run()
+         |}
+         |Koo foo ${START}new Runnable $END{
+         |  override def run(): Unit = ???
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |object Koo {
+        |  def foo(r: Runnable) = r.run()
+        |}
+        |Koo foo new Runnable {
+        |  override def run(): Unit = ???
+        |}
+      """.stripMargin
+    val after =
+      """
+        |object Koo {
+        |  def foo(r: Runnable) = r.run()
+        |}
+        |Koo foo (() => ???)
+      """.stripMargin
+    testFix(before, after, annotation)
+  }
+
   def testThreadRunnable(): Unit = {
     val code =
       s"""

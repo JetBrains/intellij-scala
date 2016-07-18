@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInsp
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle, ProblemsHolderExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -43,6 +43,10 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
           case Some(funBody) if fun.getType().getOrAny.conforms(expected) && !containsReturn(funBody) =>
             lazy val replacement: String = {
               val res = new StringBuilder
+              val isInfix = definition.parent.exists(_.isInstanceOf[ScInfixExpr])
+              if (isInfix) {
+                res.append("(")
+              }
               fun.effectiveParameterClauses.headOption match {
                 case Some(paramClause) =>
                   res.append(cleanedParamsText(paramClause))
@@ -50,6 +54,9 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
                 case _ =>
               }
               res.append(funBody.getText)
+              if (isInfix) {
+                res.append(")")
+              }
               res.toString()
             }
             val fix = new ReplaceExpressionWithSAMQuickFix(definition, replacement)
