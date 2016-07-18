@@ -1871,7 +1871,6 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL4743() = {
-    getCommonSettings.ELSE_ON_NEW_LINE = false
     val before =
       """
         |def f = if (true) 1 else {
@@ -2294,6 +2293,42 @@ bars foreach {case (x, y) => list.add(x + y)}
         |}
       """.stripMargin.replace("\r", "")
     doTextTest(before)
+  }
+
+  def testSCL9786() = {
+    getCommonSettings.IF_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |if (true)
+        |  println("1")
+        |else
+        |  println("2")
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |if (true) {
+        |  println("1")
+        |} else {
+        |  println("2")
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL9786_1() = {
+    getCommonSettings.IF_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    getCommonSettings.ELSE_ON_NEW_LINE = true
+    val before = "if (true) -1 else 42"
+    val after =
+      """
+        |if (true) {
+        |  -1
+        |}
+        |else {
+        |  42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
   }
 
   def doTextTest(value: String): Unit = doTextTest(value, value)
