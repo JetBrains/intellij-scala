@@ -67,7 +67,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   protected override def substitutorInner: ScSubstitutor = {
     def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => TypeParameterType): ScSubstitutor = {
       val argsIterator = typeArguments.iterator
-      val builder = ListMap.newBuilder[(String, PsiElement), ScType]
+      val builder = ListMap.newBuilder[(String, Long), ScType]
       while (paramsIterator.hasNext && argsIterator.hasNext) {
         val p1 = map(paramsIterator.next())
         val p2 = argsIterator.next()

@@ -40,7 +40,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
 
   override def toString: String = "TypeParameter: " + name
 
-  override def getPsiElementId: PsiElement = this
+  override def getPsiElementId: Long = this.id
 
   def getOffsetInFile: Int = {
     val stub = getStub
