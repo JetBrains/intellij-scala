@@ -16,7 +16,7 @@ class SbtUpdateResolverIndexesQuickFix extends AbstractIntentionAction {
   def getText = SbtBundle("sbt.fix.updateIndexes")
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
-    val resolvers = SbtResolverUtils.getProjectResolvers(Option(file))
+    val resolvers = SbtResolverUtils.getProjectResolversForFile(Option(file))
     val indexManager = SbtResolverIndexesManager()
     indexManager.update(resolvers)
   }
