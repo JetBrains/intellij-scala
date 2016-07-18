@@ -6,8 +6,9 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle, ProblemsHolderExt}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -35,8 +36,11 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
                                             (implicit typeSystem: TypeSystem = holder.typeSystem) {
     definition.members match {
       case Seq(fun: ScFunctionDefinition) =>
+        def containsReturn(expr: ScExpression): Boolean = {
+          expr.depthFirst.exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
+        }
         fun.body match {
-          case Some(funBody) if fun.getType().getOrAny.conforms(expected) =>
+          case Some(funBody) if fun.getType().getOrAny.conforms(expected) && !containsReturn(funBody) =>
             lazy val replacement: String = {
               val res = new StringBuilder
               fun.effectiveParameterClauses.headOption match {
