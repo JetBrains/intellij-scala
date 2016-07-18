@@ -52,10 +52,8 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, forcedAbsolute
     new IncludedFileReference(this, range, index, text)
 
   override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] =
-    new Condition[PsiFileSystemItem] {
-      def value(item: PsiFileSystemItem): Boolean = item.isDirectory ||
-        item.getName.endsWith(ConfExt) || item.getName.endsWith(JsonExt) || item.getName.endsWith(PropsExt)
-    }
+    (item: PsiFileSystemItem) => item.isDirectory ||
+      item.getName.endsWith(ConfExt) || item.getName.endsWith(JsonExt) || item.getName.endsWith(PropsExt)
 
   // code mostly based on similar bits in `FileReferenceSet` and `PsiFileReferenceHelper`
   override def computeDefaultContexts: ju.Collection[PsiFileSystemItem] = {

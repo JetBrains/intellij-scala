@@ -14,15 +14,14 @@ import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
@@ -96,15 +95,13 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val counter = new AtomicInteger(0)
 
     def processAllElementsConcurrentlyUnderProgress[T <: PsiElement](elements: util.List[T])(action: T => Unit) = {
-      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, true, new Processor[T] {
-        override def process(element: T): Boolean = {
-          val count: Int = counter.getAndIncrement
-          if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, true, (element: T) => {
+        val count: Int = counter.getAndIncrement
+        if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
 
-          action(element)
+        action(element)
 
-          true
-        }
+        true
       })
     }
 

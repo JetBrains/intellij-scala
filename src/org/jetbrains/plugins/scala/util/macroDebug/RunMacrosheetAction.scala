@@ -40,12 +40,10 @@ class RunMacrosheetAction extends AnAction with TopComponentAction {
         val project = e.getProject
 
         if (viewer != null) {
-          ApplicationManager.getApplication.invokeAndWait(new Runnable {
-            override def run() {
-              extensions.inWriteAction {
-                CleanWorksheetAction.resetScrollModel(viewer)
-                CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
-              }
+          ApplicationManager.getApplication.invokeAndWait(() => {
+            extensions.inWriteAction {
+              CleanWorksheetAction.resetScrollModel(viewer)
+              CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
             }
           }, ModalityState.any())
         }

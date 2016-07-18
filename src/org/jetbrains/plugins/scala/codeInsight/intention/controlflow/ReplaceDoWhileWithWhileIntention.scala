@@ -72,14 +72,11 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     def showNotification(text: String) {
 
       val popupFactory = JBPopupFactory.getInstance
-      popupFactory.createConfirmation(text, "Continue", "Cancel", new Runnable {
-        //action on confirmation
-        def run() {
-          //to make action Undoable
-          CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-            def run() { doReplacement() }
-          }, null, null)
-        }
+      popupFactory.createConfirmation(text, "Continue", "Cancel", () => {
+        //to make action Undoable
+        CommandProcessor.getInstance().executeCommand(project, () => {
+          doReplacement()
+        }, null, null)
       }, 0).showInBestPositionFor(editor)
     }
 

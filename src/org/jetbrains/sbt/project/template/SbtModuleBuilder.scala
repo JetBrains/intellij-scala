@@ -152,14 +152,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     if (!externalProjectSettings.isUseAutoImport) {
       FileDocumentManager.getInstance.saveAllDocuments()
-      ApplicationManager.getApplication.invokeLater(new Runnable() {
-        override def run(): Unit =
-          ExternalSystemUtil.refreshProjects(
-            new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
-                    .forceWhenUptodate()
-                    .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-          )
-      })
+      ApplicationManager.getApplication.invokeLater(() => ExternalSystemUtil.refreshProjects(
+        new ImportSpecBuilder(model.getProject, SbtProjectSystem.Id)
+          .forceWhenUptodate()
+          .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      ))
     }
   }
 }

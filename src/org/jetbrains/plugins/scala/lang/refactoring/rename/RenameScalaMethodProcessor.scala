@@ -14,7 +14,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Pass
-import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameJavaMethodProcessor, RenamePsiElementProcessor}
@@ -46,11 +45,9 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRen
     val named = element match {case named: ScNamedElement => named; case _ => return}
     val guess = ScalaRenameUtil.findSubstituteElement(element)
     if (guess != element) renameCallback.pass(guess)
-    else RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
-      def execute(named: PsiNamedElement): Boolean = {
-        renameCallback.pass(named)
-        false
-      }
+    else RenameSuperMembersUtil.chooseAndProcessSuper(named, (named: PsiNamedElement) => {
+      renameCallback.pass(named)
+      false
     }, editor)
   }
 

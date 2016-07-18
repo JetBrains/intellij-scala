@@ -144,9 +144,7 @@ object DuplicatesUtil {
     val foldRegions: Array[FoldRegion] = CodeFoldingManager.getInstance(project).getFoldRegionsAtOffset(editor, textRange.getStartOffset)
     val anyCollapsed: Boolean = foldRegions.exists(!_.isExpanded)
     if (anyCollapsed) {
-      editor.getFoldingModel.runBatchFoldingOperation(new Runnable {
-          def run(): Unit = foldRegions.filterNot(_.isExpanded).foreach(_.setExpanded(true))
-        }
+      editor.getFoldingModel.runBatchFoldingOperation(() => foldRegions.filterNot(_.isExpanded).foreach(_.setExpanded(true))
       )
     }
   }

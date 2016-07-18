@@ -125,37 +125,35 @@ trait IntroduceTypeAlias {
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
             introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), scopeItem)
 
-          CommandProcessor.getInstance.executeCommand(project, new Runnable {
-            def run() {
-              val computable = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
+          CommandProcessor.getInstance.executeCommand(project, () => {
+            val computable = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
 
-              val namedElement: ScNamedElement =
-                computable._1.getElement match {
-                  case typeAlias: ScTypeAliasDefinition =>
-                    typeAlias
-                  case _ => null
-                }
-
-              val mtypeElement = computable._2.getElement match {
-                case typeElement: ScTypeElement =>
-                  typeElement
+            val namedElement: ScNamedElement =
+              computable._1.getElement match {
+                case typeAlias: ScTypeAliasDefinition =>
+                  typeAlias
                 case _ => null
               }
 
-              if (mtypeElement != null && mtypeElement.isValid) {
-                editor.getCaretModel.moveToOffset(mtypeElement.getTextOffset)
-                editor.getSelectionModel.removeSelection()
-                if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
+            val mtypeElement = computable._2.getElement match {
+              case typeElement: ScTypeElement =>
+                typeElement
+              case _ => null
+            }
 
-                  PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-                  PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
+            if (mtypeElement != null && mtypeElement.isValid) {
+              editor.getCaretModel.moveToOffset(mtypeElement.getTextOffset)
+              editor.getSelectionModel.removeSelection()
+              if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
 
-                  val typeAliasIntroducer =
-                    ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
-                      namedElement.getName, scopeItem)
+                PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+                PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
 
-                  typeAliasIntroducer.performInplaceRefactoring(suggestedNamesSet)
-                }
+                val typeAliasIntroducer =
+                  ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
+                    namedElement.getName, scopeItem)
+
+                typeAliasIntroducer.performInplaceRefactoring(suggestedNamesSet)
               }
             }
           }, INTRODUCE_TYPEALIAS_REFACTORING_NAME, null)
@@ -283,9 +281,7 @@ trait IntroduceTypeAlias {
                                    typeName: String,
                                    scope: ScopeItem): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
-    new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute(): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
-    }
+    () => runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
   }
 
   def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
@@ -371,10 +367,8 @@ trait IntroduceTypeAlias {
       }
     })
 
-    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
-      def run() {
-        pass(list.getSelectedValue.asInstanceOf[T])
-      }
+    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(() => {
+      pass(list.getSelectedValue.asInstanceOf[T])
     }).addListener(new JBPopupAdapter {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
         selection.addHighlighter()

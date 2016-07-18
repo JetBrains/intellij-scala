@@ -2171,18 +2171,16 @@ object Expressions {
 """
 
     PlatformTestUtil.assertTiming("Lexer performance test", 1000,
-      new Runnable {
-        def run() {
-          try {
-            val lexer = new ScalaLexer()
-            lexer.start(text, 0, text.length)
-            while (lexer.getTokenType != null) {
-              lexer.advance()
-            }
+      () => {
+        try {
+          val lexer = new ScalaLexer()
+          lexer.start(text, 0, text.length)
+          while (lexer.getTokenType != null) {
+            lexer.advance()
           }
-          catch {
-            case e: RuntimeException =>
-          }
+        }
+        catch {
+          case e: RuntimeException =>
         }
       })
   }

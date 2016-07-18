@@ -59,16 +59,14 @@ object SelectorConditions {
 
     def ||(other: Condition[_ >: T]): Condition[T] = {
       def f(t: T) = value(t) || other.value(t)
-      new Condition[T] {
-        override def value(t: T): Boolean = f(t)
-      }
+
+      (t: T) => f(t)
     }
 
     def &&(other: Condition[_ >: T]): Condition[T] = {
       def f(t: T) = value(t) && other.value(t)
-      new Condition[T] {
-        override def value(t: T): Boolean = f(t)
-      }
+
+      (t: T) => f(t)
     }
 
     def a: Boolean = false

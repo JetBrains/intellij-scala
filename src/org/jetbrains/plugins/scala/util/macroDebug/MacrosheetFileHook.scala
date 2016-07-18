@@ -20,10 +20,8 @@ class MacrosheetFileHook(private val project: Project) extends ProjectComponent{
   }
 
   override def projectClosed() {
-    ApplicationManager.getApplication.invokeAndWait(new Runnable {
-      def run() {
-        WorksheetViewerInfo.invalidate()
-      }
+    ApplicationManager.getApplication.invokeAndWait(() => {
+      WorksheetViewerInfo.invalidate()
     }, ModalityState.any())
   }
 

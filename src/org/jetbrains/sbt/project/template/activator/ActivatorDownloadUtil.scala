@@ -30,20 +30,18 @@ object ActivatorDownloadUtil {
     if (progress != null) progress.setText2("Downloading " + location)
 
     try {
-      HttpRequests.request(location).productNameAsUserAgent.connect(new HttpRequests.RequestProcessor[Object]() {
-        def process(request: HttpRequests.Request): AnyRef = {
-          try {
-            val contentLength: Int = request.getConnection.getContentLength
-            substituteContentLength(progress, originalText, contentLength)
-            NetUtils.copyStreamContent(progress, request.getInputStream, output, contentLength)
-          }
-          catch {
-            case e: IOException =>
-              throw new IOException(HttpRequests.createErrorMessage(e, request, true), e)
-          }
-
-          null
+      HttpRequests.request(location).productNameAsUserAgent.connect((request: HttpRequests.Request) => {
+        try {
+          val contentLength: Int = request.getConnection.getContentLength
+          substituteContentLength(progress, originalText, contentLength)
+          NetUtils.copyStreamContent(progress, request.getInputStream, output, contentLength)
         }
+        catch {
+          case e: IOException =>
+            throw new IOException(HttpRequests.createErrorMessage(e, request, true), e)
+        }
+
+        null
       })
     } catch {
       case e: IOException => throw new IOException("Cannot download " + location, e)

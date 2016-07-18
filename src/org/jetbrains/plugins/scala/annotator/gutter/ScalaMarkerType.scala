@@ -147,20 +147,18 @@ object ScalaMarkerType {
     }
   })
 
-  val OVERRIDDEN_MEMBER = ScalaMarkerType(new NullableFunction[PsiElement, String]{
-    def fun(element: PsiElement): String = {
-      var elem = element
-      element.getNode.getElementType match {
-        case  ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR =>
-          elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
-        case _ =>
-      }
-      elem match {
-        case _: PsiMember =>
-          if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
-          else ScalaBundle.message("is.overriden.by")
-        case _ => null
-      }
+  val OVERRIDDEN_MEMBER = ScalaMarkerType((element: PsiElement) => {
+    var elem = element
+    element.getNode.getElementType match {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR =>
+        elem = PsiTreeUtil.getParentOfType(element, classOf[PsiMember])
+      case _ =>
+    }
+    elem match {
+      case _: PsiMember =>
+        if (GutterUtil.isAbstract(element)) ScalaBundle.message("has.implementations")
+        else ScalaBundle.message("is.overriden.by")
+      case _ => null
     }
   }, new GutterIconNavigationHandler[PsiElement] {
     def navigate(mouseEvent: MouseEvent, element: PsiElement) {

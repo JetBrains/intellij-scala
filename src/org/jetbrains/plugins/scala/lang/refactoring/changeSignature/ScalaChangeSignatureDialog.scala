@@ -389,11 +389,9 @@ class ScalaChangeSignatureDialog(val project: Project,
         finishAndRestoreEditing(editedColumn)
       }
     }
-    addClauseButton.addCustomUpdater(new AnActionButtonUpdater {
-      override def isEnabled(e: AnActionEvent): Boolean = {
-        val selected = parametersTable.getSelectedRow
-        selected > 0 && !myParametersTableModel.getItem(selected).startsNewClause
-      }
+    addClauseButton.addCustomUpdater((e: AnActionEvent) => {
+      val selected = parametersTable.getSelectedRow
+      selected > 0 && !myParametersTableModel.getItem(selected).startsNewClause
     })
     addClauseButton.setShortcut(CustomShortcutSet.fromString("alt EQUALS"))
     addClauseButton
@@ -414,11 +412,9 @@ class ScalaChangeSignatureDialog(val project: Project,
         finishAndRestoreEditing(editedColumn)
       }
     }
-    removeClauseButton.addCustomUpdater(new AnActionButtonUpdater {
-      override def isEnabled(e: AnActionEvent): Boolean = {
-        val selected = parametersTable.getSelectedRow
-        selected > 0 && myParametersTableModel.getItem(selected).startsNewClause
-      }
+    removeClauseButton.addCustomUpdater((e: AnActionEvent) => {
+      val selected = parametersTable.getSelectedRow
+      selected > 0 && myParametersTableModel.getItem(selected).startsNewClause
     })
     removeClauseButton.setShortcut(CustomShortcutSet.fromString("alt MINUS"))
     removeClauseButton
@@ -566,32 +562,30 @@ class ScalaChangeSignatureDialog(val project: Project,
   
   class ScalaParametersListTable extends ParametersListTable {
     protected def getRowRenderer(row: Int): JBTableRowRenderer = {
-      new JBTableRowRenderer() {
-        def getRowRendererComponent(table: JTable, row: Int, selected: Boolean, focused: Boolean): JComponent = {
-          val item = getRowItem(row)
-          val name = nameText(item)
-          val typeTxt = typeText(item)
-          val nameAndType =
-            if (name == "" && typeTxt == "") ""
-            else ScalaExtractMethodUtils.typedName(name, typeTxt, project, byName /*already in type text*/ = false)
-          val defText = defaultText(item)
-          val text = s"$nameAndType $defText"
-          val comp = JBListTable.createEditorTextFieldPresentation(project, getFileType, " " + text, selected, focused)
+      (table: JTable, row: Int, selected: Boolean, focused: Boolean) => {
+        val item = getRowItem(row)
+        val name = nameText(item)
+        val typeTxt = typeText(item)
+        val nameAndType =
+          if (name == "" && typeTxt == "") ""
+          else ScalaExtractMethodUtils.typedName(name, typeTxt, project, byName /*already in type text*/ = false)
+        val defText = defaultText(item)
+        val text = s"$nameAndType $defText"
+        val comp = JBListTable.createEditorTextFieldPresentation(project, getFileType, " " + text, selected, focused)
 
-          if (item.parameter.isIntroducedParameter) {
-            val fields = UIUtil.findComponentsOfType(comp, classOf[EditorTextField]).asScala
-            fields.foreach { f =>
-              f.setFont(f.getFont.deriveFont(Font.BOLD))
-            }
+        if (item.parameter.isIntroducedParameter) {
+          val fields = UIUtil.findComponentsOfType(comp, classOf[EditorTextField]).asScala
+          fields.foreach { f =>
+            f.setFont(f.getFont.deriveFont(Font.BOLD))
           }
-
-          val color =
-            if (item.startsNewClause) clauseSeparatorColor
-            else if (selected && focused) parametersTable.getSelectionBackground else parametersTable.getBackground
-
-          comp.setBorder(new MatteBorder(2, 0, 0, 0, color))
-          comp
         }
+
+        val color =
+          if (item.startsNewClause) clauseSeparatorColor
+          else if (selected && focused) parametersTable.getSelectionBackground else parametersTable.getBackground
+
+        comp.setBorder(new MatteBorder(2, 0, 0, 0, color))
+        comp
       }
     }
 

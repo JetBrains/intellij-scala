@@ -7,7 +7,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.util.Processor
 
 /**
  * @author Pavel Fatin
@@ -15,10 +14,8 @@ import com.intellij.util.Processor
 class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends AbstractProjectComponent(project) {
   private val cache = new ConcurrentHashMap[Module, Option[ScalaSdk]]()
 
-  events.addScalaProjectListener(new ScalaProjectListener {
-    def onScalaProjectChanged() {
-      cache.clear()
-    }
+  events.addScalaProjectListener(() => {
+    cache.clear()
   })
 
   override def projectClosed(): Unit = {
@@ -43,14 +40,12 @@ class ScalaSdkCache(project: Project, events: ScalaProjectEvents) extends Abstra
     val enumerator = ModuleRootManager.getInstance(module)
       .orderEntries().recursively().librariesOnly().exportedOnly()
 
-    enumerator.forEachLibrary(new Processor[Library] {
-      override def process(library: Library): Boolean = {
-        if (library.isScalaSdk) {
-          result = Some(new ScalaSdk(library))
-          false
-        } else {
-          true
-        }
+    enumerator.forEachLibrary((library: Library) => {
+      if (library.isScalaSdk) {
+        result = Some(new ScalaSdk(library))
+        false
+      } else {
+        true
       }
     })
 

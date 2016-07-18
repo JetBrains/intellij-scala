@@ -4,8 +4,7 @@ package codeInspection.collections
 import java.awt.{Component, GridLayout}
 import java.util
 import javax.swing._
-import javax.swing.border
-import javax.swing.event.{ChangeEvent, ChangeListener}
+import javax.swing.event.ChangeEvent
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.ui.{InputValidator, Messages}
@@ -97,11 +96,9 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
       for (i <- possibleSimplificationTypes.indices) {
         val enabled: Array[java.lang.Boolean] = getSimplificationTypesEnabled
         val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, enabled(i))
-        checkBox.getModel.addChangeListener(new ChangeListener {
-          def stateChanged(e: ChangeEvent) {
-            enabled(i) = checkBox.isSelected
-            setSimplificationTypesEnabled(enabled)
-          }
+        checkBox.getModel.addChangeListener((e: ChangeEvent) => {
+          enabled(i) = checkBox.isSelected
+          setSimplificationTypesEnabled(enabled)
         })
         innerPanel.add(checkBox)
       }

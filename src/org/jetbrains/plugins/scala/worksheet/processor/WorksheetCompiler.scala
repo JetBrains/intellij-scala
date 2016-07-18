@@ -67,25 +67,21 @@ class WorksheetCompiler {
 
         val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, worksheetPrinter, None, auto)
 
-        task.start(new Runnable {
-          override def run() {
-            //todo smth with exit code
-            try {
-              val module = RunWorksheetAction getModuleFor worksheetFile
-              
-              if (module == null) onError("Can't find Scala module to run") else new RemoteServerConnector(
-                module, tempFile, outputDir, name
-              ).compileAndRun(new Runnable {
-                override def run() {
-                  if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
-                }
-              }, worksheetVirtual, consumer)
-            }
-            catch {
-              case ex: IllegalArgumentException => onError(ex.getMessage)
-            }
+        task.start(() => {
+          //todo smth with exit code
+          try {
+            val module = RunWorksheetAction getModuleFor worksheetFile
+
+            if (module == null) onError("Can't find Scala module to run") else new RemoteServerConnector(
+              module, tempFile, outputDir, name
+            ).compileAndRun(() => {
+              if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
+            }, worksheetVirtual, consumer)
           }
-        }, new Runnable {override def run() {}})
+          catch {
+            case ex: IllegalArgumentException => onError(ex.getMessage)
+          }
+        }, () => {})
       case Right(errorMessage: PsiErrorElement) =>
         if (auto) return
         val pos = editor.offsetToLogicalPosition(errorMessage.getTextOffset)
@@ -115,15 +111,13 @@ class WorksheetCompiler {
 
   private def openMessageView(project: Project, content: Content, treeView: CompilerErrorTreeView) {
     val commandProcessor = CommandProcessor.getInstance()
-    commandProcessor.executeCommand(project, new Runnable {
-      override def run() {
-        Disposer.register(content, treeView, null)
-        val messageView = ServiceManager.getService(project, classOf[MessageView])
-        messageView.getContentManager setSelectedContent content
+    commandProcessor.executeCommand(project, () => {
+      Disposer.register(content, treeView, null)
+      val messageView = ServiceManager.getService(project, classOf[MessageView])
+      messageView.getContentManager setSelectedContent content
 
-        val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW
-        if (toolWindow != null) toolWindow.show(null)
-      }
+      val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW
+      if (toolWindow != null) toolWindow.show(null)
     }, null, null)
   }
 }

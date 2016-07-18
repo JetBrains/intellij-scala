@@ -11,7 +11,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElemen
 import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
 import com.intellij.refactoring.util.TextOccurrencesUtil
-import com.intellij.util.PairProcessor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -33,13 +32,11 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
     val stringToSearch: String = ScalaNamesUtil.scalaName(elementToRename)
     val currentFile: PsiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
     if (stringToSearch != null) {
-      TextOccurrencesUtil.processUsagesInStringsAndComments(elementToRename, stringToSearch, true, new PairProcessor[PsiElement, TextRange] {
-        def process(psiElement: PsiElement, textRange: TextRange): Boolean = {
-          if (psiElement.getContainingFile == currentFile) {
-            stringUsages.add(Pair.create(psiElement, textRange))
-          }
-          true
+      TextOccurrencesUtil.processUsagesInStringsAndComments(elementToRename, stringToSearch, true, (psiElement: PsiElement, textRange: TextRange) => {
+        if (psiElement.getContainingFile == currentFile) {
+          stringUsages.add(Pair.create(psiElement, textRange))
         }
+        true
       })
     }
   }

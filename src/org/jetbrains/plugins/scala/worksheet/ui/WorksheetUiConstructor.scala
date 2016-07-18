@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.worksheet.ui
 
 import java.awt.event.{ActionEvent, ActionListener}
 import java.awt.{Component, Dimension}
-import javax.swing.event.{ChangeEvent, ChangeListener}
 import javax.swing._
+import javax.swing.event.{ChangeEvent, ChangeListener}
 
 import com.intellij.application.options.ModulesComboBox
-import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, CopyWorksheetAction, RunWorksheetAction, InteractiveStatusDisplay}
+import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, CopyWorksheetAction, InteractiveStatusDisplay, RunWorksheetAction}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 
@@ -31,7 +31,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     panel setLayout layout
     panel setAlignmentX 0.0f //leftmost
 
-    import WorksheetUiConstructor._  
+    import WorksheetUiConstructor._
     
     @inline def addSplitter(): Unit = addChild(panel, createSplitter())
     @inline def addFiller(): Unit = {
@@ -105,10 +105,8 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     createCheckBox(
       "Make project",
       WorksheetCompiler.isMakeBeforeRun(PsiManager getInstance project findFile file),
-      box =>  new ChangeListener {
-        override def stateChanged(e: ChangeEvent) {
-          WorksheetCompiler.setMakeBeforeRun(PsiManager getInstance project findFile file, box.isSelected)
-        }
+      box => (e: ChangeEvent) => {
+        WorksheetCompiler.setMakeBeforeRun(PsiManager getInstance project findFile file, box.isSelected)
       }
     )
   }
@@ -121,10 +119,8 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     createCheckBox(
       "Interactive Mode",
       if (isSetEnabled(psiFile)) true else if (isSetDisabled(psiFile)) false else ScalaProjectSettings.getInstance(project).isInteractiveMode,
-      box => new ChangeListener {
-        override def stateChanged(e: ChangeEvent) {
-          WorksheetAutoRunner.setAutorun(psiFile, box.isSelected)
-        }
+      box => (e: ChangeEvent) => {
+        WorksheetAutoRunner.setAutorun(psiFile, box.isSelected)
       }
     )
   }

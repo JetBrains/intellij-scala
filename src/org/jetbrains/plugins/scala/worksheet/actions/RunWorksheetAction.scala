@@ -18,8 +18,6 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
-import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.ui.popup.util.PopupUtil
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
@@ -83,23 +81,19 @@ object RunWorksheetAction {
         val viewer = WorksheetViewerInfo getViewer editor
 
         if (viewer != null) {
-          ApplicationManager.getApplication.invokeAndWait(new Runnable {
-            override def run() {
-              scala.extensions.inWriteAction {
-                CleanWorksheetAction.resetScrollModel(viewer)
-                if (!auto) CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
-              }
+          ApplicationManager.getApplication.invokeAndWait(() => {
+            scala.extensions.inWriteAction {
+              CleanWorksheetAction.resetScrollModel(viewer)
+              if (!auto) CleanWorksheetAction.cleanWorksheet(file.getNode, editor, viewer, project)
             }
           }, ModalityState.any())
         }
 
         def runnable() = {
           new WorksheetCompiler().compileAndRun(editor, file, (className: String, addToCp: String) => {
-            ApplicationManager.getApplication invokeLater new Runnable {
-              override def run() {
-                executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
-              }
-            }
+            ApplicationManager.getApplication invokeLater (() => {
+              executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
+            })
           }, Option(editor), auto)
         }
 

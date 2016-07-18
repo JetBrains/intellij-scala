@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import java.awt.BorderLayout
-import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.{JComponent, JPanel, JCheckBox}
+import java.awt.event.ActionEvent
+import javax.swing.{JCheckBox, JComponent, JPanel}
 
 import com.intellij.application.options.codeStyle.OptionTreeWithPreviewPanel
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.ui.OnePixelDivider
-import com.intellij.psi.codeStyle.{LanguageCodeStyleSettingsProvider, CodeStyleSettings}
+import com.intellij.psi.codeStyle.{CodeStyleSettings, LanguageCodeStyleSettingsProvider}
 import com.intellij.ui.border.CustomLineBorder
-import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaFileType}
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /**
   * @author Roman.Shein
@@ -27,9 +27,7 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
     super.init()
 
     myEnableCheckBox = new JCheckBox("Enable scaladoc formatting")
-    myEnableCheckBox.addActionListener(new ActionListener() {
-      override def actionPerformed(e: ActionEvent): Unit = update()
-    })
+    myEnableCheckBox.addActionListener((e: ActionEvent) => update())
 
     myAsteriskStyleCheckBox = new JCheckBox("Use scaladoc indent for leading asterisk")
 

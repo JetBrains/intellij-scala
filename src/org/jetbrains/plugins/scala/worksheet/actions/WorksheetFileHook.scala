@@ -34,10 +34,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
   override def initComponent() {}
 
   override def projectClosed() {
-    ApplicationManager.getApplication.invokeAndWait(new Runnable {
-      def run() {
-        WorksheetViewerInfo.invalidate()
-      }
+    ApplicationManager.getApplication.invokeAndWait(() => {
+      WorksheetViewerInfo.invalidate()
     }, ModalityState.any())
   }
 
@@ -84,10 +82,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
         case ref =>
           val p = ref.get()
 
-          ApplicationManager.getApplication.invokeLater(new Runnable {
-            override def run() {
-              if (p != null) myFileEditorManager.removeTopComponent(editor, p)
-            }
+          ApplicationManager.getApplication.invokeLater(() => {
+            if (p != null) myFileEditorManager.removeTopComponent(editor, p)
           })
       }
       

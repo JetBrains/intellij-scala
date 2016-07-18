@@ -36,10 +36,8 @@ import scala.collection.JavaConversions._
  */
 object SafeDeleteProcessorUtil {
   def getUsageInsideDeletedFilter(allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
-    new Condition[PsiElement] {
-      def value(usage: PsiElement): Boolean = {
-        !usage.isInstanceOf[PsiFile] && isInside(usage, allElementsToDelete)
-      }
+    (usage: PsiElement) => {
+      !usage.isInstanceOf[PsiFile] && isInside(usage, allElementsToDelete)
     }
   }
 

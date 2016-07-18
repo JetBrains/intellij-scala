@@ -13,10 +13,8 @@ class ScalaSourceRootFinder extends JavaSourceRootDetector {
   def getFileExtension: String = "scala"
 
   def getPackageNameFetcher: NullableFunction[CharSequence, String] = {
-    new NullableFunction[CharSequence, String] {
-      def fun(dom: CharSequence): String = {
-        ScalaDirUtil.getPackageStatement(dom)
-      }
+    (dom: CharSequence) => {
+      ScalaDirUtil.getPackageStatement(dom)
     }
   }
 }

@@ -10,7 +10,7 @@ import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, Modifier}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
-import com.intellij.debugger.{DebuggerInvocationUtil, EvaluatingComputable, SourcePosition}
+import com.intellij.debugger.{DebuggerInvocationUtil, SourcePosition}
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -84,12 +84,10 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
   }
 
   private def callEvaluator(evaluationContext: EvaluationContext): ExpressionEvaluator = {
-    DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
-      override def compute(): ExpressionEvaluator = {
-        val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
-        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
-        ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
-      }
+    DebuggerInvocationUtil.commitAndRunReadAction(project, () => {
+      val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
+      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
+      ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
     })
   }
 

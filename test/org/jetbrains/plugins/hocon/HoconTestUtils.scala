@@ -17,7 +17,5 @@ object HoconTestUtils {
   }
 
   implicit def asRunnable(code: => Any): Runnable =
-    new Runnable {
-      def run() = code
-    }
+    () => code
 }

@@ -142,10 +142,8 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
       }
 
       protected override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] = {
-        new Condition[PsiFileSystemItem] {
-          def value(element: PsiFileSystemItem): Boolean = {
-            isPsiElementAccepted(element)
-          }
+        (element: PsiFileSystemItem) => {
+          isPsiElementAccepted(element)
         }
       }
     }.getAllReferences.map(identity)

@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 package project.notifications
 
-import java.io.File
 import java.util.Collections
 
 import com.intellij.openapi.components.ServiceManager
@@ -72,11 +71,9 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
 
         ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
           def execute() {
-            ProjectRootManagerEx.getInstanceEx(project).mergeRootsChangesDuring(new Runnable {
-              def run() {
-                val dataManager: ProjectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
-                dataManager.importData[ProjectData](Collections.singleton(externalProject), project, false)
-              }
+            ProjectRootManagerEx.getInstanceEx(project).mergeRootsChangesDuring(() => {
+              val dataManager: ProjectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
+              dataManager.importData[ProjectData](Collections.singleton(externalProject), project, false)
             })
           }
         })

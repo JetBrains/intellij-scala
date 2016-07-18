@@ -9,7 +9,6 @@ import java.util
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Pass
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
@@ -99,11 +98,9 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
 
   override def substituteElementToRename(element: PsiElement, editor: Editor, renameCallback: Pass[PsiElement]) {
     val named = element match {case named: ScNamedElement => named; case _ => return}
-    RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
-      def execute(named: PsiNamedElement): Boolean = {
-        renameCallback.pass(named)
-        false
-      }
+    RenameSuperMembersUtil.chooseAndProcessSuper(named, (named: PsiNamedElement) => {
+      renameCallback.pass(named)
+      false
     }, editor)
   }
 

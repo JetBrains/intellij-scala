@@ -11,8 +11,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.vcsUtil.VcsUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.modifier.ui.{BuildFileChange, BuildFileModifiedStatus,
-ChangesConfirmationDialog}
+import org.jetbrains.sbt.project.modifier.ui.{BuildFileChange, BuildFileModifiedStatus, ChangesConfirmationDialog}
 
 import scala.collection.mutable
 
@@ -39,25 +38,23 @@ trait BuildFileModifier {
     var res = false
     val project = module.getProject
     val vfsFileToCopy = mutable.Map[VirtualFile, LightVirtualFile]()
-    CommandProcessor.getInstance.executeCommand(project, new Runnable {
-      def run(): Unit = {
-        modifyInner(module, vfsFileToCopy) match {
-          case Some(changes) =>
-            if (!needPreviewChanges) {
-              applyChanges(changes, project, vfsFileToCopy)
-              res = true
-            } else {
-              previewChanges(module.getProject, changes, vfsFileToCopy) match {
-                case Some(acceptedChanges) if acceptedChanges.nonEmpty =>
-                  applyChanges(acceptedChanges, project, vfsFileToCopy)
-                  res = true
-                case _ =>
-                  res = false
-              }
+    CommandProcessor.getInstance.executeCommand(project, () => {
+      modifyInner(module, vfsFileToCopy) match {
+        case Some(changes) =>
+          if (!needPreviewChanges) {
+            applyChanges(changes, project, vfsFileToCopy)
+            res = true
+          } else {
+            previewChanges(module.getProject, changes, vfsFileToCopy) match {
+              case Some(acceptedChanges) if acceptedChanges.nonEmpty =>
+                applyChanges(acceptedChanges, project, vfsFileToCopy)
+                res = true
+              case _ =>
+                res = false
             }
-          case None =>
-            res = false
-        }
+          }
+        case None =>
+          res = false
       }
     }, "Sbt build file modification", this)
     if (res)

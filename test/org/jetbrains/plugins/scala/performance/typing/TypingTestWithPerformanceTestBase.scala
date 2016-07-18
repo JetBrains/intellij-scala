@@ -6,7 +6,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.testFramework.PlatformTestUtil
-import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -23,10 +22,8 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
     fileText = StringUtil.convertLineSeparators(fileText)
     val (input, _) = separateText(fileText)
     myFixture.configureByText(fileName, input)
-    PlatformTestUtil.startPerformanceTest("TypingTest" + getTestName(false), timeoutInMillis, new ThrowableRunnable[Nothing] {
-      override def run(): Unit = {
-        stringsToType.foreach(myFixture.`type`)
-      }
+    PlatformTestUtil.startPerformanceTest("TypingTest" + getTestName(false), timeoutInMillis, () => {
+      stringsToType.foreach(myFixture.`type`)
     }).ioBound().assertTiming()
   }
 

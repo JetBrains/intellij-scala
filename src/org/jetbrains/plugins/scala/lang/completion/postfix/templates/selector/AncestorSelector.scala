@@ -49,7 +49,5 @@ class AncestorSelector(val condition: Condition[PsiElement], val selectorType: S
 
 object AncestorSelector {
   def apply(surrounder: ScalaExpressionSurrounder, selectorType: SelectorType = First): AncestorSelector =
-    new AncestorSelector(new Condition[PsiElement]{
-      override def value(t: PsiElement): Boolean = surrounder.isApplicable(t)
-    }, selectorType)
+    new AncestorSelector((t: PsiElement) => surrounder.isApplicable(t), selectorType)
 }

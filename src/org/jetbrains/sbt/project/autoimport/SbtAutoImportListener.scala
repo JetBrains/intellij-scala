@@ -1,8 +1,6 @@
 package org.jetbrains.sbt
 package project.autoimport
 
-import java.io.File
-
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
@@ -30,14 +28,11 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
         .getLinkedProjectSettings(project.getBasePath))
 
     if (settings.fold(false)(_.useOurOwnAutoImport) && isBuildFile(file)) {
-      ApplicationManager.getApplication.invokeLater(new Runnable() {
-        override def run(): Unit =
-          ExternalSystemUtil.refreshProjects(
-            new ImportSpecBuilder(project, SbtProjectSystem.Id)
-                    .forceWhenUptodate()
-                    .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
-          )
-      })
+      ApplicationManager.getApplication.invokeLater(() => ExternalSystemUtil.refreshProjects(
+        new ImportSpecBuilder(project, SbtProjectSystem.Id)
+          .forceWhenUptodate()
+          .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
+      ))
     }
   }
 

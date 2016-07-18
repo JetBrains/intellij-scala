@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Computable, Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.util.{Function => IdeaFunction, PathUtil}
+import com.intellij.util.{PathUtil, Function => IdeaFunction}
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -19,17 +19,11 @@ import scala.reflect.ClassTag
  * @author Pavel Fatin
  */
 package object sbt {
-  implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] = new IdeaFunction[A, B] {
-    def fun(a: A): B = f(a)
-  }
+  implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] = (a: A) => f(a)
 
-  implicit def toIdeaPredicate[A](f: A => Boolean): IdeaFunction[A, JavaBoolean] = new IdeaFunction[A, JavaBoolean] {
-    def fun(a: A): JavaBoolean = JavaBoolean.valueOf(f(a))
-  }
+  implicit def toIdeaPredicate[A](f: A => Boolean): IdeaFunction[A, JavaBoolean] = (a: A) => JavaBoolean.valueOf(f(a))
 
-  implicit def toIdeaFunction2[A, B, C](f: (A, B) => C): IdeaFunction[IdeaPair[A, B], C] = new IdeaFunction[IdeaPair[A, B], C] {
-    def fun(pair: IdeaPair[A, B]): C = f(pair.getFirst, pair.getSecond)
-  }
+  implicit def toIdeaFunction2[A, B, C](f: (A, B) => C): IdeaFunction[IdeaPair[A, B], C] = (pair: IdeaPair[A, B]) => f(pair.getFirst, pair.getSecond)
 
   //todo: make this class a value class! This is a bug in 2.12-M4
   implicit class RichFile(val file: File) {

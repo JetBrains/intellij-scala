@@ -88,10 +88,8 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
           case 0 => false
           case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
             !caretNear(editor) =>
-            CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
-              def run() {
-                new ScalaAddImportAction(editor, classes, ref).execute()
-              }
+            CommandProcessor.getInstance().runUndoTransparentAction(() => {
+              new ScalaAddImportAction(editor, classes, ref).execute()
             })
             false
           case _ =>

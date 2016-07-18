@@ -191,23 +191,21 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
 
     val succeeded: Ref[Boolean] = new Ref[Boolean]
     val commandProcessor: CommandProcessor = CommandProcessor.getInstance
-    commandProcessor.executeCommand(project, new Runnable {
-      def run(): Unit = {
-        if (selectedNode != null) {
-          if (selectedNode.canNavigateToSource) {
-            popup.cancel()
-            selectedNode.navigate(true)
-            succeeded.set(true)
-          }
-          else {
-            succeeded.set(false)
-          }
+    commandProcessor.executeCommand(project, () => {
+      if (selectedNode != null) {
+        if (selectedNode.canNavigateToSource) {
+          popup.cancel()
+          selectedNode.navigate(true)
+          succeeded.set(true)
         }
         else {
           succeeded.set(false)
         }
-        IdeDocumentHistory.getInstance(project).includeCurrentCommandAsNavigation()
       }
+      else {
+        succeeded.set(false)
+      }
+      IdeDocumentHistory.getInstance(project).includeCurrentCommandAsNavigation()
     }, "Navigate", null)
     succeeded.get
   }

@@ -116,18 +116,16 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       val builder = JBPopupFactory.getInstance.createListPopupBuilder(list)
       val popup = builder.setTitle("Choose implicit conversion method:").setAdText("Press Alt+Enter").
       setMovable(false).setResizable(false).setRequestFocus(true).
-      setItemChoosenCallback(new Runnable {
-        def run() {
-          val entity = list.getSelectedValue.asInstanceOf[Parameters]
-          entity.getNewExpression match {
-            case f: ScFunction =>
-              f.getSyntheticNavigationElement match {
-                case Some(n: NavigatablePsiElement) => n.navigate(true)
-                case _ => f.navigate(true)
-              }
-            case n: NavigatablePsiElement => n.navigate(true)
-            case _ => //do nothing
-          }
+      setItemChoosenCallback(() => {
+        val entity = list.getSelectedValue.asInstanceOf[Parameters]
+        entity.getNewExpression match {
+          case f: ScFunction =>
+            f.getSyntheticNavigationElement match {
+              case Some(n: NavigatablePsiElement) => n.navigate(true)
+              case _ => f.navigate(true)
+            }
+          case n: NavigatablePsiElement => n.navigate(true)
+          case _ => //do nothing
         }
       }).createPopup
       popup.showInBestPositionFor(editor)

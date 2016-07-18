@@ -107,10 +107,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   protected def checkGeneratedTextAfterBackspace(text: String, assumedText: String) {
     performTest(text, assumedText) {
       () =>
-        CommandProcessor.getInstance.executeCommand(myFixture.getProject, new Runnable {
-          def run() {
-            myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
-          }
+        CommandProcessor.getInstance.executeCommand(myFixture.getProject, () => {
+          myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
         }, "", null)
     }
   }
@@ -118,10 +116,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   protected def checkGeneratedTextAfterEnter(text: String, assumedText: String) {
     performTest(text, assumedText) {
       () =>
-        CommandProcessor.getInstance().executeCommand(myFixture.getProject, new Runnable {
-          def run() {
-            myFixture.performEditorAction(IdeActions.ACTION_EDITOR_ENTER)
-          }
+        CommandProcessor.getInstance().executeCommand(myFixture.getProject, () => {
+          myFixture.performEditorAction(IdeActions.ACTION_EDITOR_ENTER)
         }, "", null)
     }
   }
@@ -179,11 +175,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 
     actions.find(_.getText == quickFixHint) match {
       case Some(action) =>
-        CommandProcessor.getInstance().executeCommand(myFixture.getProject, new Runnable {
-          def run() {
-            extensions.inWriteAction {
-              action.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile)
-            }
+        CommandProcessor.getInstance().executeCommand(myFixture.getProject, () => {
+          extensions.inWriteAction {
+            action.invoke(myFixture.getProject, myFixture.getEditor, myFixture.getFile)
           }
         }, "", null)
         myFixture.checkResult(assumedStub, /*stripTrailingSpaces = */true)

@@ -56,18 +56,16 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     var res: String = null
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     try {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run() {
-          classes(0) match {
-            case ClassTypeToImport(clazz) =>
-              org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
-                getImportHolder(ref, getProjectAdapter).addImportForClass(clazz)
-            case ta =>
-              org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
-                getImportHolder(ref, getProjectAdapter).addImportForPath(ta.qualifiedName, ref)
-          }
-          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
+      ScalaUtils.runWriteAction(() => {
+        classes(0) match {
+          case ClassTypeToImport(clazz) =>
+            org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
+              getImportHolder(ref, getProjectAdapter).addImportForClass(clazz)
+          case ta =>
+            org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.
+              getImportHolder(ref, getProjectAdapter).addImportForPath(ta.qualifiedName, ref)
         }
+        UsefulTestCase.doPostponedFormatting(getProjectAdapter)
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
       assert(refPointer.getElement.resolve != null, "reference is unresolved after import action")

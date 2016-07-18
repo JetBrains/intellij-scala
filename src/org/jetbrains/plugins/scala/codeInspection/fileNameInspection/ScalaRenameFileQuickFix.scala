@@ -19,11 +19,9 @@ class ScalaRenameFileQuickFix(myFile: ScalaFile, name: String) extends
   def doApplyFix(project: Project): Unit = {
     /*(new RenameRefactoringImpl(project, file, name, false, true)).run*/
     val file = getElement
-    ApplicationManager.getApplication.invokeLater(new Runnable {
-      def run() {
-        val processor: RenameProcessor = new RenameProcessor(project, file, name, false, false)
-        processor.run()
-      }
+    ApplicationManager.getApplication.invokeLater(() => {
+      val processor: RenameProcessor = new RenameProcessor(project, file, name, false, false)
+      processor.run()
     })
 
   }

@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.project.data.service
 
-import java.util
-
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider

@@ -17,14 +17,12 @@ class HighlightingPerformanceTest extends ScalaFixtureTestCase {
       createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_LANGUAGE, text, true, false)
     TestUtils.assertTiming("Failed highlighting performance test", TIMEOUT,
-      new Runnable {
-        def run() {
-          try {
-            myFixture.testHighlighting(false, false, false, file.getVirtualFile)
-          }
-          catch {
-            case e: RuntimeException =>
-          }
+      () => {
+        try {
+          myFixture.testHighlighting(false, false, false, file.getVirtualFile)
+        }
+        catch {
+          case e: RuntimeException =>
         }
       })
   }

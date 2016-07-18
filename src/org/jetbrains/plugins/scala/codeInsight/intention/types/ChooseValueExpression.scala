@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
-import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
+import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup._
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result, TextResult}
@@ -19,17 +19,15 @@ abstract class ChooseValueExpression[T](lookupItems: Seq[T], defaultItem: T) ext
   val lookupElements: Array[LookupElement] = calcLookupElements().toArray
 
   def calcLookupElements(): Seq[LookupElementBuilder] = lookupItems.map { elem =>
-    LookupElementBuilder.create(elem, lookupString(elem)).withInsertHandler(new InsertHandler[LookupElement] {
-      override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-        val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
-        val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
-        if (templateState != null) {
-          val range = templateState.getCurrentVariableRange
-          if (range != null) {
-            //need to insert with FQNs
-            val newText = result(item.getObject.asInstanceOf[T])
-            topLevelEditor.getDocument.replaceString(range.getStartOffset, range.getEndOffset, newText)
-          }
+    LookupElementBuilder.create(elem, lookupString(elem)).withInsertHandler((context: InsertionContext, item: LookupElement) => {
+      val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
+      val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
+      if (templateState != null) {
+        val range = templateState.getCurrentVariableRange
+        if (range != null) {
+          //need to insert with FQNs
+          val newText = result(item.getObject.asInstanceOf[T])
+          topLevelEditor.getDocument.replaceString(range.getStartOffset, range.getEndOffset, newText)
         }
       }
     })

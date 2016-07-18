@@ -520,10 +520,8 @@ object ScalaRefactoringUtil {
       }
     })
 
-    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
-      def run() {
-        pass(list.getSelectedValue.asInstanceOf[T])
-      }
+    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(() => {
+      pass(list.getSelectedValue.asInstanceOf[T])
     }).addListener(new JBPopupAdapter {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
         selection.addHighlighter()

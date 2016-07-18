@@ -70,22 +70,18 @@ class RunConsoleAction extends AnAction {
 
         import scala.collection.JavaConversions._
         for (setting <- settings) {
-          ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
-            def run() {
-              execute(setting)
-            }
+          ActionRunner.runInsideReadAction(() => {
+            execute(setting)
           })
           return
         }
-        ActionRunner.runInsideReadAction(new ActionRunner.InterruptibleRunnable {
-          def run() {
-            val factory: ScalaConsoleRunConfigurationFactory =
-              configurationType.getConfigurationFactories.apply(0).asInstanceOf[ScalaConsoleRunConfigurationFactory]
-            val setting = RunManager.getInstance(project).createRunConfiguration("Scala Console", factory)
+        ActionRunner.runInsideReadAction(() => {
+          val factory: ScalaConsoleRunConfigurationFactory =
+            configurationType.getConfigurationFactories.apply(0).asInstanceOf[ScalaConsoleRunConfigurationFactory]
+          val setting = RunManager.getInstance(project).createRunConfiguration("Scala Console", factory)
 
-            runManagerEx.setTemporaryConfiguration(setting)
-            execute(setting)
-          }
+          runManagerEx.setTemporaryConfiguration(setting)
+          execute(setting)
         })
       case _ =>
     }

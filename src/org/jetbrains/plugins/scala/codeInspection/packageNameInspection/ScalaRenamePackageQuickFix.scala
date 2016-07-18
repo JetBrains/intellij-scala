@@ -17,10 +17,8 @@ class ScalaRenamePackageQuickFix(myFile: ScalaFile, name: String)
   def doApplyFix(project: Project): Unit = {
     val file = getElement
     if (!file.isValid) return
-    ScalaUtils.runWriteAction(new Runnable {
-      def run(): Unit = {
-        file.setPackageName(name)
-      }
+    ScalaUtils.runWriteAction(() => {
+      file.setPackageName(name)
     }, project, "Rename Package QuickFix")
   }
 

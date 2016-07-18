@@ -12,7 +12,6 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.UsefulTestCase
-import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.SbtFileImpl
@@ -93,11 +92,9 @@ class SbtAnnotatorTest extends AnnotatorTestBase with MockSbt {
   }
 
   private def addTestFileToModuleSources(): Unit = {
-    ModuleRootModificationUtil.updateModel(getModule, new Consumer[ModifiableRootModel] {
-      override def consume(model: ModifiableRootModel): Unit = {
-        val testdataUrl = VfsUtilCore.pathToUrl(testdataPath)
-        model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
-      }
+    ModuleRootModificationUtil.updateModel(getModule, (model: ModifiableRootModel) => {
+      val testdataUrl = VfsUtilCore.pathToUrl(testdataPath)
+      model.addContentEntry(testdataUrl).addSourceFolder(testdataUrl, false)
     })
     preventLeakageOfVfsPointers()
   }

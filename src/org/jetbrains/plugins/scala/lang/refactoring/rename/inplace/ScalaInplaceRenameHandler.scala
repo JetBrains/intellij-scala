@@ -50,19 +50,17 @@ trait ScalaInplaceRenameHandler {
         .setMovable(false)
         .setResizable(false)
         .setRequestFocus(true)
-        .setItemChoosenCallback(new Runnable {
-          def run(): Unit = {
-            list.getSelectedValue match {
-              case s: String if s == positive =>
-                val file = subst.getContainingFile.getVirtualFile
-                if (FileDocumentManager.getInstance.getDocument(file) == editor.getDocument) {
-                  editor.getCaretModel.moveToOffset(subst.getTextOffset)
-                  inplaceRename(subst)
-                } else {
-                  doDialogRename(subst, editor.getProject, null, editor)
-                }
-              case s: String if s == cancel =>
-            }
+        .setItemChoosenCallback(() => {
+          list.getSelectedValue match {
+            case s: String if s == positive =>
+              val file = subst.getContainingFile.getVirtualFile
+              if (FileDocumentManager.getInstance.getDocument(file) == editor.getDocument) {
+                editor.getCaretModel.moveToOffset(subst.getTextOffset)
+                inplaceRename(subst)
+              } else {
+                doDialogRename(subst, editor.getProject, null, editor)
+              }
+            case s: String if s == cancel =>
           }
         }).createPopup.showInBestPositionFor(editor)
     }

@@ -22,16 +22,12 @@ class IncrementalLexerHighlightingTest extends ScalaLightCodeInsightFixtureTestA
 
     typed foreach {
       case '\r' =>
-        CommandProcessor.getInstance.executeCommand(myFixture.getProject, new Runnable {
-          def run() {
-            myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
-          }
+        CommandProcessor.getInstance.executeCommand(myFixture.getProject, () => {
+          myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
         }, "", null)
       case '\n' =>
-        CommandProcessor.getInstance().executeCommand(myFixture.getProject, new Runnable {
-          def run() {
-            myFixture.performEditorAction(IdeActions.ACTION_EDITOR_ENTER)
-          }
+        CommandProcessor.getInstance().executeCommand(myFixture.getProject, () => {
+          myFixture.performEditorAction(IdeActions.ACTION_EDITOR_ENTER)
         }, "", null)
       case a => myFixture.`type`(a)
     }

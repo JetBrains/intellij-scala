@@ -8,7 +8,6 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures._
-import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
@@ -70,24 +69,20 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     val initialText = editor.getDocument.getText
     val title = performanceTestTitle.getOrElse(filename)
     try {
-      PlatformTestUtil.startPerformanceTest(s"Performance test $title", timeoutInMillis, new ThrowableRunnable[Nothing] {
-        override def run(): Unit = {
-          stringsToType.foreach { s =>
-            myCodeInsightTestFixture.`type`(s)
-            myCodeInsightTestFixture.doHighlighting()
-          }
-          fileManager.cleanupForNextTest()
-        }
-      }).setup(new ThrowableRunnable[Nothing] {
-        override def run(): Unit = {
-          //file.refresh(false, false)
-          inWriteCommandAction(myProject) {
-            editor.getDocument.setText(initialText)
-          }
-          editor.getCaretModel.moveToLogicalPosition(pos)
-          typeInSetup.foreach(myCodeInsightTestFixture.`type`)
+      PlatformTestUtil.startPerformanceTest(s"Performance test $title", timeoutInMillis, () => {
+        stringsToType.foreach { s =>
+          myCodeInsightTestFixture.`type`(s)
           myCodeInsightTestFixture.doHighlighting()
         }
+        fileManager.cleanupForNextTest()
+      }).setup(() => {
+        //file.refresh(false, false)
+        inWriteCommandAction(myProject) {
+          editor.getDocument.setText(initialText)
+        }
+        editor.getCaretModel.moveToLogicalPosition(pos)
+        typeInSetup.foreach(myCodeInsightTestFixture.`type`)
+        myCodeInsightTestFixture.doHighlighting()
       }).assertTiming()
     } finally {
       inWriteCommandAction(myProject) {

@@ -75,11 +75,9 @@ class CompileServerLauncher extends ApplicationComponent {
         Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, ConfigureLinkListener))
         false
       case Right(_) =>
-        ApplicationManager.getApplication invokeLater new Runnable {
-          override def run() {
-            CompileServerManager.instance(project).configureWidget()
-          }
-        }
+        ApplicationManager.getApplication invokeLater (() => {
+          CompileServerManager.instance(project).configureWidget()
+        })
 
         true
     }
@@ -146,11 +144,9 @@ class CompileServerLauncher extends ApplicationComponent {
   def stop(project: Project) {
     stop()
 
-    ApplicationManager.getApplication invokeLater new Runnable {
-      override def run() {
-        CompileServerManager.instance(project).configureWidget()
-      }
-    }
+    ApplicationManager.getApplication invokeLater (() => {
+      CompileServerManager.instance(project).configureWidget()
+    })
   }
 
   def running: Boolean = serverInstance.exists(_.running)

@@ -8,7 +8,7 @@ import javax.swing.{Icon, JComponent, JPanel}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.roots.ScalableIconComponent
-import com.intellij.util.ui.{EmptyIcon, AnimatedIcon}
+import com.intellij.util.ui.{AnimatedIcon, EmptyIcon}
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiConstructor
 
 /**
@@ -51,9 +51,7 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
   }
   
   private def setBorder(border: LineBorder) {
-    if (isBorderEnabled) ApplicationManager.getApplication.invokeLater(new Runnable {
-      override def run(): Unit = myPanel.setBorder(border)  
-    })    
+    if (isBorderEnabled) ApplicationManager.getApplication.invokeLater(() => myPanel.setBorder(border))
   }
   
   private def isBorderEnabled = false //right now we don't need it (?) 

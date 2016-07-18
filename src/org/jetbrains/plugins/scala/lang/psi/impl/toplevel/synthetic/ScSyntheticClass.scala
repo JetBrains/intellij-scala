@@ -203,10 +203,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   def getComponentName = "SyntheticClasses"
 
   override def initComponent(): Unit = {
-    StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
-      def run() {
-        registerClasses()
-      }
+    StartupManager.getInstance(project).registerPostStartupActivity(() => {
+      registerClasses()
     })
   }
 

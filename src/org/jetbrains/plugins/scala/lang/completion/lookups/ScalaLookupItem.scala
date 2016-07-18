@@ -4,7 +4,6 @@ package lang.completion.lookups
 import com.intellij.codeInsight.AutoPopupController
 import com.intellij.codeInsight.completion.{CompletionType, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, LookupElementPresentation, LookupItem}
-import com.intellij.openapi.util.Condition
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IconUtil
@@ -27,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelect
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings._
 
@@ -273,14 +272,10 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
           ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
           newRef.bindToElement(cl.element)
           if (cl.element.isInstanceOf[ScObject] && isInStableCodeReference) {
-            context.setLaterRunnable(new Runnable {
-              def run() {
-                AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
-                  context.getEditor, CompletionType.BASIC, new Condition[PsiFile] {
-                    def value(t: PsiFile): Boolean = t == context.getFile
-                  }
-                )
-              }
+            context.setLaterRunnable(() => {
+              AutoPopupController.getInstance(context.getProject).scheduleAutoPopup(
+                context.getEditor, CompletionType.BASIC, (t: PsiFile) => t == context.getFile
+              )
             })
           }
         case p: PsiPackage if shouldImport =>

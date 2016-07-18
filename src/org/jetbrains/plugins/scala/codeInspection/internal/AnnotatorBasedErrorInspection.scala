@@ -30,10 +30,8 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
 
           highlightVisitors.headOption.map {
             case vr: HighlightVisitorImpl =>
-              vr.clone().analyze(file, true, highlightInfoHolder, new Runnable {
-                def run() {
-                  vr.visit(element)
-                }
+              vr.clone().analyze(file, true, highlightInfoHolder, () => {
+                vr.visit(element)
               })
             case _ =>
           }

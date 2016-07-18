@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceParameter
 
 import java.awt._
-import java.awt.event.{ItemEvent, ItemListener}
+import java.awt.event.ItemEvent
 import java.util
 import javax.swing._
 
@@ -148,17 +148,15 @@ class ScalaIntroduceParameterDialog(project: Project,
       JListCompatibility.addItem(typeCombobox, typeName)
     }
     typeLabel.setDisplayedMnemonic('T')
-    typeCombobox.addItemListener(new ItemListener {
-      override def itemStateChanged(e: ItemEvent): Unit = {
-        val scType = typeMap.get(typeCombobox.getSelectedItem)
-        introducedParamTableItem.foreach {item =>
-          item.parameter.scType = scType
-          item.typeText = scType.presentableText
-        }
-        myParametersTableModel.fireTableDataChanged()
-        parametersTable.updateUI()
-        updateSignatureAlarmFired()
+    typeCombobox.addItemListener((e: ItemEvent) => {
+      val scType = typeMap.get(typeCombobox.getSelectedItem)
+      introducedParamTableItem.foreach { item =>
+        item.parameter.scType = scType
+        item.typeText = scType.presentableText
       }
+      myParametersTableModel.fireTableDataChanged()
+      parametersTable.updateUI()
+      updateSignatureAlarmFired()
     })
     val paramTypePanel = new JPanel(new BorderLayout(0, 2))
     paramTypePanel.add(typeLabel, BorderLayout.NORTH)

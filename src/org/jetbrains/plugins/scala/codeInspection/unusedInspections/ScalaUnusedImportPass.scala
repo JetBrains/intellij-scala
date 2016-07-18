@@ -21,7 +21,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Comparing, Key}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.util.{DocumentUtil, Processor}
+import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -130,9 +130,7 @@ object ScalaUnusedImportPass {
     val document: Document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
     if (document == null) return true
     val hasErrorsExceptUnresolvedImports: Boolean = !DaemonCodeAnalyzerEx.processHighlights(document, file.getProject,
-      HighlightSeverity.ERROR, 0, document.getTextLength, new Processor[HighlightInfo] {
-      def process(error: HighlightInfo): Boolean = false //todo: only unresolved ref issues?
-    })
+      HighlightSeverity.ERROR, 0, document.getTextLength, (error: HighlightInfo) => false)
     hasErrorsExceptUnresolvedImports
   }
 }

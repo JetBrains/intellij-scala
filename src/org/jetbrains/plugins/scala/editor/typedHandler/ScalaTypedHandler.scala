@@ -7,28 +7,27 @@ import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScEnumerators, ScIfStmt, ScReferenceExpression}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScEnumerators, ScIfStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
 
 
 /**
@@ -373,9 +372,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def scheduleAutopopup(file: PsiFile, editor: Editor, project: Project): Unit = {
     AutoPopupController.getInstance(project).scheduleAutoPopup(
-      editor, CompletionType.BASIC, new Condition[PsiFile] {
-        def value(t: PsiFile): Boolean = t == file
-      }
+      editor, CompletionType.BASIC, (t: PsiFile) => t == file
     )
   }
 

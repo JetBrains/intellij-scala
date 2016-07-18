@@ -51,11 +51,9 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
     try {
-      ScalaUtils.runWriteAction(new Runnable {
-        def run() {
-          ScalaPsiUtil.adjustTypes(element)
-          UsefulTestCase.doPostponedFormatting(getProjectAdapter)
-        }
+      ScalaUtils.runWriteAction(() => {
+        ScalaPsiUtil.adjustTypes(element)
+        UsefulTestCase.doPostponedFormatting(getProjectAdapter)
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim
     }

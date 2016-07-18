@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.ui
 
-import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent, AdjustmentListener}
+import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent}
 import java.awt.{BorderLayout, Color, Dimension}
 import java.util
 import javax.swing.{JComponent, JLayeredPane, Timer}
@@ -142,11 +142,9 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
       Option(worksheetViewer.getUserData(WorksheetEditorPrinter.DIFF_SPLITTER_KEY)), Some(group))
 
     extensions.invokeLater {
-      viewerFolding runBatchFoldingOperation new Runnable {
-        override def run() {
-          viewerFolding.clearFoldRegions()
-        }
-      }
+      viewerFolding runBatchFoldingOperation (() => {
+        viewerFolding.clearFoldRegions()
+      })
       getViewerEditor.getCaretModel.moveToVisualPosition(new VisualPosition(0, 0))
     }
 
@@ -241,28 +239,24 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
         originalEditor.getScrollingModel.scrollVertically(scroll)
         worksheetViewer.getScrollingModel.scrollHorizontally(worksheetScroll)
 
-        CommandProcessor.getInstance().executeCommand(project, new Runnable {
-          override def run() {
-            viewerFolding runBatchFoldingOperation(new Runnable {
-              override def run() {
-                foldingOffsetsCopy map {
-                  case (start, end, limit, originalEnd) =>
-                    val offset = originalDocument getLineEndOffset Math.min(originalEnd, originalDocument.getLineCount)
-                    val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1
+        CommandProcessor.getInstance().executeCommand(project, () => {
+          viewerFolding runBatchFoldingOperation(() => {
+            foldingOffsetsCopy map {
+              case (start, end, limit, originalEnd) =>
+                val offset = originalDocument getLineEndOffset Math.min(originalEnd, originalDocument.getLineCount)
+                val linesCount = viewerDocument.getLineNumber(end) - start - limit + 1
 
-                    new WorksheetFoldRegionDelegate(
-                      ed, viewerDocument.getLineStartOffset(start + limit - 1), end,
-                      offset, linesCount, group, limit
-                    )
-                } foreach {
-                  case region =>
-                    viewerFolding addFoldRegion region
-                }
+                new WorksheetFoldRegionDelegate(
+                  ed, viewerDocument.getLineStartOffset(start + limit - 1), end,
+                  offset, linesCount, group, limit
+                )
+            } foreach {
+              case region =>
+                viewerFolding addFoldRegion region
+            }
 
-                WorksheetFoldGroup.save(file, group)
-              }
-            }, false)
-          }
+            WorksheetFoldGroup.save(file, group)
+          }, false)
         }, null, null)
       }
     }
@@ -365,28 +359,24 @@ object WorksheetEditorPrinter {
 
     (originalEditor, worksheetViewer) match {
       case (originalImpl: EditorImpl, viewerImpl: EditorImpl) =>
-        ApplicationManager.getApplication invokeLater new Runnable {
-          override def run() {
-            checkAndAdd(originalImpl, viewerImpl)
-//            checkAndAdd(viewerImpl, originalImpl)
+        ApplicationManager.getApplication invokeLater (() => {
+          checkAndAdd(originalImpl, viewerImpl)
+          //            checkAndAdd(viewerImpl, originalImpl)
 
-            viewerImpl.getCaretModel.moveToVisualPosition(
-              new VisualPosition(Math.min(originalImpl.getCaretModel.getVisualPosition.line, viewerImpl.getDocument.getLineCount), 0)
-            )
+          viewerImpl.getCaretModel.moveToVisualPosition(
+            new VisualPosition(Math.min(originalImpl.getCaretModel.getVisualPosition.line, viewerImpl.getDocument.getLineCount), 0)
+          )
 
-            val syncSupport = new SyncScrollSupport
-            syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer)))
+          val syncSupport = new SyncScrollSupport
+          syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer)))
 
-            originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
+          originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
 
-            diffSplitter foreach {
-              case splitter =>
-                viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener(new AdjustmentListener {
-                  override def adjustmentValueChanged(e: AdjustmentEvent): Unit = splitter.redrawDiffs()
-                })
-            }
+          diffSplitter foreach {
+            case splitter =>
+              viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener((e: AdjustmentEvent) => splitter.redrawDiffs())
           }
-        }
+        })
       case _ =>
     }
   }

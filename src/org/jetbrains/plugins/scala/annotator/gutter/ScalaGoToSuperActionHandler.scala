@@ -8,7 +8,6 @@ import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaMarkerType.ScCellRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -35,14 +34,12 @@ class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
     val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset)(project.typeSystem)
 
     def popupChooser(superElements: Seq[PsiElement], title: String) {
-      NavigationUtil.getPsiElementPopup[PsiElement](superElements.toArray, new ScCellRenderer, title, new PsiElementProcessor[PsiElement] {
-        def execute(element: PsiElement): Boolean = {
-          val descriptor = EditSourceUtil.getDescriptor(element)
-          if (descriptor != null && descriptor.canNavigate) {
-            descriptor.navigate(true)
-          }
-          true
+      NavigationUtil.getPsiElementPopup[PsiElement](superElements.toArray, new ScCellRenderer, title, (element: PsiElement) => {
+        val descriptor = EditSourceUtil.getDescriptor(element)
+        if (descriptor != null && descriptor.canNavigate) {
+          descriptor.navigate(true)
         }
+        true
       }).showInBestPositionFor(editor)
     }
 

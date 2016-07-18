@@ -8,7 +8,6 @@ import java.util
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Pass
-import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -33,11 +32,9 @@ class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor with Scala
       case named: ScNamedElement => named
       case _ => return
     }
-    RenameSuperMembersUtil.chooseAndProcessSuper(named, new PsiElementProcessor[PsiNamedElement] {
-      def execute(named: PsiNamedElement): Boolean = {
-        renameCallback.pass(named)
-        false
-      }
+    RenameSuperMembersUtil.chooseAndProcessSuper(named, (named: PsiNamedElement) => {
+      renameCallback.pass(named)
+      false
     }, editor)
   }
 

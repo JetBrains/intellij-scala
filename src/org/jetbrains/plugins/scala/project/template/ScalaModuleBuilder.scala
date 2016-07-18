@@ -6,7 +6,6 @@ import javax.swing.JComponent
 
 import com.intellij.facet.impl.ui.libraries.{LibraryCompositionSettings, LibraryOptionsPanel}
 import com.intellij.framework.library.FrameworkLibraryVersionFilter
-import com.intellij.ide.util.projectWizard.ModuleBuilder.ModuleConfigurationUpdater
 import com.intellij.ide.util.projectWizard.{JavaModuleBuilder, ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.roots.ModifiableRootModel
@@ -23,10 +22,8 @@ class ScalaModuleBuilder(languageName: String, libraryDescription: CustomLibrary
 
   private var libraryCompositionSettings: LibraryCompositionSettings = _
 
-  addModuleConfigurationUpdater(new ModuleConfigurationUpdater() {
-    override def update(module: Module, rootModel: ModifiableRootModel) {
-      libraryCompositionSettings.addLibraries(rootModel, new util.ArrayList[Library](), librariesContainer)
-    }
+  addModuleConfigurationUpdater((module: Module, rootModel: ModifiableRootModel) => {
+    libraryCompositionSettings.addLibraries(rootModel, new util.ArrayList[Library](), librariesContainer)
   })
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
