@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.NonFatal
 
 @SerialVersionUID(-8361292897316544896L)
 case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest]) {
@@ -184,7 +185,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
             case e: ClassNotFoundException =>
               LOG.warn(s"Interface class ${injector.iface} not found, skipping injector")
               None
-            case e =>
+            case NonFatal(e) =>
               LOG.warn(s"Error while verifying injector interface - ${e.getMessage}, skipping")
               None
           }
