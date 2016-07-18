@@ -22,6 +22,7 @@ object Dependencies {
   val sbtLaunch = "org.scala-sbt" % "sbt-launch" % sbtVersion
 
   val jamm = "com.github.jbellis" % "jamm" % "0.3.1"
+  val scalaLibrary211 = "org.scala-lang" % "scala-library" % scala211Version
   val scalaLibrary = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
