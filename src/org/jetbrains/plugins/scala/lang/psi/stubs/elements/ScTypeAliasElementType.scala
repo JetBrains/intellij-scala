@@ -51,7 +51,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     dataStream.writeBoolean(stub.isStableQualifier)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeAliasStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
     val name = StringRef.toString(dataStream.readName)
     val isDecl = dataStream.readBoolean
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
@@ -63,7 +63,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     new ScTypeAliasStubImpl(parent, this, name, isDecl, typeElementText, lower, upper, isLocal, isStable)
   }
 
-  def indexStub(stub: ScTypeAliasStub, sink: IndexSink) {
+  override def indexStub(stub: ScTypeAliasStub, sink: IndexSink): Unit = {
     val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)

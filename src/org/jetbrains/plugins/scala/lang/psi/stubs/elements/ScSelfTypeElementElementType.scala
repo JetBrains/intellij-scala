@@ -36,7 +36,7 @@ class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
       psi.getClassNames)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScSelfTypeElementStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
     val name = dataStream.readName
     val typeElementText = dataStream.readName
     val n = dataStream.readInt()
@@ -45,7 +45,7 @@ class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
       typeElementText.toString, names)
   }
 
-  def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink) {
+  override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {
     for (name <- stub.getClassNames) {
       sink.occurrence(ScSelfTypeInheritorsIndex.KEY, name)
     }

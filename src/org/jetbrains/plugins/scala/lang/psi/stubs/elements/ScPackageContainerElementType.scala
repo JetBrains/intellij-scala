@@ -29,14 +29,14 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
     dataStream.writeBoolean(stub.isExplicit)
   }
 
-  override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScPackageContainerStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPackageContainerStub = {
     val prefix = dataStream.readName
     val ownNamePart = dataStream.readName
     val isExplicit = dataStream.readBoolean()
     new ScPackageContainerStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, prefix, ownNamePart, isExplicit)
   }
 
-  def indexStub(stub: ScPackageContainerStub, sink: IndexSink): Unit = {
+  override def indexStub(stub: ScPackageContainerStub, sink: IndexSink): Unit = {
     val prefix = stub.prefix
     var ownNamePart = stub.ownNamePart
     def append(postfix : String) =

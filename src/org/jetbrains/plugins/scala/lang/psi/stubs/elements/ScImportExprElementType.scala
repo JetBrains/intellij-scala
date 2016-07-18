@@ -7,7 +7,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportExprImpl
@@ -34,13 +34,11 @@ class ScImportExprElementType[Func <: ScImportExpr]
     new ScImportExprStubImpl(parentStub, this, refText, singleW)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScImportExprStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub = {
     val refText: String = StringRef.toString(dataStream.readName)
     val singleW: Boolean = dataStream.readBoolean
     new ScImportExprStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, refText, singleW)
   }
-
-  def indexStub(stub: ScImportExprStub, sink: IndexSink): Unit = {}
 
   override def createPsi(stub: ScImportExprStub): ScImportExpr = new ScImportExprImpl(stub)
 

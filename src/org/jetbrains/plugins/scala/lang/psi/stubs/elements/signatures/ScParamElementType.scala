@@ -6,7 +6,7 @@ package elements
 package signatures
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 
@@ -57,7 +57,7 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     }
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParameterStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
     val name = dataStream.readName
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val typeText = dataStream.readName
@@ -72,6 +72,4 @@ extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
     new ScParameterStubImpl(parent, this, name, typeText, stable, default, repeated, isVal, isVar, isCallByName,
       defaultExpr, deprecatedName)
   }
-
-  def indexStub(stub: ScParameterStub, sink: IndexSink) {}
 }

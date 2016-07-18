@@ -30,9 +30,6 @@ class ScIdListElementType[Func <: ScIdList]
     new ScIdListStubImpl(parentStub, this)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScIdListStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
     new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
-  }
-
-  def indexStub(stub: ScIdListStub, sink: IndexSink): Unit = {}
 }

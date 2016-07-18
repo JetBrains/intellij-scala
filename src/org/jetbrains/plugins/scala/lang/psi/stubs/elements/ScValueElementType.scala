@@ -45,7 +45,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     dataStream.writeBoolean(stub.isLocal)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScValueStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScValueStub = {
     val isDecl = dataStream.readBoolean
     val namesLength = dataStream.readInt
     val names = new Array[StringRef](namesLength)
@@ -59,7 +59,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     new ScValueStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText, isImplicit, isLocal)
   }
 
-  def indexStub(stub: ScValueStub, sink: IndexSink) {
+  override def indexStub(stub: ScValueStub, sink: IndexSink): Unit = {
     val names = stub.getNames
     
     for (name <- names if name != null) {

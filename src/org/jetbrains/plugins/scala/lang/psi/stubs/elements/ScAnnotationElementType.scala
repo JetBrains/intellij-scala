@@ -58,13 +58,14 @@ class ScAnnotationElementType[Func <: ScAnnotation]
     new ScAnnotationStubImpl(parentStub, this, nameRef, typeTextRef)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScAnnotationStub = {
+
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub = {
     val name = dataStream.readName
     val typeText = dataStream.readName
     new ScAnnotationStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name, typeText)
   }
 
-  def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
+  override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
     val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null && name != "") {
       sink.occurrence(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, name)

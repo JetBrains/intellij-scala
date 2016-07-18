@@ -88,7 +88,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     dataStream.writeBoolean(stub.isVisibleInJava)
   }
 
-  override def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateDefinitionStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
     val name = dataStream.readName
     val qualName = dataStream.readName
     val javaQualName = dataStream.readName()
@@ -112,7 +112,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       isImplcitObject, isImplcitClass, javaName, additionalNames, isLocal, visibleInJava)
   }
 
-  def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
+  override def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
     if (stub.isScriptFileClass) return
     val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {

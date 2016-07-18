@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScPrimaryConstructorImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPrimaryConstructorStubImpl
@@ -29,9 +29,6 @@ class ScPrimaryConstructorElementType[Func <: ScPrimaryConstructor]
     new ScPrimaryConstructorStubImpl(parentStub, this)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScPrimaryConstructorStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
     new ScPrimaryConstructorStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
-  }
-
-  def indexStub(stub: ScPrimaryConstructorStub, sink: IndexSink): Unit = {}
 }

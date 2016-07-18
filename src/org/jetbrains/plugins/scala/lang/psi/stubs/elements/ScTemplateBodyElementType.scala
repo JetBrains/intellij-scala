@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateBodyStubImpl
@@ -29,11 +29,6 @@ class ScTemplateBodyElementType[Func <: ScTemplateBody]
     new ScTemplateBodyStubImpl(parentStub, this)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateBodyStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateBodyStub =
     new ScTemplateBodyStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
-  }
-
-  def indexStub(stub: ScTemplateBodyStub, sink: IndexSink): Unit = {}
-
-  override def isLeftBound = true
 }

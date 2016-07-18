@@ -44,11 +44,11 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     dataStream.writeBoolean(stub.isLocal)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScVariableStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScVariableStub = {
     val isDecl = dataStream.readBoolean
     val namesLength = dataStream.readInt
     val names = new Array[String](namesLength)
-    for (i <- 0 to (namesLength - 1)) names(i) = StringRef.toString(dataStream.readName)
+    for (i <- 0 until namesLength) names(i) = StringRef.toString(dataStream.readName)
     val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
     val typeText = StringRef.toString(dataStream.readName)
     val bodyText = StringRef.toString(dataStream.readName)
@@ -57,7 +57,7 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     new ScVariableStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText, isLocal)
   }
 
-  def indexStub(stub: ScVariableStub, sink: IndexSink) {
+  override def indexStub(stub: ScVariableStub, sink: IndexSink): Unit = {
     val names = stub.getNames
     for (name <- names if name != null) {
       sink.occurrence(ScalaIndexKeys.VARIABLE_NAME_KEY, ScalaNamesUtil.cleanFqn(name))

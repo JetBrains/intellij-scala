@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScAccessModifierImpl
@@ -30,9 +30,6 @@ class ScAccessModifierElementType[Func <: ScAccessModifier]
     }
   }
 
-  def indexStub(stub: ScAccessModifierStub, sink: IndexSink) {}
-
-
   override def createElement(node: ASTNode): ScAccessModifier = new ScAccessModifierImpl(node)
 
   override def createPsi(stub: ScAccessModifierStub): ScAccessModifier = new ScAccessModifierImpl(stub)
@@ -42,7 +39,7 @@ class ScAccessModifierElementType[Func <: ScAccessModifier]
       psi.isThis, psi.idText.map(StringRef.fromString))
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScAccessModifierStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub = {
     val isProtected = dataStream.readBoolean
     val isPrivate = dataStream.readBoolean
     val isThis = dataStream.readBoolean

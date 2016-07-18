@@ -31,10 +31,8 @@ class ScFieldIdElementType[Func <: ScFieldId]
 
   override def createPsi(stub: ScFieldIdStub): ScFieldId = new ScFieldIdImpl(stub)
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFieldIdStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFieldIdStub = {
     val name = StringRef.toString(dataStream.readName)
     new ScFieldIdStubImpl(parentStub.asInstanceOf[StubElement[_ <: PsiElement]], this, name)
   }
-
-  def indexStub(stub: ScFieldIdStub, sink: IndexSink): Unit = {}
 }

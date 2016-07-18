@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl
@@ -21,20 +21,23 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScTypeParamElementType[Func <: ScTypeParam]
   extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
-  def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream) {
+  def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {
+    def serializeSeq(ref: Seq[String]): Unit = {
+      dataStream.writeInt(ref.length)
+      for (r <- ref) dataStream.writeName(r)
+    }
+
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getUpperText)
     dataStream.writeName(stub.getLowerText)
     dataStream.writeBoolean(stub.isContravariant)
     dataStream.writeBoolean(stub.isCovariant)
     dataStream.writeInt(stub.getPositionInFile)
-    serialiseSeq(dataStream, stub.getViewText)
-    serialiseSeq(dataStream, stub.getContextBoundText)
+    serializeSeq(stub.getViewText)
+    serializeSeq(stub.getContextBoundText)
     dataStream.writeName(stub.getContainingFileName)
     dataStream.writeName(stub.typeParameterText)
   }
-
-  def indexStub(stub: ScTypeParamStub, sink: IndexSink) {}
 
   override def createElement(node: ASTNode): ScTypeParam = new ScTypeParamImpl(node)
 
@@ -57,31 +60,26 @@ class ScTypeParamElementType[Func <: ScTypeParam]
       psi.getTextRange.getStartOffset, StringRef.fromString(psi.getContainingFileName), StringRef.fromString(typeParameterText))
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeParamStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
+    def deserializeSeq(): Seq[StringRef] = {
+      val n = dataStream.readInt
+      val refs = new ArrayBuffer[StringRef]
+      for (i <- 0 until n) refs += dataStream.readName
+      refs
+    }
+
     val name = dataStream.readName
     val upperText = dataStream.readName
     val lowerText = dataStream.readName
     val contravariant = dataStream.readBoolean
     val covariant = dataStream.readBoolean
     val position = dataStream.readInt
-    val viewText = deserialiseSeq(dataStream)
-    val contextBoundText = deserialiseSeq(dataStream)
+    val viewText = deserializeSeq()
+    val contextBoundText = deserializeSeq()
     val fileName = dataStream.readName()
     val typeParameterText = dataStream.readName()
     new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name,
       upperText, lowerText, viewText, contextBoundText, covariant, contravariant, position, fileName,
       typeParameterText)
-  }
-
-  def deserialiseSeq(dataStream: StubInputStream): Seq[StringRef] = {
-    val n = dataStream.readInt
-    val refs = new ArrayBuffer[StringRef]
-    for (i <- 0 until n) refs += dataStream.readName
-    refs
-  }
-
-  def serialiseSeq(dataStream: StubOutputStream, ref: Seq[String]) {
-    dataStream.writeInt(ref.length)
-    for (r <- ref) dataStream.writeName(r)
   }
 }

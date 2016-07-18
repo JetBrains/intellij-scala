@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
@@ -41,7 +41,7 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
       psi.typeElementsWithoutConstructor.map(te => StringRef.fromString(te.getText)))
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTemplateParentsStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub = {
     val length = dataStream.readInt
     if (length >= 0) {
       val res = new ArrayBuffer[StringRef]
@@ -56,8 +56,6 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
       new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, None, Seq.empty)
     }
   }
-
-  def indexStub(stub: ScTemplateParentsStub, sink: IndexSink) {}
 }
 
 object ScTemplateParentsElementType {

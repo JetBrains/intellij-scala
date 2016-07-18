@@ -3,11 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
-import com.intellij.psi.stubs.StubInputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaFileType;
-
-import java.io.IOException;
 
 /**
  * @author ilyas
@@ -31,13 +28,4 @@ public abstract class IStubElementTypeWrapper<StubT extends StubElement, PsiT ex
     }
 
     public abstract <ParentPsi extends PsiElement> StubT createStubImpl(PsiT psi, StubElement<ParentPsi> parentStub);
-
-    //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
-    @NotNull
-    public StubT deserialize(@NotNull StubInputStream dataStream, StubElement parentStub) throws IOException {
-        return deserializeImpl(dataStream, parentStub);
-    }
-
-    public abstract StubT deserializeImpl(StubInputStream dataStream, Object parentStub);
-
 }

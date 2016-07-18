@@ -26,13 +26,13 @@ class ScExtendsBlockElementType
     for (name <- stub.getBaseClasses) dataStream.writeName(name)
   }
 
-  def indexStub(stub: ScExtendsBlockStub, sink: IndexSink) {
+  override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
     for (name <- stub.getBaseClasses) {
       sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
     }
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScExtendsBlockStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub = {
     val n = dataStream.readInt
     val baseClasses = new Array[StringRef](n)
     for (i <- 0 until n) baseClasses(i) = dataStream.readName
@@ -47,8 +47,6 @@ class ScExtendsBlockElementType
   override def createElement(node: ASTNode): ScExtendsBlock = new ScExtendsBlockImpl(node)
 
   override def createPsi(stub: ScExtendsBlockStub): ScExtendsBlock = new ScExtendsBlockImpl(stub)
-
-  override def isLeftBound = true
 }
 
 

@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportStmtImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportStmtStubImpl
@@ -26,12 +26,10 @@ class ScImportStmtElementType[Func <: ScImportStmt]
     new ScImportStmtStubImpl(parentStub, this, psi.getText)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScImportStmtStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub = {
     val text = dataStream.readName.toString
     new ScImportStmtStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, text)
   }
-
-  def indexStub(stub: ScImportStmtStub, sink: IndexSink): Unit = {}
 
   override def createPsi(stub: ScImportStmtStub): ScImportStmt = new ScImportStmtImpl(stub)
 

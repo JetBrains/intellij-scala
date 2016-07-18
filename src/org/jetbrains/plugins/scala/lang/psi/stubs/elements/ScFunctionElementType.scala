@@ -72,7 +72,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     dataStream.writeBoolean(stub.isLocal)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScFunctionStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
     val name = dataStream.readName
     val isDecl = dataStream.readBoolean
     val length = dataStream.readInt
@@ -89,8 +89,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign, isImplicit, isLocal)
   }
 
-  def indexStub(stub: ScFunctionStub, sink: IndexSink) {
-
+  override def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {
     val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)

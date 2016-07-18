@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
@@ -34,7 +34,7 @@ class ScModifiersElementType(debugName: String)
     new ScModifiersStubImpl(parentStub, this, if (modifiers.isEmpty) ArrayUtil.EMPTY_STRING_ARRAY else modifiers, psi.hasExplicitModifiers)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScModifiersStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub = {
     val explicitModifiers = dataStream.readBoolean()
     val num = dataStream.readInt
     val modifiers =
@@ -46,6 +46,4 @@ class ScModifiersElementType(debugName: String)
       }
     new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers, explicitModifiers)
   }
-
-  def indexStub(stub: ScModifiersStub, sink: IndexSink) {}
 }

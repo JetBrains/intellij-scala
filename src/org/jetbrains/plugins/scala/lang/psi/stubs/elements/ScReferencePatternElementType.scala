@@ -31,10 +31,8 @@ class ScReferencePatternElementType[Func <: ScReferencePattern]
 
   override def createPsi(stub: ScReferencePatternStub): ScReferencePattern = new ScReferencePatternImpl(stub)
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScReferencePatternStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScReferencePatternStub = {
     val name = dataStream.readName
     new ScReferencePatternStubImpl(parentStub.asInstanceOf[StubElement[_ <: PsiElement]], this, name)
   }
-
-  def indexStub(stub: ScReferencePatternStub, sink: IndexSink): Unit = {}
 }

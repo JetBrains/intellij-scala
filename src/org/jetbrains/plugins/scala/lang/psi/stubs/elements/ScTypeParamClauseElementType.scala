@@ -7,7 +7,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamClauseStubImpl
@@ -23,8 +23,6 @@ class ScTypeParamClauseElementType[Func <: ScTypeParamClause]
     dataStream.writeName(stub.getTypeParamClauseText)
   }
 
-  def indexStub(stub: ScTypeParamClauseStub, sink: IndexSink) {}
-
   override def createElement(node: ASTNode): ScTypeParamClause = new ScTypeParamClauseImpl(node)
 
   override def createPsi(stub: ScTypeParamClauseStub): ScTypeParamClause = new ScTypeParamClauseImpl(stub)
@@ -33,7 +31,7 @@ class ScTypeParamClauseElementType[Func <: ScTypeParamClause]
     new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.getText)
   }
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeParamClauseStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeParamClauseStub = {
     val text = dataStream.readName().toString
     new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, text)
   }

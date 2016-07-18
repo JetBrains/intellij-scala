@@ -5,7 +5,7 @@ package stubs
 package elements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.stubs.{PsiFileStub, StubElement}
+import com.intellij.psi.stubs.{IndexSink, PsiFileStub, StubElement}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubElementTypeWrapper
@@ -30,4 +30,6 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName
   }
 
   override def isLeftBound = true
+
+  override def indexStub(stub: S, sink: IndexSink): Unit = {}
 }
