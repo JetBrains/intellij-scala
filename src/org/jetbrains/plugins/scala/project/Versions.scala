@@ -24,7 +24,7 @@ object Versions extends Versions {
     Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.8"))
 
   private object Sbt extends Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
-    Version("0.12.0"), Seq("0.12.4", "0.13.11"))
+    Version("0.12.0"), Seq("0.12.4", "0.13.12"))
 }
 
 trait Versions {
