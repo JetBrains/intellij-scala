@@ -2331,5 +2331,59 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL9869() = {
+    getScalaSettings.SD_KEEP_BLANK_LINES_BETWEEN_TAGS = true
+    val before =
+      """
+        |//
+        |// A single line comment 1
+        |//
+        |// A single line comment 2
+        |//
+        |
+        |/*
+        |Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue
+        |ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas
+        |mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.
+        |
+        |
+        |Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        |Aenean ut gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id dolor. Pellentesque auctor nisi id
+        |magna consequat sagittis. Curabitur dapibus enim sit amet elit pharetra tincidunt feugiat nisl imperdiet.
+        |*/
+        |
+        |/** Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas
+        |  * congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero
+        |  * egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.
+        |  *
+        |  *
+        |  * Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        |  * Aenean ut gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id dolor. Pellentesque auctor nisi id
+        |  * magna consequat sagittis. Curabitur dapibus enim sit amet elit pharetra tincidunt feugiat nisl imperdiet.
+        |  *
+        |  *
+        |  * @constructor does something
+        |  *
+        |  * @param p1 String. A parameter
+        |  *
+        |  * @param p2 String. A parameter
+        |  *
+        |  * @param p3 String. A parameter
+        |  *
+        |  * @return something
+        |  *
+        |  * @since 1.0
+        |  * @version 1.0
+        |  *
+        |  * @note a final remark.
+        |  */
+        |class Demo(p1: String, p2: String, p3: String) {
+        |
+        |  def aMethod(): Unit = {}
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
