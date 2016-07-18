@@ -2282,5 +2282,19 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL9721() = {
+    getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = true
+    val before =
+      """
+        |trait Bar
+        |
+        |trait Foo extends Bar
+        |// with Baz
+        |{
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
