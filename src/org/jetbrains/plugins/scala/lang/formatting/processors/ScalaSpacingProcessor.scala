@@ -580,9 +580,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 _: ScTryBlock | _: ScCatchBlock) =>
 
           val oneLineNonEmpty = leftString != "{" && !getText(block.getNode, fileText).contains('\n')
-          val spaceInsideOneLineMethod = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS &&
+          lazy val spaceInsideOneLineMethod = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS &&
             rightNode.getTreeParent.getTreeParent != null && rightNode.getTreeParent.getTreeParent.getPsi.isInstanceOf[ScFunction]
-          val spaceInsideClosure = scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && (leftNode.getElementType match {
+          lazy val spaceInsideClosure = scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && (leftNode.getElementType match {
             case ScalaElementTypes.FUNCTION_EXPR => true
             case ScalaElementTypes.CASE_CLAUSES => block.getParent.isInstanceOf[ScArgumentExprList] ||
                 block.getParent.isInstanceOf[ScInfixExpr]
@@ -590,8 +590,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST &&
                   (leftPsi.isInstanceOf[ScFunctionExpr] || block.isInstanceOf[ScBlockExpr] || leftPsi.isInstanceOf[ScCaseClauses])
           })
-          val needsSpace = (oneLineNonEmpty && (spaceInsideOneLineMethod || spaceInsideClosure ||
-                  scalaSettings.SPACES_IN_ONE_LINE_BLOCKS)) ||
+          lazy val spaceInSelfTypeBraces = scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES &&
+            leftPsi.getParent.getFirstChild.getNextSiblingNotWhitespace.isInstanceOf[ScSelfTypeElement]
+          val needsSpace = (oneLineNonEmpty && (scalaSettings.SPACES_IN_ONE_LINE_BLOCKS ||
+            spaceInsideOneLineMethod || spaceInsideClosure || spaceInSelfTypeBraces)) ||
                   leftPsi.isInstanceOf[PsiComment] && scalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST
           val spaces = if (needsSpace) 1 else 0
 
@@ -619,9 +621,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
       leftNode.getTreeParent.getPsi match {
         case b: ScTemplateBody if rightPsi.isInstanceOf[ScSelfTypeElement] =>
-          if (scalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE) {
-            return ON_NEW_LINE
-          } else return WITHOUT_SPACING_NO_KEEP //todo: spacing setting
+          return if (scalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE) {
+            ON_NEW_LINE
+          } else if (scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES) WITH_SPACING_NO_KEEP
+          else WITHOUT_SPACING_NO_KEEP
         case b @ (_: ScEarlyDefinitions | _: ScTemplateBody) =>
           if (settings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE && !getText(b.getNode, fileText).contains('\n')) {
             return Spacing.createDependentLFSpacing(0, 0, b.getTextRange, keepLineBreaks,

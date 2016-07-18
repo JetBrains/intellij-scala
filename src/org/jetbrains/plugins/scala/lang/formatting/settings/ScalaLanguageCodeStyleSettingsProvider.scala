@@ -177,6 +177,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("NEWLINE_AFTER_ANNOTATIONS", "Newline after annotations", CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("KEEP_COMMENTS_ON_SAME_LINE", "Keep one-line comments on same line", CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST", "Before opening square bracket", CodeStyleSettingsCustomizable.SPACES_IN_TYPE_PARAMETERS)
+      showCustomOption("SPACE_INSIDE_SELF_TYPE_BRACES", "Self type braces", CodeStyleSettingsCustomizable.SPACES_WITHIN)
     }
 
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {
