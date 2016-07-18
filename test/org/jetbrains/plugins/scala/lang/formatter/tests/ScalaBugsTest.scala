@@ -2260,5 +2260,27 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL9450() = {
+    getScalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE = false
+    getScalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES = true
+    val before =
+      """
+        |trait Something { this: Runnable =>
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9450_1() = {
+    getScalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE = false
+    getScalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES = true
+    val before =
+      """
+        |trait Something { this: Runnable => }
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
