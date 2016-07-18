@@ -167,6 +167,11 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
       if (ScalaPsiUtil.isLineTerminator(prev) || prev.isInstanceOf[PsiWhiteSpace]) {
         CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(prev))
       }
+      Option(elements.last.getNextSibling) match {
+        case Some(next) if ScalaPsiUtil.isLineTerminator(next) || next.isInstanceOf[PsiWhiteSpace] =>
+          CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(next))
+        case _ =>
+      }
       for (expr <- elements.tail) {
         CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(expr))
       }
