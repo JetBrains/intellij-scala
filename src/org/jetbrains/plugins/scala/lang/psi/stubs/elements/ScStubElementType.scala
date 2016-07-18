@@ -19,7 +19,7 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName
 
   override def createElement(node: ASTNode): T
 
-  def getExternalId: String = "sc." + super.toString
+  override def getLanguageName = "sc"
 
   def isCompiled(stub: S): Boolean = {
     var parent = stub

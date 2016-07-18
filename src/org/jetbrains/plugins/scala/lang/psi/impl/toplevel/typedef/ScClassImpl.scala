@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
@@ -53,7 +53,10 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   }
 
   def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.CLASS_DEF, null)}
+
+  def this(stub: ScTemplateDefinitionStub) = {
+    this(stub, ScalaElementTypes.classDefinition, null)
+  }
 
   override def toString: String = "ScClass: " + name
 

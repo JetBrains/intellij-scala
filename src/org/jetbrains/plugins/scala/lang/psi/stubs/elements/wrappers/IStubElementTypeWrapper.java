@@ -12,25 +12,32 @@ import java.io.IOException;
 /**
  * @author ilyas
  */
-public abstract class IStubElementTypeWrapper<StubT extends StubElement, PsiT extends PsiElement> extends IStubElementType<StubT, PsiT> {
+public abstract class IStubElementTypeWrapper<StubT extends StubElement, PsiT extends PsiElement>
+        extends IStubElementType<StubT, PsiT> implements ExternalIdOwner {
 
-  public IStubElementTypeWrapper(@NotNull String debugName) {
-    super(debugName, ScalaFileType.SCALA_LANGUAGE);
-  }
+    public IStubElementTypeWrapper(@NotNull String debugName) {
+        super(debugName, ScalaFileType.SCALA_LANGUAGE);
+    }
 
-  //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
-  public StubT createStub(@NotNull PsiT psi, StubElement parentStub) {
-    return (StubT)createStubImpl(psi, parentStub);
-  }
+    @NotNull
+    @Override
+    public String getExternalId() {
+        return String.format("%s.%s", getLanguageName(), super.toString());
+    }
 
-  public abstract <ParentPsi extends PsiElement> StubT createStubImpl(PsiT psi, StubElement<ParentPsi> parentStub);
+    //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
+    public StubT createStub(@NotNull PsiT psi, StubElement parentStub) {
+        return (StubT) createStubImpl(psi, parentStub);
+    }
 
-  //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
-  @NotNull
-  public StubT deserialize(@NotNull StubInputStream dataStream, StubElement parentStub) throws IOException {
-    return deserializeImpl(dataStream, parentStub);
-  }
+    public abstract <ParentPsi extends PsiElement> StubT createStubImpl(PsiT psi, StubElement<ParentPsi> parentStub);
 
-  public abstract StubT deserializeImpl(StubInputStream dataStream, Object parentStub);
+    //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
+    @NotNull
+    public StubT deserialize(@NotNull StubInputStream dataStream, StubElement parentStub) throws IOException {
+        return deserializeImpl(dataStream, parentStub);
+    }
+
+    public abstract StubT deserializeImpl(StubInputStream dataStream, Object parentStub);
 
 }

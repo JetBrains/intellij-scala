@@ -13,10 +13,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ObjectDef
  */
 object PackageObject extends PackageObject {
   override protected val objectDef = ObjectDef
+
+  override protected val elementTypes = ScalaElementTypes
 }
 
 trait PackageObject {
   protected val objectDef: ObjectDef
+
+  protected val elementTypes: ElementTypes
 
   def parse(builder: ScalaPsiBuilder) : Boolean = {
     val marker = builder.mark
@@ -42,7 +46,7 @@ trait PackageObject {
     builder.advanceLexer()
 
     if (objectDef parse builder) {
-      marker.done(ScalaElementTypes.OBJECT_DEF)
+      marker.done(elementTypes.objectDefinition)
     } else {
       marker.drop()
     }

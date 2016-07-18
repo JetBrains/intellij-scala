@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScConstructorImpl, ScInterpolatedStringLiteralImpl, ScLiteralImpl, ScStableCodeReferenceElementImpl}
@@ -28,6 +29,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassPa
   *
   */
 object ScalaElementTypes extends ElementTypes {
+  override val classDefinition = new ScClassDefinitionElementType
+  override val objectDefinition = new ScObjectDefinitionElementType
+  override val traitDefinition = new ScTraitDefinitionElementType
+
   val COMPOUND_TYPE = new ScalaElementType("compound type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScCompoundTypeElementImpl(node)
   }
@@ -46,9 +51,9 @@ trait ElementTypes {
   //Stub element types
   val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType(ScalaFileType.SCALA_LANGUAGE)
 
-  val CLASS_DEF = new ScClassDefinitionElementType
-  val OBJECT_DEF = new ScObjectDefinitionElementType
-  val TRAIT_DEF = new ScTraitDefinitionElementType
+  val classDefinition: ScTemplateDefinitionElementType[ScClass]
+  val objectDefinition: ScTemplateDefinitionElementType[ScObject]
+  val traitDefinition: ScTemplateDefinitionElementType[ScTrait]
 
   val PACKAGING = new ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType

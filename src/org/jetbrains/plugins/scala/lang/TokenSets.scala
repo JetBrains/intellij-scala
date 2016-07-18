@@ -18,7 +18,7 @@ object TokenSets {
     kIMPLICIT, kFINAL, kOVERRIDE, kPROTECTED,
     kPRIVATE, kSEALED)
 
-  val TYPE_DEFINITIONS_SET = TokenSet.create(OBJECT_DEF, CLASS_DEF, TRAIT_DEF)
+  val TYPE_DEFINITIONS_SET = TokenSet.create(objectDefinition, classDefinition, traitDefinition)
 
   private val EXPR1_SET: TokenSet = TokenSet.create(IF_STMT,
     FOR_STMT,
