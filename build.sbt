@@ -197,8 +197,6 @@ lazy val jmhBenchmarks =
 
 // Testing keys and settings
 
-testOptions += Tests.Argument(TestFrameworks.JUnit)
-
 addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptCategory")
 
 addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTestsCategory")
