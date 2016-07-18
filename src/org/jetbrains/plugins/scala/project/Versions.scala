@@ -21,7 +21,7 @@ object Versions extends Versions {
   def loadSbtVersions: Array[String] = loadVersionsOf(Sbt)
 
   private object Scala extends Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-    Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.8"))
+    Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.6", "2.11.8"))
 
   private object Sbt extends Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
     Version("0.12.0"), Seq("0.12.4", "0.13.12"))
