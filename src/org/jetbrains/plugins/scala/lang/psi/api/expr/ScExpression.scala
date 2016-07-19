@@ -416,6 +416,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     Failure(ScalaBundle.message("no.type.inferred", getText), Some(this))
 
   /**
+   * This works only for ScExpression and may remove/add enclosing parentheses.
+   *
    * Some expression may be replaced only with another one
    */
   def replaceExpression(expr: ScExpression, removeParenthesis: Boolean): ScExpression = {

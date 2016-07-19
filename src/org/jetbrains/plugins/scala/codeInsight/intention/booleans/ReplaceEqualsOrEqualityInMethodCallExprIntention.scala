@@ -116,7 +116,7 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseInt
 
     inWriteAction {
       methodCallExpr.replace(newMethodCallExpr)
-      methodCallExpr.replaceExpression(newMethodCallExpr, removeParenthesis = true)
+      methodCallExpr.replaceExpression(newMethodCallExpr, removeParenthesis = false)
       editor.getCaretModel.moveToOffset(start + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
