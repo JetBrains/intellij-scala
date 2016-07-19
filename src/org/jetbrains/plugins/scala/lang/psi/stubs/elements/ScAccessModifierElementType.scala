@@ -22,25 +22,16 @@ class ScAccessModifierElementType[Func <: ScAccessModifier]
     dataStream.writeBoolean(stub.isProtected)
     dataStream.writeBoolean(stub.isPrivate)
     dataStream.writeBoolean(stub.isThis)
-    val hasId = stub.getIdText.isDefined
-    dataStream.writeBoolean(hasId)
-    if (hasId) {
-      dataStream.writeName(stub.getIdText.get)
-    }
+    dataStream.writeOptionName(stub.idText)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub = {
-    val isProtected = dataStream.readBoolean
-    val isPrivate = dataStream.readBoolean
-    val isThis = dataStream.readBoolean
-    val hasId = dataStream.readBoolean
-    val idText = if (hasId) Some(dataStream.readName) else None
-    new ScAccessModifierStubImpl(parentStub, this, isPrivate, isProtected, isThis, idText)
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub =
+    new ScAccessModifierStubImpl(parentStub, this,
+      isProtected = dataStream.readBoolean, isPrivate = dataStream.readBoolean, isThis = dataStream.readBoolean, idTextRef = dataStream.readOptionName)
 
   override def createStub(psi: ScAccessModifier, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub =
-    new ScAccessModifierStubImpl(parentStub, this, psi.isPrivate, psi.isProtected,
-      psi.isThis, psi.idText.map(StringRef.fromString))
+    new ScAccessModifierStubImpl(parentStub, this,
+      psi.isProtected, psi.isPrivate, psi.isThis, psi.idText.map(StringRef.fromString))
 
   override def createElement(node: ASTNode): ScAccessModifier = new ScAccessModifierImpl(node)
 

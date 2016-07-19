@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.{Callable, Future}
 import javax.swing.SwingUtilities
 
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.ProgressManager
@@ -12,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
+import com.intellij.psi.tree.IElementType
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
@@ -182,6 +184,11 @@ package object extensions {
     def endsWith(c: Char): Boolean = !s.isEmpty && s.charAt(s.length - 1) == c
 
     def parenthesisedIf(condition: Boolean): String = if (condition) "(" + s + ")" else s
+  }
+
+  implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
+    def hasChildOfType(elementType: IElementType): Boolean =
+      node.findChildByType(elementType) != null
   }
 
   implicit class PsiElementExt(override val repr: PsiElement) extends AnyVal with PsiElementExtTrait {
