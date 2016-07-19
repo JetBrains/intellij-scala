@@ -6,4 +6,4 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScObjectDefinitionEle
   * @author adkozlov
   */
 class DottyObjectDefinitionElementType
-  extends ScObjectDefinitionElementType with DottyStubElementType
+  extends ScObjectDefinitionElementType with DottyExternalIdOwner

@@ -17,56 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
- * @author ilyas, alefas
- */
+  * @author ilyas, alefas
+  */
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String)
-extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugName) {
-
-  override def createStubImpl[ParentPsi <: PsiElement](psi: ScTemplateDefinition, parent: StubElement[ParentPsi]): ScTemplateDefinitionStub = {
-    val file = psi.getContainingFile
-    val fileName = if (file != null && file.getVirtualFile != null) file.getVirtualFile.getName else null
-    val signs = psi.functions.map(_.name).toArray
-    val isPO = psi match {
-      case td: ScTypeDefinition => td.isPackageObject
-      case _ => false
-    }
-    val isSFC = psi.isScriptFileClass
-
-    val isDepr = psi.isInstanceOf[ScTypeDefinition] && psi.getModifierList != null &&
-      !psi.getModifierList.getAnnotations.forall(p => p match {
-        case a: ScAnnotation => {
-          val typeText = a.constructor.typeElement.getText
-          typeText != "deprecated" && typeText != "scala.deprecated"
-        }
-        case _ => true
-      })
-
-    val isImplicitObject = psi.isInstanceOf[ScObject] && psi.hasModifierProperty("implicit")
-    val isImplicitClass = psi.isInstanceOf[ScClass] && psi.hasModifierProperty("implicit")
-
-    val javaName = psi.getName
-    val additionalJavaNames = psi.additionalJavaNames
-
-    def isOkForJava(elem: ScalaPsiElement): Boolean = {
-      var res = true
-      var element = elem.getParent
-      while (element != null && res) {
-        element match {
-          case o: ScObject if o.isPackageObject => res = false
-          case _ =>
-        }
-        element = element.getParent
-      }
-      res
-    }
-
-    val isLocal: Boolean = psi.containingClass == null && PsiTreeUtil.getParentOfType(psi, classOf[ScTemplateDefinition]) != null
-
-    new ScTemplateDefinitionStubImpl[ParentPsi](parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
-      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, isImplicitClass, javaName, additionalJavaNames,
-      isLocal, isOkForJava(psi))
-  }
-
+  extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugName) {
   def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.qualName)
@@ -87,6 +41,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isVisibleInJava)
   }
+
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
     val name = dataStream.readName
@@ -110,6 +65,50 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     val visibleInJava = dataStream.readBoolean()
     new ScTemplateDefinitionStubImpl(parent, this, name, qualName, javaQualName, fileName, methodNames, isPO, isSFC, isDepr,
       isImplcitObject, isImplcitClass, javaName, additionalNames, isLocal, visibleInJava)
+  }
+
+  override def createStub(psi: ScTemplateDefinition, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
+    val file = psi.getContainingFile
+    val fileName = if (file != null && file.getVirtualFile != null) file.getVirtualFile.getName else null
+    val signs = psi.functions.map(_.name).toArray
+    val isPO = psi match {
+      case td: ScTypeDefinition => td.isPackageObject
+      case _ => false
+    }
+    val isSFC = psi.isScriptFileClass
+
+    val isDepr = psi.isInstanceOf[ScTypeDefinition] && psi.getModifierList != null &&
+      !psi.getModifierList.getAnnotations.forall {
+        case a: ScAnnotation =>
+          val typeText = a.constructor.typeElement.getText
+          typeText != "deprecated" && typeText != "scala.deprecated"
+        case _ => true
+      }
+
+    val isImplicitObject = psi.isInstanceOf[ScObject] && psi.hasModifierProperty("implicit")
+    val isImplicitClass = psi.isInstanceOf[ScClass] && psi.hasModifierProperty("implicit")
+
+    val javaName = psi.getName
+    val additionalJavaNames = psi.additionalJavaNames
+
+    def isOkForJava(elem: ScalaPsiElement): Boolean = {
+      var res = true
+      var element = elem.getParent
+      while (element != null && res) {
+        element match {
+          case o: ScObject if o.isPackageObject => res = false
+          case _ =>
+        }
+        element = element.getParent
+      }
+      res
+    }
+
+    val isLocal: Boolean = psi.containingClass == null && PsiTreeUtil.getParentOfType(psi, classOf[ScTemplateDefinition]) != null
+
+    new ScTemplateDefinitionStubImpl(parent, this, psi.name, psi.qualifiedName, psi.getQualifiedName,
+      fileName, signs, isPO, isSFC, isDepr, isImplicitObject, isImplicitClass, javaName, additionalJavaNames,
+      isLocal, isOkForJava(psi))
   }
 
   override def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
@@ -155,7 +154,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       val packageName = fqn.stripSuffix(".package")
       val shortName = {
         val index = packageName.lastIndexOf('.')
-        if (index < 0) packageName else packageName.substring(index + 1, packageName.size)
+        if (index < 0) packageName else packageName.substring(index + 1, packageName.length)
       }
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY, packageName.hashCode)
       sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)

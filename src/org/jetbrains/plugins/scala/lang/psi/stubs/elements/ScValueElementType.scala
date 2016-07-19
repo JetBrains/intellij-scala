@@ -7,33 +7,19 @@ package elements
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScValueStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 17.10.2008
+  */
 abstract class ScValueElementType[Value <: ScValue](debugName: String)
-extends ScStubElementType[ScValueStub, ScValue](debugName) {
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScValue, parentStub: StubElement[ParentPsi]): ScValueStub = {
-    val isDecl = psi.isInstanceOf[ScValueDeclaration]
-    val typeText = psi.typeElement match {
-      case Some(te) => te.getText
-      case None => ""
-    }
-    val bodyText = if (!isDecl) psi.asInstanceOf[ScPatternDefinition].expr.map(_.getText).getOrElse("") else ""
-    val containerText = if (isDecl) psi.asInstanceOf[ScValueDeclaration].getIdList.getText
-      else psi.asInstanceOf[ScPatternDefinition].pList.getText
-    val isImplicit = psi.hasModifierProperty("implicit")
-    new ScValueStubImpl[ParentPsi](parentStub, this,
-      (for (elem <- psi.declaredElements) yield elem.name).toArray, isDecl, typeText, bodyText, containerText,
-      isImplicit, psi.containingClass == null)
-  }
-
-  def serialize(stub: ScValueStub, dataStream: StubOutputStream) {
+  extends ScStubElementType[ScValueStub, ScValue](debugName) {
+  override def serialize(stub: ScValueStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isDeclaration)
     val names = stub.getNames
     dataStream.writeInt(names.length)
@@ -59,9 +45,21 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     new ScValueStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText, isImplicit, isLocal)
   }
 
+  override def createStub(psi: ScValue, parentStub: StubElement[_ <: PsiElement]): ScValueStub = {
+    val isDecl = psi.isInstanceOf[ScValueDeclaration]
+    val typeText = psi.typeElement.text
+    val bodyText = if (!isDecl) psi.asInstanceOf[ScPatternDefinition].expr.text else ""
+    val containerText = if (isDecl) psi.asInstanceOf[ScValueDeclaration].getIdList.getText
+    else psi.asInstanceOf[ScPatternDefinition].pList.getText
+    val isImplicit = psi.hasModifierProperty("implicit")
+    new ScValueStubImpl(parentStub, this,
+      (for (elem <- psi.declaredElements) yield elem.name).toArray, isDecl, typeText, bodyText, containerText,
+      isImplicit, psi.containingClass == null)
+  }
+
   override def indexStub(stub: ScValueStub, sink: IndexSink): Unit = {
     val names = stub.getNames
-    
+
     for (name <- names if name != null) {
       sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
     }

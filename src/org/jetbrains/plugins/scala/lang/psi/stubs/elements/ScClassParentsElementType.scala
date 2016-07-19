@@ -17,6 +17,4 @@ class ScClassParentsElementType extends ScTemplateParentsElementType[ScClassPare
   override def createElement(node: ASTNode): ScTemplateParents = new ScClassParentsImpl(node)
 
   override def createPsi(stub: ScTemplateParentsStub): ScTemplateParents = new ScClassParentsImpl(stub)
-
-  override def isLeftBound = true
 }

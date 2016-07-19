@@ -12,34 +12,28 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
- * @author ilyas
- */
-
+  * @author ilyas
+  */
 abstract class ScPackageContainerElementType[TypeDef <: ScPackageContainer](debugName: String)
-extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName) {
-
-  override def createStubImpl[ParentPsi <: PsiElement](psi: ScPackageContainer, 
-                                                      parent: StubElement[ParentPsi]): ScPackageContainerStub = {
-    new ScPackageContainerStubImpl[ParentPsi](parent, this, psi.prefix, psi.ownNamePart, psi.isExplicit)
-  }
-
-  def serialize(stub: ScPackageContainerStub, dataStream: StubOutputStream): Unit = {
+  extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName) {
+  override def serialize(stub: ScPackageContainerStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.prefix)
     dataStream.writeName(stub.ownNamePart)
     dataStream.writeBoolean(stub.isExplicit)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPackageContainerStub = {
-    val prefix = dataStream.readName
-    val ownNamePart = dataStream.readName
-    val isExplicit = dataStream.readBoolean()
-    new ScPackageContainerStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, prefix, ownNamePart, isExplicit)
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPackageContainerStub =
+    new ScPackageContainerStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this,
+      dataStream.readName, dataStream.readName, dataStream.readBoolean)
+
+  override def createStub(psi: ScPackageContainer, parentStub: StubElement[_ <: PsiElement]): ScPackageContainerStub =
+    new ScPackageContainerStubImpl(parentStub, this,
+      psi.prefix, psi.ownNamePart, psi.isExplicit)
 
   override def indexStub(stub: ScPackageContainerStub, sink: IndexSink): Unit = {
     val prefix = stub.prefix
     var ownNamePart = stub.ownNamePart
-    def append(postfix : String) =
+    def append(postfix: String) =
       ScalaNamesUtil.cleanFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
 
     var i = 0
@@ -49,6 +43,6 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
       if (i > 0) {
         ownNamePart = ownNamePart.substring(0, i)
       }
-    } while(i > 0)
+    } while (i > 0)
   }
 }

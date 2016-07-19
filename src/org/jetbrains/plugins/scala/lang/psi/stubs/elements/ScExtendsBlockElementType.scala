@@ -17,31 +17,28 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 /**
   * @author ilyas
   */
-
 class ScExtendsBlockElementType
   extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
 
-  def serialize(stub: ScExtendsBlockStub, dataStream: StubOutputStream) {
+  override def serialize(stub: ScExtendsBlockStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeInt(stub.getBaseClasses.length)
     for (name <- stub.getBaseClasses) dataStream.writeName(name)
-  }
-
-  override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
-    for (name <- stub.getBaseClasses) {
-      sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
-    }
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub = {
     val n = dataStream.readInt
     val baseClasses = new Array[StringRef](n)
     for (i <- 0 until n) baseClasses(i) = dataStream.readName
-    new ScExtendsBlockStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, baseClasses)
+    new ScExtendsBlockStubImpl(parentStub, this, baseClasses)
   }
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScExtendsBlock, parentStub: StubElement[ParentPsi]): ScExtendsBlockStubImpl[ParentPsi] = {
-    val baseNames = psi.directSupersNames
-    new ScExtendsBlockStubImpl(parentStub, this, baseNames.toArray)
+  override def createStub(psi: ScExtendsBlock, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub =
+    new ScExtendsBlockStubImpl(parentStub, this, psi.directSupersNames.toArray)
+
+  override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
+    for (name <- stub.getBaseClasses) {
+      sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
+    }
   }
 
   override def createElement(node: ASTNode): ScExtendsBlock = new ScExtendsBlockImpl(node)

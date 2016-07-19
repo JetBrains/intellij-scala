@@ -14,13 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.06.2009
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 17.06.2009
+  */
 abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName: String)
-        extends ScStubElementType[ScTemplateParentsStub, ScTemplateParents](debugName) {
-  def serialize(stub: ScTemplateParentsStub, dataStream: StubOutputStream) {
+  extends ScStubElementType[ScTemplateParentsStub, ScTemplateParents](debugName) {
+  override def serialize(stub: ScTemplateParentsStub, dataStream: StubOutputStream): Unit = {
     val seq = stub.getTemplateParentsTypesTexts
     dataStream.writeInt(seq.length)
     for (s <- seq) dataStream.writeName(s)
@@ -30,15 +29,6 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
         dataStream.writeName(str)
       case _ => dataStream.writeBoolean(false)
     }
-  }
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScTemplateParents, parentStub: StubElement[ParentPsi]): ScTemplateParentsStub = {
-    val constr = psi match {
-      case p: ScClassParents => p.constructor.map(_.getText)
-      case _ => None
-    }
-    new ScTemplateParentsStubImpl(parentStub, this, constr.map(StringRef.fromString),
-      psi.typeElementsWithoutConstructor.map(te => StringRef.fromString(te.getText)))
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub = {
@@ -53,8 +43,20 @@ abstract class ScTemplateParentsElementType[Func <: ScTemplateParents](debugName
       new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, constr, res)
     } else {
       ScTemplateParentsElementType.LOG.error("Negative byte deserialized for array")
-      new ScTemplateParentsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, None, Seq.empty)
+      new ScTemplateParentsStubImpl(parentStub, this, None, Seq.empty)
     }
+  }
+
+  override def createStub(psi: ScTemplateParents, parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub = {
+    val constructorText = Option(psi) collect {
+      case parents: ScClassParents => parents
+    } flatMap {
+      _.constructor
+    } map {
+      _.getText
+    }
+    new ScTemplateParentsStubImpl(parentStub, this, constructorText.map(StringRef.fromString),
+      psi.typeElementsWithoutConstructor.map(te => StringRef.fromString(te.getText)))
   }
 }
 

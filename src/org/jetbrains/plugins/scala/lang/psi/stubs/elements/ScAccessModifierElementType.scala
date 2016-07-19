@@ -16,10 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAccessModifierStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-
 class ScAccessModifierElementType[Func <: ScAccessModifier]
   extends ScStubElementType[ScAccessModifierStub, ScAccessModifier]("access modifier") {
-  def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream) {
+  override def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isProtected)
     dataStream.writeBoolean(stub.isPrivate)
     dataStream.writeBoolean(stub.isThis)
@@ -30,21 +29,20 @@ class ScAccessModifierElementType[Func <: ScAccessModifier]
     }
   }
 
-  override def createElement(node: ASTNode): ScAccessModifier = new ScAccessModifierImpl(node)
-
-  override def createPsi(stub: ScAccessModifierStub): ScAccessModifier = new ScAccessModifierImpl(stub)
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScAccessModifier, parentStub: StubElement[ParentPsi]): ScAccessModifierStub = {
-    new ScAccessModifierStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.isPrivate, psi.isProtected,
-      psi.isThis, psi.idText.map(StringRef.fromString))
-  }
-
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub = {
     val isProtected = dataStream.readBoolean
     val isPrivate = dataStream.readBoolean
     val isThis = dataStream.readBoolean
     val hasId = dataStream.readBoolean
     val idText = if (hasId) Some(dataStream.readName) else None
-    new ScAccessModifierStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, isPrivate, isProtected, isThis, idText)
+    new ScAccessModifierStubImpl(parentStub, this, isPrivate, isProtected, isThis, idText)
   }
+
+  override def createStub(psi: ScAccessModifier, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub =
+    new ScAccessModifierStubImpl(parentStub, this, psi.isPrivate, psi.isProtected,
+      psi.isThis, psi.idText.map(StringRef.fromString))
+
+  override def createElement(node: ASTNode): ScAccessModifier = new ScAccessModifierImpl(node)
+
+  override def createPsi(stub: ScAccessModifierStub): ScAccessModifier = new ScAccessModifierImpl(stub)
 }

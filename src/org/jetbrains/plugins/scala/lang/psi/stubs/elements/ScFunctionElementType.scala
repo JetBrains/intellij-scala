@@ -7,57 +7,19 @@ package elements
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 14.10.2008
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 14.10.2008
+  */
 abstract class ScFunctionElementType[Func <: ScFunction](debugName: String)
-extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScFunction, parentStub: StubElement[ParentPsi]): ScFunctionStub = {
-    val returnTypeText = {
-      psi.returnTypeElement match {
-        case Some(x) => x.getText
-        case None => ""
-      }
-    }
-    val bodyText = {
-      if (returnTypeText != "") {
-        ""
-      } else {
-        psi match {
-          case fDef: ScFunctionDefinition => fDef.body match {
-            case Some(x) => x.getText
-            case None => ""
-          }
-          case _ => ""
-        }
-      }
-    }
-    val assign = {
-      psi match {
-        case fDef: ScFunctionDefinition => fDef.hasAssign
-        case _ => false
-      }
-    }
-
-    val annotationNames = psi.annotations map {
-      _.annotationExpr.constr.typeElement.getText
-    } map { text =>
-      text.substring(text.lastIndexOf('.') + 1)
-    }
-
-    val isImplicit = psi.hasModifierProperty("implicit")
-    new ScFunctionStubImpl[ParentPsi](parentStub, this, psi.name, psi.isInstanceOf[ScFunctionDeclaration],
-      annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit, psi.containingClass == null)
-  }
-
-  def serialize(stub: ScFunctionStub, dataStream: StubOutputStream) {
+  extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
+  override def serialize(stub: ScFunctionStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
     val annotations = stub.getAnnotations
@@ -87,6 +49,31 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
     val isImplicit = dataStream.readBoolean()
     val isLocal = dataStream.readBoolean()
     new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign, isImplicit, isLocal)
+  }
+
+  override def createStub(psi: ScFunction, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
+    val returnTypeText = psi.returnTypeElement.text
+    val bodyText =
+      if (returnTypeText != "") ""
+      else psi match {
+        case fDef: ScFunctionDefinition => fDef.body.text
+        case _ => ""
+      }
+
+    val assign = psi match {
+      case fDef: ScFunctionDefinition => fDef.hasAssign
+      case _ => false
+    }
+
+    val annotationNames = psi.annotations map {
+      _.annotationExpr.constr.typeElement.getText
+    } map { text =>
+      text.substring(text.lastIndexOf('.') + 1)
+    }
+
+    val isImplicit = psi.hasModifierProperty("implicit")
+    new ScFunctionStubImpl(parentStub, this, psi.name, psi.isInstanceOf[ScFunctionDeclaration],
+      annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit, psi.containingClass == null)
   }
 
   override def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {

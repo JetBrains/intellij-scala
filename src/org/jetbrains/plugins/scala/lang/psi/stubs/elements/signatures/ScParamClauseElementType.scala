@@ -16,23 +16,19 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParamClauseStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 19.10.2008
   */
-
 class ScParamClauseElementType
   extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
-  def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream) {
+  override def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.isImplicit)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub = {
-    val implic = dataStream.readBoolean
-    new ScParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, implic)
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
+    new ScParamClauseStubImpl(parentStub, this, dataStream.readBoolean)
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]): ScParamClauseStubImpl[ParentPsi] = {
+  override def createStub(psi: ScParameterClause, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
     new ScParamClauseStubImpl(parentStub, this, psi.isImplicit)
-  }
-
-  override def createPsi(stub: ScParamClauseStub): ScParameterClause = new ScParameterClauseImpl(stub)
 
   override def createElement(node: ASTNode): ScParameterClause = new ScParameterClauseImpl(node)
+
+  override def createPsi(stub: ScParamClauseStub): ScParameterClause = new ScParameterClauseImpl(stub)
 }

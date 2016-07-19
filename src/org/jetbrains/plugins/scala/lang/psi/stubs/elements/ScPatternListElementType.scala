@@ -15,21 +15,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPatternListStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 17.07.2009
   */
-
 class ScPatternListElementType[Func <: ScPatternList]
   extends ScStubElementType[ScPatternListStub, ScPatternList]("pattern list") {
-  def serialize(stub: ScPatternListStub, dataStream: StubOutputStream): Unit = {
+  override def serialize(stub: ScPatternListStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.allPatternsSimple)
   }
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScPatternList, parentStub: StubElement[ParentPsi]): ScPatternListStub = {
-    new ScPatternListStubImpl(parentStub, this, psi.allPatternsSimple)
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPatternListStub =
+    new ScPatternListStubImpl(parentStub, this, dataStream.readBoolean)
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPatternListStub = {
-    val patternsSimple = dataStream.readBoolean
-    new ScPatternListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, patternsSimple)
-  }
+  override def createStub(psi: ScPatternList, parentStub: StubElement[_ <: PsiElement]): ScPatternListStub =
+    new ScPatternListStubImpl(parentStub, this, psi.allPatternsSimple)
 
   override def createElement(node: ASTNode): ScPatternList = new ScPatternListImpl(node)
 

@@ -13,19 +13,17 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParametersI
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParamClausesStubImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 19.10.2008
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 19.10.2008
+  */
 class ScParamClausesElementType extends ScStubElementType[ScParamClausesStub, ScParameters]("parameter clauses") {
-  def serialize(stub: ScParamClausesStub, dataStream: StubOutputStream) {}
+  override def serialize(stub: ScParamClausesStub, dataStream: StubOutputStream): Unit = {}
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
-    new ScParamClausesStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+    new ScParamClausesStubImpl(parentStub, this)
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScParameters, parentStub: StubElement[ParentPsi]): ScParamClausesStubImpl[ParentPsi] = {
-    new ScParamClausesStubImpl(parentStub, this)     
-  }
+  override def createStub(psi: ScParameters, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
+    new ScParamClausesStubImpl(parentStub, this)
 
   override def createPsi(stub: ScParamClausesStub): ScParameters = new ScParametersImpl(stub)
 

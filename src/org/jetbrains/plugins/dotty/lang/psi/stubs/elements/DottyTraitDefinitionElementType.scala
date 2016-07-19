@@ -6,4 +6,4 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTraitDefinitionElem
   * @author adkozlov
   */
 class DottyTraitDefinitionElementType
-  extends ScTraitDefinitionElementType with DottyStubElementType
+  extends ScTraitDefinitionElementType with DottyExternalIdOwner

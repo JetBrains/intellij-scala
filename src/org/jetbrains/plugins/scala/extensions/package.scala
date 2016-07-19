@@ -219,6 +219,12 @@ package object extensions {
     }
   }
 
+  implicit class MaybePsiElementExt(val maybePsiElement: Option[PsiElement]) extends AnyVal {
+    def text: String = maybePsiElement map {
+      _.getText
+    } getOrElse ""
+  }
+
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
     def toScType(visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
                  paramTopLevel: Boolean = false,

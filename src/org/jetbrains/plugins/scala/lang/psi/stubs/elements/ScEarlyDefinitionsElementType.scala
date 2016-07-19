@@ -15,20 +15,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScEarlyDefinitionsStubImp
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-
 class ScEarlyDefinitionsElementType[Func <: ScEarlyDefinitions]
   extends ScStubElementType[ScEarlyDefinitionsStub, ScEarlyDefinitions]("early definitions") {
-  def serialize(stub: ScEarlyDefinitionsStub, dataStream: StubOutputStream): Unit = {
-  }
+  override def serialize(stub: ScEarlyDefinitionsStub, dataStream: StubOutputStream): Unit = {}
+
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
+    new ScEarlyDefinitionsStubImpl(parentStub, this)
+
+  override def createStub(psi: ScEarlyDefinitions, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
+    new ScEarlyDefinitionsStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScEarlyDefinitions = new ScEarlyDefinitionsImpl(node)
 
   override def createPsi(stub: ScEarlyDefinitionsStub): ScEarlyDefinitions = new ScEarlyDefinitionsImpl(stub)
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScEarlyDefinitions, parentStub: StubElement[ParentPsi]): ScEarlyDefinitionsStub = {
-    new ScEarlyDefinitionsStubImpl(parentStub, this)
-  }
-
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
-    new ScEarlyDefinitionsStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
 }

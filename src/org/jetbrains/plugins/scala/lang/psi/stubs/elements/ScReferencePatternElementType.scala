@@ -16,23 +16,19 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScReferencePatternStubImp
   * User: Alexander Podkhalyuzin
   * Date: 17.07.2009
   */
-
 class ScReferencePatternElementType[Func <: ScReferencePattern]
   extends ScStubElementType[ScReferencePatternStub, ScReferencePattern]("reference pattern") {
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScReferencePattern, parentStub: StubElement[ParentPsi]): ScReferencePatternStub = {
-    new ScReferencePatternStubImpl[ParentPsi](parentStub, this, psi.name)
-  }
-
-  def serialize(stub: ScReferencePatternStub, dataStream: StubOutputStream): Unit = {
+  override def serialize(stub: ScReferencePatternStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
   }
+
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScReferencePatternStub =
+    new ScReferencePatternStubImpl(parentStub, this, dataStream.readName)
+
+  override def createStub(psi: ScReferencePattern, parentStub: StubElement[_ <: PsiElement]): ScReferencePatternStub =
+    new ScReferencePatternStubImpl(parentStub, this, psi.name)
 
   override def createElement(node: ASTNode): ScReferencePattern = new ScReferencePatternImpl(node)
 
   override def createPsi(stub: ScReferencePatternStub): ScReferencePattern = new ScReferencePatternImpl(stub)
-
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScReferencePatternStub = {
-    val name = dataStream.readName
-    new ScReferencePatternStubImpl(parentStub.asInstanceOf[StubElement[_ <: PsiElement]], this, name)
-  }
 }

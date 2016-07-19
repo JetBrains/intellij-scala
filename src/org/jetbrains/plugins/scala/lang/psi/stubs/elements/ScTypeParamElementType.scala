@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io._
+import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamStubImpl
@@ -18,10 +19,9 @@ import scala.collection.mutable.ArrayBuffer
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-
 class ScTypeParamElementType[Func <: ScTypeParam]
   extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
-  def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {
+  override def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {
     def serializeSeq(ref: Seq[String]): Unit = {
       dataStream.writeInt(ref.length)
       for (r <- ref) dataStream.writeName(r)
@@ -37,27 +37,6 @@ class ScTypeParamElementType[Func <: ScTypeParam]
     serializeSeq(stub.getContextBoundText)
     dataStream.writeName(stub.getContainingFileName)
     dataStream.writeName(stub.typeParameterText)
-  }
-
-  override def createElement(node: ASTNode): ScTypeParam = new ScTypeParamImpl(node)
-
-  override def createPsi(stub: ScTypeParamStub): ScTypeParam = new ScTypeParamImpl(stub)
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScTypeParam, parentStub: StubElement[ParentPsi]): ScTypeParamStub = {
-    val upperText = psi.upperTypeElement match {
-      case Some(te) => te.getText
-      case None => ""
-    }
-    val lowerText = psi.lowerTypeElement match {
-      case Some(te) => te.getText
-      case None => ""
-    }
-    val viewText = psi.viewTypeElement.map(te => StringRef.fromString(te.getText))
-    val contextText = psi.contextBoundTypeElement.map(te => StringRef.fromString(te.getText))
-    val typeParameterText = psi.getText
-    new ScTypeParamStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, StringRef.fromString(psi.name),
-      StringRef.fromString(upperText), StringRef.fromString(lowerText), viewText, contextText, psi.isCovariant, psi.isContravariant,
-      psi.getTextRange.getStartOffset, StringRef.fromString(psi.getContainingFileName), StringRef.fromString(typeParameterText))
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
@@ -82,4 +61,19 @@ class ScTypeParamElementType[Func <: ScTypeParam]
       upperText, lowerText, viewText, contextBoundText, covariant, contravariant, position, fileName,
       typeParameterText)
   }
+
+  override def createStub(psi: ScTypeParam, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
+    val upperText = psi.upperTypeElement.text
+    val lowerText = psi.lowerTypeElement.text
+    val viewText = psi.viewTypeElement.map(te => StringRef.fromString(te.getText))
+    val contextText = psi.contextBoundTypeElement.map(te => StringRef.fromString(te.getText))
+    val typeParameterText = psi.getText
+    new ScTypeParamStubImpl(parentStub, this, StringRef.fromString(psi.name),
+      StringRef.fromString(upperText), StringRef.fromString(lowerText), viewText, contextText, psi.isCovariant, psi.isContravariant,
+      psi.getTextRange.getStartOffset, StringRef.fromString(psi.getContainingFileName), StringRef.fromString(typeParameterText))
+  }
+
+  override def createElement(node: ASTNode): ScTypeParam = new ScTypeParamImpl(node)
+
+  override def createPsi(stub: ScTypeParamStub): ScTypeParam = new ScTypeParamImpl(stub)
 }

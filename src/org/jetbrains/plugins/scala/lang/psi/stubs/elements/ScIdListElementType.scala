@@ -16,20 +16,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScIdListStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 19.07.2009
   */
-
 class ScIdListElementType[Func <: ScIdList]
   extends ScStubElementType[ScIdListStub, ScIdList]("id list") {
-  def serialize(stub: ScIdListStub, dataStream: StubOutputStream): Unit = {
-  }
+  override def serialize(stub: ScIdListStub, dataStream: StubOutputStream): Unit = {}
+
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
+    new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
+
+  override def createStub(psi: ScIdList, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
+    new ScIdListStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScIdList = new ScIdListImpl(node)
 
   override def createPsi(stub: ScIdListStub): ScIdList = new ScIdListImpl(stub)
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScIdList, parentStub: StubElement[ParentPsi]): ScIdListStub = {
-    new ScIdListStubImpl(parentStub, this)
-  }
-
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
-    new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
 }

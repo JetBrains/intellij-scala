@@ -19,21 +19,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 abstract class ScVariableElementType[Variable <: ScVariable](debugName: String)
 extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScVariable, parentStub: StubElement[ParentPsi]): ScVariableStub = {
-    val isDecl = psi.isInstanceOf[ScVariableDeclaration]
-    val typeText = psi.typeElement match {
-      case Some(te) => te.getText
-      case None => ""
-    }
-    val bodyText = if (!isDecl) psi.asInstanceOf[ScVariableDefinition].expr.map(_.getText).getOrElse("") else ""
-    val containerText = if (isDecl) psi.asInstanceOf[ScVariableDeclaration].getIdList.getText
-      else psi.asInstanceOf[ScVariableDefinition].pList.getText
-    new ScVariableStubImpl[ParentPsi](parentStub, this,
-      (for (elem <- psi.declaredElements) yield elem.name).toArray,
-      isDecl, typeText, bodyText, containerText, psi.containingClass == null)
-  }
-
-  def serialize(stub: ScVariableStub, dataStream: StubOutputStream) {
+  override def serialize(stub: ScVariableStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isDeclaration)
     val names = stub.getNames
     dataStream.writeInt(names.length)
@@ -55,6 +41,20 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
     val bindingsText = StringRef.toString(dataStream.readName)
     val isLocal = dataStream.readBoolean()
     new ScVariableStubImpl(parent, this, names, isDecl, typeText, bodyText, bindingsText, isLocal)
+  }
+
+  override def createStub(psi: ScVariable, parentStub: StubElement[_ <: PsiElement]): ScVariableStub = {
+    val isDecl = psi.isInstanceOf[ScVariableDeclaration]
+    val typeText = psi.typeElement match {
+      case Some(te) => te.getText
+      case None => ""
+    }
+    val bodyText = if (!isDecl) psi.asInstanceOf[ScVariableDefinition].expr.map(_.getText).getOrElse("") else ""
+    val containerText = if (isDecl) psi.asInstanceOf[ScVariableDeclaration].getIdList.getText
+    else psi.asInstanceOf[ScVariableDefinition].pList.getText
+    new ScVariableStubImpl(parentStub, this,
+      (for (elem <- psi.declaredElements) yield elem.name).toArray,
+      isDecl, typeText, bodyText, containerText, psi.containingClass == null)
   }
 
   override def indexStub(stub: ScVariableStub, sink: IndexSink): Unit = {

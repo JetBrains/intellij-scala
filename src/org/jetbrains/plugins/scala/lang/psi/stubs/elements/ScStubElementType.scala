@@ -5,21 +5,17 @@ package stubs
 package elements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.stubs.{IndexSink, PsiFileStub, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, IndexSink, PsiFileStub, StubElement}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubElementTypeWrapper
 
 /**
   * @author ilyas
   */
-
 abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String)
-  extends IStubElementTypeWrapper[S, T](debugName) with SelfPsiCreator {
+  extends IStubElementType[S, T](debugName, ScalaLanguage.Instance) with SelfPsiCreator with ExternalIdOwner {
 
   override def createElement(node: ASTNode): T
-
-  override def getLanguageName = "sc"
 
   def isCompiled(stub: S): Boolean = {
     var parent = stub
@@ -29,7 +25,17 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName
     parent.asInstanceOf[ScFileStub].isCompiled
   }
 
-  override def isLeftBound = true
+  override def getLanguageName = "sc"
+
+  override def getExternalId = s"$getLanguageName.$debugName"
 
   override def indexStub(stub: S, sink: IndexSink): Unit = {}
+
+  override def isLeftBound = true
+}
+
+trait ExternalIdOwner {
+  def getLanguageName: String
+
+  def getExternalId: String
 }

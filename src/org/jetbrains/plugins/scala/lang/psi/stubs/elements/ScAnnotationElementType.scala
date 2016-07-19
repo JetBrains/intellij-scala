@@ -21,19 +21,17 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   * User: Alexander Podkhalyuzin
   * Date: 22.06.2009
   */
-
 class ScAnnotationElementType[Func <: ScAnnotation]
   extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
-  def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
+  override def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getTypeText)
   }
 
-  override def createElement(node: ASTNode): ScAnnotation = new ScAnnotationImpl(node)
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub =
+    new ScAnnotationStubImpl(parentStub, this, dataStream.readName, dataStream.readName)
 
-  override def createPsi(stub: ScAnnotationStub): ScAnnotation = new ScAnnotationImpl(stub)
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScAnnotation, parentStub: StubElement[ParentPsi]): ScAnnotationStub = {
+  override def createStub(psi: ScAnnotation, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub = {
     val name = psi.typeElement match {
       case p: ScParenthesisedTypeElement => p.typeElement match {
         case Some(s: ScSimpleTypeElement) => s.reference match {
@@ -58,17 +56,14 @@ class ScAnnotationElementType[Func <: ScAnnotation]
     new ScAnnotationStubImpl(parentStub, this, nameRef, typeTextRef)
   }
 
-
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub = {
-    val name = dataStream.readName
-    val typeText = dataStream.readName
-    new ScAnnotationStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name, typeText)
-  }
-
   override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
     val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null && name != "") {
       sink.occurrence(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, name)
     }
   }
+
+  override def createElement(node: ASTNode): ScAnnotation = new ScAnnotationImpl(node)
+
+  override def createPsi(stub: ScAnnotationStub): ScAnnotation = new ScAnnotationImpl(stub)
 }
