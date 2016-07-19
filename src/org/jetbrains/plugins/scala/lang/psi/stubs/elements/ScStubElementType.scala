@@ -5,15 +5,15 @@ package stubs
 package elements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.stubs.{IStubElementType, IndexSink, PsiFileStub, StubElement}
+import com.intellij.psi.stubs._
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
 
 /**
   * @author ilyas
   */
-abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String)
-  extends IStubElementType[S, T](debugName, ScalaLanguage.Instance) with SelfPsiCreator with ExternalIdOwner {
+abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debugName: String)
+  extends IStubElementType[S, T](debugName, ScalaLanguage.Instance) with SelfPsiCreator with DefaultStubSerializer[S] {
 
   override def createElement(node: ASTNode): T
 
@@ -25,17 +25,5 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName
     parent.asInstanceOf[ScFileStub].isCompiled
   }
 
-  override def getLanguageName = "sc"
-
-  override def getExternalId = s"$getLanguageName.$debugName"
-
-  override def indexStub(stub: S, sink: IndexSink): Unit = {}
-
   override def isLeftBound = true
-}
-
-trait ExternalIdOwner {
-  def getLanguageName: String
-
-  def getExternalId: String
 }

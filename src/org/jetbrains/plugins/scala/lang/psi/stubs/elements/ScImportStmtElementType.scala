@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportStmtStubImpl
   */
 class ScImportStmtElementType[Func <: ScImportStmt]
   extends ScStubElementType[ScImportStmtStub, ScImportStmt]("import statement") {
-  def serialize(stub: ScImportStmtStub, dataStream: StubOutputStream): Unit = {
+  override def serialize(stub: ScImportStmtStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getImportText)
   }
 

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   */
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String)
   extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugName) {
-  def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
+  override def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream) {
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.qualName)
     dataStream.writeName(stub.javaQualName)

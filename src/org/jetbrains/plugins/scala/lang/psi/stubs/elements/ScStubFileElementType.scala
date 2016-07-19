@@ -4,7 +4,7 @@ package psi
 package stubs
 package elements
 import com.intellij.lang.Language
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, StubBuilder}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
  * @author ilyas
  */
 
-class ScStubFileElementType(debugName: String = "file",
+class ScStubFileElementType(val debugName: String = "file",
                             language: Language = ScalaLanguage.Instance)
-  extends IStubFileElementType[ScFileStub](debugName, language) with ExternalIdOwner {
+  extends IStubFileElementType[ScFileStub](debugName, language) with DefaultStubSerializer[ScFileStub] {
   override def getStubVersion: Int = StubVersion.STUB_VERSION
 
   override def getBuilder: StubBuilder = new ScalaFileStubBuilder
@@ -34,12 +34,6 @@ class ScStubFileElementType(debugName: String = "file",
       dataStream.readBoolean,
       dataStream.readName,
       dataStream.readName)
-
-  def indexStub(stub: ScFileStub, sink: IndexSink): Unit = {}
-
-  override def getLanguageName: String = getLanguage.toString.toLowerCase
-
-  override def getExternalId: String = s"$getLanguageName.$debugName"
 }
 
 object StubVersion {
