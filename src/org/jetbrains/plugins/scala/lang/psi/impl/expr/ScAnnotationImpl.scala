@@ -12,61 +12,62 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.ANNOTATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 07.03.2008
+  */
+class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScAnnotation with PsiAnnotationParameterList {
+  def this(node: ASTNode) = this(null, null, node)
 
-class ScAnnotationImpl private (stub: StubElement[ScAnnotation], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScAnnotation with PsiAnnotationParameterList{
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScAnnotationStub) = {this(stub, ScalaElementTypes.ANNOTATION, null)}
+  def this(stub: ScAnnotationStub) = this(stub, ANNOTATION, null)
 
   override def toString: String = "Annotation"
 
   def getMetaData: PsiMetaData = null
 
-  def getAttributes: Array[PsiNameValuePair] = annotationExpr.getAttributes.map(_.asInstanceOf[PsiNameValuePair]).toArray
+  def getAttributes: Array[PsiNameValuePair] =
+    annotationExpr.getAttributes map {
+      _.asInstanceOf[PsiNameValuePair]
+    } toArray
 
   def getParameterList: PsiAnnotationParameterList = this
 
   private def getClazz: Option[PsiClass] =
-    typeElement.getType(TypingContext.empty).getOrAny.extractClass()
+    typeElement.getType().getOrAny.extractClass()
 
-  def getQualifiedName: String = getClazz match {
-    case None => null
-    case Some(c) => c.qualifiedName
-  }
+  def getQualifiedName: String = getClazz map {
+    _.qualifiedName
+  } orNull
 
   def typeElement: ScTypeElement = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScAnnotationStub].getTypeElement
-    }
-    annotationExpr.constr.typeElement
+    Option(getStub) collect {
+      case stub: ScAnnotationStub => stub
+    } map {
+      _.typeElement
+    } getOrElse annotationExpr.constr.typeElement
   }
 
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {
-      case Some(args) => args.exprs.map(expr => expr match {
-        case ass: ScAssignStmt => ass.getLExpression match {
+      case Some(args) => args.exprs.map {
+        case expr@(ass: ScAssignStmt) => ass.getLExpression match {
           case ref: ScReferenceExpression if ref.refName == attributeName => ass.getRExpression match {
             case Some(expr) => (true, expr)
             case _ => (false, expr)
           }
           case _ => (false, expr)
         }
-        case _ if attributeName == "value" => (true, expr)
-        case _ => (false, expr)
-      }).find(p => p._1).getOrElse(false, null)._2
+        case expr if attributeName == "value" => (true, expr)
+        case expr => (false, expr)
+      }.find(p => p._1).getOrElse(false, null)._2
       case None => null
     }
   }
@@ -79,7 +80,7 @@ class ScAnnotationImpl private (stub: StubElement[ScAnnotation], nodeType: IElem
       case Some(c) =>
         val methods = c.getMethods
         val iterator = methods.iterator
-        while (!iterator.isEmpty) {
+        while (iterator.nonEmpty) {
           val method = iterator.next()
           method match {
             case annotMethod: PsiAnnotationMethod if Comparing.equal(method.name, attributeName) =>
@@ -144,7 +145,7 @@ class ScAnnotationImpl private (stub: StubElement[ScAnnotation], nodeType: IElem
         if (params.length == 1 && !params(0).isInstanceOf[ScAssignStmt]) {
           params(0).replace(ScalaPsiElementFactory.
             createExpressionFromText(PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params(0).getText,
-            params(0).getManager))
+              params(0).getManager))
         }
         var allowNoName: Boolean = params.length == 0 &&
           (PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME.equals(attributeName) || null == attributeName)
