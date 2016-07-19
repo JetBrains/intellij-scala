@@ -3,7 +3,7 @@ package lang
 package psi
 package stubs
 
-import com.intellij.psi.stubs.{PsiClassHolderFileStub, StubOutputStream}
+import com.intellij.psi.stubs.PsiClassHolderFileStub
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -18,6 +18,4 @@ trait ScFileStub extends PsiClassHolderFileStub[ScalaFile] {
   def isCompiled: Boolean
 
   def isScript: Boolean
-
-  def serializeTo(dataStream: StubOutputStream): Unit
 }

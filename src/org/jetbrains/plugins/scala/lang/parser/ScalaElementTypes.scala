@@ -49,7 +49,7 @@ trait ElementTypes {
 
 
   //Stub element types
-  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType(ScalaFileType.SCALA_LANGUAGE)
+  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType
 
   val classDefinition: ScTemplateDefinitionElementType[ScClass]
   val objectDefinition: ScTemplateDefinitionElementType[ScObject]

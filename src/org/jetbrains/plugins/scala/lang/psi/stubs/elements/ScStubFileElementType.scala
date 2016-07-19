@@ -4,34 +4,42 @@ package psi
 package stubs
 package elements
 import com.intellij.lang.Language
-import com.intellij.psi.StubBuilder
-import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.tree.IStubFileElementType
+import com.intellij.psi.{PsiElement, StubBuilder}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubFileElementWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
 
 /**
  * @author ilyas
  */
 
-class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[ScalaFile, ScFileStub]("scala.FILE", lang) {
-
+class ScStubFileElementType(debugName: String = "file",
+                            language: Language = ScalaLanguage.Instance)
+  extends IStubFileElementType[ScFileStub](debugName, language) with ExternalIdOwner {
   override def getStubVersion: Int = StubVersion.STUB_VERSION
 
-  override def getBuilder: StubBuilder = new ScalaFileStubBuilder()
+  override def getBuilder: StubBuilder = new ScalaFileStubBuilder
 
-  override def getExternalId = "scala.FILE"
-
-  override def deserializeImpl(dataStream: StubInputStream, parentStub: Object) =
-    ScFileStubImpl.deserializeFrom(dataStream)
-
-  override def serialize(stub: ScFileStub, dataStream: StubOutputStream) =
-    stub.serializeTo(dataStream)
-
-  def indexStub(stub: ScFileStub, sink: IndexSink): Unit = {
+  override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeBoolean(stub.isScript)
+    dataStream.writeBoolean(stub.isCompiled)
+    dataStream.writeName(stub.packageName)
+    dataStream.writeName(stub.sourceName)
   }
 
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
+    new ScFileStubImpl(null,
+      dataStream.readBoolean,
+      dataStream.readBoolean,
+      dataStream.readName,
+      dataStream.readName)
+
+  def indexStub(stub: ScFileStub, sink: IndexSink): Unit = {}
+
+  override def getLanguageName: String = getLanguage.toString.toLowerCase
+
+  override def getExternalId: String = s"$getLanguageName.$debugName"
 }
 
 object StubVersion {
