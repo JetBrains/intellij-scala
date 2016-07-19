@@ -1274,7 +1274,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                                  (implicit typeSystem: TypeSystem) {
     val child = literal.getFirstChild.getNode
     val text = literal.getText
-    val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+    val endsWithL = child.getText.endsWith("l") || child.getText.endsWith("L")
     val textWithoutL = if (endsWithL) text.substring(0, text.length - 1) else text
     val parent = literal.getParent
     val scalaVersion = literal.scalaLanguageLevel

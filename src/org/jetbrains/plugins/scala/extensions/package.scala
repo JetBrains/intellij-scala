@@ -178,12 +178,11 @@ package object extensions {
     def toInt: Int = if (b) 1 else 0
   }
 
-  implicit class StringExt(val s: String) extends AnyVal{
-    def startsWith(c: Char): Boolean = !s.isEmpty && s.charAt(0) == c
-
-    def endsWith(c: Char): Boolean = !s.isEmpty && s.charAt(s.length - 1) == c
-
-    def parenthesisedIf(condition: Boolean): String = if (condition) "(" + s + ")" else s
+  implicit class StringExt(val string: String) extends AnyVal {
+    def parenthesize(needParenthesis: Boolean): String = needParenthesis match {
+      case true => s"($string)"
+      case _ => string
+    }
   }
 
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {

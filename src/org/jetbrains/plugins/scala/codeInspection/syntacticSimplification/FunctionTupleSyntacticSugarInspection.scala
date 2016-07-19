@@ -77,7 +77,7 @@ object FunctionTupleSyntacticSugarInspection {
           case ft: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
           case _ => false
         }
-        ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesisedIf(needParens)
+        ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesize(needParens)
       }
       typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
     }
@@ -97,7 +97,7 @@ object FunctionTupleSyntacticSugarInspection {
           case ft: ScInfixTypeElement => true
           case _ => false
         }
-        returnType.getText.parenthesisedIf(returnTypeNeedParens)
+        returnType.getText.parenthesize(returnTypeNeedParens)
       }
       val typeTextWithParens = {
         val needParens = typeElement.getContext match {
@@ -107,7 +107,7 @@ object FunctionTupleSyntacticSugarInspection {
           case _ => false
         }
         val arrow = ScalaPsiUtil.functionArrow(project)
-        s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesisedIf(needParens)
+        s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }
       typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
     }

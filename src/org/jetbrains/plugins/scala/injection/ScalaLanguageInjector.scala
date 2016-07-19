@@ -273,7 +273,7 @@ object ScalaLanguageInjector {
 
     val rangesCollected = mutable.MutableList[TextRange]()
     val extractedText = range substring literal.getText
-    val margin = MultilineStringUtil.getMarginChar(literal)
+    val margin = String.valueOf(MultilineStringUtil.getMarginChar(literal))
 
     var count = 0
     val lines = new WrappedString(extractedText).lines

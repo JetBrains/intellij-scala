@@ -36,7 +36,7 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
       case _: ScTypeArgs | _: ScParenthesisedTypeElement => false
       case _ => true
     }
-    val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesisedIf(needParens)
+    val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesize(needParens)
     val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, element.getManager)
     if (paramTypeElement.isValid) {
       val replaced = try {
