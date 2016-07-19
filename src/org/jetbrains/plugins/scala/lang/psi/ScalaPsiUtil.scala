@@ -1999,35 +1999,31 @@ object ScalaPsiUtil {
                 case _ => true
               }
             }
-            val abst: Seq[ScFunction] = templDef.allMethods.toSeq.collect {
-              case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
-            }
-            val constrValid: Boolean = templDef match { //if it's a class check its constructor
-              case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
-              case tr: ScTrait => true
-              case _ => false
-            }
-            val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
-            //cl must have only one abstract member, one argument list and be monomorphic
-            val valid =
-              constrValid &&
-                abst.length == 1 &&
-                abst.head.parameterList.clauses.length == 1 &&
-                !abst.head.hasTypeParameters &&
-                (isScala211 || selfTypeValid)
+            val abst = templDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
+            abst match {
+              case (Seq(PhysicalSignature(fun: ScFunction, _))) =>
+                val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
+                def constructorValid = templDef match {
+                  case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
+                  case tr: ScTrait => true
+                  case _ => false
+                }
 
-            if (valid) {
-              val fun = abst.head
-              fun.getType() match {
-                case Success(tp, _) =>
-                  val subbed = sub.subst(tp)
-                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel) match {
-                    case s@Some(_) => s
-                    case _ => Some(subbed)
+                def hasOneParamClause = fun.paramClauses.clauses.length == 1
+
+                def selfTypeCorrectIfScala212 = isScala211 || selfTypeValid
+
+                if (constructorValid && hasOneParamClause && !fun.hasTypeParameters && selfTypeCorrectIfScala212) {
+                  fun.getType() match {
+                    case Success(tp, _) =>
+                      val subbed = sub.subst(tp)
+                      val extrapolated = extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel)
+                      extrapolated.orElse(Some(subbed))
+                    case _ => None
                   }
-                case _ => None
-              }
-            } else None
+                } else None
+              case _ =>  None
+            }
           case _ => //it's a Java abstract class or interface
             def overridesConcreteMethod(method: PsiMethod): Boolean = {
               method.findSuperMethods().exists(!_.hasAbstractModifier)

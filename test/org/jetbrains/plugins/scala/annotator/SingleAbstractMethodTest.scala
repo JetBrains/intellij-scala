@@ -479,6 +479,27 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
     checkCodeHasNoErrors(code)
   }
 
+  def testNotSAMWithAbstractFields(): Unit = {
+    val code =
+      """
+        |object Moo {
+        |
+        |  val zs: NotReallySAM = (s: String) => ???
+        |
+        |
+        |  trait NotReallySAM {
+        |    val koo: Int
+        |    def foo(s: String): Int
+        |  }
+        |
+        |  abstract class AbstractNotReallySAM(val koo: Int) extends NotReallySAM
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("(s: String) => ???", typeMismatch()) :: Nil =>
+    }
+  }
+
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
     assertNothing(messages(scalaCode, javaCode))
   }
