@@ -27,7 +27,7 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntentionTest extends ScalaIntentio
   }
 
   def testReplaceEquality2_withSpace() {
-    val text = "if (a.eq<caret>uals( false  )) return"
+    val text = "if (a.<caret>equals( false  )) return"
     val resultText = "if (a <caret>== false) return"
 
     doTest(text, resultText)
