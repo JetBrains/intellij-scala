@@ -13,7 +13,7 @@ import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -36,6 +36,16 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   def isInstance: Boolean = !isLocal
 
+  protected var synthNavElement: Option[PsiElement] = None
+  var syntheticCaseClass: Option[ScClass] = None
+  var syntheticContainingClass: Option[ScTypeDefinition] = None
+  def setSynthetic(navElement: PsiElement) {
+    synthNavElement = Some(navElement)
+  }
+  def isSynthetic: Boolean = synthNavElement.nonEmpty
+  def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
+
+
   /**
     * getContainingClassStrict(bar) == null in
     *
@@ -56,7 +66,8 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       case (null, _) => null
       case (_, fun: ScFunction) if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
       case (found, fun: ScFunction) if fun.isSynthetic => found
-      case (_, td: ScTypeDefinition) if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
+      case (found, ta: ScTypeAlias) if ta.syntheticContainingClass.isDefined => ta.syntheticContainingClass.get
+      case (found, td: ScTypeDefinition) if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
       case (found, td: ScTypeDefinition) if td.isSynthetic => found
       case (found, _: ScClassParameter | _: ScPrimaryConstructor) => found
       case (found, _) if context == found.extendsBlock || found.extendsBlock.templateBody.contains(context) ||

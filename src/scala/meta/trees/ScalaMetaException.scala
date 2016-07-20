@@ -4,7 +4,7 @@ import com.intellij.psi.PsiElement
 
 import scala.meta.internal.{ast => m, semantic => h}
 
-class AbortException(reason: String) extends RuntimeException {
+class AbortException(reason: String) extends RuntimeException(reason) {
   def this(place: Any, mess: String) = this(mess + s"[$place]")
 }
 class ScalaMetaException(message: String) extends Exception(message)

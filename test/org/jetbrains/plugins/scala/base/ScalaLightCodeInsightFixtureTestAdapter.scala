@@ -196,7 +196,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   }
 
   protected override def tearDown() {
-    libLoader.clean()
+    if (libLoader != null) {
+      libLoader.clean()
+    }
     libLoader = null
     super.tearDown()
   }
