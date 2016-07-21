@@ -92,7 +92,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
   }
 
   override def shouldEnterElement(o: Object): Boolean = o match {
-    case t : ScTypeDefinition => t.members.length > 0 || t.typeDefinitions.size > 0
+    case t : ScTypeDefinition => t.members.nonEmpty || t.typeDefinitions.nonEmpty
     case _ => false
   }
 }
