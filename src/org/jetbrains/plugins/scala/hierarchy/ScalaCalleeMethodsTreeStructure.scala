@@ -33,7 +33,7 @@ class ScalaCalleeMethodsTreeStructure(project: Project, method: PsiMethod, mySco
             ScalaCalleeMethodsTreeStructure.visitor(body, methods)
           case _ =>
         }
-      case fun: ScFunction =>
+      case _: ScFunction =>
       case _ =>
         val body = method.getBody
         ScalaCalleeMethodsTreeStructure.visitor(body, methods)

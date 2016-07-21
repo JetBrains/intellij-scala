@@ -53,7 +53,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     val processor: Processor[PsiElement] = new Processor[PsiElement] {
       override def process(e: PsiElement): Boolean = e match {
         case ElementType(ScalaTokenTypes.kPACKAGE | ScalaTokenTypes.kIMPORT) => false
-        case ws: PsiWhiteSpace => true
+        case _: PsiWhiteSpace => true
         case _ if PsiTreeUtil.getParentOfType(e, classOf[PsiComment]) != null => true
         case _ if PsiTreeUtil.getParentOfType(e, classOf[ScExpression], classOf[ScConstructorPattern], classOf[ScInfixPattern], classOf[ScClass]) != null =>
           result = true
@@ -191,8 +191,8 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
             val clazz = PsiTreeUtil.getParentOfType(ed, classOf[ScTypeDefinition])
             if (clazz != null) s"early definitions of ${clazz.name}"
             else "line in containing block"
-          case Both(f: ScFunction, named: ScNamedElement) => s"line in function ${named.name}"
-          case f: ScalaFile => "line in containing file"
+          case Both(_: ScFunction, named: ScNamedElement) => s"line in function ${named.name}"
+          case _: ScalaFile => "line in containing file"
           case _ => "line in containing block"
         }
       }

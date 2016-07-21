@@ -42,7 +42,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
   }
 
   private def isInBlock(expr: ScExpression): Boolean = expr match {
-    case ChildOf(bl: ScBlock) => true
+    case ChildOf(_: ScBlock) => true
     case _ => false
   }
 

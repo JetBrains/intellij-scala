@@ -70,7 +70,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                           if (arg.upper.equiv(Any)) subst subst param.upperBound.getOrAny
                             else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)
-                        case (tp: ScType, param: ScTypeParam) => tp
+                        case (tp: ScType, _: ScTypeParam) => tp
                       }).unpackedType
                     case _ => tp
                   }

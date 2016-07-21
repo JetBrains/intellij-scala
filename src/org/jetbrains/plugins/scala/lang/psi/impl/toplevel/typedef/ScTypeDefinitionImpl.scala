@@ -55,7 +55,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
       case member: PsiMember if member.getLanguage.isKindOf(JavaLanguage.INSTANCE) =>
         val newMemberText = JavaToScala.convertPsiToText(member).trim()
         val mem: Option[ScMember] = member match {
-          case method: PsiMethod =>
+          case _: PsiMethod =>
             Some(ScalaPsiElementFactory.createMethodFromText(newMemberText, getManager))
           case _ => None
         }
@@ -252,7 +252,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
         k(s + transformName(encodeName, name) + sep)
       })
       case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.getPackageName + "."))
-      case f: ScalaFile => val pn = ""; k(if (pn.length > 0) pn + "." else "")
+      case _: ScalaFile => val pn = ""; k(if (pn.length > 0) pn + "." else "")
       case _: PsiFile | null => k("")
       case _: ScBlock => k("")
       case parent: ScTemplateBody => _packageName(parent, sep, k)

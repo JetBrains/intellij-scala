@@ -140,7 +140,7 @@ object ExtractSuperUtil {
     clazz.members.filter {
       case m if m.isPrivate => false
       case fun: ScFunction if fun.isConstructor => false
-      case td: ScTypeDefinition => false
+      case _: ScTypeDefinition => false
       case _: ScPrimaryConstructor => false
       case _ => true
     }.map(new ScalaExtractMemberInfo(_)).asJava

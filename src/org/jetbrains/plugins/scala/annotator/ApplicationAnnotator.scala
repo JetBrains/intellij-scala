@@ -124,12 +124,12 @@ trait ApplicationAnnotator {
                     val (actualType, expectedType) = ScTypePresentation.different(actual, expected)
                     holder.createErrorAnnotation(element, ScalaBundle.message("type.mismatch.found.required",
                       actualType, expectedType))
-                  case a =>
+                  case _ =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
               case _ =>
                 r.problems.foreach {
-                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
+                  case MissedParametersClause(_) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case _ =>
@@ -241,7 +241,7 @@ trait ApplicationAnnotator {
         annotation.registerFix(new CreateValueQuickFix(exp))
         annotation.registerFix(new CreateVariableQuickFix(exp))
         annotation.registerFix(new CreateObjectQuickFix(exp))
-      case (stRef: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
+      case (_: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
       case (stRef: ScStableCodeReferenceElement) childOf (Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern))) =>
         annotation.registerFix(new CreateCaseClassQuickFix(stRef))
         annotation.registerFix(new CreateExtractorObjectQuickFix(stRef, p))

@@ -24,8 +24,8 @@ abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends
         case _ => (method.findSuperMethods().headOption, method.getContainingClass)
       }
       superMethod match {
-        case Some(m: ScFunctionDefinition) => overrides = java.lang.Boolean.TRUE
-        case Some(m: ScFunctionDeclaration) => overrides = java.lang.Boolean.FALSE
+        case Some(_: ScFunctionDefinition) => overrides = java.lang.Boolean.TRUE
+        case Some(_: ScFunctionDeclaration) => overrides = java.lang.Boolean.FALSE
         case Some(m) if m.getLanguage.isInstanceOf[JavaLanguage] =>
           //for java only
           overrides = if (!m.hasModifierProperty(PsiModifier.ABSTRACT)) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE

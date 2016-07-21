@@ -166,7 +166,7 @@ object ScalaCollectionRenderer {
         return nonEmpty(value, context) && hasDefiniteSize(value, context)
       }
       catch {
-        case e: EvaluateException =>
+        case _: EvaluateException =>
       }
 
       try {
@@ -175,7 +175,7 @@ object ScalaCollectionRenderer {
         defaultChildrenRenderer.isExpandable(children, evaluationContext, parentDescriptor)
       }
       catch {
-        case e: EvaluateException =>
+        case _: EvaluateException =>
           true
       }
     }

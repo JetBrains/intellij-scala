@@ -257,7 +257,7 @@ object ScalaPluginUpdater {
             }
           }
         ))
-      case Some(result) => Some(GROUP.createNotification(
+      case Some(_) => Some(GROUP.createNotification(
             s"Your IDEA is outdated to use with Scala plugin $branch branch.<br/>" +
             s"Please update IDEA to at least $suggestedVersion to use latest Scala plugin.",
             NotificationType.WARNING)

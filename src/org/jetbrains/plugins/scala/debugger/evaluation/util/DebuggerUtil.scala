@@ -211,7 +211,7 @@ object DebuggerUtil {
         case _ => JVMNameUtil.getJVMRawText("()V")
       }
       case clazz: ScClass => new JVMConstructorSignature(clazz)
-      case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
+      case _: PsiClass => JVMNameUtil.getJVMRawText("()V")
       case _ => JVMNameUtil.getJVMRawText("()V")
     }
   }
@@ -344,7 +344,7 @@ object DebuggerUtil {
     val allClasses = try {
       debugProcess.getPositionManager.getAllClasses(sourcePosition)
     } catch {
-      case e: NoDataException => return None
+      case _: NoDataException => return None
     }
 
     if (!allClasses.isEmpty) Some(allClasses.get(0))
@@ -376,7 +376,7 @@ object DebuggerUtil {
 
   def classnamePostfix(t: ScTemplateDefinition, withPostfix: Boolean = false): String = {
     t match {
-      case t: ScTrait if withPostfix => "$class"
+      case _: ScTrait if withPostfix => "$class"
       case o: ScObject if withPostfix || o.isPackageObject => "$"
       case c: ScClass if withPostfix && ValueClassType.isValueClass(c) => "$" //methods from a value class always delegate to the companion object
       case _ => ""
@@ -515,7 +515,7 @@ object DebuggerUtil {
         ScalaPsiUtil.nameContext(b) match {
           case v @ (_: ScValue | _: ScVariable) =>
             !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
-          case clause: ScCaseClause => true
+          case _: ScCaseClause => true
           case _ => true //todo: for generator/enumerators
         }
       case o: ScObject =>
@@ -532,7 +532,7 @@ object DebuggerUtil {
   @tailrec
   def isLocalClass(td: PsiClass): Boolean = {
     td.getParent match {
-      case tb: ScTemplateBody =>
+      case _: ScTemplateBody =>
         val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
         if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
         isLocalClass(parent)

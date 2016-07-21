@@ -221,7 +221,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
-      case p@ParameterizedType(des, typeArgs) =>
+      case p@ParameterizedType(_, _) =>
         p.designator match {
           case tpt@TypeParameterType(_, _, upper, _) =>
             if (visitedTypeParameter.contains(tpt)) return true
@@ -233,13 +233,13 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             case None => true
           }
         }
-      case proj@ScProjectionType(projectd, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
+      case proj@ScProjectionType(_, _, _) if proj.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta = proj.actualElement.asInstanceOf[ScTypeAlias]
         val subst = proj.actualSubst
         val upper = ta.upperBound.getOrElse(return true)
         processType(subst.subst(upper), place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
           visitedAliases = visitedAliases + ta, visitedTypeParameter = visitedTypeParameter)
-      case proj@ScProjectionType(des, elem, _) =>
+      case proj@ScProjectionType(_, _, _) =>
         val s: ScSubstitutor = if (updateWithProjectionSubst)
           new ScSubstitutor(Map.empty, Map.empty, Some(proj)) followed proj.actualSubst
         else proj.actualSubst
@@ -268,12 +268,12 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           }
         }
         true
-      case comp@ScCompoundType(components, signaturesMap, typesMap) =>
+      case comp@ScCompoundType(_, _, _) =>
         TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)
       case ex: ScExistentialType =>
         processType(ex.quantified, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
           visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
-      case ScExistentialArgument(_, _, lower, upper) =>
+      case ScExistentialArgument(_, _, _, upper) =>
         processType(upper, place, state, updateWithProjectionSubst, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case _ => true
     }

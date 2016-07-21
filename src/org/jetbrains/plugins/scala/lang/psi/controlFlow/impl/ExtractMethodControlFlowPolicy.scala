@@ -17,7 +17,7 @@ object ExtractMethodControlFlowPolicy extends ScControlFlowPolicy {
     if (named.isInstanceOf[SyntheticNamedElement]) return false
 
     ScalaPsiUtil.nameContext(named) match {
-      case cp: ScClassParameter => false
+      case _: ScClassParameter => false
       case member: ScMember => member.isLocal
       case _ => true
     }

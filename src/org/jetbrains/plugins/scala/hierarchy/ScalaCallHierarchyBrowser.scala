@@ -28,7 +28,6 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
     for (clazz <- classes if clazz.getName endsWith "BaseOnThisMethodAction") baseClass = clazz
     val constructor = baseClass.getConstructor()
     val inst: Any = constructor.newInstance()
-    val methods = baseClass.getMethods
     val method = baseClass.getMethod("registerCustomShortcutSet", classOf[ShortcutSet], classOf[JComponent])
     method.invoke(inst, ActionManager.getInstance.getAction(IdeActions.ACTION_CALL_HIERARCHY).getShortcutSet, tree1)
     type2TreeMap.put(CALLEE_TYPE, tree1)

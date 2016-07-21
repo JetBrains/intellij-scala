@@ -83,7 +83,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
       case p: ScPackaging =>
         val _packName = parentPackageName(p)
         if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
-      case f: ScalaFileImpl => "" //f.getPackageName
+      case _: ScalaFileImpl => "" //f.getPackageName
       case null => ""
       case parent => parentPackageName(parent)
     }

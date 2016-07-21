@@ -66,7 +66,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       val elem = v.element
       val typeText = elem match {
         case fun: ScFunction => fun.getType().getOrAny.canonicalText
-        case named => v.element.ofNamedElement().getOrElse(Any).canonicalText
+        case _ => v.element.ofNamedElement().getOrElse(Any).canonicalText
       }
       s"${elem.name}: $typeText"
     }
@@ -167,7 +167,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
 
     val superMethod = methodLike.findDeepestSuperMethod() match {
       case null => methodLike
-      case scMethod: ScMethodLike => SuperMethodWarningUtil.checkSuperMethod(methodLike, RefactoringBundle.message("to.refactor"))
+      case _: ScMethodLike => SuperMethodWarningUtil.checkSuperMethod(methodLike, RefactoringBundle.message("to.refactor"))
       case _ => methodLike
     }
     val methodToSearchFor = superMethod match {
@@ -260,7 +260,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
   private def getTextForElement(method: ScMethodLike): String = {
     method match {
       case pc: ScPrimaryConstructor => s"${pc.containingClass.name} (primary constructor)"
-      case (f: ScFunctionDefinition) && ContainingClass(c: ScNewTemplateDefinition) => s"${f.name} (in anonymous class)"
+      case (f: ScFunctionDefinition) && ContainingClass(_: ScNewTemplateDefinition) => s"${f.name} (in anonymous class)"
       case (f: ScFunctionDefinition) && ContainingClass(c) => s"${f.name} (in ${c.name})"
       case f: ScFunctionDefinition => s"${f.name}"
     }

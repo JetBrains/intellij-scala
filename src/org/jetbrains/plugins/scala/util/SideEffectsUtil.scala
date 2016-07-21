@@ -41,12 +41,12 @@ object SideEffectsUtil {
       if (hasImplicitConversion(ref)) false
       else {
         ref.qualifier.forall(hasNoSideEffects) && (ref.resolve() match {
-          case Both(b: ScBindingPattern, ScalaPsiUtil.inNameContext(pd: ScPatternDefinition))
+          case Both(_: ScBindingPattern, ScalaPsiUtil.inNameContext(pd: ScPatternDefinition))
             if pd.hasModifierProperty("lazy") => false
           case bp: ScBindingPattern =>
             val tp = bp.getType(TypingContext.empty)
             !FunctionType.isFunctionType(tp.getOrAny)
-          case o: ScObject => false
+          case _: ScObject => false
           case p: ScParameter
             if !p.isCallByNameParameter &&
               !FunctionType.isFunctionType(p.getRealParameterType(TypingContext.empty).getOrAny) => true
@@ -75,7 +75,7 @@ object SideEffectsUtil {
         case _ if hasImplicitConversion(baseExpr) => false
         case ResolvesTo(m: PsiMethod) => methodHasNoSideEffects(m, typeOfQual)
         case ResolvesTo(_: ScSyntheticFunction) => true
-        case ResolvesTo(td: ScTypedDefinition) =>
+        case ResolvesTo(_: ScTypedDefinition) =>
           val withApplyText = baseExpr.getText + ".apply" + args.map(_.getText).mkString("(", ", ", ")")
           val withApply = ScalaPsiElementFactory.createExpressionWithContextFromText(withApplyText, expr.getContext, expr)
           withApply match {
@@ -86,7 +86,7 @@ object SideEffectsUtil {
         case _ => hasNoSideEffects(baseExpr)
       }
       checkQual && checkBaseExpr && args.forall(hasNoSideEffects)
-    case newTd: ScNewTemplateDefinition => false
+    case _: ScNewTemplateDefinition => false
     case _ => false
   }
 

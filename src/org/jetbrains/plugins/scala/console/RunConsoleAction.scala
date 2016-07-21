@@ -36,7 +36,7 @@ class RunConsoleAction extends AnAction {
       }
     }
     catch {
-      case e: Exception => disable()
+      case _: Exception => disable()
     }
   }
 

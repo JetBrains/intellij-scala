@@ -64,7 +64,7 @@ class SendSelectionToConsoleAction extends AnAction {
       }
     }
     catch {
-      case e: Exception => disable()
+      case _: Exception => disable()
     }
   }
 
@@ -107,7 +107,7 @@ class SendSelectionToConsoleAction extends AnAction {
             outputStream.flush()
           }
           catch {
-            case e: IOException => //ignore
+            case _: IOException => //ignore
           }
         }
         console.textSent(line + "\n")

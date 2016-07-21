@@ -28,10 +28,10 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
       Messages.showErrorDialog(ScalaBundle.message("move.to.inner.is.not.supported"), ScalaBundle.message("move.to.inner.is.not.supported.title"))
     }
     targetContainer match {
-      case td: ScTypeDefinition =>
+      case _: ScTypeDefinition =>
         refactoringIsNotSupported()
         return
-      case clazz: PsiClass =>
+      case _: PsiClass =>
         if (elements.exists(_.isInstanceOf[ScTypeDefinition])) {
           refactoringIsNotSupported()
           return

@@ -135,9 +135,9 @@ object ScalaBreadcrumbsInfoProvider {
     
     def getTemplateDefTooltip(td: ScTemplateDefinition): String = {
       (td match {
-        case clazz: ScClass => "class"
-        case obj: ScObject => "object"
-        case tr: ScTrait => "trait"
+        case _: ScClass => "class"
+        case _: ScObject => "object"
+        case _: ScTrait => "trait"
         case _ => ""
       }) + " " + describeTemplateDef(td)
     }

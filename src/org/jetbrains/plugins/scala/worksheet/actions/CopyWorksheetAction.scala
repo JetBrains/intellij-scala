@@ -67,7 +67,7 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
     def getFromRight(lineNumber: Int) = getFromDoc(lineNumber, rightDocument)
 
     val marker = viewer.getFoldingModel.asInstanceOf[FoldingModelImpl].getAllFoldRegions find {
-      case r: WorksheetFoldRegionDelegate => true
+      case _: WorksheetFoldRegionDelegate => true
       case _ => false
     }
 

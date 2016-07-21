@@ -166,7 +166,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
     case assignment: ScAssignStmt => assignmentTarget(assignment)
     case infix: ScInfixExpr if child == infix.getFirstChild =>
       if (ScalaLanguageInjector isSafeCall infix) annotationOwnerFor(infix) else None
-    case infix: ScInfixExpr => parameterOf(child)
+    case _: ScInfixExpr => parameterOf(child)
     case tuple: ScTuple if tuple.isCall => parameterOf(child)
     case param: ScParameter => Some(param)
     case parExpr: ScParenthesisedExpr => annotationOwnerFor(parExpr)

@@ -118,7 +118,7 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
           editor.getCaretModel.moveToOffset(start + diff + size)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }
-      case x => throw new IllegalStateException(s"$text should be infix expression")
+      case _ => throw new IllegalStateException(s"$text should be infix expression")
     }
   }
 

@@ -397,7 +397,7 @@ abstract class MixinNodes {
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
             val dependentSubst = superType match {
-              case p@ScProjectionType(proj, eem, _) => new ScSubstitutor(proj).followed(p.actualSubst)
+              case p@ScProjectionType(proj, _, _) => new ScSubstitutor(proj).followed(p.actualSubst)
               case ParameterizedType(p@ScProjectionType(proj, _, _), _) => new ScSubstitutor(proj).followed(p.actualSubst)
               case _ => ScSubstitutor.empty
             }
@@ -421,7 +421,7 @@ abstract class MixinNodes {
         case _ =>
       }
       (superType.isAliasType match {
-        case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(superType)
+        case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(superType)
         case _ => superType
       }) match {
         case c: ScCompoundType =>
@@ -539,7 +539,7 @@ object MixinNodes {
           }
         case _ =>
           (tp.isAliasType match {
-            case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
+            case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
             case _ => tp
           }) match {
             case c: ScCompoundType => c +=: buffer
@@ -574,7 +574,7 @@ object MixinNodes {
           }
         case _ =>
           (tp.isAliasType match {
-            case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
+            case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
             case _ => tp
           }) match {
             case c: ScCompoundType =>

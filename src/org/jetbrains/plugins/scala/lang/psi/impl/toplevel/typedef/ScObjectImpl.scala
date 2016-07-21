@@ -131,7 +131,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
       try {
         super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
       } catch {
-        case ignore: DoNotProcessPackageObjectException => true //do nothing, just let's move on
+        case _: DoNotProcessPackageObjectException => true //do nothing, just let's move on
       } finally {
         stopPackageObjectProcessing()
       }
@@ -153,7 +153,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
             res += method
           }
           catch {
-            case e: Exception => //do not add methods with wrong signature
+            case _: Exception => //do not add methods with wrong signature
           }
         })
         res.toSeq
@@ -167,7 +167,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def fakeCompanionClass: Option[PsiClass] = {
     ScalaPsiUtil.getCompanionModule(this) match {
-      case Some(module) => None
+      case Some(_) => None
       case None => Some(new PsiClassWrapper(this, getQualifiedName.substring(0, getQualifiedName.length() - 1),
        getName.substring(0, getName.length() - 1)))
     }
@@ -228,11 +228,6 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
     }
     res.toArray
   }
-
-  @volatile
-  private var emptyObjectConstructor: EmptyPrivateConstructor = null
-  @volatile
-  private var emptyObjectConstructorModCount: Long = 0L
 
   @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))

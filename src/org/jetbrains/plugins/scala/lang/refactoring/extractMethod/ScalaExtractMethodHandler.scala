@@ -68,7 +68,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
-        case ret: ScReturnStmt => true
+        case _: ScReturnStmt => true
         case m: ScMatchStmt =>
           m.getBranches.forall(checkLastReturn(_))
         case f: ScIfStmt if f.elseBranch.isDefined && f.thenBranch.isDefined =>
@@ -135,13 +135,13 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     while (isParentOk(parent)) {
       parent match {
         case file: ScalaFile if file.isScriptFile() => res += prev
-        case block: ScBlock => res += prev
-        case templ: ScTemplateBody => res += prev
+        case _: ScBlock => res += prev
+        case _: ScTemplateBody => res += prev
         case _ =>
       }
       prev = parent
       parent = parent match {
-        case file: ScalaFile =>
+        case _: ScalaFile =>
           null
         case _ => parent.getParent
       }
@@ -253,7 +253,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           case o: ScObject => s"Extract method to object ${o.name}"
           case c: ScClass => s"Extract method to class ${c.name}"
           case t: ScTrait => s"Extract method to trait ${t.name}"
-          case n: ScNewTemplateDefinition => "Extract method to anonymous class"
+          case _: ScNewTemplateDefinition => "Extract method to anonymous class"
         }
       case _: ScTryBlock => local("try block")
       case _: ScConstrBlock => local("constructor")

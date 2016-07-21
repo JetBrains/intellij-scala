@@ -64,8 +64,8 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
               value.formatted(it.format)
               None
             } catch {
-              case e: IllegalFormatConversionException => Some(Inapplicable)
-              case e: IllegalFormatException => Some(Malformed)
+              case _: IllegalFormatConversionException => Some(Inapplicable)
+              case _: IllegalFormatException => Some(Malformed)
             }
           case _ => Some(Malformed)
         }

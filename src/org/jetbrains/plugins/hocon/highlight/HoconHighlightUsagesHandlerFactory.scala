@@ -59,7 +59,7 @@ class HoconHighlightKeyUsagesHandler(editor: Editor, psiFile: PsiFile, hkey: HKe
         Iterator.empty
     }
     foundKeys.foreach(key =>
-      key.forParent(path => myReadUsages, field => myWriteUsages).add(key.getTextRange))
+      key.forParent(_ => myReadUsages, _ => myWriteUsages).add(key.getTextRange))
 
     // don't highlight if there is only one occurrence
     if (myReadUsages.size + myWriteUsages.size == 1) {

@@ -105,7 +105,7 @@ class UnwrapDoStmtFix(doStmt: ScDoStmt) extends AbstractFixOnPsiElement("Unwrap 
   override def doApplyFix(project: Project): Unit = {
     val doSt = Option(getElement)
     doSt.flatMap(_.getExprBody) match {
-      case Some(expr) =>
+      case Some(_) =>
         val unwrapContext = new ScalaUnwrapContext
         unwrapContext.setIsEffective(true)
         new ScalaWhileUnwrapper().doUnwrap(doSt.get, unwrapContext)

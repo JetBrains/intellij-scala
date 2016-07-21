@@ -13,7 +13,7 @@ object CanonizeBlockArgument extends AbstractTransformer {
     case e @ ScMethodCall(expression, Seq(block: ScBlockExpr)) =>
       e.replace(code"$expression(${block.asSimpleExpression.getOrElse(block)})")
 
-    case e @ ScInfixExpr(l, o, block: ScBlockExpr) =>
+    case ScInfixExpr(_, _, block: ScBlockExpr) =>
       block.replace(code"(${block.asSimpleExpression.getOrElse(block)})")
   }
 }

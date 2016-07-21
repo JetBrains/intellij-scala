@@ -63,7 +63,7 @@ object ScalaElementPresentation {
         presentableText.append(typez.presentableText)
       }
       catch {
-        case e: IndexNotReadyException => presentableText.append("NoTypeInfo")
+        case _: IndexNotReadyException => presentableText.append("NoTypeInfo")
       }
     }
 

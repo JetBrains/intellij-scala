@@ -40,7 +40,7 @@ case class ScCompoundType(components: Seq[ScType],
         tp.typeDepth
           .max(sign.typeParams.depth)
     } ++ typesMap.map {
-      case (s: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
+      case (_: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
         lowerBound.typeDepth
           .max(upperBound.typeDepth)
           .max(params.toArray.depth)

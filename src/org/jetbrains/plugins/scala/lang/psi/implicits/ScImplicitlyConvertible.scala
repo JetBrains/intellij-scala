@@ -122,7 +122,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
     val result = new ArrayBuffer[ImplicitResolveResult]
 
-    buffer.foreach{case ImplicitMapResult(_, r, tp, retTp, newSubst, uSubst, implicitDepSusbt) =>
+    buffer.foreach{case ImplicitMapResult(_, r, _, retTp, newSubst, uSubst, implicitDepSusbt) =>
       r.element match {
         case f: ScFunction if f.hasTypeParameters =>
           uSubst.getSubstitutor match {

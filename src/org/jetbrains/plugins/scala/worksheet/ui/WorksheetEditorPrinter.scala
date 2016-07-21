@@ -486,7 +486,7 @@ object WorksheetEditorPrinter {
       }
 
       if (parent.getComponentCount > 1) parent.getComponent(1) match {
-        case splitter: Splitter =>
+        case _: Splitter =>
           preserveFocus {
             parent.remove(1)
             parent.add(diffPane, 1)

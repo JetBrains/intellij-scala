@@ -115,18 +115,18 @@ object ClassFileParser extends ByteCodeReader {
 
   // NOTE currently most constants just evaluate to a string description
   // TODO evaluate to useful values
-  val utf8String = (u2 >> bytes) ^^ add1 { raw => pool => raw.toUTF8StringAndBytes }
-  val intConstant = u4 ^^ add1 { x => pool => x }
-  val floatConstant = bytes(4) ^^ add1 { raw => pool => "Float: TODO" }
-  val longConstant = bytes(8) ^^ add2 { raw => pool => raw.toLong }
-  val doubleConstant = bytes(8) ^^ add2 { raw => pool => "Double: TODO" }
+  val utf8String = (u2 >> bytes) ^^ add1 { raw => _ => raw.toUTF8StringAndBytes }
+  val intConstant = u4 ^^ add1 { x => _ => x }
+  val floatConstant = bytes(4) ^^ add1 { _ => _ => "Float: TODO" }
+  val longConstant = bytes(8) ^^ add2 { raw => _ => raw.toLong }
+  val doubleConstant = bytes(8) ^^ add2 { _ => _ => "Double: TODO" }
   val classRef = u2 ^^ add1 { x => pool => "Class: " + pool(x) }
   val stringRef = u2 ^^ add1 { x => pool => "String: " + pool(x) }
   val fieldRef = memberRef("Field")
   val methodRef = memberRef("Method")
   val interfaceMethodRef = memberRef("InterfaceMethod")
   val nameAndType = u2 ~ u2 ^^ add1 { case name ~ descriptor => pool => "NameAndType: " + pool(name) + ", " + pool(descriptor) }
-  val methodHandle = u1 ~ u2 ^^ add1 { case refKind ~ refIndex => pool => "MethodHandle: " + pool(refIndex) }
+  val methodHandle = u1 ~ u2 ^^ add1 { case _ ~ refIndex => pool => "MethodHandle: " + pool(refIndex) }
   val methodType = u2 ^^ add1 { case descriptorIndex => pool => "MethodType: " + pool(descriptorIndex) }
   val invokeDynamic = u2 ~ u2 ^^ add1 { case bootstrapMethodIndex ~ nameAndTypeIndex => pool => "InvokeDynamic: " + pool(bootstrapMethodIndex) + ", " + pool(nameAndTypeIndex) }
 
@@ -192,7 +192,7 @@ object ClassFileParser extends ByteCodeReader {
   }
 
   def add1[T](f : T => ConstantPool => Any)(raw : T)(pool : ConstantPool): ConstantPool = pool add f(raw)
-  def add2[T](f : T => ConstantPool => Any)(raw : T)(pool : ConstantPool): ConstantPool = pool add f(raw) add { pool => "<empty>" }
+  def add2[T](f : T => ConstantPool => Any)(raw : T)(pool : ConstantPool): ConstantPool = pool add f(raw) add { _ => "<empty>" }
 }
 
 case class ClassFile(

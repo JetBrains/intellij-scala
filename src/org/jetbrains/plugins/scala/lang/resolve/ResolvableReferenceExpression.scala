@@ -153,14 +153,14 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                              ref: ResolvableReferenceExpression, assign: PsiElement, processor: BaseProcessor) {
     for (variant <- callReference.multiResolve(false)) {
       def processResult(r: ScalaResolveResult) = r match {
-        case ScalaResolveResult(fun: ScFunction, subst) if r.isDynamic &&
+        case ScalaResolveResult(fun: ScFunction, _) if r.isDynamic &&
           fun.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
           //add synthetic parameter
           if (!processor.isInstanceOf[CompletionProcessor]) {
             val state: ResolveState = ResolveState.initial().put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
             processor.execute(ScalaPsiElementFactory.createParameterFromText(ref.refName + ": Any", getManager), state)
           }
-        case ScalaResolveResult(named, subst) if call.applyOrUpdateElement.exists(_.isDynamic) &&
+        case ScalaResolveResult(_, _) if call.applyOrUpdateElement.exists(_.isDynamic) &&
           call.applyOrUpdateElement.get.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED =>
           //add synthetic parameter
           if (!processor.isInstanceOf[CompletionProcessor]) {
@@ -183,7 +183,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             //for completion only!
             funCollectNamedCompletions(fun.paramClauses, assign, processor, subst, exprs, invocationCount)
           }
-        case ScalaResolveResult(fun: FakePsiMethod, subst: ScSubstitutor) => //todo: ?
+        case ScalaResolveResult(_: FakePsiMethod, _: ScSubstitutor) => //todo: ?
         case ScalaResolveResult(method: PsiMethod, subst) => 
           assign.getContext match {
             case args: ScArgumentExprList =>
@@ -395,8 +395,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     val fromType = e match {
       case ref: ScReferenceExpression => ref.bind() match {
-        case Some(ScalaResolveResult(self: ScSelfTypeElement, _)) => aType
-        case Some(r@ScalaResolveResult(b: ScTypedDefinition, subst)) if b.isStable =>
+        case Some(ScalaResolveResult(_: ScSelfTypeElement, _)) => aType
+        case Some(r@ScalaResolveResult(b: ScTypedDefinition, _)) if b.isStable =>
           r.fromType match {
             case Some(fT) => ScProjectionType(fT, b, superReference = false)
             case None => ScalaType.designator(b)
@@ -406,7 +406,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ => aType
     }
     val state: ResolveState = fromType match {
-      case ScDesignatorType(p: PsiPackage) => ResolveState.initial()
+      case ScDesignatorType(_: PsiPackage) => ResolveState.initial()
       case _ => ResolveState.initial.put(BaseProcessor.FROM_TYPE_KEY, fromType)
     }
     processor.processType(aType, e, state)
@@ -415,7 +415,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     aType match {
       case d: ScDesignatorType if d.isStatic => return processor
-      case ScDesignatorType(p: PsiPackage) => return processor
+      case ScDesignatorType(_: PsiPackage) => return processor
       case _ =>
     }
 

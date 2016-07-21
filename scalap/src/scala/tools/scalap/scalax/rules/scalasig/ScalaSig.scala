@@ -276,7 +276,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
   lazy val topLevelObject = objectSymbol filter isTopLevel
 
   def isTopLevel(symbol : Symbol): Boolean = symbol.parent match {
-    case Some(ext : ExternalSymbol) => true
+    case Some(_: ExternalSymbol) => true
     case _ => false
   }
   def isTopLevelClass (symbol : Symbol): Boolean = !symbol.isModule && isTopLevel(symbol)

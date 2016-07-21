@@ -33,7 +33,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
         case _ =>
       }
       stmt.elseBranch match {
-        case Some(i: ScIfStmt) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
+        case Some(_: ScIfStmt) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
         case Some(el) =>
           processExpression(el, stmt, commonSetttings.IF_BRACE_FORCE)
         case _ =>
@@ -129,7 +129,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
 
   private def processExpression(expr: ScExpression, stmt: PsiElement, option: Int) {
     expr match {
-      case b: ScBlockExpr =>
+      case _: ScBlockExpr =>
       case c: ScBlock if c.firstChild.exists(_.isInstanceOf[ScBlockExpr]) && c.firstChild == c.lastChild =>
       case _ =>
         if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||

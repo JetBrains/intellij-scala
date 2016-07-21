@@ -222,16 +222,16 @@ private object GutterUtil {
 
   def isOverrides(element: PsiElement, supers: Seq[Signature]): Boolean = {
     element match {
-      case decl: ScFunctionDeclaration => true
-      case v: ScValueDeclaration => true
-      case v: ScVariableDeclaration => true
+      case _: ScFunctionDeclaration => true
+      case _: ScValueDeclaration => true
+      case _: ScVariableDeclaration => true
       case _ =>
         val iter = supers.iterator
         while (iter.hasNext) {
           val s = iter.next()
           ScalaPsiUtil.nameContext(s.namedElement) match {
-            case fun: ScFunctionDefinition => return true
-            case fun: ScFunction =>
+            case _: ScFunctionDefinition => return true
+            case _: ScFunction =>
             case method: PsiMethod if !method.hasAbstractModifier => return true
             case _: ScVariableDefinition | _: ScPatternDefinition => return true
             case f: PsiField if !f.hasAbstractModifier => return true
@@ -249,9 +249,9 @@ private object GutterUtil {
   }
 
   def isAbstract(element: PsiElement): Boolean = element match {
-    case method: ScFunctionDeclaration => true
-    case value: ScValueDeclaration => true
-    case variable: ScVariableDeclaration => true
+    case _: ScFunctionDeclaration => true
+    case _: ScValueDeclaration => true
+    case _: ScVariableDeclaration => true
     case _ => false
   }
 }

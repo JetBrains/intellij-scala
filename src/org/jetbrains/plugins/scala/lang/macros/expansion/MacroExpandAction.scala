@@ -46,10 +46,6 @@ class MacroExpandAction extends AnAction {
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
-    val candidates = psiFile match {
-      case file: ScalaFile => findCandidatesInFile(file)
-      case _ => Seq.empty
-    }
 
     suggestUsingCompilerFlag(e, psiFile)
 
@@ -73,7 +69,7 @@ class MacroExpandAction extends AnAction {
       try {
         applyExpansion(expansion)
       } catch {
-        case e: UnresolvedExpansion =>
+        case _: UnresolvedExpansion =>
           LOG.warn(s"unable to expand ${expansion.expansion.place}, cannot resolve place, skipping")
       }
       e.getProject
@@ -114,7 +110,7 @@ class MacroExpandAction extends AnAction {
         expandAnnotation(annot, resolved.expansion)
       case (mc: ScMethodCall) =>
         expandMacroCall(mc, resolved.expansion)
-      case (other) => () // unreachable
+      case (_) => () // unreachable
     }
   }
 
@@ -146,9 +142,9 @@ class MacroExpandAction extends AnAction {
           applyExpansions(xs)
         }
         catch {
-          case exc: UnresolvedExpansion if !triedResolving =>
+          case _: UnresolvedExpansion if !triedResolving =>
             applyExpansions(tryResolveExpansionPlace(x.expansion) :: xs, triedResolving = true)
-          case exc: UnresolvedExpansion if triedResolving =>
+          case _: UnresolvedExpansion if triedResolving =>
             LOG.warn(s"unable to expand ${x.expansion.place}, cannot resolve place, skipping")
             applyExpansions(xs)
         }
@@ -233,7 +229,7 @@ class MacroExpandAction extends AnAction {
     getRealOwner(expansion) match {
       case Some(_: ScAnnotation) => true
       case Some(_: ScMethodCall) => false
-      case Some(other)           => false
+      case Some(_)           => false
       case None                  => false
     }
   }

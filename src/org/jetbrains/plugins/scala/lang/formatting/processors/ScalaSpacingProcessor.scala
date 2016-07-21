@@ -620,7 +620,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         }
       }
       leftNode.getTreeParent.getPsi match {
-        case b: ScTemplateBody if rightPsi.isInstanceOf[ScSelfTypeElement] =>
+        case _: ScTemplateBody if rightPsi.isInstanceOf[ScSelfTypeElement] =>
           return if (scalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE) {
             ON_NEW_LINE
           } else if (scalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES) WITH_SPACING_NO_KEEP
@@ -1128,7 +1128,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //Case Clauses case
     if (leftNode.getElementType == ScalaElementTypes.CASE_CLAUSE && rightNode.getElementType == ScalaElementTypes.CASE_CLAUSE) {
       val block = leftNode.getTreeParent
-      val minLineFeeds = if (block.getTextRange.substring(fileText).contains("\n")) 1 else 0
       return WITH_SPACING_DEPENDENT(leftNode.getTreeParent.getTreeParent.getTextRange)
     }
 

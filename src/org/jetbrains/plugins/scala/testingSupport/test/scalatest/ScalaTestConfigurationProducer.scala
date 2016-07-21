@@ -71,7 +71,7 @@ class ScalaTestConfigurationProducer extends {
       }
     }
     catch {
-      case e: Exception =>
+      case _: Exception =>
     }
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
     Some((testClass, settings))

@@ -60,8 +60,8 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
 
   private def patternIsReferenceOrWildcard(clause: ScCaseClause): Boolean =
     clause.pattern.exists {
-      case reference: ScReferencePattern => true
-      case wildcard: ScWildcardPattern => true
+      case _: ScReferencePattern => true
+      case _: ScWildcardPattern => true
       case _ => false
     }
 

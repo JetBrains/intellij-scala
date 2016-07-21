@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.transformation._
   */
 object AddTypeToVariableDefinition extends AbstractTransformer {
   def transformation: PartialFunction[PsiElement, Unit] = {
-    case (p: ScReferencePattern) && Parent(l@Parent(_: ScVariableDefinition)) && Typeable(t)
+    case (_: ScReferencePattern) && Parent(l@Parent(_: ScVariableDefinition)) && Typeable(t)
       if !l.nextSibling.exists(_.getText == ":") =>
 
       appendTypeAnnotation(l, t)

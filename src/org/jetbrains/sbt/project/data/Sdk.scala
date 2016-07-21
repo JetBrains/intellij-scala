@@ -65,7 +65,7 @@ object SdkUtils {
         val sndInt = snd.toInt
         fstInt >= sndInt
       } catch {
-        case exc: NumberFormatException => false
+        case _: NumberFormatException => false
       }
 
     val matchingSdks = for {

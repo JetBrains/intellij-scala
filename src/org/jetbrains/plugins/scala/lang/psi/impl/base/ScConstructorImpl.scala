@@ -141,7 +141,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                     subst(subst.subst(tp).inferValueType))),
                   nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
               } catch {
-                case s: SafeCheckException => //ignore
+                case _: SafeCheckException => //ignore
               }
             case _ =>
           }

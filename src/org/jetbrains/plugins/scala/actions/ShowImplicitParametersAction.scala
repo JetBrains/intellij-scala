@@ -49,19 +49,6 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
     ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 
-  private def presentableText(rr: ScalaResolveResult, context: ScExpression): String = {
-    val named = rr.getElement
-    ScalaPsiUtil.nameContext(named).getContext match {
-      case _: ScTemplateBody | _: ScEarlyDefinitions =>
-        rr.fromType match {
-          case Some(tp) => named.name //todo:
-          case None => named.name //todo:
-        }
-      //Local value
-      case _ => named.name
-    }
-  }
-  
   private def implicitParams(expr: PsiElement): Option[Seq[ScalaResolveResult]] = {
     def checkTypeElement(element: ScTypeElement): Option[Option[scala.Seq[ScalaResolveResult]]] = {
       def checkSimpleType(s: ScSimpleTypeElement) = {
@@ -288,7 +275,6 @@ class ImplicitParametersTreeStructure(project: Project,
                                       results: Seq[ScalaResolveResult])
                                      (implicit val typeSystem: TypeSystem)
   extends AbstractTreeStructure {
-  private val manager = PsiManager.getInstance(project)
 
   class ImplicitParametersNode(value: ScalaResolveResult, implicitResult: Option[ImplicitResult] = None)
     extends AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {

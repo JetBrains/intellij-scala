@@ -141,5 +141,4 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     Array.empty //todo:
   }
 
-  private var LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCache")
 }

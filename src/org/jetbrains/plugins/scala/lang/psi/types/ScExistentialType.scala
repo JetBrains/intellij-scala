@@ -57,7 +57,7 @@ case class ScExistentialType(quantified: ScType,
           ScExistentialType(quantified.recursiveUpdate(update, newVisited),
             wildcards.map(_.recursiveUpdateNoUpdate(update, newVisited)))
         } catch {
-          case cce: ClassCastException => throw new RecursiveUpdateException
+          case _: ClassCastException => throw new RecursiveUpdateException
         }
     }
   }
@@ -72,7 +72,7 @@ case class ScExistentialType(quantified: ScType,
             wildcards.map(_.recursiveVarianceUpdateModifiableNoUpdate(newData, update, variance)))
         }
         catch {
-          case cce: ClassCastException => throw new RecursiveUpdateException
+          case _: ClassCastException => throw new RecursiveUpdateException
         }
     }
   }
@@ -146,7 +146,7 @@ case class ScExistentialType(quantified: ScType,
           checkRecursive(tpt, rejected)
           checkRecursive(lower, rejected)
           checkRecursive(upper, rejected)
-        case c@ScCompoundType(comps, signatureMap, typeMap) =>
+        case ScCompoundType(comps, signatureMap, typeMap) =>
           val newSet = rejected ++ typeMap.keys
           comps.foreach(checkRecursive(_, newSet))
           signatureMap.foreach {
@@ -171,19 +171,19 @@ case class ScExistentialType(quantified: ScType,
             checkRecursive(ex.lower, newSet)
             checkRecursive(ex.upper, newSet)
           })
-        case ScProjectionType(projected, element, _) =>
+        case ScProjectionType(projected, _, _) =>
           checkRecursive(projected, rejected)
         case ParameterizedType(designator, typeArgs) =>
           checkRecursive(designator, rejected)
           typeArgs.foreach(checkRecursive(_, rejected))
         case _: TypeParameterType =>
-        case ScExistentialArgument(name, args, lower, upper) =>
+        case ScExistentialArgument(name, _, _, _) =>
           //todo: update args, lower, upper?
           wildcards.foreach(arg => if (arg.name == name && !rejected.contains(arg.name)) {
             res.update(arg, res.getOrElse(arg, Seq.empty[ScType]) ++ Seq(tp))
           })
         case UndefinedType(tpt, _) => checkRecursive(tpt, rejected)
-        case ScMethodType(returnType, params, isImplicit) =>
+        case ScMethodType(returnType, params, _) =>
           checkRecursive(returnType, rejected)
           params.foreach(p => checkRecursive(p.paramType, rejected))
         case ScTypePolymorphicType(internalType, typeParameters) =>
@@ -197,7 +197,7 @@ case class ScExistentialType(quantified: ScType,
     }
     checkRecursive(this, HashSet.empty)
     wildcards.foreach {
-      case ScExistentialArgument(_, args, lower, upper) =>
+      case ScExistentialArgument(_, _, lower, upper) =>
         checkRecursive(lower, HashSet.empty)
         checkRecursive(upper, HashSet.empty)
     }
@@ -210,7 +210,7 @@ case class ScExistentialType(quantified: ScType,
     if (variance == 0) return tp //optimization
     tp match {
       case _: StdType => tp
-      case c@ScCompoundType(components, signatureMap, typeMap) =>
+      case ScCompoundType(components, signatureMap, typeMap) =>
         val newSet = rejected ++ typeMap.keys
 
         def updateTypeParam: TypeParameter => TypeParameter = {
@@ -278,8 +278,8 @@ case class ScExistentialType(quantified: ScType,
         ScExistentialType(q, _wildcards.map(arg => ScExistentialArgument(arg.name, arg.args.map(arg =>
           updateRecursive(arg, newSet, -variance).asInstanceOf[TypeParameterType]),
           updateRecursive(arg.lower, newSet, -variance), updateRecursive(arg.upper, newSet, variance))))
-      case ScThisType(clazz) => tp
-      case ScDesignatorType(element) => tp
+      case ScThisType(_) => tp
+      case ScDesignatorType(_) => tp
       case _: TypeParameterType =>
         //should return TypeParameterType (for undefined type)
         tp
@@ -465,7 +465,6 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
         case _ => this
       }
     }
-    val newVisited = visited + this
     update(this) match {
       case (true, res) => res
       case _ => recursiveUpdateNoUpdate(update, visited)
@@ -482,7 +481,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
                                                     variance: Int = 1): ScType = {
     update(this, variance, data) match {
       case (true, res, _) => res
-      case (_, _, newData) =>
+      case (_, _, _) =>
         recursiveVarianceUpdateModifiableNoUpdate(data, update, variance)
     }
   }

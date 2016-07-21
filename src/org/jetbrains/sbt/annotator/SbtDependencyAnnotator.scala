@@ -25,7 +25,7 @@ class SbtDependencyAnnotator extends Annotator {
     try {
       doAnnotate(element, holder)
     } catch {
-      case exc: ResolverException =>
+      case _: ResolverException =>
         // TODO: find another way to notify user instead of spamming with notifications
         // NotificationUtil.showMessage(null, exc.getMessage)
     }

@@ -65,7 +65,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
           children
         }
         catch {
-          case e: IndexNotReadyException => new util.ArrayList[TreeElement]()
+          case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
         }
       case _ => new util.ArrayList[TreeElement]()
     }

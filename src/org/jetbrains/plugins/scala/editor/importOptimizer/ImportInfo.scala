@@ -325,7 +325,7 @@ object ImportInfo {
 
   private def shouldAddName(resolveResult: ResolveResult): Boolean = {
     resolveResult match {
-      case ScalaResolveResult(p: PsiPackage, _) => true
+      case ScalaResolveResult(_: PsiPackage, _) => true
       case ScalaResolveResult(m: PsiMethod, _) => m.containingClass != null
       case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
       case ScalaResolveResult(_: ScTypeAlias, _) => true

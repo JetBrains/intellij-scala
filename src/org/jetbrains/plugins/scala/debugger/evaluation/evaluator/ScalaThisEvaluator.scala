@@ -47,7 +47,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
             frameProxy.getValue(variable)
           }
         } catch {
-          case e: AbsentInformationException =>
+          case _: AbsentInformationException =>
             val args = frameProxy.getArgumentValues
             if (args.size() > 0) args.get(0)
             else null

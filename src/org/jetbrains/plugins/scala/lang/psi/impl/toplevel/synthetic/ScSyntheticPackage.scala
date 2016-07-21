@@ -92,7 +92,7 @@ object ScSyntheticPackage {
         find(pc => {
           ScalaNamesUtil.equivalentFqn(pc.qualifiedName, fqn)
       }) match {
-        case Some(obj) =>
+        case Some(_) =>
           val pname = if (i < 0) "" else fqn.substring(0, i)
           new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
             override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?

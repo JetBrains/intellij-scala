@@ -66,6 +66,6 @@ class RemoteServerStopper(val port: Int) extends RemoteResourceOwner {
       val stopCommand = "stop_" + ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ID
       send(stopCommand, Seq(s"--nailgun-port $port"), null)
     } catch {
-      case e: Exception =>
+      case _: Exception =>
     }
 }

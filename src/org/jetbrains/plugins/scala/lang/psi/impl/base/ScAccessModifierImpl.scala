@@ -132,7 +132,7 @@ class ScAccessModifierImpl private(stub: StubElement[ScAccessModifier], nodeType
         def find(e: PsiElement): PsiNamedElement = e match {
           case null => null
           case td: ScTypeDefinition if td.name == name => td
-          case file: ScalaFile => findPackage("")
+          case _: ScalaFile => findPackage("")
           case container: ScPackageContainer => findPackage(container.fqn)
           case _ => find(e.getParent)
         }
@@ -152,7 +152,7 @@ class ScAccessModifierImpl private(stub: StubElement[ScAccessModifier], nodeType
           e match {
             case null =>
             case td: ScTypeDefinition => buff += td; append(td.getParent)
-            case file: ScalaFile => processPackages("")
+            case _: ScalaFile => processPackages("")
             case container: ScPackageContainer => processPackages(container.fqn)
             case _ => append(e.getParent)
           }

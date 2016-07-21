@@ -356,7 +356,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
     }
     catch {
       //templateState can contain null private fields
-      case exc: NullPointerException =>
+      case _: NullPointerException =>
     }
     finally {
       myEditor.getSelectionModel.removeSelection()

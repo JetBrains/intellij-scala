@@ -36,7 +36,7 @@ object BaseTypes {
       case ScThisType(clazz) => BaseTypes.get(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty), visitedAliases = visitedAliases)
       case TypeParameterType(Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
       case ScExistentialArgument(_, Nil, _, upper) => get(upper, notAll, visitedAliases = visitedAliases)
-      case a: JavaArrayType => Seq(Any)
+      case _: JavaArrayType => Seq(Any)
       case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
         if (visitedAliases.contains(ta)) return Seq.empty
@@ -71,7 +71,7 @@ object BaseTypes {
         }
       case ex: ScExistentialType => get(ex.quantified, notAll, visitedAliases = visitedAliases).map { _.unpackedType }
       case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp, visitedAliases = visitedAliases) ++ Seq(comp)))
-      case proj@ScProjectionType(p, elem, _) =>
+      case proj@ScProjectionType(_, elem, _) =>
         val s = proj.actualSubst
         elem match {
           case td : ScTypeDefinition => reduce(td.superTypes.flatMap{tp =>

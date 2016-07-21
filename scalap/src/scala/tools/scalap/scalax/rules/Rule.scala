@@ -63,7 +63,7 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
       
   def ??(pf : PartialFunction[A, Any]): Rule[In, Out, A, X] = filter (pf.isDefinedAt(_))
   
-  def -^[B](b : B): Rule[In, Out, B, X] = map { any => b }
+  def -^[B](b : B): Rule[In, Out, B, X] = map { _ => b }
  
   /** Maps an Error */
   def !^[Y](fx2y : X => Y): Rule[In, Out, A, Y] = mapResult {
@@ -74,11 +74,11 @@ trait Rule[-In, +Out, +A, +X] extends (In => Result[Out, A, X]) {
     
   def >>[Out2, B, X2 >: X](fa2ruleb : A => Out => Result[Out2, B, X2]): Rule[In, Out2, B, X2] = flatMap(fa2ruleb)
   
-  def >->[Out2, B, X2 >: X](fa2resultb : A => Result[Out2, B, X2]): Rule[In, Out2, B, X2] = flatMap { a => any => fa2resultb(a) }
+  def >->[Out2, B, X2 >: X](fa2resultb : A => Result[Out2, B, X2]): Rule[In, Out2, B, X2] = flatMap { a => _ => fa2resultb(a) }
   
   def >>?[Out2, B, X2 >: X](pf : PartialFunction[A, Rule[Out, Out2, B, X2]]): Rule[In, Out2, B, X2] = filter(pf isDefinedAt _) flatMap pf
   
-  def >>&[B, X2 >: X](fa2ruleb : A => Out => Result[Any, B, X2]): Rule[In, Out, B, X2] = flatMap { a => out => fa2ruleb(a)(out) mapOut { any => out } }
+  def >>&[B, X2 >: X](fa2ruleb : A => Out => Result[Any, B, X2]): Rule[In, Out, B, X2] = flatMap { a => out => fa2ruleb(a)(out) mapOut { _ => out } }
   
   def ~[Out2, B, X2 >: X](next : => Rule[Out, Out2, B, X2]): Rule[In, Out2, ~[A, B], X2] = for (a <- this; b <- next) yield new ~(a, b)
 

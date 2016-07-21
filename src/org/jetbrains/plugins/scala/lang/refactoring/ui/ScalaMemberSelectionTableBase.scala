@@ -54,7 +54,7 @@ abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberIn
   }
 
   def getOverrideIcon(memberInfo: I): Icon = memberInfo.getMember match {
-    case fun: ScFunction =>
+    case _: ScFunction =>
       if (java.lang.Boolean.TRUE == memberInfo.getOverrides) AllIcons.General.OverridingMethod
       else if (java.lang.Boolean.FALSE == memberInfo.getOverrides) AllIcons.General.ImplementingMethod
       else AbstractMemberSelectionTable.EMPTY_OVERRIDE_ICON

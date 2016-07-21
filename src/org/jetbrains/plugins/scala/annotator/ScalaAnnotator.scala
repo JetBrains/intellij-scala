@@ -102,7 +102,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         tp match {
           case Success(res, _) =>
             res.extractDesignated(withoutAliases = false) match {
-              case Some((t: ScTypeParametersOwner, subst)) =>
+              case Some((t: ScTypeParametersOwner, _)) =>
                 val typeParametersLength = t.typeParameters.length
                 val argsLength = parameterized.typeArgList.typeArgs.length
                 if (typeParametersLength != argsLength) {
@@ -649,11 +649,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 e.getParent.asInstanceOf[ScPrefixExpr].operation == e => //todo: this is hide !(Not Boolean)
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
                 e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
-        case e: ScReferenceExpression => processError(countError = false, fixes = getFix)
+        case _: ScReferenceExpression => processError(countError = false, fixes = getFix)
         case e: ScStableCodeReferenceElement if e.getParent.isInstanceOf[ScInfixPattern] &&
                 e.getParent.asInstanceOf[ScInfixPattern].reference == e => //todo: this is hide A op B in patterns
         case _ => refElement.getParent match {
-          case s: ScImportSelector if resolve.length > 0 =>
+          case _: ScImportSelector if resolve.length > 0 =>
           case _ => processError(countError = true, fixes = getFix)
         }
       }
@@ -730,7 +730,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       refElement.getParent match {
-        case s: ScImportSelector if resolve.length > 0 => return
+        case _: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
           val messageKey = "cannot.resolve.apply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateApplyQuickFix(td, mc))) return
@@ -768,7 +768,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkSelfInvocation(self: ScSelfInvocation, holder: AnnotationHolder) {
     self.bind match {
-      case Some(elem) =>
+      case Some(_) =>
       case None =>
         if (isAdvancedHighlightingEnabled(self)) {
           val annotation: Annotation = holder.createErrorAnnotation(self.thisElement,
@@ -903,15 +903,15 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
               registerUsedImports(expr.getContainingFile.asInstanceOf[ScalaFile], importUsed)
 
       expr match {
-        case m: ScMatchStmt =>
+        case _: ScMatchStmt =>
         case bl: ScBlock if bl.lastStatement.isDefined =>
         case i: ScIfStmt if i.elseBranch.isDefined =>
-        case fun: ScFunctionExpr =>
-        case tr: ScTryStmt =>
+        case _: ScFunctionExpr =>
+        case _: ScTryStmt =>
         case _ =>
           expr.getParent match {
             case a: ScAssignStmt if a.getRExpression.contains(expr) && a.isDynamicNamedAssignment => return
-            case args: ScArgumentExprList => return
+            case _: ScArgumentExprList => return
             case inf: ScInfixExpr if inf.getArgExpr == expr => return
             case tuple: ScTuple if tuple.getContext.isInstanceOf[ScInfixExpr] &&
                     tuple.getContext.asInstanceOf[ScInfixExpr].getArgExpr == tuple => return
@@ -939,7 +939,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case Some((tp: ScType, typeElement)) =>
               val expectedType = Success(tp, None)
               implicitFunction match {
-                case Some(fun) =>
+                case Some(_) =>
                   //todo:
                   /*val typeFrom = expr.getType(TypingContext.empty).getOrElse(Any)
                   val typeTo = exprType.getOrElse(Any)
@@ -1006,7 +1006,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkUnboundUnderscore(under: ScUnderscoreSection, holder: AnnotationHolder) {
     if (under.getText == "_") {
       ScalaPsiUtil.getParentOfType(under, classOf[ScVariableDefinition]) match {
-        case varDef @ ScVariableDefinition.expr(expr) if varDef.expr.contains(under) =>
+        case varDef @ ScVariableDefinition.expr(_) if varDef.expr.contains(under) =>
           if (varDef.containingClass == null) {
             val error = ScalaBundle.message("local.variables.must.be.initialized")
             val annotation: Annotation = holder.createErrorAnnotation(under, error)
@@ -1035,7 +1035,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       case _ if !fun.hasAssign || fun.returnType.exists(_ == api.Unit) =>
       case _ => fun.returnTypeElement match {
-        case Some(x: ScTypeElement) =>
+        case Some(_: ScTypeElement) =>
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {

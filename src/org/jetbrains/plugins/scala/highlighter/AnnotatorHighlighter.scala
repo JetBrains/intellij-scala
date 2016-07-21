@@ -105,7 +105,7 @@ object AnnotatorHighlighter {
         simpleAnnotate(ScalaBundle.message("java.collection"), DefaultHighlighter.JAVA_COLLECTION)
       } else if (resolvedType.canonicalText.startsWith(SCALA_COLLECTION_GENERIC_BASE) && refElement.isInstanceOf[ScReferenceExpression]) {
         refElement.asInstanceOf[ScReferenceExpression].getType(TypingContext.empty).foreach {
-          case f@FunctionType(returnType, params) => Option(returnType).foreach(a =>
+          case FunctionType(returnType, _) => Option(returnType).foreach(a =>
             if (a.canonicalText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
               simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), DefaultHighlighter.MUTABLE_COLLECTION)
             } else if (a.canonicalText.startsWith(SCALA_COLLECTION_IMMUTABLE_BASE)) {
@@ -152,7 +152,7 @@ object AnnotatorHighlighter {
           case _ =>
         }
         annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
-      case c: ScClass if referenceIsToCompanionObjectOfClass(refElement) =>
+      case _: ScClass if referenceIsToCompanionObjectOfClass(refElement) =>
         annotation.setTextAttributes(DefaultHighlighter.OBJECT)
       case _: ScClass =>
         annotation.setTextAttributes(DefaultHighlighter.CLASS)
@@ -206,7 +206,7 @@ object AnnotatorHighlighter {
         if (!x.hasModifierProperty("final")) annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
         else annotation.setTextAttributes(DefaultHighlighter.VALUES)
       case x: ScParameter if x.isAnonymousParameter => annotation.setTextAttributes(DefaultHighlighter.ANONYMOUS_PARAMETER)
-      case x: ScParameter => annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
+      case _: ScParameter => annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
       case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) =>
         if (SCALA_FACTORY_METHODS_NAMES.contains(x.asInstanceOf[PsiMethod].getName) || x.asInstanceOf[PsiMethod].isConstructor) {
           val clazz = PsiTreeUtil.getParentOfType(x, classOf[PsiClass])
@@ -248,7 +248,7 @@ object AnnotatorHighlighter {
         } else {
           annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
         }
-      case x => //println("" + x + " " + x.getText)
+      case _ => //println("" + x + " " + x.getText)
     }
   }
 

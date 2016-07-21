@@ -123,7 +123,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         }
         def calculateRefType(checkPo: => Boolean) = {
           exprQual.bind() match {
-            case Some(ScalaResolveResult(p: PsiPackage, _)) =>
+            case Some(ScalaResolveResult(_: PsiPackage, _)) =>
               poOpt() match {
                 case Some(po) =>
                   if (checkPo) {

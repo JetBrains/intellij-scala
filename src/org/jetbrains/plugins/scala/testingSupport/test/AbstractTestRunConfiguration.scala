@@ -340,7 +340,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       suiteClass = getSuiteClass
     }
     catch {
-      case e if clazz == null => classNotFoundError()
+      case _ if clazz == null => classNotFoundError()
     }
     if (clazz == null && pack == null) classNotFoundError()
     if (suiteClass == null)

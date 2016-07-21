@@ -21,7 +21,7 @@ class ConvertFromInfixIntention extends PsiElementBaseIntentionAction {
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     element match {
-      case Parent(Both(ref: ScStableCodeReferenceElement, Parent(Parent(param: ScReferenceableInfixTypeElement)))) => true
+      case Parent(Both(_: ScStableCodeReferenceElement, Parent(Parent(_: ScReferenceableInfixTypeElement)))) => true
       case _ => false
     }
   }

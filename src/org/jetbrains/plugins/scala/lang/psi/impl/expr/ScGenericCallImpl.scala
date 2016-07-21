@@ -115,7 +115,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   override def shapeMultiResolve: Option[Array[ResolveResult]] = {
     referencedExpr match {
       case ref: ScReferenceExpression => Some(ref.shapeResolve)
-      case expr => None
+      case _ => None
     }
   }
 
@@ -130,7 +130,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   override def multiResolve: Option[Array[ResolveResult]] = {
     referencedExpr match {
       case ref: ScReferenceExpression => Some(ref.multiResolve(false))
-      case expr => None
+      case _ => None
     }
   }
 

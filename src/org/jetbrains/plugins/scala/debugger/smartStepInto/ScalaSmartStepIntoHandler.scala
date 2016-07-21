@@ -87,7 +87,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
           case _ => None
         }
         scalaFilter.getOrElse(super.createMethodFilter(stepTarget))
-      case ScalaFunExprSmartStepTarget(fExpr, stmts) =>
+      case ScalaFunExprSmartStepTarget(_, stmts) =>
         ScalaBreakpointMethodFilter.from(None, stmts, stepTarget.getCallingExpressionLines)
                 .getOrElse(super.createMethodFilter(stepTarget))
       case _ => super.createMethodFilter(stepTarget)

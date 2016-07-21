@@ -35,7 +35,7 @@ class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
         insideDeletedCondition
       case m: ScFunction => // TODO Scala specific override/implements, extend to vals, members, type aliases etc.
         findMethodUsages(m, allElementsToDelete, usages)
-      case p: ScParameter =>
+      case _: ScParameter =>
         findParameterUsages(element.asInstanceOf[PsiParameter], usages)
         insideDeletedCondition
       case _ =>

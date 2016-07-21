@@ -137,7 +137,7 @@ object ScalaRenameUtil {
     }
 
     val modifySetterName: UsagesWithName => Seq[UsagesWithName] = {
-      case arg @ UsagesWithName(name, usagez) =>
+      case UsagesWithName(name, usagez) =>
         if (usagez.isEmpty) Nil
         else {
           val newNameWithoutSuffix = name.stripSuffix(setterSuffix(name))
@@ -151,7 +151,7 @@ object ScalaRenameUtil {
       case _: ScObject => encoded.flatMap(modifyScObjectName)
       case _: PsiTypedDefinitionWrapper | _: FakePsiMethod => encoded.flatMap(modifySetterName)
       case fun: ScFunction if setterSuffix(fun.name) != "" => encoded.flatMap(modifySetterName)
-      case variable: ScReferencePattern => encoded.flatMap(modifySetterName)
+      case _: ScReferencePattern => encoded.flatMap(modifySetterName)
       case _ => encoded
     }
     modified.foreach {

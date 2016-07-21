@@ -101,7 +101,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
               else args.length == argsCount || args.length == argsCount - 1
             }
             catch {
-              case a: AbsentInformationException => true
+              case _: AbsentInformationException => true
             }
           }
           def linesIntersects(m: Method): Boolean = inReadAction {
@@ -179,7 +179,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
               case _ =>
             }
           } catch {
-            case t: Throwable =>
+            case _: Throwable =>
           }
         }
 

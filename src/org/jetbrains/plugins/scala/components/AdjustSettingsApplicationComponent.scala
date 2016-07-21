@@ -103,7 +103,7 @@ class AdjustSettingsApplicationComponent extends ApplicationComponent {
         VMOptions.writeXmx(xmxValue)
         VMOptions.writeOption("-Xss", xssValue, XSS_PATTERN)
       } catch {
-        case n: NumberFormatException => //do nothing
+        case _: NumberFormatException => //do nothing
       } finally {
         SwingUtilities.invokeLater(new Runnable {
           override def run(): Unit = {

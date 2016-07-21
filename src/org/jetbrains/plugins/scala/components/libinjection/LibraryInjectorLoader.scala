@@ -182,7 +182,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
             myClassLoader.loadClass(injector.iface)
             Some(injector)
           } catch {
-            case e: ClassNotFoundException =>
+            case _: ClassNotFoundException =>
               LOG.warn(s"Interface class ${injector.iface} not found, skipping injector")
               None
             case NonFatal(e) =>

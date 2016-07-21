@@ -14,7 +14,6 @@ class ValToVarQuickFix(valDef: ScValue) extends IntentionAction {
   def startInWriteAction: Boolean = true
 
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    val parent = valDef.getContext
     valDef.replace(ScalaPsiElementFactory.createVarFromValDeclaration(valDef, valDef.getManager))
   }
 

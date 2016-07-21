@@ -32,7 +32,7 @@ trait ParametersAnnotator {
     parameter.owner match {
       case null =>
         holder.createErrorAnnotation(parameter, "Parameter hasn't owner: " + parameter.name)
-      case method: ScMethodLike =>
+      case _: ScMethodLike =>
         parameter.typeElement match {
           case None =>
             holder.createErrorAnnotation(parameter, "Missing type annotation for parameter: " + parameter.name)
@@ -40,7 +40,7 @@ trait ParametersAnnotator {
         }
         if (parameter.isCallByNameParameter)
           annotateCallByNameParameter(parameter, holder: AnnotationHolder)
-      case fun: ScFunctionExpr =>
+      case _: ScFunctionExpr =>
         parameter.typeElement match {
           case None =>
             parameter.expectedParamType match {

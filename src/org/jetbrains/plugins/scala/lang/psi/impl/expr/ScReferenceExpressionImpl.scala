@@ -90,7 +90,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           }
         }
         this
-      case t: ScTypeAlias =>
+      case _: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
       case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.name == "apply" =>
         bindToElement(fun.containingClass)
@@ -285,7 +285,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(r@ScalaResolveResult(param: ScParameter, s)) =>
         val owner = param.owner match {
           case f: ScPrimaryConstructor => f.containingClass
-          case f: ScFunctionExpr => null
+          case _: ScFunctionExpr => null
           case f => f
         }
         r.fromType match {
@@ -306,7 +306,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         val optionResult: Option[ScType] = {
           fun.definedReturnType match {
             case s: Success[ScType] => Some(s.get)
-            case fail: Failure => None
+            case _: Failure => None
           }
         }
         s.subst(fun.polymorphicType(optionResult))
@@ -324,7 +324,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (seqClass != null) {
           ScParameterizedType(ScalaType.designator(seqClass), Seq(computeType))
         } else computeType
-      case Some(ScalaResolveResult(obj: ScObject, s)) =>
+      case Some(ScalaResolveResult(obj: ScObject, _)) =>
         def tail = {
           fromType match {
             case Some(tp) => ScProjectionType(tp, obj, superReference = false)
@@ -411,7 +411,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case jlClass =>
               val upperBound = typeResult.toOption.flatMap {
                 case ScThisType(clazz) => Some(ScDesignatorType(clazz))
-                case ScDesignatorType(o: ScObject) => None
+                case ScDesignatorType(_: ScObject) => None
                 case ScCompoundType(comps, _, _) => comps.headOption.flatMap(removeTypeDesignator)
                 case tp => removeTypeDesignator(tp)
               }.getOrElse(Any)
@@ -443,7 +443,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
     qualifier match {
-      case Some(s: ScSuperReference) =>
+      case Some(_: ScSuperReference) =>
       case None => //infix, prefix and postfix
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
@@ -490,7 +490,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getPrevTypeInfoParams: Seq[TypeParameter] = {
     qualifier match {
-      case Some(s: ScSuperReference) => Seq.empty
+      case Some(_: ScSuperReference) => Seq.empty
       case Some(qual) =>
         qual.getNonValueType(TypingContext.empty).map {
           case t: ScTypePolymorphicType => t.typeParameters

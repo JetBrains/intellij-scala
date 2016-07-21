@@ -620,7 +620,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
         printer.append(" finally {\n")
         printWithSeparator(finallyStatements.get, "\n", "", "\n")
         resourcesList.foreach {
-          case (name: String, variable: IntermediateNode) =>
+          case (name: String, _: IntermediateNode) =>
             val cname = escapeKeyword(name)
             printer.append(s"if ($cname != null) $cname.close()\n")
         }
@@ -630,7 +630,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     } else if (resourcesList.nonEmpty) {
       printer.append(" finally {\n")
       resourcesList.foreach {
-        case (name: String, variable: IntermediateNode) =>
+        case (name: String, _: IntermediateNode) =>
           val cname = escapeKeyword(name)
           printer.append(s"if ($cname != null) $cname.close()\n")
       }

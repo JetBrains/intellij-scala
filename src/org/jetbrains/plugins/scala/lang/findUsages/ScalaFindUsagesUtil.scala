@@ -34,8 +34,8 @@ object ScalaFindUsagesUtil {
     case _: PsiVariable => "variable"
     case f: ScFieldId =>
       ScalaPsiUtil.nameContext(f) match {
-        case v: ScValue => "pattern"
-        case v: ScVariable => "variable"
+        case _: ScValue => "pattern"
+        case _: ScVariable => "variable"
         case _ => "pattern"
       }
     case _ => ""

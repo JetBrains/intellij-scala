@@ -74,7 +74,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
             new TextRange(nodeTextRange.getStartOffset + PACKAGE_KEYWORD.length + 1, nodeTextRange.getEndOffset))
         case p: ScLiteral if p.isMultiLineString =>
           descriptors += new FoldingDescriptor(node, nodeTextRange)
-        case p: ScArgumentExprList =>
+        case _: ScArgumentExprList =>
           descriptors += new FoldingDescriptor(node, nodeTextRange)
         case _: ScBlockExpr
           if ScalaCodeFoldingSettings.getInstance().isFoldingForAllBlocks =>

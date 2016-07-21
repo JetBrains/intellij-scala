@@ -383,11 +383,11 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
                                                           (document: Document, project: Project, element: PsiElement, offset: Int) {
     if (CodeInsightSettings.getInstance().AUTO_POPUP_COMPLETION_LOOKUP) {
       element.getParent match {
-        case l: ScLiteral =>
+        case _: ScLiteral =>
           element.getNode.getElementType match {
             case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
               file.findElementAt(offset).getPrevSibling match {
-                case ref: ScReferenceExpression => scheduleAutopopup(file, editor, project)
+                case _: ScReferenceExpression => scheduleAutopopup(file, editor, project)
                 case _ =>
               }
             case _ =>

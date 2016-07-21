@@ -24,8 +24,8 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                         treatJavaObjectAsAny: Boolean)
                        (implicit visitedRawTypes: HashSet[PsiClass],
                         paramTopLevel: Boolean): ScType = `type` match {
-    case classType: PsiClassType => Any
-    case wildcardType: PsiWildcardType => Any
+    case _: PsiClassType => Any
+    case _: PsiWildcardType => Any
     case disjunctionType: PsiDisjunctionType =>
       DottyOrType(disjunctionType.getDisjunctions.map {
         toScType(_, treatJavaObjectAsAny)

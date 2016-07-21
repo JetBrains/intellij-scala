@@ -26,8 +26,8 @@ object ScClsStubBuilder {
     try {
       canBeProcessed(file, file.contentsToByteArray())
     } catch {
-      case ex: IOException => false
-      case u: UnsupportedOperationException => false //why we need to handle this?
+      case _: IOException => false
+      case _: UnsupportedOperationException => false //why we need to handle this?
     }
   }
 

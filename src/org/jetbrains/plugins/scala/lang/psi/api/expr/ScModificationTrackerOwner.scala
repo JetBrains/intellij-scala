@@ -33,7 +33,7 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
     @tailrec
     def calc(place: PsiElement, sum: Long): Long = place match {
       case null => sum + ScalaPsiManager.instance(getProject).getModificationCount
-      case file: ScalaFile => sum + ScalaPsiManager.instance(getProject).getModificationCount
+      case _: ScalaFile => sum + ScalaPsiManager.instance(getProject).getModificationCount
       case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
         calc(owner.getContext, sum + owner.rawModificationCount)
       case _ => calc(place.getContext, sum)
@@ -50,14 +50,14 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
   def isValidModificationTrackerOwner(checkForChangedReturn: Boolean = false): Boolean = {
     getContext match {
       case f: ScFunction => f.returnTypeElement match {
-        case Some(ret) =>  true
+        case Some(_) =>  true
         case None if !f.hasAssign => true
         case _ => false
       }
       case v: ScValue if !checkForChangedReturn || v.typeElement.isDefined => true
-      case v: ScValue => false
+      case _: ScValue => false
       case v: ScVariable if !checkForChangedReturn || v.typeElement.isDefined => true
-      case v: ScVariable => false
+      case _: ScVariable => false
       case _: ScWhileStmt => true
       case _: ScFinallyBlock => true
       case _: ScDoStmt => true

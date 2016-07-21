@@ -120,7 +120,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ref: ScReferenceElement =>
         if (!ref.isValid || ref.isReferenceTo(clazz)) return
         ref.bind() match {
-          case Some(ScalaResolveResult(t: ScTypeAliasDefinition, subst)) if t.typeParameters.isEmpty =>
+          case Some(ScalaResolveResult(t: ScTypeAliasDefinition, _)) if t.typeParameters.isEmpty =>
             for (tp <- t.aliasedType(TypingContext.empty)) {
               tp match {
                 case ScDesignatorType(c: PsiClass) if c == clazz => return

@@ -209,7 +209,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
         handleVisibility(change, usage)
         handleChangedParameters(change, usage)
       case fun: ScFunction if fun.isSynthetic =>
-      case c: ScClass =>
+      case _: ScClass =>
         handleVisibility(change, usage)
         handleChangedParameters(change, usage)
       case _ =>

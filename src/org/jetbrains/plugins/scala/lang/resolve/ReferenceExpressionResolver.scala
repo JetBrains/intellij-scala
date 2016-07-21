@@ -42,7 +42,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
       case inf: ScInfixExpr if ref == inf.operation =>
         ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
-          case unit: ScUnitExpr => Some(Nil) // See SCL-3485
+          case _: ScUnitExpr => Some(Nil) // See SCL-3485
           case e: ScParenthesisedExpr => e.expr match {
             case Some(expr) => Some(Seq(expr))
             case _ => Some(Nil)

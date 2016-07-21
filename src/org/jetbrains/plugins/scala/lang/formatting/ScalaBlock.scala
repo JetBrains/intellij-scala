@@ -77,7 +77,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           else Indent.getNormalIndent
           new ChildAttributes(indent, null)
         }
-      case c: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
       case l: ScLiteral
         if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
@@ -125,7 +125,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
       case p: ScParameterClause if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS && isConstructorArgOrMemberFunctionParameter(p) =>
         new ChildAttributes(
           Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false), null)
-      case p: ScParameterClause =>
+      case _: ScParameterClause =>
         new ChildAttributes(
           if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS) Indent.getNormalIndent
           else Indent.getContinuationWithoutFirstIndent, this.getAlignment)

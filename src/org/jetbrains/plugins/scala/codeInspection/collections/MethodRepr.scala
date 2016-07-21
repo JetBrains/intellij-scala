@@ -29,10 +29,10 @@ object MethodRepr {
           case genericCall: ScGenericCall =>
             genericCall.referencedExpr match {
               case ref: ScReferenceExpression => Some(expr, ref.qualifier, Some(ref), args)
-              case other => Some(expr, None, None, args)
+              case _ => Some(expr, None, None, args)
             }
           case methCall: ScMethodCall => Some(expr, Some(methCall), None, args)
-          case other => Some(expr, None, None, args)
+          case _ => Some(expr, None, None, args)
         }
       case infix: ScInfixExpr =>
         val args = infix.getArgExpr match {
@@ -56,7 +56,7 @@ object MethodRepr {
           case mc: ScMethodCall if !mc.isApplyOrUpdateCall => None
           case _ => genCall.referencedExpr match {
             case ref: ScReferenceExpression => Some(genCall, ref.qualifier, Some(ref), Seq.empty)
-            case other => Some(genCall, None, None, Seq.empty)
+            case _ => Some(genCall, None, None, Seq.empty)
           }
         }
       case _ => None
@@ -75,7 +75,7 @@ object MethodSeq {
     @tailrec
     def extractMethods(expr: ScExpression) {
       expr match {
-        case MethodRepr(itself, optionalBase, optionalMethodRef, args) =>
+        case MethodRepr(_, optionalBase, optionalMethodRef, args) =>
           result += MethodRepr(expr, optionalBase, optionalMethodRef, args)
           optionalBase match {
             case Some(ScParenthesisedExpr(inner)) => extractMethods(stripped(inner))

@@ -42,7 +42,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       }))
 
       getContext match {
-        case c: ScCatchBlock =>
+        case _: ScCatchBlock =>
           val manager = ScalaPsiManager.instance(getProject)
           val funs = manager.getCachedClasses(getResolveScope, "scala.PartialFunction")
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class", Some(this)))
@@ -68,10 +68,10 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           }
 
           return et match {
-            case f@FunctionType(_, params) =>
+            case FunctionType(_, params) =>
               Success(FunctionType(clausesType, params.map(removeVarianceAbstracts))
                 (getProject, getResolveScope), Some(this))
-            case f@PartialFunctionType(_, param) =>
+            case PartialFunctionType(_, param) =>
               Success(PartialFunctionType(clausesType, removeVarianceAbstracts(param))
                 (getProject, getResolveScope), Some(this))
             case _ =>
@@ -121,7 +121,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case _ => t
             }
-            case proj@ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
+            case ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
             case ScCompoundType(comps, signatureMap, typesMap) =>
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>
@@ -151,7 +151,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case JavaArrayType(argument) => JavaArrayType(existize(argument, visitedWithT))
             case ParameterizedType(des, typeArgs) =>
               ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
-            case ex@ScExistentialType(q, wildcards) =>
+            case ScExistentialType(q, wildcards) =>
               new ScExistentialType(existize(q, visitedWithT), wildcards.map {
                 ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lower, visitedWithT), existize(ex.upper, visitedWithT))
               })

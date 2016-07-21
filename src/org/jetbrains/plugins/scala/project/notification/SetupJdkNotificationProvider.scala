@@ -53,7 +53,7 @@ object SetupJdkNotificationProvider {
   }
 
   private def setupSdk(project: Project, file: PsiFile) {
-    Option(ProjectSettingsService.getInstance(project).chooseAndSetSdk()).foreach { projectSdk =>
+    Option(ProjectSettingsService.getInstance(project).chooseAndSetSdk()).foreach { _ =>
       Option(ModuleUtilCore.findModuleForPsiElement(file)).foreach { module =>
         inWriteAction {
           ModuleRootModificationUtil.setSdkInherited(module)

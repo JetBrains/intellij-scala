@@ -56,7 +56,7 @@ package object types {
     }
 
     def removeUndefines(): ScType = scType.recursiveUpdate {
-      case u: UndefinedType => (true, Any)
+      case _: UndefinedType => (true, Any)
       case tp: ScType => (false, tp)
     }
 

@@ -127,18 +127,18 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         conformance = subst.subst(lower).conforms(r, conformance._2)
         if (!conformance._1) return (false, uSubst)
         (true, conformance._2)
-      case (ParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+      case (ParameterizedType(proj@ScProjectionType(_, _, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case (ParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) =>
+      case (ParameterizedType(ScDesignatorType(_: ScTypeAliasDefinition), _), _) =>
         isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)

@@ -78,7 +78,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     if (this.isInstanceOf[ScObject]) return None
     val baseCompanion = ScalaPsiUtil.getBaseCompanionModule(this)
     baseCompanion match {
-      case Some(td: ScObject) => return None
+      case Some(_: ScObject) => return None
       case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => return None
       case _ =>
     }
@@ -111,7 +111,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
               ""
             }
           } catch {
-            case e: Exception => ""
+            case _: Exception => ""
           }
         }
 

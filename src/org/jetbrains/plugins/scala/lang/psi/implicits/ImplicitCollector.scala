@@ -118,7 +118,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
           if (!placeCalculated) {
             place = placeForTreeWalkUp
             place match {
-              case e: ScTemplateParents => placeCalculated = true
+              case _: ScTemplateParents => placeCalculated = true
               case m: ScModifierListOwner if m.hasModifierProperty("implicit") =>
                 placeCalculated = true //we need to check that, otherwise we will be outside
               case _ =>
@@ -323,7 +323,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                               case _ => (tp.inferValueType, Seq.empty)
                             }
                           } else tp match {
-                            case ScTypePolymorphicType(internalType, typeParams) =>
+                            case ScTypePolymorphicType(_, typeParams) =>
                               (tp.inferValueType, typeParams)
                             case _ => (tp.inferValueType, Seq.empty)
                           }
@@ -342,7 +342,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                               nonValueType = InferUtil.updateAccordingToExpectedType(nonValueType,
                                 fromImplicitParameters = true, filterTypeParams = isImplicitConversion, expected, place, check = true)
                             } catch {
-                              case e: SafeCheckException => return reportWrong(CantInferTypeParameterResult)
+                              case _: SafeCheckException => return reportWrong(CantInferTypeParameterResult)
                             }
 
                             val depth = ScalaProjectSettings.getInstance(place.getProject).getImplicitParametersSearchDepth
@@ -365,7 +365,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                                   InferUtil.updateTypeWithImplicitParameters(nonValueType.getOrElse(return reportWrong(BadTypeResult)),
                                     place, Some(fun), check = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
                                 } catch {
-                                  case e: SafeCheckException => return reportWrong(CantInferTypeParameterResult)
+                                  case _: SafeCheckException => return reportWrong(CantInferTypeParameterResult)
                                 }
                               if (fullInfo && results.exists(_.exists(_.name == InferUtil.notFoundParameterName)))
                                 return Some(c.copy(implicitParameters = results.getOrElse(Seq.empty),
@@ -389,7 +389,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
 
                           updateImplicitParameters()
                         } catch {
-                          case e: SafeCheckException => 
+                          case _: SafeCheckException =>
                             Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = UnhandledResult), subst)
                         }
                       }
@@ -533,7 +533,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
 
       //todo: remove it when you will be sure, that filtering according to implicit parameters works ok
       val filtered = applicable.filter {
-        case (res: ScalaResolveResult, subst: ScSubstitutor) =>
+        case (res: ScalaResolveResult, _: ScSubstitutor) =>
           res.problems match {
             case Seq(WrongTypeParameterInferred) => false
             case _ => true
@@ -601,7 +601,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
     tp match {
       case ScProjectionType(_, element, _) => Set(ScDesignatorType(element))
       case ParameterizedType(designator, _) => Set(designator)
-      case tp@ScDesignatorType(o: ScObject) => Set(tp)
+      case tp@ScDesignatorType(_: ScObject) => Set(tp)
       case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         topLevelTypeConstructors(valueType)
@@ -613,8 +613,8 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
   private def complexity(tp: ScType): Int = {
     tp match {
       case ScProjectionType(proj, _, _) => 1 + complexity(proj)
-      case ParameterizedType(des, args) => 1 + args.foldLeft(0)(_ + complexity(_))
-      case ScDesignatorType(o: ScObject) => 1
+      case ParameterizedType(_, args) => 1 + args.foldLeft(0)(_ + complexity(_))
+      case ScDesignatorType(_: ScObject) => 1
       case ScDesignatorType(v: ScTypedDefinition) =>
         val valueType: ScType = v.getType(TypingContext.empty).getOrAny
         1 + complexity(valueType)

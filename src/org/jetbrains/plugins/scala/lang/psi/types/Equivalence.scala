@@ -35,12 +35,12 @@ object Equivalence extends api.Equivalence {
       }
 
       right.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, Success(right, _), _)) => return equivInner(left, right, substitutor, falseUndef)
+        case Some(AliasType(_: ScTypeAliasDefinition, Success(right, _), _)) => return equivInner(left, right, substitutor, falseUndef)
         case _ =>
       }
 
       left.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, Success(left, _), _)) => return equivInner(left, right, substitutor, falseUndef)
+        case Some(AliasType(_: ScTypeAliasDefinition, Success(left, _), _)) => return equivInner(left, right, substitutor, falseUndef)
         case _ =>
       }
 
@@ -55,9 +55,9 @@ object Equivalence extends api.Equivalence {
         case (_: StdType, _: ScProjectionType) => right.equivInner(left, substitutor, falseUndef)
         case (_: ScDesignatorType, _: ScThisType) => right.equivInner(left, substitutor, falseUndef)
         case (_: ScParameterizedType, _: JavaArrayType) => right.equivInner(left, substitutor, falseUndef)
-        case (_, ex: ScExistentialType) => right.equivInner(left, substitutor, falseUndef)
-        case (_, proj: ScProjectionType) => right.equivInner(left, substitutor, falseUndef)
-        case (_, proj: ScCompoundType) => right.equivInner(left, substitutor, falseUndef)
+        case (_, _: ScExistentialType) => right.equivInner(left, substitutor, falseUndef)
+        case (_, _: ScProjectionType) => right.equivInner(left, substitutor, falseUndef)
+        case (_, _: ScCompoundType) => right.equivInner(left, substitutor, falseUndef)
         case _ => left.equivInner(right, substitutor, falseUndef)
       }
     }

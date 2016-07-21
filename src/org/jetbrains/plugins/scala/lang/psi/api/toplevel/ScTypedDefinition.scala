@@ -119,7 +119,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
 
   def isAbstractMember: Boolean = ScalaPsiUtil.nameContext(this) match {
     case _: ScFunctionDefinition | _: ScPatternDefinition | _: ScVariableDefinition => false
-    case cp: ScClassParameter => false
+    case _: ScClassParameter => false
     case _ => true
   }
 }

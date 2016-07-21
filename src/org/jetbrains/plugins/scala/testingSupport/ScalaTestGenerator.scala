@@ -33,7 +33,7 @@ class ScalaTestGenerator extends TestGenerator {
           val file: PsiFile = generateTestInternal(project, d)
           file
         } catch {
-          case e: IncorrectOperationException =>
+          case _: IncorrectOperationException =>
             invokeLater {
               val message = CodeInsightBundle.message("intention.error.cannot.create.class.message", d.getClassName)
               val title = CodeInsightBundle.message("intention.error.cannot.create.class.title")

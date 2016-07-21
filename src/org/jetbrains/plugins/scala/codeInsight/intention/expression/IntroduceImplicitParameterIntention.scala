@@ -94,7 +94,7 @@ object IntroduceImplicitParameterIntention {
         case None => "_"
         case _ if withoutParameterTypes => "_"
         case Some(t) if expectedType.exists(_.equiv(t.getType().getOrAny)) => "_"
-        case Some(t) => s"(_: ${p.typeElement.get.getText})"
+        case Some(_) => s"(_: ${p.typeElement.get.getText})"
       }
 
       val offset = occurrences(p.name) - diff

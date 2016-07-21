@@ -87,9 +87,9 @@ trait IntroduceTypeAlias {
             val mainScopeIdx = currentDataObject.possibleScopes.indexOf(mainScope)
             currentDataObject.possibleScopes(mainScopeIdx) = newScope
             newScope
-          case simpleScope: SimpleScopeItem =>
+          case _: SimpleScopeItem =>
             mainScope
-          case packageScope: PackageScopeItem =>
+          case _: PackageScopeItem =>
             mainScope
         }
 
@@ -419,7 +419,7 @@ trait IntroduceTypeAlias {
     val occurrences = mainScope match  {
       case simpleScope:SimpleScopeItem =>
         simpleScope.usualOccurrences
-      case packageScope: PackageScopeItem =>
+      case _: PackageScopeItem =>
         Array[ScTypeElement]()
     }
 

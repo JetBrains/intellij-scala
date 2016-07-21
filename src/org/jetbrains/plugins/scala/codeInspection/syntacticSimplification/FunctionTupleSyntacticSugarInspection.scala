@@ -74,7 +74,7 @@ object FunctionTupleSyntacticSugarInspection {
 
       val typeTextWithParens = {
         val needParens = typeElement.getContext match {
-          case ft: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
+          case _: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
           case _ => false
         }
         ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesize(needParens)
@@ -93,16 +93,16 @@ object FunctionTupleSyntacticSugarInspection {
 
       val returnTypeTextWithParens = {
         val returnTypeNeedParens = returnType match {
-          case ft: ScFunctionalTypeElement => true
-          case ft: ScInfixTypeElement => true
+          case _: ScFunctionalTypeElement => true
+          case _: ScInfixTypeElement => true
           case _ => false
         }
         returnType.getText.parenthesize(returnTypeNeedParens)
       }
       val typeTextWithParens = {
         val needParens = typeElement.getContext match {
-          case ft: ScFunctionalTypeElement => true
-          case ft: ScInfixTypeElement => true
+          case _: ScFunctionalTypeElement => true
+          case _: ScInfixTypeElement => true
           case _: ScConstructor | _: ScTraitParents | _: ScClassParents => true
           case _ => false
         }

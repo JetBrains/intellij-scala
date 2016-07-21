@@ -34,7 +34,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
     case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _))))
       if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkSameResolve(fun) =>
       registerProblem(holder, ms, fun) //if fun is last statement in block, result can be block without braces
-    case ms @ ScMatchStmt(und: ScUnderscoreSection, _) if checkSameResolve(ms) =>
+    case ms @ ScMatchStmt(_: ScUnderscoreSection, _) if checkSameResolve(ms) =>
       registerProblem(holder, ms, ms)
   }
 

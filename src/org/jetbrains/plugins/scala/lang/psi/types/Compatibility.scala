@@ -64,7 +64,7 @@ object Compatibility {
             val res = results.head
             val paramType = InferUtil.extractImplicitParameterType(res)
             paramType match {
-              case FunctionType(rt, Seq(param)) => (Success(rt, Some(place)), res.importsUsed)
+              case FunctionType(rt, Seq(_)) => (Success(rt, Some(place)), res.importsUsed)
               case _ =>
                 ScalaPsiManager.instance(place.getProject).getCachedClass(
                   "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE

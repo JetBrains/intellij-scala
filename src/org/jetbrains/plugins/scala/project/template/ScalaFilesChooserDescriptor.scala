@@ -27,7 +27,7 @@ abstract class AbstractFilesChooserDescriptor(languageName: String, sdkDescripto
 
     sdkDescriptor.from(components) match {
       case Left(message) => throw new ValidationException(message)
-      case Right(sdk) => // OK
+      case Right(_) => // OK
     }
   }
 }

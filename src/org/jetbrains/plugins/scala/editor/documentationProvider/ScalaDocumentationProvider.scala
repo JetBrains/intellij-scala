@@ -744,7 +744,7 @@ object ScalaDocumentationProvider {
               superSignature = SuperMethodsSearch.search(method, null, true, false).findFirst
             }
             catch {
-              case e: IndexNotReadyException =>
+              case _: IndexNotReadyException =>
             }
             if (superSignature == null) return ""
 
@@ -858,7 +858,7 @@ object ScalaDocumentationProvider {
           case ScalaDocTokenType.DOC_MACROS => try {
             macroFinder.getMacroBody(element.getText.stripPrefix("$")).map(a => result append a).getOrElse(result append s"[Cannot find macro: ${element.getText}]")
           } catch {
-            case ee: Exception =>
+            case _: Exception =>
           }
           case _ => result.append(element.getText)
         }

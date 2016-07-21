@@ -14,7 +14,7 @@ object IsInstanceOfCall {
         call.referencedExpr match {
           case ref: ScReferenceExpression if ref.refName == "isInstanceOf" =>
             ref.resolve() match {
-              case synth: ScSyntheticFunction => Some(call)
+              case _: ScSyntheticFunction => Some(call)
               case _ => None
             }
           case _ => None

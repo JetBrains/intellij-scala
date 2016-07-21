@@ -49,7 +49,7 @@ trait OverridingAnnotator {
   def checkStructural(element: PsiElement, supers: Seq[Any], isInSources: Boolean): Unit = {
     if (!isInSources) return
     element.getParent match {
-      case ref: ScRefinement =>
+      case _: ScRefinement =>
         if (supers.isEmpty) UsageTrigger.trigger("scala.structural.type")
       case _ =>
     }
@@ -88,8 +88,8 @@ trait OverridingAnnotator {
 
   def checkOverrideTypes(tp: ScNamedElement with ScModifierListOwner, holder: AnnotationHolder) {
     tp match {
-      case c: ScTypeDefinition => return
-      case a: ScTypeAlias =>
+      case _: ScTypeDefinition => return
+      case _: ScTypeAlias =>
       case _ => return
     }
     val supersWithSelfType = ScalaPsiUtil.superTypeMembers(tp, withSelfType = true).filter(_.isInstanceOf[ScTypeAlias])
@@ -206,9 +206,9 @@ trait OverridingAnnotator {
         }
       }
       member match {
-        case f: ScFunctionDefinition =>
+        case _: ScFunctionDefinition =>
           annotateFunFromValOrVar()
-        case pattern @ ScalaPsiUtil.inNameContext(vd: ScVariable) =>
+        case ScalaPsiUtil.inNameContext(_: ScVariable) =>
           annotateVarFromVal()
         case cp: ScClassParameter if cp.isVar =>
           annotateVarFromVal()

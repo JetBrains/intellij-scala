@@ -66,7 +66,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       case call: ScMethodCall => call.matchedParameters
       case constr: ScConstructor =>
         constr.matchedParameters.filter {
-          case (e, p) => this.isAncestorOf(e)
+          case (e, _) => this.isAncestorOf(e)
         }
       case _ => Seq.empty
     }

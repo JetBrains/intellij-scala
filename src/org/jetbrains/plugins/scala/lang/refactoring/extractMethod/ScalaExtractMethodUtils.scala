@@ -136,7 +136,7 @@ object ScalaExtractMethodUtils {
     val visitor = new ScalaRecursiveElementVisitor() {
       override def visitReference(ref: ScReferenceElement) {
         ref.bind() match {
-          case Some(ScalaResolveResult(named: PsiNamedElement, subst: ScSubstitutor)) =>
+          case Some(ScalaResolveResult(named: PsiNamedElement, _: ScSubstitutor)) =>
             if (named.getContainingFile == method.getContainingFile && named.getTextOffset < offset &&
                     !named.name.startsWith("_")) {
               val oldName = named.name
@@ -156,7 +156,7 @@ object ScalaExtractMethodUtils {
                     case _ if param.isEmptyParamFunction =>
                       ref.getParent match {
                         case ref: ScReferenceElement if ref.refName == "apply" => tail()
-                        case call: ScMethodCall => tail()
+                        case _: ScMethodCall => tail()
                         case _ =>
                           ref.asInstanceOf[ScExpression].expectedType() match {
                             case Some(FunctionType(_, params)) if params.isEmpty => tail()
@@ -408,7 +408,7 @@ object ScalaExtractMethodUtils {
             (patternForDeclaration, true)
           case outputs if outputs.forall(!_.isVal) =>
             (patternForDeclaration, false)
-          case outputs =>
+          case _ =>
             needExtractorsFromMultipleReturn = true
             val typeText = ScalaExtractMethodUtils.outputTypeText(settings)
             (s"$mFreshName: $typeText", true)

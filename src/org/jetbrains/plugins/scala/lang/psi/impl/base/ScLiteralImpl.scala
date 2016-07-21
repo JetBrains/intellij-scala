@@ -75,7 +75,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         }
         try StringContext.treatEscapes(text) //for octal escape sequences
         catch {
-          case e: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
+          case _: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
         }
       case ScalaTokenTypes.tMULTILINE_STRING =>
         if (!text.startsWith("\"\"\"")) return null
@@ -125,13 +125,13 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
           try {
             java.lang.Float.valueOf(text.substring(0, text.length - 1))
           } catch {
-            case e: Exception => null
+            case _: Exception => null
           }
         else
           try {
             java.lang.Double.valueOf(text)
           } catch {
-            case e: Exception => null
+            case _: Exception => null
           }
       case ScalaTokenTypes.tSYMBOL =>
         if (!text.startsWith("\'")) return null

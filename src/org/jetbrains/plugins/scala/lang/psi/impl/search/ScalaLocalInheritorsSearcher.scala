@@ -20,7 +20,7 @@ class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInhe
   override def processQuery(params: SearchParameters, consumer: Processor[PsiClass]): Unit = {
     val clazz = params.getClassToProcess
 
-    val (searchScope, virtualFiles) = params.getScope match {
+    val (_, virtualFiles) = params.getScope match {
       case local: LocalSearchScope if clazz.isInstanceOf[ScalaPsiElement] => (local, local.getVirtualFiles)
       case _ => return
     }
@@ -52,7 +52,7 @@ class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInhe
     ProgressManager.checkCanceled()
     if (!PsiSearchScopeUtil.isInScope(searchScope, candidate)) false
     else candidate match {
-      case anon: ScNewTemplateDefinition => true
+      case _: ScNewTemplateDefinition => true
       case td: ScTypeDefinition => parameters.getNameCondition.value(td.name)
     }
   }

@@ -89,9 +89,9 @@ final class HObjectEntries(ast: ASTNode) extends HoconPsiElement(ast) with HScop
     case Some(obj: HObject) => forObject(obj)
   }
 
-  def isToplevel: Boolean = forParent(file => true, obj => false)
+  def isToplevel: Boolean = forParent(_ => true, _ => false)
 
-  def prefixingField: Option[HValuedField] = forParent(file => None, obj => obj.prefixingField)
+  def prefixingField: Option[HValuedField] = forParent(_ => None, obj => obj.prefixingField)
 
   def entries: Iterator[HObjectEntry] = findChildren[HObjectEntry]
 
@@ -145,7 +145,7 @@ sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope 
     this #:: forParent(
       keyedField => keyedField.fieldsInAllPathsBackward,
       objectField => objectField.parent.map(_.forParent(
-        file => Stream.empty,
+        _ => Stream.empty,
         obj => obj.prefixingField.map(_.fieldsInAllPathsBackward).getOrElse(Stream.empty)
       )).get
     )
@@ -172,7 +172,7 @@ sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope 
   def fieldsInPathForward: Stream[HKeyedField]
 
   def fieldsInPathBackward: Stream[HKeyedField] =
-    forParent(keyedField => this #:: keyedField.fieldsInPathBackward, of => Stream(this))
+    forParent(keyedField => this #:: keyedField.fieldsInPathBackward, _ => Stream(this))
 
   def startingField: HKeyedField =
     forParent(_.startingField, _ => this)
@@ -284,7 +284,7 @@ final class HKey(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
 
   def enclosingEntries: HObjectEntries =
     forParent(
-      path => getContainingFile.toplevelEntries,
+      _ => getContainingFile.toplevelEntries,
       keyedField => keyedField.enclosingEntries
     )
 
@@ -349,7 +349,7 @@ sealed trait HValue extends HoconPsiElement with HInnerElement {
 
   def prefixingField: Option[HValuedField] = forParent(
     vf => if (vf.isArrayAppend) None else Some(vf),
-    arr => None,
+    _ => None,
     concat => concat.prefixingField
   )
 }

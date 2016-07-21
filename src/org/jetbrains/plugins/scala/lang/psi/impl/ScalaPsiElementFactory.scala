@@ -139,7 +139,7 @@ class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory 
     try {
       ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, context)
     } catch {
-      case e: Throwable => throw new IncorrectOperationException
+      case _: Throwable => throw new IncorrectOperationException
     }
   }
 }
@@ -389,7 +389,7 @@ object ScalaPsiElementFactory {
       dummyFile.getNode.getLastChildNode.getLastChildNode.getLastChildNode
     }
     catch {
-      case t: Throwable => throw new IllegalArgumentException(s"Cannot create identifier from text $name")
+      case _: Throwable => throw new IllegalArgumentException(s"Cannot create identifier from text $name")
     }
   }
 
@@ -431,7 +431,7 @@ object ScalaPsiElementFactory {
       ref
     }
     catch {
-      case t: Throwable => throw new IllegalArgumentException(s"Cannot create reference with text $name")
+      case _: Throwable => throw new IllegalArgumentException(s"Cannot create reference with text $name")
     }
   }
 
@@ -1044,7 +1044,7 @@ object ScalaPsiElementFactory {
       child.asInstanceOf[ScTypeElement]
     }
     catch {
-      case cce: ClassCastException => throw new IncorrectOperationException("wrong type element to parse: " + text)
+      case _: ClassCastException => throw new IncorrectOperationException("wrong type element to parse: " + text)
     }
   }
 

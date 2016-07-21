@@ -55,7 +55,7 @@ object DecompilerUtil {
   def isScalaFile(file: VirtualFile): Boolean =
     try isScalaFile(file, file.contentsToByteArray)
     catch {
-      case e: IOException => false
+      case _: IOException => false
     }
   def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = decompile(file, bytes).isScala
   def decompile(file: VirtualFile, bytes: => Array[Byte]): DecompilationResult = {
@@ -75,7 +75,7 @@ object DecompilerUtil {
             writeAttribute.writeLong(decompilationResult.timeStamp)
             writeAttribute.close()
           } catch {
-            case e: IOException =>
+            case _: IOException =>
           }
         }
         res = decompilationResult
@@ -93,7 +93,7 @@ object DecompilerUtil {
           }
         }
         catch {
-          case e: IOException => updateAttributeAndData()
+          case _: IOException => updateAttributeAndData()
         }
       } else updateAttributeAndData()
       data = new SoftReference[DecompilationResult](res)

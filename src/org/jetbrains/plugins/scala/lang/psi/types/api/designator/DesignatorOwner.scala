@@ -32,7 +32,7 @@ trait DesignatorOwner extends ValueType with TypeInTypeSystem {
   }
 
   private[types] def designatorSingletonType = element match {
-    case scObject: ScObject => None
+    case _: ScObject => None
     case parameter: ScParameter if parameter.isStable => parameter.getRealParameterType().toOption
     case definition: ScTypedDefinition if definition.isStable => definition.getType().toOption
     case _ => None

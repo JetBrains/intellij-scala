@@ -133,7 +133,7 @@ class HoconObjectEntryMover extends LineMover {
         val lineToInsertAfter = if (down) firstNonCommentLine(field) else endLine(field) - 1
         file.elementsAt(document.getLineEndOffset(lineToInsertAfter)).collectFirst {
           case entries: HObjectEntries => entries.prefixingField.map(_.enclosingObjectField).contains(field)
-          case field: HKeyedField => false
+          case _: HKeyedField => false
         } getOrElse false
       }
 

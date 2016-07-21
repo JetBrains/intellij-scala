@@ -52,7 +52,7 @@ object MultilineStringUtil {
 
     do {
       parent match {
-        case ref: ScReferenceElement => //if (ref.nameId.getText == methodName) return false
+        case _: ScReferenceElement => //if (ref.nameId.getText == methodName) return false
         case l: ScLiteral => if (!l.isMultiLineString) return false
         case i: ScInfixExpr => if (i.operation.getText == methodName) return false
         case call: ScMethodCall =>

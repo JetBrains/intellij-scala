@@ -53,9 +53,9 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
       override def getComparator: Comparator[_] = new Comparator[AnyRef] {
         override def compare(o1: AnyRef, o2: AnyRef): Int =
           (o1, o2) match {
-            case (test1: TestStructureViewElement, test2: TestStructureViewElement) => 0
-            case (_, test: TestStructureViewElement) => -1
-            case (test: TestStructureViewElement, _) => 1
+            case (_: TestStructureViewElement, _: TestStructureViewElement) => 0
+            case (_, _: TestStructureViewElement) => -1
+            case (_: TestStructureViewElement, _) => 1
             case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
           }
       }

@@ -607,7 +607,7 @@ object TypeDefinitionMembers {
                   getSignatures(c, Some(clazzType), clazz)
                 case tp =>
                   val cl = tp.extractClassType(clazz.getProject) match {
-                    case Some((selfClazz, subst)) => selfClazz
+                    case Some((selfClazz, _)) => selfClazz
                     case _ => clazz
                   }
                   getSignatures(cl)
@@ -634,7 +634,7 @@ object TypeDefinitionMembers {
                 getTypes(c, Some(clazzType), clazz)
               case tp =>
                 val cl = tp.extractClassType(clazz.getProject) match {
-                  case Some((selfClazz, subst)) => selfClazz
+                  case Some((selfClazz, _)) => selfClazz
                   case _ => clazz
                 }
                 getTypes(cl)
@@ -860,7 +860,7 @@ object TypeDefinitionMembers {
           }
           sig match {
             case phys: PhysicalSignature if processMethods => if (!addMethod(phys.method)) return false
-            case phys: PhysicalSignature => //do nothing
+            case _: PhysicalSignature => //do nothing
             case s: Signature if processMethods && s.namedElement.isInstanceOf[PsiMethod] =>
               //this is compound type case
               if (!addMethod(s.namedElement)) return false
@@ -884,7 +884,7 @@ object TypeDefinitionMembers {
 
                 n.info match {
                   case phys: PhysicalSignature if processMethods => if (!addMethod(phys.method)) return false
-                  case phys: PhysicalSignature => //do nothing
+                  case _: PhysicalSignature => //do nothing
                   case s: Signature if processMethods && s.namedElement.isInstanceOf[PsiMethod] =>
                     //this is compound type case
                     if (!addMethod(s.namedElement)) return false

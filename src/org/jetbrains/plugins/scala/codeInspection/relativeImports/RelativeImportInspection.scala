@@ -74,7 +74,7 @@ private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: S
     import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
     val newFqn = qual(newRef).resolve() match {
       case p: PsiPackage if p.getQualifiedName.contains(".") => "_root_." + fqn
-      case p: PsiPackage => fqn
+      case _: PsiPackage => fqn
       case _ => "_root_." + fqn
     }
     ref.replace(ScalaPsiElementFactory.createReferenceFromText(newFqn, ref.getManager))

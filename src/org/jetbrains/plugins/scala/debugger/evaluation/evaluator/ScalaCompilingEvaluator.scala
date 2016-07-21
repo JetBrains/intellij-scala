@@ -162,7 +162,7 @@ object ScalaCompilingEvaluator {
     val reference: ArrayReference = process.newInstance(arrayClass, bytes.length)
     keep(reference, context)
     bytes.zipWithIndex.foreach {
-      case (b, i) => reference.setValue(i, process.getVirtualMachineProxy.asInstanceOf[VirtualMachineProxyImpl].mirrorOf(bytes(i)))
+      case (_, i) => reference.setValue(i, process.getVirtualMachineProxy.asInstanceOf[VirtualMachineProxyImpl].mirrorOf(bytes(i)))
       case _ =>
     }
     reference

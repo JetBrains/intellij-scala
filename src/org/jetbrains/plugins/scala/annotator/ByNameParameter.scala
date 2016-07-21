@@ -28,7 +28,7 @@ object ByNameParameter extends AnnotatorPart[ScExpression] {
 
     val parameter = ScalaPsiUtil.parameterOf(exp)//.orElse(conversionParameterOf(exp))
 
-    parameter.filter(_.isByName).foreach { p =>
+    parameter.filter(_.isByName).foreach { _ =>
       val attributes = new TextAttributes()
       attributes.setForegroundColor(Foreground)
 

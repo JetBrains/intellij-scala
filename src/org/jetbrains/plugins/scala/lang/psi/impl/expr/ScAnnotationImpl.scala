@@ -105,7 +105,7 @@ class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IEleme
       }
       def delete(elem: PsiElement) {
         elem.getParent match {
-          case arg: ScArgumentExprList =>
+          case _: ScArgumentExprList =>
             var prev = elem.getPrevSibling
             while (prev != null && (ScalaPsiUtil.isLineTerminator(prev) || prev.isInstanceOf[PsiWhiteSpace]))
               prev = prev.getPrevSibling
@@ -128,7 +128,7 @@ class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IEleme
       }
 
       existing.getParent match {
-        case args: ScArgumentExprList => delete(existing)
+        case _: ScArgumentExprList => delete(existing)
         case other => delete(other)
       }
     }

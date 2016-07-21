@@ -88,7 +88,7 @@ class ScReferencePatternImpl private (stub: StubElement[ScReferencePattern], nod
       case pList: ScPatternList if pList.allPatternsSimple =>
         val start = this.prevSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getPrevSiblingNotWhitespace.getNextSibling
         pList.deleteChildRange(start, this)
-      case x =>
+      case _ =>
         // val (a, b) = t
         // val (_, b) = t
         val anonymousRefPattern = ScalaPsiElementFactory.createWildcardPattern(getManager)

@@ -56,7 +56,7 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
     myCbImplementingTypeDefinitions = addCheckboxToPanel(ScalaBundle.message("find.what.implementing.type.definitions.checkbox"),
       getFindUsagesOptions.isImplementingTypeDefinitions, findWhatPanel, true)
     ScalaPsiUtil.getBaseCompanionModule(element) match {
-      case Some(td) =>
+      case Some(_) =>
         myCbCompanionModule = addCheckboxToPanel(ScalaBundle.message("find.what.companion.module.checkbox"), getFindUsagesOptions.isSearchCompanionModule, findWhatPanel, true)
       case _ =>
     }

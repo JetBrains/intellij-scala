@@ -28,10 +28,10 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Comple
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
   protected def innerType(ctx: TypingContext) = {
     this.bind() match {
-      case Some(ScalaResolveResult(elem, subst)) =>
+      case Some(ScalaResolveResult(elem, _)) =>
         val te: TypeResult[ScType] = typeElement.getType(ctx)
         te match {
-          case Success(ScDesignatorType(pack: PsiPackage), a) =>
+          case Success(ScDesignatorType(_: PsiPackage), _) =>
             this.success(ScalaType.designator(elem))
           case _ =>
             te map {ScProjectionType(_, elem, superReference = false)}

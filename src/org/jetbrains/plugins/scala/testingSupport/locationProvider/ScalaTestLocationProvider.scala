@@ -43,7 +43,7 @@ class ScalaTestLocationProvider extends SMTestLocator {
                 res
               case _ => searchForClassByUnqualifiedName(project, className)
             }
-          case x => searchForClassByUnqualifiedName(project, locationData)
+          case _ => searchForClassByUnqualifiedName(project, locationData)
         }
       case "scalatest" =>
         val res = new ArrayList[Location[_ <: PsiElement]]()

@@ -57,7 +57,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     elem match {
       case argExprList: ScArgumentExprList =>
         argExprList.exprs.toArray
-      case u: ScUnitExpr => Array.empty
+      case _: ScUnitExpr => Array.empty
       case p: ScParenthesisedExpr => p.expr.toArray
       case t: ScTuple => t.exprs.toArray
       case e: ScExpression => Array(e)
@@ -252,7 +252,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         p match {
           case x: String if x == "" =>
             buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-          case (a: AnnotationParameters, i: Int) =>
+          case (a: AnnotationParameters, _: Int) =>
             val seq = a.seq
             if (seq.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
@@ -605,7 +605,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 clazz.constructor match {
                   case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
                     res += ((constr, ScSubstitutor.empty, i))
-                  case Some(constr) if i == 0 => res += ""
+                  case Some(_) if i == 0 => res += ""
                   case None => res += ""
                   case _ =>
                 }

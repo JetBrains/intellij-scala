@@ -120,7 +120,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
-      case f: ScFunctionExpr => true
+      case _: ScFunctionExpr => true
       case _ => false
     }
     case _ => false

@@ -133,7 +133,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     lazy val document: Document = ifc.editor.getDocument
 
     anchor match {
-      case (tp: ScTemplateParents) childOf (extBl: ScExtendsBlock) =>
+      case (_: ScTemplateParents) childOf (extBl: ScExtendsBlock) =>
         val earlyDef = extBl.addEarlyDefinitions()
         createdDeclaration = earlyDef.addAfter(createdDeclaration, earlyDef.getFirstChild)
       case _ childOf (ed: ScEarlyDefinitions) if onOneLine(document, ed.getTextRange) =>

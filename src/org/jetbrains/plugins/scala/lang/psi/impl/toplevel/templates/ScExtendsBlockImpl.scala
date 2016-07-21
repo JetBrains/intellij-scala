@@ -106,9 +106,9 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
 
     def extract(scType: ScType): Boolean = {
       scType.extractClass(getProject) match {
-        case Some(o: ScObject) => true
-        case Some(t: ScTrait) => false
-        case Some(c: ScClass) => true
+        case Some(_: ScObject) => true
+        case Some(_: ScTrait) => false
+        case Some(_: ScClass) => true
         case Some(c: PsiClass) if !c.isInterface => true
         case _ => false
       }
@@ -178,7 +178,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
       case _ => return false
     }
     templateBody match {
-      case Some(x) => true
+      case Some(_) => true
       case None => false
     }
   }
@@ -213,10 +213,10 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
       if (obj != null && !obj.isDeprecated) buffer += obj
     }
     buffer.find {
-      case s: ScSyntheticClass => true
-      case o: ScObject => true
-      case t: ScTrait => false
-      case c: ScClass => true
+      case _: ScSyntheticClass => true
+      case _: ScObject => true
+      case _: ScTrait => false
+      case _: ScClass => true
       case c: PsiClass if !c.isInterface => true
       case _ => false
     } match {
@@ -226,7 +226,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
         buffer -= s
         if (javaObjectClass != null)
           buffer += javaObjectClass
-      case Some(clazz: PsiClass) => //do nothing
+      case Some(_: PsiClass) => //do nothing
       case _ =>
         if (javaObjectClass != null)
           buffer += javaObjectClass

@@ -65,7 +65,7 @@ object ScalaConsoleInfo {
         case null => NULL
         case list =>
           list.find {
-            case (console: ScalaLanguageConsole, model: ConsoleHistoryController, handler: ProcessHandler) =>
+            case (console: ScalaLanguageConsole, _: ConsoleHistoryController, _: ProcessHandler) =>
               console.getConsoleEditor == editor
           } match {
             case Some(res) => res
@@ -81,7 +81,7 @@ object ScalaConsoleInfo {
         case null => NULL
         case list =>
           list.find {
-            case (console: ScalaLanguageConsole, model: ConsoleHistoryController, handler: ProcessHandler) =>
+            case (console: ScalaLanguageConsole, _: ConsoleHistoryController, _: ProcessHandler) =>
               console.getFile == file
           } match {
             case Some(res) => res

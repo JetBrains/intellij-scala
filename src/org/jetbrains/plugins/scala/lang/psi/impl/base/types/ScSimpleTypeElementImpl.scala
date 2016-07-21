@@ -100,7 +100,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                            _subst: ScSubstitutor, parentElement: PsiNamedElement): ScType = {
       val clazz = constr.containingClass
       val (constrTypParameters: Seq[ScTypeParam], constrSubst: ScSubstitutor) = parentElement match {
-        case ta: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
+        case _: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
         case s: ScTypeParametersOwner if s.typeParameters.nonEmpty =>
           constr match {
             case method: ScMethodLike =>
@@ -127,7 +127,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val (params: Seq[Seq[Parameter]], lastImplicit: Boolean) = getConstructorParams(constr, subst)
 
       val typeParameters: Seq[TypeParameter] = parentElement match {
-        case tp: ScTypeParametersOwner if constrTypParameters.nonEmpty =>
+        case _: ScTypeParametersOwner if constrTypParameters.nonEmpty =>
           constrTypParameters.map(TypeParameter(_))
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
           tp.typeParameters.map(TypeParameter(_))
@@ -211,7 +211,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           try {
             lastClause(withExpected = true)
           } catch {
-            case e: SafeCheckException =>
+            case _: SafeCheckException =>
               nonValueType = oldNonValueType
               lastClause(withExpected = false)
           }
@@ -261,7 +261,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             r.map {
               tp =>
                 ref.bind() match {
-                  case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) =>
+                  case Some(ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) =>
                     val (params, lastImplicit) = getConstructorParams(method, subst.followed(ss))
                     updateImplicits(tp, withExpected = false, params = params, lastImplicit = lastImplicit)
                     tp
@@ -304,7 +304,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             ref.bind() match {
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
                 this.success(typeForConstructor(ref, method, subst, r.getActualElement))
-              case Some(r@ScalaResolveResult(ta: ScTypeAlias, subst: ScSubstitutor)) if ta.isExistentialTypeAlias =>
+              case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
                 this.success(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_, None)).toList,
                   ta.lowerBound.getOrNothing, ta.upperBound.getOrAny))
               case _ => calculateReferenceType(ref, shapesOnly = false)
@@ -336,10 +336,10 @@ object ScSimpleTypeElementImpl {
     val (resolvedElement, fromType) = (if (!shapesOnly) {
       if (ref.isConstructorReference) {
         ref.resolveNoConstructor match {
-          case Array(r@ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
+          case Array(r@ScalaResolveResult(to: ScTypeParametersOwner, _: ScSubstitutor))
             if to.isInstanceOf[PsiNamedElement] &&
               (to.typeParameters.isEmpty || ref.getContext.isInstanceOf[ScParameterizedTypeElement]) => Some(r)
-          case Array(r@ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
+          case Array(r@ScalaResolveResult(to: PsiTypeParameterListOwner, _: ScSubstitutor))
             if to.isInstanceOf[PsiNamedElement] &&
               (to.getTypeParameters.isEmpty || ref.getContext.isInstanceOf[ScParameterizedTypeElement]) => Some(r)
           case _ => ref.bind()
@@ -363,7 +363,7 @@ object ScSimpleTypeElementImpl {
     ref.qualifier match {
       case Some(qualifier) =>
         val result = qualifier.resolve() match {
-          case pack: PsiPackage =>
+          case _: PsiPackage =>
             Option(getContextOfType(resolvedElement, classOf[ScObject])) match {
               case Some(obj) if obj.isPackageObject =>
                 makeProjection(ScDesignatorType(obj))

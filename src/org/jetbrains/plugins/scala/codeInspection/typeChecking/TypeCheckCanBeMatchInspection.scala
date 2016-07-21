@@ -273,7 +273,7 @@ object TypeCheckToMatchUtil {
       genCall.referencedExpr match {
         case ref: ScReferenceExpression if ref.refName == "asInstanceOf" =>
           ref.resolve() match {
-            case synth: SyntheticNamedElement => true
+            case _: SyntheticNamedElement => true
             case _ => false
           }
         case _ => false

@@ -73,7 +73,6 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
       case _ =>
         expectedType.flatMap(_.extractDesignated(withoutAliases = true)).map(_._1) match {
           case Some(cls: ScClass) if cls.isCase =>
-            val companionObj = ScalaPsiUtil.getCompanionModule(cls).get
             cls.constructor match {
               case Some(primaryConstructor) =>
                 val parameters = primaryConstructor.effectiveFirstParameterSection

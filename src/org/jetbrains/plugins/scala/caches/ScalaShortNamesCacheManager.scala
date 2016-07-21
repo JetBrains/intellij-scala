@@ -168,8 +168,8 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     }
     def javaMethods: Seq[PsiMethod] = {
       PsiShortNamesCache.getInstance(project).getMethodsByName(cleanName, scope).filter {
-        case f: ScFunction => false
-        case f: LightScalaMethod => false
+        case _: ScFunction => false
+        case _: LightScalaMethod => false
         case _ => true
       }.toSeq
     }

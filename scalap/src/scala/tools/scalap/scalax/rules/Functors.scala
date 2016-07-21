@@ -66,7 +66,7 @@ trait Functors {
 /** One of the 'unit' definitions must be overridden in concrete subclasses */
 trait UnitFunctors extends Units with Functors {
   def unit : M[Unit] = unit(())
-  def unit[A](a : => A) : M[A] = unit map { Unit => a }
+  def unit[A](a : => A) : M[A] = unit map { _ => a }
 }
 
 

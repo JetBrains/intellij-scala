@@ -71,7 +71,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
       def getTextAttributesKey: TextAttributesKey = null
       def getLocationString: String = clazz match {
         case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
-        case x: ScNewTemplateDefinition => "(<anonymous>)"
+        case _: ScNewTemplateDefinition => "(<anonymous>)"
         case _ => ""
       }
       override def getIcon(open: Boolean): Icon = parentMember match {case mem: ScMember => mem.getIcon(0) case _ => null}
@@ -81,7 +81,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   override def getIcon(flags: Int): Icon =
     ScalaPsiUtil.nameContext(this) match {
       case null => null
-      case c: ScCaseClause => Icons.PATTERN_VAL
+      case _: ScCaseClause => Icons.PATTERN_VAL
       case x => x.getIcon(flags)
     }
 

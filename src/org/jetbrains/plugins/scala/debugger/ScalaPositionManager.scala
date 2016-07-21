@@ -149,7 +149,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       locationsOfLine(refType, line).asJava
     }
     catch {
-      case e: AbsentInformationException => Collections.emptyList()
+      case _: AbsentInformationException => Collections.emptyList()
     }
   }
 
@@ -255,7 +255,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     def nonWhitespaceInner(element: PsiElement, document: Document): PsiElement = {
       element match {
         case null => null
-        case ws: PsiWhiteSpace if document.getLineNumber(element.getTextRange.getEndOffset) == position.getLine =>
+        case _: PsiWhiteSpace if document.getLineNumber(element.getTextRange.getEndOffset) == position.getLine =>
           val nextElement = file.findElementAt(element.getTextRange.getEndOffset)
           nonWhitespaceInner(nextElement, document)
         case _ => element
@@ -269,7 +269,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         nonWhitespaceInner(firstElement, document)
       }
       catch {
-        case t: Throwable => firstElement
+        case _: Throwable => firstElement
       }
     }
   }
@@ -300,7 +300,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
             else false
         }
       } catch {
-        case e: Exception => None
+        case _: Exception => None
       }
     }
 
@@ -329,7 +329,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       else if (!isAnonfun(currentMethod)) {
         possiblePositions.find {
           case e: PsiElement if isLambda(e) => false
-          case (e: ScExpression) childOf (p: ScParameter) => false
+          case (_: ScExpression) childOf (_: ScParameter) => false
           case _ => true
         }
       }
@@ -356,7 +356,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       else None
     }
     catch {
-      case e: AbsentInformationException => None
+      case _: AbsentInformationException => None
     }
   }
 
@@ -693,7 +693,7 @@ object ScalaPositionManager {
 
   def checkedLineNumber(location: Location): Int =
     try location.lineNumber() - 1
-    catch {case ie: InternalError => -1}
+    catch {case _: InternalError => -1}
 
   def cachedSourceName(refType: ReferenceType): Option[String] = {
     ScalaPositionManager.instance(refType).map(_.caches).flatMap(_.cachedSourceName(refType))
@@ -830,7 +830,7 @@ object ScalaPositionManager {
   def isInsideMacro(elem: PsiElement): Boolean = elem.parentsInFile.exists(isMacroCall)
 
   private def isMacroCall(elem: PsiElement): Boolean = elem match {
-    case mc @ ScMethodCall(ResolvesTo(MacroDef(_)), _) => true
+    case ScMethodCall(ResolvesTo(MacroDef(_)), _) => true
     case _ => false
   }
 

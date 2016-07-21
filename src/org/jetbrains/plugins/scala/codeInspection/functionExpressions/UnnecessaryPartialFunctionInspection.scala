@@ -65,8 +65,8 @@ class UnnecessaryPartialFunctionInspection
   private def canBeConvertedToFunction(caseClause: ScCaseClause, conformsToExpectedType: (ScType, ScType) => Boolean) =
     caseClause.guard.isEmpty &&
       caseClause.pattern.exists {
-        case reference: ScReferencePattern => true
-        case wildcard: ScWildcardPattern => true
+        case _: ScReferencePattern => true
+        case _: ScWildcardPattern => true
         case typedPattern: ScTypedPattern =>
           val patternType = typedPattern.typePattern.map(_.typeElement.calcType)
           val expressionType = caseClause.expr.flatMap(_.getType().toOption)

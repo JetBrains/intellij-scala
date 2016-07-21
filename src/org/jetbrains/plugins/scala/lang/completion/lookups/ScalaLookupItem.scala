@@ -173,7 +173,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         }
       case f: PsiField =>
         presentation.setTypeText(presentationString(f.getType, substitutor))
-      case p: PsiPackage => presentation.setTailText(tailText, /*grayed*/ true)
+      case _: PsiPackage => presentation.setTailText(tailText, /*grayed*/ true)
       case _ =>
     }
     if (presentation.isReal)

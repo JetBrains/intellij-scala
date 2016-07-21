@@ -24,11 +24,11 @@ object ExpandEtaExpansion extends AbstractTransformer {
       process(e, c, clausesOf(m).drop(nestingLevelOf(c)), typed = true)
 
     case (e: ScReferenceExpression) && ReferenceTarget(m: ScFunction) &&
-      NonValueType(t: ScMethodType) && ExpectedType(et: ScParameterizedType) =>
+      NonValueType(_: ScMethodType) && ExpectedType(_: ScParameterizedType) =>
       process(e, e, clausesOf(m), typed = false)
 
     case (e @ ScMethodCall(ReferenceTarget(m: ScFunction), _)) &&
-      NonValueType(t: ScMethodType) && ExpectedType(et: ScParameterizedType) =>
+      NonValueType(_: ScMethodType) && ExpectedType(_: ScParameterizedType) =>
       process(e, e, clausesOf(m).drop(nestingLevelOf(e)), typed = false)
 
     case (e: ScUnderscoreSection) && FirstChild(r @ ReferenceTarget(p: ScParameter)) if p.isCallByNameParameter =>

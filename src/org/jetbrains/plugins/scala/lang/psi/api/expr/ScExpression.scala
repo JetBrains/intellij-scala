@@ -93,7 +93,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 val res = results.head
                 val paramType = InferUtil.extractImplicitParameterType(res)
                 paramType match {
-                  case FunctionType(rt, Seq(param)) =>
+                  case FunctionType(rt, Seq(_)) =>
                     ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                   case _ =>
                     ScalaPsiManager.instance(getProject).getCachedClass(
@@ -182,8 +182,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         @tailrec
         def isMethodInvocation(expr: ScExpression = ScExpression.this): Boolean = {
           expr match {
-            case p: ScPrefixExpr => false
-            case p: ScPostfixExpr => false
+            case _: ScPrefixExpr => false
+            case _: ScPostfixExpr => false
             case _: MethodInvocation => true
             case p: ScParenthesisedExpr =>
               p.expr match {
@@ -210,7 +210,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             exp match {
               case Some(expected) =>
                 expected.removeAbstracts match {
-                  case FunctionType(_, params) =>
+                  case FunctionType(_, _) =>
                   case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
                     val languageLevel = ScExpression.this.scalaLanguageLevelOrDefault
                     if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, getResolveScope, languageLevel).isEmpty) {
@@ -537,7 +537,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
             case _ => res += i
           }
-        case infix@ScInfixExpr(ScExpression.Type(api.Boolean), ElementText(op), right@ScExpression.Type(api.Boolean))
+        case ScInfixExpr(ScExpression.Type(api.Boolean), ElementText(op), right@ScExpression.Type(api.Boolean))
           if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el

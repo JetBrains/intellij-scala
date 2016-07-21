@@ -262,7 +262,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createBuildModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
-    val name = project.name + Sbt.BuildModuleSuffix
     val buildRoot = project.base / Sbt.ProjectDirectory
 
     // TODO use both ID and Name when related flaws in the External System will be fixed

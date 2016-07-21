@@ -69,7 +69,7 @@ object ScalaClassNameCompletionContributor {
         val newExpr = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
         //todo: probably we need to remove all abstracts here according to variance
         newExpr.expectedTypes().map {
-          case ScAbstractType(_, lower, upper) => upper
+          case ScAbstractType(_, _, upper) => upper
           case tp => tp
         }
       } else Array.empty

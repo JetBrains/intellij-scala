@@ -57,7 +57,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
                       } else false
                     } else false
                 } match {
-                  case Some(clazz) =>
+                  case Some(_) =>
                     var parent: PsiElement = ref.getParent
                     while (parent != null) {
                       parent match {

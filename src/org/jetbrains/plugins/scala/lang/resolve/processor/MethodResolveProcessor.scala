@@ -81,7 +81,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
           addResult(new ScalaResolveResult(m, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
-        case cc: ScClass =>
+        case _: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
         case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
           val functionName = if (isUpdate) "update" else "apply"
@@ -299,9 +299,9 @@ object MethodResolveProcessor {
 
     val result = element match {
       //objects
-      case obj: PsiClass =>
+      case _: PsiClass =>
         ConformanceExtResult(problems)
-      case a: ScTypeAlias =>
+      case _: ScTypeAlias =>
         ConformanceExtResult(problems)
       //Implicit Application
       case f: ScFunction if f.hasMalformedSignature =>

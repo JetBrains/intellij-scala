@@ -28,7 +28,7 @@ class JavaMutatorMethodAccessedAsParameterlessInspection extends AbstractMethodS
               ScalaPsiUtil.findCall(gen) match {
                 case None =>
                   holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(gen))
-                case Some(mc) =>
+                case Some(_) =>
               }
             case _ =>
               holder.registerProblem(e.nameId, getDisplayName, new AddCallParentheses(e))

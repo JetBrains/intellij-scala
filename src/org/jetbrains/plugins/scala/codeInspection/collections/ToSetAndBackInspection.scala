@@ -16,8 +16,6 @@ class ToSetAndBackInspection extends OperationOnCollectionInspection {
 object ToSetAndBackToDistinct extends SimplificationType {
   override def hint: String = InspectionBundle.message("replace.toSet.and.back.with.distinct")
 
-  private val `.toSet` = invocation("toSet").from(likeCollectionClasses)
-
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     import expr.typeSystem
     expr match {

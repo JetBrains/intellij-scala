@@ -24,7 +24,7 @@ class ScalaTypeSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length != 1) return false
     elements(0) match {
-      case x: ScExpression => true
+      case _: ScExpression => true
       case _ => false
     }
   }

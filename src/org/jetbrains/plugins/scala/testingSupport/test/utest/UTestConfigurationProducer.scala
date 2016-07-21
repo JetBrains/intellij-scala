@@ -76,7 +76,7 @@ class UTestConfigurationProducer extends {
       }
     }
     catch {
-      case e: Exception =>
+      case _: Exception =>
     }
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
     Some((testClass, settings))
@@ -132,11 +132,6 @@ class UTestConfigurationProducer extends {
     }
   }
 
-  private def getTestName(literal: ScLiteral) = literal.getValue match {
-    case symbol: Symbol => symbol.name
-    case other => other.toString
-  }
-
   private def buildPathFromTestExpr(expr: ScExpression): Option[String] =
     expr.firstChild.flatMap(TestConfigurationUtil.getStaticTestName(_, allowSymbolLiterals = true)).
       flatMap(buildTestPath(expr, _))
@@ -152,7 +147,6 @@ class UTestConfigurationProducer extends {
     }
     if (!containingObject.isInstanceOf[ScObject]) return fail
     if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return (null, null)
-    val testClassPath = containingObject.qualifiedName
 
     val nameContainer = ScalaPsiUtil.getParentWithProperty(element, strict = false,
       e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) || TestNodeProvider.isUTestApplyCall(e))

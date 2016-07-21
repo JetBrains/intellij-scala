@@ -70,7 +70,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         }
       })
     } catch {
-      case p: ProcessCanceledException =>
+      case _: ProcessCanceledException =>
         Log.warn("Time-out while collecting dependencies in %s:\n%s".format(
           file.getName, file.getText.substring(startOffsets(0), endOffsets(0))))
       case e: Exception =>

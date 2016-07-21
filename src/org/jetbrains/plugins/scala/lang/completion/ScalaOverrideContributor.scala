@@ -94,7 +94,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         if (classMembers.isEmpty) return
 
         handleMembers(classMembers, clazz,
-          (classMember, clazz) => createText(classMember, clazz, full = true), resultSet) { classMember =>
+          (classMember, clazz) => createText(classMember, clazz, full = true), resultSet) { _ =>
           new MyInsertHandler()
         }
     }
@@ -107,16 +107,16 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     if (classMembers.isEmpty) return
 
     def membersToRender = position.getContext match {
-      case m: PsiMethod => classMembers.filter(_.isInstanceOf[ScMethodMember])
+      case _: PsiMethod => classMembers.filter(_.isInstanceOf[ScMethodMember])
       case typedDefinition: ScTypedDefinition if typedDefinition.isVal =>
         classMembers.filter(_.isInstanceOf[ScValueMember])
       case typedDefinition: ScTypedDefinition if typedDefinition.isVar =>
         classMembers.filter(_.isInstanceOf[ScVariableMember])
-      case typeAlis: ScTypeAlias => classMembers.filter(_.isInstanceOf[ScAliasMember])
+      case _: ScTypeAlias => classMembers.filter(_.isInstanceOf[ScAliasMember])
       case _ => classMembers
     }
 
-    handleMembers(membersToRender, clazz, (classMember, clazz) => createText(classMember, clazz), resultSet) { classMember =>
+    handleMembers(membersToRender, clazz, (classMember, clazz) => createText(classMember, clazz), resultSet) { _ =>
       new MyInsertHandler(hasOverride)
     }
   }

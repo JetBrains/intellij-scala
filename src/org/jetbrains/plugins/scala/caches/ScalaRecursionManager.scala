@@ -52,7 +52,7 @@ object ScalaRecursionManager {
     recursionMap.get().get((element, key)) match {
       case Some(list) =>
         list match {
-          case hd :: tl => recursionMap.set(recursionMap.get().updated((element, key), tl))
+          case _ :: tl => recursionMap.set(recursionMap.get().updated((element, key), tl))
           case _ => recursionMap.set(recursionMap.get() - ((element, key)))
         }
       case _ => throw new RuntimeException("Match is not exhaustive")

@@ -38,7 +38,7 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
   @tailrec
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
     element match {
-      case ws: PsiWhiteSpace if element.getPrevSibling != null &&
+      case _: PsiWhiteSpace if element.getPrevSibling != null &&
         editor.getCaretModel.getOffset == element.getPrevSibling.getTextRange.getEndOffset =>
         val prev = element.getContainingFile.findElementAt(element.getPrevSibling.getTextRange.getEndOffset - 1)
         check(project, editor, prev)

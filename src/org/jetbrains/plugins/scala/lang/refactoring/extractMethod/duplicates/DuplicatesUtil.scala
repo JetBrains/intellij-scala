@@ -48,7 +48,7 @@ object DuplicatesUtil {
 
   def canBeEquivalent(pattern: PsiElement, candidate: PsiElement): Boolean = {
     (pattern, candidate) match {
-      case (ref: ScReferenceExpression, expr: ScExpression) => true
+      case (_: ScReferenceExpression, _: ScExpression) => true
       case (ElementType(tp1), ElementType(tp2)) => tp1 == tp2
         //todo this expressions, return statements, infix expressions
       case _ => false

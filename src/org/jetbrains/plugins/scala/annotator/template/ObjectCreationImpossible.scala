@@ -28,7 +28,7 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
 
     if(hasAbstract) {
       refs.headOption.foreach {
-        case (refElement, Some(psiClass)) =>
+        case (refElement, Some(_)) =>
           import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 
           val undefined = for {

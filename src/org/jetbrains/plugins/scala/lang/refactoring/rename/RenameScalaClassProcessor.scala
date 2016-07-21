@@ -52,7 +52,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
         def isTop(element: PsiElement): Boolean = {
           element match {
             case null => true
-            case td: ScTemplateDefinition => false
+            case _: ScTemplateDefinition => false
             case _ => isTop(element.getContext)
           }
         }
@@ -101,7 +101,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     element match {
       case o: ScObject => o.fakeCompanionClassOrCompanionClass
       case wrapper: PsiClassWrapper => wrapper.definition match {
-        case o: ScObject => wrapper
+        case _: ScObject => wrapper
         case definition => definition
       }
       case _ => element

@@ -132,7 +132,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     typeArgList.typeArgs.find {
       case e: ScFunctionalTypeElement if isKindProjectorFunctionSyntax(e) => true
       case e if isKindProjectorInlineSyntax(e) => true
-      case e: ScWildcardTypeElementImpl => true
+      case _: ScWildcardTypeElementImpl => true
       case _ => false
     } match {
       case Some(fun) if isKindProjectorFunctionSyntax(fun) => kindProjectorFunctionSyntax(fun)
@@ -165,17 +165,17 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
           case Some(ref) =>
             if (ref.isConstructorReference) {
               ref.resolveNoConstructor match {
-                case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
+                case Array(ScalaResolveResult(to: ScTypeParametersOwner, _: ScSubstitutor))
                   if to.isInstanceOf[PsiNamedElement] =>
                   return tr //all things were done in ScSimpleTypeElementImpl.innerType
-                case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
+                case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, _: ScSubstitutor))
                   if to.isInstanceOf[PsiNamedElement] =>
                   return tr //all things were done in ScSimpleTypeElementImpl.innerType
                 case _ =>
               }
             }
             ref.bind() match {
-              case Some(ScalaResolveResult(e: PsiMethod, _)) =>
+              case Some(ScalaResolveResult(_: PsiMethod, _)) =>
                 return tr //all things were done in ScSimpleTypeElementImpl.innerType
               case _ =>
             }

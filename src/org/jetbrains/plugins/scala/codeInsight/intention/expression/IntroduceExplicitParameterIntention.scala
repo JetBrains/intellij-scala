@@ -46,7 +46,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
 
   def isAvailable(project: Project, editor: Editor, _element: PsiElement): Boolean = {
     findExpression(_element, editor) match {
-      case Some(x) => true
+      case Some(_) => true
       case None => false
     }
   }

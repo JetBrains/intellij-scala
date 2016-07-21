@@ -86,7 +86,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
       
       ExitCode.OK
     } catch {
-      case e: SocketException =>
+      case _: SocketException =>
         ExitCode.OK // someone has stopped the server
     } 
   }

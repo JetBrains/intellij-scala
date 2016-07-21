@@ -211,7 +211,7 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
       override def visitDesignatorType(d: ScDesignatorType): Unit = {
         if (getDependentMethodTypes.nonEmpty) {
           result = getDependentMethodTypes.find {
-            case (parameter: Parameter, tp: ScType) =>
+            case (parameter: Parameter, _: ScType) =>
               parameter.paramInCode match {
                 case Some(p) if p == d.element => true
                 case _ => false
@@ -241,7 +241,7 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
             var tp = oldTp
             def update(typez: ScType): ScType = {
               typez.extractDesignated(withoutAliases = true) match {
-                case Some((t: ScTypeDefinition, subst)) =>
+                case Some((t: ScTypeDefinition, _)) =>
                   if (t == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp
                   else {
@@ -271,10 +271,10 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
                       case None => null
                     }
                   }
-                case Some((cl: PsiClass, subst)) =>
+                case Some((cl: PsiClass, _)) =>
                   typez match {
                     case t: TypeParameterType => return update(t.upperType.v)
-                    case p@ParameterizedType(des, typeArgs) =>
+                    case p@ParameterizedType(_, _) =>
                       p.designator match {
                         case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
@@ -284,7 +284,7 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
                   if (cl == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
                   else null
-                case Some((named: ScTypedDefinition, subst)) =>
+                case Some((named: ScTypedDefinition, _)) =>
                   update(named.getType(TypingContext.empty).getOrAny)
                 case _ =>
                   typez match {
@@ -300,7 +300,7 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
                         }
                       }
                     case t: TypeParameterType => return update(t.upperType.v)
-                    case p@ParameterizedType(des, typeArgs) =>
+                    case p@ParameterizedType(_, _) =>
                       p.designator match {
                         case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
@@ -514,7 +514,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] 
   def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor = {
     var index = 0
     val lower = (_lower match {
-      case ScAbstractType(_, absLower, upper) =>
+      case ScAbstractType(_, absLower, _) =>
         if (absLower.equiv(Nothing)) return this
         absLower //upper will be added separately
       case _ =>
@@ -550,10 +550,10 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] 
     var index = 0
     val upper =
       (_upper match {
-        case ScAbstractType(_, lower, absUpper) if variance == 0 =>
+        case ScAbstractType(_, _, absUpper) if variance == 0 =>
           if (absUpper.equiv(Any)) return this
           absUpper // lower will be added separately
-        case ScAbstractType(_, lower, absUpper) if variance == 1 && absUpper.equiv(Any) => return this
+        case ScAbstractType(_, _, absUpper) if variance == 1 && absUpper.equiv(Any) => return this
         case _ =>
           _upper.recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
               case (ScAbstractType(_, lower, absUpper), i, data) =>
@@ -767,7 +767,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] 
     while (namesIterator.hasNext) {
       val name = namesIterator.next()
       solve(name, HashSet.empty) match {
-        case Some(tp) => // do nothing
+        case Some(_) => // do nothing
         case None if !notNonable => return None
         case _ =>
       }

@@ -49,7 +49,7 @@ object IntentionUtils {
     def matchedParamsAfter(): Seq[(ScExpression, Parameter)] = {
       val sortedMatchedArgs = argList.matchedParameters.sortBy(_._1.getTextOffset)
       sortedMatchedArgs.dropWhile {
-        case (e, p) => !PsiTreeUtil.isAncestor(e, element, /*strict =*/false)
+        case (e, _) => !PsiTreeUtil.isAncestor(e, element, /*strict =*/false)
         case _ => true
       }
     }
@@ -63,7 +63,7 @@ object IntentionUtils {
       case (_, param) => !StringUtil.isEmpty(param.name)
     }
     val hasUnderscore = argsAndMatchedParams.exists {
-      case (underscore: ScUnderscoreSection, _) => true
+      case (_: ScUnderscoreSection, _) => true
       case _ => false
     }
 
@@ -71,7 +71,7 @@ object IntentionUtils {
     else {
       val doIt = () => {
         argsAndMatchedParams.foreach {
-          case (argExpr childOf (a: ScAssignStmt), param) if a.getLExpression.getText == param.name =>
+          case (_ childOf (a: ScAssignStmt), param) if a.getLExpression.getText == param.name =>
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType == Boolean)) {
               val newArgExpr = ScalaPsiElementFactory.createExpressionFromText(param.name + " = " + argExpr.getText, element.getManager)

@@ -162,7 +162,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
   def parameterlessKind: Int = {
     namedElement match {
       case f: ScFunction if !f.hasParameterClause => 1
-      case p: PsiMethod => 2
+      case _: PsiMethod => 2
       case _ => 3
     }
   }
@@ -185,12 +185,12 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
     (namedElement, other.namedElement) match {
       case (f1: ScFunction, f2: ScFunction) =>
         !f1.hasParameterClause ^ f2.hasParameterClause
-      case (f1: ScFunction, p: PsiMethod) => f1.hasParameterClause
-      case (p: PsiMethod, f2: ScFunction) => f2.hasParameterClause
-      case (p1: PsiMethod, p2: PsiMethod) => true
-      case (p: PsiMethod, _) => false
+      case (f1: ScFunction, _: PsiMethod) => f1.hasParameterClause
+      case (_: PsiMethod, f2: ScFunction) => f2.hasParameterClause
+      case (_: PsiMethod, _: PsiMethod) => true
+      case (_: PsiMethod, _) => false
       case (_, f: ScFunction)  => !f.hasParameterClause
-      case (_, f: PsiMethod) => false
+      case (_, _: PsiMethod) => false
       case _ => true
     }
   }

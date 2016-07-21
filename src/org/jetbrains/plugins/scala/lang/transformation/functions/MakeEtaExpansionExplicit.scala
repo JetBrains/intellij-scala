@@ -14,14 +14,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
   */
 object MakeEtaExpansionExplicit extends AbstractTransformer {
   def transformation: PartialFunction[PsiElement, Unit] = {
-    case (e: ScReferenceExpression) && ReferenceTarget(m: ScFunction) &&
-      NonValueType(t: ScMethodType) && ExpectedType(et: ScParameterizedType)
+    case (e: ScReferenceExpression) && ReferenceTarget(_: ScFunction) &&
+      NonValueType(_: ScMethodType) && ExpectedType(_: ScParameterizedType)
       if !e.getParent.isInstanceOf[ScUnderscoreSection] =>
 
       e.replace(code"$e _")
 
-    case (e @ ScMethodCall(ReferenceTarget(m: ScFunction), _)) &&
-      NonValueType(t: ScMethodType) && ExpectedType(et: ScParameterizedType)
+    case (e @ ScMethodCall(ReferenceTarget(_: ScFunction), _)) &&
+      NonValueType(_: ScMethodType) && ExpectedType(_: ScParameterizedType)
       if !e.getParent.isInstanceOf[ScUnderscoreSection] =>
 
       e.replace(code"$e _")

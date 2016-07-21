@@ -270,8 +270,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
      
     for (child <- holder.getNode.getChildren(null)) {
       child.getPsi match {
-        case whitespace: PsiWhiteSpace =>
-        case d: ScDocComment => addRange()
+        case _: PsiWhiteSpace =>
+        case _: ScDocComment => addRange()
         case comment: PsiComment =>
           val next = comment.getNextSibling
           val prev = comment.getPrevSibling
@@ -280,7 +280,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
             w1.getText.contains("\n") && w2.getText.contains("\n") => addRange()
             case _ =>
           }
-        case s: LeafPsiElement =>
+        case _: LeafPsiElement =>
         case a: PsiElement if isImportDelimiter(a) => //do nothing
         case imp: ScImportStmt =>
           if (firstPsi == null) {
@@ -458,12 +458,12 @@ object ScalaImportOptimizer {
           case ScalaResolveResult(o: ScObject, _) if o.isPackageObject => o.qualifiedName.contains(".")
           case ScalaResolveResult(o: ScObject, _) =>
             o.getParent match {
-              case file: ScalaFile => false
+              case _: ScalaFile => false
               case _ => true
             }
           case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
           case ScalaResolveResult(_: ScTypeDefinition, _) => false
-          case ScalaResolveResult(c: PsiClass, _) => true
+          case ScalaResolveResult(_: PsiClass, _) => true
           case ScalaResolveResult(f: PsiField, _) if f.hasFinalModifier => true
           case _ => false
         }

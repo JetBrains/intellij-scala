@@ -181,7 +181,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {
-          case synthetic: ScSyntheticClass => return SCALA //like scala.Int
+          case _: ScSyntheticClass => return SCALA //like scala.Int
           case obj: ScObject if obj.isPackageObject =>
             val qualifier = obj.qualifiedName
             return getPackagePrecedence(qualifier)
@@ -190,7 +190,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
             return getPackagePrecedence(qualifier)
           case clazz: PsiClass =>
             return getClazzPrecedence(clazz)
-          case memb@(_: ScBindingPattern | _: PsiMember) =>
+          case (_: ScBindingPattern | _: PsiMember) =>
             val clazzStub = ScalaPsiUtil.getContextOfType(getActualElement, false, classOf[PsiClass])
             val clazz: PsiClass = clazzStub match {
               case clazz: PsiClass => clazz
@@ -226,26 +226,26 @@ class ScalaResolveResult(val element: PsiNamedElement,
       importUsed match {
         case _: ImportWildcardSelectorUsed =>
           getActualElement match {
-            case p: PsiPackage => WILDCARD_IMPORT_PACKAGE
+            case _: PsiPackage => WILDCARD_IMPORT_PACKAGE
             case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
             case _ => WILDCARD_IMPORT
           }
         case _: ImportSelectorUsed =>
           getActualElement match {
-            case p: PsiPackage => IMPORT_PACKAGE
+            case _: PsiPackage => IMPORT_PACKAGE
             case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
             case _ => IMPORT
           }
         case ImportExprUsed(expr) =>
           if (expr.singleWildcard) {
             getActualElement match {
-              case p: PsiPackage => WILDCARD_IMPORT_PACKAGE
+              case _: PsiPackage => WILDCARD_IMPORT_PACKAGE
               case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
               case _ => WILDCARD_IMPORT
             }
           } else {
             getActualElement match {
-              case p: PsiPackage => IMPORT_PACKAGE
+              case _: PsiPackage => IMPORT_PACKAGE
               case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
               case _ => IMPORT
             }

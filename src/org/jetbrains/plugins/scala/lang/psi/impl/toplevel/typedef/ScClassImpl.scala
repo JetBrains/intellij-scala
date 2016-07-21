@@ -185,7 +185,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
               method.setSynthetic(this)
               buf += method
             } catch {
-              case e: Exception =>
+              case _: Exception =>
                 //do not add methods if class has wrong signature.
             }
           }
@@ -216,7 +216,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   private def implicitMethodText: String = {
     val constr = constructor.getOrElse(return "")
-    val returnType = name + typeParametersClause.map(clause => typeParameters.map(_.name).
+    val returnType = name + typeParametersClause.map(_ => typeParameters.map(_.name).
       mkString("[", ",", "]")).getOrElse("")
     val typeParametersText = typeParametersClause.map(tp => {
       tp.typeParameters.map(tp => {
@@ -249,13 +249,13 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   def getSyntheticImplicitMethod: Option[ScFunction] = {
     if (hasModifierProperty("implicit")) {
       constructor match {
-        case Some(x: ScPrimaryConstructor) =>
+        case Some(_: ScPrimaryConstructor) =>
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
             method.setSynthetic(this)
             Some(method)
           } catch {
-            case e: Exception => None
+            case _: Exception => None
           }
         case None => None
       }

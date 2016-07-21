@@ -203,7 +203,7 @@ class ScProjectionType private(val projected: ScType,
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     def isSingletonOk(typed: ScTypedDefinition): Boolean = {
       typed.nameContext match {
-        case v: ScValue => true
+        case _: ScValue => true
         case p: ScClassParameter if !p.isVar => true
         case _ => false
       }
@@ -222,7 +222,7 @@ class ScProjectionType private(val projected: ScType,
       case _ =>
     }
     isAliasType match {
-      case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+      case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
         return (lower match {
           case Success(tp, _) => tp
           case _ => return (false, uSubst)
@@ -235,16 +235,16 @@ class ScProjectionType private(val projected: ScType,
           case synth: ScSyntheticClass => synth.t.equiv(t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case param@ParameterizedType(proj2@ScProjectionType(p1, element1, _), typeArgs) =>
+      case ParameterizedType(ScProjectionType(_, _, _), _) =>
         r.isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
             }, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case proj2@ScProjectionType(p1, element1, _) =>
+      case proj2@ScProjectionType(p1, _, _) =>
         proj2.actualElement match {
           case a: ScTypedDefinition if isSingletonOk(a) =>
             val subst = actualSubst
@@ -258,7 +258,7 @@ class ScProjectionType private(val projected: ScType,
           case _ =>
         }
         r.isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
@@ -267,7 +267,7 @@ class ScProjectionType private(val projected: ScType,
         }
         if (actualElement != proj2.actualElement) {
           actualElement match {
-            case o: ScObject =>
+            case _: ScObject =>
             case t: ScTypedDefinition if t.isStable =>
               val s: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(projected)) followed actualSubst
               t.getType(TypingContext.empty) match {
@@ -278,7 +278,7 @@ class ScProjectionType private(val projected: ScType,
             case _ =>
           }
           proj2.actualElement match {
-            case o: ScObject =>
+            case _: ScObject =>
             case t: ScTypedDefinition =>
               val s: ScSubstitutor =
                 new ScSubstitutor(Map.empty, Map.empty, Some(p1)) followed proj2.actualSubst
@@ -292,9 +292,9 @@ class ScProjectionType private(val projected: ScType,
           return (false, uSubst)
         }
         projected.equiv(p1, uSubst, falseUndef)
-      case ScThisType(clazz) =>
+      case ScThisType(_) =>
         element match {
-          case o: ScObject => (false, uSubst)
+          case _: ScObject => (false, uSubst)
           case t: ScTypedDefinition if t.isStable =>
             t.getType(TypingContext.empty) match {
               case Success(singleton: DesignatorOwner, _) if singleton.isSingleton =>
@@ -335,7 +335,7 @@ object ScProjectionType {
             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
     val res = new ScProjectionType(projected, element, superReference)
     projected match {
-      case c: ScCompoundType =>
+      case _: ScCompoundType =>
         res.isAliasType match {
           case Some(AliasType(td: ScTypeAliasDefinition, _, upper)) if td.typeParameters.isEmpty => upper.getOrElse(res)
           case _ => res

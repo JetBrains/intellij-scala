@@ -62,7 +62,6 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                     val name1 = typeProjection.nameId
                     val name2 = typeAliasDefinition.nameId
                     if (name1.getText == name2.getText) {
-                      val at: TypeResult[ScType] = typeAliasDefinition.aliasedType
                       val params = typeAliasDefinition.typeParameters
                       val typeArgs = paramType.typeArgList.typeArgs
                       if (params.length == typeArgs.length) {

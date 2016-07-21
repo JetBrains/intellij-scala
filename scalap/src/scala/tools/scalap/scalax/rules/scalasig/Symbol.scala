@@ -39,7 +39,7 @@ abstract class ScalaSigSymbol extends Symbol {
     applyScalaSigRule(ScalaSigParsers.attributes) filter {attr =>
       (attr.symbol, this) match {
         case (s, t) if s == t => true
-        case (MethodSymbol(info1, ref1), MethodSymbol(info2, ref2))
+        case (MethodSymbol(info1, _), MethodSymbol(info2, _))
           if info1.name == (info2.name + " ") => true
         case _ => false
       }

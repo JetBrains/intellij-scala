@@ -72,7 +72,7 @@ class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinitio
           tp.allTypeElements.head.getNonValueType(ctx)
         case _ =>
           superTypes.headOption match {
-            case s@Some(t) => Success(t, Some(this))
+            case Some(t) => Success(t, Some(this))
             case None => Success(AnyRef, Some(this)) //this is new {} case
           }
       }

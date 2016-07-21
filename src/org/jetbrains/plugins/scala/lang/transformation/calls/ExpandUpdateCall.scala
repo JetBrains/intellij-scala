@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
   */
 object ExpandUpdateCall extends AbstractTransformer {
   def transformation: PartialFunction[PsiElement, Unit] = {
-    case e @ ScAssignStmt(c @ ScMethodCall(r @ RenamedReference(_, "update"), keys), Some(value)) =>
+    case e @ ScAssignStmt(ScMethodCall(r @ RenamedReference(_, "update"), keys), Some(value)) =>
       e.replace(code"$r.update(${@@(keys :+ value)})")
   }
 }

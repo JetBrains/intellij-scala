@@ -82,7 +82,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
         TypeAdjuster.adjustFor(generatedMethods)
       }
       catch {
-        case e: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
+        case _: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
       }
     }
   }
@@ -209,7 +209,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
-    case ta: ScAliasMember => false
+    case _: ScAliasMember => false
     case typed: ScalaTypedMember if typed.scType == Unit => false
     case method: ScMethodMember =>
       method.getElement match {

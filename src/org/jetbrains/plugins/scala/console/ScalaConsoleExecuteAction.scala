@@ -62,7 +62,7 @@ class ScalaConsoleExecuteAction extends AnAction {
             outputStream.flush()
           }
           catch {
-            case e: IOException => //ignore
+            case _: IOException => //ignore
           }
         }
         console.textSent(line + "\n")

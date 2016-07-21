@@ -18,7 +18,7 @@ class LoopVariableNotUpdatedInspection extends AbstractInspection("LoopVariableN
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case ScWhileStmt(
-      Some(ScInfixExpr((ref: ScReferenceExpression) && (ResolvesTo(target@Parent(Parent(entity: ScVariable)))), ElementText(operator), _)),
+      Some(ScInfixExpr((ref: ScReferenceExpression) && (ResolvesTo(target@Parent(Parent(_: ScVariable)))), ElementText(operator), _)),
       Some(body)) if !ref.isQualified && ComparisonOperators.contains(operator) && !isMutatedWithing(body, target) =>
         holder.registerProblem(ref.asInstanceOf[PsiReference],
           getDisplayName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -28,7 +28,7 @@ class LoopVariableNotUpdatedInspection extends AbstractInspection("LoopVariableN
     val Target = target
 
     scope.breadthFirst.exists {
-      case ScAssignStmt(left, _) => true
+      case ScAssignStmt(_, _) => true
       case e@ScInfixExpr(ResolvesTo(Target), _, _) if e.isAssignmentOperator => true
       case _ => false
     }

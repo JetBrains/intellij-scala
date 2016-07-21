@@ -164,7 +164,7 @@ object ScalaPsiUtil {
   @tailrec
   def withEtaExpansion(expr: ScExpression): Boolean = {
     expr.getContext match {
-      case call: ScMethodCall => false
+      case _: ScMethodCall => false
       case g: ScGenericCall => withEtaExpansion(g)
       case p: ScParenthesisedExpr => withEtaExpansion(p)
       case _ => true
@@ -441,7 +441,7 @@ object ScalaPsiUtil {
         // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
         val referencedType = gen.referencedExpr.getNonValueType(TypingContext.empty).getOrNothing
         referencedType match {
-          case tp: ScTypePolymorphicType => //that means that generic call is important here
+          case _: ScTypePolymorphicType => //that means that generic call is important here
             (gen, gen.getType(TypingContext.empty).getOrNothing, Seq.empty)
           case _ =>
             (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrNothing, gen.arguments)
@@ -635,7 +635,7 @@ object ScalaPsiUtil {
         case ScDesignatorType(v: ScFieldId)                 => v.getType(TypingContext.empty).foreach(collectParts)
         case ScDesignatorType(p: ScParameter)               => p.getType(TypingContext.empty).foreach(collectParts)
         case ScCompoundType(comps, _, _)                 => comps.foreach(collectParts)
-        case p@ParameterizedType(a: ScAbstractType, args) =>
+        case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
           args.foreach(collectParts)
         case p@ParameterizedType(des, args) =>
@@ -666,7 +666,7 @@ object ScalaPsiUtil {
               collectSupers(clazz, subst)
             case _          =>
           }
-        case ScAbstractType(_, lower, upper) =>
+        case ScAbstractType(_, _, upper) =>
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
         case TypeParameterType(_, _, upper, _) => collectParts(upper.v)
@@ -1300,7 +1300,7 @@ object ScalaPsiUtil {
     @tailrec
     def hasStablePathInner(m: PsiMember): Boolean = {
       m.getContext match {
-        case f: PsiFile => return true
+        case _: PsiFile => return true
         case _: ScPackaging | _: PsiPackage => return true
         case _ =>
       }
@@ -1439,7 +1439,7 @@ object ScalaPsiUtil {
             val modifiedParentText = parentText.substring(0, startInParent) + from.getText + parentText.substring(endInParent)
             val modifiedParent = ScalaPsiElementFactory.createExpressionFromText(modifiedParentText, parent.getContext)
             modifiedParent match {
-              case ScInfixExpr(_, newOper, tuple: ScTuple) =>
+              case ScInfixExpr(_, newOper, _: ScTuple) =>
                 newOper.bind() match {
                   case Some(newResolveResult) =>
                     newResolveResult.getElement == resolveResult.getElement && newResolveResult.tuplingUsed
@@ -1557,7 +1557,7 @@ object ScalaPsiUtil {
       }
     }
     exp match {
-      case ScAssignStmt(ResolvesTo(p: ScParameter), Some(expr)) => Some(new Parameter(p))
+      case ScAssignStmt(ResolvesTo(p: ScParameter), Some(_)) => Some(new Parameter(p))
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
@@ -1630,7 +1630,7 @@ object ScalaPsiUtil {
 
   private def isCanonicalArg(expr: ScExpression) = expr match {
     case _: ScParenthesisedExpr => false
-    case ScBlock(expr: ScExpression) => false
+    case ScBlock(_: ScExpression) => false
     case _ => true
   }
 
@@ -1672,8 +1672,8 @@ object ScalaPsiUtil {
     @tailrec
     private def referencedMethod(expr: ScExpression, canBeParameterless: Boolean): Option[PsiMethod] = {
       expr match {
-        case ref @ ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
-        case ref @ ResolvesTo(m: PsiMethod) => Some(m)
+        case ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
+        case ResolvesTo(m: PsiMethod) => Some(m)
         case gc: ScGenericCall => referencedMethod(gc.referencedExpr, canBeParameterless)
         case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get, canBeParameterless)
         case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
@@ -2005,7 +2005,7 @@ object ScalaPsiUtil {
                 val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
                 def constructorValid = templDef match {
                   case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
-                  case tr: ScTrait => true
+                  case _: ScTrait => true
                   case _ => false
                 }
 
@@ -2081,12 +2081,12 @@ object ScalaPsiUtil {
   private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope, scalaVersion: ScalaLanguageLevel)
                                        (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
     expected match {
-      case ScExistentialType(ParameterizedType(expectedDesignator, _), wildcards) =>
+      case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {
           case FunctionType(retTp, params) =>
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
               tpArg match {
-                case p@ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
+                case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
                 case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
                   convertParameter(param, variance)
                 case _ =>

@@ -55,7 +55,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
       val tuples: Seq[(PsiNamedElement, ScSubstitutor, Option[PsiNamedElement])] = named match {
         case clazz: PsiClass =>
           orDefault(constructors(clazz, defaultSubstitutor))
-        case declaration: ScTypeAliasDeclaration =>
+        case _: ScTypeAliasDeclaration =>
           orDefault()
         case definition: ScTypeAliasDefinition =>
           val result = definition.aliasedType.toOption.toSeq flatMap {

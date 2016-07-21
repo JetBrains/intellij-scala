@@ -77,7 +77,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
         val prefix = interpolated.reference.map(_.getText).getOrElse("")
         var toReplace: PsiElement = interpolated
         val parts = literal match {
-          case WithStrippedMargin(expr, marginChar) =>
+          case WithStrippedMargin(expr, _) =>
             toReplace = expr
             StripMarginParser.parse(literal).getOrElse(Nil)
           case _ => InterpolatedStringParser.parse(interpolated).getOrElse(Nil)
@@ -90,7 +90,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
       case _ =>
         var toReplace: PsiElement = literal
         val parts = literal match {
-          case WithStrippedMargin(expr, marginChar) =>
+          case WithStrippedMargin(expr, _) =>
             toReplace = expr
             StripMarginParser.parse(literal).getOrElse(Nil)
           case _ =>

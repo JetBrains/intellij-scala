@@ -65,7 +65,7 @@ object InferUtil {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
-      case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
+      case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, impl), _) if !impl =>
         // See SCL-3516
         val (updatedType, ps) =
           updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check, fullInfo = fullInfo)
@@ -88,9 +88,9 @@ object InferUtil {
         val exprsBuffer = new ArrayBuffer[Compatibility.Expression]()
         val resolveResultsBuffer = new ArrayBuffer[ScalaResolveResult]()
         coreTypes.foreach {
-          case coreType =>
+          case _ =>
             resInner match {
-              case t@ScTypePolymorphicType(mt@ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
+              case t@ScTypePolymorphicType(ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
                 val polymorphicSubst = t.polymorphicTypeSubstitutor
                 val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
                 val (paramsForInfer, exprs, resolveResults) =
@@ -115,7 +115,7 @@ object InferUtil {
           } else Map.empty
         })
         resInner = dependentSubst.subst(resInner)
-      case mt@ScMethodType(retType, params, isImplicit) if !isImplicit =>
+      case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
@@ -179,7 +179,7 @@ object InferUtil {
       } else {
         def checkManifest(fun: ScalaResolveResult => Unit) {
           val result = paramType match {
-            case p@ParameterizedType(des, Seq(arg)) =>
+            case p@ParameterizedType(des, Seq(_)) =>
               des.extractClass() match {
                 case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
                   //do not throw, it's safe
@@ -226,7 +226,7 @@ object InferUtil {
                                    (implicit typeSystem: TypeSystem): TypeResult[ScType] = {
     var nonValueType = _nonValueType
     nonValueType match {
-      case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _)
+      case Success(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams), _)
         if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
           if (expected.equiv(api.Unit)) return //do not update according to Unit type
@@ -284,7 +284,7 @@ object InferUtil {
     }
 
     nonValueType.map {
-      case tpt@ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
+      case tpt@ScTypePolymorphicType(mt: ScMethodType, _) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
       case mt: ScMethodType => applyImplicitViewToResult(mt, expectedType)
       case tp => tp
     }

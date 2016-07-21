@@ -78,7 +78,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
 
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
     element match {
-      case t: ScTypeDefinition => factory.typeDefinitionOptions
+      case _: ScTypeDefinition => factory.typeDefinitionOptions
       case ScalaPsiUtil.inNameContext(m: ScMember) if !m.isLocal => factory.memberOptions
       case _: ScParameter | _: ScTypeParam |
            ScalaPsiUtil.inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScEnumerator ) => factory.localOptions
@@ -161,7 +161,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
             case c: ScClass =>
               c.constructor match {
                 case Some(constr) => constr.effectiveParameterClauses.foreach {clause =>
-                  clause.effectiveParameters.foreach {param =>
+                  clause.effectiveParameters.foreach { _ =>
                     if (!super.processElementUsages(c, processor, options)) return false
                   }
                 }
@@ -182,7 +182,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
           ClassInheritorsSearch.search(clazz, true).forEach(new Processor[PsiClass] {
             def process(t: PsiClass): Boolean = {
               t match {
-                case p: PsiClassWrapper =>
+                case _: PsiClassWrapper =>
                 case _ => res += t
               }
               true

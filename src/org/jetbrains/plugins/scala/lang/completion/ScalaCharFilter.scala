@@ -14,7 +14,7 @@ class ScalaCharFilter extends CharFilter {
     if (!file.isInstanceOf[ScalaFile]) return null
     if (c == '[' || c == '{' || c == ')' || c == ']' || c == '}') {
       lookup.getPsiElement match {
-        case Parent(importExpr: ScImportExpr) =>
+        case Parent(_: ScImportExpr) =>
           // import a.<caret/>
           return Result.HIDE_LOOKUP
         case _ =>

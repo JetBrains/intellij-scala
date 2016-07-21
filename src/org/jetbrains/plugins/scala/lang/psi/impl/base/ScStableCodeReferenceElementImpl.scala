@@ -52,7 +52,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   def getResolveResultVariants: Array[ScalaResolveResult] = {
     doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult => Seq(res)
-      case r => Seq.empty
+      case _ => Seq.empty
     }
   }
 

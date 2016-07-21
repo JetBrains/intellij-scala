@@ -75,7 +75,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         val buffer: StringBuilder = new StringBuilder("")
         p match {
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
-          case (sign: PhysicalSignature, i: Int) =>
+          case (sign: PhysicalSignature, _: Int) =>
             //i  can be -1 (it's update method)
             val methodName = sign.method.name
             implicit val typeSystem = sign.typeSystem
@@ -223,8 +223,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                           s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor)))))
-                        val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                          s.bindT(p.nameAndId, p.upperBound.getOrAny))
                         val result = fun.parameters.head.getType(TypingContext.empty)
                         if (result.isEmpty) substitutor
                         else {

@@ -86,7 +86,7 @@ trait TopComponentAction extends TopComponentDisplayable {
       }
 
     } catch {
-      case e: Exception => disable()
+      case _: Exception => disable()
     }
   }
 }

@@ -80,7 +80,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case wild: PsiWildcardType =>
         val parameter = createParameter(wild)(visitedRawTypes, paramTopLevel = false)
         ScExistentialType(parameter, List(parameter))
-      case d: PsiDisjunctionType => Any
+      case _: PsiDisjunctionType => Any
       case _ => super.toScType(psiType, treatJavaObjectAsAny)
     }
   }
@@ -152,7 +152,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           }
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
-      case ParameterizedType(proj@ScProjectionType(pr, element, _), args) => proj.actualElement match {
+      case ParameterizedType(proj@ScProjectionType(_, _, _), args) => proj.actualElement match {
         case c: PsiClass =>
           if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiType(args.head, project, scope))
           else {
@@ -207,7 +207,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
 
   @tailrec
   override def extractClass(`type`: ScType, project: Project): Option[PsiClass] = `type` match {
-    case p@ParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
+    case ParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
     case _ => super.extractClass(`type`, project)
   }
 

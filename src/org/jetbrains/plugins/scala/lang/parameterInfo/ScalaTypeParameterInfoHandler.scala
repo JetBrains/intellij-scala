@@ -67,7 +67,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
-      case args: ScTypeArgs =>
+      case _: ScTypeArgs =>
         var color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
@@ -194,7 +194,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                 case resRef: ResolvableReferenceExpression =>
                   val bind = resRef.bind()
                   bind match {
-                    case Some(r@ScalaResolveResult(method: PsiMethod, substitutor)) =>
+                    case Some(r@ScalaResolveResult(_: PsiMethod, substitutor)) =>
                       res += Tuple2(r.getElement, substitutor)
                     case _ =>
 
@@ -207,7 +207,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                   simp.reference match {
                     case Some(ref) =>
                       ref.bind() match {
-                        case Some(r@ScalaResolveResult(method: PsiMethod, substitutor)) =>
+                        case Some(r@ScalaResolveResult(_: PsiMethod, substitutor)) =>
                           res += Tuple2(r.getActualElement, substitutor)
                         case Some(ScalaResolveResult(element: PsiClass, substitutor)) =>
                           res += Tuple2(element, substitutor)
@@ -219,7 +219,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
                   }
                 case _ =>
               }
-            case m: ScMacroDefinition => //todo:
+            case _: ScMacroDefinition => //todo:
           }
           context.setItemsToShow(res.toArray)
         case context: UpdateParameterInfoContext =>

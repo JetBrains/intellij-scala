@@ -43,7 +43,7 @@ object ResolveUtils {
           (element match {
             case _: PsiPackage | _: ScPackaging => kinds contains PACKAGE
             case obj: ScObject if obj.isPackageObject => kinds contains PACKAGE
-            case obj: ScObject => (kinds contains OBJECT) || (kinds contains METHOD)
+            case _: ScObject => (kinds contains OBJECT) || (kinds contains METHOD)
             case _: ScTypeVariableTypeElement => kinds contains CLASS
             case _: ScTypeParam => kinds contains CLASS
             case _: ScTypeAlias => kinds contains CLASS
@@ -61,7 +61,7 @@ object ResolveUtils {
             case patt: ScBindingPattern =>
               val parent = ScalaPsiUtil.getParentOfType(patt, classOf[ScVariable], classOf[ScValue])
               parent match {
-                case x: ScVariable => kinds contains VAR
+                case _: ScVariable => kinds contains VAR
                 case _ => kinds contains VAL
               }
             case patt: ScFieldId =>
@@ -69,7 +69,7 @@ object ResolveUtils {
                 kinds contains VAR else kinds contains VAL
             case classParam: ScClassParameter =>
               if (classParam.isVar) kinds.contains(VAR) else kinds.contains(VAL)
-            case param: ScParameter => kinds contains VAL
+            case _: ScParameter => kinds contains VAL
             case _: ScSelfTypeElement => kinds contains VAL
             case _: PsiMethod => kinds contains METHOD
             case _: ScFun => kinds contains METHOD
@@ -247,7 +247,7 @@ object ResolveUtils {
                   placeEnclosing = context(placeEnclosing)
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
-                  case file: ScalaFile => ""
+                  case _: ScalaFile => ""
                   case obj: ScObject => obj.qualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
@@ -281,7 +281,7 @@ object ResolveUtils {
                   PsiTreeUtil.isContextAncestor(file, place, false)
                 case _ =>
                   val packageName = enclosing match {
-                    case file: ScalaFile => ""
+                    case _: ScalaFile => ""
                     case packaging: ScPackaging => packaging.getPackageName
                     case _ => ""
                   }
@@ -289,7 +289,7 @@ object ResolveUtils {
                           getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                   if (placeEnclosing == null) return false //not Scala
                   val placePackageName = placeEnclosing match {
-                    case file: ScalaFile => ""
+                    case _: ScalaFile => ""
                     case pack: ScPackaging => pack.getPackageName
                   }
                   packageContains(packageName, placePackageName)
@@ -311,7 +311,7 @@ object ResolveUtils {
                   placeEnclosing = context(placeEnclosing)
                 if (placeEnclosing == null) return Some(false) //not Scala
                 val placePackageName = placeEnclosing match {
-                  case file: ScalaFile => ""
+                  case _: ScalaFile => ""
                   case obj: ScObject => obj.qualifiedName
                   case pack: ScPackaging => pack.fqn
                 }
@@ -347,8 +347,8 @@ object ResolveUtils {
                 case ref: ScReferenceElement =>
                   ref.qualifier match {
                     case None =>
-                    case Some(t: ScThisReference) =>
-                    case Some(s: ScSuperReference) =>
+                    case Some(_: ScThisReference) =>
+                    case Some(_: ScSuperReference) =>
                     case Some(ref: ScReferenceElement) =>
                       val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
                       if (enclosing == null) return false
@@ -371,14 +371,14 @@ object ResolveUtils {
               case _ =>
                 //same as for private
                 val packageName = enclosing match {
-                  case file: ScalaFile => ""
+                  case _: ScalaFile => ""
                   case packaging: ScPackaging => packaging.fullPackageName
                 }
                 val placeEnclosing: PsiElement = ScalaPsiUtil.
                         getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
-                  case file: ScalaFile => ""
+                  case _: ScalaFile => ""
                   case pack: ScPackaging => pack.fullPackageName
                 }
                 packageContains(packageName, placePackageName)
@@ -392,7 +392,7 @@ object ResolveUtils {
                 checkProtected(member.containingClass, withCompanion = true)) true
         else {
           val packageName = member.getContainingFile match {
-            case s: ScalaFile => ""
+            case _: ScalaFile => ""
             case f: PsiClassOwner => f.getPackageName
             case _ => return false
           }
@@ -400,7 +400,7 @@ object ResolveUtils {
                   getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
-            case file: ScalaFile => ""
+            case _: ScalaFile => ""
             case pack: ScPackaging => pack.fullPackageName
           }
           packageContains(packageName, placePackageName)

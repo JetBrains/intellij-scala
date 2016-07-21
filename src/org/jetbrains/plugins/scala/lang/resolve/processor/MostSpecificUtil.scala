@@ -214,7 +214,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
           case _ =>
         }
         u.getSubstitutor.isDefined
-      case (_, m2: PsiMethod) => true
+      case (_, _: PsiMethod) => true
       case (e1, e2) =>
         val t1: ScType = getType(e1, r1.implicitCase)
         val t2: ScType = getType(e2, r2.implicitCase)

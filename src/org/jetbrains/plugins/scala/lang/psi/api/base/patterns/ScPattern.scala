@@ -144,7 +144,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
     bind match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isQuasiquote(fun) =>
         val tpe = getContext.getContext match {
-          case ip: ScInterpolationPattern =>
+          case _: ScInterpolationPattern =>
             val parts = getParent.asInstanceOf[ScalaPsiElement]
               .findChildrenByType(ScalaTokenTypes.tINTERPOLATED_STRING)
               .map(_.getText)
@@ -227,7 +227,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
               }
               case _ => false
             } match {
-              case Some(seq@ParameterizedType(des, seqArgs)) =>
+              case Some(seq@ParameterizedType(_, seqArgs)) =>
                 this match {
                   case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => Some(subst.subst(seq))
                   case _ => Some(subst.subst(seqArgs.head))
@@ -341,7 +341,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       case _ => None
     }
     case named: ScNamingPattern => named.expectedType
-    case gen: ScGenerator =>
+    case _: ScGenerator =>
       val analog = getAnalog
       if (analog != this) analog.expectedType
       else None
@@ -360,7 +360,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
           case _ => return this
         }
         f.getDesugarizedExpr match {
-          case Some(expr) =>
+          case Some(_) =>
             if (analog != null) return analog
           case _ =>
         }

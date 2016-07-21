@@ -74,7 +74,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
         val qual = expr match {
           case mc: PsiMethodCallExpression =>
             mc.getMethodExpression.getQualifierExpression match {
-              case s: PsiSuperExpression => ""
+              case _: PsiSuperExpression => ""
               case null => ""
               case q => q.getText + "."
             }

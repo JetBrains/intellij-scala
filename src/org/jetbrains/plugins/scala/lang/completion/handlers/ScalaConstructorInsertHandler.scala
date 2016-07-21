@@ -36,7 +36,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
     var endOffset = startOffset + lookupStringLength
 
     item match {
-      case ScalaLookupItem(obj: ScObject) =>
+      case ScalaLookupItem(_: ScObject) =>
         if (context.getCompletionChar != '.') {
           document.insertString(endOffset, ".")
           endOffset += 1

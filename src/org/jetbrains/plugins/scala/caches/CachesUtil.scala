@@ -251,7 +251,7 @@ object CachesUtil {
           dir = dir.getParent
         }
         ProjectRootManager.getInstance(element.getProject)
-      case cls: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
+      case _: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
       case _ => dep_item
     }
   }

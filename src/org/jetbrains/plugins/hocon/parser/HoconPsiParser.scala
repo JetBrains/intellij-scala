@@ -395,7 +395,7 @@ class HoconPsiParser extends PsiParser {
           if (gotPeriod) text.toDouble else text.toLong
           true
         } catch {
-          case e: NumberFormatException => false
+          case _: NumberFormatException => false
         }
       }
 

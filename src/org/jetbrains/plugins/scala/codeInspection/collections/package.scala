@@ -260,7 +260,7 @@ package object collections {
       qual match {
         case _ childOf ScInfixExpr(`qual`, _, _) if args.size == 1 =>
           s"${qual.getText} $methName ${args.head.getText}"
-        case infix: ScInfixExpr => s"($qualText).$methName$argsText"
+        case _: ScInfixExpr => s"($qualText).$methName$argsText"
         case _ => s"$qualText.$methName$argsText"
       }
 
@@ -279,10 +279,10 @@ package object collections {
   def argListText(args: Seq[ScExpression]): String = {
     args match {
       case Seq(p: ScParenthesisedExpr) => p.getText
-      case Seq(b @ ScBlock(fe: ScFunctionExpr)) => b.getText
+      case Seq(b @ ScBlock(_: ScFunctionExpr)) => b.getText
       case Seq(ScBlock(stmt: ScBlockStatement)) => s"(${stmt.getText})"
       case Seq(b: ScBlock) => b.getText
-      case Seq((fe: ScFunctionExpr) childOf (b: ScBlockExpr)) => b.getText
+      case Seq((_: ScFunctionExpr) childOf (b: ScBlockExpr)) => b.getText
       case Seq(other) => s"(${other.getText})"
       case seq if seq.size > 1 => seq.map(_.getText).mkString("(", ", ", ")")
       case _ => ""
@@ -307,7 +307,7 @@ package object collections {
   def implicitParameterExistsFor(expr: ScExpression): Boolean = {
     expr.findImplicitParameters match {
       case Some(Seq(srr: ScalaResolveResult)) if srr.element.name == InferUtil.notFoundParameterName => false
-      case Some(Seq(srr: ScalaResolveResult, _*)) => true
+      case Some(Seq(_: ScalaResolveResult, _*)) => true
       case _ => false
     }
   }
@@ -431,7 +431,7 @@ package object collections {
         case `expr` => true
         case (ScFunctionExpr(_, _) | (_: ScCaseClauses)) childOf `expr` => true
         case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case fun: ScFunctionDefinition => false
+        case _: ScFunctionDefinition => false
         case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
       }
 
@@ -442,9 +442,9 @@ package object collections {
           assign
         case assign @ ScAssignStmt(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
           assign
-        case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(v: ScVariable)), _, _) if infix.isAssignmentOperator =>
+        case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _, _) if infix.isAssignmentOperator =>
           infix
-        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(v @ (_ : ScVariable | _: ScValue)))), Some(ref), _)
+        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext((_ : ScVariable | _: ScValue)))), Some(ref), _)
           if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
         case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
       }.toSeq
@@ -470,7 +470,7 @@ package object collections {
 
   @tailrec
   def refNameId(expr: ScExpression): Option[PsiElement] = stripped(expr) match {
-    case MethodRepr(itself: ScMethodCall, Some(base), None, _) => refNameId(base)
+    case MethodRepr(_: ScMethodCall, Some(base), None, _) => refNameId(base)
     case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId)
     case _ => None
   }

@@ -65,7 +65,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
           children
         }
         catch {
-          case e: IndexNotReadyException => new util.ArrayList[TreeElement]()
+          case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
         }
       case valElement: ScalaValueStructureViewElement =>
         def tryTupledId(psiElement: PsiElement) = TestNodeProvider.getUTestLeftHandTestDefinition(psiElement) match {
@@ -159,7 +159,7 @@ object TestNodeProvider {
 
   private def getInnerExprs(expr: PsiElement) = {
     (expr match {
-      case infixExpr: ScInfixExpr => expr.getLastChild.getChildren
+      case _: ScInfixExpr => expr.getLastChild.getChildren
       case methodCall: ScMethodCall => methodCall.args.getLastChild.getChildren
       case _ => Array[ScExpression]()
     }).filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression])

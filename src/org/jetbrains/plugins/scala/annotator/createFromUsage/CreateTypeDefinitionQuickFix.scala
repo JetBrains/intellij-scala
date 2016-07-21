@@ -38,8 +38,8 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     implicit val typeSystem = project.typeSystem
     def goodQualifier = ref.qualifier match {
-      case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => true
-      case Some(ResolvesTo(pack: PsiPackage)) => true
+      case Some(InstanceOfClass(_: ScTypeDefinition)) => true
+      case Some(ResolvesTo(_: PsiPackage)) => true
       case None => true
       case _ => false
     }
@@ -104,7 +104,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement])(implicit typeSystem: TypeSystem) {
     val renderer = new PsiElementListCellRenderer[PsiElement] {
       override def getElementText(element: PsiElement): String = element match {
-        case f: PsiFile => "New file"
+        case _: PsiFile => "New file"
         case td: ScTypeDefinition if td.isTopLevel => "Top level in this file"
         case _ childOf (tb: ScTemplateBody) =>
           val containingClass = PsiTreeUtil.getParentOfType(tb, classOf[ScTemplateDefinition])

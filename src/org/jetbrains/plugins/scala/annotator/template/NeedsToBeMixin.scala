@@ -37,9 +37,9 @@ object NeedsToBeMixin extends AnnotatorPart[ScTemplateDefinition] {
                             !f.hasModifierProperty("override")
                     case v: ScBindingPattern =>
                       v.nameContext match {
-                        case v: ScVariableDefinition if !f.hasModifierPropertyScala("abstract") ||
+                        case _: ScVariableDefinition if !f.hasModifierPropertyScala("abstract") ||
                           !f.hasModifierPropertyScala("override") => true
-                        case v: ScPatternDefinition if !f.hasModifierPropertyScala("abstract") ||
+                        case _: ScPatternDefinition if !f.hasModifierPropertyScala("abstract") ||
                           !f.hasModifierPropertyScala("override") => true
                         case _ => false
                       }

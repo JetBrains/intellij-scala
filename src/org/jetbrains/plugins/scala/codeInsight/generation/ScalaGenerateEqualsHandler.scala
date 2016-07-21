@@ -51,7 +51,7 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
               true
             }
             catch {
-              case e: IncorrectOperationException => false
+              case _: IncorrectOperationException => false
             }
           }
         })

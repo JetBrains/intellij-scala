@@ -106,7 +106,7 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
         listener(text)
       }
       catch {
-        case e: Exception =>  
+        case _: Exception =>
       }
     }
 

@@ -87,7 +87,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def isReferenceTo(element: PsiElement): Boolean = {
     element match {
-      case cp: ScClassParameter =>
+      case _: ScClassParameter =>
       case param: ScParameter if !PsiTreeUtil.isContextAncestor(param.owner, this, true) =>
         getParent match {
           case ScAssignStmt(left, _) if left == this =>
@@ -181,7 +181,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     (resolved, element) match {
       case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) =>
         typeAlias.isExactAliasFor(cls)
-      case (cons: ScPrimaryConstructor, cls: PsiClass) =>
+      case (_: ScPrimaryConstructor, cls: PsiClass) =>
         this.bind() match {
           case Some(r: ScalaResolveResult) =>
             r.parentElement match {

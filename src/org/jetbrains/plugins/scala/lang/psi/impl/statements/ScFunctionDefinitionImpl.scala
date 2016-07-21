@@ -93,7 +93,7 @@ class ScFunctionDefinitionImpl protected (stub: StubElement[ScFunction], nodeTyp
 
   def removeAssignment() {
     body match {
-      case Some(block: ScBlockExpr) => // do nothing
+      case Some(_: ScBlockExpr) => // do nothing
       case Some(exp: ScExpression) =>
         val block = ScalaPsiElementFactory.createBlockFromExpr(exp, exp.getManager)
         exp.replace(block)

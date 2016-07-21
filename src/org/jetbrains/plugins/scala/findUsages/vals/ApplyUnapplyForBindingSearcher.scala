@@ -66,14 +66,14 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
       helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
     }
     catch {
-      case ignore: IndexNotReadyException => true
+      case _: IndexNotReadyException => true
     }
   }
 
   private class Unapply(binding: ScBindingPattern) {
     def unapply(ref: PsiReference): Option[ResolvableReferenceElement] = {
       (ref, ref.getElement.getContext) match {
-        case (sref: ScStableCodeReferenceElement, x: ScConstructorPattern) =>
+        case (sref: ScStableCodeReferenceElement, _: ScConstructorPattern) =>
           sref.bind() match {
             case Some(resolve@ScalaResolveResult(fun: ScFunctionDefinition, _))
               if Set("unapply", "unapplySeq").contains(fun.name) =>

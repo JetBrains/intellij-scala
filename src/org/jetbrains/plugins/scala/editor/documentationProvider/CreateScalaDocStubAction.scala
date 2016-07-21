@@ -40,7 +40,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
         id.getParent match {
           case docOwner: ScDocCommentOwner =>
             docOwner.docComment match {
-              case Some(comment) => recreateStub(docOwner, editor.getDocument)
+              case Some(_) => recreateStub(docOwner, editor.getDocument)
               case None => createStub(docOwner, editor.getDocument) 
             }
           case _ =>
@@ -77,7 +77,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
     def filterTags[T](groupName: String, newTags: mutable.HashMap[String, T]) {
       oldTags foreach {
         case tag if tag.getName == groupName => newTags remove tag.getValueElement.getText match {
-          case Some(elem) => //do nothing
+          case Some(_) => //do nothing
           case None => tag.delete()
         }
         case _ =>

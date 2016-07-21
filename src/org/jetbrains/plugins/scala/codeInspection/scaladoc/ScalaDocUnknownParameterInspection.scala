@@ -106,7 +106,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
             }
           case traitt: ScTrait =>
             doInspection(null, traitt.typeParameters)
-          case typeAlias: ScTypeAlias => //scaladoc can't process tparams for type alias now
+          case _: ScTypeAlias => //scaladoc can't process tparams for type alias now
             for (tag <- s.findTagsByName(MyScaladocParsing.TYPE_PARAM_TAG)) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, "Scaladoc can't process tparams for type alias now",

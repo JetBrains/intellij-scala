@@ -153,7 +153,7 @@ object CreateEntityQuickFix {
           case Some(ScTemplateDefinition.ExtendsBlock(block)) => Success(block)
           case None => Failure(new IllegalStateException("Cannot find template definition for not-static super reference"))
         }
-      case Both(th: ScThisReference, ParentExtendsBlock(block)) => Success(block)
+      case Both(_: ScThisReference, ParentExtendsBlock(block)) => Success(block)
       case Both(ReferenceTarget((_: ScSelfTypeElement)), ParentExtendsBlock(block)) => Success(block)
       case _ => Failure(new IllegalStateException("Cannot find a place to create definition"))
     }

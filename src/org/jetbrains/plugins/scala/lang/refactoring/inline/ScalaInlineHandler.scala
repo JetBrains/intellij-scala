@@ -108,7 +108,7 @@ class ScalaInlineHandler extends InlineHandler {
                   replacementValue
               }
               expression.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(oldValue, replacement.getManager), removeParenthesis = true)
-            case typeElement: ScTypeElement =>
+            case _: ScTypeElement =>
               replacement.replace(ScalaPsiElementFactory.createTypeElementFromText(replacementValue, replacement.getManager))
           }
 
@@ -177,7 +177,7 @@ class ScalaInlineHandler extends InlineHandler {
       typeAlias.aliasedTypeElement.depthFirst.forall {
         case t: ScTypeElement =>
           t.calcType match {
-            case part: TypeParameterType => false
+            case _: TypeParameterType => false
             case part: ScProjectionType if !ScalaPsiUtil.hasStablePath(part.element) =>
               false
             case _ => true

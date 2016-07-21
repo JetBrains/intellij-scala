@@ -39,7 +39,7 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     val children =
       if (reverseChildren.contains(lastParent)) reverseChildren.drop(reverseChildren.indexOf(lastParent) + (
          lastParent match {
-           case g: ScGenerator => 1
+           case _: ScGenerator => 1
            case _ => 0
          }
         ))

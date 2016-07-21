@@ -344,7 +344,7 @@ object ScalaRefactoringUtil {
       case lit: ScLiteral if lit.isString =>
         val text = lit.getValue.asInstanceOf[String]
         val filter: ScLiteral => Boolean = {
-          case toCheck: ScInterpolatedStringLiteral if text.contains('$') => false
+          case _: ScInterpolatedStringLiteral if text.contains('$') => false
           case _ => true
         }
         getTextOccurrenceInLiterals(text, enclosingContainer, filter)
@@ -545,9 +545,9 @@ object ScalaRefactoringUtil {
           case Some(r) => builder.append(getShortText(r))
           case _ =>
         }
-      case bl: ScBlock =>
+      case _: ScBlock =>
         builder.append("{...}")
-      case d: ScDoStmt =>
+      case _: ScDoStmt =>
         builder.append("do {...} while (...)")
       case f: ScForStatement =>
         builder.append("for (...) ")
@@ -590,7 +590,7 @@ object ScalaRefactoringUtil {
           if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {
-          case Some(tb) => builder.append(" {...}")
+          case Some(_) => builder.append(" {...}")
           case _ =>
         }
       case p: ScParenthesisedExpr =>
@@ -652,8 +652,8 @@ object ScalaRefactoringUtil {
           builder.append(getShortText(u.bindingExpr.get))
           builder.append(" _")
         }
-      case u: ScUnitExpr => builder.append("()")
-      case w: ScWhileStmt => builder.append("while (...) {...}")
+      case _: ScUnitExpr => builder.append("()")
+      case _: ScWhileStmt => builder.append("while (...) {...}")
       case x: ScXmlExpr => builder.append(x.getText)
       case _ => builder.append(expr.getText)
     }
@@ -685,7 +685,7 @@ object ScalaRefactoringUtil {
   }
 
   def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                              refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
+                              refactoringName: String, exprFilter: (ScExpression) => Boolean = _ => true)(invokesNext: => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
@@ -764,18 +764,6 @@ object ScalaRefactoringUtil {
     invokesNext(currentSelectedElement)
   }
 
-  private def getElementOnCaretOffset(file: PsiFile, editor: Editor): PsiElement = {
-    val offset = editor.getCaretModel.getOffset
-    val element: PsiElement = file.findElementAt(offset) match {
-      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-        w.getText.contains("\n") => file.findElementAt(offset - 1)
-      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-        w.getText.contains(" ") => file.findElementAt(offset - 1)
-      case p => p
-    }
-    element
-  }
-
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
     if (file.asInstanceOf[ScalaFile].isScriptFile()) file
     else {
@@ -832,7 +820,7 @@ object ScalaRefactoringUtil {
       showErrorMessageWithException(ScalaBundle.message("file.is.not.writable"), project, editor, refactoringName)
   }
 
-  def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = s => {}): Boolean = {
+  def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = _ => {}): Boolean = {
     var errorMessage: String = null
     ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock]) match {
       case block: ScConstrBlock =>
@@ -962,7 +950,7 @@ object ScalaRefactoringUtil {
       val result: Boolean = nextParent match {
         case _: ScBlock => true
         case forSt: ScForStatement if forSt.body.orNull == parExpr => false //in this case needBraces == true
-        case forSt: ScForStatement => true
+        case _: ScForStatement => true
         case _ => false
       }
       result || needBraces(parExpr, nextParent)
@@ -972,7 +960,7 @@ object ScalaRefactoringUtil {
     val nextPar = nextParent(expr, elem.getContainingFile)
     nextPar match {
       case prevExpr: ScExpression if !checkEnd(nextPar, expr) => findParentExpr(prevExpr)
-      case prevExpr: ScExpression if checkEnd(nextPar, expr) => expr
+      case _: ScExpression if checkEnd(nextPar, expr) => expr
       case _ => expr
     }
   }
@@ -995,10 +983,10 @@ object ScalaRefactoringUtil {
       case tb: ScTryBlock if !tb.hasRBrace => true
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
-      case Both(fun: ScFunction, _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
+      case Both(_: ScFunction, _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
       case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
       case forSt: ScForStatement if forSt.body.orNull == parExpr => true
-      case forSt: ScForStatement => false
+      case _: ScForStatement => false
       case _: ScEnumerator | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
       case whSt: ScWhileStmt if whSt.body.orNull == parExpr => true
@@ -1038,7 +1026,7 @@ object ScalaRefactoringUtil {
   def container(element: PsiElement, file: PsiFile): PsiElement = {
     def oneExprBody(fun: ScFunctionDefinition): Boolean = fun.body match {
       case Some(_: ScBlock) => false
-      case Some(newTd: ScNewTemplateDefinition) => false
+      case Some(_: ScNewTemplateDefinition) => false
       case Some(_) => true
       case None => false
     }

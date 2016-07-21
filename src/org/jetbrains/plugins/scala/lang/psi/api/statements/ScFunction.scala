@@ -127,7 +127,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       this match {
         case _: ScFunctionDeclaration =>
           containingClass match {
-            case t: ScTrait => return true
+            case _: ScTrait => return true
             case c: ScClass if c.hasAbstractModifier => return true
             case _ =>
           }
@@ -177,7 +177,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (effectiveParameterClauses.nonEmpty) return true
     superMethod match {
       case Some(fun: ScFunction) => fun.hasParameterClause
-      case Some(psi: PsiMethod) => true
+      case Some(_: PsiMethod) => true
       case None => false
     }
   }

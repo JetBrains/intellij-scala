@@ -52,9 +52,9 @@ object ScalaOIUtil {
             assert(x.containingClass != null, "Containing Class is null: " + x.getText)
             Some(new ScAliasMember(x, subst, !isImplement))
           case x: PsiField => Some(new JavaFieldMember(x, subst))
-          case x => None
+          case _ => None
         }
-      case x => None
+      case _ => None
     }
   }
 
@@ -108,7 +108,7 @@ object ScalaOIUtil {
   def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterable[ClassMember] = {
     allMembers(clazz, withSelfType).filter {
       case sign: PhysicalSignature => needImplement(sign, clazz, withOwn)
-      case (named: PsiNamedElement, subst: ScSubstitutor) => needImplement(named, clazz, withOwn)
+      case (named: PsiNamedElement, _: ScSubstitutor) => needImplement(named, clazz, withOwn)
       case _ => false
     }.flatMap(toClassMember(_, isImplement = true))
   }
@@ -188,7 +188,7 @@ object ScalaOIUtil {
     m match {
       case _ if isProductAbstractMethod(m, clazz) => false
       case method if !ResolveUtils.isAccessible(method, place, forCompletion = false) => false
-      case x if name == "$tag" || name == "$init$" => false
+      case _ if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
               !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true

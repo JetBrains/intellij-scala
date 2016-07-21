@@ -94,7 +94,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
 
   def applyToMember(member: ScMember, position: PsiElement): Option[Integer] = {
     member.getContext match {
-      case tb: ScTemplateBody =>
+      case _: ScTemplateBody =>
         val clazz: PsiClass = member.containingClass
         clazz match {
           case obj: ScObject =>

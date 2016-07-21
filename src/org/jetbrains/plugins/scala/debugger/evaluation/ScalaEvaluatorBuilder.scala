@@ -36,7 +36,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     val cached: Option[Evaluator] = {
       try cache.get(position, codeFragment)
       catch {
-        case e: Exception =>
+        case _: Exception =>
           cache.clear()
           None
       }
@@ -58,7 +58,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       new ExpressionEvaluatorImpl(buildSimpleEvaluator)
     }
     catch {
-      case e: NeedCompilationException =>
+      case _: NeedCompilationException =>
         new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
       case e: EvaluateException => throw e
     }
@@ -149,26 +149,26 @@ private object needsCompilation {
     case m: ScMember => m match {
       case td: ScTemplateDefinition =>
         td match {
-          case o: ScObject => message("object")
-          case c: ScClass => message("class")
-          case t: ScTrait => message("trait")
+          case _: ScObject => message("object")
+          case _: ScClass => message("class")
+          case _: ScTrait => message("trait")
           case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) =>
             message("anonymous class")
           case _ => None
         }
-      case t: ScTypeAlias => message("type alias")
-      case f: ScFunction => message("function definition")
-      case v @ (_: ScVariableDeclaration | _: ScValueDeclaration) => message("variable declaration")
+      case _: ScTypeAlias => message("type alias")
+      case _: ScFunction => message("function definition")
+      case (_: ScVariableDeclaration | _: ScValueDeclaration) => message("variable declaration")
       case LazyVal(_) => message("lazy val definition")
       case _ => None
     }
     case expr if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(expr) => message("anonymous function")
-    case forSt: ScForStatement => message("for expression")
-    case tryStmt: ScTryStmt => message("try statement")
-    case ret: ScReturnStmt => message("return statement")
-    case ms: ScMatchStmt => message("match statement")
-    case throwStmt: ScThrowStmt => message("throw statement")
-    case xml: ScXmlExpr => message("xml expression")
+    case _: ScForStatement => message("for expression")
+    case _: ScTryStmt => message("try statement")
+    case _: ScReturnStmt => message("return statement")
+    case _: ScMatchStmt => message("match statement")
+    case _: ScThrowStmt => message("throw statement")
+    case _: ScXmlExpr => message("xml expression")
     case interpolated: ScInterpolatedStringLiteral if interpolated.getType != InterpolatedStringType.STANDART =>
       message("interpolated string")
     case _ => None

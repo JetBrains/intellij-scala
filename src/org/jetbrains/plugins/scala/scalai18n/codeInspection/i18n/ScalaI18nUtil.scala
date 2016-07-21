@@ -247,7 +247,7 @@ object ScalaI18nUtil {
                 maxCount = Math.max(maxCount, count)
               }
               catch {
-                case e: Exception =>
+                case _: Exception =>
               }
             }
           }

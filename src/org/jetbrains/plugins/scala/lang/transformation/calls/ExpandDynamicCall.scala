@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
   */
 object ExpandDynamicCall extends AbstractTransformer {
   def transformation: PartialFunction[PsiElement, Unit] = {
-    case e @ ScMethodCall(r @ RenamedReference(id, "applyDynamic"), _) =>
+    case ScMethodCall(r @ RenamedReference(id, "applyDynamic"), _) =>
       r.replace(code"${r.qualifier.get}.applyDynamic(${quote(id)})")
 
     case e @ ScInfixExpr(l, RenamedReference(id, "applyDynamic"), r) =>

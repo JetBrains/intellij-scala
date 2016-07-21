@@ -204,7 +204,7 @@ package object extensions {
       def lift: PsiType => Option[ScType] = _.toScType()(typeSystem).toOption
 
       (repr match {
-        case e: ScPrimaryConstructor => None
+        case _: ScPrimaryConstructor => None
         case e: ScFunction if e.isConstructor => None
         case e: ScFunction => e.returnType.toOption
         case e: ScBindingPattern => e.getType(TypingContext.empty).toOption

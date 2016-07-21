@@ -132,7 +132,7 @@ object ScalaCompletionUtil {
             }
           case _ => return (true, true)
         }
-      case expr: ScReferenceExpression =>
+      case _: ScReferenceExpression =>
         parent.getParent match {
           case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause =>
             if (awful(parent, leaf))
@@ -265,7 +265,7 @@ object ScalaCompletionUtil {
   def processPsiLeafForFilter(leaf: PsiElement): (PsiElement, Boolean) = Option(leaf) map {
     l => l.getContainingFile match {
       case scriptFile: ScalaFile if scriptFile.isScriptFile() => (leaf.getParent, true)
-      case scalaFile: ScalaFile => (leaf, false)
+      case _: ScalaFile => (leaf, false)
       case _ => (null, false)
     }
   } getOrElse (null, false)
