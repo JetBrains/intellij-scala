@@ -418,6 +418,10 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     printModifiers(a)
     print("type ")
     print(processName(a.name))
+    val tp = a.infoType match {
+      case PolyType(typeRef, symbols) => printType(PolyTypeWithCons(typeRef, symbols, " = "))
+      case tp => printType(tp, " = ")
+    }
     print("\n")
     printChildren(level, a)
   }
