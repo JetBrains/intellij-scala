@@ -12,7 +12,7 @@ trait HighlightingPassInspection extends LocalInspectionTool {
     else {
       new PsiElementVisitor {
         override def visitElement(element: PsiElement): Unit = {
-          invoke(element).foreach { info =>
+          invoke(element, isOnTheFly).foreach { info =>
             holder.registerProblem(info.element, info.message, info.fixes: _*)
           }
         }
@@ -20,7 +20,7 @@ trait HighlightingPassInspection extends LocalInspectionTool {
     }
   }
 
-  def invoke(element: PsiElement): Seq[ProblemInfo]
+  def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo]
 
   def shouldProcessElement(elem: PsiElement): Boolean
 }

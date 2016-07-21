@@ -66,7 +66,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
       } filter {
         isEnabled
       } flatMap {
-        inspection.invoke
+        inspection.invoke(_, isOnTheFly = true)
       }
       highlightInfos ++= infos.map { info =>
         val range = info.element.getTextRange

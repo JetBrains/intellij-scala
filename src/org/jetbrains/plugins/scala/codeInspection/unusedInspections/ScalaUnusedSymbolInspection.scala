@@ -3,6 +3,7 @@ package codeInspection
 package unusedInspections
 
 import com.intellij.psi._
+import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -15,18 +16,28 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def getDisplayName: String = "Unused Symbol"
 
-  override def invoke(element: PsiElement): Seq[ProblemInfo] = element match {
+  private def isElementUsed(elem: ScNamedElement, isOnTheFly: Boolean): Boolean = {
+    if (isOnTheFly) {
+      //we can trust RefCounter because references are counted during highlighting
+      val refCounter = ScalaRefCountHolder.getInstance(elem.getContainingFile)
+      var used = false
+      val success = refCounter.retrieveUnusedReferencesInfo { () =>
+        if (refCounter.isValueUsed(elem)) {
+          used = true
+        }
+      }
+      !success || used //want to return true if it was a failure
+    } else {
+      //need to look for references because file is not highlighted
+      ReferencesSearch.search(elem, elem.getUseScope).findFirst() != null
+    }
+  }
+
+  override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = element match {
     case declaredHolder: ScDeclaredElementsHolder if shouldProcessElement(element) =>
       declaredHolder.declaredElements.flatMap {
         case named: ScNamedElement =>
-          val refCounter = ScalaRefCountHolder.getInstance(named.getContainingFile)
-          var used = false
-          refCounter.retrieveUnusedReferencesInfo { () =>
-            if (refCounter.isValueUsed(named)) {
-              used = true
-            }
-          }
-          if (!used) {
+          if (!isElementUsed(named, isOnTheFly)) {
             Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.Annotation, Seq(new DeleteUnusedElementFix(named))))
           } else Seq.empty
         case _ => Seq.empty
