@@ -39,6 +39,7 @@ class ScAnnotationElementType[Func <: ScAnnotation]
     val maybeName = maybeTypeElement flatMap {
       case parenthesised: ScParenthesisedTypeElement => parenthesised.typeElement
       case simple: ScSimpleTypeElement => Some(simple)
+      case _ => None
     } collect {
       case simple: ScSimpleTypeElement => simple
     } flatMap {
