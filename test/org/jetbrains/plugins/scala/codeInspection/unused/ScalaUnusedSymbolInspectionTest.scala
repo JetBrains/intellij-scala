@@ -12,12 +12,14 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
 
   override protected def annotation: String = ScalaUnusedSymbolInspection.Annotation
 
+  val hint = DeleteUnusedElementFix.Hint
+
   def testPrivateField(): Unit = {
     val code =
       s"""
-        |class Foo {
-        |  private val ${START}s$END = 0
-        |}
+         |class Foo {
+         |  private val ${START}s$END = 0
+         |}
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -31,17 +33,17 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |class Foo {
         |}
       """.stripMargin
-    testFix(before, after, DeleteUnusedElementFix.Hint)
+    testFix(before, after, hint)
   }
 
   def testLocalUnusedSymbol(): Unit = {
     val code =
       s"""
-        |object Foo {
-        |  def foo(): Unit = {
-        |    val ${START}s$END = 0
-        |  }
-        |}
+         |object Foo {
+         |  def foo(): Unit = {
+         |    val ${START}s$END = 0
+         |  }
+         |}
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -59,16 +61,16 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, DeleteUnusedElementFix.Hint)
+    testFix(before, after, hint)
   }
 
   def testNonPrivateField(): Unit = {
     val code =
       """
-         |class Foo {
-         |  val s: String = ""
-         |  protected val z: Int = 2
-         |}
+        |class Foo {
+        |  val s: String = ""
+        |  protected val z: Int = 2
+        |}
       """.stripMargin
     checkTextHasNoErrors(code)
   }
@@ -84,10 +86,10 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
     checkTextHasError(code)
     val before =
       """
-         |class Foo {
-         |  private val (a, b): String = ???
-         |  println(b)
-         |}
+        |class Foo {
+        |  private val (a, b): String = ???
+        |  println(b)
+        |}
       """.stripMargin
     val after =
       """
@@ -96,7 +98,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  println(b)
         |}
       """.stripMargin
-    testFix(before, after, DeleteUnusedElementFix.Hint)
+    testFix(before, after, hint)
   }
 
   def testSupressed(): Unit = {
@@ -118,11 +120,11 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
   def testLocalVar(): Unit = {
     val code =
       s"""
-        |class Bar {
-        |  def aa(): Unit = {
-        |    var (${START}d$END, a) = 10
-        |  }
-        |}
+         |class Bar {
+         |  def aa(): Unit = {
+         |    var (${START}d$END, a) = 10
+         |  }
+         |}
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -143,6 +145,157 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
          |  }
          |}
       """.stripMargin
-    testFix(before, after, DeleteUnusedElementFix.Hint)
+    testFix(before, after, hint)
+  }
+
+  def testMatchCaseWithType(): Unit = {
+    val code =
+      s"""
+         |class Moo {
+         |  Option(null) match {
+         |    case Some(${START}s$END: String) =>
+         |      println("AA")
+         |  }
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case Some(s: String) =>
+        |      println("AA")
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case Some(_: String) =>
+        |      println("AA")
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
+  }
+
+  def testMatchCaseNoType(): Unit = {
+    val code =
+      s"""
+         |class Moo {
+         |  Option(null) match {
+         |    case Some(${START}s$END) =>
+         |      println("AA")
+         |  }
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case Some(s) =>
+        |      println("AA")
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case Some(_) =>
+        |      println("AA")
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
+  }
+
+  def testAnonymousFunctionDestructor(): Unit = {
+    val code =
+      s"""
+         |class Moo {
+         |  Option("").map {
+         |    case ${START}a$END: String =>
+         |  }
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  Option("").map {
+        |    case a: String =>
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  Option("").map {
+        |    case _: String =>
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
+  }
+
+  def testBindingPattern(): Unit = {
+    val code =
+      s"""
+         |class Moo {
+         |  Option(null) match {
+         |    case ${START}s$END@Some(a) => println(a)
+         |  }
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case s@Some(a) => println(a)
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case Some(a) => println(a)
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
+  }
+
+  def testBindingPattern2(): Unit = {
+    val code =
+      s"""
+         |class Moo {
+         |  Option(null) match {
+         |    case s@Some(${START}a$END) => println(s)
+         |  }
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case s@Some(a) => println(s)
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  Option(null) match {
+        |    case s@Some(_) => println(s)
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
   }
 }
