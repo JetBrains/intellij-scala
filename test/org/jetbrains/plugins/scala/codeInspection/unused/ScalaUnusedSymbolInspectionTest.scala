@@ -298,4 +298,68 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
       """.stripMargin
     testFix(before, after, hint)
   }
+
+  def testAnonymousFunctionWithCaseClause(): Unit = {
+    val code =
+      s"""
+        |class Moo {
+        |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
+        |    s.map {
+        |      case (a, ${START}b$END) => a
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
+        |    s.map {
+        |      case (a, b) => a
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
+        |    s.map {
+        |      case (a, _) => a
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
+  }
+
+  def testUnusedRegularAnonymousFunction(): Unit = {
+    val code =
+      s"""
+        |class Moo {
+        |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
+        |    s.map (${START}a$END => 1)
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
+        |    s.map (a => 1)
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
+        |    s.map (_ => 1)
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
+  }
 }
