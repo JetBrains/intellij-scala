@@ -17,17 +17,17 @@ import _root_.scala.collection.mutable._
  * Date : 05.05.2008
  */
 
-class ScalaPackagingStructureViewElement(private val element: ScPackaging) extends ScalaStructureViewElement(element, false) {
+class ScalaPackagingStructureViewElement(pack: ScPackaging) extends ScalaStructureViewElement(pack, false) {
   def getPresentation: ItemPresentation = {
-    new ScalaPackagingItemPresentation(element);
+    new ScalaPackagingItemPresentation(pack)
   }
 
   def getChildren: Array[TreeElement] = {
-    val children = new ArrayBuffer[ScalaStructureViewElement]
-    for (td <- element.immediateTypeDefinitions) {
+    val children = new ArrayBuffer[ScalaStructureViewElement[_]]
+    for (td <- pack.immediateTypeDefinitions) {
       children += new ScalaTypeDefinitionStructureViewElement(td)
     }
-    for (p <- element.packagings) {
+    for (p <- pack.packagings) {
       children += new ScalaPackagingStructureViewElement(p)
     }
 

@@ -5,15 +5,16 @@ import java.util
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
-import com.intellij.openapi.project.{Project, IndexNotReadyException}
+import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPatternList, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTuplePattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
@@ -42,7 +43,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
     node match {
       case td: ScalaTypeDefinitionStructureViewElement =>
         val children = new util.ArrayList[TreeElement]()
-        val clazz = td.element
+        val clazz = td.psiElement
         val project = clazz.getProject
         try {
           if (!clazz.isValid) return children
@@ -78,7 +79,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
             valDef.getLastChild match {
               case testCall: ScMethodCall =>
                 TestNodeProvider.extractUTest(testCall, testCall.getProject)
-              case _ => tryTupledId(valElement.element)
+              case _ => tryTupledId(valElement.psiElement)
             }
           case identifier: LeafPsiElement if identifier.getElementType == ScalaTokenTypes.tIDENTIFIER =>
             tryTupledId(identifier)
@@ -197,13 +198,13 @@ object TestNodeProvider {
     methodExpr != null && {
       methodExpr.asInstanceOf[ScReferenceExpression].advancedResolve match {
         case Some(resolveResult) =>
-          resolveResult.getActualElement.getName == callerName && {
+          resolveResult.getActualElement.name == callerName && {
             val funElement = resolveResult.innerResolveResult match {
               case Some(innerResult) =>
                 innerResult.getActualElement
               case None => resolveResult.getElement
             }
-            funElement.getName == "apply" && funElement.isInstanceOf[ScFunctionDefinition] &&
+            funElement.name == "apply" && funElement.isInstanceOf[ScFunctionDefinition] &&
               checkClauses(funElement.asInstanceOf[ScFunctionDefinition].getParameterList.clauses, paramNames: _*)
           }
         case _ => false
@@ -239,7 +240,7 @@ object TestNodeProvider {
       case _ => None
     }).exists(funDef => {
       funDef.getName == funName &&
-        paramNames.map(checkClauses(funDef.getParameterList.clauses, _:_*)).getOrElse(true)})
+        paramNames.forall(checkClauses(funDef.getParameterList.clauses, _: _*))})
   }
 
   private def checkSpecsPending(expr: ScInfixExpr): Boolean = {
@@ -450,7 +451,7 @@ object TestNodeProvider {
   }
 
   def isUTestSuiteApplyCall(psiElement: PsiElement): Boolean = psiElement match {
-    case methodCall: ScMethodCall => checkScMethodCallApply(methodCall, "TestSuite$", List("void"))
+    case methodCall: ScMethodCall => checkScMethodCallApply(methodCall, "TestSuite", List("void"))
     case _ => false
   }
 

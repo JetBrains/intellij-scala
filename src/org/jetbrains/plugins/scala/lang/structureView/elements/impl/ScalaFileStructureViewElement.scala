@@ -28,15 +28,14 @@ class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaL
   }
 
   def getChildren: Array[TreeElement] = {
-    val children = new ArrayBuffer[ScalaStructureViewElement]
+    val children = new ArrayBuffer[ScalaStructureViewElement[_]]
     for (child <- findRightFile().getChildren) {
       child match {
-        case td: ScTypeDefinition => {
+        case td: ScTypeDefinition =>
           children += new ScalaTypeDefinitionStructureViewElement(td)
-        }
-        case packaging: ScPackaging => {
-          def getChildren(pack: ScPackaging): Array[ScalaStructureViewElement] = {
-            val children = new ArrayBuffer[ScalaStructureViewElement]
+        case packaging: ScPackaging =>
+          def getChildren(pack: ScPackaging): Array[ScalaStructureViewElement[_]] = {
+            val children = new ArrayBuffer[ScalaStructureViewElement[_]]
             for (td <- pack.immediateTypeDefinitions) {
               children += new ScalaTypeDefinitionStructureViewElement(td)
             }
@@ -45,22 +44,18 @@ class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaL
             }
             children.toArray
           }
+
           children ++= getChildren(packaging)
-        }
-        case member: ScVariable => {
+        case member: ScVariable =>
           for (f <- member.declaredElements)
             children += new ScalaVariableStructureViewElement(f.nameId, false)
-        }
-        case member: ScValue => {
+        case member: ScValue =>
           for (f <- member.declaredElements)
             children += new ScalaValueStructureViewElement(f.nameId, false)
-        }
-        case member: ScTypeAlias => {
+        case member: ScTypeAlias =>
           children += new ScalaTypeAliasStructureViewElement(member, false)
-        }
-        case func: ScFunction => {
+        case func: ScFunction =>
           children += new ScalaFunctionStructureViewElement(func, false)
-        }
         case _ =>
       }
     }

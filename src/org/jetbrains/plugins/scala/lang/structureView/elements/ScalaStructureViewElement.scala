@@ -6,51 +6,41 @@ package elements
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.pom.Navigatable
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable};
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 04.05.2008
 */
 
-abstract class ScalaStructureViewElement(protected val myElement: PsiElement, val inherited: Boolean) extends StructureViewTreeElement {
+abstract class ScalaStructureViewElement[T <: PsiElement](val psiElement: T, val inherited: Boolean) extends StructureViewTreeElement {
 
   def getValue: Object = {
-    if (myElement.isValid) {
+    psiElement match {
+      case _ if !psiElement.isValid => null
       /*
         code for right positioning for caret in case such:
         val x, y = {
           33<caret>
         }
        */
-      if (PsiTreeUtil.getParentOfType(myElement, classOf[ScValue]) != null) {
-        val v = PsiTreeUtil.getParentOfType(myElement, classOf[ScValue])
-        if (myElement.textMatches(v.declaredElements.apply(0))) v
-        else myElement
-      } else if (PsiTreeUtil.getParentOfType(myElement, classOf[ScVariable]) != null) {
-        val v = PsiTreeUtil.getParentOfType(myElement, classOf[ScVariable])
-        if (myElement.textMatches(v.declaredElements.apply(0))) v
-        else myElement
-      } else {
-        myElement
-      }
-    }
-    else {
-      null;
+      case ScalaPsiUtil.inNameContext(v: ScValue) if psiElement.textMatches(v.declaredElements.head) => v
+      case ScalaPsiUtil.inNameContext(v: ScVariable) if psiElement.textMatches(v.declaredElements.head) => v
+      case _ => psiElement
     }
   }
 
   def navigate(b: Boolean) {
-    myElement.asInstanceOf[Navigatable].navigate(b);
+    psiElement.asInstanceOf[Navigatable].navigate(b)
   }
 
   def canNavigate: Boolean = {
-    myElement.asInstanceOf[Navigatable].canNavigate
+    psiElement.asInstanceOf[Navigatable].canNavigate
   }
 
   def canNavigateToSource: Boolean = {
-    myElement.asInstanceOf[Navigatable].canNavigateToSource
+    psiElement.asInstanceOf[Navigatable].canNavigateToSource
   }
 
   override def equals(o: Any): Boolean = {
@@ -59,7 +49,7 @@ abstract class ScalaStructureViewElement(protected val myElement: PsiElement, va
       case _ => return false
     }
     if (o == null || getClass != clazz) return false
-    val that = o.asInstanceOf[ScalaStructureViewElement]
+    val that = o.asInstanceOf[ScalaStructureViewElement[_]]
     if (inherited != that.inherited) return false
 
     val value = getValue

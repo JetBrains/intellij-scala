@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 * Date: 05.05.2008
 */
 
-class ScalaVariableStructureViewElement(private val element: PsiElement, val isInherited: Boolean) extends ScalaStructureViewElement(element, isInherited) {
+class ScalaVariableStructureViewElement(elem: PsiElement, val isInherited: Boolean) extends ScalaStructureViewElement(elem, isInherited) {
   def getPresentation: ItemPresentation = {
-    new ScalaVariableItemPresentation(element, isInherited)
+    new ScalaVariableItemPresentation(elem, isInherited)
   }
 
   def getChildren: Array[TreeElement] = Array.empty

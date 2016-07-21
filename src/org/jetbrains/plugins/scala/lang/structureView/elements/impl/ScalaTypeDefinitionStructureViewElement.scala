@@ -18,35 +18,29 @@ import _root_.scala.collection.mutable._
 * Date: 04.05.2008
 */
 
-class ScalaTypeDefinitionStructureViewElement(val element: ScTypeDefinition) extends ScalaStructureViewElement(element, false) {
+class ScalaTypeDefinitionStructureViewElement(clazz: ScTypeDefinition) extends ScalaStructureViewElement(clazz, false) {
 
   def getPresentation: ItemPresentation = {
-    new ScalaTypeDefinitionItemPresentation(element)
+    new ScalaTypeDefinitionItemPresentation(clazz)
   }
 
   def getChildren: Array[TreeElement] = {
     val children = new ArrayBuffer[TreeElement]
-    val clazz: ScTypeDefinition = element
     val members = clazz.members
     for (member <- members) {
       member match {
-        case func: ScFunction => {
+        case func: ScFunction =>
           children += new ScalaFunctionStructureViewElement(func, false)
-        }
-        case constr: ScPrimaryConstructor => {
+        case constr: ScPrimaryConstructor =>
           children += new ScalaPrimaryConstructorStructureViewElement(constr)
-        }
-        case member: ScVariable => {
+        case member: ScVariable =>
           for (f <- member.declaredElements)
             children += new ScalaVariableStructureViewElement(f.nameId, false)
-        }
-        case member: ScValue => {
+        case member: ScValue =>
           for (f <- member.declaredElements)
             children += new ScalaValueStructureViewElement(f.nameId, false)
-        }
-        case member: ScTypeAlias => {
+        case member: ScTypeAlias =>
           children += new ScalaTypeAliasStructureViewElement(member, false)
-        }
         case _ =>
       }
     }
