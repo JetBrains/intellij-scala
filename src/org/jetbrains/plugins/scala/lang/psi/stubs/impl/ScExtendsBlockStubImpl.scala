@@ -4,7 +4,7 @@ package psi
 package stubs
 package impl
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 
 class ScExtendsBlockStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-extends StubBaseWrapper[ScExtendsBlock](parent, elemType) with ScExtendsBlockStub {
+  extends StubBase[ScExtendsBlock](parent, elemType) with ScExtendsBlockStub {
   var baseClasses: Array[StringRef] = Array[StringRef]()
 
   def this(parent: StubElement[ParentPsi],

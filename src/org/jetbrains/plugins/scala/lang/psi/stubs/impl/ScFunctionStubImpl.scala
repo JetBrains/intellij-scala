@@ -5,8 +5,7 @@ package stubs
 package impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.util.SofterReference
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -21,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class ScFunctionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
+  extends StubBase[ScFunction](parent, elemType) with ScFunctionStub {
   private var name: StringRef = _
   private var declaration: Boolean = false
   private var annotations: Array[StringRef] = Array[StringRef]()

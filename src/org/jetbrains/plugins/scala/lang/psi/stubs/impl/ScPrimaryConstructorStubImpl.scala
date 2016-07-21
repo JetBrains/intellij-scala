@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 /**
  * User: Alexander Podkhalyuzin
@@ -15,6 +15,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 
 class ScPrimaryConstructorStubImpl [ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-        extends StubBaseWrapper[ScPrimaryConstructor](parent, elemType) with ScPrimaryConstructorStub {
-
-}
+  extends StubBase[ScPrimaryConstructor](parent, elemType) with ScPrimaryConstructorStub

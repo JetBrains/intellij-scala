@@ -5,7 +5,7 @@ package stubs
 package impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
 
 /**
@@ -14,4 +14,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
   */
 class ScAnnotationsStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                      elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-  extends StubBaseWrapper[ScAnnotations](parent, elementType) with ScAnnotationsStub
+  extends StubBase[ScAnnotations](parent, elementType) with ScAnnotationsStub

@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 
 class ScFieldIdStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-extends StubBaseWrapper[ScFieldId](parent, elemType) with ScFieldIdStub {
+  extends StubBase[ScFieldId](parent, elemType) with ScFieldIdStub {
   private var name: StringRef = _
 
   def this(parent: StubElement[ParentPsi],

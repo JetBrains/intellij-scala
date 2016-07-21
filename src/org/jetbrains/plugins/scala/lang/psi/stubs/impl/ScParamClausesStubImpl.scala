@@ -5,7 +5,7 @@ package stubs
 package impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 
 /**
@@ -15,4 +15,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 
 class ScParamClausesStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-extends StubBaseWrapper[ScParameters](parent, elemType) with ScParamClausesStub
+  extends StubBase[ScParameters](parent, elemType) with ScParamClausesStub

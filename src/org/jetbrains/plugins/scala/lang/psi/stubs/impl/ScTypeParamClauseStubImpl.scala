@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 /**
  * User: Alexander Podkhalyuzin
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 
 class ScTypeParamClauseStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-        extends StubBaseWrapper[ScTypeParamClause](parent, elemType) with ScTypeParamClauseStub {
+  extends StubBase[ScTypeParamClause](parent, elemType) with ScTypeParamClauseStub {
   private var typeParamClauseText: String = ""
 
   def this(parent: StubElement[ParentPsi],

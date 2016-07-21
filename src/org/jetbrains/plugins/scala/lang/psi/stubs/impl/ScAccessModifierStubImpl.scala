@@ -5,7 +5,7 @@ package stubs
 package impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 
@@ -19,7 +19,7 @@ class ScAccessModifierStubImpl[ParentPsi <: PsiElement](parent: StubElement[Pare
                                                         val isPrivate: Boolean,
                                                         val isThis: Boolean,
                                                         private val idTextRef: Option[StringRef])
-  extends StubBaseWrapper[ScAccessModifier](parent, elementType) with ScAccessModifierStub {
+  extends StubBase[ScAccessModifier](parent, elementType) with ScAccessModifierStub {
 
   def idText: Option[String] = idTextRef.map(StringRef.toString)
 }

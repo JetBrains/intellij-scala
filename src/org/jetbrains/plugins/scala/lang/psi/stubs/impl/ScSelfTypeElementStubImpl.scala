@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 
 class ScSelfTypeElementStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-        extends StubBaseWrapper[ScSelfTypeElement](parent, elemType) with ScSelfTypeElementStub {
+  extends StubBase[ScSelfTypeElement](parent, elemType) with ScSelfTypeElementStub {
   private var name: StringRef = _
   private var typeElementText: StringRef = _
   private var typeNames: Array[String] = Array.empty
