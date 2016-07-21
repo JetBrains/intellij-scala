@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConversions._
 
@@ -53,15 +54,14 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
     val elementAtOffset = file.findElementAt(editor.getCaretModel.getOffset)
 
-    val specifyType = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
-
     inWriteCommandAction(project) {
       try {
         val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
         val generatedMethods = for (member <- candidates) yield {
           val prototype: ScFunctionDefinition =
-            ScalaPsiElementFactory.createMethodFromSignature(member.sign, aClass.getManager, specifyType, body = "???")
+            ScalaPsiElementFactory.createMethodFromSignature(member.sign, aClass.getManager, needsInferType = true, body = "???")
                   .asInstanceOf[ScFunctionDefinition]
+          TypeAnnotationUtil.removeTypeAnnotationIfNeed(prototype)
           prototype.setModifierProperty("override", value = member.isOverride)
           val body = methodBody(target, prototype)
           prototype.body.foreach(_.replace(body))

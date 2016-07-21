@@ -23,15 +23,11 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
                          needCopyScalaDocChb: Boolean,
                          targetClass: ScTemplateDefinition)
         extends {
-          val specifyRetTypeChb: JCheckBox = new NonFocusableCheckBox(ScalaBundle.message("specify.return.type.explicitly"))
           val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
           val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
-          private val checkboxes = Array[JComponent](specifyRetTypeChb, addOverrideModifierChb, copyScalaDocChb)
+          private val checkboxes = Array[JComponent](addOverrideModifierChb, copyScalaDocChb)
           private val sortedElements = ScalaMemberChooser.sorted(elements, targetClass)
         } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, checkboxes) {
-
-  specifyRetTypeChb.setSelected(ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY)
-  specifyRetTypeChb.setVisible(needSpecifyRetTypeChb)
 
   addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
   addOverrideModifierChb.setVisible(needAddOverrideChb)
@@ -40,7 +36,6 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   copyScalaDocChb.setVisible(needCopyScalaDocChb)
 
   override def doOKAction(): Unit = {
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = specifyRetTypeChb.isSelected
     ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED = addOverrideModifierChb.isSelected
     ScalaApplicationSettings.getInstance.COPY_SCALADOC = copyScalaDocChb.isSelected
     super.doOKAction()

@@ -15,6 +15,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -28,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.ScalaUtils
+import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationUtil}
 
 /**
  * Created by Kate Ustyuzhanina
@@ -81,8 +82,8 @@ trait IntroduceExpressions {
               case _: ScFunctionExpr => Some(true)
               case _ => None
             }
-            val needExplicitType = forceInferType.getOrElse(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE)
-            val selectedType = if (needExplicitType) types(0) else null
+//            val needExplicitType = forceInferType.getOrElse(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE)
+            val selectedType = types(0)
             val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] =
               introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
                 replaceAll, asVar)
@@ -240,9 +241,10 @@ trait IntroduceExpressions {
 
     //only Psi-operations after this moment
     var firstRange = replacedOccurences(0)
+    val firstElement = ScalaRefactoringUtil.findParentExpr(file, firstRange)
     val parentExprs =
       if (occCount == 1)
-        ScalaRefactoringUtil.findParentExpr(file, firstRange) match {
+        firstElement match {
           case _ childOf ((block: ScBlock) childOf ((_) childOf (call: ScMethodCall)))
             if isFunExpr && block.statements.size == 1 => Seq(call)
           case _ childOf ((block: ScBlock) childOf (infix: ScInfixExpr))
@@ -285,14 +287,27 @@ trait IntroduceExpressions {
       result
     }
 
+    def addTypeAnnotation(anchor: PsiElement, expression: ScExpression): Boolean = {
+      val isLocal = TypeAnnotationUtil.isLocal(anchor)
+      val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
+      val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
+
+      TypeAnnotationUtil.addTypeAnnotation(
+        TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
+        settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
+        settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+        isOverride = false, // no overriding enable in current refactoring
+        isSimple = TypeAnnotationUtil.isSimple(expression)
+      )
+    }
+
     def createVariableDefinition(): PsiElement = {
-      val created = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
-        ScalaRefactoringUtil.unparExpr(expression), file.getManager)
-      var result: PsiElement = null
       if (fastDefinition) {
-        result = replaceRangeByDeclaration(replacedOccurences(0), created)
-      }
-      else {
+        val addType = addTypeAnnotation(firstElement, expression)
+        ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = addType
+        replaceRangeByDeclaration(replacedOccurences(0), ScalaPsiElementFactory.createDeclaration(varName, if (addType) typeName else  "", isVariable,
+          ScalaRefactoringUtil.unparExpr(expression), file.getManager))
+      } else {
         var needFormatting = false
         val parent = commonParent match {
           case inExtendsBlock(extBl) =>
@@ -313,11 +328,17 @@ trait IntroduceExpressions {
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
+          val addType = addTypeAnnotation(anchor, expression)
+
+          val created = ScalaPsiElementFactory.createDeclaration(varName, if(addType) typeName else "", isVariable,
+            ScalaRefactoringUtil.unparExpr(expression), file.getManager)
+
+          val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)
+          ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = addType
+          result
         } else throw new IntroduceException
       }
-      result
     }
 
     val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParent, firstRange.getStartOffset) match {
