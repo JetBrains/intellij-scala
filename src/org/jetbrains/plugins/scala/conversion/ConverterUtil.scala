@@ -179,7 +179,7 @@ object ConverterUtil {
 
   def compareTextNEq(text1: String, text2: String): Boolean = {
     def textWithoutLastSemicolon(text: String) = {
-      if (text.last == ';') text.substring(0, text.length - 1)
+      if (text != null && text.nonEmpty && text.last == ';') text.substring(0, text.length - 1)
       else text
     }
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
