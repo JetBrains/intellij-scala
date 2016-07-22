@@ -4,7 +4,6 @@ package lang.refactoring.introduceField
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.VisibilityLevel
 
 /**
  * Nikolay.Tropin
@@ -61,9 +60,9 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
   }
   def setReplaceAll(value: Boolean) {replaceAll = value}
 
-  def visibilityLevel: VisibilityLevel = visLevel
-  def visibilityLevel_=(value: ScalaApplicationSettings.VisibilityLevel) {visLevel = value}
-  def setVisibilityLelel(value: ScalaApplicationSettings.VisibilityLevel) {visibilityLevel = value}
+  def visibilityLevel: String = visLevel
+  def visibilityLevel_=(value: String) {visLevel = value}
+  def setVisibilityLevel(value: String) {visibilityLevel = value}
 
   def explicitType: Boolean = explType
   def explicitType_=(value: Boolean) {explType = value}

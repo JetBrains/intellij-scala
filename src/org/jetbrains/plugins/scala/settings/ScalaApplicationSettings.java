@@ -35,8 +35,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = false;
   public boolean RENAME_SEARCH_IN_NON_CODE_FILES = false;
 
-  public enum VisibilityLevel {DEFAULT, PROTECTED, PRIVATE}
-  public VisibilityLevel INTRODUCE_FIELD_VISIBILITY = VisibilityLevel.DEFAULT;
+  public String INTRODUCE_FIELD_VISIBILITY = "";
 
   public boolean ADD_OVERRIDE_TO_IMPLEMENTED = true;
 

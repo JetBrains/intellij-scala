@@ -123,11 +123,11 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       }
     }
 
-    import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.VisibilityLevel
     settings.visibilityLevel match {
-      case VisibilityLevel.DEFAULT =>
-      case VisibilityLevel.PRIVATE => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("private", value = true)
-      case VisibilityLevel.PROTECTED => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("protected", value = true)
+      case "" =>
+      case other =>
+        val modifier = ScalaPsiElementFactory.createModifierFromText(other, manager).getPsi
+        createdDeclaration.asInstanceOf[ScMember].getModifierList.add(modifier)
     }
 
     lazy val document: Document = ifc.editor.getDocument

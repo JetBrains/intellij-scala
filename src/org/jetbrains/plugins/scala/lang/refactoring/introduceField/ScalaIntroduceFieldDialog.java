@@ -8,10 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.refactoring.HelpID;
-import com.intellij.ui.EditorComboBoxEditor;
-import com.intellij.ui.EditorComboBoxRenderer;
-import com.intellij.ui.EditorTextField;
-import com.intellij.ui.StringComboboxEditor;
+import com.intellij.ui.*;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -46,7 +43,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private JCheckBox myReplaceAllChb;
   private JComboBox myTypeComboBox;
   private ComboBox myNameComboBox;
-  private JRadioButton myDefaultRB;
+  private JRadioButton myPublicRB;
   private JRadioButton myProtectedRB;
   private JRadioButton myPrivateRB;
   private JRadioButton myInitInDeclarationRB;
@@ -54,8 +51,10 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private JLabel myTypeLabel;
   private JLabel myNameLabel;
-  private JLabel myVisibilityLabel;
   private JPanel contentPane;
+  private JPanel visibilityPanel;
+  private JTextField protectedTextField;
+  private JTextField privateTextField;
   private JButton buttonOK;
   public String myEnteredName;
 
@@ -102,7 +101,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   @Nullable
   public String getEnteredName() {
     if (myNameComboBox.getEditor().getItem() instanceof String &&
-        ((String) myNameComboBox.getEditor().getItem()).length() > 0) {
+            ((String) myNameComboBox.getEditor().getItem()).length() > 0) {
       return (String) myNameComboBox.getEditor().getItem();
     } else {
       return null;
@@ -169,21 +168,49 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     ChangeListener visibilityListener = new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
-        if (myDefaultRB.isSelected()) {
-          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.DEFAULT);
+        if (myPublicRB.isSelected()) {
+          mySettings.setVisibilityLevel("");
           readSettings();
         } else if (myProtectedRB.isSelected()) {
-          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.PROTECTED);
+          mySettings.setVisibilityLevel(getProtectedModifierData());
           readSettings();
         } else if (myPrivateRB.isSelected()) {
-          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.PRIVATE);
+          mySettings.setVisibilityLevel(getPrivateModifierData());
           readSettings();
         }
       }
     };
-    myDefaultRB.addChangeListener(visibilityListener);
+
+    myPublicRB.addChangeListener(visibilityListener);
     myPrivateRB.addChangeListener(visibilityListener);
     myProtectedRB.addChangeListener(visibilityListener);
+
+
+    myPrivateRB.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        if (myPrivateRB.isSelected()) {
+          privateTextField.setEnabled(true);
+        } else privateTextField.setEnabled(false);
+      }
+    });
+
+    myProtectedRB.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        if (myProtectedRB.isSelected()) {
+          protectedTextField.setEnabled(true);
+        } else protectedTextField.setEnabled(false);
+      }
+    });
+  }
+
+  private String getPrivateModifierData() {
+    String text = privateTextField.getText();
+    return text.equals("") ? "private" : "private[" + text + "]";
+  }
+
+  private String getProtectedModifierData() {
+    String text = protectedTextField.getText();
+    return text.equals("") ? "protected" : "protected[" + text + "]";
   }
 
   private void setUpDialog() {
@@ -197,13 +224,13 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myTypeLabel.setLabelFor(myTypeComboBox);
 
     myVisibilityButtons = new ButtonGroup();
-    myVisibilityButtons.add(myDefaultRB);
+    myVisibilityButtons.add(myPublicRB);
     myVisibilityButtons.add(myProtectedRB);
     myVisibilityButtons.add(myPrivateRB);
-    myDefaultRB.setMnemonic(KeyEvent.VK_D);
+    myPublicRB.setMnemonic(KeyEvent.VK_D);
     myProtectedRB.setMnemonic(KeyEvent.VK_C);
     myPrivateRB.setMnemonic(KeyEvent.VK_P);
-    myDefaultRB.setFocusable(false);
+    myPublicRB.setFocusable(false);
     myProtectedRB.setFocusable(false);
     myPrivateRB.setFocusable(false);
 
@@ -247,6 +274,13 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       }
     }, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
+    if (myPrivateRB.isSelected()) {
+      privateTextField.setEnabled(true);
+    }
+
+    if (myProtectedRB.isSelected()) {
+      protectedTextField.setEnabled(true);
+    }
   }
 
   private void readSettings() {
@@ -261,16 +295,13 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myInitInDeclarationRB.setSelected(mySettings.initInDeclaration());
     myInitInLocalScopeRB.setSelected(!mySettings.initInDeclaration());
     myReplaceAllChb.setSelected(mySettings.replaceAll());
-    switch (mySettings.visibilityLevel()) {
-      case DEFAULT:
-        myDefaultRB.setSelected(true);
-        break;
-      case PROTECTED:
-        myProtectedRB.setSelected(true);
-        break;
-      case PRIVATE:
-        myPrivateRB.setSelected(true);
-        break;
+
+    if (mySettings.visibilityLevel().contains("protected")) {
+      myProtectedRB.setSelected(true);
+    } else if (mySettings.visibilityLevel().contains("private")) {
+      myPrivateRB.setSelected(true);
+    } else {
+      myPublicRB.setSelected(true);
     }
   }
 
@@ -286,11 +317,11 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myListenerList.add(DataChangedListener.class, new DataChangedListener());
 
     myNameComboBox.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            fireNameDataChanged();
-          }
-        }
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                fireNameDataChanged();
+              }
+            }
     );
 
     ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
@@ -331,12 +362,14 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       scalaSettings.INTRODUCE_FIELD_IS_VAR = myDefineVarChb.isSelected();
     if (myReplaceAllChb.isEnabled())
       scalaSettings.INTRODUCE_FIELD_REPLACE_ALL = myReplaceAllChb.isSelected();
-    if (myDefaultRB.isSelected()) {
-      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.DEFAULT;
+    if (myPublicRB.isSelected()) {
+      scalaSettings.INTRODUCE_FIELD_VISIBILITY = "";
     } else if (myPrivateRB.isSelected()) {
-      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.PRIVATE;
+      scalaSettings.INTRODUCE_FIELD_VISIBILITY = getPrivateModifierData();
+      mySettings.setVisibilityLevel(getPrivateModifierData());
     } else if (myProtectedRB.isSelected()) {
-      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.PROTECTED;
+      scalaSettings.INTRODUCE_FIELD_VISIBILITY = getProtectedModifierData();
+      mySettings.setVisibilityLevel(getProtectedModifierData());
     }
 
     if (myInitInDeclarationRB.isEnabled() && myInitInLocalScopeRB.isEnabled()) {
@@ -403,9 +436,9 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myTypeLabel = new JLabel();
-    myTypeLabel.setText("Variable of type:");
+    myTypeLabel.setText("Field of type:");
     myTypeLabel.setDisplayedMnemonic('Y');
-    myTypeLabel.setDisplayedMnemonicIndex(13);
+    myTypeLabel.setDisplayedMnemonicIndex(10);
     panel3.add(myTypeLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myNameLabel = new JLabel();
     myNameLabel.setText("Name:");
@@ -416,39 +449,53 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myNameComboBox.setEditable(true);
     panel3.add(myNameComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel4 = new JPanel();
-    panel4.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+    panel4.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    myVisibilityLabel = new JLabel();
-    myVisibilityLabel.setText("Visibility");
-    panel4.add(myVisibilityLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myDefaultRB = new JRadioButton();
-    myDefaultRB.setText("Default");
-    myDefaultRB.setMnemonic('D');
-    myDefaultRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myDefaultRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    visibilityPanel = new JPanel();
+    visibilityPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
+    panel4.add(visibilityPanel, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myPublicRB = new JRadioButton();
+    myPublicRB.setText("Public");
+    myPublicRB.setMnemonic('P');
+    myPublicRB.setDisplayedMnemonicIndex(0);
+    visibilityPanel.add(myPublicRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myProtectedRB = new JRadioButton();
     myProtectedRB.setText("Protected");
-    myProtectedRB.setMnemonic('C');
-    myProtectedRB.setDisplayedMnemonicIndex(5);
-    panel4.add(myProtectedRB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myProtectedRB.setMnemonic('O');
+    myProtectedRB.setDisplayedMnemonicIndex(2);
+    visibilityPanel.add(myProtectedRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myPrivateRB = new JRadioButton();
     myPrivateRB.setText("Private");
-    myPrivateRB.setMnemonic('P');
-    myPrivateRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myPrivateRB, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JLabel label1 = new JLabel();
-    label1.setText("Initialize in:");
-    panel4.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myPrivateRB.setMnemonic('R');
+    myPrivateRB.setDisplayedMnemonicIndex(1);
+    visibilityPanel.add(myPrivateRB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    protectedTextField = new JTextField();
+    protectedTextField.setEnabled(false);
+    visibilityPanel.add(protectedTextField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    privateTextField = new JTextField();
+    privateTextField.setEnabled(false);
+    visibilityPanel.add(privateTextField, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    final JPanel panel5 = new JPanel();
+    panel5.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
+    panel4.add(panel5, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myInitInDeclarationRB = new JRadioButton();
     myInitInDeclarationRB.setText("Field declaration");
     myInitInDeclarationRB.setMnemonic('F');
     myInitInDeclarationRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myInitInDeclarationRB, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel5.add(myInitInDeclarationRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myInitInLocalScopeRB = new JRadioButton();
     myInitInLocalScopeRB.setText("Local scope");
     myInitInLocalScopeRB.setMnemonic('L');
     myInitInLocalScopeRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myInitInLocalScopeRB, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel5.add(myInitInLocalScopeRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer2 = new Spacer();
+    panel5.add(spacer2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    final TitledSeparator titledSeparator1 = new TitledSeparator();
+    titledSeparator1.setText("Visibility");
+    panel4.add(titledSeparator1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final TitledSeparator titledSeparator2 = new TitledSeparator();
+    titledSeparator2.setText("Initialize in");
+    panel4.add(titledSeparator2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**
