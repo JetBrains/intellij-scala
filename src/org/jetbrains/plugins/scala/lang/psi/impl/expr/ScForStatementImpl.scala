@@ -40,10 +40,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
   // Binding patterns in reverse order
-  def patterns: Seq[ScPattern] = enumerators match {
-    case None => Seq.empty
-    case Some(x) => x.namings.reverse.map(_.pattern)
-  }
+  def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,

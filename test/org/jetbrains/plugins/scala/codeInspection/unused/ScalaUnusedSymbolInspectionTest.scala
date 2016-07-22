@@ -362,4 +362,57 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
       """.stripMargin
     testFix(before, after, hint)
   }
+
+  def testFor(): Unit = {
+    val code =
+      s"""
+        |class Moo {
+        |  val s = Seq("")
+        |  for (${START}j$END <- s) {
+        |    println(s)
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |class Moo {
+        |  val s = Seq("")
+        |  for (j <- s) {
+        |    println(s)
+        |  }
+        |}
+      """.stripMargin
+    val after =
+      """
+        |class Moo {
+        |  val s = Seq("")
+        |  for (_ <- s) {
+        |    println(s)
+        |  }
+        |}
+      """.stripMargin
+    testFix(before, after, hint)
+  }
+
+  def testNoHighlightWildCards(): Unit = {
+    val code =
+      """
+        |class Moo {
+        |  def foo(i: Any): Unit = i match {
+        |    case _: String => println()
+        |    case b: Seq[String] => b.foreach(_ => println())
+        |    case t: (String, Int) =>
+        |      val (s, _) = t
+        |      println(s)
+        |    case _ =>
+        |      for (_ <- 1 to 2) {
+        |        println()
+        |      }
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
 }
+
