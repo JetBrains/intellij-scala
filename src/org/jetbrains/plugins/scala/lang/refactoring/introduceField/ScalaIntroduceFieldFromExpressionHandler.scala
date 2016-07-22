@@ -11,6 +11,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
-import org.jetbrains.plugins.scala.util.ScalaUtils
+import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationUtil}
 
 
 /**
@@ -86,6 +87,46 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     runWithDialog()
   }
 
+  /*
+    return Option(expected type) or None according to TypeAnnotation settings
+   */
+  def typeAccorgindTASettings(anchor: PsiElement, visibility: String, scType: ScType): Option[ScType] = {
+    val settings = ScalaCodeStyleSettings.getInstance(anchor.getProject)
+    // TODO: check simple
+    val isSimple = false
+
+    val isOverride = false //can't override
+
+    var isPrivate = false
+    var isProtected = false
+    var isPublic = false
+
+    val isLocal = TypeAnnotationUtil.isLocal(anchor)
+
+    if (visibility.contains("private")) {
+      isPrivate = true;
+    } else if (visibility.contains("protected")){
+      isProtected = true;
+    } else {
+      isPublic = true;
+    }
+
+
+    val simplePolicy = settings.SIMPLE_PROPERTY_TYPE_ANNOTATION
+    val overridePolicy = settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION
+
+    val typeNeeded = TypeAnnotationUtil.needTypeAnnotation(
+      TypeAnnotationUtil.requirementForProperty(isLocal, isPrivate,  isPublic,  isProtected, settings),
+      overridePolicy,
+      simplePolicy,
+      isOverride,
+      isSimple
+    )
+
+    if (typeNeeded) Some(scType) else None
+  }
+
+
   private def runRefactoringInside(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]) {
     val expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element)
     val mainOcc = ifc.occurrences.filter(_.getStartOffset == ifc.editor.getSelectionModel.getSelectionStart)
@@ -98,10 +139,12 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     }
     val manager = aClass.getManager
     val name = settings.name
-    val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
     val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrencesToReplace, name, ifc.file)
 
     val anchor = anchorForNewDeclaration(expression, replacedOccurences, aClass)
+
+    val typeName = typeAccorgindTASettings(anchor, settings.visibilityLevel, settings.scType).map(_.canonicalText).getOrElse("")
+
     val initInDecl = settings.initInDeclaration
     var createdDeclaration: PsiElement = null
     if (initInDecl) {
