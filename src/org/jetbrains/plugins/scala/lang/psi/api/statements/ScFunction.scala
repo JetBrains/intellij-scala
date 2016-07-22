@@ -7,11 +7,9 @@ package statements
 
 import java.util
 
-import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
@@ -611,9 +609,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   override def getName: String = {
-    val res = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
-    if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_mth" + res
-    else res
+    if (isConstructor) Option(getContainingClass).map(_.getName).getOrElse(super.getName)
+    else super.getName
   }
 
   override def setName(name: String): PsiElement = {
