@@ -34,6 +34,6 @@ trait ScVariableDefinition extends ScVariable {
 
 object ScVariableDefinition {
   object expr {
-    def unapply(definition: ScVariableDefinition): Option[ScExpression] = definition.expr
+    def unapply(definition: ScVariableDefinition): Option[ScExpression] = Option(definition).flatMap(_.expr)
   }
 }
