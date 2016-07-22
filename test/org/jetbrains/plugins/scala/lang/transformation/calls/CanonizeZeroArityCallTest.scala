@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class CanonizeZeroArityCallTest extends TransformerTest(CanonizeZeroArityCall,
+class CanonizeZeroArityCallTest extends TransformerTest(new CanonizeZeroArityCall(),
   """
      object O {
        def f(): A = _

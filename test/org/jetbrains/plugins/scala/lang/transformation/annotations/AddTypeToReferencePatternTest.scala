@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class AddTypeToReferencePatternTest extends TransformerTest(AddTypeToReferencePattern) {
+class AddTypeToReferencePatternTest extends TransformerTest(new AddTypeToReferencePattern()) {
   def testCaseCaluse() = check(
     "(new A()) match { case v => }",
     "(new A()) match { case v: A => }"

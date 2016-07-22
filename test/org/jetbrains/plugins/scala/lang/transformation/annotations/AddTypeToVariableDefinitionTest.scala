@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class AddTypeToVariableDefinitionTest extends TransformerTest(AddTypeToVariableDefinition) {
+class AddTypeToVariableDefinitionTest extends TransformerTest(new AddTypeToVariableDefinition()) {
   def testSinglePattern() = check(
     "var v = new A()",
     "var v: A = new A()"

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandDynamicCallTest extends TransformerTest(ExpandDynamicCall,
+class ExpandDynamicCallTest extends TransformerTest(new ExpandDynamicCall(),
   """
      object O extends Dynamic {
        def applyDynamic(s: String)(args: Any*) {}

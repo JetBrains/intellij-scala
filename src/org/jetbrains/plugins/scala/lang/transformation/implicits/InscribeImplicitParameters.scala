@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package implicits
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions.{&&, BooleanExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitParametersOwner
@@ -12,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 /**
   * @author Pavel Fatin
   */
-object InscribeImplicitParameters extends AbstractTransformer {
-  def transformation: PartialFunction[PsiElement, Unit] = {
+class InscribeImplicitParameters extends AbstractTransformer {
+  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case (_: ScReferenceExpression | _: ScMethodCall | _: ScInfixExpr | _: ScPostfixExpr) &&
       (e @ ImplicitParametersOwner(Seq(ps @ _*))) if ps.exists(isApplicable) =>
 

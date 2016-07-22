@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package conversions
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedType, ScExpression, ScReferenceExpression}
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 /**
   * @author Pavel Fatin
   */
-object MakeBoxingExplicit extends AbstractTransformer {
+class MakeBoxingExplicit extends AbstractTransformer {
   private val Class = "scala.runtime.BoxesRunTime"
 
   private val Methods = Map[ScType, String](
@@ -27,7 +28,7 @@ object MakeBoxingExplicit extends AbstractTransformer {
     (StdType.Float, "boxToFloat"),
     (StdType.Double, "boxToDouble"))
 
-  def transformation: PartialFunction[PsiElement, Unit] = {
+  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case (e: ScExpression) && Typeable(t) && ExpectedType(et)
       if Methods.contains(t) && et != StdType.AnyRef && et != t && !isSpecializedFor(et, t) =>
 

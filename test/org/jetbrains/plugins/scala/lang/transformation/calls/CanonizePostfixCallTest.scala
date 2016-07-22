@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class CanonizePostfixCallTest extends TransformerTest(CanonizePostifxCall,
+class CanonizePostfixCallTest extends TransformerTest(new CanonizePostifxCall(),
   """
      object O {
        def f: A = _

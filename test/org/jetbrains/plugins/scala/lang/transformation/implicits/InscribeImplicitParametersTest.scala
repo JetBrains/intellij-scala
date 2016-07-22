@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class InscribeImplicitParametersTest extends TransformerTest(InscribeImplicitParameters,
+class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplicitParameters(),
   "implicit val v: A = _") {
 
   def testReferenceExpression() = check(

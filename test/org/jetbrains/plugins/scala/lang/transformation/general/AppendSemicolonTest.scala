@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class AppendSemicolonTest extends TransformerTest(AppendSemicolon) {
+class AppendSemicolonTest extends TransformerTest(new AppendSemicolon()) {
   def testSingleLineSeparator() = check(
     "A\nB",
     "A;\nB;"

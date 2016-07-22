@@ -4,7 +4,7 @@ package functions
 /**
   * @author Pavel Fatin
   */
-class MakeEtaExpansionExplicitTest extends TransformerTest(MakeEtaExpansionExplicit) {
+class MakeEtaExpansionExplicitTest extends TransformerTest(new MakeEtaExpansionExplicit()) {
   def testReference() = check(
     "def f(a: A): B = _",
     "val v: A => B = f",

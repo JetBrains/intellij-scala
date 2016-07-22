@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandVarargArgumentTest extends TransformerTest(ExpandVarargArgument,
+class ExpandVarargArgumentTest extends TransformerTest(new ExpandVarargArgument(),
   """
      object O {
        def f(v: A*) {}

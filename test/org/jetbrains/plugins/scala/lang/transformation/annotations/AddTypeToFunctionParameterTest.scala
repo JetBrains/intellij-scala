@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class AddTypeToFunctionParameterTest extends TransformerTest(AddTypeToFunctionParameter,
+class AddTypeToFunctionParameterTest extends TransformerTest(new AddTypeToFunctionParameter(),
   """
      object O {
        def apply(v: A => Unit) {}
