@@ -126,4 +126,11 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin, "Type mismatch, expected: (String, Any), actual: String(\"b\")")
   }
+
+  def testSCL10583(): Unit = {
+    checkTextHasError(
+      """
+        |Some(1) flatMap (Seq(_))
+      """.stripMargin, "Type mismatch, expected: Option[?], actual: Seq[Int]")
+  }
 }
