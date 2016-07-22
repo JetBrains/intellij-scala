@@ -99,11 +99,11 @@ class ScClsStubBuilder extends ClsStubBuilder {
     }
 
   private def createFileStub(file: ScalaFile): PsiFileStub[ScalaFile] = {
-    val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaLanguage.INSTANCE)
-      .asInstanceOf[ScalaParserDefinition]
-    parserDefinition.hasDotty = file.getProject.hasDotty
+    val language = file.getProject.language
 
-    val fileElementType = parserDefinition.getFileNodeType
+    val fileElementType = LanguageParserDefinitions.INSTANCE.forLanguage(language) match {
+      case definition: ScalaParserDefinition => definition.getFileNodeType
+    }
 
     val result = fileElementType.getBuilder.buildStubTree(file)
       .asInstanceOf[PsiFileStubImpl[ScalaFile]]

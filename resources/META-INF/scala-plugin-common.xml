@@ -90,6 +90,8 @@
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
+        <lang.parserDefinition language="Dotty"
+                               implementationClass="org.jetbrains.plugins.dotty.lang.parser.DottyParserDefinition"/>
         <lang.commenter language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaCommenter"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder"/>
         <lang.foldingBuilder language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder"/>

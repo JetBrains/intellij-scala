@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 
 import java.io.File
 
-import com.intellij.formatting.Alignment
+import com.intellij.lang.Language
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
@@ -13,6 +13,7 @@ import com.intellij.openapi.util.{Key, UserDataHolder}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
+import org.jetbrains.plugins.dotty.DottyLanguage
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -22,7 +23,6 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
@@ -174,6 +174,8 @@ package object project {
     }
 
     def typeSystem: TypeSystem = typeSystemIn(project)
+
+    def language: Language = if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
   }
 
   implicit class UserDataHolderExt(val holder: UserDataHolder) extends AnyVal {
