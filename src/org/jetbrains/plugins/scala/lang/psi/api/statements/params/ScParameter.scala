@@ -7,8 +7,6 @@ package params
 
 import javax.swing.Icon
 
-import com.intellij.lang.java.lexer.JavaLexer
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
@@ -97,12 +95,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def index: Int = getParent.getParent match {
     case parameters: ScParameters => parameters.params.indexOf(this)
     case _ => getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
-  }
-
-  override def getName: String = {
-    val res = super.getName
-    if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_" + res
-    else res
   }
 
   abstract override def getUseScope: SearchScope = {

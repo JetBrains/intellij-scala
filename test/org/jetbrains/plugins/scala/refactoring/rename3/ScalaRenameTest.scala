@@ -50,4 +50,8 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testTypeAlias() = doTest()
 
   def testOverridenFromJava() = doTest()
+
+  def testMethodSameAsJavaKeyword() = doTest()
+
+  def testParamSameAsJavaKeyword() = doTest()
 }
