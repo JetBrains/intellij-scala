@@ -194,5 +194,11 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     text = StringUtil.convertLineSeparators(text);
     return text;
   }
+
+  @Override
+  protected void setUp() throws Exception {
+    super.setUp();
+    TestUtils.disableTimerThread();
+  }
 }
 

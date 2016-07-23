@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.moveLeftRight
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
   * @author Nikolay.Tropin
@@ -46,5 +47,10 @@ abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCa
   private def configureEditor(fileText: String) {
     val fileName = s"${getTestName(false)}.${ScalaFileType.DEFAULT_EXTENSION}"
     LightPlatformCodeInsightTestCase.configureFromFileText(fileName, fileText)
+  }
+
+  override def setUp(): Unit = {
+    super.setUp()
+    TestUtils.disableTimerThread()
   }
 }

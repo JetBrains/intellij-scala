@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.util;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -25,6 +26,7 @@ import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.testFramework.ThreadTracker;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
 import org.jetbrains.annotations.NotNull;
@@ -296,4 +298,8 @@ public class TestUtils {
     LanguageLevelProjectExtension.getInstance(project).setLanguageLevel(level);
   }
 
+
+  public static void disableTimerThread() {
+    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "Timer");
+  }
 }
