@@ -8,7 +8,7 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class Scalaz extends FailedResolveTest("scalaz"){
+class ScalazTest extends FailedResolveTest("scalaz"){
   override protected def additionalLibraries(): Array[String] = Array("scalaz")
 
   def testSCL5842A(): Unit = doTest()

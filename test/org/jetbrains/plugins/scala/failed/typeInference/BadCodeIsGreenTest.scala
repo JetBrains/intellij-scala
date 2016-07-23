@@ -26,13 +26,6 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |class X2[A <: B, B <: C, ${START}C <: A${END}]
       """.stripMargin, "‘A’ has itself as bound")
   }
-  
-  def testScl7139_3() {
-    checkTextHasError(
-      s"""
-        |class X3[A, B, ${START}C >: A <: B${END}]
-      """.stripMargin, "Lower bound doesn't conform to upper bound")
-  }
 
   def testScl1731(): Unit = {
     checkTextHasError(
