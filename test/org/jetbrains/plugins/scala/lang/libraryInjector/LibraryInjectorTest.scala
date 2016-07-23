@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil}
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
@@ -16,10 +17,12 @@ import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.junit.experimental.categories.Category
 
 /**
   * Created by mucianm on 16.03.16.
   */
+@Category(Array(classOf[PerfCycleTests]))
 class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
   val LIBRARY_NAME = "dummy_lib.jar"
@@ -131,11 +134,10 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
   val testData = Map("Simple" -> simpleInjector)
 
-  //TODO
-  /*def testSimple() {
+  def testSimple() {
     VirtualFilePointerManager.getInstance().asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     assert(LibraryInjectorLoader.getInstance(myProject).getInjectorClasses(classOf[SyntheticMembersInjector]).nonEmpty)
-  }*/
+  }
 
 
   override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
