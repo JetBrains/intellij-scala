@@ -55,9 +55,9 @@ class WorksheetFoldingBuilder extends FoldingBuilder {
       (node.getText.startsWith(WorksheetFoldingBuilder.FIRST_LINE_PREFIX) ||
         node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))) {
       val length = Math.max(WorksheetFoldingBuilder.FIRST_LINE_PREFIX.length, WorksheetFoldingBuilder.LINE_PREFIX.length)
-      descriptors += (new FoldingDescriptor(node,
+      descriptors += new FoldingDescriptor(node,
         new TextRange(node.getPsi.asInstanceOf[PsiComment].getTextRange.getStartOffset,
-          node.getPsi.asInstanceOf[PsiComment].getTextRange.getStartOffset + length), null, Collections.emptySet[AnyRef], true))
+          node.getPsi.asInstanceOf[PsiComment].getTextRange.getStartOffset + length), null, Collections.emptySet[AnyRef], true)
     }
 
     for (child <- node.getChildren(null)) {
