@@ -6,6 +6,7 @@ import org.junit.experimental.categories.Category
 /**
   * Created by Anton Yalyshev on 19/07/16.
   */
+@Category(Array(classOf[PerfCycleTests]))
 class ExistentialResolveTest extends FailedResolveCaretTestBase {
 
   def testSCL10548(): Unit = {

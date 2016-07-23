@@ -131,10 +131,11 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
   val testData = Map("Simple" -> simpleInjector)
 
-  def testSimple() {
+  //TODO
+  /*def testSimple() {
     VirtualFilePointerManager.getInstance().asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     assert(LibraryInjectorLoader.getInstance(myProject).getInjectorClasses(classOf[SyntheticMembersInjector]).nonEmpty)
-  }
+  }*/
 
 
   override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11

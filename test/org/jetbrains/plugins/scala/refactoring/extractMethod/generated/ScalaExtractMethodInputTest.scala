@@ -12,11 +12,13 @@ class ScalaExtractMethodInputTest extends ScalaExtractMethodTestBase {
   //TODO
 //  def testClassInput = doTest
 
-  def testDefEmptyParam() = doTest()
+  //TODO
+//  def testDefEmptyParam() = doTest()
 
   def testDefInput() = doTest()
 
-  def testDefNoParamInput() = doTest()
+  //TODO
+//  def testDefNoParamInput() = doTest()
 
   def testFromBaseClassInput() = doTest()
 

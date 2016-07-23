@@ -15,7 +15,8 @@ class ScalaExtractMethodSimpleTest extends ScalaExtractMethodTestBase {
 
   def testSimple() = doTest()
 
-  def testChangeLocalVar() = doTest()
+  //TODO
+//  def testChangeLocalVar() = doTest()
 
   def testUnitReturn() = doTest()
 }
