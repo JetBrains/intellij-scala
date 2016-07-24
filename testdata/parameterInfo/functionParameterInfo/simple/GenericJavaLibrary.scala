@@ -3,4 +3,7 @@ x.add(/*caret*/)
 /*
 e: Int
 index: Int, element: Int
+<--->
+e: Int
+i: Int, e: Int
 */

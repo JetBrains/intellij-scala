@@ -76,12 +76,20 @@ abstract class FunctionParameterInfoTestBase extends ScalaLightPlatformCodeInsig
     if (res.nonEmpty) res.replace(res.length - 1, res.length, "")
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
+    val outputs = lastPsi.getNode.getElementType match {
+      case ScalaTokenTypes.tLINE_COMMENT => Seq(text.substring(2).trim)
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ => assertTrue("Test result must be in last comment statement.", false)
+        text.substring(2, text.length - 2).split("<--->").toSeq.map { output =>
+          output.trim
+        }
+      case _ =>
+        assertTrue("Test result must be in last comment statement.", false)
+        Seq.empty
     }
-    assertEquals(output, res.toString())
+    val resultString: String = res.toString()
+    outputs.find(_ == resultString) match {
+      case Some(output) => assertEquals(output, resultString)
+      case _ => assertEquals(outputs.head, resultString)
+    }
   }
 }
