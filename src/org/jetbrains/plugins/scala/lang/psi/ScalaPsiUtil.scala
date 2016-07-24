@@ -1176,6 +1176,12 @@ object ScalaPsiUtil {
   }
 
   /**
+    *  For one classOf use PsiTreeUtil.getParenteOfType instead
+    */
+  def getParentOfType(element: PsiElement, clazz: Class[_ <: PsiElement]): PsiElement = {
+    getParentOfType(element, false, clazz)
+  }
+  /**
    *  For one classOf use PsiTreeUtil.getParenteOfType instead
    */
   def getParentOfType(element: PsiElement, classes: Class[_ <: PsiElement]*): PsiElement = {
