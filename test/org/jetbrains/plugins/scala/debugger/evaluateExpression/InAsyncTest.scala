@@ -6,7 +6,8 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
   * @author Nikolay.Tropin
   */
 
-class InAsyncTest extends InAsyncTestBase with ScalaVersion_2_11
+//TODO blinking test
+//class InAsyncTest extends InAsyncTestBase with ScalaVersion_2_11
 
 abstract class InAsyncTestBase extends ScalaDebuggerTestCase {
 
