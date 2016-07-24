@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 /**
   * Created by Svyatoslav Ilinskiy on 24.07.16.
   */
-class UnusedImportTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class UnusedImportTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   def messages(text: String): Seq[HighlightMessage] = {
     import scala.collection.JavaConversions._
     myFixture.configureByText("dummy.scala", text)
