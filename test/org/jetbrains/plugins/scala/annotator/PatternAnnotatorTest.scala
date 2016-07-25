@@ -512,6 +512,28 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     checkError(text, "(one, _)", patternTypeIncompatible("(Int, Int)", "(Int, Int, Int, Int)"))
   }
 
+  def testSealedClassesInheritors(): Unit = {
+    val text =
+      """
+        |object Koo {
+        |  sealed trait A
+        |  sealed trait B
+        |
+        |  case class AwithB(whatever: String) extends A with B
+        |  val a: A = AwithB("example")
+        |
+        |  a match {
+        |    case b: B =>
+        |      println("A is a B")
+        |    case other =>
+        |      println("A is not a B")
+        |  }
+        |}
+      """.stripMargin
+    assertNoWarnings(text)
+    assertNoErrors(text)
+  }
+
   /*def testNonFinalCaseClassConstructorPattern(): Unit = {
     val code =
       """

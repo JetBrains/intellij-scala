@@ -24,7 +24,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
   def file: PsiFile
   def document: Document
 
-  def collectAnnotations(unusedImports: Array[ImportUsed], annotationHolder: AnnotationHolder): Array[Annotation] = unusedImports flatMap {
+  def collectAnnotations(unusedImports: Seq[ImportUsed], annotationHolder: AnnotationHolder): Seq[Annotation] = unusedImports flatMap {
     imp: ImportUsed => {
       val psiOption: Option[PsiElement] = imp match {
         case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) && !isLanguageFeatureImport(imp) =>
@@ -53,7 +53,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
       }
     }
   }
-  
+
   protected def highlightAll(highlights: util.Collection[HighlightInfo]) {
     UpdateHighlightersUtil.setHighlightersToEditor(file.getProject, document, 0,
       file.getTextLength, highlights, getColorsScheme, getId)

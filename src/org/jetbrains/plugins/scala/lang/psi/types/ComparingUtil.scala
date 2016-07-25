@@ -22,10 +22,12 @@ object ComparingUtil {
     val oneFinal = clazz1.isEffectivelyFinal || clazz2.isEffectivelyFinal
     val twoNonTraitsOrInterfaces = !classes.exists(_.isInterface)
 
-    def inheritorsInSameFile(clazz: PsiClass) =
-      ClassInheritorsSearch.search(clazz, new LocalSearchScope(clazz.getContainingFile), false).toArray(PsiClass.EMPTY_ARRAY).collect {
+    def inheritorsInSameFile(clazz: PsiClass) = {
+      import scala.collection.JavaConversions._
+      ClassInheritorsSearch.search(clazz, new LocalSearchScope(clazz.getContainingFile), true).findAll().collect {
         case x: ScTypeDefinition => x
       }
+    }
 
     def sealedAndAllChildrenAreIrreconcilable = {
       val areSealed = classes.forall{

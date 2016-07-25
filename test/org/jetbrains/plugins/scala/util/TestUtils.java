@@ -302,5 +302,6 @@ public class TestUtils {
   public static void disableTimerThread() {
     ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "Timer");
     ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "BaseDataReader");
+    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "ProcessWaitFor");
   }
 }
