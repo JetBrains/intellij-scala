@@ -23,7 +23,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
     super.fillCompletionVariants(parameters, result)
   }
 
-  val MAX_ITEMS = 20
+  val MAX_ITEMS = 600
 
   private val pattern = and(
       psiElement().inFile(psiFile().withFileType(instanceOf(SbtFileType.getClass))),
