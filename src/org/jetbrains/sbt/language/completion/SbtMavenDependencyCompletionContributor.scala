@@ -62,10 +62,11 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       def completeMaven(query: String, field: MavenArtifactInfo => String, addPercent: Boolean = false) = {
         import scala.collection.JavaConversions._
-        for {
+        val results = for {
           l <- (new MavenArtifactSearcher).search(place.getProject, query, MAX_ITEMS)
           i <- l.versions
-        } addResult(field(i), addPercent)
+        } yield field(i)
+        for { result <- results.toSet[String] } addResult(result, addPercent)
       }
 
       val expr = ScalaPsiUtil.getParentOfType(place, classOf[ScInfixExpr]).asInstanceOf[ScInfixExpr]
