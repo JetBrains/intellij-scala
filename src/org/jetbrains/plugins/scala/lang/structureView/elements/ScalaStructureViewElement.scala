@@ -16,20 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 
 abstract class ScalaStructureViewElement[T <: PsiElement](val psiElement: T, val inherited: Boolean) extends StructureViewTreeElement {
 
-  def getValue: Object = {
-    psiElement match {
-      case _ if !psiElement.isValid => null
-      /*
-        code for right positioning for caret in case such:
-        val x, y = {
-          33<caret>
-        }
-       */
-      case ScalaPsiUtil.inNameContext(v: ScValue) if psiElement.textMatches(v.declaredElements.head) => v
-      case ScalaPsiUtil.inNameContext(v: ScVariable) if psiElement.textMatches(v.declaredElements.head) => v
-      case _ => psiElement
-    }
-  }
+  def getValue: Object = if (psiElement.isValid) psiElement else null
 
   def navigate(b: Boolean) {
     psiElement.asInstanceOf[Navigatable].navigate(b)
