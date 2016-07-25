@@ -85,7 +85,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
           completeMaven(s"$cleanText:$artifact", _.getGroupId)
         case (ScLiteralImpl.string(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
           if (oper == "%%")
-            completeMaven(s"$group:$cleanText", _.getArtifactId.replaceAll("_\\d\\.\\d+$", ""))
+            completeMaven(s"$group:$cleanText", _.getArtifactId.replaceAll("_\\d\\.\\d+.*$", ""))
           else
             completeMaven(s"$group:$cleanText", _.getArtifactId)
         case (ScInfixExpr(llop, loper, lrop), oper, rop)
