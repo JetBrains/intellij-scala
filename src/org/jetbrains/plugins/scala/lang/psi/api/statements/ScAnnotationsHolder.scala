@@ -34,15 +34,14 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
       case _ => None
     }
 
-    val maybeStubAnnotations = maybeStub.toSeq flatMap {
-      _.getChildrenByType(TokenSet.create(ScalaElementTypes.ANNOTATIONS),
-        JavaArrayFactoryUtil.ScAnnotationsFactory).toSeq
-    } headOption
+    val maybeStubAnnotations = maybeStub.toSeq.flatMap({
+          _.getChildrenByType(TokenSet.create(ScalaElementTypes.ANNOTATIONS),
+            JavaArrayFactoryUtil.ScAnnotationsFactory).toSeq
+        }).headOption
 
-    val maybeAnnotations = (maybeStubAnnotations ++
-      Option(findChildByClassScala(classOf[ScAnnotations]))) headOption
+    val maybeAnnotations = maybeStubAnnotations.orElse(Option(findChildByClassScala(classOf[ScAnnotations])))
 
-    maybeAnnotations.toSeq flatMap {
+    maybeAnnotations.toSeq.flatMap {
       _.getAnnotations.toSeq
     }
   }
