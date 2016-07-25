@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.patterns.PlatformPatterns._
 import com.intellij.patterns.StandardPatterns._
 import com.intellij.util.ProcessingContext
@@ -43,16 +43,29 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
   extend(CompletionType.BASIC, pattern, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = {
 
-      def addResult(result: String) = results.addElement(LookupElementBuilder.create(result))
+      def addResult(result: String, addPercent: Boolean = false) = {
+        if (addPercent)
+          results.addElement(new LookupElement {
+            override def getLookupString: String = result
+            override def handleInsert(context: InsertionContext) = {
+              //gropus containig "scala" are more likely to undergo sbt's scalaVersion artifact substitution
+              val postfix = if (result.contains("scala")) " %% \"\"" else " % \"\""
+              context.getDocument.insertString(context.getTailOffset+1, postfix)
+              context.getEditor.getCaretModel.moveToOffset(context.getTailOffset + postfix.length)
+            }
+          })
+        else
+          results.addElement(LookupElementBuilder.create(result))
+      }
 
       val place = positionFromParameters(params)
 
-      def completeMaven(query: String, field: MavenArtifactInfo => String) = {
+      def completeMaven(query: String, field: MavenArtifactInfo => String, addPercent: Boolean = false) = {
         import scala.collection.JavaConversions._
         for {
           l <- (new MavenArtifactSearcher).search(place.getProject, query, MAX_ITEMS)
           i <- l.versions
-        } addResult(field(i))
+        } addResult(field(i), addPercent)
       }
 
       val expr = ScalaPsiUtil.getParentOfType(place, classOf[ScInfixExpr]).asInstanceOf[ScInfixExpr]
@@ -66,7 +79,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       (expr.lOp, expr.operation.text, expr.rOp) match {
         case (_, oper, _) if oper == "+=" || oper == "++=" => // empty completion from scratch
-          completeMaven(cleanText, _.getGroupId)
+          completeMaven(cleanText, _.getGroupId, addPercent = true)
         case (lop, oper, ScLiteralImpl.string(artifact)) if lop == place.getContext && isValidOp(oper) =>
           completeMaven(s"$cleanText:$artifact", _.getGroupId)
         case (ScLiteralImpl.string(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
