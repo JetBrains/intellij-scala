@@ -8,11 +8,17 @@ import org.jetbrains.idea.maven.model.MavenRemoteRepository
 
 class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
   import scala.collection.JavaConverters._
+
+
   override def getRemoteRepositories(project: Project): util.Set[MavenRemoteRepository] = {
-    val result = SbtResolverUtils.getProjectResolvers(project).collect {
+    val result = repositories(project).toSet
+    result.asJava
+  }
+
+  def repositories(project: Project): Seq[MavenRemoteRepository] = {
+    SbtResolverUtils.getProjectResolvers(project).collect {
       case SbtResolver(kind, name, root) if kind == SbtResolver.Kind.Maven =>
         new MavenRemoteRepository(name, null, MavenIndex.normalizePathOrUrl(root), null, null, null)
-    }.toSet
-    result.asJava
+    }
   }
 }
