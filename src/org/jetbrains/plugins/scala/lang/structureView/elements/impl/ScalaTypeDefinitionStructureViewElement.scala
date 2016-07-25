@@ -35,10 +35,10 @@ class ScalaTypeDefinitionStructureViewElement(clazz: ScTypeDefinition) extends S
           children += new ScalaPrimaryConstructorStructureViewElement(constr)
         case member: ScVariable =>
           for (f <- member.declaredElements)
-            children += new ScalaVariableStructureViewElement(f.nameId, false)
+            children += new ScalaVariableStructureViewElement(f, false)
         case member: ScValue =>
           for (f <- member.declaredElements)
-            children += new ScalaValueStructureViewElement(f.nameId, false)
+            children += new ScalaValueStructureViewElement(f, false)
         case member: ScTypeAlias =>
           children += new ScalaTypeAliasStructureViewElement(member, false)
         case _ =>

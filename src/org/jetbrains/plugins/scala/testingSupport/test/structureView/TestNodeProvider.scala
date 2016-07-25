@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
@@ -81,8 +82,8 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
                 TestNodeProvider.extractUTest(testCall, testCall.getProject)
               case _ => tryTupledId(valElement.psiElement)
             }
-          case identifier: LeafPsiElement if identifier.getElementType == ScalaTokenTypes.tIDENTIFIER =>
-            tryTupledId(identifier)
+          case named: ScNamedElement =>
+            tryTupledId(named.nameId)
           case _ => new util.ArrayList[TreeElement]()
         }
       case _ => new util.ArrayList[TreeElement]()
