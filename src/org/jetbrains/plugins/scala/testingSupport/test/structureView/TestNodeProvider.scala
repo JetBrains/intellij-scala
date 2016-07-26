@@ -8,10 +8,8 @@ import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
