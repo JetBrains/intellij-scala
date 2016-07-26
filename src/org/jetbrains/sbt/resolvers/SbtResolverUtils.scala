@@ -4,7 +4,6 @@ package resolvers
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.apache.maven.index.ArtifactInfo
 import org.jetbrains.sbt.project.module.SbtModule
 
 /**
@@ -25,5 +24,5 @@ object SbtResolverUtils {
   }
 
   def joinGroupArtifact(group: String, artifact: String): String = group + ":" + artifact
-  def joinGroupArtifact(artifact: ArtifactInfo): String = artifact.getGroupId + ":" + artifact.getArtifactId
+  def joinGroupArtifact(artifact: ArtifactInfo): String = artifact.groupId + ":" + artifact.artifactId
 }

@@ -6,7 +6,6 @@ import java.util.Properties
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.util.io.{PersistentEnumeratorBase, DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
-import org.apache.maven.index.ArtifactInfo
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -30,17 +29,12 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
     def processArtifact(artifact: ArtifactInfo) {
-      agMap.getOrElseUpdate(artifact.getArtifactId, mutable.Set.empty) += artifact.getGroupId
-      gaMap.getOrElseUpdate(artifact.getGroupId, mutable.Set.empty) += artifact.getArtifactId
-      gavMap.getOrElseUpdate(SbtResolverUtils.joinGroupArtifact(artifact), mutable.Set.empty) += artifact.getVersion
+      agMap.getOrElseUpdate(artifact.artifactId, mutable.Set.empty) += artifact.groupId
+      gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
+      gavMap.getOrElseUpdate(SbtResolverUtils.joinGroupArtifact(artifact), mutable.Set.empty) += artifact.version
     }
 
-    if (kind == SbtResolver.Kind.Maven)
-      using(SbtMavenRepoIndexer(root, indexDir)) { indexer =>
-        indexer.update(progressIndicator)
-        indexer.foreach(processArtifact, progressIndicator)
-      }
-    else
+    if (kind == SbtResolver.Kind.Ivy)
       new SbtIvyCacheIndexer(new File(root)).artifacts.foreach(processArtifact)
 
     progressIndicator foreach { _.checkCanceled() }

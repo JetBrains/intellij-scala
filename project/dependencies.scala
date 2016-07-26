@@ -30,41 +30,41 @@ object Dependencies {
   val evoInflector = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched = "org.scalatest" % "scalatest-finders-patched" % "0.9.8"
 
-  val plexusContainerDefault = "org.codehaus.plexus" % "plexus-container-default" % "1.5.5"
-  val plexusClassworlds = "org.codehaus.plexus" % "plexus-classworlds" % "2.4"
-  val plexusUtils = "org.codehaus.plexus" % "plexus-utils" % "3.0.8"
-  val plexusComponentAnnotations = "org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5"
-  val xbeanReflect = "org.apache.xbean" % "xbean-reflect" % "3.4"
-  val log4j = "log4j" % "log4j" % "1.2.17"
+//  val plexusContainerDefault = "org.codehaus.plexus" % "plexus-container-default" % "1.5.5"
+//  val plexusClassworlds = "org.codehaus.plexus" % "plexus-classworlds" % "2.4"
+//  val plexusUtils = "org.codehaus.plexus" % "plexus-utils" % "3.0.8"
+//  val plexusComponentAnnotations = "org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5"
+//  val xbeanReflect = "org.apache.xbean" % "xbean-reflect" % "3.4"
+//  val log4j = "log4j" % "log4j" % "1.2.17"
 
   val luceneCore = "org.apache.lucene" % "lucene-core" % luceneVersion
-  val luceneHighlighter = "org.apache.lucene" % "lucene-highlighter" % luceneVersion
-  val luceneMemory = "org.apache.lucene" % "lucene-memory" % luceneVersion
-  val luceneQueries = "org.apache.lucene" % "lucene-queries" % luceneVersion
-  val luceneQueryParser = "org.apache.lucene" % "lucene-queryparser" % luceneVersion
-  val luceneAnalyzers = "org.apache.lucene" % "lucene-analyzers-common" % luceneVersion
-  val luceneSandbox = "org.apache.lucene" % "lucene-sandbox" % luceneVersion
+//  val luceneHighlighter = "org.apache.lucene" % "lucene-highlighter" % luceneVersion
+//  val luceneMemory = "org.apache.lucene" % "lucene-memory" % luceneVersion
+//  val luceneQueries = "org.apache.lucene" % "lucene-queries" % luceneVersion
+//  val luceneQueryParser = "org.apache.lucene" % "lucene-queryparser" % luceneVersion
+//  val luceneAnalyzers = "org.apache.lucene" % "lucene-analyzers-common" % luceneVersion
+//  val luceneSandbox = "org.apache.lucene" % "lucene-sandbox" % luceneVersion
 
-  val aetherApi = "org.eclipse.aether" % "aether-api" % aetherVersion
-  val aetherUtil = "org.eclipse.aether" % "aether-util" % aetherVersion
+//  val aetherApi = "org.eclipse.aether" % "aether-api" % aetherVersion
+//  val aetherUtil = "org.eclipse.aether" % "aether-util" % aetherVersion
 
-  val sisuInjectPlexus = "org.sonatype.sisu" % "sisu-inject-plexus" % sisuInjectVersion
-  val sisuInjectBean = "org.sonatype.sisu" % "sisu-inject-bean" % sisuInjectVersion
-  val sisuGuice = "org.sonatype.sisu" % "sisu-guice" % "3.0.3"
+//  val sisuInjectPlexus = "org.sonatype.sisu" % "sisu-inject-plexus" % sisuInjectVersion
+//  val sisuInjectBean = "org.sonatype.sisu" % "sisu-inject-bean" % sisuInjectVersion
+//  val sisuGuice = "org.sonatype.sisu" % "sisu-guice" % "3.0.3"
 
-  val wagonHttp = "org.apache.maven.wagon" % "wagon-http" % wagonVersion
-  val wagonHttpShared = "org.apache.maven.wagon" % "wagon-http-shared" % wagonVersion
-  val wagonProviderApi = "org.apache.maven.wagon" % "wagon-provider-api" % wagonVersion
-  val httpClient = "org.apache.httpcomponents" % "httpclient" % httpComponentsVersion
-  val httpCore = "org.apache.httpcomponents" % "httpcore" % httpComponentsVersion
-  val commonsLogging = "commons-logging" % "commons-logging" % "1.1.3"
-  val commonsCodec = "commons-codec" % "commons-codec" % "1.6"
+//  val wagonHttp = "org.apache.maven.wagon" % "wagon-http" % wagonVersion
+//  val wagonHttpShared = "org.apache.maven.wagon" % "wagon-http-shared" % wagonVersion
+//  val wagonProviderApi = "org.apache.maven.wagon" % "wagon-provider-api" % wagonVersion
+//  val httpClient = "org.apache.httpcomponents" % "httpclient" % httpComponentsVersion
+//  val httpCore = "org.apache.httpcomponents" % "httpcore" % httpComponentsVersion
+//  val commonsLogging = "commons-logging" % "commons-logging" % "1.1.3"
+//  val commonsCodec = "commons-codec" % "commons-codec" % "1.6"
   val commonsLang = "commons-lang" % "commons-lang" % "2.6"
-  val commonsIo = "commons-io" % "commons-io" % "2.2"
-  val jsoup = "org.jsoup" % "jsoup" % "1.7.2"
+//  val commonsIo = "commons-io" % "commons-io" % "2.2"
+//  val jsoup = "org.jsoup" % "jsoup" % "1.7.2"
 
-  val mavenIndexerCore = "org.apache.maven.indexer" % "indexer-core" % "6.0"
-  val mavenModel = "org.apache.maven" % "maven-model" % "3.0.5"
+//  val mavenIndexerCore = "org.apache.maven.indexer" % "indexer-core" % "6.0"
+//  val mavenModel = "org.apache.maven" % "maven-model" % "3.0.5"
 
   val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
@@ -89,58 +89,58 @@ object DependencyGroups {
     sbtInterface
   )
 
-  val plexusContainer = Seq(
-    plexusContainerDefault,
-    plexusClassworlds,
-    plexusUtils,
-    plexusComponentAnnotations,
-    xbeanReflect,
-    log4j
-  )
+//  val plexusContainer = Seq(
+//    plexusContainerDefault,
+//    plexusClassworlds,
+//    plexusUtils,
+//    plexusComponentAnnotations,
+//    xbeanReflect,
+//    log4j
+//  )
 
-  val lucene = Seq(
-    luceneCore,
-    luceneHighlighter,
-    luceneMemory,
-    luceneQueries,
-    luceneQueryParser,
-    luceneAnalyzers,
-    luceneSandbox
-  )
+//  val lucene = Seq(
+//    luceneCore,
+//    luceneHighlighter,
+//    luceneMemory,
+//    luceneQueries,
+//    luceneQueryParser,
+//    luceneAnalyzers,
+//    luceneSandbox
+//  )
 
-  val aether = Seq(
-    aetherApi,
-    aetherUtil
-  )
+//  val aether = Seq(
+//    aetherApi,
+//    aetherUtil
+//  )
 
-  val sisu = Seq(
-    sisuInjectPlexus,
-    sisuInjectBean,
-    sisuGuice
-  )
+//  val sisu = Seq(
+//    sisuInjectPlexus,
+//    sisuInjectBean,
+//    sisuGuice
+//  )
 
-  val wagon = Seq(
-    wagonHttp,
-    wagonHttpShared,
-    wagonProviderApi,
-    httpClient,
-    httpCore,
-    commonsCodec,
-    commonsLogging,
-    commonsLang,
-    commonsIo,
-    jsoup
-  )
+//  val wagon = Seq(
+//    wagonHttp,
+//    wagonHttpShared,
+//    wagonProviderApi,
+//    httpClient,
+//    httpCore,
+//    commonsCodec,
+//    commonsLogging,
+//    commonsLang,
+//    commonsIo,
+//    jsoup
+//  )
 
   val scalastyle = Seq(
     scalastyle_2_11,
     scalariform_2_11
   )
 
-  val mavenIndexer = Seq(
-    mavenIndexerCore,
-    mavenModel
-  ) ++ plexusContainer ++ lucene ++ aether ++ sisu ++ wagon
+//  val mavenIndexer = Seq(
+//    mavenIndexerCore,
+//    mavenModel
+//  ) ++ plexusContainer ++ lucene ++ aether ++ sisu ++ wagon
 
   val scalaCommunity = Seq(
     scalaLibrary,
@@ -150,8 +150,9 @@ object DependencyGroups {
     sbtStructureCore,
     evoInflector,
     scalatestFindersPatched,
-    jamm
-  ) ++ mavenIndexer ++ scalastyle
+    jamm,
+    luceneCore
+  ) ++ scalastyle
 
   val scalap = Seq(
     scalaLibrary,

@@ -23,7 +23,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
     super.fillCompletionVariants(parameters, result)
   }
 
-  val MAX_ITEMS = 600
+  val MAX_ITEMS = 6000
 
   private val pattern = and(
       psiElement().inFile(psiFile().withFileType(instanceOf(SbtFileType.getClass))),
@@ -62,11 +62,12 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       def completeMaven(query: String, field: MavenArtifactInfo => String, addPercent: Boolean = false) = {
         import scala.collection.JavaConversions._
-        val results = for {
+        val buffer = for {
           l <- (new MavenArtifactSearcher).search(place.getProject, query, MAX_ITEMS)
           i <- l.versions
         } yield field(i)
-        for { result <- results.toSet[String] } addResult(result, addPercent)
+        for { result <- buffer.toSet[String] } addResult(result, addPercent)
+        results.stopHere()
       }
 
       val expr = ScalaPsiUtil.getParentOfType(place, classOf[ScInfixExpr]).asInstanceOf[ScInfixExpr]
