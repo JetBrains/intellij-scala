@@ -68,7 +68,12 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
     res
   }
 
-  override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] = ScalaStructureViewModel.NODE_PROVIDERS
+  override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] = {
+    if (myRootElement.getFileType == ScalaFileType.SCALA_FILE_TYPE)
+      util.Arrays.asList(new ScalaInheritedMembersNodeProvider, new TestNodeProvider)
+    else
+      util.Arrays.asList(new ScalaInheritedMembersNodeProvider)
+  }
 
   override def isSuitable(element: PsiElement): Boolean = element match {
     case t: ScTypeDefinition => t.getParent match {
@@ -95,9 +100,4 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
     case t : ScTypeDefinition => t.members.nonEmpty || t.typeDefinitions.nonEmpty
     case _ => false
   }
-}
-
-object ScalaStructureViewModel {
-  private val NODE_PROVIDERS: util.Collection[NodeProvider[_ <: TreeElement]] =
-    util.Arrays.asList(new ScalaInheritedMembersNodeProvider, new TestNodeProvider)
 }
