@@ -6,12 +6,14 @@ import java.util
 import javax.swing.JPanel
 import javax.swing.table.AbstractTableModel
 
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.text.DateFormatUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.migrate.indexes.ResolverIndex
+import org.jetbrains.sbt.resolvers.migrate.{SbtResolver, SbtResolversManager}
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 import scala.collection.JavaConverters._
@@ -37,9 +39,8 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
 
     myForm.updateButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val resolversToUpdate: Seq[SbtResolver] =
-          myForm.resolversTable.getSelectedRows map (resolvers(_))
-        SbtResolverIndexesManager().update(resolversToUpdate)
+        val resolversToUpdate: Seq[SbtResolver] = myForm.resolversTable.getSelectedRows map (resolvers(_))
+        SbtResolversManager.getInstance(state.getProject).updateWithProgress(resolversToUpdate)
       }
     })
 
@@ -52,15 +53,15 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
 
     modelWrapper.getModel.replaceAll(SbtModule.getImportsFrom(getModel.getModule).asJava)
 
-    myForm.resolversTable.setModel(new ResolversModel(resolvers))
+    myForm.resolversTable.setModel(new ResolversModel(resolvers, state.getProject))
     myForm.resolversTable.setRowSelectionInterval(0, 0)
     myForm.resolversTable.getColumnModel.getColumn(0).setPreferredWidth(50)
     myForm.resolversTable.getColumnModel.getColumn(1).setPreferredWidth(400)
-    myForm.resolversTable.getColumnModel.getColumn(2).setPreferredWidth(20)
+    myForm.resolversTable.getColumnModel.getColumn(2).setPreferredWidth(30)
   }
 }
 
-private class ResolversModel(val resolvers: Seq[SbtResolver]) extends AbstractTableModel {
+private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Project) extends AbstractTableModel {
 
   private val columns = Seq(
     SbtBundle("sbt.settings.resolvers.name"),
@@ -78,8 +79,8 @@ private class ResolversModel(val resolvers: Seq[SbtResolver]) extends AbstractTa
     case 0 => resolvers(rowIndex).name
     case 1 => resolvers(rowIndex).root
     case 2 =>
-      val ts: Long = resolvers(rowIndex).associatedIndex.map(_.timestamp).getOrElse(SbtResolverIndex.NO_TIMESTAMP)
-      if (ts == SbtResolverIndex.NO_TIMESTAMP)
+      val ts: Long = resolvers(rowIndex).getIndex.getUpdateTimeStamp(project)
+      if (ts == ResolverIndex.NO_TIMESTAMP)
         SbtBundle("sbt.settings.resolvers.neverUpdated")
       else
         DateFormatUtil.formatDate(ts)

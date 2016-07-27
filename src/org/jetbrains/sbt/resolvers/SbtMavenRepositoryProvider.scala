@@ -5,6 +5,7 @@ import java.util
 import com.intellij.openapi.project.Project
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenRepositoryProvider}
 import org.jetbrains.idea.maven.model.MavenRemoteRepository
+import org.jetbrains.sbt.resolvers.migrate._
 
 class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
   import scala.collection.JavaConverters._
@@ -17,8 +18,8 @@ class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
 
   def repositories(project: Project): Seq[MavenRemoteRepository] = {
     SbtResolverUtils.getProjectResolvers(project).collect {
-      case SbtResolver(kind, name, root) if kind == SbtResolver.Kind.Maven =>
-        new MavenRemoteRepository(name, null, MavenIndex.normalizePathOrUrl(root), null, null, null)
+      case r:SbtMavenResolver =>
+        new MavenRemoteRepository(r.name, null, MavenIndex.normalizePathOrUrl(r.root), null, null, null)
     }
   }
 }

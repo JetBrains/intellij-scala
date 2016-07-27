@@ -16,7 +16,8 @@ import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
-import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.resolvers.migrate.SbtResolver
+import org.jetbrains.sbt.resolvers.migrate.SbtMavenResolver
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
 
@@ -306,7 +307,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   def createSbtModuleData(project: sbtStructure.ProjectData, localCachePath: Option[String]): SbtModuleNode = {
     val imports = project.build.imports.flatMap(_.trim.substring(7).split(", "))
-    val resolvers = project.resolvers map { r => new SbtResolver(SbtResolver.Kind.Maven, r.name, r.root) }
+    val resolvers: Set[SbtResolver] = project.resolvers map { r => new SbtMavenResolver(r.name, r.root) }
     new SbtModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
   }
 

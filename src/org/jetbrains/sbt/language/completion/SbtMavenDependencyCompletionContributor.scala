@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.sbt.language.SbtFileType
+import org.jetbrains.sbt.resolvers.SbtResolverUtils
 
 /**
   * @author Mikhail Mutcianko
@@ -60,8 +61,11 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       val place = positionFromParameters(params)
 
+      val resolvers = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(place)))
+
       def completeMaven(query: String, field: MavenArtifactInfo => String, addPercent: Boolean = false) = {
         import scala.collection.JavaConversions._
+//        val
         val buffer = for {
           l <- (new MavenArtifactSearcher).search(place.getProject, query, MAX_ITEMS)
           i <- l.versions

@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project.module
 
 import com.intellij.openapi.module.Module
-import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.resolvers.migrate.SbtResolver
 
 /**
  * @author Pavel Fatin

@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
-import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.resolvers.migrate.SbtResolver
 
 /**
  * @author Pavel Fatin

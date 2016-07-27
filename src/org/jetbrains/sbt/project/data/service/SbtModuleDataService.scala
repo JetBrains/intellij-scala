@@ -7,7 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.migrate.SbtResolver
 import org.jetbrains.plugins.scala.extensions._
 
 /**
@@ -37,20 +37,20 @@ object SbtModuleDataService {
         } {
           SbtModule.setImportsTo(module, imports)
           setResolvers(module, resolvers)
-          updateLocalResolvers(resolvers)
+//          updateLocalResolvers(resolvers)
         }
       }
 
     private def setResolvers(module: Module, resolvers: Set[SbtResolver]): Unit = {
       SbtModule.setResolversTo(module, resolvers)
-      resolvers.foreach(SbtResolverIndexesManager().add)
+//      resolvers.foreach(SbtResolverIndexesManager().add)
     }
 
-    private def updateLocalResolvers(resolvers: Set[SbtResolver]): Unit = {
-      val localResolvers = resolvers.filter { resolver =>
-        resolver.associatedIndex.exists(_.isLocal)
-      }
-      invokeLater(SbtResolverIndexesManager().update(localResolvers.toSeq))
-    }
+//    private def updateLocalResolvers(resolvers: Set[SbtResolver]): Unit = {
+//      val localResolvers = resolvers.filter { resolver =>
+//        resolver.associatedIndex.exists(_.isLocal)
+//      }
+//      invokeLater(SbtResolverIndexesManager().update(localResolvers.toSeq))
+//    }
   }
 }
