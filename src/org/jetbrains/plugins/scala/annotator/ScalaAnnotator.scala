@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -43,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -295,7 +295,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         if (typeAware) annotateReference(ref, holder)
         ref.qualifier match {
           case None => checkNotQualifiedReferenceElement(ref, holder)
-          case Some(_) => checkQualifiedReferenceElement(ref, holder)
+          case Some(qualifier) => checkQualifiedReferenceElement(ref, qualifier, holder)
         }
       }
 
@@ -778,7 +778,15 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkQualifiedReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+  private def registerSearchForImplicitsFix(annotation: Annotation, ref: ScReferenceElement, qualifier: ScalaPsiElement): Unit = {
+    (ref, qualifier) match {
+      case (refExpr: ScReferenceExpression, expr: ScExpression) =>
+        annotation.registerFix(new SearchForImplicitClassAction(refExpr, expr))
+      case _ =>
+    }
+  }
+
+  private def checkQualifiedReferenceElement(refElement: ScReferenceElement, qualifier: ScalaPsiElement, holder: AnnotationHolder) {
     AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
     var resolve: Array[ResolveResult] = null
     resolve = refElement.multiResolve(false)
@@ -793,9 +801,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
       resolveResult.implicitFunction match {
         case Some(fun) =>
-          val qualifier = refElement.qualifier.get
-          val expr = qualifier.asInstanceOf[ScExpression]
-          highlightImplicitMethod(expr, resolveResult, refElement, fun, holder)
+          highlightImplicitMethod(qualifier.asInstanceOf[ScExpression], resolveResult, refElement, fun, holder)
         case _ =>
       }
     }
@@ -809,6 +815,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val error = ScalaBundle.message("cannot.resolve", refElement.refName)
       val annotation = holder.createErrorAnnotation(refElement.nameId, error)
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      registerSearchForImplicitsFix(annotation, refElement, qualifier)
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
     }

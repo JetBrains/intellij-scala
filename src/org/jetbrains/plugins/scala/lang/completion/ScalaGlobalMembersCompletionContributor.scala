@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitMapResult
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
@@ -65,40 +66,11 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
     }
   })
 
-  private def isStatic(member: PsiNamedElement): Boolean = {
-    ScalaPsiUtil.nameContext(member) match {
-      case memb: PsiMember =>
-       isStatic(member, memb.containingClass)
-    }
-  }
-
-  private def isStatic(member: PsiNamedElement, containingClass: PsiClass): Boolean = {
-    ScalaPsiUtil.nameContext(member) match {
-      case memb: PsiMember =>
-        if (containingClass == null) return false
-        val qualifiedName = containingClass.qualifiedName + "." + member.name
-        for (excluded <- CodeInsightSettings.getInstance.EXCLUDED_PACKAGES) {
-          if (qualifiedName == excluded || qualifiedName.startsWith(excluded + ".")) {
-            return false
-          }
-        }
-        containingClass match {
-          case o: ScObject if o.isStatic =>
-            // filter out type class instances, such as scala.math.Numeric.String, to avoid too many results.
-            !o.hasModifierProperty("implicit")
-          case _: ScTypeDefinition => false
-          case _ => memb.hasModifierProperty("static")
-        }
-    }
-  }
-
   private def completeImplicits(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile,
                                 originalType: ScType)
                                (implicit typeSystem: TypeSystem = originalFile.typeSystem) {
     FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
-    val scope: GlobalSearchScope = ref.getResolveScope
     val file = ref.getContainingFile
-
     val elemsSet = new mutable.HashSet[PsiNamedElement]
     def addElemToSet(elem: PsiNamedElement) {
       elemsSet += elem
@@ -133,37 +105,14 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
       } else elemsSet.contains(elem)
     }
 
-    val collection = StubIndex.getElements(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope, classOf[ScMember])
-    
-    import scala.collection.JavaConversions._
-
-    val convertible = new ScImplicitlyConvertible(ref)
-    val proc = new convertible.CollectImplicitsProcessor(true)
-    for (element <- collection) {
-      element match {
-        case v: ScValue =>
-          for (d <- v.declaredElements if isStatic(d)) {
-            proc.execute(d, ResolveState.initial())
-          }
-        case f: ScFunction if isStatic(f) =>
-          proc.execute(element, ResolveState.initial())
-        case c: ScClass if isStatic(c) =>
-          c.getSyntheticImplicitMethod match {
-            case Some(f: ScFunction) =>
-              proc.execute(f, ResolveState.initial())
-            case _ =>
-          }
-        case _ =>
-      }
-    }
-    val candidates = proc.candidates.map(convertible.forMap(_, originalType))
-
     ref.getVariants(implicits = false, filterNotNamedVariants = false).foreach {
       case ScalaLookupItem(elem: PsiNamedElement) => addElemToSet(elem)
       case elem: PsiNamedElement => addElemToSet(elem)
     }
 
-    val iterator = candidates.iterator
+    val conversions = ScalaGlobalMembersCompletionContributor.findImplicitConversions(ref, originalFile, originalType)
+
+    val iterator = conversions.iterator
     while (iterator.hasNext) {
       val next = iterator.next()
       if (next.condition) {
@@ -266,7 +215,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
             val currentAndInheritors = Iterator(cClass) ++ inheritors.iterator
             for {
               containingClass <- currentAndInheritors
-              if isStatic(method, containingClass)
+              if ScalaGlobalMembersCompletionContributor.isStatic(method, containingClass)
             } {
               assert(containingClass != null)
               if (classes.add(containingClass) && isAccessible(method, containingClass)) {
@@ -301,7 +250,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
         val fieldsIterator = namesCache.getFieldsByName(fieldName, scope).iterator
         while (fieldsIterator.hasNext) {
           val field = fieldsIterator.next()
-          if (isStatic(field)) {
+          if (ScalaGlobalMembersCompletionContributor.isStatic(field)) {
             val containingClass: PsiClass = field.containingClass
             assert(containingClass != null)
             if (isAccessible(field, containingClass)) {
@@ -333,7 +282,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
             val currentAndInheritors = Iterator(field.containingClass) ++ inheritors.iterator
             for {
               containingClass <- currentAndInheritors
-              if namedElement != null && isStatic(namedElement, containingClass)
+              if namedElement != null && ScalaGlobalMembersCompletionContributor.isStatic(namedElement, containingClass)
             } {
               assert(containingClass != null)
               if (isAccessible(field, containingClass)) {
@@ -355,4 +304,65 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
       isOverloadedForClassName = overloaded, shouldImport = shouldImport,
       isInStableCodeReference = false, containingClass = Some(clazz)).head
   }
+}
+
+object ScalaGlobalMembersCompletionContributor {
+  def findImplicitConversions(ref: ScReferenceExpression, originalFile: PsiFile, originalType: ScType): Array[ImplicitMapResult] = {
+    implicit val typeSystem = ref.typeSystem
+    val scope: GlobalSearchScope = ref.getResolveScope
+    val file = ref.getContainingFile
+    val collection = StubIndex.getElements(ScalaIndexKeys.IMPLICITS_KEY, ScalaKeyword.IMPLICIT, file.getProject, scope, classOf[ScMember])
+
+    import scala.collection.JavaConversions._
+
+    val convertible = new ScImplicitlyConvertible(ref)
+    val proc = new convertible.CollectImplicitsProcessor(true)
+    for (element <- collection) {
+      element match {
+        case v: ScValue =>
+          for (d <- v.declaredElements if isStatic(d)) {
+            proc.execute(d, ResolveState.initial())
+          }
+        case f: ScFunction if isStatic(f) =>
+          proc.execute(element, ResolveState.initial())
+        case c: ScClass if isStatic(c) =>
+          c.getSyntheticImplicitMethod match {
+            case Some(f: ScFunction) =>
+              proc.execute(f, ResolveState.initial())
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+    proc.candidates.map(convertible.forMap(_, originalType))
+  }
+
+
+  private def isStatic(member: PsiNamedElement): Boolean = {
+    ScalaPsiUtil.nameContext(member) match {
+      case memb: PsiMember =>
+        isStatic(member, memb.containingClass)
+    }
+  }
+
+  private def isStatic(member: PsiNamedElement, containingClass: PsiClass): Boolean = {
+    ScalaPsiUtil.nameContext(member) match {
+      case memb: PsiMember =>
+        if (containingClass == null) return false
+        val qualifiedName = containingClass.qualifiedName + "." + member.name
+        for (excluded <- CodeInsightSettings.getInstance.EXCLUDED_PACKAGES) {
+          if (qualifiedName == excluded || qualifiedName.startsWith(excluded + ".")) {
+            return false
+          }
+        }
+        containingClass match {
+          case o: ScObject if o.isStatic =>
+            // filter out type class instances, such as scala.math.Numeric.String, to avoid too many results.
+            !o.hasModifierProperty(ScalaKeyword.IMPLICIT)
+          case _: ScTypeDefinition => false
+          case _ => memb.hasModifierProperty(PsiKeyword.STATIC)
+        }
+    }
+  }
+
 }

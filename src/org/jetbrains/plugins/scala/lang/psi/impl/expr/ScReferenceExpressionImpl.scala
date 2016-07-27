@@ -109,7 +109,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             if (cClass != null && cClass.qualifiedName != null) {
               val qualName: String = cClass.qualifiedName + "." + elem.name
               return tail(qualName) {
-                ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPsiNamedElement(elem, this, Some(cClass))
+                ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPsiNamedElement(elem, this)
                 this
               }
             }
@@ -408,7 +408,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             .getCachedClass("java.lang.Class", getResolveScope, ScalaPsiManager.ClassCategory.TYPE))
 
           def convertQualifier(typeResult: TypeResult[ScType]): Option[ScType] = maybeJLClass.map {
-            case jlClass =>
+            jlClass =>
               val upperBound = typeResult.toOption.flatMap {
                 case ScThisType(clazz) => Some(ScDesignatorType(clazz))
                 case ScDesignatorType(_: ScObject) => None
