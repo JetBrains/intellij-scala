@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -70,15 +71,18 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     val innerIfStmt = ifStmt.elseBranch.get.asInstanceOf[ScIfStmt]
     val innerCondition = innerIfStmt.condition.get.getText
     val innerElseBranch = innerIfStmt.elseBranch.orNull
+    val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
+      exists(_.getPrevSibling.getText.contains("\n"))
 
     expr.append("if (").append(outerCondition).append(" || ").append(innerCondition).append(") ").
       append(ifStmt.thenBranch.get.getText)
-    if (innerElseBranch != null) expr.append(" else ").append(innerElseBranch.getText)
+    if (innerElseBranch != null) expr.append(if (newlineBeforeElse) "\n" else " ").append("else ").
+      append(innerElseBranch.getText)
 
     val newIfStmt : ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
 
     inWriteAction {
-      ifStmt.replaceExpression(newIfStmt, true)
+      ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
