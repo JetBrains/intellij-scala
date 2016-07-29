@@ -10,12 +10,10 @@ class ScalaExtractMethodDuplicatesTest extends ScalaExtractMethodTestBase {
 
   def testSimpleDuplicate() = doTest()
   def testSeveralDuplicates() = doTest()
-  //TODO
-//  def testWithDefinition() = doTest()
+  def testWithDefinition() = doTest()
   def testNoSearchGeneric() = doTest()
   def testNoSearchReturn() = doTest()
-  //TODO
-//  def testSeveralOutputs() = doTest()
+  def testSeveralOutputs() = doTest()
   def testDifferentType() = doTest()
   def testWithSemicolon() = doTest()
   def testParameterAsQualifier() = doTest()

@@ -15,6 +15,7 @@ class ChangeLocalVar {
     def testMethodName: Unit = {
       i = 24
     }
+
     testMethodName
 
     val j = i
