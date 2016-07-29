@@ -16,7 +16,6 @@ class DefNoParamInput {
     def goo: Int = 23
 
 
-
     val x: Int = testMethodName(goo _)
 
     x + goo

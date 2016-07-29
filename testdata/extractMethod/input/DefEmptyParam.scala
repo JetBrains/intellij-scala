@@ -16,7 +16,6 @@ class DefEmptyParam {
     def goo(): Int = 435
 
 
-
     val f: Int = testMethodName(goo _)
 
     f
