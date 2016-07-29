@@ -26,18 +26,21 @@ class MavenProxyIndex(val root: String, val name: String) extends ResolverIndex 
   override def close(): Unit = ()
 
   override def searchGroup(artifactId: String)(implicit project: Project): Set[String] = {
-    (new MavenArtifactSearcher)
-      .search(project, artifactId, MAX_RESULTS).flatMap(_.versions.map(_.getGroupId)).toSet
+    findPlatformMavenResolver(project).map {
+      _.getGroupIds.toSet
+    }.getOrElse(Set.empty)
   }
 
   override def searchArtifact(groupId: String)(implicit project: Project): Set[String] = {
-    (new MavenArtifactSearcher)
-      .search(project, groupId, MAX_RESULTS).flatMap(_.versions.map(_.getArtifactId)).toSet
+    findPlatformMavenResolver(project).map {
+      _.getArtifactIds(groupId).toSet
+    }.getOrElse(Set.empty)
   }
 
   override def searchVersion(groupId: String, artifactId: String)(implicit project: Project): Set[String] = {
-    (new MavenArtifactSearcher)
-      .search(project, s"$groupId:$artifactId", MAX_RESULTS).flatMap(_.versions.map(_.getVersion)).toSet
+    findPlatformMavenResolver(project).map {
+      _.getVersions(groupId, artifactId).toSet
+    }.getOrElse(Set.empty)
   }
 
   private def findPlatformMavenResolver(project: Project): Option[MavenIndex] = {

@@ -7,16 +7,20 @@ import javax.swing.event.HyperlinkEvent
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.notification.impl.NotificationsConfigurationImpl
+import com.intellij.notification.{Notification, NotificationDisplayType, NotificationListener}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
-import com.intellij.notification.{Notification, NotificationDisplayType, NotificationListener}
+import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.options.ShowSettingsUtil
+import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.util.Consumer
-import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager, MavenRepositoriesConfigurable}
+import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.SbtMavenRepositoryProvider
 
 /**
@@ -71,7 +75,14 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
         notificationData.setBalloonGroup(SBT_MAVEN_NOTIFICATION_GROUP)
         notificationData.setListener("#open", new NotificationListener.Adapter {
           protected def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
-            ShowSettingsUtil.getInstance.showSettingsDialog(myProject, classOf[MavenRepositoriesConfigurable])
+//            ShowSettingsUtil.getInstance.showSettingsDialog(project, ProjectStructureConfigurable.getInstance(project))
+            val ui = ProjectStructureConfigurable.getInstance(project)
+            val editor = new SingleConfigurableEditor(project, ui)
+            val module = ui.getModulesConfig.getModules.find(ModuleType.get(_).isInstanceOf[SbtModuleType])
+            ui.select(module.get.getName, null, false)
+            editor.show()
+            //            ShowSettingsUtil.getInstance.showSettingsDialog(myProject, classOf[SbtModuleSettingsEditor])
+//            notification.expire()
           }
         })
         notificationData.setListener("#disable", new NotificationListener.Adapter() {

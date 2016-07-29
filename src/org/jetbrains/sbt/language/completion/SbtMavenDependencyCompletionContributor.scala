@@ -43,6 +43,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
     )
   extend(CompletionType.BASIC, pattern, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = {
+      import org.jetbrains.plugins.scala.project._
 
       def addResult(result: String, addPercent: Boolean = false) = {
         if (addPercent)
@@ -60,17 +61,44 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
       }
 
       val place = positionFromParameters(params)
+      implicit val p = place.getProject
 
       val resolvers = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(place)))
 
-      def completeMaven(query: String, field: MavenArtifactInfo => String, addPercent: Boolean = false) = {
-        import scala.collection.JavaConversions._
-//        val
-        val buffer = for {
-          l <- (new MavenArtifactSearcher).search(place.getProject, query, MAX_ITEMS)
-          i <- l.versions
-        } yield field(i)
-        for { result <- buffer.toSet[String] } addResult(result, addPercent)
+//      def completeMaven(query: String, field: MavenArtifactInfo => String, addPercent: Boolean = false) = {
+//        import scala.collection.JavaConversions._
+//
+//        val buffer = for {
+//          l <- (new MavenArtifactSearcher).search(place.getProject, query, MAX_ITEMS)
+//          i <- l.versions
+//        } yield field(i)
+//        for { result <- buffer.toSet[String] } addResult(result, addPercent)
+//        results.stopHere()
+//      }
+
+      def completeGroup(artifactId: String) = {
+        for (resolver <- resolvers) {
+          resolver.getIndex.searchGroup(artifactId).foreach(i=>addResult(i))
+        }
+        results.stopHere()
+      }
+
+      def completeArtifact(groupId: String, stripVersion: Boolean) = {
+        for (resolver <- resolvers) {
+          resolver.getIndex.searchArtifact(groupId).foreach { i =>
+            if (stripVersion)
+              addResult(i.replaceAll("_\\d\\.\\d+.*$", ""))
+            else
+              addResult(i)
+          }
+        }
+        results.stopHere()
+      }
+
+      def completeVersion(groupId: String, artifactId: String) = {
+        for (resolver <- resolvers) {
+          resolver.getIndex.searchVersion(groupId, artifactId).foreach(i=>addResult(i))
+        }
         results.stopHere()
       }
 
@@ -85,20 +113,21 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       (expr.lOp, expr.operation.text, expr.rOp) match {
         case (_, oper, _) if oper == "+=" || oper == "++=" => // empty completion from scratch
-          completeMaven(cleanText, _.getGroupId, addPercent = true)
+          completeGroup(cleanText)
         case (lop, oper, ScLiteralImpl.string(artifact)) if lop == place.getContext && isValidOp(oper) =>
-          completeMaven(s"$cleanText:$artifact", _.getGroupId)
+          completeGroup(artifact)
         case (ScLiteralImpl.string(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
           if (oper == "%%")
-            completeMaven(s"$group:$cleanText", _.getArtifactId.replaceAll("_\\d\\.\\d+.*$", ""))
+            completeArtifact(group, stripVersion = true)
           else
-            completeMaven(s"$group:$cleanText", _.getArtifactId)
+            completeArtifact(group, stripVersion = false)
         case (ScInfixExpr(llop, loper, lrop), oper, rop)
           if rop == place.getContext && oper == "%" && isValidOp(loper.getText) =>
+          val versionSuffix = if (loper.text == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
           for {
             ScLiteralImpl.string(group) <- Option(llop)
             ScLiteralImpl.string(artifact) <- Option(lrop)
-          } yield completeMaven(s"$group:$artifact:$cleanText", _.getVersion)
+          } yield completeVersion(group, artifact + versionSuffix)
         case _ => // do nothing
       }
     }

@@ -66,6 +66,8 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     store()
   }
 
+  def stripVersion(artifact: String) = artifact.replaceAll("_\\d\\.\\d+.*$", "")
+
   override def getUpdateTimeStamp(implicit project: Project): Long = innerTimestamp
 
   private def deleteIndex() = cleanUpCorruptedIndex(indexDir)
