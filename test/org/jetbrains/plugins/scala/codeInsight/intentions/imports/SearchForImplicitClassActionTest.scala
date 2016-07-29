@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intentions.imports
 
-import org.jetbrains.plugins.scala.annotator.quickfix.SearchForImplicitClassAction
+import org.jetbrains.plugins.scala.annotator.quickfix.implicits.SearchForImplicitClassAction
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**

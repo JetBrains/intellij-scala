@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
@@ -110,7 +110,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
       case elem: PsiNamedElement => addElemToSet(elem)
     }
 
-    val conversions = ScalaGlobalMembersCompletionContributor.findImplicitConversions(ref, originalFile, originalType)
+    val conversions = ScalaGlobalMembersCompletionContributor.findImplicitConversions(ref, originalType)
 
     val iterator = conversions.iterator
     while (iterator.hasNext) {
@@ -307,7 +307,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
 }
 
 object ScalaGlobalMembersCompletionContributor {
-  def findImplicitConversions(ref: ScReferenceExpression, originalFile: PsiFile, originalType: ScType): Array[ImplicitMapResult] = {
+  def findImplicitConversions(ref: ScExpression, originalType: ScType): Array[ImplicitMapResult] = {
     implicit val typeSystem = ref.typeSystem
     val scope: GlobalSearchScope = ref.getResolveScope
     val file = ref.getContainingFile

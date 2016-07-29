@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.annotator.importsTracker._
 import org.jetbrains.plugins.scala.annotator.intention._
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.quickfix._
+import org.jetbrains.plugins.scala.annotator.quickfix.implicits.{SearchForImplicitClassAction, SearchForImplicitConversionAction}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.{RemoveValFromEnumeratorIntentionAction, RemoveValFromGeneratorIntentionAction}
 import org.jetbrains.plugins.scala.components.HighlightingAdvisor
@@ -510,6 +511,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                         val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
                         val annotation: Annotation = holder.createErrorAnnotation(expr, error)
                         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                        addSearchForImplicitConversionFix(expectedType, returnType, t, annotation)
                         typeElement match {
                           //Don't highlight te if it's outside of original file.
                           case Some(te) if te.containingFile == t.containingFile =>
@@ -900,6 +902,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             registerUsedImports(call.getContainingFile.asInstanceOf[ScalaFile], importUsed)
   }
 
+  private def addSearchForImplicitConversionFix(originalType: TypeResult[ScType], expectedType: TypeResult[ScType], expr: ScExpression, annotation: Annotation) = {
+    for {
+      originalType <- originalType
+      expected <- expectedType
+    } annotation.registerFix(new SearchForImplicitConversionAction(expr, originalType, expected))
+  }
+
   private def checkExpressionType(expr: ScExpression, holder: AnnotationHolder, typeAware: Boolean)
                                  (implicit typeSystem: TypeSystem) {
     def checkExpressionTypeInner(fromUnderscore: Boolean) {
@@ -976,6 +985,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                   if (AddBreakoutQuickFix.isAvailable(expr)) {
                     annotation.registerFix(new AddBreakoutQuickFix(expr))
                   }
+                  addSearchForImplicitConversionFix(exprType, expectedType, expr, annotation)
                   typeElement match {
                     case Some(te) if te.getContainingFile == expr.getContainingFile =>
                       val fix = new ChangeTypeFix(te, exprType.getOrNothing)
