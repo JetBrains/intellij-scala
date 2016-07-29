@@ -29,7 +29,6 @@ object SeveralOutputs {
     var zzz: Int = testMethodNameResult._3
 
 
-
     zzz + zz + z
   }
 
