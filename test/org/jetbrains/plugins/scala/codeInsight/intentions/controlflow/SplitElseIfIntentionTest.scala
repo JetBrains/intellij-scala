@@ -48,8 +48,7 @@ class SplitElseIfIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  //TODO
-  /*def testSplitElseIf2() {
+  def testSplitElseIf2() {
     val text =
       """
         |class SplitElseIf {
@@ -81,10 +80,9 @@ class SplitElseIfIntentionTest extends ScalaIntentionTestBase {
       """
 
     doTest(text, resultText)
-  }*/
+  }
 
-  //TODO
-  /*def testSplitElseIf3() {
+  def testSplitElseIf3() {
     val text =
       """
         |class SplitElseIf {
@@ -112,10 +110,9 @@ class SplitElseIfIntentionTest extends ScalaIntentionTestBase {
       """
 
     doTest(text, resultText)
-  }*/
+  }
 
-  //TODO
-  /*def testSplitElseIf4() {
+  def testSplitElseIf4() {
     val text =
       """
         |class SplitElseIf {
@@ -144,5 +141,5 @@ class SplitElseIfIntentionTest extends ScalaIntentionTestBase {
       """
 
     doTest(text, resultText)
-  }*/
+  }
 }

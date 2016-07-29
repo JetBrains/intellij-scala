@@ -48,8 +48,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  //TODO
-  /*def testMergeElseIf2() {
+  def testMergeElseIf2() {
     val text =
       """
         |class MergeElseIf {
@@ -80,7 +79,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
       """
 
     doTest(text, resultText)
-  }*/
+  }
 
   def testMergeElseIf3() {
     val text =
@@ -154,8 +153,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  //TODO
-  /*def testMergeElseIf5() {
+  def testMergeElseIf5() {
     val text =
       """
         |class MergeElseIf {
@@ -187,10 +185,9 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
       """
 
     doTest(text, resultText)
-  }*/
+  }
 
-  //TODO
-  /*def testMergeElseIf6() {
+  def testMergeElseIf6() {
     val text =
       """
         |class MergeElseIf {
@@ -218,5 +215,5 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
       """
 
     doTest(text, resultText)
-  }*/
+  }
 }

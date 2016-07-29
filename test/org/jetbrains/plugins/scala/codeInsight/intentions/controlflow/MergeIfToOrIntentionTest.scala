@@ -96,8 +96,7 @@ class MergeIfToOrIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
-  //TODO
-  /*def testMergeIfToOr4() {
+  def testMergeIfToOr4() {
     val text =
       """
         |class MergeIfToOr {
@@ -129,5 +128,5 @@ class MergeIfToOrIntentionTest extends ScalaIntentionTestBase {
       """
 
     doTest(text, resultText)
-  }*/
+  }
 }
