@@ -42,13 +42,19 @@ class ScalaGenerationInfo(classMember: ClassMember)
       case _ => return
     }
 
+
+    val comment = if (ScalaApplicationSettings.getInstance().COPY_SCALADOC)
+      Option(classMember.getElement.getDocComment).map(_.getText).getOrElse("") else ""
+
     classMember match {
       case member: ScMethodMember => myMember = insertMethod(member, templDef, anchor)
       case member: ScAliasMember =>
         val alias = member.getElement
         val substitutor = member.substitutor
         val needsOverride = member.isOverride || toAddOverrideToImplemented
-        val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, needsOverride)
+        val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor,
+          alias.getManager, needsOverride, comment)
+
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
         TypeAdjuster.markToAdjust(added)
@@ -61,7 +67,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
         }
         val addOverride = needsOverride || toAddOverrideToImplemented
         val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
-          addOverride, isVal, needsInferType)
+          addOverride, isVal, needsInferType, comment)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
         TypeAdjuster.markToAdjust(added)
@@ -199,6 +205,15 @@ object ScalaGenerationInfo {
     val body = getMethodBody(member, td, isImplement)
 
     val needsOverride = !isImplement || toAddOverrideToImplemented
+
+    if (!ScalaApplicationSettings.getInstance().COPY_SCALADOC) {
+      val comment = method.getDocComment
+
+      if (comment != null) {
+        comment.delete()
+      }
+    }
+
     val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, needsInferType, body)
     val added = td.addMember(m, Option(anchor))
     TypeAdjuster.markToAdjust(added)

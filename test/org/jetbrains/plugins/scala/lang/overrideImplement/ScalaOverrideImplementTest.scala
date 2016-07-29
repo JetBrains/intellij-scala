@@ -11,9 +11,10 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
-              needsInferType: Boolean = true) {
+              needsInferType: Boolean = true, copyScalaDoc: Boolean = false) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
+    ScalaApplicationSettings.getInstance().COPY_SCALADOC = copyScalaDoc
     ScalaOIUtil.invokeOverrideImplement(getProjectAdapter, getEditorAdapter, getFileAdapter, isImplement, methodName)
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
@@ -1011,4 +1012,47 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
 
+
+  def testCopyScalaDoc() = {
+    val fileText =
+      """
+        |abstract class A {
+        |
+        |  /**
+        |    * qwerty
+        |    *
+        |    * @return
+        |    */
+        |  protected def foo(): Unit = {}
+        |}
+        |
+        |class B<caret> extends A
+      """
+    val expectedText =
+      """
+        |abstract class A {
+        |
+        |  /**
+        |    * qwerty
+        |    *
+        |    * @return
+        |    */
+        |  protected def foo(): Unit = {}
+        |}
+        |
+        |class B extends A {
+        |  /**
+        |    * qwerty
+        |    *
+        |    * @return
+        |    */
+        |  override protected def foo(): Unit = <selection>super.foo()</selection>
+        |}
+      """
+    val methodName: String = "foo"
+    val isImplement = false
+    val needsInferType = true
+    val copyJavaDoc = true
+    runTest(methodName, fileText, expectedText, isImplement, needsInferType, copyJavaDoc)
+  }
 }

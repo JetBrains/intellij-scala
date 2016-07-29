@@ -72,7 +72,7 @@ object ScalaOIUtil {
     val selectedMembers = ListBuffer[ClassMember]()
     if (!ApplicationManager.getApplication.isUnitTestMode) {
 
-      val chooser = new ScalaMemberChooser[ClassMember](classMembers.toArray, false, true, isImplement, true, clazz)
+      val chooser = new ScalaMemberChooser[ClassMember](classMembers.toArray, false, true, isImplement, true, true, clazz)
       chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
       if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
       chooser.show()

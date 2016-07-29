@@ -672,8 +672,8 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementType(alias: ScTypeAlias, substitutor: ScSubstitutor, manager: PsiManager,
-                                  needsOverrideModifier: Boolean): ScTypeAlias = {
-    val text = "class a {" + getOverrideImplementTypeSign(alias, substitutor, "this.type", needsOverrideModifier) + "}"
+                                  needsOverrideModifier: Boolean, comment: String = ""): ScTypeAlias = {
+    val text = s"class a {$comment ${getOverrideImplementTypeSign(alias, substitutor, "this.type", needsOverrideModifier)}}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -683,8 +683,9 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementVariable(variable: ScTypedDefinition, substitutor: ScSubstitutor, manager: PsiManager,
-                                      needsOverrideModifier: Boolean, isVal: Boolean, needsInferType: Boolean): ScMember = {
-    val text = "class a {" + getOverrideImplementVariableSign(variable, substitutor, "_", needsOverrideModifier, isVal, needsInferType) + "}"
+                                      needsOverrideModifier: Boolean, isVal: Boolean, needsInferType: Boolean,
+                                      comment: String = ""): ScMember = {
+    val text = s"class a {$comment ${getOverrideImplementVariableSign(variable, substitutor, "_", needsOverrideModifier, isVal, needsInferType)}}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]

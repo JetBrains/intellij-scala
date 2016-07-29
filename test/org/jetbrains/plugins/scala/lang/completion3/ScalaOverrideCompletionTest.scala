@@ -13,6 +13,9 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     """
       |trait Base {
       |  protected def foo(int: Int): Int = 45
+      |  /**
+      |    * text
+      |    */
       |  type StringType = String
       |  val intValue = 45
       |  var intVariable = 43
