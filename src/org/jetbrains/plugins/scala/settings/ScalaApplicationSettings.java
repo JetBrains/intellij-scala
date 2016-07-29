@@ -26,6 +26,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean IGNORE_SETTINGS_CHECK = false;
 
+  public boolean COPY_SCALADOC = true;
   public boolean SPECIFY_RETURN_TYPE_EXPLICITLY = true;
   public boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = true;
   public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
