@@ -2,19 +2,20 @@ package org.jetbrains.plugins.scala
 package worksheet.ui
 
 import java.awt._
-import java.awt.event.{MouseWheelEvent, MouseEvent, MouseAdapter}
+import java.awt.event.{MouseAdapter, MouseEvent}
 import java.lang.ref.WeakReference
 import java.util
 import javax.swing.JComponent
 
 import com.intellij.openapi.diff.impl._
 import com.intellij.openapi.diff.impl.highlighting.FragmentSide
-import com.intellij.openapi.diff.impl.incrementalMerge.ChangeList
+import com.intellij.openapi.diff.impl.incrementalMerge._
 import com.intellij.openapi.diff.impl.splitter._
+import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
-import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -37,7 +38,7 @@ object WorksheetDiffSplitters {
     private val left = new WeakReference(originalEditor)
     private val right = new WeakReference(viewerEditor)
 
-    private lazy val lineBlocks = createLineBlocks(originalEditor.getDocument, viewerEditor.getDocument, originalEditor.getProject)
+    private lazy val lineBlocks = createLineBlocks(originalEditor.getDocument, viewerEditor.getDocument.getLineCount, originalEditor.getProject)
 
     override def getEditor(side: FragmentSide): Editor = side match {
       case FragmentSide.SIDE1 => left.get()
@@ -48,8 +49,26 @@ object WorksheetDiffSplitters {
   }
 
 
-  private def createLineBlocks(original: Document, viewer: Document, project: Project) =
-    ChangeList.build(original, viewer, project).getLineBlocks
+  private def createLineBlocks(original: Document, viewerSize: Int, project: Project) = {
+    val docText = original.getImmutableCharSequence
+
+    val originalSize = original.getLineCount
+    val minSize = Math.min(originalSize, viewerSize)
+    val maxSize = originalSize + viewerSize - minSize
+    
+    val lines = for (ln <- 0 until minSize) 
+      yield (if (ln % 2 == 1) "A" else "") + docText.subSequence(original.getLineStartOffset(ln), 
+        Math.max(original.getLineStartOffset(ln), original.getLineEndOffset(ln) - 1)) + "\n"
+    
+    val text = if (minSize == maxSize) lines mkString "" else {
+      (lines ++ StringUtil.repeat("_\n", maxSize - minSize)) mkString ""
+    }
+    
+    val factory = EditorFactory.getInstance
+    val doc = factory.createDocument(text)
+    
+    ChangeList.build(original, doc, project).getLineBlocks
+  }
 
   private def getVisibleInterval(editor: Editor) = {
     val line = editor.xyToLogicalPosition(new Point(0, editor.getScrollingModel.getVerticalScrollOffset)).line
