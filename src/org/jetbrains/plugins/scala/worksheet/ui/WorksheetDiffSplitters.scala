@@ -57,8 +57,7 @@ object WorksheetDiffSplitters {
     val maxSize = originalSize + viewerSize - minSize
     
     val lines = for (ln <- 0 until minSize) 
-      yield (if (ln % 2 == 1) "A" else "") + docText.subSequence(original.getLineStartOffset(ln), 
-        Math.max(original.getLineStartOffset(ln), original.getLineEndOffset(ln) - 1)) + "\n"
+      yield (if (ln % 2 == 1) s"$ln" else "") + docText.subSequence(original.getLineStartOffset(ln), original.getLineEndOffset(ln)) + "\n"
     
     val text = if (minSize == maxSize) lines mkString "" else {
       (lines ++ StringUtil.repeat("_\n", maxSize - minSize)) mkString ""
