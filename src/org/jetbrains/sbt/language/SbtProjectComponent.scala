@@ -11,7 +11,6 @@ import com.intellij.notification.{Notification, NotificationDisplayType, Notific
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.module.ModuleType
-import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
@@ -75,14 +74,11 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
         notificationData.setBalloonGroup(SBT_MAVEN_NOTIFICATION_GROUP)
         notificationData.setListener("#open", new NotificationListener.Adapter {
           protected def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
-//            ShowSettingsUtil.getInstance.showSettingsDialog(project, ProjectStructureConfigurable.getInstance(project))
             val ui = ProjectStructureConfigurable.getInstance(project)
             val editor = new SingleConfigurableEditor(project, ui)
             val module = ui.getModulesConfig.getModules.find(ModuleType.get(_).isInstanceOf[SbtModuleType])
-            ui.select(module.get.getName, null, false)
+            ui.select(module.get.getName, "SBT", false)
             editor.show()
-            //            ShowSettingsUtil.getInstance.showSettingsDialog(myProject, classOf[SbtModuleSettingsEditor])
-//            notification.expire()
           }
         })
         notificationData.setListener("#disable", new NotificationListener.Adapter() {
