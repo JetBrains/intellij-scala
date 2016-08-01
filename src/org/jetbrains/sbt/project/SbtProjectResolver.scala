@@ -16,8 +16,8 @@ import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
-import org.jetbrains.sbt.resolvers.migrate.SbtResolver
-import org.jetbrains.sbt.resolvers.migrate.SbtMavenResolver
+import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
+import org.jetbrains.sbt.resolvers.SbtMavenResolver
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
 

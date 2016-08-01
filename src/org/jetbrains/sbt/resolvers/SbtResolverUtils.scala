@@ -5,7 +5,6 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.migrate.SbtResolver
 
 /**
  * @author Nikolay Obedin

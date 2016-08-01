@@ -14,7 +14,7 @@
             <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.resolvers.migrate.SbtResolversManager</implementation-class>
+            <implementation-class>org.jetbrains.sbt.resolvers.SbtResolversManager</implementation-class>
         </component>
     </project-components>
 
@@ -31,7 +31,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <fileTypeFactory implementation="org.jetbrains.sbt.language.SbtFileTypeFactory"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />
-        <!--<annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>-->
+        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>

@@ -1,7 +1,5 @@
-package org.jetbrains.sbt.resolvers.migrate
+package org.jetbrains.sbt.resolvers
 
-import com.intellij.codeInsight.navigation.BackgroundUpdaterTask
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project

@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.resolvers.migrate.indexes
+package org.jetbrains.sbt.resolvers.indexes
 
 import java.io._
 import java.util.Properties

@@ -8,6 +8,7 @@ import com.intellij.CommonBundle
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.notification.impl.NotificationsConfigurationImpl
 import com.intellij.notification.{Notification, NotificationDisplayType, NotificationListener}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.module.ModuleType
@@ -50,7 +51,8 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
     }
   }
 
-  private def setupMavenIndexes() = {
+  private def setupMavenIndexes(): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode) return
     MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(new Consumer[util.List[MavenIndex]] {
       override def consume(mavenIndexes: util.List[MavenIndex]): Unit = {
         import scala.collection.JavaConversions._

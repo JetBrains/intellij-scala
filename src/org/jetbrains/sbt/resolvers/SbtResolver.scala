@@ -1,9 +1,9 @@
-package org.jetbrains.sbt.resolvers.migrate
+package org.jetbrains.sbt.resolvers
 
 import java.io.File
 import java.util.regex.Pattern
 
-import org.jetbrains.sbt.resolvers.migrate.indexes.{MavenProxyIndex, ResolverIndex}
+import org.jetbrains.sbt.resolvers.indexes.{MavenProxyIndex, ResolverIndex}
 
 /**
   * @author Mikhail Mutcianko
@@ -33,8 +33,10 @@ object SbtResolver {
 
 class SbtMavenResolver(val name: String, val root: String) extends SbtResolver {
   override lazy val getIndex: ResolverIndex = new MavenProxyIndex(root, name)
+  override def toString = s"$root|maven|$name"
 }
 
 class SbtIvyResolver(val name: String, val root: String) extends SbtResolver {
   override lazy val getIndex: ResolverIndex = ResolverIndex.createOrLoadIvy(name, root)
+  override def toString = s"$root|ivy|$name"
 }

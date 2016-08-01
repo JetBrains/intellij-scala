@@ -12,8 +12,9 @@ import com.intellij.ui.CollectionListModel
 import com.intellij.util.text.DateFormatUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
-import org.jetbrains.sbt.resolvers.migrate.indexes.ResolverIndex
-import org.jetbrains.sbt.resolvers.migrate.{SbtResolver, SbtResolversManager}
+import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolversManager}
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
+import org.jetbrains.sbt.resolvers.SbtResolversManager
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 import scala.collection.JavaConverters._
