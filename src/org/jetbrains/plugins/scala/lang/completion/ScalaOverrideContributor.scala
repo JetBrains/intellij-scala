@@ -147,8 +147,6 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false): String = {
-    ScalaApplicationSettings.getInstance().COPY_SCALADOC = false
-
     val needsInferType = ScalaGenerationInfo.needsInferType
     val text: String = classMember match {
       case mm: ScMethodMember =>
@@ -158,6 +156,13 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
             needsOverrideModifier = true, needsInferType = needsInferType: Boolean, mBody)
         else ScalaPsiElementFactory.createMethodFromSignature(mm.sign, mm.getElement.getManager,
           needsInferType = needsInferType, mBody)
+
+        val comment = fun.getDocComment
+
+        if (comment != null) {
+          comment.delete()
+        }
+
         fun.getText
       case tm: ScAliasMember =>
         ScalaPsiElementFactory.getOverrideImplementTypeSign(tm.getElement,
