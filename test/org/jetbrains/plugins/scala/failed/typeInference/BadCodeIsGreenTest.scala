@@ -133,4 +133,16 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |Some(1) flatMap (Seq(_))
       """.stripMargin, "Type mismatch, expected: Option[?], actual: Seq[Int]")
   }
+
+  def testSCL10608(): Unit = {
+    checkTextHasError(
+      """
+        |def abc = {
+        |    23
+        |    val b = "nope"
+        |  }
+        |def foo(par: Int) = ???
+        |foo(abc)
+      """.stripMargin, "Type mismatch, expected: Int, actual: Unit")
+  }
 }
