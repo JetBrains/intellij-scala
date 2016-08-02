@@ -32,7 +32,7 @@ object ResolverIndex {
     if (ApplicationManager.getApplication.isUnitTestMode)
       Option(System.getProperty("ivy.test.indexes.dir"))
         .map(new File(_))
-        .getOrElse(throw new RuntimeException("Ivy indexes dir not set"))
+        .getOrElse(DEFAULT_INDEXES_DIR)
     else DEFAULT_INDEXES_DIR
   }
   def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
