@@ -2,7 +2,7 @@ package org.jetbrains.sbt.resolvers.indexes
 
 import java.io.{File, IOException}
 
-import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -16,8 +16,8 @@ import org.jetbrains.sbt.resolvers.{IndexVersionMismatch, ResolverException}
   * @since 26.07.16
   */
 trait ResolverIndex {
-  def searchGroup(artifactId: String)(implicit project: Project): Set[String]
-  def searchArtifact(groupId: String)(implicit project: Project): Set[String]
+  def searchGroup(artifactId: String = "")(implicit project: Project): Set[String]
+  def searchArtifact(groupId: String = "")(implicit project: Project): Set[String]
   def searchVersion(groupId: String, artifactId: String)(implicit project: Project): Set[String]
   def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: Project): Unit
   def getUpdateTimeStamp(implicit project: Project): Long
@@ -28,7 +28,13 @@ object ResolverIndex {
   val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
   val CURRENT_INDEX_VERSION = "2"
   val NO_TIMESTAMP = -1
-  protected val indexesDir = Option(null).getOrElse(DEFAULT_INDEXES_DIR)
+  protected val indexesDir: File = {
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      Option(System.getProperty("ivy.test.indexes.dir"))
+        .map(new File(_))
+        .getOrElse(throw new RuntimeException("Ivy indexes dir not set"))
+    else DEFAULT_INDEXES_DIR
+  }
   def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
 
   object Paths {

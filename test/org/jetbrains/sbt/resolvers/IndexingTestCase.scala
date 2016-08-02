@@ -3,6 +3,7 @@ package org.jetbrains.sbt.resolvers
 import java.io.File
 
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 import org.junit.Assert._
 
 /**
@@ -11,28 +12,20 @@ import org.junit.Assert._
  */
 abstract class IndexingTestCase extends ScalaFixtureTestCase {
 
-  var storingManager: SbtResolverIndexesManager = null
 
   override def setUp(): Unit = {
     super.setUp()
-    val tmpPath = new File(myFixture.getTempDirPath)
-    storingManager = new SbtResolverIndexesManager(Some(tmpPath))
+    System.setProperty("ivy.test.indexes.dir", myFixture.getTempDirPath)
   }
 
   override def tearDown(): Unit = {
     super.tearDown()
-    storingManager.dispose()
   }
 
-  def createAndUpdateIndex(resolver: SbtResolver): SbtResolverIndex = {
-    val index = storingManager.add(resolver)
-    index.update(None)
-    index
-  }
-
-  def assertIndexContentsEquals(index: SbtResolverIndex, groups: Set[String], artifacts: Set[String], versions: Set[String]): Unit = {
-    assertEquals(index.groups(), groups)
-    assertEquals(index.artifacts(), artifacts)
-    artifacts foreach { a => assertEquals(index.versions(groups.head, a), versions) }
+  def assertIndexContentsEquals(index: ResolverIndex, groups: Set[String], artifacts: Set[String], versions: Set[String]): Unit = {
+    implicit val p = getProject
+    assertEquals(index.searchGroup(), groups)
+    assertEquals(index.searchArtifact(), artifacts)
+    artifacts foreach { a => assertEquals(index.searchVersion(groups.head, a), versions) }
   }
 }
