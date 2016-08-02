@@ -9,10 +9,12 @@ import org.jetbrains.sbt.resolvers.indexes.{MavenProxyIndex, ResolverIndex}
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-trait SbtResolver {
+trait SbtResolver extends Serializable {
   def name: String
   def root: String
   def getIndex: ResolverIndex
+  override def hashCode(): Int = toString.hashCode
+  override def equals(o: scala.Any): Boolean = toString == o.toString
 }
 
 object SbtResolver {
