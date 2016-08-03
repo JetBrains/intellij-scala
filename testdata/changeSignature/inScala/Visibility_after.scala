@@ -1,7 +1,7 @@
 class Visibility {
-  protected def foo(i: Int) = 1
+  protected def foo(i: Int): Int = 1
 }
 
 class VisibilityTest extends Visibility {
-  protected override def foo(i: Int) = 2
+  protected override def foo(i: Int): Int = 2
 }

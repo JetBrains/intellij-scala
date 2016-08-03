@@ -3,7 +3,8 @@ package codeInsight.delegateMethod
 
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 
 /**
  * Nikolay.Tropin
@@ -13,11 +14,10 @@ class ScalaDelegateMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapt
 
   def runTest(fileText: String, expectedText: String, specifyType: Boolean = true) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
-    val oldSpecifyType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = specifyType
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
+    if (specifyType) TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
     new ScalaGenerateDelegateHandler().invoke(getProjectAdapter, getEditorAdapter, getFileAdapter)
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = oldSpecifyType
   }
 
   def testVal() {
@@ -361,6 +361,10 @@ class ScalaDelegateMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapt
         |
         |  def foo[S >: AnyRef](x: Int) = d.foo[S](x)
         |}"""
+
+    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
+    TypeAnnotationSettings.noTypeAnnotationForPublic(getProjectAdapter)
+
     runTest(text, result, specifyType = false)
   }
 

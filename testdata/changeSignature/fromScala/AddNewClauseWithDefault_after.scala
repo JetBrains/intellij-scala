@@ -1,5 +1,5 @@
 class AddNewClauseWithDefault {
-  def foo(b: Boolean = true)(x: Int, y: Int = 0) = {}
+  def foo(b: Boolean = true)(x: Int, y: Int = 0): Unit = {}
 
   foo()(1)
   this.foo()(1)

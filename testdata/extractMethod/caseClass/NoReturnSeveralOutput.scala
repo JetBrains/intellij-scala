@@ -26,7 +26,7 @@ class NoReturnSeveralOutput {
 
   case class TestMethodNameResult(x: Int, y: String, z: Int, zz: String)
 
-  def testMethodName: TestMethodNameResult = {
+  def testMethodName = {
     val x = 0
     val y = "a"
     val z = 1

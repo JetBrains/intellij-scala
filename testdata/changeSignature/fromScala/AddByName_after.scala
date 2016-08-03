@@ -8,5 +8,5 @@ class ByName {
 }
 
 class ByNameChild extends ByName {
-  override def foo(x: Int, s: => AnyRef) = super.foo(x, s)
+  override def foo(x: Int, s: => AnyRef): Unit = super.foo(x, s)
 }

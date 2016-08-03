@@ -18,7 +18,7 @@ class Test {
   }
 
   new A() {
-    var i: Int = 1
+    var i = 1
 
     def foo() {
       i

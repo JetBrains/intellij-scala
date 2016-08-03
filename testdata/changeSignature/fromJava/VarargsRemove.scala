@@ -1,5 +1,5 @@
 class VarargsTest extends VarargsRemove {
-  override def foo(i: Int, strs: String*) {}
+  override def foo(i: Int, strs: String*) = {}
 
   super.foo(1)
   super.foo(1, "2")

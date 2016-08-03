@@ -4,6 +4,7 @@ package codeInsight.intentions.implementAbstract
 import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 
 /**
  * Nikolay.Tropin
@@ -31,8 +32,12 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |}
         |
         |class AA extends A {
-        |  override def f: Int = $START???$END
+        |  override def f = $START???$END
         |}"""
+
+    TypeAnnotationSettings.alwaysAddType(getProject)
+    TypeAnnotationSettings.noTypeAnnotationForPublic(getProject)
+
     doTest(text, result)
   }
 
@@ -54,6 +59,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |class AA extends A {
         |  override def f: Int = $START???$END
         |}"""
+
+    TypeAnnotationSettings.alwaysAddType(getProject)
     doTest(text, result)
   }
 
@@ -75,6 +82,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |class AA extends A[Int] {
         |  override def f: Int = $START???$END
         |}"""
+
+    TypeAnnotationSettings.alwaysAddType(getProject)
     doTest(text, result)
   }
 
@@ -87,6 +96,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |
         |class AA extends A
       """
+
+    TypeAnnotationSettings.alwaysAddType(getProject)
     checkIntentionIsNotAvailable(text)
   }
 
@@ -108,6 +119,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |class AA extends A {
         |  override def f: Unit = $START???$END
         |}"""
+
+    TypeAnnotationSettings.alwaysAddType(getProject)
     doTest(text, result)
   }
 

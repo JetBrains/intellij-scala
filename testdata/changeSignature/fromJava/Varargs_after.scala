@@ -1,5 +1,5 @@
 class VarargsTest extends Varargs {
-  override def foo(i: Int, b: Boolean, strs: String*) {}
+  override def foo(i: Int, b: Boolean, strs: String*): Unit = {}
 
   super.foo(1, true)
   super.foo(1, true, "2")

@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package refactoring.extractMethod
 
+import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
+
 /**
  * Nikolay.Tropin
  * 2014-05-20
@@ -8,7 +10,11 @@ package refactoring.extractMethod
 class ScalaExtractMethodInnerClass extends ScalaExtractMethodTestBase {
   override def folderPath: String = super.folderPath + "innerClass/"
 
-  def testNoReturnSeveralOutput() = doTest()
+  def testNoReturnSeveralOutput() = {
+    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
+    TypeAnnotationSettings.noTypeAnnotationForPublic(getProjectAdapter)
+    doTest(specifyReturnType = false)
+  }
 
   def testReturnSeveralOutput1() = doTest()
 

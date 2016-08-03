@@ -5,7 +5,7 @@ import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
 import org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 import org.junit.Assert._
 
 /**
@@ -23,11 +23,9 @@ class ScalaDelegateToJavaMethodTest  extends JavaCodeInsightFixtureTestCase {
 
     myFixture.addFileToProject("JavaClass.java", clean(javaText))
     val scalaFile = myFixture.configureByText("ScalaDummy.scala", clean(scalaText))
-    val oldSpecifyType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = specifyRetType
+    if (specifyRetType) TypeAnnotationSettings.alwaysAddType(getProject)
     new ScalaGenerateDelegateHandler().invoke(myFixture.getProject, myFixture.getEditor, scalaFile)
     assertEquals(clean(expectedText), clean(scalaFile.getText))
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = oldSpecifyType
   }
 
   def testJavaFieldTarget() {
@@ -181,6 +179,10 @@ class ScalaDelegateToJavaMethodTest  extends JavaCodeInsightFixtureTestCase {
         |
         |  def foo[T]() = d.foo[T]()
         |}"""
+
+    TypeAnnotationSettings.alwaysAddType(getProject)
+    TypeAnnotationSettings.noTypeAnnotationForPublic(getProject)
+
     runTest(javaText, scalaText, result, specifyRetType = false)
   }
 

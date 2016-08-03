@@ -12,6 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 import org.junit.Assert._
 
 /**
@@ -25,7 +26,7 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
 
   def folderPath: String = baseRootPath() + "extractMethod/"
 
-  protected def doTest() {
+  protected def doTest(specifyReturnType: Boolean = true) {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -48,6 +49,8 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
     var res: String = null
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+
+    if (specifyReturnType) TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
 
     //start to inline
     try {

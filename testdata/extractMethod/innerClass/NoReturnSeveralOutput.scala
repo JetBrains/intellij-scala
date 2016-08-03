@@ -29,7 +29,7 @@ class NoReturnSeveralOutput {
 
   class TestMethodNameResult(val x: Int, val y: String, val z: Int, val zz: String)
 
-  def testMethodName: TestMethodNameResult = {
+  def testMethodName = {
     val x = 0
     val y = "a"
     val z = 1

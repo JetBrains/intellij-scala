@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package refactoring.introduceField
 
+import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
+
 /**
  * Nikolay.Tropin
  * 7/17/13
@@ -14,7 +16,12 @@ class IntroduceFieldTests extends IntroduceFieldTestBase {
   def testSimpleInInner() = doTest()
   def testTwoMethodsInitInDecl() = doTest()
   def testFromAnonymousLocally() = doTest()
-  def testFromAnonymousInDeclaration() = doTest()
+
+  def testFromAnonymousInDeclaration() = {
+    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
+    TypeAnnotationSettings.noTypeAnnotationForPublic(getProjectAdapter)
+    doTest(specifyTypeExplicitly = false)
+  }
   def testReplaceAllInOuter() = doTest()
   def testFromBaseConstructorAddEarlyDefs() = doTest()
   def testFromBaseConstructorToEarlyDefs() = doTest()

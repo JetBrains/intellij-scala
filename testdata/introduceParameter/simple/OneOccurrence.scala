@@ -5,7 +5,7 @@ def foo = {
 }
 /*
 //all = false
-def foo(param: Int) = {
+def foo(param: Int): Int = {
   1
   /*start*/param/*end*/
 }

@@ -1,5 +1,5 @@
 object Test {
-  def foo(i: Int) {}
+  def foo(i: Int): Unit = {}
 }
 
 class A {

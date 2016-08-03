@@ -1,5 +1,5 @@
 object Test {
-  def <caret>bar() {}
+  def <caret>bar() = {}
 }
 
 class A {
