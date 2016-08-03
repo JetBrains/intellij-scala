@@ -50,23 +50,31 @@ object WorksheetDiffSplitters {
 
 
   private def createLineBlocks(original: Document, viewerSize: Int, project: Project) = {
-    val docText = original.getImmutableCharSequence
-
     val originalSize = original.getLineCount
     val minSize = Math.min(originalSize, viewerSize)
-    val maxSize = originalSize + viewerSize - minSize
     
-    val lines = for (ln <- 0 until minSize) 
-      yield (if (ln % 2 == 1) s"$ln" else "") + docText.subSequence(original.getLineStartOffset(ln), original.getLineEndOffset(ln)) + "\n"
+    val originalFake = StringBuilder.newBuilder
+    val viewerFake = StringBuilder.newBuilder
+    val random = new java.util.Random
     
-    val text = if (minSize == maxSize) lines mkString "" else {
-      (lines ++ StringUtil.repeat("_\n", maxSize - minSize)) mkString ""
+    for (i <- 0 until minSize) {
+      val line = random.nextInt().toString
+      
+      originalFake.append(line).append("\n")
+      viewerFake.append(if (i % 2 == 0) line else random.nextInt.toString).append("\n")
     }
     
+    if (originalSize > viewerSize) 
+      viewerFake.append(StringUtil.repeat("_\n", originalSize - viewerSize))
+    else if (originalSize < viewerSize) 
+      originalFake.append(StringUtil.repeat("_\n", viewerSize - originalSize))
+
     val factory = EditorFactory.getInstance
-    val doc = factory.createDocument(text)
-    
-    ChangeList.build(original, doc, project).getLineBlocks
+
+    val originalDoc = factory.createDocument(originalFake.toString())
+    val viewerDoc = factory.createDocument(viewerFake.toString())
+
+    ChangeList.build(originalDoc, viewerDoc, project).getLineBlocks
   }
 
   private def getVisibleInterval(editor: Editor) = {
