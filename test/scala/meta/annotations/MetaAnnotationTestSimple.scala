@@ -1,20 +1,31 @@
 package scala.meta.annotations
 
-import com.intellij.openapi.module.JavaModuleType
+import com.intellij.openapi.module.{JavaModuleType, Module}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.base.{DisposableScalaLibraryLoader, ScalaLightCodeInsightFixtureTestAdapter}
+import org.jetbrains.plugins.scala.debugger.{Compilable, DebuggerTestUtil}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
-class MetaAnnotationTestSimple extends ScalaCompilerTestBase {
+class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compilable {
+
+  override def getCompileableProject: Project = myFixture.getProject
+
+  override def getMainModule: Module = myModule
 
   val metaVersion = "0.23.0"
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11_8
+  protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11_8
+
+  override def setUp(): Unit = {
+    super.setUp()
+    setUpCompler()
+  }
 
   def getMetaLibraries: Seq[(String, String, String)] = {
     val scala = scalaSdkVersion.getMajor
@@ -28,15 +39,15 @@ class MetaAnnotationTestSimple extends ScalaCompilerTestBase {
 
   def compileMetaModule(source: String) = {
     val root = extensions.inWriteAction {
-      Option(myProject.getBaseDir.findChild("meta")).getOrElse(myProject.getBaseDir.createChildDirectory(null, "meta"))
+      Option(myFixture.getProject.getBaseDir.findChild("meta")).getOrElse(myFixture.getProject.getBaseDir.createChildDirectory(null, "meta"))
     }
-    val metaModule = PsiTestUtil.addModule(myProject, JavaModuleType.getModuleType, "meta", root)
-    val loader = new DisposableScalaLibraryLoader(getProject, metaModule, null, true, Some(getTestProjectJdk))
+    val metaModule = PsiTestUtil.addModule(myFixture.getProject, JavaModuleType.getModuleType, "meta", root)
+    val loader = new DisposableScalaLibraryLoader(getProject, metaModule, null, true, Some(DebuggerTestUtil.findJdk8()))
     loader.loadScala(scalaSdkVersion)
     for ((name, folder, jarFile) <- getMetaLibraries) {
       addIvyCacheLibraryToModule(metaModule, name, folder, jarFile)
     }
-    val profile = ScalaCompilerConfiguration.instanceIn(myProject).defaultProfile
+    val profile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
     val settings = profile.getSettings
     settings.plugins :+= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-SNAPSHOT.jar"
     profile.setSettings(settings)
@@ -47,7 +58,7 @@ class MetaAnnotationTestSimple extends ScalaCompilerTestBase {
     }
     extensions.inWriteAction {
       val modifiableRootModel = ModuleRootManager.getInstance(metaModule).getModifiableModel
-      modifiableRootModel.setSdk(getTestProjectJdk)
+      modifiableRootModel.setSdk(DebuggerTestUtil.findJdk8())
       modifiableRootModel.commit()
     }
     VfsTestUtil.createFile(root, "meta.scala", source)
@@ -69,6 +80,15 @@ class MetaAnnotationTestSimple extends ScalaCompilerTestBase {
         |}
       """.stripMargin
     )
+    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE,
+      s"""
+        |@main
+        |object Foo {
+        |  println("bar")
+        |}
+        |Foo.<caret>
+      """.stripMargin)
+    val result = myFixture.completeBasic()
     ""
   }
 
