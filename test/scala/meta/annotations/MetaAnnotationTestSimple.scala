@@ -1,6 +1,5 @@
 package scala.meta.annotations
 
-import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.module.JavaModuleType
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
@@ -15,7 +14,7 @@ class MetaAnnotationTestSimple extends ScalaCompilerTestBase {
 
   val metaVersion = "0.23.0"
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11_8
 
   def getMetaLibraries: Seq[(String, String, String)] = {
     val scala = scalaSdkVersion.getMajor
@@ -35,11 +34,11 @@ class MetaAnnotationTestSimple extends ScalaCompilerTestBase {
     val loader = new DisposableScalaLibraryLoader(getProject, metaModule, null, true, Some(getTestProjectJdk))
     loader.loadScala(scalaSdkVersion)
     for ((name, folder, jarFile) <- getMetaLibraries) {
-      addIvyCacheLibrary(name, folder, jarFile)
+      addIvyCacheLibraryToModule(metaModule, name, folder, jarFile)
     }
     val profile = ScalaCompilerConfiguration.instanceIn(myProject).defaultProfile
     val settings = profile.getSettings
-    settings.plugins :+= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-M1.jar"
+    settings.plugins :+= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-SNAPSHOT.jar"
     profile.setSettings(settings)
     extensions.inWriteAction {
       val modifiableRootModel = ModuleRootManager.getInstance(myModule).getModifiableModel
@@ -59,19 +58,17 @@ class MetaAnnotationTestSimple extends ScalaCompilerTestBase {
   def testBasic(): Unit = {
     compileMetaModule(
       """
-        |package foo.bar
-        |class Foo
-        |/*import scala.annotation.StaticAnnotation
         |import scala.meta._
-        |class main extends StaticAnnotation {
-        |  inline def apply()(defn: Any) = meta {
-        |    val q"..$mods object $name extends { ..$early } with ..$base { $self => ..$stats }" = defn
-        |    val main = q"def main(args: Array[String]): Unit = { ..$stats }"
-        |    q"..$mods object $name extends { ..$early } with ..$base { $self => $main }"
-        |  }
-        |}*/
         |
-      """.stripMargin)
+        |class main extends scala.annotation.StaticAnnotation {
+        |  inline def apply()(defn: Any) = meta {
+        |    val q"object $name { ..$stats }" = defn
+        |    val main = q"def main(args: Array[String]): Unit = { ..$stats }"
+        |    q"object $name { $main }"
+        |  }
+        |}
+      """.stripMargin
+    )
     ""
   }
 

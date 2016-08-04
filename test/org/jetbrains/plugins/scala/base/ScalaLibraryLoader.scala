@@ -72,9 +72,13 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isI
       val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
       PsiTestUtil.removeSourceRoot(module, testDataRoot)
     }
-//    inWriteAction {
-//      addedLibraries.foreach(module.detach)
-//    }
+    disposeLibraries
+  }
+
+  def disposeLibraries(): Unit = {
+    inWriteAction {
+      addedLibraries.foreach(module.detach)
+    }
   }
 
   def addScalaSdk(module: Module, sdkVersion: ScalaSdkVersion, loadReflect: Boolean) = {

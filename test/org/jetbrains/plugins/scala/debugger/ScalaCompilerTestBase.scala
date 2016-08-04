@@ -9,6 +9,7 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
@@ -75,10 +76,14 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   }
 
   protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
+    addIvyCacheLibraryToModule(myModule, libraryName, libraryPath, jarNames:_*)
+  }
+
+  protected def addIvyCacheLibraryToModule(module: Module, libraryName: String, libraryPath: String, jarNames: String*) = {
     val libsPath = TestUtils.getIvyCachePath
     val pathExtended = s"$libsPath/$libraryPath/"
     VfsRootAccess.allowRootAccess(pathExtended)
-    PsiTestUtil.addLibrary(myModule, libraryName, pathExtended, jarNames: _*)
+    PsiTestUtil.addLibrary(module, libraryName, pathExtended, jarNames: _*)
   }
 
   override protected def getTestProjectJdk: Sdk = {

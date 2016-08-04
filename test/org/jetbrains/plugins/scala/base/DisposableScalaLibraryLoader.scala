@@ -20,5 +20,7 @@ class DisposableScalaLibraryLoader(project: Project,
 
   Disposer.register(module, this)
 
+  override def disposeLibraries(): Unit = ()  // libraries are automatically disposed by module
+
   override def dispose(): Unit = clean()
 }
