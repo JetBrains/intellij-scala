@@ -106,6 +106,8 @@ object WorksheetDiffSplitters {
     private val visibleAreaListener = new VisibleAreaListener {
       override def visibleAreaChanged(e: VisibleAreaEvent): Unit = redrawDiffs()
     }
+    
+    editor1.getScrollingModel.addVisibleAreaListener(getVisibleAreaListener)
 
     def getIntervals: Iterable[(Int, Int)] = intervals
 
