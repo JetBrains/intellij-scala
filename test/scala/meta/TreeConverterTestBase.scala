@@ -11,17 +11,19 @@ class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with
   def fixture = myFixture
 
   val semanticContext = new IDEAContext(fixture.getProject) {
+    override def dumbMode: Boolean = System.getProperty("scala.meta.dumbmode") != null
+
     override def getCurrentProject: Project = myFixture.getProject
   }
-  def testOk() = () // to get rid of no tests found spam in IDEA junit runner
+//  def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }
 
 class TreeConverterTestBaseNoLibrary extends TreeConverterTestBase {
   override def loadScalaLibrary = false
-  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
+//  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }
 
 class TreeConverterTestBaseWithLibrary extends TreeConverterTestBase {
   override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
-  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
+//  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }

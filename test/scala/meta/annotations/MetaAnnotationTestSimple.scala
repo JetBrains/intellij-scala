@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
+import org.junit.Assert
 
 class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compilable {
 
@@ -29,11 +30,6 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
     setUpCompler()
   }
 
-
-  override def tearDown(): Unit = {
-    shutdownCompiler()
-    super.tearDown()
-  }
 
   def getMetaLibraries: Seq[(String, String, String)] = {
     val scala = scalaSdkVersion.getMajor
@@ -70,7 +66,11 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
       modifiableRootModel.commit()
     }
     VfsTestUtil.createFile(root, "meta.scala", source)
-    make()
+    try {
+      make()
+    } finally {
+      shutdownCompiler()
+    }
   }
 
   def testBasic(): Unit = {
@@ -81,7 +81,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
         |class main extends scala.annotation.StaticAnnotation {
         |  inline def apply()(defn: Any) = meta {
         |    val q"object $name { ..$stats }" = defn
-        |    val main = q"def main(args: Array[String]): Unit = { ..$stats }"
+        |    val main = q"def myNewCoolMethod(args: Array[String]): Unit = { ..$stats }"
         |    q"object $name { $main }"
         |  }
         |}
@@ -96,7 +96,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
         |Foo.<caret>
       """.stripMargin)
     val result = myFixture.completeBasic()
-    ""
+    Assert.assertTrue(result.exists(_.getLookupString == "myNewCoolMethod"))
   }
 
 }
