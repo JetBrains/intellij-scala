@@ -1,5 +1,6 @@
 package scala.meta.annotations
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
@@ -15,8 +16,9 @@ import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compilable {
 
   override def getCompileableProject: Project = myFixture.getProject
-
   override def getMainModule: Module = myModule
+  override def getRootDisposable: Disposable = myTestRootDisposable
+  override def getTestName: String = getTestName(false)
 
   val metaVersion = "0.23.0"
 
@@ -25,6 +27,12 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
   override def setUp(): Unit = {
     super.setUp()
     setUpCompler()
+  }
+
+
+  override def tearDown(): Unit = {
+    shutdownCompiler()
+    super.tearDown()
   }
 
   def getMetaLibraries: Seq[(String, String, String)] = {
@@ -37,7 +45,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
       "tokenizers", "tokens", "transversers", "trees").map(getLibEntry)
   }
 
-  def compileMetaModule(source: String) = {
+  def compileMetaSource(source: String) = {
     val root = extensions.inWriteAction {
       Option(myFixture.getProject.getBaseDir.findChild("meta")).getOrElse(myFixture.getProject.getBaseDir.createChildDirectory(null, "meta"))
     }
@@ -63,11 +71,10 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
     }
     VfsTestUtil.createFile(root, "meta.scala", source)
     make()
-    ""
   }
 
   def testBasic(): Unit = {
-    compileMetaModule(
+    compileMetaSource(
       """
         |import scala.meta._
         |

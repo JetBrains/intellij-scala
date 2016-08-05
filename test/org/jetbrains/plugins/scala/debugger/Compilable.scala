@@ -6,6 +6,7 @@ import javax.swing.SwingUtilities
 import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.module.Module
@@ -16,6 +17,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore, VirtualFile}
 import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -29,14 +31,16 @@ import scala.collection.mutable.ListBuffer
 
 
 trait Compilable {
-  this: UsefulTestCase =>
 
   def getCompileableProject: Project
   def getMainModule: Module
+  def getRootDisposable: Disposable
+  def getTestName: String
+
   private var deleteProjectAtTearDown = false
 
-  def setUpCompler(): Unit = {
-    getCompileableProject.getMessageBus.connect(myTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
+  protected def setUpCompler(): Unit = {
+    getCompileableProject.getMessageBus.connect(getRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
       override def rootsChanged(event: ModuleRootEvent) {
         forceFSRescan()
       }
@@ -46,6 +50,11 @@ trait Compilable {
     addRoots()
     DebuggerTestUtil.setCompileServerSettings()
     DebuggerTestUtil.forceJdk8ForBuildProcess()
+  }
+
+  protected def shutdownCompiler() = {
+    CompilerTestUtil.disableExternalCompiler(getCompileableProject)
+    CompileServerLauncher.instance.stop()
   }
 
   protected def addRoots() {
@@ -98,7 +107,7 @@ trait Compilable {
       }
       i += 1
     }
-    Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}.test${getTestName(false)}", i < maxCompileTime)
+    Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}.test$getTestName", i < maxCompileTime)
     if (callback.hasError) {
       deleteProjectAtTearDown = true
       callback.throwException()
