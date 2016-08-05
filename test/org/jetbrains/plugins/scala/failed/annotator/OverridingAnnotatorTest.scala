@@ -84,4 +84,20 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       case Nil =>
     }
   }
+
+  def testScl6809(): Unit = {
+    assertMatches(
+      messages(
+        """import java.{util => ju}
+          |
+          |abstract class CollectionToArrayBug[E <: AnyRef](collection: ju.Collection[E])
+          |  extends ju.Collection[E]
+          |{
+          |  def toArray[T](a: Array[T]): Array[T] = ???
+          |  override def toArray[T](a: Array[T with AnyRef]): Array[T with AnyRef] = ???
+          |}
+        """.stripMargin)) {
+      case Nil =>
+    }
+  }
 }
