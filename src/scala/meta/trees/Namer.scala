@@ -35,6 +35,8 @@ trait Namer {
       m.Term.Name(sf.name)
     case ne: ScNamedElement =>
       m.Term.Name(ne.name)
+    case cr: ScReferenceElement if dumbMode =>
+      m.Term.Name(cr.refName)
     case cr: ResolvableReferenceElement  =>
       cr.bind()  match {
         case Some(x) => try {
@@ -65,12 +67,12 @@ trait Namer {
   def toTypeName(elem: PsiElement): m.Type.Name = elem match {
     case ne: ScNamedElement =>
       m.Type.Name(ne.name)
-    case re: ScReferenceExpression =>
+    case re: ScReferenceElement if dumbMode =>
+      m.Type.Name(re.refName)
+    case re: ResolvableReferenceElement =>
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
       m.Type.Name(sc.className)
-    case cr: ScStableCodeReferenceElement =>
-      toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       die(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case _: PsiPackage | _: ScObject =>

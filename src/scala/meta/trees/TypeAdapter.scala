@@ -29,6 +29,8 @@ trait TypeAdapter {
   def toType(tp: ScTypeElement): m.Type = {
     typeElementCache.getOrElseUpdate(tp, {
       tp match {
+        case t: ScSimpleTypeElement if dumbMode =>
+          t.reference.map(toTypeName).getOrElse(m.Type.Name(t.text))
         case t: ScSimpleTypeElement =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.calcType))
@@ -38,7 +40,7 @@ trait TypeAdapter {
             case param => m.Type.Function(Seq(param), toType(t.returnTypeElement.get))
           }
         case t: ScParameterizedTypeElement =>
-          m.Type.Apply(toType(t.typeElement.calcType), t.typeArgList.typeArgs.toStream.map(toType))
+          m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgs.toStream.map(toType))
         case t: ScTupleTypeElement =>
           m.Type.Tuple(Seq(t.components.map(toType): _*))
         case t: ScWildcardTypeElement =>
@@ -51,13 +53,13 @@ trait TypeAdapter {
         case t: ScTypeVariableTypeElement => die("i cannot into type variables")
         case t: ScExistentialTypeElement =>
           val clauses = Seq(t.clause.declarations map {
-            _ match {
-              case tp: ScTypeAliasDeclaration => toTypeDecl(tp)
-              case other => other ?!
-            }
-          } : _*)
+            case tp: ScTypeAliasDeclaration => toTypeDecl(tp)
+            case other => other ?!
+          }: _*)
           val quantified = toType(t.quantified)
           m.Type.Existential(quantified, clauses)
+        case other: ScTypeElement if dumbMode =>
+          m.Type.Name(other.getText)
         case other: ScTypeElement =>
           LOG.warn(s"Using slow type conversion of type element ${other.getClass}: ${other.getText}")
           toType(other.getType())
@@ -77,6 +79,8 @@ trait TypeAdapter {
   def toType(elem: PsiElement): m.Type = {
     psiElementTypeChache.getOrElseUpdate(elem, {
       elem match {
+        case t: typedef.ScTemplateDefinition if dumbMode =>
+          m.Type.Name(t.name)
         case t: typedef.ScTemplateDefinition =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
@@ -90,14 +94,20 @@ trait TypeAdapter {
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
           m.Type.Function(Seq(t.paramTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType))//.setTypechecked
+        case t: ScParameter if dumbMode =>
+          m.Type.Name(t.text)
         case t: ScParameter =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.typeElement.get.getType().get))
+        case t: ScTypedDefinition if dumbMode =>
+          m.Type.Name(t.name)
         case t: ScTypedDefinition =>
           t.getTypeWithCachedSubst match {
             case Success(res, place) => toType(res)
             case Failure(cause, place) => unresolved(cause, place)
           }
+        case t: ScReferenceElement if dumbMode =>
+          m.Type.Name(t.refName)
         case t: ScReferenceElement =>
           t.bind() match {
             case Some(result) => toType(result.element)

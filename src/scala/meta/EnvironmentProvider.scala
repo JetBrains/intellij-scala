@@ -10,5 +10,7 @@ trait EnvironmentProvider {
     PsiManager.getInstance(getCurrentProject).findFile(virtualFile)
   }
   def getCurrentProject: Project
+
+  def dumbMode: Boolean = false
 }
 

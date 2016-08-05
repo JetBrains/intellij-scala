@@ -319,14 +319,26 @@ object MacroExpandAction {
     }
   }
 
-  def expandMetaAnnotation(annot: ScAnnotation) = {
+  def expandMetaAnnotation(annot: ScAnnotation): String = {
+    val result: scala.meta.Tree = runMetaAnnotation(annot)
+
+    inWriteCommandAction(annot.getProject) {
+      expandAnnotation(annot, MacroExpansion(null, result.toString))
+    }
+    ""
+  }
+
+  def runMetaAnnotation(annot: ScAnnotation): scala.meta.Tree = {
     import org.jetbrains.plugins.scala.project._
 
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
+
     def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
+
     val converter = new TreeConverter {
       override def getCurrentProject: Project = annot.getProject
+      override def dumbMode: Boolean = true
     }
 
     val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
@@ -340,17 +352,13 @@ object MacroExpandAction {
     val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
     val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
     val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
-    val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName+"$impl$")
+    val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$impl$")
     val ctor = outer.getDeclaredConstructors.head
     ctor.setAccessible(true)
     val inst = ctor.newInstance()
     val meth = outer.getDeclaredMethods.find(_.getName == "apply$impl").get
     meth.setAccessible(true)
     val result = meth.invoke(inst, converted.get.asInstanceOf[AnyRef])
-
-    inWriteCommandAction(annot.getProject) {
-      expandAnnotation(annot, MacroExpansion(null, result.toString))
-    }
-    ""
+    result.asInstanceOf[scala.meta.Tree]
   }
 }

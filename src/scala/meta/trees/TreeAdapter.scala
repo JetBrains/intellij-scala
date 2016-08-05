@@ -92,11 +92,11 @@ trait TreeAdapter {
   }
 
   def toVar(t: ScVariableDeclaration): m.Decl.Var = {
-    m.Decl.Var(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.getType()))
+    m.Decl.Var(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get))
   }
 
   def toVal(t: ScValueDeclaration): m.Decl.Val = {
-    m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.getType()))
+    m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get))
   }
 
   def toTrait(t: ScTrait) = m.Defn.Trait(
@@ -158,7 +158,7 @@ trait TreeAdapter {
     def arg(pt: patterns.ScPattern): m.Pat.Arg = pt match {
       case t: ScSeqWildcard       =>  Arg.SeqWildcard()
       case t: ScWildcardPattern   =>  Wildcard()
-      case t: ScStableReferenceElementPattern => toTermName(t.refElement.get.resolve())
+      case t: ScStableReferenceElementPattern => toTermName(t.refElement.get)
       case t: ScPattern           => pattern(t)
     }
     pt match {
