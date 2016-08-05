@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -12,14 +13,17 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
-              needInferType: Boolean = true, copyScalaDoc: Boolean = false) {
+              settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)),
+              copyScalaDoc: Boolean = false) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
-    if (needInferType) {
-      TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
-    }
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
+    TypeAnnotationSettings.set(getProjectAdapter, settings)
+    
 
     ScalaApplicationSettings.getInstance().COPY_SCALADOC = copyScalaDoc
     ScalaOIUtil.invokeOverrideImplement(getProjectAdapter, getEditorAdapter, getFileAdapter, isImplement, methodName)
+    
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 
@@ -333,10 +337,8 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val methodName: String = "foo"
     val isImplement = false
 
-    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
-    TypeAnnotationSettings.noTypeAnnotationForPublic(getProjectAdapter)
-
-    runTest(methodName, fileText, expectedText, isImplement, needInferType = false)
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    runTest(methodName, fileText, expectedText, isImplement, settings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
   def testTypeAlias() {
@@ -886,11 +888,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val methodName: String = "foo"
     val isImplement = false
 
-    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
-    TypeAnnotationSettings.noTypeAnnotationForPublic(getProjectAdapter)
-    TypeAnnotationSettings.noTypeAnnotationForOverride(getProjectAdapter)
-
-    runTest(methodName, fileText, expectedText, isImplement, needInferType = false)
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+   
+    runTest(methodName, fileText, expectedText, isImplement,
+      settings = TypeAnnotationSettings.noTypeAnnotationForPublic(TypeAnnotationSettings.noTypeAnnotationForOverride(settings)))
   }
 
   def testImplicitParams() {
@@ -944,9 +945,9 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val methodName: String = "foo"
     val isImplement = true
 
-    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
-    TypeAnnotationSettings.noTypeAnnotationForProtected(getProjectAdapter)
-    runTest(methodName, fileText, expectedText, isImplement, needInferType = false)
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    
+    runTest(methodName, fileText, expectedText, isImplement, settings = TypeAnnotationSettings.noTypeAnnotationForProtected(settings))
   }
 
   def testProtectedMethodNoBody() {

@@ -167,10 +167,16 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       case tm: ScAliasMember =>
         ScalaPsiElementFactory.getOverrideImplementTypeSign(tm.getElement,
           tm.substitutor, "this.type", needsOverride = false)
-      case _: ScValueMember | _: ScVariableMember =>
-        val comment = Option(classMember.getElement.getDocComment).map(_.getText).getOrElse("")
-        val memner = ScalaGenerationInfo.createVariable(comment, classMember)
-        memner.text
+      case member: ScValueMember =>
+        val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
+          member.element.getManager,needsOverrideModifier = false ,isVal = false)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        variable.getText
+      case member: ScVariableMember =>
+        val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
+          member.element.getManager,needsOverrideModifier = false ,isVal = false)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        variable.getText
       case _ => " "
     }
 

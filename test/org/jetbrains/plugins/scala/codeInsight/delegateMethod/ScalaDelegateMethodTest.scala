@@ -12,11 +12,13 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
  */
 class ScalaDelegateMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  def runTest(fileText: String, expectedText: String, specifyType: Boolean = true) {
+  def runTest(fileText: String, expectedText: String,
+              defaultSettings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
-    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
-    if (specifyType) TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone().asInstanceOf[ScalaCodeStyleSettings]
+    TypeAnnotationSettings.set(getProjectAdapter, defaultSettings)
     new ScalaGenerateDelegateHandler().invoke(getProjectAdapter, getEditorAdapter, getFileAdapter)
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings)
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 
@@ -362,10 +364,8 @@ class ScalaDelegateMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapt
         |  def foo[S >: AnyRef](x: Int) = d.foo[S](x)
         |}"""
 
-    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
-    TypeAnnotationSettings.noTypeAnnotationForPublic(getProjectAdapter)
-
-    runTest(text, result, specifyType = false)
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    runTest(text, result, defaultSettings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
   def testNoTypeParamWithReturn() {

@@ -8,6 +8,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -32,7 +33,8 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
 
   def folderPath: String = baseRootPath() + "introduceField/"
 
-  protected def doTest(specifyTypeExplicitly: Boolean = true) {
+  protected def doTest(settings: ScalaCodeStyleSettings
+                       = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -63,7 +65,8 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
       case idx: Int => fileText.charAt(idx + selectedClassNumberMarker.length).toString.toInt
     }
 
-    if (specifyTypeExplicitly) TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
+    TypeAnnotationSettings.set(getProjectAdapter, settings)
 
     //start to inline
     try {
@@ -98,6 +101,8 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
         assertTrue("Test result must be in last comment statement.", false)
         ""
     }
+    
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res)
   }
 }

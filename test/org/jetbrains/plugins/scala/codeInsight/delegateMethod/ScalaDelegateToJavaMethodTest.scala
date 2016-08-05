@@ -5,6 +5,7 @@ import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
 import org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler
+import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 import org.junit.Assert._
 
@@ -18,13 +19,17 @@ class ScalaDelegateToJavaMethodTest  extends JavaCodeInsightFixtureTestCase {
     moduleBuilder.addJdk(IdeaTestUtil.getMockJdk14Path.getPath)
   }
 
-  def runTest(javaText: String, scalaText: String, expectedText: String, specifyRetType: Boolean = true) {
+  def runTest(javaText: String, scalaText: String, expectedText: String,
+              codeStyleSettings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))) {
     def clean(s: String): String = s.replace("\r", "").stripMargin.trim
 
     myFixture.addFileToProject("JavaClass.java", clean(javaText))
     val scalaFile = myFixture.configureByText("ScalaDummy.scala", clean(scalaText))
-    if (specifyRetType) TypeAnnotationSettings.alwaysAddType(getProject)
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProject).clone().asInstanceOf[ScalaCodeStyleSettings]
+    TypeAnnotationSettings.set(getProject, codeStyleSettings)
     new ScalaGenerateDelegateHandler().invoke(myFixture.getProject, myFixture.getEditor, scalaFile)
+    TypeAnnotationSettings.set(getProject, oldSettings)
+    println(oldSettings.asInstanceOf[ScalaCodeStyleSettings].OVERRIDING_METHOD_TYPE_ANNOTATION)
     assertEquals(clean(expectedText), clean(scalaFile.getText))
   }
 
@@ -180,10 +185,10 @@ class ScalaDelegateToJavaMethodTest  extends JavaCodeInsightFixtureTestCase {
         |  def foo[T]() = d.foo[T]()
         |}"""
 
-    TypeAnnotationSettings.alwaysAddType(getProject)
-    TypeAnnotationSettings.noTypeAnnotationForPublic(getProject)
 
-    runTest(javaText, scalaText, result, specifyRetType = false)
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
+    
+    runTest(javaText, scalaText, result, TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
   def template() {

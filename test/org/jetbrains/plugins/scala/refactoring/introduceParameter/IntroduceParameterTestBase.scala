@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
@@ -71,7 +72,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
     val paramName = getSetting(nameMarker, "param")
     val isDefaultParam = getSetting(defaultMarker, "false").toBoolean
     val toPrimaryConstructor = getSetting(constructorMarker, "false").toBoolean
-
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
     //start to inline
     try {
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
@@ -103,7 +104,8 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
               descriptor.parameters, isDefaultParam)
 
             changeInfo.introducedParameterData = Some(data)
-            TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
+            TypeAnnotationSettings.set(getProjectAdapter,
+              TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
             new ScalaChangeSignatureProcessor(project, changeInfo).run()
           }
         }
@@ -123,6 +125,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
         assertTrue("Test result must be in last comment statement.", false)
         ""
     }
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res.trim)
   }
 }

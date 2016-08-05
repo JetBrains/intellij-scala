@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package refactoring.extractMethod
 
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 
 /**
@@ -11,9 +12,8 @@ class ScalaExtractMethodInnerClass extends ScalaExtractMethodTestBase {
   override def folderPath: String = super.folderPath + "innerClass/"
 
   def testNoReturnSeveralOutput() = {
-    TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
-    TypeAnnotationSettings.noTypeAnnotationForPublic(getProjectAdapter)
-    doTest(specifyReturnType = false)
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    doTest(settings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
   def testReturnSeveralOutput1() = doTest()

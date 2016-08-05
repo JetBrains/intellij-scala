@@ -50,10 +50,11 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
                        newName: String,
                        newReturnType: String,
                        newParams: => Seq[Seq[ParameterInfo]],
-                       inferReturnType: Boolean = true) {
+                       settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
     val testName = getTestName(false)
 
-    if (inferReturnType) TypeAnnotationSettings.alwaysAddType(getProjectAdapter)
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
+    TypeAnnotationSettings.set(getProjectAdapter, settings)
 
     val secondName = secondFileName(testName)
     val checkSecond = secondName != null
@@ -72,6 +73,8 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
     PostprocessReformattingAspect.getInstance(getProjectAdapter).doPostponedFormatting()
 
     val mainAfterText = getTextFromTestData(mainFileAfterName(testName))
+    
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(mainAfterText, getFileAdapter.getText)
 
     if (checkSecond) {

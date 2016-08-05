@@ -4,6 +4,7 @@ package codeInsight.intentions.implementAbstract
 import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 
 /**
@@ -34,10 +35,10 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |class AA extends A {
         |  override def f = $START???$END
         |}"""
-
-    TypeAnnotationSettings.alwaysAddType(getProject)
-    TypeAnnotationSettings.noTypeAnnotationForPublic(getProject)
-
+    
+    TypeAnnotationSettings.set(getProject,
+      TypeAnnotationSettings.noTypeAnnotationForPublic(TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))))
+    
     doTest(text, result)
   }
 
@@ -59,8 +60,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |class AA extends A {
         |  override def f: Int = $START???$END
         |}"""
-
-    TypeAnnotationSettings.alwaysAddType(getProject)
+  
+    TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     doTest(text, result)
   }
 
@@ -82,8 +83,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |class AA extends A[Int] {
         |  override def f: Int = $START???$END
         |}"""
-
-    TypeAnnotationSettings.alwaysAddType(getProject)
+  
+    TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     doTest(text, result)
   }
 
@@ -96,8 +97,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |
         |class AA extends A
       """
-
-    TypeAnnotationSettings.alwaysAddType(getProject)
+  
+    TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     checkIntentionIsNotAvailable(text)
   }
 
@@ -119,8 +120,8 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |class AA extends A {
         |  override def f: Unit = $START???$END
         |}"""
-
-    TypeAnnotationSettings.alwaysAddType(getProject)
+  
+    TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     doTest(text, result)
   }
 
