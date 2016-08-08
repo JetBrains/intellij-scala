@@ -3,13 +3,12 @@ package annotator
 
 import _root_.junit.framework.Assert._
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.SbtIvyResolver
 
 
 /**
@@ -18,7 +17,7 @@ import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
  */
 class DependencyAnnotatorTest extends AnnotatorTestBase {
 
-  val testResolver = new SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/%s/sbt/resolvers/testRepository" format TestUtils.getTestDataPath)
+  val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
 
   def testDoNotAnnotateIndexedDep() =
     doTest(Seq.empty)
@@ -42,8 +41,7 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
 
   override def setUp() = {
     super.setUp()
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
-    SbtResolverIndexesManager().update(Seq(testResolver))
+
 
     val moduleManager = Option(ModuleManager.getInstance(getProject))
     moduleManager.foreach { manager =>
@@ -52,11 +50,11 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
         SbtModule.setResolversTo(module, resolvers + testResolver)
       }
     }
+    testResolver.getIndex.doUpdate()(getProject)
   }
 
   override def tearDown() = {
     super.tearDown()
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
   }
 
   private def doTest(messages: Seq[Message]) {

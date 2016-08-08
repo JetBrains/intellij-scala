@@ -2,8 +2,9 @@ package org.jetbrains.sbt
 package lang.completion
 
 import com.intellij.openapi.module.ModuleManager
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.SbtIvyResolver
 
 /**
  * @author Nikolay Obedin
@@ -11,11 +12,11 @@ import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
  */
 class CompletionDependenciesTest extends CompletionTestBase {
 
-  val testResolver = new SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/%s/sbt/resolvers/testRepository" format baseRootPath)
+  val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
 
   override def setUp() = {
     super.setUp()
-    SbtResolverIndexesManager().update(Seq(testResolver))
+    testResolver.getIndex.doUpdate()(getProjectAdapter)
     val moduleManager = Option(ModuleManager.getInstance(getProjectAdapter))
     moduleManager.foreach { manager =>
       manager.getModules.toSeq.foreach { module =>
@@ -25,10 +26,7 @@ class CompletionDependenciesTest extends CompletionTestBase {
     }
   }
 
-  def testCompleteArtifact() =
-    doTest()
-  def testCompleteGroup() =
-    doTest()
-  def testCompleteVersion() =
-    doTest()
+  def testCompleteArtifact()  = doTest()
+  def testCompleteGroup()     = doTest()
+  def testCompleteVersion()   = doTest()
 }

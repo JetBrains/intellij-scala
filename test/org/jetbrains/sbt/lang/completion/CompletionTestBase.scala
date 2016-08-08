@@ -10,7 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{LightVirtualFile, UsefulTestCase}
 import org.jetbrains.plugins.scala.lang.completion
-import org.jetbrains.sbt.resolvers.SbtResolverIndexesManager
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 
 /**
  * @author Nikolay Obedin
@@ -57,12 +57,12 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
     super.setUpWithoutScalaLib()
     addSbtAsModuleDependency(getModuleAdapter)
     inWriteAction(StartupManager.getInstance(getProjectAdapter).asInstanceOf[StartupManagerImpl].startCacheUpdate())
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
+    FileUtil.delete(ResolverIndex.DEFAULT_INDEXES_DIR)
   }
 
   override def tearDown(): Unit = {
     super.tearDown()
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
+    FileUtil.delete(ResolverIndex.DEFAULT_INDEXES_DIR)
   }
 }
 

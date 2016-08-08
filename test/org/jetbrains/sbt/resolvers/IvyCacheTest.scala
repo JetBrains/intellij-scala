@@ -10,19 +10,21 @@ import com.intellij.openapi.util.SystemInfo
 class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   def testIndexUpdate() = {
-    val testIndex = createAndUpdateIndex(
-      new SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "/%s/sbt/resolvers/testIvyCache" format rootPath))
-    assertIndexContentsEquals(testIndex, Set("org.jetbrains"), Set("test-one", "test-two"), Set("0.0.1", "0.0.2"))
+    implicit val p = getProject
+    val resolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format rootPath)
+    resolver.getIndex.doUpdate()
+    assertIndexContentsEquals(resolver.getIndex, Set("org.jetbrains"), Set("test-one", "test-two"), Set("0.0.1", "0.0.2"))
   }
 
   def testNonExistentIndexUpdate() = {
+    implicit val p = getProject
     if (SystemInfo.isWindows)
       assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","C:\\non-existent-dir"))) {
-        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "C:\\non-existent-dir"))
+        new SbtIvyResolver("Test repo", "C:\\non-existent-dir").getIndex.doUpdate()
       }
     else
       assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","/non-existent-dir"))) {
-        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "/non-existent-dir"))
+        new SbtIvyResolver("Test repo", "/non-existent-dir").getIndex.doUpdate()
       }
   }
 }

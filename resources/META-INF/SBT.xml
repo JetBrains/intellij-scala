@@ -13,6 +13,9 @@
         <component>
             <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.sbt.resolvers.SbtResolversManager</implementation-class>
+        </component>
     </project-components>
 
     <application-components>
@@ -67,7 +70,7 @@
         <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
             order="first, before liveTemplates" id="sbtCompletionContributor"/>
-        <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtDependencyCompletionContributor"
+        <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"
                                 order="first, before sbtCompletionContributor" />
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher, before scalaClassesCompletionWeigher"/>

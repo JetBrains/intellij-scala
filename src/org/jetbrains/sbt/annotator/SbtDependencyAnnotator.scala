@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceEx
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.NotificationUtil
-import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
-import org.jetbrains.sbt.resolvers.{ResolverException, SbtResolverIndexesManager, SbtResolverUtils}
+import org.jetbrains.sbt.annotator.quickfix.SbtRefreshProjectQuickFix
+import org.jetbrains.sbt.resolvers.{ResolverException, SbtResolverUtils}
 
 /**
  * @author Nikolay Obedin
@@ -25,30 +25,31 @@ class SbtDependencyAnnotator extends Annotator {
     try {
       doAnnotate(element, holder)
     } catch {
-      case _: ResolverException =>
+      case exc: ResolverException =>
         // TODO: find another way to notify user instead of spamming with notifications
         // NotificationUtil.showMessage(null, exc.getMessage)
     }
 
   private def doAnnotate(element: PsiElement, holder: AnnotationHolder): Unit = {
 
+    implicit val p = element.getProject
+
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
 
     def findDependencyOrAnnotate(info: ArtifactInfo): Unit = {
-      val resolversToUse = SbtResolverUtils.getProjectResolvers(Option(ScalaPsiUtil.fileContext(element)))
-      val indexManager = SbtResolverIndexesManager()
-      val indexes = resolversToUse.flatMap(indexManager.find).toSet
+      val resolversToUse = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(element)))
+      val indexes = resolversToUse.map(_.getIndex)
       if (indexes.isEmpty) return
 
       val isInRepo = {
         if (isDynamicVersion(info.version))
-          indexes.exists(_.versions(info.group, info.artifact).nonEmpty)
+          indexes.exists(_.searchVersion(info.group, info.artifact).nonEmpty)
         else
-          indexes.exists(_.versions(info.group, info.artifact).contains(info.version))
+          indexes.exists(_.searchVersion(info.group, info.artifact).contains(info.version))
       }
       if (!isInRepo) {
         val annotation = holder.createErrorAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
-        annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
+//        annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
         annotation.registerFix(new SbtRefreshProjectQuickFix)
       }
     }

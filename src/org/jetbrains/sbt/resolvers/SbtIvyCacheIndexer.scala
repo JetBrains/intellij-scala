@@ -3,8 +3,6 @@ package resolvers
 
 import java.io.{File, FilenameFilter}
 
-import org.apache.maven.index.ArtifactInfo
-
 import scala.xml.XML
 
 /**
@@ -32,7 +30,7 @@ class SbtIvyCacheIndexer(val cacheDir: File) {
       val group    = (xml \\ "ivy-module" \\ "info" \\ "@organisation").text
       val artifact = (xml \\ "ivy-module" \\ "info" \\ "@module").text
       val version  = (xml \\ "ivy-module" \\ "info" \\ "@revision").text
-      Some(new ArtifactInfo("", group, artifact, version, "", ""))
+      Some(ArtifactInfo(group, artifact, version))
     } catch {
       case _: Throwable => None
     }
