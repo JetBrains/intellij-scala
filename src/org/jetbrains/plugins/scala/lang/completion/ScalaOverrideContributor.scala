@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
   * Created by kate
@@ -147,32 +148,35 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false): String = {
-    val needsInferType = ScalaGenerationInfo.needsInferType
     val text: String = classMember match {
       case mm: ScMethodMember =>
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
         val fun = if (full)
           ScalaPsiElementFactory.createOverrideImplementMethod(mm.sign, mm.getElement.getManager,
-            needsOverrideModifier = true, needsInferType = needsInferType: Boolean, mBody)
+            needsOverrideModifier = true, mBody)
         else ScalaPsiElementFactory.createMethodFromSignature(mm.sign, mm.getElement.getManager,
-          needsInferType = needsInferType, mBody)
+          needsInferType = true, mBody)
 
         val comment = fun.getDocComment
 
         if (comment != null) {
           comment.delete()
         }
-
+        TypeAnnotationUtil.removeTypeAnnotationIfNeed(fun)
         fun.getText
       case tm: ScAliasMember =>
         ScalaPsiElementFactory.getOverrideImplementTypeSign(tm.getElement,
           tm.substitutor, "this.type", needsOverride = false)
-      case value: ScValueMember =>
-        ScalaPsiElementFactory.getOverrideImplementVariableSign(value.element, value.substitutor, "_",
-          needsOverride = false, isVal = true, needsInferType = needsInferType)
-      case variable: ScVariableMember =>
-        ScalaPsiElementFactory.getOverrideImplementVariableSign(variable.element, variable.substitutor, "_",
-          needsOverride = false, isVal = false, needsInferType = needsInferType)
+      case member: ScValueMember =>
+        val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
+          member.element.getManager,needsOverrideModifier = false ,isVal = false)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        variable.getText
+      case member: ScVariableMember =>
+        val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
+          member.element.getManager,needsOverrideModifier = false ,isVal = false)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        variable.getText
       case _ => " "
     }
 

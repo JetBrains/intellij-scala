@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
  * Nikolay.Tropin
@@ -59,15 +60,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
         myMember = added
         TypeAdjuster.markToAdjust(added)
       case _: ScValueMember | _: ScVariableMember =>
-        val isVal = classMember match {case _: ScValueMember => true case _: ScVariableMember => false}
-        val value = classMember match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
-        val (substitutor, needsOverride) = classMember match {
-          case x: ScValueMember => (x.substitutor, x.isOverride)
-          case x: ScVariableMember => (x.substitutor, x.isOverride)
-        }
-        val addOverride = needsOverride || toAddOverrideToImplemented
-        val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
-          addOverride, isVal, needsInferType, comment)
+        val m: ScMember = createVariable(comment, classMember)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
         TypeAdjuster.markToAdjust(added)
@@ -214,15 +207,35 @@ object ScalaGenerationInfo {
       }
     }
 
-    val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, needsInferType, body)
+    val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, body)
+    TypeAnnotationUtil.removeTypeAnnotationIfNeed(m)
     val added = td.addMember(m, Option(anchor))
     TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
   }
 
+  def createVariable(comment: String, classMember: ClassMember): ScMember = {
+    val isVal = classMember match {
+      case _: ScValueMember => true
+      case _: ScVariableMember => false
+    }
+    val value = classMember match {
+      case x: ScValueMember => x.element
+      case x: ScVariableMember => x.element
+    }
+    val (substitutor, needsOverride) = classMember match {
+      case x: ScValueMember => (x.substitutor, x.isOverride)
+      case x: ScVariableMember => (x.substitutor, x.isOverride)
+    }
+    val addOverride = needsOverride || toAddOverrideToImplemented
+    val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
+      addOverride, isVal, comment)
+
+    TypeAnnotationUtil.removeTypeAnnotationIfNeed(m)
+    m
+  }
+
   def toAddOverrideToImplemented: Boolean =
     if (ApplicationManager.getApplication.isUnitTestMode) false
     else ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED
-
-  def needsInferType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
 }

@@ -23,11 +23,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -38,7 +37,6 @@ import java.util.LinkedHashMap;
  * Date: 01.07.2008
  */
 public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDialog {
-  private JCheckBox myExplicitTypeChb;
   private JCheckBox myDefineVarChb;
   private JCheckBox myReplaceAllChb;
   private JComboBox myTypeComboBox;
@@ -55,7 +53,8 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private JPanel visibilityPanel;
   private JTextField protectedTextField;
   private JTextField privateTextField;
-  private JButton buttonOK;
+    private JPanel myLinkContainer;
+    private JButton buttonOK;
   public String myEnteredName;
 
   private Project project;
@@ -79,6 +78,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.validator = ifc.validator();
     this.mySettings = settings;
 
+    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project));
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
@@ -117,11 +117,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   public ScType getSelectedType() {
-    if (!myExplicitTypeChb.isSelected()) {
-      return null;
-    } else {
-      return myTypeMap.get(myTypeComboBox.getSelectedItem());
-    }
+    return myTypeMap.get(myTypeComboBox.getSelectedItem());
   }
 
   private void bindToSettings(final IntroduceFieldContext ifc) {
@@ -145,14 +141,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       @Override
       public void stateChanged(ChangeEvent e) {
         mySettings.setReplaceAll(myReplaceAllChb.isSelected());
-        readSettings();
-      }
-    });
-
-    myExplicitTypeChb.addChangeListener(new ChangeListener() {
-      @Override
-      public void stateChanged(ChangeEvent e) {
-        mySettings.setExplicitType(myExplicitTypeChb.isSelected());
         readSettings();
       }
     });
@@ -218,8 +206,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myReplaceAllChb.setFocusable(false);
     myDefineVarChb.setMnemonic(KeyEvent.VK_V);
     myDefineVarChb.setFocusable(false);
-    myExplicitTypeChb.setMnemonic(KeyEvent.VK_T);
-    myExplicitTypeChb.setFocusable(false);
     myNameLabel.setLabelFor(myNameComboBox);
     myTypeLabel.setLabelFor(myTypeComboBox);
 
@@ -258,12 +244,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       }
     }
 
-    myExplicitTypeChb.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent event) {
-        myTypeComboBox.setEnabled(myExplicitTypeChb.isSelected());
-      }
-    });
-
     if (occurrencesCount > 1) {
       myReplaceAllChb.setText(myReplaceAllChb.getText() + " (" + occurrencesCount + " occurrences)");
     }
@@ -284,13 +264,11 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   private void readSettings() {
-    myExplicitTypeChb.setEnabled(mySettings.explicitTypeChbEnabled());
     myDefineVarChb.setEnabled(mySettings.defineVarChbEnabled());
     myInitInDeclarationRB.setEnabled(mySettings.initInDeclarationEnabled());
     myInitInLocalScopeRB.setEnabled(mySettings.initLocallyEnabled());
     myReplaceAllChb.setEnabled(mySettings.replaceAllChbEnabled());
 
-    myExplicitTypeChb.setSelected(mySettings.explicitType());
     myDefineVarChb.setSelected(mySettings.defineVar());
     myInitInDeclarationRB.setSelected(mySettings.initInDeclaration());
     myInitInLocalScopeRB.setSelected(!mySettings.initInDeclaration());
@@ -356,8 +334,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void saveSettings() {
     ScalaApplicationSettings scalaSettings = ScalaApplicationSettings.getInstance();
-    if (myExplicitTypeChb.isEnabled())
-      scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE = myExplicitTypeChb.isSelected();
     if (myDefineVarChb.isEnabled())
       scalaSettings.INTRODUCE_FIELD_IS_VAR = myDefineVarChb.isSelected();
     if (myReplaceAllChb.isEnabled())
@@ -408,17 +384,12 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+    panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    myExplicitTypeChb = new JCheckBox();
-    myExplicitTypeChb.setText("Specify type explicitly");
-    myExplicitTypeChb.setMnemonic('T');
-    myExplicitTypeChb.setDisplayedMnemonicIndex(8);
-    panel1.add(myExplicitTypeChb, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
-    panel1.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    panel1.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     final JPanel panel2 = new JPanel();
     panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -496,6 +467,9 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     final TitledSeparator titledSeparator2 = new TitledSeparator();
     titledSeparator2.setText("Initialize in");
     panel4.add(titledSeparator2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myLinkContainer = new JPanel();
+    myLinkContainer.setLayout(new BorderLayout(0, 0));
+    contentPane.add(myLinkContainer, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**

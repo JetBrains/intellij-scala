@@ -3,7 +3,7 @@ package p
 class Test {}
 
 object O {
-  def m() {
+  def m() = {
     val test: Test = /*start*/new Test()/*end*/
   }
 }
@@ -13,7 +13,7 @@ package p
 class Test {}
 
 object O {
-  def m(param: Test) {
+  def m(param: Test): Unit = {
     val test: Test = /*start*/param/*end*/
   }
 }

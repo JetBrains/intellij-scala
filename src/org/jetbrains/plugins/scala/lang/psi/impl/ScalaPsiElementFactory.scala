@@ -665,9 +665,9 @@ object ScalaPsiElementFactory {
     function
   }
 
-  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager, needsOverrideModifier: Boolean,
-                                    needsInferType: Boolean, body: String): ScFunction = {
-    val fun = createMethodFromSignature(sign, manager, needsInferType, body)
+  def createOverrideImplementMethod(sign: PhysicalSignature, manager: PsiManager,
+                                    needsOverrideModifier: Boolean, body: String): ScFunction = {
+    val fun = createMethodFromSignature(sign, manager, needsInferType = true, body)
     addModifiersFromSignature(fun, sign, needsOverrideModifier)
   }
 
@@ -683,9 +683,8 @@ object ScalaPsiElementFactory {
   }
 
   def createOverrideImplementVariable(variable: ScTypedDefinition, substitutor: ScSubstitutor, manager: PsiManager,
-                                      needsOverrideModifier: Boolean, isVal: Boolean, needsInferType: Boolean,
-                                      comment: String = ""): ScMember = {
-    val text = s"class a {$comment ${getOverrideImplementVariableSign(variable, substitutor, "_", needsOverrideModifier, isVal, needsInferType)}}"
+                                      needsOverrideModifier: Boolean, isVal: Boolean, comment: String = ""): ScMember = {
+    val text = s"class a {$comment ${getOverrideImplementVariableSign(variable, substitutor, "_", needsOverrideModifier, isVal, needsInferType = true)}}"
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -894,7 +893,8 @@ object ScalaPsiElementFactory {
     val keyword = if (isVal) "val " else "var "
     val name = variable.name
     val colon = if (ScalaNamesUtil.isIdentifier(name + ":")) " : " else ": "
-    val typeText = substitutor.subst(variable.getType(TypingContext.empty).getOrAny).canonicalText
+    val typeText = if (needsInferType)
+      substitutor.subst(variable.getType(TypingContext.empty).getOrAny).canonicalText else ""
     s"$overrideText$modifiersText$keyword$name$colon$typeText = $body"
   }
 

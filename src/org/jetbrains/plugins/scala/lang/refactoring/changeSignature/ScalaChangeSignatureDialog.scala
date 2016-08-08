@@ -27,8 +27,9 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
@@ -36,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
@@ -60,10 +62,20 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))
+
+    var withReturnType = needTypeAnnotation(method.getMethod, getVisibility)
+
     val changeInfo =
-      new ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs)
+      ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, withReturnType)
 
     new ScalaChangeSignatureProcessor(project, changeInfo)
+  }
+    
+  override def createCenterPanel(): JComponent = {
+    val panel = super.createCenterPanel()
+    val typeAnnorationsSettings = TypeAnnotationUtil.createTypeAnnotationsHLink(project)
+    panel.add(typeAnnorationsSettings, BorderLayout.AFTER_LAST_LINE)
+    panel
   }
   
   override def createNorthPanel(): JComponent = {
@@ -168,6 +180,31 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     new ScalaChangeSignatureRowEditor(scalaItem, this)
   }
 
+  def needTypeAnnotation(element: PsiElement, visibilityString: String): Boolean = {
+    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
+
+    val visibility =
+      if (visibilityString.contains("private")) TypeAnnotationUtil.Private
+      else if (visibilityString.contains("protected")) TypeAnnotationUtil.Protected
+      else TypeAnnotationUtil.Public
+
+    val isOverride = TypeAnnotationUtil.isOverriding(element)
+
+    val isSimple =
+      element match {
+        case funcDef: ScFunctionDefinition =>
+          funcDef.body.exists(TypeAnnotationUtil.isSimple)
+        case _=> false
+      }
+
+    TypeAnnotationUtil.addTypeAnnotation(
+      TypeAnnotationUtil.requirementForMethod(TypeAnnotationUtil.isLocal(element), visibility, settings = settings),
+      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
+      settings.SIMPLE_METHOD_TYPE_ANNOTATION,
+      isOverride,
+      isSimple
+    )
+  }
 
   override def calculateSignature(): String = {
     def nameAndType(item: ScalaParameterTableModelItem) = {
@@ -177,10 +214,11 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
     def itemText(item: ScalaParameterTableModelItem) = item.keywordsAndAnnotations + nameAndType(item)
 
+    val visibility = getVisibility
     val prefix = method.fun match {
       case fun: ScFunction =>
         val name = if (!fun.isConstructor) getMethodName else "this"
-        s"$getVisibility def $name"
+        s"$visibility def $name"
       case pc: ScPrimaryConstructor => s"class ${pc.getClassNameText} $getVisibility"
       case _ => ""
     }
@@ -188,7 +226,12 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
     val retTypeText = returnTypeText
 
-    val typeAnnot = if (retTypeText.isEmpty) "" else s": $retTypeText"
+    val needType = if (method.returnTypeText != retTypeText) true else needTypeAnnotation(method.getMethod, visibility)
+
+    val typeAnnot =
+      if (retTypeText.isEmpty || !needType) ""
+      else s": $retTypeText"
+
     s"$prefix$paramsText$typeAnnot"
   }
 

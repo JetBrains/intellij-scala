@@ -9,7 +9,7 @@ object test {
 object test {
   foo(1)
 
-  def foo(param: Int) = {
+  def foo(param: Int): Int = {
     /*start*/param/*end*/ + 2
   }
 }

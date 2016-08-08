@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeSuggester;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings;
 import org.jetbrains.plugins.scala.project.package$;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
@@ -81,6 +83,10 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
     Project project = getProject();
+    Object oldSettings = ScalaCodeStyleSettings.getInstance(getProject()).clone();
+
+    TypeAnnotationSettings.set(getProject(), TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject())));
+
     final SyntheticClasses syntheticClasses = project.getComponent(SyntheticClasses.class);
     if (!syntheticClasses.isClassesRegistered()) {
       syntheticClasses.registerClasses();
@@ -190,6 +196,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       myEditor = null;
     }
 
+    TypeAnnotationSettings.set(getProject(), ((ScalaCodeStyleSettings) oldSettings));
     return result;
   }
 
@@ -198,6 +205,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     setSettings();
     String fileText = data[0];
     final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
+
     return processFile(psiFile);
   }
 

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -26,15 +26,16 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Sorting
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 11.01.2010
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 11.01.2010
+  */
 
 object ScalaExtractMethodUtils {
   def createMethodFromSettings(settings: ScalaExtractMethodSettings)
@@ -48,12 +49,13 @@ object ScalaExtractMethodUtils {
       typedName(param.oldName, param.tp.canonicalText, param.fromElement.getProject, param.isCallByNameParameter)
 
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
-    val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ",")") else ""
+    val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ", ")") else ""
 
     val project = settings.elements(0).getProject
     val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val retType =
-      if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
+      if (!addTypeAnnotation(settings.nextSibling, settings.visibility)) " = "
+      else if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
       else s": ${settings.calcReturnTypeText} ="
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map { p =>
@@ -138,7 +140,7 @@ object ScalaExtractMethodUtils {
         ref.bind() match {
           case Some(ScalaResolveResult(named: PsiNamedElement, _: ScSubstitutor)) =>
             if (named.getContainingFile == method.getContainingFile && named.getTextOffset < offset &&
-                    !named.name.startsWith("_")) {
+              !named.name.startsWith("_")) {
               val oldName = named.name
               var break = false
               for (param <- settings.parameters if !break) {
@@ -185,8 +187,8 @@ object ScalaExtractMethodUtils {
         element match {
           case named: PsiNamedElement if named != method && named.getTextOffset < offset =>
             settings.parameters.find(p => p.oldName == named.name)
-                    .filter(p => p.oldName != p.newName)
-                    .foreach(p => bindTo += ((named, p.newName)))
+              .filter(p => p.oldName != p.newName)
+              .foreach(p => bindTo += ((named, p.newName)))
           case _ =>
         }
         super.visitElement(element)
@@ -220,13 +222,13 @@ object ScalaExtractMethodUtils {
   }
 
   /**
-   * @return returnTypePresentableText
-   */
+    * @return returnTypePresentableText
+    */
   def calcReturnType(settings: ScalaExtractMethodSettings): String = calcReturnTypeExt(settings)._2
 
   /**
-   * @return (isUnit, returnTypePresentableText)
-   */
+    * @return (isUnit, returnTypePresentableText)
+    */
   def calcReturnTypeExt(settings: ScalaExtractMethodSettings): (Boolean, String) = {
     def prepareResult(t: ScType) = {
       val isUnit = t == api.Unit
@@ -281,8 +283,8 @@ object ScalaExtractMethodUtils {
   }
 
   /**
-   * methods for Unit tests
-   */
+    * methods for Unit tests
+    */
   def getParameters(myInput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodParameter] = {
     var buffer: ArrayBuffer[VariableData] = new ArrayBuffer[VariableData]
     for (input <- myInput) {
@@ -295,7 +297,9 @@ object ScalaExtractMethodUtils {
       list += ExtractMethodParameter.from(d.asInstanceOf[ScalaVariableData])
     }
     val res = list.toArray
-    Sorting.stableSort[ExtractMethodParameter](res, (p1: ExtractMethodParameter, p2: ExtractMethodParameter) => {p1.oldName < p2.oldName})
+    Sorting.stableSort[ExtractMethodParameter](res, (p1: ExtractMethodParameter, p2: ExtractMethodParameter) => {
+      p1.oldName < p2.oldName
+    })
     res
   }
 
@@ -315,6 +319,25 @@ object ScalaExtractMethodUtils {
     s"$name$colon$byNameArrow$typeText"
   }
 
+  def addTypeAnnotation(nextElement: PsiElement, visibilityString: String): Boolean = {
+    val isLocal = TypeAnnotationUtil.isLocal(nextElement)
+
+    val isSimple = nextElement match {
+      case func: ScFunctionDefinition =>
+        func.body.exists(TypeAnnotationUtil.isSimple)
+      case _ => false
+    }
+
+    val settings = ScalaCodeStyleSettings.getInstance(nextElement.getProject)
+    TypeAnnotationUtil.addTypeAnnotation(
+      TypeAnnotationUtil.requirementForMethod(isLocal, TypeAnnotationUtil.visibilityFromString(visibilityString), settings),
+      settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
+      settings.SIMPLE_METHOD_TYPE_ANNOTATION,
+      isOverride = false, // don't override in current refactoring
+      isSimple = isSimple
+    )
+  }
+
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
     def nameAndType(param: ExtractMethodParameter): String =
       this.typedName(param.newName, param.tp.presentableText, param.fromElement.getProject, param.isCallByNameParameter)
@@ -327,11 +350,16 @@ object ScalaExtractMethodUtils {
     val prefix = s"${visibility}def $methodName"
     val typeParamsText = typeParametersText(settings)
     val paramsText = settings.parameters
-            .filter(_.passAsParameter)
-            .map(p => nameAndType(p))
-            .mkString("(", s", ", ")")
-    val returnTypeText = calcReturnType(settings)
-    s"$classText$prefix$typeParamsText$paramsText: $returnTypeText"
+      .filter(_.passAsParameter)
+      .map(p => nameAndType(p))
+      .mkString("(", s", ", ")")
+
+    val base = s"$classText$prefix$typeParamsText$paramsText"
+
+    val returnTypeText = if (addTypeAnnotation(settings.nextSibling, settings.visibility))
+      base + ": " + calcReturnType(settings) else base
+
+    returnTypeText
   }
 
   def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch)
@@ -362,7 +390,7 @@ object ScalaExtractMethodUtils {
     val mFreshName = generateFreshName(settings.methodName + "Result")
 
     val params = settings.parameters.filter(_.passAsParameter)
-            .map(param => parameterText(param) + (if (param.isFunction) " _" else ""))
+      .map(param => parameterText(param) + (if (param.isFunction) " _" else ""))
 
     val paramsText = if (params.nonEmpty) params.mkString("(", ", ", ")") else ""
     val methodCallText = s"${settings.methodName}$paramsText"
@@ -393,9 +421,9 @@ object ScalaExtractMethodUtils {
           case Some(_) =>
             val arrow = ScalaPsiUtil.functionArrow(manager.getProject)
             s"""$methodCallText match {
-                 |  case Some(toReturn) $arrow return toReturn
-                 |  case None $arrow
-                 |}""".stripMargin.replace("\r", "")
+               |  case Some(toReturn) $arrow return toReturn
+               |  case None $arrow
+               |}""".stripMargin.replace("\r", "")
         }
         insertExpression(exprText)
       }
@@ -418,14 +446,14 @@ object ScalaExtractMethodUtils {
           case None => methodCallText
           case Some(api.Unit) =>
             s"""$methodCallText match {
-                  |  case Some(result) $arrow result
-                  |  case None $arrow return
-                  |}""".stripMargin.replace("\r", "")
+               |  case Some(result) $arrow result
+               |  case None $arrow return
+               |}""".stripMargin.replace("\r", "")
           case Some(_) =>
             s"""$methodCallText match {
-                  |  case Left(toReturn) $arrow return toReturn
-                  |  case Right(result) $arrow result
-                  |}""".stripMargin.replace("\r", "")
+               |  case Left(toReturn) $arrow return toReturn
+               |  case Right(result) $arrow result
+               |}""".stripMargin.replace("\r", "")
         }
         val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, manager)
         val declaration = ScalaPsiElementFactory.createDeclaration(pattern, "", isVariable = !isVal, expr, manager)
@@ -435,7 +463,7 @@ object ScalaExtractMethodUtils {
       }
     }
 
-    def insertAssignsFromMultipleReturn(element: PsiElement){
+    def insertAssignsFromMultipleReturn(element: PsiElement) {
       if (!needExtractorsFromMultipleReturn) return
 
       var lastElem: PsiElement = element

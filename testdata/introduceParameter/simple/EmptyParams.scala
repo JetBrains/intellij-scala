@@ -1,8 +1,8 @@
-def foo {
+def foo = {
   /*start*/1/*end*/
 }
 /*
-def foo(param: Int) {
+def foo(param: Int): Int = {
   /*start*/param/*end*/
 }
 */

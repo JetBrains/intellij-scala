@@ -7,10 +7,11 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -69,14 +70,27 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   }
 
   protected def handleReturnTypeChange(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): Unit = {
-    val element = usage.namedElement
-    if (!change.isReturnTypeChanged) return
 
-    val substType: ScType = UsageUtil.returnType(change, usage) match {
-      case Some(result) => result
-      case None => return
+    def addType(element: ScNamedElement, oldTypeElem: Option[ScTypeElement], substType: ScType): Unit = {
+      val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(substType.canonicalText, element.getManager)
+
+      oldTypeElem match {
+        case Some(te) =>
+          val replaced = te.replace(newTypeElem)
+          TypeAdjuster.markToAdjust(replaced)
+        case None =>
+          val (context, anchor) = ScalaPsiUtil.nameContext(element) match {
+            case f: ScFunction => (f, f.paramClauses)
+            case p: ScPatternDefinition => (p, p.pList)
+            case v: ScVariableDefinition => (v, v.pList)
+            case cp: ScClassParameter => (cp.getParent, cp)
+            case ctx => (ctx, ctx.getLastChild)
+          }
+          AddOnlyStrategy.withoutEditor.addTypeAnnotation(substType, context, anchor)
+      }
     }
-    val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(substType.canonicalText, element.getManager)
+
+    val element = usage.namedElement
 
     val oldTypeElem = element match {
       case fun: ScFunction => fun.returnTypeElement
@@ -85,20 +99,25 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case cp: ScClassParameter => cp.typeElement
       case _ => None
     }
-    oldTypeElem match {
-      case Some(te) =>
-        val replaced = te.replace(newTypeElem)
-        TypeAdjuster.markToAdjust(replaced)
-      case None =>
-        val (context, anchor) = ScalaPsiUtil.nameContext(element) match {
-          case f: ScFunction => (f, f.paramClauses)
-          case p: ScPatternDefinition => (p, p.pList)
-          case v: ScVariableDefinition => (v, v.pList)
-          case cp: ScClassParameter => (cp.getParent, cp)
-          case ctx => (ctx, ctx.getLastChild)
-        }
-        AddOnlyStrategy.withoutEditor.addTypeAnnotation(substType, context, anchor)
+
+    val addTypeAnnotation = change match {
+      case scalaInfo: ScalaChangeInfo => scalaInfo.addTypeAnnotation
+      case _ => true
     }
+
+    val substType: ScType = UsageUtil.returnType(change, usage) match {
+      case Some(result) => result
+      case None => return
+    }
+
+    if (!change.isReturnTypeChanged)
+      addTypeAnnotation match {
+        case true if oldTypeElem.isEmpty => addType(element, oldTypeElem, substType)
+        case false if oldTypeElem.isDefined => AddOnlyStrategy.withoutEditor.removeTypeAnnotation(oldTypeElem.get)
+        case _ =>
+      }
+    else
+      addType(element, oldTypeElem, substType)
   }
 
   protected def handleParametersUsage(change: ChangeInfo, usage: ParameterUsageInfo): Unit = {

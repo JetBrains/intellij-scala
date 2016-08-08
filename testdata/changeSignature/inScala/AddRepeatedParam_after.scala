@@ -6,5 +6,5 @@ class AddRepeatedParams {
 }
 
 class AddRepeatedParamsTest extends AddRepeatedParams {
-  override def foo(i: Int, b: Boolean, xs: Int*) = super.foo(i = 1, b = false, 1)
+  override def foo(i: Int, b: Boolean, xs: Int*): Int = super.foo(i = 1, b = false, 1)
 }
