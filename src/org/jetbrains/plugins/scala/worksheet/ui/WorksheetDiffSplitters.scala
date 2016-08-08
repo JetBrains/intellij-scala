@@ -2,19 +2,20 @@ package org.jetbrains.plugins.scala
 package worksheet.ui
 
 import java.awt._
-import java.awt.event.{MouseWheelEvent, MouseEvent, MouseAdapter}
+import java.awt.event.{MouseAdapter, MouseEvent}
 import java.lang.ref.WeakReference
 import java.util
 import javax.swing.JComponent
 
 import com.intellij.openapi.diff.impl._
 import com.intellij.openapi.diff.impl.highlighting.FragmentSide
-import com.intellij.openapi.diff.impl.incrementalMerge.ChangeList
+import com.intellij.openapi.diff.impl.incrementalMerge._
 import com.intellij.openapi.diff.impl.splitter._
+import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.event.{VisibleAreaEvent, VisibleAreaListener}
-import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -37,7 +38,7 @@ object WorksheetDiffSplitters {
     private val left = new WeakReference(originalEditor)
     private val right = new WeakReference(viewerEditor)
 
-    private lazy val lineBlocks = createLineBlocks(originalEditor.getDocument, viewerEditor.getDocument, originalEditor.getProject)
+    private lazy val lineBlocks = createLineBlocks(originalEditor.getDocument, viewerEditor.getDocument.getLineCount, originalEditor.getProject)
 
     override def getEditor(side: FragmentSide): Editor = side match {
       case FragmentSide.SIDE1 => left.get()
@@ -48,8 +49,33 @@ object WorksheetDiffSplitters {
   }
 
 
-  private def createLineBlocks(original: Document, viewer: Document, project: Project) =
-    ChangeList.build(original, viewer, project).getLineBlocks
+  private def createLineBlocks(original: Document, viewerSize: Int, project: Project) = {
+    val originalSize = original.getLineCount
+    val minSize = Math.min(originalSize, viewerSize)
+    
+    val originalFake = StringBuilder.newBuilder
+    val viewerFake = StringBuilder.newBuilder
+    val random = new java.util.Random
+    
+    for (i <- 0 until minSize) {
+      val line = random.nextInt().toString
+      
+      originalFake.append(line).append("\n")
+      viewerFake.append(if (i % 2 == 0) line else random.nextInt.toString).append("\n")
+    }
+    
+    if (originalSize > viewerSize) 
+      viewerFake.append(StringUtil.repeat("_\n", originalSize - viewerSize))
+    else if (originalSize < viewerSize) 
+      originalFake.append(StringUtil.repeat("_\n", viewerSize - originalSize))
+
+    val factory = EditorFactory.getInstance
+
+    val originalDoc = factory.createDocument(originalFake.toString())
+    val viewerDoc = factory.createDocument(viewerFake.toString())
+
+    ChangeList.build(originalDoc, viewerDoc, project).getLineBlocks
+  }
 
   private def getVisibleInterval(editor: Editor) = {
     val line = editor.xyToLogicalPosition(new Point(0, editor.getScrollingModel.getVerticalScrollOffset)).line
@@ -80,6 +106,8 @@ object WorksheetDiffSplitters {
     private val visibleAreaListener = new VisibleAreaListener {
       override def visibleAreaChanged(e: VisibleAreaEvent): Unit = redrawDiffs()
     }
+    
+    editor1.getScrollingModel.addVisibleAreaListener(getVisibleAreaListener)
 
     def getIntervals: Iterable[(Int, Int)] = intervals
 
