@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import javax.swing.{JCheckBox, JComponent}
+import java.awt.BorderLayout
+import javax.swing.{JComponent, JPanel}
 
 import com.intellij.ide.util.MemberChooser
 import com.intellij.psi.PsiClass
 import com.intellij.ui.NonFocusableCheckBox
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
 
@@ -25,15 +27,23 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
         extends {
           val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
           val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
-          private val checkboxes = Array[JComponent](addOverrideModifierChb, copyScalaDocChb)
+          
+          val typeAnnotationLinkHolder = new JPanel()
+          val typeAnnotationsSettings = TypeAnnotationUtil.createTypeAnnotationsHLink(targetClass.getProject)
+          
+          private val otherComponents = Array[JComponent](addOverrideModifierChb, copyScalaDocChb, typeAnnotationLinkHolder)
           private val sortedElements = ScalaMemberChooser.sorted(elements, targetClass)
-        } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, checkboxes) {
-
+          
+        } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, otherComponents) {
+  
   addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
   addOverrideModifierChb.setVisible(needAddOverrideChb)
 
   copyScalaDocChb.setSelected(ScalaApplicationSettings.getInstance().COPY_SCALADOC)
   copyScalaDocChb.setVisible(needCopyScalaDocChb)
+    
+  typeAnnotationLinkHolder.setLayout(new BorderLayout)
+  typeAnnotationLinkHolder.add(typeAnnotationsSettings)
 
   override def doOKAction(): Unit = {
     ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED = addOverrideModifierChb.isSelected

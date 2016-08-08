@@ -8,10 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.refactoring.HelpID;
-import com.intellij.ui.EditorComboBoxEditor;
-import com.intellij.ui.EditorComboBoxRenderer;
-import com.intellij.ui.EditorTextField;
-import com.intellij.ui.StringComboboxEditor;
+import com.intellij.ui.*;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -25,9 +22,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -53,6 +53,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   private int occurrencesCount;
   private ScalaVariableValidator validator;
   private String[] possibleNames;
+  private JPanel myLinkContainer;
 
   private LinkedHashMap<String, ScType> myTypeMap = null;
   private EventListenerList myListenerList = new EventListenerList();
@@ -60,7 +61,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   private static final String REFACTORING_NAME = ScalaBundle.message("introduce.variable.title");
 
 
-  public ScalaIntroduceVariableDialog(Project project,
+  public ScalaIntroduceVariableDialog(final Project project,
                                       ScType[] myTypes,
                                       int occurrencesCount,
                                       ScalaVariableValidator validator,
@@ -72,6 +73,8 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     this.validator = validator;
     this.possibleNames = possibleNames;
     setUpNameComboBox(possibleNames);
+
+    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project));
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
@@ -238,7 +241,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -273,6 +276,9 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     myNameComboBox = new ComboBox();
     myNameComboBox.setEditable(true);
     panel3.add(myNameComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myLinkContainer = new JPanel();
+    myLinkContainer.setLayout(new BorderLayout(0, 0));
+    contentPane.add(myLinkContainer, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**

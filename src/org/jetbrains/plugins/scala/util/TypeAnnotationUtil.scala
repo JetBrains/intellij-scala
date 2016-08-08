@@ -1,15 +1,24 @@
 package org.jetbrains.plugins.scala.util
 
+import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
+
+import com.intellij.application.options.CodeStyleSchemesConfigurable
+import com.intellij.application.options.codeStyle.CodeStyleMainPanel
+import com.intellij.ide.actions.ShowSettingsUtilImpl
+import com.intellij.openapi.options.ex.ConfigurableVisitor
+import com.intellij.openapi.options.{Configurable, ConfigurableGroup, ShowSettingsUtil}
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
   * Created by kate on 7/14/16.
@@ -160,5 +169,42 @@ object TypeAnnotationUtil {
       TypeAnnotationUtil.Protected
     else TypeAnnotationUtil.Public
   }
+  
+  def showTypeAnnotationsSettings(project: Project): Unit = {
+    val groups: Array[ConfigurableGroup] = ShowSettingsUtilImpl.getConfigurableGroups(project, true)
+    
+    val visitor = new ConfigurableVisitor.ByID("preferences.sourceCode.Scala")
+    val configurable: Configurable = visitor.find(groups: _*)
+        
+    assert(configurable != null, "Cannot find configurable: " + classOf[CodeStyleSchemesConfigurable].getName)
+    
+    ShowSettingsUtil.getInstance.editConfigurable(project, configurable, new Runnable() {
+      def run() {
+        val codeStyleMainPanel: CodeStyleMainPanel = configurable.createComponent.asInstanceOf[CodeStyleMainPanel]
+        assert(codeStyleMainPanel != null, "Cannot find Code Style main panel")
 
+        codeStyleMainPanel.getPanels.headOption.foreach { panel =>
+          val selectedPanel = panel.getSelectedPanel
+          assert(selectedPanel != null)
+          selectedPanel match {
+            case tab: ScalaTabbedCodeStylePanel => tab.changeTab("Type Annotations")
+            case _ =>
+          }
+        }
+      }
+    })
+  }
+  
+  def createTypeAnnotationsHLink(project: Project): HyperlinkLabel = {
+    val typeAnnotationsSettings: HyperlinkLabel = new HyperlinkLabel("Modify Type Annotations settings")
+    typeAnnotationsSettings.addHyperlinkListener(new HyperlinkListener() {
+      def hyperlinkUpdate(e: HyperlinkEvent) {
+        if (e.getEventType eq HyperlinkEvent.EventType.ACTIVATED) {
+          showTypeAnnotationsSettings(project)
+        }
+      }
+    })
+    
+    typeAnnotationsSettings
+  }
 }

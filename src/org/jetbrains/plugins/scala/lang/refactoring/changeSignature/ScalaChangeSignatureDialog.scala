@@ -30,8 +30,6 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
@@ -72,7 +70,14 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
     new ScalaChangeSignatureProcessor(project, changeInfo)
   }
-
+    
+  override def createCenterPanel(): JComponent = {
+    val panel = super.createCenterPanel()
+    val typeAnnorationsSettings = TypeAnnotationUtil.createTypeAnnotationsHLink(project)
+    panel.add(typeAnnorationsSettings, BorderLayout.AFTER_LAST_LINE)
+    panel
+  }
+  
   override def createNorthPanel(): JComponent = {
     val panel = super.createNorthPanel()
     getMethodName match {

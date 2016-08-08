@@ -23,11 +23,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -54,7 +53,8 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private JPanel visibilityPanel;
   private JTextField protectedTextField;
   private JTextField privateTextField;
-  private JButton buttonOK;
+    private JPanel myLinkContainer;
+    private JButton buttonOK;
   public String myEnteredName;
 
   private Project project;
@@ -78,6 +78,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.validator = ifc.validator();
     this.mySettings = settings;
 
+    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project));
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
@@ -383,7 +384,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -466,6 +467,9 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     final TitledSeparator titledSeparator2 = new TitledSeparator();
     titledSeparator2.setText("Initialize in");
     panel4.add(titledSeparator2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myLinkContainer = new JPanel();
+    myLinkContainer.setLayout(new BorderLayout(0, 0));
+    contentPane.add(myLinkContainer, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**

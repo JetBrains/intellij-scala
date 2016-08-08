@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeAnnotation
 
-import com.intellij.application.options.CodeStyleSchemesConfigurable
 import com.intellij.codeInspection.{LocalQuickFixBase, ProblemDescriptor, ProblemsHolder}
-import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation}
@@ -93,8 +91,7 @@ class TypeAnnotationInspection extends AbstractInspection {
 
   private class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {
     def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit = {
-      // TODO Select the Scala / Type Annotations page
-      ShowSettingsUtil.getInstance().showSettingsDialog(project, classOf[CodeStyleSchemesConfigurable])
+      TypeAnnotationUtil.showTypeAnnotationsSettings(project)
     }
   }
 }

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 import scala.Option;
 
 import javax.swing.*;
@@ -58,8 +59,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private JTextField innerClassNameFld;
   private JPanel visibilityPanelKeeper;
   private JPanel multipleOutputPanelKeeper;
+    private JPanel myLinkContainer;
 
-  private boolean isDefaultClassName = true;
+    private boolean isDefaultClassName = true;
   private final MethodSignatureComponent mySignaturePreview;
 
   private ScalaExtractMethodSettings settings = null;
@@ -77,7 +79,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private boolean isInitialized = false;
 
-  public ScalaExtractMethodDialog(Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
+  public ScalaExtractMethodDialog(final Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
                                   PsiElement sibling, VariableInfo[] input, VariableInfo[] output,
                                   Option<ScType> lastMeaningful) {
     super(project, true);
@@ -92,6 +94,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.SCALA_FILE_TYPE);
     //mySignaturePreview.setPreferredSize(new Dimension(500, 70));
     mySignaturePreview.setMinimumSize(new Dimension(500, 70));
+
+    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project));
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
@@ -360,7 +364,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(7, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(8, 1, new Insets(0, 0, 0, 0), -1, -1));
     methodNamePanel = new JPanel();
     methodNamePanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(methodNamePanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -451,6 +455,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     final TitledSeparator titledSeparator4 = new TitledSeparator();
     titledSeparator4.setText("Signature preview");
     contentPane.add(titledSeparator4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myLinkContainer = new JPanel();
+    myLinkContainer.setLayout(new BorderLayout(0, 0));
+    contentPane.add(myLinkContainer, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**
