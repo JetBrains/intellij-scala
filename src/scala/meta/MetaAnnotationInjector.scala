@@ -1,15 +1,25 @@
 package scala.meta
 
+import java.io.IOException
+
 import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
+
 class MetaAnnotationInjector extends SyntheticMembersInjector {
+
+  var lastResult: Tree = _
+
   override def injectMembers(source: ScTypeDefinition): Seq[String] = {
-    import scala.meta._
     val annot = source.annotations.find(_.isMetaAnnotation)
     if (annot.nonEmpty) {
-      val result = MacroExpandAction.runMetaAnnotation(annot.get)
+      val result = try {
+        MacroExpandAction.runMetaAnnotation(annot.get)
+      } catch {
+        case _: IOException | _: ClassNotFoundException => lastResult
+      }
+      lastResult = result
       result match {
         case Defn.Object(mods, name, templ) =>
           templ.stats
