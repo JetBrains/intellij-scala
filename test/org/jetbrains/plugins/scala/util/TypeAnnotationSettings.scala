@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.refactoring.util
+package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationRequirement}

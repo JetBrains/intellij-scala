@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldContext, IntroduceFieldSettings, ScalaIntroduceFieldFromExpressionHandler}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, TypeAnnotationSettings}
-import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationSettings, TypeAnnotationUtil}
 import org.junit.Assert._
 
 /**

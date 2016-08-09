@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
   * Created by kate

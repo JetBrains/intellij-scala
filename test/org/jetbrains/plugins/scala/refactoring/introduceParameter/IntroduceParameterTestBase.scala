@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, TypeAnnotationSettings}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.ScalaUtils
+import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationSettings}
 
 /**
  * @author Alexander Podkhalyuzin

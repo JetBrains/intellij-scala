@@ -18,8 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import org.jetbrains.plugins.scala.util.{TypeAnnotationSettings, TypeAnnotationUtil}
 import org.junit.Assert._
 
 /**

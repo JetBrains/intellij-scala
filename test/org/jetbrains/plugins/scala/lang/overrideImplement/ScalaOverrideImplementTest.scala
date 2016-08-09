@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
  * @author Alefas
