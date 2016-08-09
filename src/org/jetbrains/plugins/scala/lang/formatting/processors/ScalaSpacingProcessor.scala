@@ -9,12 +9,12 @@ import com.intellij.formatting.Spacing
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
@@ -119,6 +120,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightElementType = rightNode.getElementType
     val leftPsi = leftNode.getPsi
     val rightPsi = rightNode.getPsi
+    val elementTypes = leftPsi.getProject.elementTypes
     val fileTextRange = new TextRange(0, fileText.length())
 
     /**
@@ -1190,7 +1192,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         NO_SPACING
       //Imports
       case (ScalaElementTypes.IMPORT_STMT, ScalaElementTypes.IMPORT_STMT, _, _) => IMPORT_BETWEEN_SPACING
-      case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.FILE, _) => DOUBLE_LINE
+      case (ScalaElementTypes.IMPORT_STMT, _, elementTypes.`file`, _) => DOUBLE_LINE
       case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.PACKAGING, _) => DOUBLE_LINE
       case (ScalaElementTypes.IMPORT_STMT, _, _, _) => IMPORT_BETWEEN_SPACING
       //Dot
