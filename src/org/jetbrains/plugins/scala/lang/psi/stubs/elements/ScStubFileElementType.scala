@@ -8,7 +8,7 @@ import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, StubBuilder}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScDeserializedStubImpl
 
 /**
  * @author ilyas
@@ -29,8 +29,10 @@ class ScStubFileElementType(val debugName: String = "file",
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
-    new ScFileStubImpl(null,
-      dataStream.readBoolean,
+    deserialize(dataStream)
+
+  protected def deserialize(dataStream: StubInputStream): ScDeserializedStubImpl =
+    new ScDeserializedStubImpl(dataStream.readBoolean,
       dataStream.readBoolean,
       dataStream.readName,
       dataStream.readName)
