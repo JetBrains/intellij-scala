@@ -10,6 +10,7 @@ import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -29,7 +30,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
   */
 class ScalaOverrideContributor extends ScalaCompletionContributor {
   private def registerOverrideCompletion(filter: ElementFilter, keyword: String) {
-    extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+    extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
       and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))),
         new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), filter)))),
       new CompletionProvider[CompletionParameters] {
@@ -39,7 +40,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       })
   }
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
     and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter(".")))))), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
       def checkIfElementIsAvailable(element: PsiElement, clazz: ScTemplateDefinition): Boolean = {
