@@ -23,9 +23,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeSuggester;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings;
 import org.jetbrains.plugins.scala.project.package$;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings;
 import org.junit.Assert;
 import scala.Option;
 import scala.Some;

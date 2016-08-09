@@ -5,7 +5,7 @@ import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert
 
 /**

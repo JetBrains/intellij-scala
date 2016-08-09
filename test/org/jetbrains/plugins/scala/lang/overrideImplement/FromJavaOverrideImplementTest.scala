@@ -5,8 +5,8 @@ import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertEquals
 
 /**

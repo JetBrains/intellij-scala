@@ -13,7 +13,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
 
 /**

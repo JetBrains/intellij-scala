@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package refactoring.extractMethod
 
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.refactoring.util.TypeAnnotationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
  * Nikolay.Tropin
