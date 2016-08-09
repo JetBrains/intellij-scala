@@ -3,16 +3,18 @@ package lang
 package psi
 package stubs
 package elements
+
 import com.intellij.lang.Language
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiElement, StubBuilder}
+import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
 
 class ScStubFileElementType(val debugName: String = "file",
                             language: Language = ScalaLanguage.Instance)
@@ -29,11 +31,26 @@ class ScStubFileElementType(val debugName: String = "file",
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
-    new ScFileStubImpl(null,
-      dataStream.readBoolean,
-      dataStream.readBoolean,
-      dataStream.readName,
-      dataStream.readName)
+    deserializedStub(dataStream.readBoolean, dataStream.readBoolean,
+      dataStream.readName, dataStream.readName)
+
+  protected def deserializedStub(isScript: Boolean,
+                                 isCompiled: Boolean,
+                                 packageNameRef: StringRef,
+                                 sourceNameRef: StringRef): DeserializedStubImpl =
+    new DeserializedStubImpl(isScript, isCompiled,
+      packageNameRef, sourceNameRef)
+
+  protected class DeserializedStubImpl(val isScript: Boolean,
+                                       val isCompiled: Boolean,
+                                       packageNameRef: StringRef,
+                                       sourceNameRef: StringRef)
+    extends AbstractFileStub(null) {
+    override def packageName = StringRef.toString(packageNameRef)
+
+    override def sourceName = StringRef.toString(sourceNameRef)
+  }
+
 }
 
 object StubVersion {

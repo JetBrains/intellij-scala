@@ -17,7 +17,6 @@ import com.intellij.util.containers.ContainerUtil;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -79,7 +78,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     PsiBuilder psiBuilder = PsiBuilderFactory.getInstance()
             .createBuilder(parserDefinition, parserDefinition.createLexer(project), fileText);
     DragBuilderWrapper dragBuilder = new DragBuilderWrapper(project, psiBuilder);
-    parserDefinition.createParser(project).parse(ScalaElementTypes.FILE(), dragBuilder);
+    parserDefinition.createParser(project).parse(parserDefinition.getFileNodeType(), dragBuilder);
 
     Pair<TextRange, Integer>[] dragInfo = dragBuilder.getDragInfo();
     exploreForDrags(dragInfo);

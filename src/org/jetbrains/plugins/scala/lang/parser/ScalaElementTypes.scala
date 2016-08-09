@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassPa
   *
   */
 object ScalaElementTypes extends ElementTypes {
+  override val file = new ScStubFileElementType
   override val classDefinition = new ScClassDefinitionElementType
   override val objectDefinition = new ScObjectDefinitionElementType
   override val traitDefinition = new ScTraitDefinitionElementType
@@ -42,6 +43,44 @@ object ScalaElementTypes extends ElementTypes {
   val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScExistentialClauseImpl(node)
   }
+
+  val IDENTIFIER_LIST = new ScIdListElementType
+  val FIELD_ID = new ScFieldIdElementType
+  val IMPORT_SELECTOR = new ScImportSelectorElementType
+  val IMPORT_SELECTORS = new ScImportSelectorsElementType
+  val IMPORT_EXPR = new ScImportExprElementType
+  val IMPORT_STMT = new ScImportStmtElementType
+  val VALUE_DECLARATION: ScValueElementType[_ <: ScValue] = new ScValueDeclarationElementType
+  val VARIABLE_DECLARATION: ScVariableElementType[_ <: ScVariable] = new ScVariableDeclarationElementType
+  val FUNCTION_DECLARATION: ScFunctionElementType[_ <: ScFunction] = new ScFunctionDeclarationElementType
+  val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
+  val PATTERN_DEFINITION: ScValueElementType[_ <: ScValue] = new ScValueDefinitionElementType
+  val PATTERN_LIST = new ScPatternListElementType
+  val VARIABLE_DEFINITION: ScVariableElementType[_ <: ScVariable] = new ScVariableDefinitionElementType
+  val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
+  val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
+  val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType
+  val MACRO_DEFINITION = new ScMacroDefinitionElementType
+  val MODIFIERS = new ScModifiersElementType("moifiers")
+  val ACCESS_MODIFIER = new ScAccessModifierElementType
+  val ANNOTATION = new ScAnnotationElementType
+  val ANNOTATIONS = new ScAnnotationsElementType
+  val REFERENCE_PATTERN = new ScReferencePatternElementType
+  val BLOCK_EXPR = new ScCodeBlockElementType
+  val PACKAGING = new ScPackagingElementType
+  val EXTENDS_BLOCK = new ScExtendsBlockElementType
+  val CLASS_PARENTS = new ScClassParentsElementType
+  val TRAIT_PARENTS = new ScTraitParentsElementType
+  val TEMPLATE_BODY = new ScTemplateBodyElementType
+  val NEW_TEMPLATE = new ScNewTemplateDefinitionStubElementType
+  val PARAM = new ScParameterElementType
+  val PARAM_CLAUSE = new ScParamClauseElementType
+  val PARAM_CLAUSES = new ScParamClausesElementType
+  val CLASS_PARAM = new ScClassParameterElementType
+  val TYPE_PARAM_CLAUSE = new ScTypeParamClauseElementType
+  val TYPE_PARAM = new ScTypeParamElementType
+  val SELF_TYPE = new ScSelfTypeElementElementType
+  val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
 }
 
 trait ElementTypes {
@@ -49,60 +88,27 @@ trait ElementTypes {
 
 
   //Stub element types
-  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType
+  val file: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]]
 
   val classDefinition: ScTemplateDefinitionElementType[ScClass]
   val objectDefinition: ScTemplateDefinitionElementType[ScObject]
   val traitDefinition: ScTemplateDefinitionElementType[ScTrait]
 
-  val PACKAGING = new ScPackagingElementType
-  val EXTENDS_BLOCK = new ScExtendsBlockElementType
-
-  val CLASS_PARENTS = new ScClassParentsElementType
-  val TRAIT_PARENTS = new ScTraitParentsElementType
   val CONSTRUCTOR = new ScalaElementType("constructor", true) with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstructorImpl(node)
   }
 
   val TEMPLATE = new ScalaElementType("template", true)
-  val TEMPLATE_BODY = new ScTemplateBodyElementType
-
 
   val REQUIRES_BLOCK = new ScalaElementType("requires block") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScRequiresBlockImpl(node)
   }
-  val NEW_TEMPLATE = new ScNewTemplateDefinitionStubElementType
-
-
-  /** ***********************************************************************************/
-  /** *********************** PARAMETERS OF CLASS AND FUNCTIONS *************************/
-  /** ***********************************************************************************/
 
   val PARAM_TYPE = new ScalaElementType("parameter type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScParameterTypeImpl(node)
   }
-  val PARAM = new ScParameterElementType
-  val PARAM_CLAUSE = new ScParamClauseElementType
-  val PARAM_CLAUSES = new ScParamClausesElementType
-
-  /** ********** class ***************/
-  val CLASS_PARAM = new ScClassParameterElementType
-
-  /** ***********************************************************************************/
-  /** *********************** TYPE PARAMETERS OF CLASS AND FUNCTIONS *************************/
-  /** ***********************************************************************************/
-  val TYPE_PARAM_CLAUSE = new ScTypeParamClauseElementType
-
-  /** ********** class ***************/
   val VARIANT_TYPE_PARAM = new ScalaElementType("variant parameter of type")
-
-  /** ********** function *************/
-  val TYPE_PARAM = new ScTypeParamElementType
   val TYPE_PARAMS = new ScalaElementType("parameters of type")
-
-  /** ***********************************************************************************/
-  /** ************************************ TYPES ****************************************/
-  /** ***********************************************************************************/
   val SIMPLE_TYPE = new ScalaElementType("simple type")
   val INFIX_TYPE = new ScalaElementType("infix type")
   val TYPE = new ScalaElementType("common type")
@@ -111,7 +117,6 @@ trait ElementTypes {
   }
   val TYPE_ARGS = new ScalaElementType("type arguments")
   val ANNOT_TYPE = new ScalaElementType("annotation type")
-  val SELF_TYPE = new ScSelfTypeElementElementType
   val WILDCARD_TYPE = new ScalaElementType("wildcard type")
   val ASCRIPTION = new ScalaElementType("ascription") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScAscriptionImpl(node)
@@ -120,63 +125,21 @@ trait ElementTypes {
   val TYPE_IN_PARENTHESIS = new ScalaElementType("type in parenthesis") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScParenthesisedTypeElementImpl(node)
   }
-  val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
   val TYPE_PROJECTION = new ScalaElementType("type projection")
   val TYPE_GENERIC_CALL = new ScalaElementType("type generic call")
   val SEQUENCE_ARG = new ScalaElementType("sequence argument type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScSequenceArgImpl(node)
   }
   val TYPE_VARIABLE = new ScalaElementType("type variable")
-
-  /** ***********************************************************************************/
-  /** ********************************* IDENTIFIER **************************************/
-  /** ***********************************************************************************/
-
   val UNIT_EXPR = new ScalaElementType("unit expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScUnitExprImpl(node)
   }
-  val IDENTIFIER_LIST = new ScIdListElementType
-  val FIELD_ID = new ScFieldIdElementType
   val REFERENCE = new ScalaElementType("reference") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScStableCodeReferenceElementImpl(node)
   }
-
-  /** ***********************************************************************************/
-  /** ******************************* IMPORT GROUP **************************************/
-  /** ***********************************************************************************/
-
-  val IMPORT_SELECTOR = new ScImportSelectorElementType
-  val IMPORT_SELECTORS = new ScImportSelectorsElementType
-  val IMPORT_EXPR = new ScImportExprElementType
-  val IMPORT_STMT = new ScImportStmtElementType
   val IMPORT = new ScalaElementType("import")
   val STABLE_ID_LIST = new ScalaElementType("stable id list")
-
-  /** ***********************************************************************************/
-  /** ******************************* METHODS, VARIABLES and ETC ************************/
-  /** ***********************************************************************************/
   val STATEMENT_TEMPLATE = new ScalaElementType("template statement")
-
-  /** ***********************************************************************************/
-  /** ********************************** DECLARATION ************************************/
-  /** ***********************************************************************************/
-  val VALUE_DECLARATION: ScValueElementType[_ <: ScValue] = new ScValueDeclarationElementType
-  val VARIABLE_DECLARATION: ScVariableElementType[_ <: ScVariable] = new ScVariableDeclarationElementType
-  val FUNCTION_DECLARATION: ScFunctionElementType[_ <: ScFunction] = new ScFunctionDeclarationElementType
-  val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
-
-  /** ***********************************************************************************/
-  /** ********************************** DEFINITION *************************************/
-  /** ***********************************************************************************/
-  val PATTERN_DEFINITION: ScValueElementType[_ <: ScValue] = new ScValueDefinitionElementType
-  val PATTERN_LIST = new ScPatternListElementType
-  val VARIABLE_DEFINITION: ScVariableElementType[_ <: ScVariable] = new ScVariableDefinitionElementType
-  val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
-  val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
-
-  /** ************** functions *************************/
-  val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType
-  val MACRO_DEFINITION = new ScMacroDefinitionElementType
   val FUN_SIG = new ScalaElementType("function signature")
   val CONSTR_EXPR = new ScalaElementType("constructor expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstrExprImpl(node)
@@ -184,33 +147,14 @@ trait ElementTypes {
   val SELF_INVOCATION = new ScalaElementType("self invocation") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScSelfInvocationImpl(node)
   }
-
-  /** *************** types ******************/
   val LOWER_BOUND_TYPE = new ScalaElementType("lower bound type")
   val UPPER_BOUND_TYPE = new ScalaElementType("upper bound type")
-
-  /** ***********************************************************************************/
-  /** ***************************** MODIFIERS AND ATTRIBUTES ****************************/
-  /** ***********************************************************************************/
-
-  /** ***************** modifiers **********************/
-  val MODIFIERS = new ScModifiersElementType("moifiers")
-  val ACCESS_MODIFIER = new ScAccessModifierElementType
-
-  /** ***************** annotation *********************/
-
   val NAME_VALUE_PAIR = new ScalaElementType("name value pair") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScNameValuePairImpl(node)
   }
   val ANNOTATION_EXPR = new ScalaElementType("annotation expression") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScAnnotationExprImpl(node)
   }
-  val ANNOTATION = new ScAnnotationElementType
-  val ANNOTATIONS = new ScAnnotationsElementType
-
-  /** ***********************************************************************************/
-  /** ************************************ LITERALS *************************************/
-  /** ***********************************************************************************/
   val LITERAL = new ScalaElementType("Literal") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScLiteralImpl(node)
   }
@@ -289,7 +233,6 @@ trait ElementTypes {
   val ARG_EXPRS = new ScalaElementType("arguments of function") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScArgumentExprListImpl(node)
   }
-  val BLOCK_EXPR = new ScCodeBlockElementType
   val CONSTR_BLOCK = new ScalaElementType("constructor block") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstrBlockImpl(node)
   }
@@ -391,7 +334,6 @@ trait ElementTypes {
   val INTERPOLATION_PATTERN = new ScalaElementType("interpolation pattern") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScInterpolationPatternImpl(node)
   }
-  val REFERENCE_PATTERN = new ScReferencePatternElementType
   val STABLE_REFERENCE_PATTERN = new ScalaElementType("stable reference pattern") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScStableReferenceElementPatternImpl(node)
   }
