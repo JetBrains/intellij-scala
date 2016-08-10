@@ -27,4 +27,13 @@ class MissingParameterTypeTest extends BadCodeGreenTestBase {
       """.stripMargin
     doTest(text)
   }
+
+  def testScl5943(): Unit = {
+    val text =
+      s"""List("A", "B").foreach {it =>
+          |    println("it = " + ${CARET_MARKER}_)
+          |  }
+      """.stripMargin
+    doTest(text)
+  }
 }
