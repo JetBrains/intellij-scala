@@ -18,6 +18,8 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   private def cannotBeUsed(typeText: String) = s"type $typeText cannot be used in a type pattern or isInstanceOf test"
   private def patternTypeIncompatible(found: String, required: String) =
     ScalaBundle.message("pattern.type.incompatible.with.expected", found, required)
+  private def constructorCannotBeInstantiated(found: String, required: String) =
+    ScalaBundle.message("constructor.cannot.be.instantiated.to.expected.type", found, required)
 
   private def collectAnnotatorMessages(text: String): List[Message] = {
     configureFromFileTextAdapter("dummy.scala", text)
@@ -69,19 +71,19 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
 
   def testSomeConstructor(): Unit = {
     val code: String = "val Some(x) = None"
-    checkError(code, "Some(x)", patternTypeIncompatible("Some[A]", "None.type"))
+    checkError(code, "Some(x)", constructorCannotBeInstantiated("Some[A]", "None.type"))
     assertNoWarnings(code)
   }
 
   def testVectorNil(): Unit = {
     val code: String = "val Vector(a) = Nil"
-    checkError(code, "Vector(a)", patternTypeIncompatible("Vector[A]", "Nil.type"))
+    checkError(code, "Vector(a)", constructorCannotBeInstantiated("Vector[A]", "Nil.type"))
     assertNoWarnings(code)
   }
 
   def testListToPattern(): Unit = {
     val code: String = "val Vector(a) = List(1)"
-    checkError(code, "Vector(a)", patternTypeIncompatible("Vector[A]", "List[Int]"))
+    checkError(code, "Vector(a)", constructorCannotBeInstantiated("Vector[A]", "List[Int]"))
     assertNoWarnings(code)
   }
 
@@ -144,7 +146,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
 
   def testIncompatibleSomeConstructor(): Unit = {
     val code: String = "val Some(x: Int) = \"\""
-    checkError(code, "Some(x: Int)", patternTypeIncompatible("Some[A]", "String"))
+    checkError(code, "Some(x: Int)", constructorCannotBeInstantiated("Some[A]", "String"))
     assertNoWarnings(code)
   }
 
@@ -463,6 +465,42 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
       """.stripMargin
     assertNoWarnings(code)
     checkError(code, "RemoteProcessFailed(why)", ScalaBundle.message("wrong.number.arguments.extractor", "1", "2"))
+  }
+
+  def testNonFinalConstructorPattern(): Unit = {
+    val text =
+      """
+        |object Moo {
+        |  (1, 2) match {
+        |    case ScFunctionType(_) =>
+        |    case _ =>
+        |  }
+        |
+        |  object ScFunctionType {
+        |    def unapply(tp: Foo): Option[(Foo, Seq[Foo])] = ???
+        |  }
+        |}
+        |
+        |class Foo
+      """.stripMargin
+    assertNoErrors(text)
+    checkWarning(text, "ScFunctionType(_)", fruitless("(Int, Int)", "Foo"))
+  }
+
+  def testNonFinalCaseClassConstructorPattern(): Unit = {
+    val code =
+      """
+        |object Moo {
+        |  (1, 2) match {
+        |    case ScFunctionType(_) =>
+        |    case _ =>
+        |  }
+        |}
+        |case class ScFunctionType(a: Foo, b: Seq[Foo])
+        |class Foo
+      """.stripMargin
+    assertNoWarnings(code)
+    checkError(code, "ScFunctionType(_)", constructorCannotBeInstantiated("ScFunctionType", "(Int, Int)"))
   }
 
 }
