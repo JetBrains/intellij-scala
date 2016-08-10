@@ -106,7 +106,7 @@ class TypeAnnotationInspection extends AbstractInspection {
   private class AddTypeAnnotationQuickFix(element: PsiElement) extends AbstractFixOnPsiElement("Add type annotation", element) {
     def doApplyFix(project: Project): Unit = {
       val elem = getElement
-      new ToggleTypeAnnotation().complete(AddOnlyStrategy, elem)
+      ToggleTypeAnnotation.complete(AddOnlyStrategy, elem, None)
     }
   }
 }

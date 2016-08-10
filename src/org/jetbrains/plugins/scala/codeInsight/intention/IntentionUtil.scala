@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.codeInsight.intention
 
+import com.intellij.codeInsight.template._
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 object IntentionUtil {
   def collectComments(element: PsiElement, onElementLine: Boolean = false): CommentsAroundElement = {
@@ -47,4 +50,21 @@ object IntentionUtil {
   }
 
   case class CommentsAroundElement(before: Seq[PsiElement], after: Seq[PsiElement])
+
+  def startTemplate(elem: PsiElement, context: PsiElement, expression: Expression, editor: Editor): Unit = {
+    val project = context.getProject
+    PsiDocumentManager.getInstance(project).commitAllDocuments()
+    PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
+    val builder: TemplateBuilderImpl = new TemplateBuilderImpl(elem)
+    builder.replaceElement(elem, expression)
+    editor.getCaretModel.moveToOffset(elem.getNode.getStartOffset)
+    TemplateManager.getInstance(project).startTemplate(editor, builder.buildInlineTemplate(), new TemplateEditingAdapter {
+      override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
+        if (!brokenOff) {
+          ScalaPsiUtil.adjustTypes(context)
+        }
+        super.templateFinished(template, brokenOff)
+      }
+    })
+  }
 }
