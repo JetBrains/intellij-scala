@@ -27,15 +27,15 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       def message(key: String) {
         setText(ScalaBundle.message(key))
       }
-      complete(new Description(message), element)
+      complete(new Description(message), element, Option(editor))
     }
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    complete(AddOrRemoveStrategy, element)
+    complete(AddOrRemoveStrategy, element, Option(editor))
   }
 
-  def complete(strategy: Strategy, element: PsiElement): Boolean = {
+  def complete(strategy: Strategy, element: PsiElement, editor: Option[Editor]): Boolean = {
     for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
          if function.hasAssign
          body <- function.body
@@ -44,7 +44,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       if (function.returnTypeElement.isDefined)
         strategy.removeFromFunction(function)
       else
-        strategy.addToFunction(function)
+        strategy.addToFunction(function, editor)
 
       return true
     }
@@ -59,7 +59,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       if (value.typeElement.isDefined)
         strategy.removeFromValue(value)
       else
-        strategy.addToValue(value)
+        strategy.addToValue(value, editor)
 
       return true
     }
@@ -74,7 +74,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       if (variable.typeElement.isDefined)
         strategy.removeFromVariable(variable)
       else
-        strategy.addToVariable(variable)
+        strategy.addToVariable(variable, editor)
 
       return true
     }
@@ -92,7 +92,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
             func.expectedType() match {
               case Some(ScFunctionType(_, params)) =>
                 if (index >= 0 && index < params.length) {
-                  strategy.addToParameter(param)
+                  strategy.addToParameter(param, editor)
                   return true
                 }
               case _ =>
@@ -108,7 +108,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
           strategy.removeFromPattern(p)
           return true
         case _: ScReferencePattern =>
-          strategy.addToPattern(pattern)
+          strategy.addToPattern(pattern, editor)
           return true
         case _ =>
       }

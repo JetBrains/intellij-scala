@@ -310,3 +310,8 @@ object ScTypePresentation {
     else (t1.canonicalText.replace("_root_.", ""), t2.canonicalText.replace("_root_.", ""))
   }
 }
+
+case class ScTypeText(tp: ScType) {
+  val canonicalText = tp.canonicalText
+  val presentableText = tp.presentableText
+}

@@ -95,7 +95,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           case cp: ScClassParameter => (cp.getParent, cp)
           case ctx => (ctx, ctx.getLastChild)
         }
-        AddOnlyStrategy.addTypeAnnotation(substType, context, anchor)
+        AddOnlyStrategy.addTypeAnnotation(substType, context, anchor, None)
     }
   }
 
