@@ -183,27 +183,29 @@ object ScFunctionWrapper {
           var res = tp.name
           tp.upperTypeElement match {
             case Some(tParam) =>
-              val classes = new ArrayBuffer[PsiClass]()
+              val classes = new ArrayBuffer[String]()
               tp.upperBound.map(subst.subst) match {
                 case Success(tp: ScCompoundType, _) =>
                   tp.components.foreach {
                     case tp: ScType => ScType.extractClass(tp, Some(function.getProject)) match {
-                      case Some(clazz) => classes += clazz
+                      case Some(clazz) => classes += clazz.getQualifiedName
                       case _ =>
                     }
                   }
                 case Success(_: StdType, _) =>
                   JavaPsiFacade.getInstance(function.getProject).getElementFactory.
                     createTypeByFQClassName("java.lang.Object", function.getResolveScope)
-                case Success(tp, _) =>
-                  ScType.extractClass(tp, Some(function.getProject)) match {
-                    case Some(clazz) => classes += clazz
+                case Success(tpt: ScTypeParameterType, _) =>
+                  classes += tpt.canonicalText
+                case Success(scType, _) =>
+                  ScType.extractClass(scType, Some(function.getProject)) match {
+                    case Some(clazz) => classes += clazz.getQualifiedName
                     case _ =>
                   }
                 case _ =>
               }
               if (classes.nonEmpty) {
-                res += classes.map(_.getQualifiedName).mkString(" extends ", " & ", "")
+                res += classes.mkString(" extends ", " & ", "")
               }
             case _ =>
           }

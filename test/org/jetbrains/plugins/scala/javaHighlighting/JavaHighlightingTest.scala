@@ -359,6 +359,26 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, javaClassName = "SCL8866A"))
   }
 
+  def testOverrideScalaFromJavaUpperBound(): Unit = {
+    val scalaCode =
+      """
+        |trait SCL5852WrapsSomething[T] {
+        |  def wrap[A <: T](toWrap: A): A
+        |}
+      """.stripMargin
+    val javaCode =
+      """
+        |public class SCL5852WrapsFoo implements SCL5852WrapsSomething<String> {
+        |    @Override
+        |    public <A extends String> A wrap(A toWrap) {
+        |        return null;
+        |    }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, javaClassName = "SCL5852WrapsFoo"))
+  }
+
   def testGenericsParameterizedInnerClass(): Unit = {
     val scalaCode =
       """
