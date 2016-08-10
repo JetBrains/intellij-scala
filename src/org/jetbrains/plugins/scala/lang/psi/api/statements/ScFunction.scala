@@ -425,11 +425,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       } {
         buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
       }
-      if (!isConstructor) {
-        val params = parameters
-        for (i <- params.indices if params(i).baseDefaultParam) {
-          buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, forDefault = Some(i + 1))
-        }
+
+      val params = parameters
+      for (i <- params.indices if params(i).baseDefaultParam) {
+        buffer += new ScFunctionWrapper(this, isStatic = isStatic || isConstructor, isInterface, cClass, forDefault = Some(i + 1))
       }
     }
     buffer.toSeq
