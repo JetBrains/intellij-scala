@@ -142,4 +142,25 @@ class PatternsTest extends TypeInferenceTestBase {
   }
 
   def testSCL9094(): Unit = doTest()
+
+  def testSCL10635(): Unit = {
+    doTest(
+      s"""
+         |  sealed trait IO[A] {
+         |    def flatMap[B](f: A => IO[B]): IO[B] =
+         |      FlatMap(this, f)
+         |  }
+         |
+         |  case class Return[A](a: A) extends IO[A]
+         |
+         |  case class FlatMap[A, B](sub: IO[A], k: A => IO[B]) extends IO[B]
+         |
+         |  def run[A](io: IO[A]): A = io match {
+         |    case FlatMap(sub, f) => sub match {
+         |      case Return(aSub) => run(f(${START}aSub$END))
+         |    }
+         |  }
+         |//Nothing
+      """.stripMargin)
+  }
 }
