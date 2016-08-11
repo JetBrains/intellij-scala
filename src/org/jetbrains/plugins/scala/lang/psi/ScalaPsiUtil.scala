@@ -1253,13 +1253,14 @@ object ScalaPsiUtil {
     }
 
     val name: String = td.name
+    val tokenSet = td.getProject.tokenSets.typeDefinitions
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-        stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
+        stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
       case file: PsiFileImpl =>
         val stub = file.getStub
         if (stub != null) {
-          file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
+          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
         } else scope.getChildren
       case _ => scope.getChildren
     }
@@ -1700,60 +1701,53 @@ object ScalaPsiUtil {
   }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
-  def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
-    if (paramOwner == null) return None
+  def syntheticParamClause(element: PsiNamedElement, paramClauses: ScParameters, classParam: Boolean, hasImplicit: Boolean): Option[ScParameterClause] =
+  Option(element).collect {
+    case parameterOwner: ScTypeParametersOwner if !hasImplicit => parameterOwner
+  }.flatMap { parameterOwner =>
+    def views(typeParameter: ScTypeParam) = typeParameter.viewTypeElement.map { typeElement =>
+      val needParenthesis = typeElement match {
+        case _: ScCompoundTypeElement |
+             _: ScInfixTypeElement |
+             _: ScFunctionalTypeElement |
+             _: ScExistentialTypeElement => true
+        case _ => false
+      }
+      val elementText = typeElement.getText.parenthesize(needParenthesis)
+      s"${typeParameter.name} ${functionArrow(typeElement.getProject)} $elementText"
+    }
 
-    var i = 0
-    def nextName(): String = {
-      i += 1
-      "ev$" + i
+    def bounds(typeParameter: ScTypeParam) = typeParameter.contextBoundTypeElement.map { typeElement =>
+      s"${typeElement.getText}[${typeParameter.name}]"
     }
-    def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
-      val views = typeParam.viewTypeElement.map {
-        vte =>
-          val needParenths = vte match {
-            case _: ScCompoundTypeElement | _: ScInfixTypeElement |
-                 _: ScFunctionalTypeElement | _: ScExistentialTypeElement => true
-            case _ => false
-          }
-          val vteText = if (needParenths) s"(${vte.getText})" else vte.getText
-          val arrow = ScalaPsiUtil.functionArrow(vte.getProject)
-          val code = s"${nextName()}: ${typeParam.name} $arrow $vteText"
-          def updateAnalog(typeElement: ScTypeElement) {
-            vte.analog = typeElement
-          }
-          (code, updateAnalog _)
-      }
-      val bounds = typeParam.contextBoundTypeElement.map {
-        (cbte: ScTypeElement) =>
-          val code = s"${nextName()}: ${cbte.getText}[${typeParam.name}]"
-          def updateAnalog(typeElement: ScTypeElement) {
-            cbte.analog = typeElement
-          }
-          (code, updateAnalog _)
-      }
-      views ++ bounds
+
+    val typeParameters = parameterOwner.typeParameters
+    val maybeText = (typeParameters.flatMap(views) ++ typeParameters.flatMap(bounds)).zipWithIndex.map {
+      case (text, index) => s"ev$$${index + 1}: $text"
+    } match {
+      case Seq() => None
+      case seq => Some(seq.mkString("(implicit ", ", ", ")"))
     }
-    val params: Seq[(String, (ScTypeElement) => Unit)] = paramOwner.typeParameters match {
-      case null => Seq()
-      case xs => xs.flatMap(synthParams)
+
+    val result = maybeText.map {
+      def createClause =
+        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext _
+        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext _
+      createClause(_, element.getManager, paramClauses)
     }
-    val clauseText = params.map(_._1).mkString(",")
-    if (params.isEmpty) None
-    else {
-      val fullClauseText: String = "(implicit " + clauseText + ")"
-      val paramClause: ScParameterClause = {
-        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
-        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+
+    result.foreach { clause =>
+      val typeElements = typeParameters.flatMap(_.viewTypeElement) ++
+        typeParameters.flatMap(_.contextBoundTypeElement)
+
+      clause.parameters.flatMap {
+        _.typeElement.toSeq
+      }.foreachWithIndex {
+        case (typeElement, index) => typeElements(index).analog = typeElement
       }
-      paramClause.parameters.foreachWithIndex {
-        (param, index) =>
-          val updateAnalog: (ScTypeElement) => Unit = params(index)._2
-          updateAnalog(param.typeElement.get)
-          ()
-      }
-      Some(paramClause)
     }
+
+    result
   }
 
   def isPossiblyAssignment(ref: PsiReference): Boolean = isPossiblyAssignment(ref.getElement)

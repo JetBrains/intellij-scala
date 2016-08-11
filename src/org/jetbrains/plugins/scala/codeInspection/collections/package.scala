@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil.isExpressionOfType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -339,33 +339,29 @@ package object collections {
   }
 
   def checkResolve(expr: ScExpression, patterns: Array[String]): Boolean = {
-    expr match {
-      case ref: ScReferenceExpression =>
-        ref.resolve() match {
-          case obj: ScObject =>
-            nameFitToPatterns(obj.qualifiedName, patterns)
-          case member: ScMember =>
-            val clazz = member.containingClass
-            if (clazz == null || clazz.qualifiedName == null) false
-            else nameFitToPatterns(clazz.qualifiedName, patterns)
-          case _ => false
-        }
-      case _ => false
+    Option(expr).collect {
+      case ref: ScReferenceExpression => ref.resolve()
+    }.flatMap {
+      case obj: ScObject => Some(obj)
+      case member: ScMember => Option(member.containingClass)
+      case _ => None
+    }.exists {
+      qualifiedNameFitToPatterns(_, patterns)
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = {
-    if (expr == null) return false
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = Option(expr).flatMap {
+    _.getType().toOption
+  }.flatMap {
+    _.tryExtractDesignatorSingleton.extractClass()(expr.typeSystem)
+  }.exists {
+    qualifiedNameFitToPatterns(_, patterns)
+  }
 
-    implicit val typeSystem = expr.typeSystem
-    expr.getType() match {
-      case Success(tp, _) =>
-        tp.tryExtractDesignatorSingleton match {
-          case ExtractClass(cl) if nameFitToPatterns(cl.qualifiedName, patterns) => true
-          case _ => false
-        }
-      case _ => false
-    }
+  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) = Option(clazz).flatMap {
+    _.qualifiedName.toOption
+  }.exists {
+    nameFitToPatterns(_, patterns)
   }
 
   def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)

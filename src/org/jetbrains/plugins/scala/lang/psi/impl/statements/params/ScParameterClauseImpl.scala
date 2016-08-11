@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 
@@ -49,7 +48,7 @@ class ScParameterClauseImpl private (stub: StubElement[ScParameterClause], nodeT
     //which is ok, it will not add anything more
     getParent match {
       case clauses: ScParameters =>
-        val typeParametersOwner: ScTypeParametersOwner =
+        val element =
           clauses.getParent match {
             case f: ScFunction => f
             case p: ScPrimaryConstructor =>
@@ -64,8 +63,8 @@ class ScParameterClauseImpl private (stub: StubElement[ScParameterClause], nodeT
           if (synthClauseModCount == modCount) return synthClause
           SYNTH_LOCK synchronized { //it's important for all calculations to have the same psi here
             if (synthClauseModCount == modCount) return synthClause
-            synthClause = ScalaPsiUtil.syntheticParamClause(typeParametersOwner, clauses,
-              typeParametersOwner.isInstanceOf[ScClass])
+            synthClause = ScalaPsiUtil.syntheticParamClause(element, clauses,
+              element.isInstanceOf[ScClass], hasImplicit = false)
             synthClauseModCount = modCount
             synthClause
           }
