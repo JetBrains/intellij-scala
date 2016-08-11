@@ -309,15 +309,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
-    if (isConstructor) {
-      containingClass match {
-        case owner: ScTypeParametersOwner =>
-          if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(owner, paramClauses, classParam = false)
-        case _ => None
-      }
-    } else {
-      if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(this, paramClauses, classParam = false)
-    }
+    ScalaPsiUtil.syntheticParamClause(if (isConstructor) containingClass else this, paramClauses, classParam = false, hasImplicit)
   }
 
   def declaredElements = Seq(this)
