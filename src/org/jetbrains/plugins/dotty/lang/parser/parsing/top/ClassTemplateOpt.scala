@@ -5,8 +5,8 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.top.template.{ClassParent
 /**
   * @author adkozlov
   */
-object ClassTemplate extends org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate {
+object ClassTemplateOpt extends org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplateOpt {
+  override protected val templateBody = TemplateBody
   override protected val earlyDef = EarlyDef
   override protected val classParents = ClassParents
-  override protected val templateBody = TemplateBody
 }
