@@ -22,7 +22,7 @@ object TraitDef extends TraitDef {
 }
 
 trait TraitDef {
-  protected val templateOpt: TraitTemplateOpt
+  protected val templateOpt: TemplateOpt
   protected val typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
