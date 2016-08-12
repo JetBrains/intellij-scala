@@ -211,6 +211,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       }
     });
 
+    publicRadioButton.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        updateSignature();
+      }
+    });
+
     protectedTextField.getDocument().addDocumentListener(new DocumentAdapter() {
       @Override
       protected void textChanged(DocumentEvent e) {
