@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import java.awt.BorderLayout
+import java.awt.FlowLayout
 import javax.swing.{JComponent, JPanel}
 
 import com.intellij.ide.util.MemberChooser
 import com.intellij.psi.PsiClass
-import com.intellij.ui.NonFocusableCheckBox
+import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
+import com.intellij.util.ui.ThreeStateCheckBox
+import com.intellij.util.ui.ThreeStateCheckBox.State
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
@@ -25,30 +27,62 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
                          needCopyScalaDocChb: Boolean,
                          targetClass: ScTemplateDefinition)
         extends {
-          val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
-          val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
-          
-          val typeAnnotationLinkHolder = new JPanel()
-          val typeAnnotationsSettings = TypeAnnotationUtil.createTypeAnnotationsHLink(targetClass.getProject)
-          
-          private val otherComponents = Array[JComponent](addOverrideModifierChb, copyScalaDocChb, typeAnnotationLinkHolder)
+          val settingsPanel = new JPanel()
+          val typePanel = new JPanel()
+   
+          private val otherComponents = Array[JComponent](settingsPanel, typePanel)
           private val sortedElements = ScalaMemberChooser.sorted(elements, targetClass)
           
         } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, otherComponents) {
   
-  addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
-  addOverrideModifierChb.setVisible(needAddOverrideChb)
-
-  copyScalaDocChb.setSelected(ScalaApplicationSettings.getInstance().COPY_SCALADOC)
-  copyScalaDocChb.setVisible(needCopyScalaDocChb)
+  
+  val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
+  val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
+  val mySpecifyTypeChb = new ThreeStateCheckBox(ScalaBundle.message("specify.return.type.explicitly"))
+  
+  setUpSettingsPanel()
+  setUpTypePanel()
     
-  typeAnnotationLinkHolder.setLayout(new BorderLayout)
-  typeAnnotationLinkHolder.add(typeAnnotationsSettings)
-
   override def doOKAction(): Unit = {
     ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED = addOverrideModifierChb.isSelected
     ScalaApplicationSettings.getInstance.COPY_SCALADOC = copyScalaDocChb.isSelected
+    
+    ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY = {
+      mySpecifyTypeChb.getState match {
+        case State.SELECTED => ScalaApplicationSettings.ReturnTypeLevel.ADD
+        case State.NOT_SELECTED => ScalaApplicationSettings.ReturnTypeLevel.REMOVE
+        case State.DONT_CARE => ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
+      }
+    }
+    
     super.doOKAction()
+  }
+  
+  private def setUpSettingsPanel(): Unit ={
+    settingsPanel.setLayout(new FlowLayout(FlowLayout.LEFT))
+    settingsPanel.add(addOverrideModifierChb)
+    settingsPanel.add(copyScalaDocChb)
+  
+    addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
+    addOverrideModifierChb.setVisible(needAddOverrideChb)
+  
+    copyScalaDocChb.setSelected(ScalaApplicationSettings.getInstance().COPY_SCALADOC)
+    copyScalaDocChb.setVisible(needCopyScalaDocChb)
+  }
+  
+  private def setUpTypePanel(): JPanel ={
+    typePanel.add(mySpecifyTypeChb)
+  
+    val myLinkContainer = new JPanel
+    typePanel.add(myLinkContainer)
+  
+    myLinkContainer.add(setUpHyperLink())
+    typePanel
+  }
+  
+  private def setUpHyperLink(): HyperlinkLabel = {
+    val link = TypeAnnotationUtil.createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
+    link
   }
 }
 

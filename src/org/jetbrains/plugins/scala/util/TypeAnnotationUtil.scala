@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel
 
 /**
   * Created by kate on 7/14/16.
@@ -142,15 +144,23 @@ object TypeAnnotationUtil {
       case fun: ScFunction => fun.returnTypeElement
       case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) => pd.typeElement
       case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) => vd.typeElement
+      case patternDefinition: ScPatternDefinition => patternDefinition.typeElement
+      case variableDefinition: ScVariableDefinition => variableDefinition.typeElement
       case _ => None
     }
   }
 
   def removeTypeAnnotationIfNeed(element: ScalaPsiElement): Unit = {
-    getTypeElement(element) match {
-      case Some(typeElement) if !addTypeAnnotation(element) =>
-        AddOnlyStrategy.withoutEditor.removeTypeAnnotation(typeElement)
-      case _ =>
+    val state = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
+  
+    state match {
+      case ReturnTypeLevel.ADD => //nothing
+      case ReturnTypeLevel.REMOVE | ReturnTypeLevel.BY_CODE_STYLE =>
+        getTypeElement(element) match {
+          case Some(typeElement) if (state == ReturnTypeLevel.REMOVE) || ((state == ReturnTypeLevel.BY_CODE_STYLE) && !addTypeAnnotation(element)) =>
+            AddOnlyStrategy.withoutEditor.removeTypeAnnotation(typeElement)
+          case _ =>
+        }
     }
   }
 
@@ -195,8 +205,8 @@ object TypeAnnotationUtil {
     })
   }
   
-  def createTypeAnnotationsHLink(project: Project): HyperlinkLabel = {
-    val typeAnnotationsSettings: HyperlinkLabel = new HyperlinkLabel("Modify Type Annotations settings")
+  def createTypeAnnotationsHLink(project: Project , msg: String): HyperlinkLabel = {
+    val typeAnnotationsSettings: HyperlinkLabel = new HyperlinkLabel(msg)
     typeAnnotationsSettings.addHyperlinkListener(new HyperlinkListener() {
       def hyperlinkUpdate(e: HyperlinkEvent) {
         if (e.getEventType eq HyperlinkEvent.EventType.ACTIVATED) {

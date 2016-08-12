@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -236,7 +237,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
         new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
           ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling,
-          elements, hasReturn, lastReturn, lastExprType, innerClassSettings)
+          elements, hasReturn, ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE, lastReturn, lastExprType, innerClassSettings)
       }
     val duplicates = DuplicatesUtil.findDuplicates(settings)
     performRefactoring(settings, editor)
