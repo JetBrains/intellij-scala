@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.libraryInjector
 import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
-import com.intellij.compiler.CompilerTestUtil
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
@@ -11,7 +10,6 @@ import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil}
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -59,14 +57,6 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     override def withParent(parentName: String) = copy(name = s"$parentName/$name")
   }
 
-  override def setUp(): Unit = {
-    super.setUp()
-
-    CompilerTestUtil.enableExternalCompiler()
-    DebuggerTestUtil.setCompileServerSettings()
-    DebuggerTestUtil.forceJdk8ForBuildProcess()
-  }
-
   override def setUpModule(): Unit = {
     super.setUpModule()
     scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, myProject.getBasePath,
@@ -77,8 +67,6 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
   }
 
   protected override def tearDown() {
-    CompilerTestUtil.disableExternalCompiler(myProject)
-    CompileServerLauncher.instance.stop()
     scalaLibraryLoader.clean()
     scalaLibraryLoader = null
     super.tearDown()
