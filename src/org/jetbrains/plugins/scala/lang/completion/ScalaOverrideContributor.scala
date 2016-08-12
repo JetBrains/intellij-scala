@@ -149,6 +149,9 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false): String = {
+    ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
+      ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
+    
     val text: String = classMember match {
       case mm: ScMethodMember =>
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"

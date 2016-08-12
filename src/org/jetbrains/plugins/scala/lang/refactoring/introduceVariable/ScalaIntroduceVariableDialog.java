@@ -74,7 +74,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     this.possibleNames = possibleNames;
     setUpNameComboBox(possibleNames);
 
-    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project));
+    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings")));
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);

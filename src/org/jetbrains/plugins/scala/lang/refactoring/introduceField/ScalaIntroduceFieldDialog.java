@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
@@ -31,6 +32,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
+import java.util.ResourceBundle;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -53,8 +55,9 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private JPanel visibilityPanel;
   private JTextField protectedTextField;
   private JTextField privateTextField;
-    private JPanel myLinkContainer;
-    private JButton buttonOK;
+  private JPanel myLinkContainer;
+  private JCheckBox mySpecifyTypeChb;
+  private JButton buttonOK;
   public String myEnteredName;
 
   private Project project;
@@ -78,13 +81,17 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.validator = ifc.validator();
     this.mySettings = settings;
 
-    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project));
+    ScExpression expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element());
+
+
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
     init();
     setUpDialog();
     setUpNameComboBox(ifc.possibleNames());
+    setUpTypeComboBox(expression);
+    setUpHyperLink(expression);
     bindToSettings(ifc);
     updateOkStatus();
   }
@@ -117,7 +124,11 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   public ScType getSelectedType() {
-    return myTypeMap.get(myTypeComboBox.getSelectedItem());
+    if (mySpecifyTypeChb.isSelected()) {
+      return myTypeMap.get(myTypeComboBox.getSelectedItem());
+    }
+
+    return null;
   }
 
   private void bindToSettings(final IntroduceFieldContext ifc) {
@@ -323,6 +334,67 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
   }
 
+  private boolean needTypeannotations(ScExpression expression) {
+    ScalaCodeStyleSettings settings = ScalaCodeStyleSettings.getInstance(expression.getProject());
+
+    final TypeAnnotationUtil.Visibility visibility;
+    if (myPrivateRB.isSelected()) {
+      visibility = TypeAnnotationUtil.Private$.MODULE$;
+    } else if (myProtectedRB.isSelected()) {
+      visibility = TypeAnnotationUtil.Protected$.MODULE$;
+    } else {
+      visibility = TypeAnnotationUtil.Public$.MODULE$;
+    }
+
+    return TypeAnnotationUtil.addTypeAnnotation(
+            TypeAnnotationUtil.requirementForProperty(false, visibility, settings), //can't declare in local scope
+            settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
+            settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+            false,
+            TypeAnnotationUtil.isSimple(expression)
+    );
+  }
+
+  private void setUpTypeComboBox(final ScExpression expression) {
+    mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+
+    myProtectedRB.addItemListener(
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+              }
+            }
+    );
+
+    myPublicRB.addItemListener(
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+              }
+            }
+    );
+
+    myPrivateRB.addItemListener(
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+              }
+            }
+    );
+  }
+
+  private void setUpHyperLink(final ScExpression expression) {
+    HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
+    myLinkContainer.add(link);
+
+    link.addHyperlinkListener(new HyperlinkListener() {
+      @Override
+      public void hyperlinkUpdate(HyperlinkEvent e) {
+        mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+      }
+    });
+  }
+
   public JComponent getPreferredFocusedComponent() {
     return myNameComboBox;
   }
@@ -359,7 +431,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
     mySettings.setName(getEnteredName());
     mySettings.setType(getSelectedType());
-
     super.doOKAction();
   }
 
@@ -384,7 +455,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), -1, -1));
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -467,9 +538,44 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     final TitledSeparator titledSeparator2 = new TitledSeparator();
     titledSeparator2.setText("Initialize in");
     panel4.add(titledSeparator2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final JPanel panel6 = new JPanel();
+    panel6.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.add(panel6, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myLinkContainer = new JPanel();
     myLinkContainer.setLayout(new BorderLayout(0, 0));
-    contentPane.add(myLinkContainer, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel6.add(myLinkContainer, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    mySpecifyTypeChb = new JCheckBox();
+    this.$$$loadButtonText$$$(mySpecifyTypeChb, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("specify.return.type.explicitly"));
+    panel6.add(mySpecifyTypeChb, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer3 = new Spacer();
+    contentPane.add(spacer3, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(-1, 20), null, null, 0, false));
+  }
+
+  /**
+   * @noinspection ALL
+   */
+  private void $$$loadButtonText$$$(AbstractButton component, String text) {
+    StringBuffer result = new StringBuffer();
+    boolean haveMnemonic = false;
+    char mnemonic = '\0';
+    int mnemonicIndex = -1;
+    for (int i = 0; i < text.length(); i++) {
+      if (text.charAt(i) == '&') {
+        i++;
+        if (i == text.length()) break;
+        if (!haveMnemonic && text.charAt(i) != '&') {
+          haveMnemonic = true;
+          mnemonic = text.charAt(i);
+          mnemonicIndex = result.length();
+        }
+      }
+      result.append(text.charAt(i));
+    }
+    component.setText(result.toString());
+    if (haveMnemonic) {
+      component.setMnemonic(mnemonic);
+      component.setDisplayedMnemonicIndex(mnemonicIndex);
+    }
   }
 
   /**
