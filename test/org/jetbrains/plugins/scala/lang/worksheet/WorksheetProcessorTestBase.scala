@@ -31,6 +31,8 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
     addMacroPrinterDependency()
   }
 
+  override protected def useCompileServer: Boolean = true
+
   protected def addMacroPrinterDependency(): Unit = {
     val printerClazz = this.getClass.getClassLoader.loadClass("org.jetbrains.plugins.scala.worksheet.MacroPrinter")
     assert(printerClazz != null, s"Worksheet printer class $PRINTER_CLASS_NAME is null")
