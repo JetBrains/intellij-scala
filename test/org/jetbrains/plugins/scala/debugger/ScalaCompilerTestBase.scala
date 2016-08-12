@@ -42,9 +42,11 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     CompilerTestUtil.enableExternalCompiler()
 
     addRoots()
-    DebuggerTestUtil.setCompileServerSettings()
+    DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
+
+  protected def useCompileServer: Boolean = false
 
   protected def addRoots() {
     def getOrCreateChildDir(name: String) = {
