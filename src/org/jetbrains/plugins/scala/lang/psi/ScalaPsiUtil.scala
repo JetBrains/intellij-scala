@@ -135,10 +135,10 @@ object ScalaPsiUtil {
 
   def isBooleanBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
     if (noResolve) {
-      s.annotations.exists {
-        case annot => Set("scala.reflect.BooleanBeanProperty", "reflect.BooleanBeanProperty",
+      s.annotations.exists { annot =>
+        Set("scala.reflect.BooleanBeanProperty", "reflect.BooleanBeanProperty",
           "BooleanBeanProperty", "scala.beans.BooleanBeanProperty", "beans.BooleanBeanProperty").
-                contains(annot.typeElement.getText.replace(" ", ""))
+          contains(annot.typeElement.getText.replace(" ", ""))
       }
     } else {
       s.hasAnnotation("scala.reflect.BooleanBeanProperty") ||
@@ -148,8 +148,8 @@ object ScalaPsiUtil {
 
   def isBeanProperty(s: ScAnnotationsHolder, noResolve: Boolean = false): Boolean = {
     if (noResolve) {
-      s.annotations.exists {
-        case annot => Set("scala.reflect.BeanProperty", "reflect.BeanProperty",
+      s.annotations.exists { annot =>
+        Set("scala.reflect.BeanProperty", "reflect.BeanProperty",
           "BeanProperty", "scala.beans.BeanProperty", "beans.BeanProperty").
                 contains(annot.typeElement.getText.replace(" ", ""))
       }
@@ -1234,60 +1234,42 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    getBaseCompanionModule(clazz) match {
-      case Some(td) => Some(td)
-      case _ =>
-        clazz match {
-          case x: ScTypeDefinition => x.fakeCompanionModule
-          case _ => None
-        }
+  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] =
+    getBaseCompanionModule(clazz).orElse {
+      clazz match {
+        case typeDefinition: ScTypeDefinition =>
+          typeDefinition.fakeCompanionModule
+        case _ => None
+      }
     }
-  }
 
   //Performance critical method
   def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    val (td, scope) = clazz match {
-      case t: ScTypeDefinition if t.getContext != null => (t, t.getContext)
+    val (name, scope) = clazz match {
+      case t: ScTypeDefinition if t.getContext != null =>
+        (t.name, t.getContext)
       case _ => return None
     }
 
-    val name: String = td.name
-    val tokenSet = ScalaTokenSets.typeDefinitions
+    val tokenSet = clazz.getProject.tokenSets.typeDefinitions
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
         stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl =>
-        val stub = file.getStub
-        if (stub != null) {
-          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        } else scope.getChildren
+      case file: PsiFileImpl if file.getStub != null =>
+        file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
       case _ => scope.getChildren
     }
-    td match {
+
+    clazz match {
       case _: ScClass | _: ScTrait =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case obj: ScObject if obj.name == name => return Some(obj)
-            case _ =>
-          }
-          i = i + 1
+        arrayOfElements.collectFirst {
+          case o: ScObject if o.name == name => o
         }
-        None
       case _: ScObject =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case c: ScClass if c.name == name => return Some(c)
-            case t: ScTrait if t.name == name => return Some(t)
-            case _ =>
-          }
-          i = i + 1
+        arrayOfElements.collectFirst {
+          case c: ScClass if c.name == name => c
+          case t: ScTrait if t.name == name => t
         }
-        None
       case _ => None
     }
   }
@@ -1297,10 +1279,10 @@ object ScalaPsiUtil {
   }
 
   def withCompanionSearchScope(clazz: PsiClass): SearchScope = {
-    getBaseCompanionModule(clazz) match {
-      case Some(companion) => new LocalSearchScope(clazz).union(new LocalSearchScope(companion))
-      case None => new LocalSearchScope(clazz)
-    }
+    val scope = new LocalSearchScope(clazz)
+    getBaseCompanionModule(clazz).map { companion =>
+      scope.union(new LocalSearchScope(companion))
+    }.getOrElse(scope)
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
@@ -1763,23 +1745,23 @@ object ScalaPsiUtil {
   }
 
   def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = Option(holder) map {
+    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = Option(holder).map {
       _.getImportStatements
-    } map {
-      _ flatMap {
+    }.map {
+      _.flatMap {
         _.importExprs
-      } flatMap {
+      }.flatMap {
         _.selectors
-      } filter {
+      }.filter {
         _.importedName != "_"
-      } filter {
+      }.filter {
         _.reference != null
-      } map { selector =>
+      }.map { selector =>
         (selector.reference.asInstanceOf[ScReferenceElement], selector.importedName)
-      } filter {
+      }.filter {
         case (reference, name) => reference.refName != name
-      } toSet
-    } getOrElse Set.empty
+      }.toSet
+    }.getOrElse(Set.empty)
 
     if (position != null && position.getLanguage.getID != "Scala")
       return Set.empty
