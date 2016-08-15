@@ -208,7 +208,7 @@ object ScalaGenerationInfo {
     }
 
     val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, body)
-    TypeAnnotationUtil.removeTypeAnnotationIfNeed(m)
+    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m)
     val added = td.addMember(m, Option(anchor))
     TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
@@ -231,7 +231,7 @@ object ScalaGenerationInfo {
     val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
       addOverride, isVal, comment)
 
-    TypeAnnotationUtil.removeTypeAnnotationIfNeed(m)
+    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m)
     m
   }
 

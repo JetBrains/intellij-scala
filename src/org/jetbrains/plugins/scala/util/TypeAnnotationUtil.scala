@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -150,7 +151,7 @@ object TypeAnnotationUtil {
     }
   }
 
-  def removeTypeAnnotationIfNeed(element: ScalaPsiElement): Unit = {
+  def removeTypeAnnotationIfNeeded(element: ScalaPsiElement): Unit = {
     val state = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
   
     state match {
@@ -162,6 +163,13 @@ object TypeAnnotationUtil {
           case _ =>
         }
     }
+  }
+  
+  def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement]): Unit = {
+    elements.filter(el => el != null).foreach(_.depthFirst.foreach {
+      case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement)
+      case _ =>
+    })
   }
 
   sealed abstract class Visibility

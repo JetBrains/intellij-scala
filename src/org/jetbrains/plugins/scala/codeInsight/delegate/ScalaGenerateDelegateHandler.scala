@@ -61,7 +61,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           val prototype: ScFunctionDefinition =
             ScalaPsiElementFactory.createMethodFromSignature(member.sign, aClass.getManager, needsInferType = true, body = "???")
                   .asInstanceOf[ScFunctionDefinition]
-          TypeAnnotationUtil.removeTypeAnnotationIfNeed(prototype)
+          TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
           prototype.setModifierProperty("override", value = member.isOverride)
           val body = methodBody(target, prototype)
           prototype.body.foreach(_.replace(body))

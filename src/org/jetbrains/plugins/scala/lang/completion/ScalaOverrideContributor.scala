@@ -166,7 +166,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         if (comment != null) {
           comment.delete()
         }
-        TypeAnnotationUtil.removeTypeAnnotationIfNeed(fun)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText
       case tm: ScAliasMember =>
         ScalaPsiElementFactory.getOverrideImplementTypeSign(tm.getElement,
@@ -174,12 +174,12 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       case member: ScValueMember =>
         val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
           member.element.getManager,needsOverrideModifier = false ,isVal = false)
-        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case member: ScVariableMember =>
         val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
           member.element.getManager,needsOverrideModifier = false ,isVal = false)
-        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case _ => " "
     }

@@ -10,8 +10,9 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.{TypeAnnotationSettings, TypeAnnotationUtil}
 
 import scala.collection.mutable
 
@@ -24,8 +25,12 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
 
   def folderPath: String = baseRootPath() + "conversion/"
 
-  protected def doTest() {
+  protected def doTest(typeAnnotationSettings: ScalaCodeStyleSettings
+                       = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
     import org.junit.Assert._
+    val oldSettings: Any = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone
+    
+    TypeAnnotationSettings.set(getProjectAdapter, typeAnnotationSettings)
 
     val filePath = folderPath + getTestName(false) + ".java"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -48,6 +53,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
 
     res = inWriteAction {
       ConverterUtil.runInspections(newFile, getProjectAdapter, 0, newFile.getText.length)
+      TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, newFile.getText.length, newFile))
       CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
     }
 
@@ -58,6 +64,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
         text.substring(2, text.length - 2).trim
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res.trim)
   }
 

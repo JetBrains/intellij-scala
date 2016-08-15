@@ -36,7 +36,7 @@ class ScalaMethodImplementor extends MethodImplementor {
       val body = ScalaGenerationInfo.defaultValue(member.scType, inClass.getContainingFile)
       val prototype = ScalaPsiElementFactory
               .createOverrideImplementMethod(member.sign, inClass.getManager, needsOverrideModifier = true, body)
-      TypeAnnotationUtil.removeTypeAnnotationIfNeed(prototype)
+      TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
       prototypeToBaseMethod += (prototype -> method)
       prototype
     }).toArray
