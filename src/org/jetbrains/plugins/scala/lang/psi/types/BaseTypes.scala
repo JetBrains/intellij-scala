@@ -92,24 +92,19 @@ object BaseTypes {
     }
   }
 
-  def reduce(types: Seq[ScType])
-            (implicit typeSystem: TypeSystem): Seq[ScType] = {
-    val res = new mutable.HashMap[PsiClass, ScType]
-    object all extends mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
-    val iterator = types.iterator
-    while (iterator.hasNext) {
-       val t = iterator.next()
-      t.extractClass() match {
-        case Some(c) =>
-          val isBest = all.get(c) match {
-            case None => true
-            case Some(ts) => !ts.exists(t.conforms(_))
-          }
-          if (isBest) res += ((c, t))
-          all.addBinding(c, t)
-        case None => //not a class type
-      }
+  private def reduce(types: Seq[ScType])
+                    (implicit typeSystem: TypeSystem): Seq[ScType] = {
+    val typeToClass = mutable.Map[ScType, PsiClass]()
+    val classToTypes = new mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
+
+    for (t <- types;
+         c <- t.extractClass()) {
+      typeToClass(t) = c
+      classToTypes.addBinding(c, t)
     }
-    res.values.toList
+
+    typeToClass.filter {
+      case (tp, clazz) => classToTypes(clazz).exists(tp.conforms(_))
+    }.keys.toSeq
   }
 }
