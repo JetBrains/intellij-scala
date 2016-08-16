@@ -313,6 +313,11 @@ package object extensions {
       res.toVector
     }
 
+    def superTypes(implicit typeSystem: TypeSystem): Seq[ScType] = clazz match {
+      case definition: ScTemplateDefinition => definition.superTypes
+      case _ => clazz.getSuperTypes.map(_.toScType())
+    }
+
     def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean)
                                 (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
 
