@@ -27,7 +27,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
 
   def invokeWithDialog(project: Project, fun: ScMethodLike) {
     UsageTrigger.trigger(ScalaChangeSignatureHandler.id)
-    val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun))
+    val dialog = new ScalaChangeSignatureDialog(project, new ScalaMethodDescriptor(fun), needSpecifyTypeChb = true)
     dialog.show()
   }
 

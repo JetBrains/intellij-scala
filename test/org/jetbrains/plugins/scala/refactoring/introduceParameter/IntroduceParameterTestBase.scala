@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChange
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationSettings}
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * @author Alexander Podkhalyuzin
@@ -72,7 +72,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
     val paramName = getSetting(nameMarker, "param")
     val isDefaultParam = getSetting(defaultMarker, "false").toBoolean
     val toPrimaryConstructor = getSetting(constructorMarker, "false").toBoolean
-    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
+
     //start to inline
     try {
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
@@ -104,8 +104,6 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
               descriptor.parameters, isDefaultParam)
 
             changeInfo.introducedParameterData = Some(data)
-            TypeAnnotationSettings.set(getProjectAdapter,
-              TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
             new ScalaChangeSignatureProcessor(project, changeInfo).run()
           }
         }
@@ -125,7 +123,6 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
         assertTrue("Test result must be in last comment statement.", false)
         ""
     }
-    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res.trim)
   }
 }

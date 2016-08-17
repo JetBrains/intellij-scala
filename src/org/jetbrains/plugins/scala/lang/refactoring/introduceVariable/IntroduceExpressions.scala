@@ -138,7 +138,7 @@ trait IntroduceExpressions {
   //returns smart pointer to ScDeclaredElementsHolder or ScEnumerator
   private def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                            occurrences_ : Array[TextRange], varName: String, varType: ScType,
-                           replaceAllOccurrences: Boolean, isVariable: Boolean): SmartPsiElementPointer[PsiElement] = {
+                           replaceAllOccurrences: Boolean, isVariable: Boolean, fromDialogMode: Boolean = false): SmartPsiElementPointer[PsiElement] = {
 
     def isIntroduceEnumerator(parExpr: PsiElement, prev: PsiElement, firstOccurenceOffset: Int): Option[ScForStatement] = {
       val result = prev match {
@@ -287,23 +287,27 @@ trait IntroduceExpressions {
       result
     }
 
-    def addTypeAnnotation(anchor: PsiElement, expression: ScExpression): Boolean = {
-      val isLocal = TypeAnnotationUtil.isLocal(anchor)
-      val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
-      val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
-
-      TypeAnnotationUtil.addTypeAnnotation(
-        TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
-        settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-        settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-        isOverride = false, // no overriding enable in current refactoring
-        isSimple = TypeAnnotationUtil.isSimple(expression)
-      )
+    def addTypeAnnotation(anchor: PsiElement, expression: ScExpression, fromDialogMode: Boolean = false): Boolean = {
+      if (fromDialogMode) {
+        ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
+      } else {
+        val isLocal = TypeAnnotationUtil.isLocal(anchor)
+        val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
+        val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
+  
+        TypeAnnotationUtil.addTypeAnnotation(
+          TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
+          settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
+          settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+          isOverride = false, // no overriding enable in current refactoring
+          isSimple = TypeAnnotationUtil.isSimple(expression)
+        )
+      }
     }
 
     def createVariableDefinition(): PsiElement = {
       if (fastDefinition) {
-        val addType = addTypeAnnotation(firstElement, expression)
+        val addType = addTypeAnnotation(firstElement, expression, fromDialogMode)
         ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = addType
         replaceRangeByDeclaration(replacedOccurences(0), ScalaPsiElementFactory.createDeclaration(varName, if (addType) typeName else  "", isVariable,
           ScalaRefactoringUtil.unparExpr(expression), file.getManager))
@@ -328,7 +332,7 @@ trait IntroduceExpressions {
         }
         val anchor = parent.getChildren.find(_.getTextRange.contains(firstRange)).getOrElse(parent.getLastChild)
         if (anchor != null) {
-          val addType = addTypeAnnotation(anchor, expression)
+          val addType = addTypeAnnotation(anchor, expression, fromDialogMode)
 
           val created = ScalaPsiElementFactory.createDeclaration(varName, if(addType) typeName else "", isVariable,
             ScalaRefactoringUtil.unparExpr(expression), file.getManager)
@@ -357,7 +361,7 @@ trait IntroduceExpressions {
     val runnable = new Runnable() {
       def run() {
         runRefactoringInside(startOffset, endOffset, file, editor, expression, occurrences_, varName,
-          varType, replaceAllOccurrences, isVariable) //this for better debug
+          varType, replaceAllOccurrences, isVariable, fromDialogMode = true) //this for better debug
       }
     }
 
@@ -384,7 +388,7 @@ trait IntroduceExpressions {
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr, validator)
-    val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames)
+    val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames, expr)
     dialog.show()
     if (!dialog.isOK) {
       if (occurrences.length > 1) {

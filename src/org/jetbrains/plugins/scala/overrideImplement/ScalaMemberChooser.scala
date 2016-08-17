@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import java.awt.FlowLayout
+import java.awt.{BorderLayout, FlowLayout}
 import javax.swing.{JComponent, JPanel}
 
 import com.intellij.ide.util.MemberChooser
@@ -23,21 +23,19 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
                          allowEmptySelection: Boolean,
                          allowMultiSelection: Boolean,
                          needAddOverrideChb: Boolean,
-                         needSpecifyRetTypeChb: Boolean,
+                         needSpecifyTypeChb: Boolean,
                          needCopyScalaDocChb: Boolean,
                          targetClass: ScTemplateDefinition)
         extends {
-          val settingsPanel = new JPanel()
+          val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
+          val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
           val typePanel = new JPanel()
-   
-          private val otherComponents = Array[JComponent](settingsPanel, typePanel)
+          
+          private val otherComponents = Array[JComponent](addOverrideModifierChb, copyScalaDocChb, typePanel)
           private val sortedElements = ScalaMemberChooser.sorted(elements, targetClass)
           
         } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, otherComponents) {
   
-  
-  val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
-  val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
   val mySpecifyTypeChb = new ThreeStateCheckBox(ScalaBundle.message("specify.return.type.explicitly"))
   
   setUpSettingsPanel()
@@ -59,10 +57,8 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   }
   
   private def setUpSettingsPanel(): Unit ={
-    settingsPanel.setLayout(new FlowLayout(FlowLayout.LEFT))
-    settingsPanel.add(addOverrideModifierChb)
-    settingsPanel.add(copyScalaDocChb)
-  
+    typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    
     addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
     addOverrideModifierChb.setVisible(needAddOverrideChb)
   
@@ -74,9 +70,11 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     typePanel.add(mySpecifyTypeChb)
   
     val myLinkContainer = new JPanel
+    myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     typePanel.add(myLinkContainer)
   
     myLinkContainer.add(setUpHyperLink())
+    typePanel.setVisible(needSpecifyTypeChb)
     typePanel
   }
   
