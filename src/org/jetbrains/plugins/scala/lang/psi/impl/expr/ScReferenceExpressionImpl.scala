@@ -384,24 +384,25 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (method.getName == "getClass" && method.containingClass != null &&
           method.containingClass.getQualifiedName == "java.lang.Object") {
 
-          def getType(element: PsiNamedElement) = Option(element) collect {
+          def getType(element: PsiNamedElement): Option[ScType] = Option(element).collect {
             case pattern: ScBindingPattern => pattern
             case fieldId: ScFieldId => fieldId
             case parameter: ScParameter => parameter
-          } map {
+          }.flatMap {
             _.getType().toOption
           }
 
-          def removeTypeDesignator(`type`: ScType): Option[ScType] = `type` match {
-            case ScDesignatorType(element) => getType(element) match {
-              case Some(maybeType) => maybeType.flatMap(removeTypeDesignator)
-              case _ => Some(`type`)
+          def removeTypeDesignator(`type`: ScType): ScType = {
+            val maybeType = `type` match {
+              case ScDesignatorType(element) =>
+                getType(element)
+              case projectionType: ScProjectionType =>
+                getType(projectionType.actualElement).map {
+                  projectionType.actualSubst.subst
+                }
+              case _ => None
             }
-            case projectionType: ScProjectionType => getType(projectionType.actualElement) match {
-              case Some(maybeType) => maybeType.map(projectionType.actualSubst.subst).flatMap(removeTypeDesignator)
-              case _ => Some(`type`)
-            }
-            case _ => Some(`type`)
+            maybeType.map(removeTypeDesignator).getOrElse(`type`)
           }
 
           val maybeJLClass = Option(ScalaPsiManager.instance(getProject)
@@ -412,8 +413,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               val upperBound = typeResult.toOption.flatMap {
                 case ScThisType(clazz) => Some(ScDesignatorType(clazz))
                 case ScDesignatorType(_: ScObject) => None
-                case ScCompoundType(comps, _, _) => comps.headOption.flatMap(removeTypeDesignator)
-                case tp => removeTypeDesignator(tp)
+                case ScCompoundType(comps, _, _) => comps.headOption.map(removeTypeDesignator)
+                case tp => Some(tp).map(removeTypeDesignator)
               }.getOrElse(Any)
 
               val ex = ScExistentialArgument("_$1", Nil, Nothing, upperBound)
