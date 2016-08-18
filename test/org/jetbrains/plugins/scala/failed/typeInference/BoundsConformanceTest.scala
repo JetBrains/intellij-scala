@@ -26,4 +26,20 @@ class BoundsConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
     )
   }
 
+  def testSCL10692(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait A {
+        |  type B[+T]
+        |  type C[+T] <: B[T]
+        |  def c: C[Int]
+        |}
+        |
+        |object Q {
+        |  val a: A = ???
+        |  val b: a.B[Int] = a.c
+        |}
+      """.stripMargin
+    )
+  }
 }
