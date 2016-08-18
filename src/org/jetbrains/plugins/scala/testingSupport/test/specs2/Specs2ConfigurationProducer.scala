@@ -89,14 +89,11 @@ class Specs2ConfigurationProducer extends {
       if (!configuration.isInstanceOf[Specs2RunConfiguration]) return false
       return TestConfigurationUtil.isPackageConfiguration(element, configuration)
     }
-    val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    if (parent == null) return false
-    val suiteClasses = suitePaths.map(suite =>
-      ScalaPsiManager.instance(parent.getProject).getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
-    if (suiteClasses.isEmpty) return false
-    val suiteClazz = suiteClasses.head
 
-    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
+    appropriateParent(element) match {
+      case None => return false
+      case _ =>
+    }
 
     val (testClass, testName) = getLocationClassAndTest(location)
     if (testClass == null) return false
@@ -120,19 +117,20 @@ class Specs2ConfigurationProducer extends {
 
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
-    val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    if (testClassDef == null) return (null, null)
-
-    val psiManager = ScalaPsiManager.instance(testClassDef.getProject)
-    val suiteClasses = suitePaths.map(suite =>
-      psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
-    if (suiteClasses.isEmpty) return (null, null)
-    val suiteClazz = suiteClasses.head
-    if (!ScalaPsiUtil.cachedDeepIsInheritor(testClassDef, suiteClazz)) return (null, null)
-
-    ScalaPsiUtil.getParentWithProperty(element, strict = false, e => TestNodeProvider.isSpecs2TestExpr(e)) match {
-      case Some(infixExpr: ScInfixExpr) => (testClassDef, extractStaticTestName(infixExpr).orNull)
-      case _ => (testClassDef, null)
-    }
+    appropriateParent(element).map { testClassDef =>
+      ScalaPsiUtil.getParentWithProperty(element, strict = false, e => TestNodeProvider.isSpecs2TestExpr(e)) match {
+        case Some(infixExpr: ScInfixExpr) => (testClassDef, extractStaticTestName(infixExpr).orNull)
+        case _ => (testClassDef, null)
+      }
+    }.getOrElse(null, null)
   }
+
+  private def appropriateParent(element: PsiElement): Option[ScTypeDefinition] =
+    Option(PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)).filter { parent =>
+      val psiManager = ScalaPsiManager.instance(parent.getProject)
+      suitePaths.flatMap { suite =>
+        psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+      }.headOption
+        .exists(ScalaPsiUtil.cachedDeepIsInheritor(parent, _))
+    }
 }

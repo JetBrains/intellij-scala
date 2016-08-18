@@ -139,7 +139,7 @@ class ScalaPsiManager(val project: Project) {
 
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory._
 
-  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): PsiClass = {
+  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): Option[PsiClass] = {
     val allClasses = getCachedClasses(scope, fqn)
     val classes =
       classCategory match {
@@ -147,8 +147,7 @@ class ScalaPsiManager(val project: Project) {
         case OBJECT => allClasses.filter(_.isInstanceOf[ScObject])
         case TYPE => allClasses.filter(!_.isInstanceOf[ScObject])
       }
-    if (classes.length == 0) null
-    else classes(0)
+    classes.headOption
   }
 
   def getClasses(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {

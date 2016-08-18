@@ -119,15 +119,11 @@ object Compatibility {
     }
   }
 
-  def seqClassFor(expr: ScTypedStmt): PsiClass = {
-    seqClass match {
-      case Some(clazz) =>
-        if (ApplicationManager.getApplication.isUnitTestMode) clazz
-        else throw new RuntimeException("Illegal state for seqClass variable")
-      case _ =>
-        ScalaPsiManager.instance(expr.getProject).getCachedClass("scala.collection.Seq",
-          expr.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-    }
+  def seqClassFor(expr: ScTypedStmt): Option[PsiClass] = seqClass match {
+    case result@Some(_) if ApplicationManager.getApplication.isUnitTestMode => result
+    case _@Some(_) => throw new RuntimeException("Illegal state for seqClass variable")
+    case _ => ScalaPsiManager.instance(expr.getProject)
+      .getCachedClass("scala.collection.Seq", expr.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
   }
 
   def checkConformance(checkNames: Boolean,
@@ -243,30 +239,30 @@ object Compatibility {
     while (k < parameters.length.min(exprs.length)) {
       exprs(k) match {
         case Expression(expr: ScTypedStmt) if expr.isSequenceArg =>
-          val seqClass: PsiClass = seqClassFor(expr)
-          if (seqClass != null) {
-            val getIt = used.indexOf(false)
-            used(getIt) = true
-            val param: Parameter = parameters(getIt)
+          seqClassFor(expr) match {
+            case Some(seq) =>
+              val getIt = used.indexOf(false)
+              used(getIt) = true
+              val param: Parameter = parameters(getIt)
 
-            if (!param.isRepeated)
-              problems ::= ExpansionForNonRepeatedParameter(expr)
+              if (!param.isRepeated)
+                problems ::= ExpansionForNonRepeatedParameter(expr)
 
-            val tp = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.paramType))
-            val expectedType = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType))
+              val tp = ScParameterizedType(ScalaType.designator(seq), Seq(param.paramType))
+              val expectedType = ScParameterizedType(ScalaType.designator(seq), Seq(param.expectedType))
 
-            for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-              val conforms = exprType.weakConforms(tp)
-              if (!conforms) {
-                return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
-              } else {
-                matched ::= (param, expr)
-                matchedTypes ::= (param, exprType)
-                undefSubst += exprType.conforms(tp, new ScUndefinedSubstitutor(), checkWeak = true)._2
+              for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
+                val conforms = exprType.weakConforms(tp)
+                if (!conforms) {
+                  return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
+                } else {
+                  matched ::= (param, expr)
+                  matchedTypes ::= (param, exprType)
+                  undefSubst += exprType.conforms(tp, new ScUndefinedSubstitutor(), checkWeak = true)._2
+                }
               }
-            }
-          } else {
-            problems :::= doNoNamed(Expression(expr)).reverse
+            case _ =>
+              problems :::= doNoNamed(Expression(expr)).reverse
           }
         case Expression(assign@NamedAssignStmt(name)) =>
           val index = parameters.indexWhere { p =>
@@ -292,16 +288,15 @@ object Compatibility {
               case Some(expr: ScExpression) =>
                 val (paramType, expectedType) = expr match  {
                   case typedStmt: ScTypedStmt if typedStmt.isSequenceArg =>
-                    val seqClass = seqClassFor(typedStmt)
-                    if (seqClass != null) {
+                    seqClassFor(typedStmt) match {
+                      case Some(seq) =>
+                        if (!param.isRepeated)
+                          problems ::= ExpansionForNonRepeatedParameter(expr)
 
-                      if (!param.isRepeated)
-                        problems ::= ExpansionForNonRepeatedParameter(expr)
-
-                      (ScParameterizedType(ScalaType.designator(seqClass), Seq(param.paramType)),
-                        ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType)))
-                    } else {
-                      (param.paramType, param.expectedType)
+                        (ScParameterizedType(ScalaType.designator(seq), Seq(param.paramType)),
+                          ScParameterizedType(ScalaType.designator(seq), Seq(param.expectedType)))
+                      case _ =>
+                        (param.paramType, param.expectedType)
                     }
                   case _ => (param.paramType, param.expectedType)
                 }

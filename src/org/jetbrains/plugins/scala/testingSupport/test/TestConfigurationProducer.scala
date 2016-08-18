@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
+import com.intellij.execution.Location
 import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationType
-import com.intellij.execution.Location
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
  */
 abstract class TestConfigurationProducer(configurationType: ConfigurationType) extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) with AbstractTestConfigurationProducer{
 
-  protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
-    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(fqn, clazz.getResolveScope, ScalaPsiManager.ClassCategory.OBJECT)
-    if (suiteClazz == null) return false
-    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
-  }
+  protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
+    ScalaPsiManager.instance(clazz.getProject)
+      .getCachedClass(fqn, clazz.getResolveScope, ScalaPsiManager.ClassCategory.OBJECT).exists {
+      ScalaPsiUtil.cachedDeepIsInheritor(clazz, _)
+    }
 
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
 

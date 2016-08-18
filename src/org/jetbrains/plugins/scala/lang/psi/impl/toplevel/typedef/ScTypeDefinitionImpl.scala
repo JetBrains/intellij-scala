@@ -79,11 +79,12 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     }.toArray
   }
 
-  override def isAnnotationType: Boolean = {
-    val annotation = ScalaPsiManager.instance(getProject).getCachedClass("scala.annotation.Annotation",getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-    if (annotation == null) return false
-    ScalaPsiManager.instance(getProject).cachedDeepIsInheritor(this, annotation)
-  }
+  override def isAnnotationType: Boolean =
+    ScalaPsiManager.instance(getProject)
+      .getCachedClass("scala.annotation.Annotation", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+      .exists {
+        ScalaPsiManager.instance(getProject).cachedDeepIsInheritor(this, _)
+      }
 
   def getType(ctx: TypingContext): Success[ScType] = {
     val parentClass: ScTemplateDefinition = containingClass

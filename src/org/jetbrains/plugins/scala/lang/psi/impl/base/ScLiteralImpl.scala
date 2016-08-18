@@ -20,9 +20,9 @@ import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Char, Int, Nothing, Null}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.StringContext.InvalidEscapeException
@@ -42,20 +42,25 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val inner = child.getElementType match {
       case ScalaTokenTypes.kNULL => Null
       case ScalaTokenTypes.tINTEGER =>
-        if (child.getText.endsWith("l") || child.getText.endsWith("L")) api.Long
+        if (child.getText.endsWith("l") || child.getText.endsWith("L")) Long
         else Int //but a conversion exists to narrower types in case range fits
       case ScalaTokenTypes.tFLOAT =>
-        if (child.getText.endsWith("f") || child.getText.endsWith("F")) api.Float
-        else api.Double
+        if (child.getText.endsWith("f") || child.getText.endsWith("F")) Float
+        else Double
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL =>
-        val sym = ScalaPsiManager.instance(getProject).getCachedClass("scala.Symbol", getResolveScope,
-          ScalaPsiManager.ClassCategory.TYPE)
-        if (sym != null) ScalaType.designator(sym) else Nothing
+        ScalaPsiManager.instance(getProject)
+          .getCachedClass("scala.Symbol", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+          .map {
+            ScalaType.designator
+          }.getOrElse(Nothing)
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING =>
-        val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
-        str.map(ScalaType.designator(_)).getOrElse(Nothing)
-      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
+        ScalaPsiManager.instance(getProject)
+          .getCachedClass(getResolveScope, "java.lang.String")
+          .map {
+            ScalaType.designator
+          }.getOrElse(Nothing)
+      case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => Boolean
       case _ => return Failure("Wrong Psi to get Literal type", Some(this))
     }
     Success(inner, Some(this))

@@ -53,9 +53,9 @@ object ShapelessForProduct extends ScalaMacroTypeable {
             val parts = ScPattern.extractProductParts(productLikeType, context.place)
             if (parts.isEmpty) return None
             val coloncolon = manager.getCachedClass("shapeless.::", context.place.getResolveScope, ClassCategory.TYPE)
-            if (coloncolon == null) return None
+              .getOrElse(return None)
             val hnil = manager.getCachedClass("shapeless.HNil", context.place.getResolveScope, ClassCategory.TYPE)
-            if (hnil == null) return None
+              .getOrElse(return None)
             val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {
               case (part, resultType) => ScParameterizedType(ScDesignatorType(coloncolon), Seq(part, resultType))
             }

@@ -60,8 +60,8 @@ class ScalaTestGenerator extends TestGenerator {
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
     val fqName = d.getSuperClassName
     if (fqName != null) {
-      val psiClass: Option[PsiClass] = Option(ScalaPsiManager.instance(project).getCachedClass(fqName, scope,
-        ScalaPsiManager.ClassCategory.TYPE))
+      val psiClass = ScalaPsiManager.instance(project)
+        .getCachedClass(fqName, scope, ScalaPsiManager.ClassCategory.TYPE)
       addSuperClass(typeDefinition, psiClass, fqName)
     }
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
@@ -92,6 +92,7 @@ class ScalaTestGenerator extends TestGenerator {
   .util.Collection[MemberInfo], generateBefore: Boolean, generateAfter: Boolean, className: String): Unit = {
     val templateBody = typeDef.extendsBlock.templateBody
     import TestConfigurationUtil.isInheritor
+
     import collection.JavaConversions._
     val psiManager = PsiManager.getInstance(editor.getProject)
     templateBody match {
