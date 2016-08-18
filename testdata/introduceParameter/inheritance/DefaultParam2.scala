@@ -1,12 +1,12 @@
 //default = true
 1
 class A {
-  def foo() = {
+  def foo() {
   }
 }
 
 class B extends A {
-  override def foo() = {
+  override def foo() {
     /*start*/1/*end*/
   }
 }
@@ -14,12 +14,12 @@ class B extends A {
 //default = true
 1
 class A {
-  def foo(param: Int = 1): Unit = {
+  def foo(param: Int = 1) {
   }
 }
 
 class B extends A {
-  override def foo(param: Int): Unit = {
+  override def foo(param: Int) {
     /*start*/param/*end*/
   }
 }

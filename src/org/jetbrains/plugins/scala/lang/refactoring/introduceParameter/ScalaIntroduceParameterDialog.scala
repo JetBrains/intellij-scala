@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
 class ScalaIntroduceParameterDialog(project: Project,
                               method: ScalaMethodDescriptor,
                               introduceData: ScalaIntroduceParameterData)
-        extends ScalaChangeSignatureDialog(project, method) {
+        extends ScalaChangeSignatureDialog(project, method, false) {
 
   private var paramNameField: EditorTextField = _
   private var typeCombobox: ComboBox[String] = _
@@ -68,7 +68,7 @@ class ScalaIntroduceParameterDialog(project: Project,
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))
     val changeInfo =
-      new ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs)
+      new ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, None)
 
     val newData = introduceData.copy(paramName = paramNameField.getText, tp = typeMap.get(typeCombobox.getSelectedItem),
       replaceAll = replaceOccurrencesChb.isSelected, defaultArg = defaultForIntroducedTextField.getText)

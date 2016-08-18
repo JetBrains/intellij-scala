@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
 import java.awt._
+import java.awt.event.{ActionEvent, ActionListener}
 import java.util
 import javax.swing._
 import javax.swing.border.MatteBorder
@@ -46,7 +47,9 @@ import scala.collection.mutable.ListBuffer
 * Nikolay.Tropin
 * 2014-08-29
 */
-class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDescriptor)
+class ScalaChangeSignatureDialog(val project: Project,
+                                 val method: ScalaMethodDescriptor,
+                                 val needSpecifyTypeChb: Boolean)
   extends {
     private var defaultValuesUsagePanel: DefaultValuesUsagePanel = null
     var mySpecifyTypeChb: JCheckBox = null
@@ -63,19 +66,11 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))
-    
-    var withReturnType = mySpecifyTypeChb.isSelected
-    
+        
     val changeInfo =
-      ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, withReturnType)
+      ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, Some(mySpecifyTypeChb.isSelected))
 
     new ScalaChangeSignatureProcessor(project, changeInfo)
-  }
-    
-  override def createCenterPanel(): JComponent = {
-    val panel = super.createCenterPanel()
-    panel.add(createTypePanel(), BorderLayout.AFTER_LAST_LINE)
-    panel
   }
   
   override def createNorthPanel(): JComponent = {
@@ -89,9 +84,20 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
 
   override def createOptionsPanel(): JComponent = {
     val panel = super.createOptionsPanel() //to initialize fields in base class
+    
+    val holder: JPanel = new JPanel
+    holder.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0))
+
     defaultValuesUsagePanel = new DefaultValuesUsagePanel()
-    panel.add(defaultValuesUsagePanel)
+    holder.add(defaultValuesUsagePanel)
+    panel.add(holder)
+    
+    val specifyTypePanle = createTypePanel()
+    panel.add(specifyTypePanle)
+    
+    panel.setVisible(needSpecifyTypeChb)
     myPropagateParamChangesButton.setVisible(false)
+    
     panel
   }
 
@@ -225,8 +231,11 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     val paramsText = splittedItems.map(_.map(itemText).mkString("(", ", ", ")")).mkString
 
     val retTypeText = returnTypeText
-    
-    val needType = if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected else needTypeAnnotation(method.getMethod, visibility)
+  
+    val needType =
+      if (!needSpecifyTypeChb) true
+      else if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
+      else needTypeAnnotation(method.getMethod, visibility)
     
     val typeAnnot =
       if (retTypeText.isEmpty || !needType) ""
@@ -496,17 +505,15 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
   private def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None
   
   private def createTypePanel(): JPanel = {
-    val panelHolder = new JPanel()
-    panelHolder.setLayout(new FlowLayout(FlowLayout.LEFT))
-    
-    val typePanel: JPanel = new JPanel
-    panelHolder.add(typePanel)
+    val typePanel = new JPanel
+    typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     
     mySpecifyTypeChb = new JCheckBox
     mySpecifyTypeChb.setText(ScalaBundle.message("specify.return.type.explicitly"))
     typePanel.add(mySpecifyTypeChb)
     
     val myLinkContainer = new JPanel
+    myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     typePanel.add(myLinkContainer)
     
     myLinkContainer.add(setUpHyperLink())
@@ -514,7 +521,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     setUpSpecifyTypeChb()
     setUpVisibilityListener()
     
-    panelHolder
+    typePanel
   }
   
   private def setUpHyperLink(): HyperlinkLabel = {
@@ -523,6 +530,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     link.addHyperlinkListener(new HyperlinkListener() {
       def hyperlinkUpdate(e: HyperlinkEvent) {
         mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+        updateSignatureAlarmFired()
       }
     })
     
@@ -533,12 +541,17 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     myVisibilityPanel.addListener(new ChangeListener {
       override def stateChanged(e: ChangeEvent) = {
         mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+        updateSignatureAlarmFired()
       }
     })
   }
   
   private def setUpSpecifyTypeChb(): Unit ={
     mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+    
+    mySpecifyTypeChb.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = updateSignatureAlarmFired()
+    })
   }
   
   class ScalaParametersListTable extends ParametersListTable {
