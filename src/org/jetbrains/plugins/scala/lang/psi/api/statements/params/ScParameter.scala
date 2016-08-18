@@ -63,17 +63,20 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getActualDefaultExpression: Option[ScExpression]
 
-  def getRealParameterType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
-    if (!isRepeatedParameter) return getType(ctx)
+  def getRealParameterType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] =
     getType(ctx) match {
-      case f@Success(tp: ScType, elem) =>
-        val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-        if (seq != null) {
-          Success(ScParameterizedType(ScalaType.designator(seq), Seq(tp)), elem)
-        } else f
-      case f => f
+      case result if !isRepeatedParameter => result
+      case success@Success(result, element) =>
+        ScalaPsiManager.instance(getProject)
+          .getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+          .map { tp =>
+            ScParameterizedType(ScalaType.designator(tp), Seq(result))
+          } match {
+          case Some(valueType) => Success(valueType, element)
+          case _ => success
+        }
+      case failure => failure
     }
-  }
 
   def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getParentOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
 

@@ -96,24 +96,23 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                   case FunctionType(rt, Seq(_)) =>
                     ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                   case _ =>
-                    ScalaPsiManager.instance(getProject).getCachedClass(
-                      "scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-                    ) match {
-                      case function1: ScTrait =>
-                        ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
-                          UndefinedType(TypeParameterType(tp), 1))) match {
-                          case funTp: ScParameterizedType =>
-                            val secondArg = funTp.typeArguments(1)
-                            paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
-                              case Some(subst) =>
-                                val rt = subst.subst(secondArg)
-                                if (rt.isInstanceOf[UndefinedType]) defaultResult
-                                else {
-                                  ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
-                                }
-                              case None => defaultResult
+                    ScalaPsiManager.instance(getProject)
+                      .getCachedClass("scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+                      .collect {
+                        case function1: ScTrait =>
+                          ScParameterizedType(ScalaType.designator(function1),
+                            function1.typeParameters.map(tp => UndefinedType(TypeParameterType(tp), 1)))
+                      } match {
+                      case Some(funTp: ScParameterizedType) =>
+                        val secondArg = funTp.typeArguments(1)
+                        paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
+                          case Some(subst) =>
+                            val rt = subst.subst(secondArg)
+                            if (rt.isInstanceOf[UndefinedType]) defaultResult
+                            else {
+                              ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                             }
-                          case _ => defaultResult
+                          case None => defaultResult
                         }
                       case _ => defaultResult
                     }

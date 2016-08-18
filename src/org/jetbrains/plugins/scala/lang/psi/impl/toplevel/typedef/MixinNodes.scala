@@ -407,12 +407,12 @@ abstract class MixinNodes {
               case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place, base = false)
               case syn: ScSyntheticClass =>
                 //it's required to do like this to have possibility mix Synthetic types
-                val clazz = ScalaPsiManager.instance(syn.getProject).getCachedClass(syn.getQualifiedName,
-                  GlobalSearchScope.allScope(syn.getProject), ScalaPsiManager.ClassCategory.TYPE
-                )
-                clazz match {
-                  case template: ScTemplateDefinition => processScala(template, newSubst, newMap, place, base = false)
-                  case _ => //do nothing
+                ScalaPsiManager.instance(syn.getProject)
+                  .getCachedClass(syn.getQualifiedName, GlobalSearchScope.allScope(syn.getProject), ScalaPsiManager.ClassCategory.TYPE)
+                  .collect {
+                    case template: ScTemplateDefinition => template
+                  }.foreach {
+                  processScala(_, newSubst, newMap, place, base = false)
                 }
               case _ => processJava(superClass, newSubst, newMap, place)
             }

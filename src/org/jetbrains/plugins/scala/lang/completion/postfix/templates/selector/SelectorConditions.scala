@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
@@ -33,14 +33,16 @@ object SelectorConditions {
         val project = t.getProject
         implicit val typeSystem = project.typeSystem
         val manager = ScalaPsiManager.instance(project)
-        expr.getTypeIgnoreBaseType().toOption.flatMap {
-          _.extractClass(project).map {
-            psiClass =>
-              val base = manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
-              (psiClass != null && base != null && ScEquivalenceUtil.areClassesEquivalent(psiClass, base)) ||
-                manager.cachedDeepIsInheritor(psiClass, base)
-          }
-        }.getOrElse(false)
+
+        val classes: Seq[PsiClass] = expr.getTypeIgnoreBaseType().toOption.flatMap {
+          _.extractClass()
+        }.toSeq ++ manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
+
+        classes match {
+          case Seq(psiClass, base) if ScEquivalenceUtil.areClassesEquivalent(psiClass, base) ||
+            manager.cachedDeepIsInheritor(psiClass, base) => true
+          case _ => false
+        }
       case _ => false
     }
   }
