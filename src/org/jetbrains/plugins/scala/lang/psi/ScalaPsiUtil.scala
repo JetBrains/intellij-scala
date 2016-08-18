@@ -1253,7 +1253,7 @@ object ScalaPsiUtil {
     }
 
     val name: String = td.name
-    val tokenSet = td.getProject.tokenSets.typeDefinitions
+    val tokenSet = ScalaTokenSets.typeDefinitions
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
         stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
