@@ -5,7 +5,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyVal, ExtractClass, TypeSystem, ValType}
 
 /**
  * Nikolay.Tropin
@@ -28,7 +28,11 @@ object ValueClassType {
   def isValueType(tp: ScType)(implicit typeSystem: TypeSystem): Boolean = unapply(tp).isDefined
 
   def isValueClass(cl: PsiClass): Boolean = cl match {
-    case scClass: ScClass => scClass.supers.map(_.qualifiedName).contains("scala.AnyVal")
+    case scClass: ScClass =>
+      scClass.parameters match {
+        case Seq(p) if p.isVal || p.isCaseClassVal => scClass.supers.map(_.qualifiedName).contains("scala.AnyVal")
+        case _ => false
+      }
     case _ => false
   }
 }
