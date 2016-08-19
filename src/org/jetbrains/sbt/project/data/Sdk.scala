@@ -2,8 +2,8 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.projectRoots
+import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
@@ -15,17 +15,24 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 7/14/15.
  */
-sealed trait Sdk
+sealed abstract class Sdk
 
 final case class JdkByName(name: String) extends Sdk
 final case class JdkByHome(home: File) extends Sdk
+final case class JdkByVersion(version: String) extends Sdk
 final case class Android(version: String) extends Sdk
 
 object SdkUtils {
   def findProjectSdk(sdk: Sdk): Option[projectRoots.Sdk] = sdk match {
-    case Android(version) => findAndroidJdkByVersion(version)
-    case JdkByName(version) => allJdks.find(_.getName.contains(version))
-    case JdkByHome(homeFile) => findJdkByHome(homeFile)
+    case Android(version) =>
+      findAndroidJdkByVersion(version)
+    case JdkByVersion(version) =>
+      // TODO take apart versionString to reverse-sort by version and get the newest match?
+      allJdks.find(_.getVersionString.contains(version))
+    case JdkByName(version) =>
+      allJdks.find(_.getName.contains(version))
+    case JdkByHome(homeFile) =>
+      findJdkByHome(homeFile)
   }
 
   def allAndroidSdks: Seq[projectRoots.Sdk] =
@@ -33,6 +40,10 @@ object SdkUtils {
 
   def allJdks: Seq[projectRoots.Sdk] =
     inReadAction(ProjectJdkTable.getInstance.getAllJdks.toSeq)
+
+  def bla = allJdks.map { jdk =>
+    jdk.getVersionString
+  }
 
   def defaultJavaLanguageLevelIn(jdk: projectRoots.Sdk): Option[LanguageLevel] = {
     val JavaLanguageLevels = Map(
