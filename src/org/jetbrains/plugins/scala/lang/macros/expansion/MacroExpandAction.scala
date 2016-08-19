@@ -15,7 +15,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator, ProjectRootManager}
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
@@ -31,9 +31,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.meta.Tree
 import scala.meta.trees.TreeConverter
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
@@ -328,37 +330,45 @@ object MacroExpandAction {
     ""
   }
 
+
   def runMetaAnnotation(annot: ScAnnotation): scala.meta.Tree = {
-    import org.jetbrains.plugins.scala.project._
 
-    def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
-      .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
+    @CachedInsidePsiElement(annot, ModCount.getModificationCount)
+    def runMetaAnnotationsImpl: Tree = {
+      import org.jetbrains.plugins.scala.project._
 
-    def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
+      def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
+        .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
 
-    val converter = new TreeConverter {
-      override def getCurrentProject: Project = annot.getProject
-      override def dumbMode: Boolean = true
+      def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
+
+      val converter = new TreeConverter {
+        override def getCurrentProject: Project = annot.getProject
+
+        override def dumbMode: Boolean = true
+      }
+
+      val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
+      val annotee = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
+      val converted = annotClass.map {
+        case o: ScTypeDefinition if o.isMetaAnnotatationImpl =>
+          converter.ideaToMeta(annotee)
+        case _ =>
+      }
+      val metaModule = annotClass.flatMap(_.module)
+      val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
+      val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
+      val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
+      val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$impl$")
+      val ctor = outer.getDeclaredConstructors.head
+      ctor.setAccessible(true)
+      val inst = ctor.newInstance()
+      val meth = outer.getDeclaredMethods.find(_.getName == "apply$impl").get
+      meth.setAccessible(true)
+      val result = meth.invoke(inst, converted.get.asInstanceOf[AnyRef])
+      result.asInstanceOf[Tree]
     }
 
-    val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
-    val annotee = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
-    val converted = annotClass.map {
-      case o: ScTypeDefinition if o.isMetaAnnotatationImpl =>
-        converter.ideaToMeta(annotee)
-      case _ =>
-    }
-    val metaModule = annotClass.flatMap(_.module)
-    val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
-    val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
-    val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
-    val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$impl$")
-    val ctor = outer.getDeclaredConstructors.head
-    ctor.setAccessible(true)
-    val inst = ctor.newInstance()
-    val meth = outer.getDeclaredMethods.find(_.getName == "apply$impl").get
-    meth.setAccessible(true)
-    val result = meth.invoke(inst, converted.get.asInstanceOf[AnyRef])
-    result.asInstanceOf[scala.meta.Tree]
+    runMetaAnnotationsImpl
   }
 }

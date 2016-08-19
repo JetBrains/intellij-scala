@@ -5,6 +5,8 @@ package impl
 package toplevel
 package typedef
 
+import java.io.IOException
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
@@ -12,7 +14,9 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -657,6 +661,25 @@ object TypeDefinitionMembers {
     }
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
+
+    val metaAnnot: Option[ScAnnotation] = clazz match {
+      case ah: ScAnnotationsHolder => ah.annotations.find(_.isMetaAnnotation)
+      case _ => None
+    }
+
+    metaAnnot match {
+      case Some(annot) =>
+        val result = try {
+          MacroExpandAction.runMetaAnnotation(annot).toString()
+        } catch {
+          case _: IOException | _: ClassNotFoundException => ""
+        }
+        if (result.nonEmpty) {
+          val c = ScalaPsiElementFactory.createTypeDefinitionWithContext(result, clazz.getContext, lastParent)
+          if(!processDeclarations(c, processor, state, lastParent, place)) return false
+        }
+      case None =>
+    }
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),
       () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,

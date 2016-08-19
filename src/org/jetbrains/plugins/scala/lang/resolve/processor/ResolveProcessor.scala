@@ -233,4 +233,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (stateName == null) name else stateName
     }
   }
+
+  override def toString = s"ResolveProcessor($name)"
 }

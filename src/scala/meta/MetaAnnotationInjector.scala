@@ -6,7 +6,9 @@ import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 
-
+/**
+  * @deprecated meta engine switched to processDeclarations instead of injecting members
+  */
 class MetaAnnotationInjector extends SyntheticMembersInjector {
 
   var lastResult: Tree = _
