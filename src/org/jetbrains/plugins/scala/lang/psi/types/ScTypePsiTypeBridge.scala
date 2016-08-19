@@ -120,8 +120,6 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                          skolemToWildcard: Boolean): PsiType = {
     implicit val typeSystem = project.typeSystem
 
-    def isValueType(cl: ScClass): Boolean = cl.superTypes.contains(AnyVal) && cl.parameters.length == 1
-
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       extractClass(proj.projected) match {
         case Some(outer) => outer.hasTypeParameters
@@ -135,12 +133,12 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     t match {
       case ScCompoundType(Seq(typez, _*), _, _) => toPsiType(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if StdType.QualNameToType.contains(c.qualifiedName) =>
-        toPsiType(StdType.QualNameToType.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
-      case ScDesignatorType(valType: ScClass) if isValueType(valType) =>
-        valType.parameters.head.getRealParameterType(TypingContext.empty) match {
+        toPsiType(StdType.QualNameToType(c.qualifiedName), project, scope, noPrimitives, skolemToWildcard)
+      case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
+        valClass.parameters.head.getRealParameterType(TypingContext.empty) match {
           case Success(tp, _) if !(noPrimitives && ScalaEvaluatorBuilderUtil.isPrimitiveScType(tp)) =>
             toPsiType(tp, project, scope, noPrimitives, skolemToWildcard)
-          case _ => createType(valType, project)
+          case _ => createType(valClass, project)
         }
       case ScDesignatorType(c: PsiClass) => createType(c, project)
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) =>
