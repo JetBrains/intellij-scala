@@ -1,0 +1,19 @@
+<html>
+<body>
+Replaces anonymous function to a method value as parameter of <code>foreach</code> function.
+
+<p>
+Before:
+<pre>
+Seq("1", "2").foreach(s => foo(s))
+</pre>
+
+<br>
+After:
+<pre>
+Seq("1", "2").foreach(foo)
+</pre>
+</p>
+
+</body>
+</html>

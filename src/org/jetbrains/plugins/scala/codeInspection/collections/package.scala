@@ -43,6 +43,7 @@ package object collections {
 
   private[collections] val `.exists` = invocation("exists").from(likeCollectionClasses)
   private[collections] val `.forall` = invocation("forall").from(likeCollectionClasses)
+  private[collections] val `.foreach` = invocation("foreach").from(likeCollectionClasses)
   private[collections] val `.filter` = invocation("filter").from(likeCollectionClasses)
   private[collections] val `.filterNot` = invocation("filterNot").from(likeCollectionClasses)
   private[collections] val `.map` = invocation("map").from(likeCollectionClasses)
