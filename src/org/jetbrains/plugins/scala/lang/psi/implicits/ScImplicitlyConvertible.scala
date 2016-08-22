@@ -195,16 +195,13 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     if (!PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(r.element), place, false)) { //to prevent infinite recursion
       ProgressManager.checkCanceled()
 
-      lazy val funType = Option(
-        ScalaPsiManager.instance(place.getProject).getCachedClass(
-          "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-        )
-      ) collect {
-        case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
-          UndefinedType(TypeParameterType(tp), 1)))
-      } flatMap {
-        case p: ScParameterizedType => Some(p)
-        case _ => None
+      lazy val funType = ScalaPsiManager.instance(place.getProject)
+        .getCachedClass("scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+        .collect {
+          case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
+            UndefinedType(TypeParameterType(tp), 1)))
+        }.collect {
+        case p: ScParameterizedType => p
       }
 
       def firstArgType = funType.map(_.typeArguments.head)

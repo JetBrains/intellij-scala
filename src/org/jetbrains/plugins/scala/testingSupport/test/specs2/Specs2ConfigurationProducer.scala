@@ -130,7 +130,8 @@ class Specs2ConfigurationProducer extends {
       val psiManager = ScalaPsiManager.instance(parent.getProject)
       suitePaths.flatMap { suite =>
         psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-      }.headOption
-        .exists(ScalaPsiUtil.cachedDeepIsInheritor(parent, _))
+      }.headOption.exists {
+        ScalaPsiUtil.cachedDeepIsInheritor(parent, _)
+      }
     }
 }

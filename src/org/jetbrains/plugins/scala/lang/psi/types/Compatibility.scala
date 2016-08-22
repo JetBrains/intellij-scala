@@ -66,24 +66,23 @@ object Compatibility {
             paramType match {
               case FunctionType(rt, Seq(_)) => (Success(rt, Some(place)), res.importsUsed)
               case _ =>
-                ScalaPsiManager.instance(place.getProject).getCachedClass(
-                  "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-                ) match {
-                  case function1: ScTrait =>
-                    ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
-                      UndefinedType(TypeParameterType(tp), 1))) match {
-                      case funTp: ScParameterizedType =>
-                        val secondArg = funTp.typeArguments(1)
-                        paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
-                          case Some(subst) =>
-                            val rt = subst.subst(secondArg)
-                            if (rt.isInstanceOf[UndefinedType]) defaultResult
-                            else {
-                              (Success(rt, Some(place)), res.importsUsed)
-                            }
-                          case None => defaultResult
+                ScalaPsiManager.instance(place.getProject)
+                  .getCachedClass("scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+                  .collect {
+                    case function1: ScTrait =>
+                      ScParameterizedType(ScalaType.designator(function1),
+                        function1.typeParameters.map(tp => UndefinedType(TypeParameterType(tp), 1)))
+                  } match {
+                  case Some(funTp: ScParameterizedType) =>
+                    val secondArg = funTp.typeArguments(1)
+                    paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
+                      case Some(subst) =>
+                        val rt = subst.subst(secondArg)
+                        if (rt.isInstanceOf[UndefinedType]) defaultResult
+                        else {
+                          (Success(rt, Some(place)), res.importsUsed)
                         }
-                      case _ => defaultResult
+                      case None => defaultResult
                     }
                   case _ => defaultResult
                 }

@@ -58,12 +58,13 @@ class ScalaTestGenerator extends TestGenerator {
       })
     val typeDefinition = file.depthFirst.filterByType(classOf[ScTypeDefinition]).next()
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
-    val fqName = d.getSuperClassName
-    if (fqName != null) {
+
+    Option(d.getSuperClassName).foreach { fqName =>
       val psiClass = ScalaPsiManager.instance(project)
         .getCachedClass(fqName, scope, ScalaPsiManager.ClassCategory.TYPE)
       addSuperClass(typeDefinition, psiClass, fqName)
     }
+
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
     var editor: Editor = CodeInsightUtil.positionCursor(project, file, positionElement)
     addTestMethods(editor, typeDefinition, d.getSelectedTestFrameworkDescriptor, d.getSelectedMethods, d
@@ -154,59 +155,57 @@ object ScalaTestGenerator {
   ScTypeDefinition,
                                               project: Project) {
     if (!(generateBefore || generateAfter)) return
-    typeDef.extendsBlock.templateBody match {
-      case Some(body) =>
-        Option(ScalaPsiManager.instance(project).getCachedClass("org.scalatest.BeforeAndAfterEach",
-          GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)) match {
-          case Some(beforeAndAfterTypeDef) if beforeAndAfterTypeDef.isInstanceOf[ScTypeDefinition] =>
-            ExtractSuperUtil.addExtendsTo(typeDef, beforeAndAfterTypeDef.asInstanceOf[ScTypeDefinition])
-            val closingBrace = body.getLastChild
-            val psiManager = PsiManager.getInstance(project)
-            if (generateBefore) {
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override def beforeEach() {\n\n}",
-                psiManager),
-                closingBrace)
-            }
-            if (generateAfter) {
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override def afterEach() {\n\n}", psiManager),
-                closingBrace)
-            }
-          case _ =>
+    typeDef.extendsBlock.templateBody.foreach { body =>
+      ScalaPsiManager.instance(project)
+        .getCachedClass("org.scalatest.BeforeAndAfterEach", GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
+        .collect {
+          case definition: ScTypeDefinition => definition
+        }.foreach { beforeAndAfterTypeDef =>
+        ExtractSuperUtil.addExtendsTo(typeDef, beforeAndAfterTypeDef)
+        val closingBrace = body.getLastChild
+        val psiManager = PsiManager.getInstance(project)
+        if (generateBefore) {
+          body.addBefore(ScalaPsiElementFactory.createMethodFromText("override def beforeEach() {\n\n}",
+            psiManager),
+            closingBrace)
         }
-      case _ =>
+        if (generateAfter) {
+          body.addBefore(ScalaPsiElementFactory.createMethodFromText("override def afterEach() {\n\n}", psiManager),
+            closingBrace)
+        }
+      }
     }
   }
 
   private def generateSpecs2BeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean, typeDef: ScTypeDefinition,
                                            project: Project) {
     if (!(generateBefore || generateAfter)) return
-    typeDef.extendsBlock.templateBody match {
-      case Some(body) =>
-        val closingBrace = body.getLastChild
-        val psiManager = PsiManager.getInstance(project)
-        if (generateBefore) {
-          val beforeOpt = Option(ScalaPsiManager.instance(project).getCachedClass("org.specs2.specification.BeforeEach",
-            GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE))
-          beforeOpt match {
-            case Some(beforeTypeDef) =>
-              ExtractSuperUtil.addExtendsTo(typeDef, beforeTypeDef.asInstanceOf[ScTypeDefinition])
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override protected def before: Any = {\n\n}",
-                psiManager), closingBrace)
-            case _ =>
-          }
+    typeDef.extendsBlock.templateBody.foreach { body =>
+      val closingBrace = body.getLastChild
+      val psiManager = PsiManager.getInstance(project)
+      if (generateBefore) {
+        ScalaPsiManager.instance(project)
+          .getCachedClass("org.specs2.specification.BeforeEach", GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
+          .collect {
+            case definition: ScTypeDefinition => definition
+          }.foreach { beforeTypeDef =>
+          ExtractSuperUtil.addExtendsTo(typeDef, beforeTypeDef)
+          body.addBefore(ScalaPsiElementFactory.createMethodFromText("override protected def before: Any = {\n\n}",
+            psiManager), closingBrace)
         }
-        if (generateAfter) {
-          val afterOpt = Option(ScalaPsiManager.instance(project).getCachedClass("org.specs2.specification.AfterEach",
-            GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE))
-          afterOpt match {
-            case Some(afterTypeDef) =>
-              ExtractSuperUtil.addExtendsTo(typeDef, afterTypeDef.asInstanceOf[ScTypeDefinition])
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override protected def after: Any = {\n\n}",
-                psiManager), closingBrace)
-            case _ =>
+      }
+      if (generateAfter) {
+        ScalaPsiManager.instance(project)
+          .getCachedClass("org.specs2.specification.AfterEach", GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
+          .collect {
+            case definition: ScTypeDefinition => definition
           }
-        }
-      case _ =>
+          .foreach { afterTypeDef =>
+            ExtractSuperUtil.addExtendsTo(typeDef, afterTypeDef)
+            body.addBefore(ScalaPsiElementFactory.createMethodFromText("override protected def after: Any = {\n\n}",
+              psiManager), closingBrace)
+          }
+      }
     }
   }
 
@@ -307,24 +306,25 @@ object ScalaTestGenerator {
   private def generateSpecs2ScriptSpecificationMethods(methods: List[MemberInfo], psiManager: PsiManager,
                                                        templateBody: ScTemplateBody,
                                                        className: String, project: Project, typeDef: ScTypeDefinition) {
-    Option(ScalaPsiManager.instance(project).getCachedClass("org.specs2.specification.Groups",
-      GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)) match {
-      case Some(groupsTypeDef) =>
-        ExtractSuperUtil.addExtendsTo(typeDef, groupsTypeDef.asInstanceOf[ScTypeDefinition])
-        val testNames = methods.map("test" + _.getMember.getName.capitalize)
-        val closingBrace = templateBody.getLastChild
-        val normalIndentString = FormatterUtil.getNormalIndentString(project)
-        val doubleIndent = normalIndentString + normalIndentString
-        val checkMethodsString = if (methods.nonEmpty) testNames.map(doubleIndent + "+ " + _).
-            fold("\n" + normalIndentString + "Methods of " + className + " should pass tests:")(_ + "\n" + _)
-        else ""
-        templateBody.addBefore(ScalaPsiElementFactory.createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
-            "\n" + doubleIndent + "\"\"\"", psiManager), closingBrace)
-        if (methods.nonEmpty) {
-          templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(testNames.map("eg := ok //" + _).
-              fold("\"" + className + "\" - new group {")(_ + "\n" + _) + "\n}", psiManager), closingBrace)
-        }
-      case _ =>
+    ScalaPsiManager.instance(project)
+      .getCachedClass("org.specs2.specification.Groups", GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
+      .collect {
+        case definition: ScTypeDefinition => definition
+      }.foreach { groupsTypeDef =>
+      ExtractSuperUtil.addExtendsTo(typeDef, groupsTypeDef)
+      val testNames = methods.map("test" + _.getMember.getName.capitalize)
+      val closingBrace = templateBody.getLastChild
+      val normalIndentString = FormatterUtil.getNormalIndentString(project)
+      val doubleIndent = normalIndentString + normalIndentString
+      val checkMethodsString = if (methods.nonEmpty) testNames.map(doubleIndent + "+ " + _).
+        fold("\n" + normalIndentString + "Methods of " + className + " should pass tests:")(_ + "\n" + _)
+      else ""
+      templateBody.addBefore(ScalaPsiElementFactory.createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
+        "\n" + doubleIndent + "\"\"\"", psiManager), closingBrace)
+      if (methods.nonEmpty) {
+        templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(testNames.map("eg := ok //" + _).
+          fold("\"" + className + "\" - new group {")(_ + "\n" + _) + "\n}", psiManager), closingBrace)
+      }
     }
   }
 

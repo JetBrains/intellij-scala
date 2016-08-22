@@ -38,41 +38,43 @@ object ShapelessForProduct extends ScalaMacroTypeable {
     implicit val typeSystem = macros.typeSystem
     if (context.expectedType.isEmpty) return None
     val manager = ScalaPsiManager.instance(context.place.getProject)
-    val clazz = manager.getCachedClass("shapeless.Generic", context.place.getResolveScope, ClassCategory.TYPE)
-    clazz match {
-      case c: ScTypeDefinition =>
-        val tpt = c.typeParameters
-        if (tpt.isEmpty) return None
-        val undef = UndefinedType(TypeParameterType(tpt.head))
-        val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
-        val (res, undefSubst) = context.expectedType.get.conforms(genericType, new ScUndefinedSubstitutor())
-        if (!res) return None
-        undefSubst.getSubstitutor match {
-          case Some(subst) =>
-            val productLikeType = subst.subst(undef)
-            val parts = ScPattern.extractProductParts(productLikeType, context.place)
-            if (parts.isEmpty) return None
-            val coloncolon = manager.getCachedClass("shapeless.::", context.place.getResolveScope, ClassCategory.TYPE)
-              .getOrElse(return None)
-            val hnil = manager.getCachedClass("shapeless.HNil", context.place.getResolveScope, ClassCategory.TYPE)
-              .getOrElse(return None)
-            val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {
-              case (part, resultType) => ScParameterizedType(ScDesignatorType(coloncolon), Seq(part, resultType))
+
+    manager.getCachedClass("shapeless.Generic", context.place.getResolveScope, ClassCategory.TYPE)
+      .collect {
+        case definition: ScTypeDefinition => definition
+      }.flatMap { definition =>
+      val undef = definition.typeParameters.headOption.map { tp =>
+        UndefinedType(TypeParameterType(tp))
+      }.getOrElse(return None)
+
+      val genericType = ScParameterizedType(ScDesignatorType(definition), Seq(undef))
+      val (res, undefSubst) = context.expectedType.get.conforms(genericType, new ScUndefinedSubstitutor())
+      if (!res) return None
+
+      undefSubst.getSubstitutor.map {
+        _.subst(undef)
+      }.flatMap { productLikeType =>
+        val parts = ScPattern.extractProductParts(productLikeType, context.place)
+        if (parts.isEmpty) return None
+        val coloncolon = manager.getCachedClass("shapeless.::", context.place.getResolveScope, ClassCategory.TYPE)
+          .getOrElse(return None)
+        val hnil = manager.getCachedClass("shapeless.HNil", context.place.getResolveScope, ClassCategory.TYPE)
+          .getOrElse(return None)
+        val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {
+          case (part, resultType) => ScParameterizedType(ScDesignatorType(coloncolon), Seq(part, resultType))
+        }
+        ScalaPsiUtil.getCompanionModule(definition) match {
+          case Some(obj: ScObject) =>
+            val elem = obj.members.find {
+              case a: ScTypeAlias if a.name == "Aux" => true
+              case _ => false
             }
-            ScalaPsiUtil.getCompanionModule(c) match {
-              case Some(obj: ScObject) =>
-                val elem = obj.members.find {
-                  case a: ScTypeAlias if a.name == "Aux" => true
-                  case _ => false
-                }
-                if (elem.isEmpty) return None
-                Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement],
-                  superReference = false), Seq(productLikeType, repr)))
-              case _ => None
-            }
+            if (elem.isEmpty) return None
+            Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement],
+              superReference = false), Seq(productLikeType, repr)))
           case _ => None
         }
-      case _ => None
+      }
     }
   }
 }

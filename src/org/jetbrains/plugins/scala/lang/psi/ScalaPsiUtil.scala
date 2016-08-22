@@ -265,16 +265,14 @@ object ScalaPsiUtil {
   def findImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
                              noImplicitsForArgs: Boolean)
                             (implicit typeSystem: TypeSystem): Option[ImplicitResolveResult] = {
-    lazy val funType = Option(
-      ScalaPsiManager.instance(e.getProject).getCachedClass(
-        "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-      )
-    ) collect {
-      case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl),
-        cl.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
-    } flatMap {
-      case p: ScParameterizedType => Some(p)
-      case _ => None
+    lazy val funType = ScalaPsiManager.instance(e.getProject)
+      .getCachedClass("scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+      .collect {
+        case cl: ScTrait =>
+          ScParameterizedType(ScalaType.designator(cl),
+            cl.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
+      }.collect {
+      case p: ScParameterizedType => p
     }
 
     def specialExtractParameterType(rr: ScalaResolveResult): (Option[ScType], Seq[TypeParameter]) = {
@@ -714,11 +712,12 @@ object ScalaPsiUtil {
         tp match {
           case Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-            val obj = ScalaPsiManager.instance(project).
+            ScalaPsiManager.instance(project).
               getCachedClass("scala." + tp.name, scope, ClassCategory.OBJECT)
-            obj match {
-              case o: ScObject => addResult(o.qualifiedName, ScDesignatorType(o))
-              case _           =>
+              .collect {
+                case o: ScObject => o
+              }.foreach { o =>
+              addResult(o.qualifiedName, ScDesignatorType(o))
             }
           case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
