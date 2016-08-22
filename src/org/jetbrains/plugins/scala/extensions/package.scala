@@ -37,6 +37,8 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.HashSet
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
@@ -299,6 +301,17 @@ package object extensions {
       case _ => clazz.hasModifierProperty(PsiModifier.FINAL)
     }
 
+    def allSupers: Seq[PsiClass] = {
+      val res = ArrayBuffer[PsiClass]()
+      def addWithSupers(c: PsiClass): Unit = {
+        if (!res.contains(c)) {
+          if (c != clazz) res += c
+          c.getSupers.foreach(addWithSupers)
+        }
+      }
+      addWithSupers(clazz)
+      res.toVector
+    }
 
     def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean)
                                 (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
