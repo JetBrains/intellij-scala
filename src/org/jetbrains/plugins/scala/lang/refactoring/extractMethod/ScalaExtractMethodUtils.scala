@@ -332,7 +332,7 @@ object ScalaExtractMethodUtils {
     }
 
     val settings = ScalaCodeStyleSettings.getInstance(nextElement.getProject)
-    TypeAnnotationUtil.addTypeAnnotation(
+    TypeAnnotationUtil.isTypeAnnotationNeeded(
       TypeAnnotationUtil.requirementForMethod(isLocal, TypeAnnotationUtil.visibilityFromString(visibilityString), settings),
       settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
       settings.SIMPLE_METHOD_TYPE_ANNOTATION,

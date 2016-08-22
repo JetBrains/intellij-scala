@@ -56,9 +56,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private JTextField privateTextField;
   private JPanel myLinkContainer;
   private JCheckBox mySpecifyTypeChb;
-  private JRadioButton myVariableRadioButton;
-  private JRadioButton myValueRadioButton;
-  private JLabel lable;
+  private JCheckBox myVariableCheckBox;
   private JButton buttonOK;
   public String myEnteredName;
 
@@ -151,20 +149,17 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       }
     });
 
-    ActionListener valVarListener = new ActionListener() {
+    myVariableCheckBox.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (myVariableRadioButton.isSelected()) {
+        if (myVariableCheckBox.isSelected()) {
           mySettings.setDefineVar(true);
-        } else if (myValueRadioButton.isSelected()) {
+        } else {
           mySettings.setDefineVar(false);
         }
         readSettings();
       }
-    };
-
-    myValueRadioButton.addActionListener(valVarListener);
-    myVariableRadioButton.addActionListener(valVarListener);
+    });
 
     ActionListener visibilityListener = new ActionListener() {
       @Override
@@ -239,10 +234,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myInitInDeclarationRB.setFocusable(false);
     myInitInLocalScopeRB.setFocusable(false);
 
-    ButtonGroup myValVarButtons = new ButtonGroup();
-    myValVarButtons.add(myVariableRadioButton);
-    myValVarButtons.add(myValueRadioButton);
-
     readSettings();
 
     boolean nullText = false;
@@ -274,19 +265,13 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   private void readSettings() {
-    myValueRadioButton.setEnabled(mySettings.defineVarChbEnabled());
-    myValueRadioButton.setEnabled(mySettings.defineVarChbEnabled());
+    myVariableCheckBox.setEnabled(mySettings.defineVarChbEnabled());
 
     myInitInDeclarationRB.setEnabled(mySettings.initInDeclarationEnabled());
     myInitInLocalScopeRB.setEnabled(mySettings.initLocallyEnabled());
     myReplaceAllChb.setEnabled(mySettings.replaceAllChbEnabled());
 
-    if (mySettings.defineVar()) {
-      myVariableRadioButton.setSelected(true);
-    } else {
-      myValueRadioButton.setSelected(true);
-    }
-
+    myVariableCheckBox.setSelected(mySettings.defineVar());
     myInitInDeclarationRB.setSelected(mySettings.initInDeclaration());
     myInitInLocalScopeRB.setSelected(!mySettings.initInDeclaration());
     myReplaceAllChb.setSelected(mySettings.replaceAll());
@@ -352,7 +337,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       visibility = TypeAnnotationUtil.Public$.MODULE$;
     }
 
-    return TypeAnnotationUtil.addTypeAnnotation(
+    return TypeAnnotationUtil.isTypeAnnotationNeeded(
             TypeAnnotationUtil.requirementForProperty(false, visibility, settings), //can't declare in local scope
             settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
             settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
@@ -363,11 +348,20 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void setUpTypeComboBox(final ScExpression expression) {
     mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+    updateEnablingTypeList();
+
+    mySpecifyTypeChb.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        updateEnablingTypeList();
+      }
+    });
 
     myProtectedRB.addItemListener(
             new ItemListener() {
               public void itemStateChanged(ItemEvent e) {
                 mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+                updateEnablingTypeList();
               }
             }
     );
@@ -376,6 +370,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
             new ItemListener() {
               public void itemStateChanged(ItemEvent e) {
                 mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+                updateEnablingTypeList();
               }
             }
     );
@@ -384,6 +379,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
             new ItemListener() {
               public void itemStateChanged(ItemEvent e) {
                 mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+                updateEnablingTypeList();
               }
             }
     );
@@ -391,12 +387,14 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void setUpHyperLink(final ScExpression expression) {
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
     myLinkContainer.add(link);
 
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
         mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+        updateEnablingTypeList();
       }
     });
   }
@@ -412,8 +410,8 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void saveSettings() {
     ScalaApplicationSettings scalaSettings = ScalaApplicationSettings.getInstance();
-    if (myVariableRadioButton.isEnabled())
-      scalaSettings.INTRODUCE_FIELD_IS_VAR = myVariableRadioButton.isSelected();
+    if (myVariableCheckBox.isEnabled())
+      scalaSettings.INTRODUCE_FIELD_IS_VAR = myVariableCheckBox.isSelected();
     if (myReplaceAllChb.isEnabled())
       scalaSettings.INTRODUCE_FIELD_REPLACE_ALL = myReplaceAllChb.isSelected();
     if (myPublicRB.isSelected()) {
@@ -444,6 +442,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   protected void doHelpAction() {
     HelpManager.getInstance().invokeHelp(HelpID.INTRODUCE_VARIABLE);
   }
+
   {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
 // >>> IMPORTANT!! <<<
@@ -460,124 +459,104 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(7, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setAlignmentX(0.0f);
+    contentPane.setAlignmentY(0.0f);
+    contentPane.setOpaque(true);
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final Spacer spacer1 = new Spacer();
-    panel1.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-    final JPanel panel2 = new JPanel();
-    panel2.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myTypeLabel = new JLabel();
-    myTypeLabel.setText("Field of type");
+    myTypeLabel.setText("Type");
     myTypeLabel.setDisplayedMnemonic('Y');
-    myTypeLabel.setDisplayedMnemonicIndex(10);
-    panel2.add(myTypeLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myTypeLabel.setDisplayedMnemonicIndex(1);
+    panel1.add(myTypeLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myNameLabel = new JLabel();
     myNameLabel.setText("Name");
     myNameLabel.setDisplayedMnemonic('N');
     myNameLabel.setDisplayedMnemonicIndex(0);
-    panel2.add(myNameLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(myNameLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myTypeComboBox = new JComboBox();
-    panel2.add(myTypeComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(myTypeComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myNameComboBox = new ComboBox();
     myNameComboBox.setEditable(true);
-    panel2.add(myNameComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    lable = new JLabel();
-    lable.setText("Declare as");
-    panel2.add(lable, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JPanel panel3 = new JPanel();
-    panel3.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-    panel2.add(panel3, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    myVariableRadioButton = new JRadioButton();
-    myVariableRadioButton.setSelected(false);
-    myVariableRadioButton.setText("Variable");
-    myVariableRadioButton.setMnemonic('B');
-    myVariableRadioButton.setDisplayedMnemonicIndex(5);
-    panel3.add(myVariableRadioButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final Spacer spacer2 = new Spacer();
-    panel3.add(spacer2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-    myValueRadioButton = new JRadioButton();
-    myValueRadioButton.setSelected(false);
-    myValueRadioButton.setText("Value");
-    myValueRadioButton.setMnemonic('U');
-    myValueRadioButton.setDisplayedMnemonicIndex(3);
-    panel3.add(myValueRadioButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final Spacer spacer3 = new Spacer();
-    panel2.add(spacer3, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 1), null, null, 0, false));
-    final JPanel panel4 = new JPanel();
-    panel4.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.add(myNameComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JPanel panel2 = new JPanel();
+    panel2.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.add(panel2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     visibilityPanel = new JPanel();
     visibilityPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
-    panel4.add(visibilityPanel, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    myPublicRB = new JRadioButton();
-    myPublicRB.setText("Public");
-    myPublicRB.setMnemonic('P');
-    myPublicRB.setDisplayedMnemonicIndex(0);
-    visibilityPanel.add(myPublicRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel2.add(visibilityPanel, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myProtectedRB = new JRadioButton();
     myProtectedRB.setText("Protected");
     myProtectedRB.setMnemonic('O');
     myProtectedRB.setDisplayedMnemonicIndex(2);
     visibilityPanel.add(myProtectedRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    protectedTextField = new JTextField();
+    protectedTextField.setEnabled(false);
+    visibilityPanel.add(protectedTextField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    myPublicRB = new JRadioButton();
+    myPublicRB.setText("Public");
+    myPublicRB.setMnemonic('P');
+    myPublicRB.setDisplayedMnemonicIndex(0);
+    visibilityPanel.add(myPublicRB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myPrivateRB = new JRadioButton();
     myPrivateRB.setText("Private");
     myPrivateRB.setMnemonic('R');
     myPrivateRB.setDisplayedMnemonicIndex(1);
-    visibilityPanel.add(myPrivateRB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    protectedTextField = new JTextField();
-    protectedTextField.setEnabled(false);
-    visibilityPanel.add(protectedTextField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    visibilityPanel.add(myPrivateRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     privateTextField = new JTextField();
     privateTextField.setEnabled(false);
-    visibilityPanel.add(privateTextField, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-    final JPanel panel5 = new JPanel();
-    panel5.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
-    panel4.add(panel5, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    visibilityPanel.add(privateTextField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    final JPanel panel3 = new JPanel();
+    panel3.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
+    panel2.add(panel3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myInitInDeclarationRB = new JRadioButton();
     myInitInDeclarationRB.setText("Field declaration");
     myInitInDeclarationRB.setMnemonic('F');
     myInitInDeclarationRB.setDisplayedMnemonicIndex(0);
-    panel5.add(myInitInDeclarationRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel3.add(myInitInDeclarationRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myInitInLocalScopeRB = new JRadioButton();
     myInitInLocalScopeRB.setText("Local scope");
     myInitInLocalScopeRB.setMnemonic('L');
     myInitInLocalScopeRB.setDisplayedMnemonicIndex(0);
-    panel5.add(myInitInLocalScopeRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final Spacer spacer4 = new Spacer();
-    panel5.add(spacer4, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    panel3.add(myInitInLocalScopeRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer1 = new Spacer();
+    panel3.add(spacer1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final TitledSeparator titledSeparator1 = new TitledSeparator();
     titledSeparator1.setText("Visibility");
-    panel4.add(titledSeparator1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel2.add(titledSeparator1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final TitledSeparator titledSeparator2 = new TitledSeparator();
     titledSeparator2.setText("Initialize in");
-    panel4.add(titledSeparator2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final Spacer spacer5 = new Spacer();
-    contentPane.add(spacer5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(-1, 20), null, null, 0, false));
+    panel2.add(titledSeparator2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myReplaceAllChb = new JCheckBox();
+    myReplaceAllChb.setMargin(new Insets(0, 0, 0, 0));
     myReplaceAllChb.setText("Replace all occurrences");
     myReplaceAllChb.setMnemonic('A');
     myReplaceAllChb.setDisplayedMnemonicIndex(8);
-    contentPane.add(myReplaceAllChb, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final Spacer spacer6 = new Spacer();
-    contentPane.add(spacer6, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(-1, 5), null, null, 0, false));
-    final JPanel panel6 = new JPanel();
-    panel6.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 5));
-    contentPane.add(panel6, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    contentPane.add(myReplaceAllChb, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JPanel panel4 = new JPanel();
+    panel4.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    panel4.setOpaque(false);
+    contentPane.add(panel4, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     mySpecifyTypeChb = new JCheckBox();
     mySpecifyTypeChb.setContentAreaFilled(false);
     mySpecifyTypeChb.setHorizontalAlignment(2);
     mySpecifyTypeChb.setHorizontalTextPosition(11);
     mySpecifyTypeChb.setMargin(new Insets(0, 0, 0, 0));
     this.$$$loadButtonText$$$(mySpecifyTypeChb, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("specify.return.type.explicitly"));
-    panel6.add(mySpecifyTypeChb);
+    panel4.add(mySpecifyTypeChb);
     myLinkContainer = new JPanel();
     myLinkContainer.setLayout(new BorderLayout(0, 0));
     myLinkContainer.setAlignmentX(0.0f);
     myLinkContainer.setAlignmentY(0.0f);
-    panel6.add(myLinkContainer);
+    panel4.add(myLinkContainer);
+    myVariableCheckBox = new JCheckBox();
+    myVariableCheckBox.setMargin(new Insets(0, 0, 0, 0));
+    myVariableCheckBox.setText("Variable");
+    myVariableCheckBox.setMnemonic('V');
+    myVariableCheckBox.setDisplayedMnemonicIndex(0);
+    contentPane.add(myVariableCheckBox, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
   /**
@@ -632,5 +611,10 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         ((DataChangedListener) aList).dataChanged();
       }
     }
+  }
+
+  private void updateEnablingTypeList() {
+    myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
+    myTypeLabel.setEnabled(mySpecifyTypeChb.isSelected());
   }
 }

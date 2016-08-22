@@ -11,7 +11,6 @@ import com.intellij.refactoring.HelpID;
 import com.intellij.ui.*;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
@@ -168,19 +167,20 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         myTypeComboBox.requestFocus();
       }
     }, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
-    myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
 
+    updateEnablingTypeList();
   }
 
   private void setUpHyperLink() {
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
     myLinkContainer.add(link);
 
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
         mySpecifyTypeChb.setSelected(addTypeAnnotation());
-        myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
+        updateEnablingTypeList();
       }
     });
   }
@@ -188,7 +188,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   //treat expression as local variable
   private boolean addTypeAnnotation() {
     ScalaCodeStyleSettings settings = ScalaCodeStyleSettings.getInstance(project);
-    return TypeAnnotationUtil.addTypeAnnotation(
+    return TypeAnnotationUtil.isTypeAnnotationNeeded(
             TypeAnnotationUtil.requirementForProperty(true, TypeAnnotationUtil.Public$.MODULE$, settings),
             settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
             settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
@@ -204,6 +204,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
       @Override
       public void actionPerformed(ActionEvent e) {
         myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
+        updateEnablingTypeList();
       }
     });
   }
@@ -291,14 +292,14 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel1, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    contentPane.add(panel1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     declareVariableCheckBox = new JCheckBox();
-    declareVariableCheckBox.setText("Declare as variable");
+    declareVariableCheckBox.setText("Variable");
     declareVariableCheckBox.setMnemonic('V');
-    declareVariableCheckBox.setDisplayedMnemonicIndex(11);
+    declareVariableCheckBox.setDisplayedMnemonicIndex(0);
     panel1.add(declareVariableCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myCbReplaceAllOccurences = new JCheckBox();
     myCbReplaceAllOccurences.setText("Replace all occurrences");
@@ -309,20 +310,21 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     panel2.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myTypeLabel = new JLabel();
-    myTypeLabel.setText("Variable of type");
+    myTypeLabel.setEnabled(true);
+    myTypeLabel.setText("Type");
     myTypeLabel.setDisplayedMnemonic('Y');
-    myTypeLabel.setDisplayedMnemonicIndex(13);
+    myTypeLabel.setDisplayedMnemonicIndex(1);
     panel2.add(myTypeLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myNameLabel = new JLabel();
     myNameLabel.setText("Name");
+    myNameLabel.setDisplayedMnemonic('N');
+    myNameLabel.setDisplayedMnemonicIndex(0);
     panel2.add(myNameLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myTypeComboBox = new JComboBox();
     panel2.add(myTypeComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myNameComboBox = new ComboBox();
     myNameComboBox.setEditable(true);
     panel2.add(myNameComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final Spacer spacer1 = new Spacer();
-    contentPane.add(spacer1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 10), null, null, 0, false));
     final JPanel panel3 = new JPanel();
     panel3.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     panel3.setAlignmentX(0.0f);
@@ -399,5 +401,10 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         ((DataChangedListener) aList).dataChanged();
       }
     }
+  }
+
+  private void updateEnablingTypeList() {
+    myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
+    myTypeLabel.setEnabled(mySpecifyTypeChb.isSelected());
   }
 }

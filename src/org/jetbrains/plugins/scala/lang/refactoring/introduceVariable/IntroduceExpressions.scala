@@ -295,7 +295,7 @@ trait IntroduceExpressions {
         val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
         val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
   
-        TypeAnnotationUtil.addTypeAnnotation(
+        TypeAnnotationUtil.isTypeAnnotationNeeded(
           TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
           settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
           settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSetti
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -27,20 +27,20 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeL
   * Created by kate on 7/14/16.
   */
 object TypeAnnotationUtil {
-  def addTypeAnnotation(requiment: Int, ovPolicy: Int, simplePolicy: Int, isOverride: Boolean, isSimple: Boolean): Boolean = {
+  def isTypeAnnotationNeeded(requiment: Int, ovPolicy: Int, simplePolicy: Int, isOverride: Boolean, isSimple: Boolean): Boolean = {
 
     requiment != TypeAnnotationRequirement.Optional.ordinal() &&
       (!isSimple || simplePolicy != TypeAnnotationPolicy.Optional.ordinal()) &&
       (!isOverride || ovPolicy != TypeAnnotationPolicy.Optional.ordinal())
   }
 
-  def addTypeAnnotation(element: ScalaPsiElement): Boolean = {
+  def isTypeAnnotationNeeded(element: ScalaPsiElement): Boolean = {
     val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
 
     element match {
       case value: ScPatternDefinition if value.isSimple => //not simple will contains more than one declaration
 
-        addTypeAnnotation(requirementForProperty(value, settings),
+        isTypeAnnotationNeeded(requirementForProperty(value, settings),
           settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
           settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
           isOverriding(value),
@@ -48,7 +48,7 @@ object TypeAnnotationUtil {
 
       case variable: ScVariableDefinition if variable.isSimple =>
 
-        addTypeAnnotation(requirementForProperty(variable, settings),
+        isTypeAnnotationNeeded(requirementForProperty(variable, settings),
           settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
           settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
           isOverriding(variable),
@@ -56,7 +56,7 @@ object TypeAnnotationUtil {
 
       case method: ScFunctionDefinition if method.hasAssign && !method.isSecondaryConstructor =>
 
-        addTypeAnnotation(requirementForMethod(method, settings),
+        isTypeAnnotationNeeded(requirementForMethod(method, settings),
           settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
           settings.SIMPLE_METHOD_TYPE_ANNOTATION,
           isOverriding(method),
@@ -65,7 +65,6 @@ object TypeAnnotationUtil {
       case _ => true
     }
   }
-
   def isOverriding(element: PsiElement): Boolean = {
     element match {
       case func: ScFunctionDefinition =>
@@ -108,7 +107,7 @@ object TypeAnnotationUtil {
     }
   }
 
-  def requirementForMethod(method: ScFunctionDefinition, settings: ScalaCodeStyleSettings): Int = {
+  def requirementForMethod(method: ScMember, settings: ScalaCodeStyleSettings): Int = {
     if (method.isLocal) {
       settings.LOCAL_METHOD_TYPE_ANNOTATION
     } else {
@@ -158,7 +157,7 @@ object TypeAnnotationUtil {
       case ReturnTypeLevel.ADD => //nothing
       case ReturnTypeLevel.REMOVE | ReturnTypeLevel.BY_CODE_STYLE =>
         getTypeElement(element) match {
-          case Some(typeElement) if (state == ReturnTypeLevel.REMOVE) || ((state == ReturnTypeLevel.BY_CODE_STYLE) && !addTypeAnnotation(element)) =>
+          case Some(typeElement) if (state == ReturnTypeLevel.REMOVE) || ((state == ReturnTypeLevel.BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
             AddOnlyStrategy.withoutEditor.removeTypeAnnotation(typeElement)
           case _ =>
         }
