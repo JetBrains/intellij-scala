@@ -79,21 +79,33 @@ class ScalaChangeSignatureDialog(val project: Project,
       case "apply" | "unapply" | "unapplySeq" | "update" => myNameField.setEnabled(false)
       case _ =>
     }
-    panel
+    val holder = new JPanel(new BorderLayout())
+    holder.add(panel, BorderLayout.NORTH)
+    holder.add(createDefaultArgumentPanel(), BorderLayout.LINE_START)
+    holder
   }
 
+  protected def createDefaultArgumentPanel(): JPanel = {
+    val optionsPanel = new JPanel(new BorderLayout())
+    val label = new JLabel("Default value:")
+    defaultValuesUsagePanel = new DefaultValuesUsagePanel("")
+  
+    val holder = new JPanel()
+    holder.add(label)
+    holder.add(defaultValuesUsagePanel)
+  
+    optionsPanel.add(holder)
+    optionsPanel
+  }
+  
   override def createOptionsPanel(): JComponent = {
     val panel = super.createOptionsPanel() //to initialize fields in base class
     
     val holder: JPanel = new JPanel
     holder.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0))
-
-    defaultValuesUsagePanel = new DefaultValuesUsagePanel()
-    holder.add(defaultValuesUsagePanel)
-    panel.add(holder)
     
-    val specifyTypePanle = createTypePanel()
-    panel.add(specifyTypePanle)
+    val specifyTypePanel = createTypePanel()
+    panel.add(specifyTypePanel)
     
     panel.setVisible(needSpecifyTypeChb)
     myPropagateParamChangesButton.setVisible(false)
@@ -203,7 +215,7 @@ class ScalaChangeSignatureDialog(val project: Project,
         case _=> false
       }
 
-    TypeAnnotationUtil.addTypeAnnotation(
+    TypeAnnotationUtil.isTypeAnnotationNeeded(
       TypeAnnotationUtil.requirementForMethod(TypeAnnotationUtil.isLocal(element), visibility, settings = settings),
       settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
       settings.SIMPLE_METHOD_TYPE_ANNOTATION,
@@ -509,7 +521,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     
     mySpecifyTypeChb = new JCheckBox
-    mySpecifyTypeChb.setText(ScalaBundle.message("specify.return.type.explicitly"))
+    mySpecifyTypeChb.setText("Specify return &type")
     typePanel.add(mySpecifyTypeChb)
     
     val myLinkContainer = new JPanel
@@ -526,6 +538,7 @@ class ScalaChangeSignatureDialog(val project: Project,
   
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"))
     
     link.addHyperlinkListener(new HyperlinkListener() {
       def hyperlinkUpdate(e: HyperlinkEvent) {

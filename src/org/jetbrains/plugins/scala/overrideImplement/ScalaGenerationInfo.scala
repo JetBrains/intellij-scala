@@ -215,10 +215,8 @@ object ScalaGenerationInfo {
   }
 
   def createVariable(comment: String, classMember: ClassMember): ScMember = {
-    val isVal = classMember match {
-      case _: ScValueMember => true
-      case _: ScVariableMember => false
-    }
+    val isVal = classMember.isInstanceOf[ScValueMember]
+    
     val value = classMember match {
       case x: ScValueMember => x.element
       case x: ScVariableMember => x.element

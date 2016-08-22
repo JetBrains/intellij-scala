@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import java.awt.{BorderLayout, FlowLayout}
+import java.awt.FlowLayout
+import javax.swing.event.{HyperlinkEvent, HyperlinkListener, TreeSelectionEvent, TreeSelectionListener}
 import javax.swing.{JComponent, JPanel}
 
 import com.intellij.ide.util.MemberChooser
-import com.intellij.psi.PsiClass
+import com.intellij.psi._
 import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
@@ -31,7 +34,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
           val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
           val typePanel = new JPanel()
           
-          private val otherComponents = Array[JComponent](addOverrideModifierChb, copyScalaDocChb, typePanel)
+          private val otherComponents = Array[JComponent](copyScalaDocChb, addOverrideModifierChb, typePanel)
           private val sortedElements = ScalaMemberChooser.sorted(elements, targetClass)
           
         } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, otherComponents) {
@@ -40,7 +43,8 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   
   setUpSettingsPanel()
   setUpTypePanel()
-    
+  trackSelection()
+  
   override def doOKAction(): Unit = {
     ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED = addOverrideModifierChb.isSelected
     ScalaApplicationSettings.getInstance.COPY_SCALADOC = copyScalaDocChb.isSelected
@@ -61,18 +65,22 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     
     addOverrideModifierChb.setSelected(ScalaApplicationSettings.getInstance().ADD_OVERRIDE_TO_IMPLEMENTED)
     addOverrideModifierChb.setVisible(needAddOverrideChb)
-  
+    
     copyScalaDocChb.setSelected(ScalaApplicationSettings.getInstance().COPY_SCALADOC)
     copyScalaDocChb.setVisible(needCopyScalaDocChb)
   }
   
   private def setUpTypePanel(): JPanel ={
+    soleSelectedElement.foreach{ element =>
+      mySpecifyTypeChb.setSelected(istypeNeeded(element))
+    }
+    
     typePanel.add(mySpecifyTypeChb)
-  
+    
     val myLinkContainer = new JPanel
     myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
     typePanel.add(myLinkContainer)
-  
+    
     myLinkContainer.add(setUpHyperLink())
     typePanel.setVisible(needSpecifyTypeChb)
     typePanel
@@ -80,7 +88,95 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"))
+   
+    link.addHyperlinkListener(new HyperlinkListener {
+      override def hyperlinkUpdate(e: HyperlinkEvent): Unit = updateSpecifyTypeChb()
+    })
+    
     link
+  }
+  
+  private def updateSpecifyTypeChb(): Unit ={
+    soleSelectedElement match {
+      case Some(psiElement) => mySpecifyTypeChb.setSelected(istypeNeeded(psiElement))
+      case None => mySpecifyTypeChb.setState(ThreeStateCheckBox.State.DONT_CARE)
+    }
+  }
+  
+  private def trackSelection(): Unit = {
+    val selectionListener = new TreeSelectionListener {
+      override def valueChanged(e: TreeSelectionEvent): Unit = {
+        updateSpecifyTypeChb()
+      }
+    }
+    
+    // Reorder listeners. We need to know information about current selected element,
+    // but, if we add new listener it will be called before MemberChooser listener,
+    // and mySelectedElements in our listener will have previous information
+    val listeners = myTree.getTreeSelectionListeners
+    listeners.foreach(myTree.removeTreeSelectionListener)
+    myTree.addTreeSelectionListener(selectionListener)
+    listeners.foreach(myTree.addTreeSelectionListener)
+  }
+  
+  private def soleSelectedElement: Option[PsiElement] = {
+    if (mySelectedElements.size() != 1) {
+      None
+    } else {
+      val iterator = mySelectedElements.iterator()
+      if (iterator.hasNext()) {
+        val next = iterator.next
+        if (next.isInstanceOf[ClassMember]) Some(next.getElement())
+        else None
+      } else None
+    }
+  }
+  
+  
+  private def istypeNeeded(element: PsiElement): Boolean = {
+    def defaults: (Int, Int, Int) =
+      (TypeAnnotationRequirement.Preferred.ordinal(), TypeAnnotationPolicy.Regular.ordinal, TypeAnnotationPolicy.Optional.ordinal)
+  
+    val settings = ScalaCodeStyleSettings.getInstance(element.getProject)
+
+    val (requiment, ovPolicy, simplePolicy) = element match {
+      case _: ScPatternDefinition | _: ScVariableDefinition |
+           _: ScVariableDeclaration | _: ScValueDeclaration   =>
+      
+        (TypeAnnotationUtil.requirementForProperty(element.asInstanceOf[ScMember], settings),
+          settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION, settings.SIMPLE_PROPERTY_TYPE_ANNOTATION)
+    
+      case  _: ScFunctionDeclaration|  _: ScFunctionDefinition  =>
+      
+        (TypeAnnotationUtil.requirementForMethod(element.asInstanceOf[ScMember], settings),
+          settings.OVERRIDING_METHOD_TYPE_ANNOTATION, settings.SIMPLE_METHOD_TYPE_ANNOTATION)
+
+      case modifierListOwner: PsiModifierListOwner =>
+        val list = modifierListOwner.getModifierList
+        val visibility = if (list.hasModifierProperty("private")) TypeAnnotationUtil.Private
+        else if (list.hasModifierProperty("protected")) TypeAnnotationUtil.Protected
+        else TypeAnnotationUtil.Public
+  
+        modifierListOwner match {
+            
+          case method: PsiMethod =>
+            
+            (TypeAnnotationUtil.requirementForMethod(isLocal = false, visibility, settings),
+              settings.OVERRIDING_METHOD_TYPE_ANNOTATION, settings.SIMPLE_METHOD_TYPE_ANNOTATION)
+            
+          case field: PsiField =>
+            
+            (TypeAnnotationUtil.requirementForMethod(isLocal = false, visibility, settings),
+              settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION, settings.SIMPLE_PROPERTY_TYPE_ANNOTATION)
+            
+          case _ => defaults
+        }
+    
+      case _ => defaults
+    }
+  
+    TypeAnnotationUtil.isTypeAnnotationNeeded(requiment, ovPolicy, simplePolicy, !element.isInstanceOf[ScTypedDeclaration], isSimple = false)
   }
 }
 

@@ -138,7 +138,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
         case _=> false
       }
 
-    TypeAnnotationUtil.addTypeAnnotation(
+    TypeAnnotationUtil.isTypeAnnotationNeeded(
       TypeAnnotationUtil.requirementForMethod(TypeAnnotationUtil.isLocal(element), visibility, settings = settings),
       settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
       settings.SIMPLE_METHOD_TYPE_ANNOTATION,
