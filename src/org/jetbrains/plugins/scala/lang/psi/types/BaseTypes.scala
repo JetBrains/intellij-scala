@@ -5,7 +5,7 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
@@ -31,7 +31,7 @@ object BaseTypes {
       case ScDesignatorType(definition: ScTemplateDefinition) =>
         reduce(definition.superTypes)
       case ScDesignatorType(clazz: PsiClass) =>
-        reduce(clazz.getSuperTypes.map(_.toScType()))
+        reduce(clazz.superTypes)
       case ScDesignatorType(aliasDefinition: ScTypeAliasDefinition) =>
         getInner(aliasDefinition) {
           identity
@@ -116,7 +116,7 @@ object BaseTypes {
                      notAll: Boolean): Seq[ScType] = {
     val types = maybeElement.toSeq.flatMap {
       case definition: ScTypeDefinition => definition.superTypes
-      case clazz: PsiClass => clazz.getSuperTypes.toSeq.map(_.toScType())
+      case clazz: PsiClass => clazz.superTypes
       case _ => Seq.empty
     }
     reduce(types.map(substitutor.subst))
