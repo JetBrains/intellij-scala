@@ -4,6 +4,7 @@ import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getPsiElementId
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 
 import scala.collection.Seq
@@ -105,7 +106,13 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {
-      case that: TypeParameterType => that.psiTypeParameter eq psiTypeParameter
+      case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
+        (psiTypeParameter, that.psiTypeParameter) match {
+          case (myBound: ScTypeBoundsOwner, thatBound: ScTypeBoundsOwner) =>
+            myBound.lowerBound == thatBound.lowerBound && myBound.upperBound == thatBound.upperBound
+          case _ => false
+        }
+      }
       case _ => false
     }, substitutor)
 
