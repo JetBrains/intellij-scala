@@ -28,14 +28,8 @@ object BaseTypes {
     ProgressManager.checkCanceled()
 
     `type` match {
-      case ScDesignatorType(definition: ScTemplateDefinition) =>
-        reduce(definition.superTypes)
-      case ScDesignatorType(clazz: PsiClass) =>
-        reduce(clazz.getSuperTypes.map(_.toScType()))
-      case ScDesignatorType(aliasDefinition: ScTypeAliasDefinition) =>
-        getInner(aliasDefinition) {
-          identity
-        }
+      case designatorType: ScDesignatorType =>
+        getInner(designatorType)
       case ScThisType(clazz) =>
         getInner(clazz.getTypeWithProjections(TypingContext.empty), visitedAliases)
       case TypeParameterType(Nil, _, upper, _) =>
@@ -48,45 +42,74 @@ object BaseTypes {
         getInner(existentialType.quantified).map(_.unpackedType)
       case compoundType: ScCompoundType =>
         reduce(compoundType.components)
+      case parameterizedType: ScParameterizedType =>
+        getInner(parameterizedType)
+      case projectionType: ScProjectionType =>
+        getInner(projectionType)
+      case _ => Seq.empty
+    }
+  }
 
-      case ParameterizedType(ScDesignatorType(aliasDefinition: ScTypeAliasDefinition), arguments) =>
+  private def getInner(designatorType: ScDesignatorType)
+                      (implicit typeSystem: TypeSystem,
+                       visitedAliases: HashSet[ScTypeAlias],
+                       notAll: Boolean): Seq[ScType] = designatorType.element match {
+    case definition: ScTemplateDefinition =>
+      reduce(definition.superTypes)
+    case clazz: PsiClass =>
+      reduce(clazz.getSuperTypes.map(_.toScType()))
+    case aliasDefinition: ScTypeAliasDefinition =>
+      getInner(aliasDefinition) {
+        identity
+      }
+  }
+
+  private def getInner(parameterizedType: ParameterizedType)
+                      (implicit typeSystem: TypeSystem,
+                       visitedAliases: HashSet[ScTypeAlias],
+                       notAll: Boolean): Seq[ScType] = {
+    def substitutor(aliasDefinition: ScTypeAliasDefinition) =
+      ScalaPsiUtil.typesCallSubstitutor(aliasDefinition.typeParameters.map(_.nameAndId), parameterizedType.typeArguments)
+
+    parameterizedType.designator match {
+      case ScDesignatorType(aliasDefinition: ScTypeAliasDefinition) =>
         getInner(aliasDefinition) {
-          substitutor(aliasDefinition, arguments).subst
+          substitutor(aliasDefinition).subst
         }
-      case ParameterizedType(projectionType: ScProjectionType, arguments) if projectionType.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+      case projectionType: ScProjectionType if projectionType.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val aliasDefinition = projectionType.actualElement.asInstanceOf[ScTypeAliasDefinition]
         getInner(aliasDefinition) {
-          projectionType.actualSubst.followed(substitutor(aliasDefinition, arguments)).subst
+          projectionType.actualSubst.followed(substitutor(aliasDefinition)).subst
         }
-      case parameterizedType: ScParameterizedType =>
-        val types = parameterizedType.designator.extractClass() match {
-          case Some(td: ScTypeDefinition) => td.superTypes
+      case designator =>
+        val types = designator.extractClass() match {
+          case Some(definition: ScTypeDefinition) => definition.superTypes
           case Some(clazz) => clazz.getSuperTypes.toSeq.map(_.toScType())
           case _ => Seq.empty
         }
 
         val substitutor = parameterizedType.substitutor
-        reduce(types.map {
-          substitutor.subst
-        })
-
-      case projectionType: ScProjectionType if projectionType.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        getInner(projectionType.actualElement.asInstanceOf[ScTypeAliasDefinition]) {
-          projectionType.actualSubst.subst
-        }
-      case projectionType: ScProjectionType =>
-        val types = projectionType.element match {
-          case td: ScTypeDefinition => td.superTypes
-          case c: PsiClass => c.getSuperTypes.toSeq.map(_.toScType())
-          case _ => Seq.empty
-        }
-
-        val substitutor = projectionType.actualSubst
-        reduce(types.map {
-          substitutor.subst
-        })
-      case _ => Seq.empty
+        reduce(types.map(substitutor.subst))
     }
+  }
+
+  private def getInner(projectionType: ScProjectionType)
+                      (implicit typeSystem: TypeSystem,
+                       visitedAliases: HashSet[ScTypeAlias],
+                       notAll: Boolean): Seq[ScType] = projectionType.actualElement match {
+    case aliasDefinition: ScTypeAliasDefinition =>
+      getInner(aliasDefinition) {
+        projectionType.actualSubst.subst
+      }
+    case _ =>
+      val types = projectionType.element match {
+        case td: ScTypeDefinition => td.superTypes
+        case c: PsiClass => c.getSuperTypes.toSeq.map(_.toScType())
+        case _ => Seq.empty
+      }
+
+      val substitutor = projectionType.actualSubst
+      reduce(types.map(substitutor.subst))
   }
 
   private def getInner(typeResult: TypeResult[ScType],
@@ -109,9 +132,6 @@ object BaseTypes {
       case _ => Seq.empty
     }
   }
-
-  private def substitutor(aliasDefinition: ScTypeAliasDefinition, arguments: Seq[ScType]) =
-    ScalaPsiUtil.typesCallSubstitutor(aliasDefinition.typeParameters.map(_.nameAndId), arguments)
 
   private def reduce(types: Seq[ScType])
                     (implicit typeSystem: TypeSystem,
