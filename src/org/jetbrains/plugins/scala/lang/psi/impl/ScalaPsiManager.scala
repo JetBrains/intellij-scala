@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, SyntheticClassProducer}
@@ -114,6 +115,12 @@ class ScalaPsiManager(val project: Project) {
 
     val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
     Option(res).orElse(getCachedFacadeClass(scope, fqn))
+  }
+
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
+  def getProjectionTypeCached(projected: ScType, element: PsiNamedElement,
+                              superReference: Boolean /* todo: find a way to remove it*/): ScType = {
+    ScProjectionType.create(projected, element, superReference)
   }
 
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] = {
@@ -240,6 +247,7 @@ class ScalaPsiManager(val project: Project) {
     conformance.clearCache()
     equivalence.clearCache()
     ParameterizedType.substitutorCache.clear()
+    ScParameterizedType.cache.clear()
     collectImplicitObjectsCache.clear()
     implicitCollectorCache.clear()
   }
