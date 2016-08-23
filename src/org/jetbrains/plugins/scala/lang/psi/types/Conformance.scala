@@ -868,7 +868,7 @@ object Conformance extends api.Conformance {
           result = (false, undefinedSubst)
           return
         }
-        des1.extractDesignated(withoutAliases = false) match {
+        des1.extractDesignated(withoutAliases = true) match {
           case Some((ownerDesignator, _)) =>
             val parametersIterator = ownerDesignator match {
               case td: ScTypeParametersOwner => td.typeParameters.iterator
