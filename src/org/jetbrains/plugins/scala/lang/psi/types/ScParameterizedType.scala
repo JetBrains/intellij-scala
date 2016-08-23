@@ -7,7 +7,10 @@ package types
  * @author ilyas
  */
 
+import java.util.concurrent.ConcurrentMap
+
 import com.intellij.psi._
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
@@ -57,6 +60,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 
   private var hash: Int = -1
 
+  //noinspection HashCodeUsesVar
   override def hashCode: Int = {
     if (hash == -1) {
       hash = designator.hashCode() + typeArguments.hashCode() * 31
@@ -213,7 +217,19 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 }
 
 object ScParameterizedType {
+  val cache: ConcurrentMap[(ScType, Seq[ScType]), ValueType] =
+    ContainerUtil.createConcurrentWeakMap[(ScType, Seq[ScType]), ValueType]()
+
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
+    val key = (designator, typeArgs)
+    Option(cache.get(key)).getOrElse {
+      val result = create(designator, typeArgs)
+      cache.put(key, result)
+      result
+    }
+  }
+
+  private def create(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
     val res = new ScParameterizedType(designator, typeArgs)
     designator match {
       case ScProjectionType(_: ScCompoundType, _, _) =>
