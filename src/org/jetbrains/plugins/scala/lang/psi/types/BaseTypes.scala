@@ -33,9 +33,8 @@ object BaseTypes {
       case ScDesignatorType(clazz: PsiClass) =>
         reduce(clazz.getSuperTypes.map(_.toScType()))
       case ScDesignatorType(aliasDefinition: ScTypeAliasDefinition) =>
-        visitedAliases.contains(aliasDefinition) match {
-          case false => getInner(aliasDefinition.aliasedType(), visitedAliases + aliasDefinition)
-          case _ => Seq.empty
+        getInner(aliasDefinition) {
+          identity
         }
       case ScThisType(clazz) =>
         getInner(clazz.getTypeWithProjections(TypingContext.empty), visitedAliases)
@@ -51,29 +50,13 @@ object BaseTypes {
         reduce(compoundType.components)
 
       case ParameterizedType(ScDesignatorType(aliasDefinition: ScTypeAliasDefinition), arguments) =>
-        visitedAliases.contains(aliasDefinition) match {
-          case false =>
-            val substitutor = ScalaPsiUtil.typesCallSubstitutor(aliasDefinition.typeParameters.map(_.nameAndId), arguments)
-
-            val substituted = aliasDefinition.aliasedType().map {
-              substitutor.subst
-            }
-            getInner(substituted, visitedAliases + aliasDefinition)
-          case _ => Seq.empty
+        getInner(aliasDefinition) {
+          substitutor(aliasDefinition, arguments).subst
         }
       case ParameterizedType(projectionType: ScProjectionType, arguments) if projectionType.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val aliasDefinition = projectionType.actualElement.asInstanceOf[ScTypeAliasDefinition]
-
-        visitedAliases.contains(aliasDefinition) match {
-          case false =>
-            val genericSubstitutor = ScalaPsiUtil.typesCallSubstitutor(aliasDefinition.typeParameters.map(_.nameAndId), arguments)
-            val substitutor = projectionType.actualSubst.followed(genericSubstitutor)
-
-            val substituted = aliasDefinition.aliasedType().map {
-              substitutor.subst
-            }
-            getInner(substituted, visitedAliases + aliasDefinition)
-          case _ => Seq.empty
+        getInner(aliasDefinition) {
+          projectionType.actualSubst.followed(substitutor(aliasDefinition, arguments)).subst
         }
       case parameterizedType: ScParameterizedType =>
         val types = parameterizedType.designator.extractClass() match {
@@ -88,15 +71,8 @@ object BaseTypes {
         })
 
       case projectionType: ScProjectionType if projectionType.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        val aliasDefinition = projectionType.actualElement.asInstanceOf[ScTypeAliasDefinition]
-
-        visitedAliases.contains(aliasDefinition) match {
-          case false =>
-            val substituted = aliasDefinition.aliasedType().map {
-              projectionType.actualSubst.subst
-            }
-            getInner(substituted, visitedAliases + aliasDefinition)
-          case _ => Seq.empty
+        getInner(projectionType.actualElement.asInstanceOf[ScTypeAliasDefinition]) {
+          projectionType.actualSubst.subst
         }
       case projectionType: ScProjectionType =>
         val types = projectionType.element match {
@@ -120,6 +96,22 @@ object BaseTypes {
     typeResult.toOption.toSeq.flatMap {
       getInner(_)(typeSystem, visitedAliases, notAll)
     }
+
+  private def getInner(aliasDefinition: ScTypeAliasDefinition)
+                      (substitute: => (ScType => ScType))
+                      (implicit typeSystem: TypeSystem,
+                       visitedAliases: HashSet[ScTypeAlias],
+                       notAll: Boolean): Seq[ScType] = {
+    visitedAliases.contains(aliasDefinition) match {
+      case false =>
+        val substituted = aliasDefinition.aliasedType().map(substitute)
+        getInner(substituted, visitedAliases + aliasDefinition)
+      case _ => Seq.empty
+    }
+  }
+
+  private def substitutor(aliasDefinition: ScTypeAliasDefinition, arguments: Seq[ScType]) =
+    ScalaPsiUtil.typesCallSubstitutor(aliasDefinition.typeParameters.map(_.nameAndId), arguments)
 
   private def reduce(types: Seq[ScType])
                     (implicit typeSystem: TypeSystem,
