@@ -1,10 +1,10 @@
 //name = i
-def foo(x: Int) = {
+def foo(x: Int) {
   /*start*/1 + 1/*end*/
 }
 /*
 //name = i
-def foo(x: Int, i: Int): Int = {
+def foo(x: Int, i: Int) {
   /*start*/i/*end*/
 }
 */

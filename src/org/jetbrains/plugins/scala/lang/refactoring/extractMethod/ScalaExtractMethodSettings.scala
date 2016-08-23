@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -21,6 +22,7 @@ class ScalaExtractMethodSettings(
         val nextSibling: PsiElement,
         val elements: Array[PsiElement],
         val returnType: Option[ScType],
+        val addReturnType: ScalaApplicationSettings.ReturnTypeLevel,
         val lastReturn: Boolean,
         val lastExprType: Option[ScType],
         val innerClassSettings: InnerClassSettings) {

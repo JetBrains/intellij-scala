@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -93,7 +94,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
   def typeDefs: Seq[ScTypeDefinition] = {
     val stub = getStub
     if (stub != null) {
-      stub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+      stub.getChildrenByType(getProject.tokenSets.typeDefinitions, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     } else {
       val buffer = new ArrayBuffer[ScTypeDefinition]
       var curr = getFirstChild

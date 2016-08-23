@@ -2,7 +2,7 @@ package org.jetbrains.plugins.dotty.lang.psi.stubs.elements
 
 import com.intellij.psi.StubBuilder
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes
+import org.jetbrains.plugins.dotty.lang.DottyTokenSets
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
@@ -17,7 +17,7 @@ class DottyStubFileElementType
   override def getBuilder: StubBuilder = new ScalaFileStubBuilder {
     override protected def createStubForFile(file: ScalaFile) =
       new ScFileStubImpl(file) {
-        override protected def fileElementType = DottyElementTypes.file
+        override protected def tokenSets = DottyTokenSets
       }
   }
 
@@ -25,6 +25,6 @@ class DottyStubFileElementType
                                           packageNameRef: StringRef, sourceNameRef: StringRef) =
     new DeserializedStubImpl(isScript, isCompiled,
       packageNameRef, sourceNameRef) {
-      override protected def fileElementType = DottyElementTypes.file
+      override protected def tokenSets = DottyTokenSets
     }
 }

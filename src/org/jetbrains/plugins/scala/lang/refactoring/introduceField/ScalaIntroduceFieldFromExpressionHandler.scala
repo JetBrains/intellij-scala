@@ -87,30 +87,6 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     runWithDialog()
   }
 
-  /*
-    return Option(expected type) or None according to TypeAnnotation settings
-   */
-  def typeAccorgindTASettings(visibilityString: String, scType: ScType, expression: ScExpression): Option[ScType] = {
-    val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
-    // TODO: check simple
-    val isSimple = TypeAnnotationUtil.isSimple(expression)
-
-    val visibility = if (visibilityString.contains("private")) TypeAnnotationUtil.Private
-    else if (visibilityString.contains("protected")) TypeAnnotationUtil.Protected
-    else TypeAnnotationUtil.Public
-
-    val typeNeeded = TypeAnnotationUtil.addTypeAnnotation(
-      TypeAnnotationUtil.requirementForProperty(isLocal = false, visibility, settings), //can't declare in local scope
-      settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-      settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-      isOverride = false, //can't override in curren refactoring
-      isSimple = isSimple
-    )
-
-    if (typeNeeded) Some(scType) else None
-  }
-
-
   private def runRefactoringInside(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]) {
     val expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element)
     val mainOcc = ifc.occurrences.filter(_.getStartOffset == ifc.editor.getSelectionModel.getSelectionStart)
@@ -123,12 +99,10 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     }
     val manager = aClass.getManager
     val name = settings.name
+    val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
     val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrencesToReplace, name, ifc.file)
 
     val anchor = anchorForNewDeclaration(expression, replacedOccurences, aClass)
-
-    val typeName = typeAccorgindTASettings(settings.visibilityLevel, settings.scType, expression).map(_.canonicalText).getOrElse("")
-
     val initInDecl = settings.initInDeclaration
     var createdDeclaration: PsiElement = null
     if (initInDecl) {

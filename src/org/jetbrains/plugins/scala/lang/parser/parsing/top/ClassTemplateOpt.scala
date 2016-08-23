@@ -19,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{ClassParent
 object ClassTemplateOpt extends ClassTemplateOpt {
   override protected val templateBody = TemplateBody
   override protected val earlyDef = EarlyDef
-  override protected val parents = ClassParents
+  override protected val classParents = ClassParents
 }
 
 //May be hard to read. Because written before understanding that before TemplateBody could be nl token
 //So there are fixed it, but may be should be some rewrite.
-trait ClassTemplateOpt {
+trait ClassTemplateOpt extends TemplateOpt {
   protected val templateBody: TemplateBody
   protected val earlyDef: EarlyDef
-  protected val parents: Parents
+  protected val classParents: ClassParents
 
   def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark
@@ -63,7 +63,7 @@ trait ClassTemplateOpt {
       case ScalaTokenTypes.tLBRACE =>
         //try to parse early definition if we can't => it's template body
         if (earlyDef parse builder) {
-          parents parse builder
+          classParents parse builder
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
@@ -109,7 +109,7 @@ trait ClassTemplateOpt {
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        parents parse builder
+        classParents parse builder
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {

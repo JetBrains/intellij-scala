@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
 import java.awt._
+import java.awt.event.{ActionEvent, ActionListener}
 import java.util
 import javax.swing._
 import javax.swing.border.MatteBorder
-import javax.swing.event.ChangeEvent
+import javax.swing.event.{ChangeEvent, ChangeListener, HyperlinkEvent, HyperlinkListener}
 import javax.swing.table.TableCellEditor
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
@@ -46,36 +47,30 @@ import scala.collection.mutable.ListBuffer
 * Nikolay.Tropin
 * 2014-08-29
 */
-class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDescriptor)
-        extends {
-          private var defaultValuesUsagePanel: DefaultValuesUsagePanel = null
-        }
-        with ChangeSignatureDialogBase[ScalaParameterInfo,
-                                          ScFunction,
-                                          String,
-                                          ScalaMethodDescriptor,
-                                          ScalaParameterTableModelItem,
-                                          ScalaParameterTableModel](project, method, false, method.fun) {
+class ScalaChangeSignatureDialog(val project: Project,
+                                 val method: ScalaMethodDescriptor,
+                                 val needSpecifyTypeChb: Boolean)
+  extends {
+    private var defaultValuesUsagePanel: DefaultValuesUsagePanel = null
+    var mySpecifyTypeChb: JCheckBox = null
+  }
+    with ChangeSignatureDialogBase[ScalaParameterInfo,
+    ScFunction,
+    String,
+    ScalaMethodDescriptor,
+    ScalaParameterTableModelItem,
+    ScalaParameterTableModel](project, method, false, method.fun) {
   override def getFileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE
 
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))
-
-    var withReturnType = needTypeAnnotation(method.getMethod, getVisibility)
-
+        
     val changeInfo =
-      ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, withReturnType)
+      ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, Some(mySpecifyTypeChb.isSelected))
 
     new ScalaChangeSignatureProcessor(project, changeInfo)
-  }
-    
-  override def createCenterPanel(): JComponent = {
-    val panel = super.createCenterPanel()
-    val typeAnnorationsSettings = TypeAnnotationUtil.createTypeAnnotationsHLink(project)
-    panel.add(typeAnnorationsSettings, BorderLayout.AFTER_LAST_LINE)
-    panel
   }
   
   override def createNorthPanel(): JComponent = {
@@ -84,14 +79,37 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
       case "apply" | "unapply" | "unapplySeq" | "update" => myNameField.setEnabled(false)
       case _ =>
     }
-    panel
+    val holder = new JPanel(new BorderLayout())
+    holder.add(panel, BorderLayout.NORTH)
+    holder.add(createDefaultArgumentPanel(), BorderLayout.LINE_START)
+    holder
   }
 
+  protected def createDefaultArgumentPanel(): JPanel = {
+    val optionsPanel = new JPanel(new BorderLayout())
+    val label = new JLabel("Default value:")
+    defaultValuesUsagePanel = new DefaultValuesUsagePanel("")
+  
+    val holder = new JPanel()
+    holder.add(label)
+    holder.add(defaultValuesUsagePanel)
+  
+    optionsPanel.add(holder)
+    optionsPanel
+  }
+  
   override def createOptionsPanel(): JComponent = {
     val panel = super.createOptionsPanel() //to initialize fields in base class
-    defaultValuesUsagePanel = new DefaultValuesUsagePanel()
-    panel.add(defaultValuesUsagePanel)
+    
+    val holder: JPanel = new JPanel
+    holder.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0))
+    
+    val specifyTypePanel = createTypePanel()
+    panel.add(specifyTypePanel)
+    
+    panel.setVisible(needSpecifyTypeChb)
     myPropagateParamChangesButton.setVisible(false)
+    
     panel
   }
 
@@ -197,7 +215,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
         case _=> false
       }
 
-    TypeAnnotationUtil.addTypeAnnotation(
+    TypeAnnotationUtil.isTypeAnnotationNeeded(
       TypeAnnotationUtil.requirementForMethod(TypeAnnotationUtil.isLocal(element), visibility, settings = settings),
       settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
       settings.SIMPLE_METHOD_TYPE_ANNOTATION,
@@ -225,9 +243,12 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
     val paramsText = splittedItems.map(_.map(itemText).mkString("(", ", ", ")")).mkString
 
     val retTypeText = returnTypeText
-
-    val needType = if (method.returnTypeText != retTypeText) true else needTypeAnnotation(method.getMethod, visibility)
-
+  
+    val needType =
+      if (!needSpecifyTypeChb) true
+      else if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
+      else needTypeAnnotation(method.getMethod, visibility)
+    
     val typeAnnot =
       if (retTypeText.isEmpty || !needType) ""
       else s": $retTypeText"
@@ -494,7 +515,58 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
   }
 
   private def editingColumn(table: JTable) = if (table.isEditing) Some(table.getEditingColumn) else None
-
+  
+  private def createTypePanel(): JPanel = {
+    val typePanel = new JPanel
+    typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    
+    mySpecifyTypeChb = new JCheckBox
+    mySpecifyTypeChb.setText("Specify return &type")
+    typePanel.add(mySpecifyTypeChb)
+    
+    val myLinkContainer = new JPanel
+    myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    typePanel.add(myLinkContainer)
+    
+    myLinkContainer.add(setUpHyperLink())
+    
+    setUpSpecifyTypeChb()
+    setUpVisibilityListener()
+    
+    typePanel
+  }
+  
+  private def setUpHyperLink(): HyperlinkLabel = {
+    val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"))
+    
+    link.addHyperlinkListener(new HyperlinkListener() {
+      def hyperlinkUpdate(e: HyperlinkEvent) {
+        mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+        updateSignatureAlarmFired()
+      }
+    })
+    
+    link
+  }
+  
+  private def setUpVisibilityListener(): Unit = {
+    myVisibilityPanel.addListener(new ChangeListener {
+      override def stateChanged(e: ChangeEvent) = {
+        mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+        updateSignatureAlarmFired()
+      }
+    })
+  }
+  
+  private def setUpSpecifyTypeChb(): Unit ={
+    mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+    
+    mySpecifyTypeChb.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = updateSignatureAlarmFired()
+    })
+  }
+  
   class ScalaParametersListTable extends ParametersListTable {
     protected def getRowRenderer(row: Int): JBTableRowRenderer = {
       new JBTableRowRenderer() {

@@ -17,12 +17,7 @@ class IntroduceFieldTests extends IntroduceFieldTestBase {
   def testSimpleInInner() = doTest()
   def testTwoMethodsInitInDecl() = doTest()
   def testFromAnonymousLocally() = doTest()
-
-  def testFromAnonymousInDeclaration() = {
-    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
-    
-    doTest(settings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
-  }
+  def testFromAnonymousInDeclaration() = doTest(scType = null)
   def testReplaceAllInOuter() = doTest()
   def testFromBaseConstructorAddEarlyDefs() = doTest()
   def testFromBaseConstructorToEarlyDefs() = doTest()

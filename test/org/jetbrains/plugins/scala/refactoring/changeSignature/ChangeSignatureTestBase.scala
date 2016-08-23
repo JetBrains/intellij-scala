@@ -138,7 +138,7 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
         case _=> false
       }
 
-    TypeAnnotationUtil.addTypeAnnotation(
+    TypeAnnotationUtil.isTypeAnnotationNeeded(
       TypeAnnotationUtil.requirementForMethod(TypeAnnotationUtil.isLocal(element), visibility, settings = settings),
       settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
       settings.SIMPLE_METHOD_TYPE_ANNOTATION,
@@ -160,11 +160,9 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
 
     val params = newParams.map(_.map(_.asInstanceOf[ScalaParameterInfo]))
 
-
-
     val changeInfo =
       new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, retType, params,
-        isAddDefaultValue, addTypeAnnotation(targetMethod, newVisibility))
+        isAddDefaultValue, Some(addTypeAnnotation(targetMethod, newVisibility)))
 
     new ScalaChangeSignatureProcessor(getProjectAdapter, changeInfo)
   }

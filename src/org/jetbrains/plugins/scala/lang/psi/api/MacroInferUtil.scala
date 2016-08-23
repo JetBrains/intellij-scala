@@ -22,16 +22,16 @@ object MacroInferUtil {
                  expectedType: Option[ScType],
                  place: PsiElement)
                 (implicit typeSystem: TypeSystem): Option[ScType] = {
-    def getClass(className: String) = Some(place.getProject) map {
+    def getClass(className: String) = Some(place.getProject).map {
       ScalaPsiManager.instance
-    } map {
-      _.getCachedClass(s"shapeless.$className", place.getResolveScope, ClassCategory.TYPE)
+    }.flatMap { manager =>
+      Option(manager.getCachedClass(s"shapeless.$className", place.getResolveScope, ClassCategory.TYPE))
     }
 
     val maybeGenericClass = getClass("Generic")
-    val maybeGenericClassCompanion = maybeGenericClass flatMap {
+    val maybeGenericClassCompanion = maybeGenericClass.flatMap {
       ScalaPsiUtil.getCompanionModule
-    } collect {
+    }.collect {
       case scObject: ScObject => scObject
     }
 
@@ -47,15 +47,15 @@ object MacroInferUtil {
 
         def calcProduct() = this.calcProduct(expectedType, genericClass, genericClassCompanion, createGenericType)
 
-        Option(function) collect {
+        Option(function).collect {
           case IsMacro(macroFunction) => macroFunction
-        } map {
+        }.map {
           new Checker(_)
-        } map {
+        }.map {
           _.withCheck("product", "Generic", calcProduct)
-        } map {
+        }.map {
           _.withCheck("apply", "LowPriorityGeneric", calcProduct)
-        } flatMap {
+        }.flatMap {
           _.check()
         }
       case _ => None
@@ -71,20 +71,20 @@ object MacroInferUtil {
       new Checker(function,
         wrapper(functionName, className, checker) :: checkers)
 
-    def check(): Option[ScType] = checkers flatMap {
+    def check(): Option[ScType] = checkers.flatMap {
       _.apply()
-    } headOption
+    }.headOption
 
     def wrapper(functionName: String,
                 className: String,
                 checker: () => Option[ScType]): () => Option[ScType] =
-      () => Option(function) filter {
+      () => Option(function).filter {
         _.name == functionName
-      } flatMap { element =>
+      }.flatMap { element =>
         Option(element.containingClass)
-      } filter {
+      }.filter {
         _.qualifiedName == s"shapeless.$className"
-      } flatMap { _ =>
+      }.flatMap { _ =>
         checker()
       }
   }
@@ -94,25 +94,25 @@ object MacroInferUtil {
                           classCompanion: ScObject,
                           createGenericType: ScType => Option[ScType])
                          (implicit typeSystem: TypeSystem): Option[ScType] = {
-    val maybeProjectionType = classCompanion.members collect {
+    val maybeProjectionType = classCompanion.members.collect {
       case alias: ScTypeAlias => alias
-    } find {
+    }.find {
       _.name == "Aux"
-    } map {
+    }.map {
       ScProjectionType(ScDesignatorType(classCompanion), _, superReference = false)
     }
 
-    clazz.typeParameters.headOption map { typeParameter =>
+    clazz.typeParameters.headOption.map { typeParameter =>
       UndefinedType(TypeParameterType(typeParameter))
-    } flatMap { undefinedType =>
-      maybeExpectedType flatMap {
+    }.flatMap { undefinedType =>
+      maybeExpectedType.flatMap {
         _.conforms(ScParameterizedType(ScDesignatorType(clazz), Seq(undefinedType)), new ScUndefinedSubstitutor()) match {
           case (true, substitutor) =>
-            substitutor.getSubstitutor map {
+            substitutor.getSubstitutor.map {
               _.subst(undefinedType)
-            } flatMap { productLikeType =>
-              createGenericType(productLikeType) flatMap { resultType =>
-                maybeProjectionType map {
+            }.flatMap { productLikeType =>
+              createGenericType(productLikeType).flatMap { resultType =>
+                maybeProjectionType.map {
                   ScParameterizedType(_, Seq(productLikeType, resultType))
                 }
               }
@@ -124,7 +124,7 @@ object MacroInferUtil {
   }
 
   private object IsMacro {
-    def unapply(element: PsiNamedElement): Option[ScFunction] = Option(element) collect {
+    def unapply(element: PsiNamedElement): Option[ScFunction] = Option(element).collect {
       case function: ScMacroDefinition => function
       case function: ScFunction if function.hasAnnotation("scala.reflect.macros.internal.macroImpl") =>
         function

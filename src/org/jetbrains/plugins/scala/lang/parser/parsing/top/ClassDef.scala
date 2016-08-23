@@ -28,7 +28,7 @@ object ClassDef extends ClassDef {
 
 trait ClassDef {
   protected val classParamClauses: ClassParamClauses
-  protected val templateOpt: ClassTemplateOpt
+  protected val templateOpt: TemplateOpt
   protected val annotation: Annotation
   protected val constrMods: ConstrMods
   protected val typeParamClause: TypeParamClause

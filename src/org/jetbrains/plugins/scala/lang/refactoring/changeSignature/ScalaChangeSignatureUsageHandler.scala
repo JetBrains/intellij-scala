@@ -100,24 +100,24 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case _ => None
     }
 
-    val addTypeAnnotation = change match {
+    val addTypeAnnotationOption = change match {
       case scalaInfo: ScalaChangeInfo => scalaInfo.addTypeAnnotation
-      case _ => true
+      case _ => Some(true)
     }
 
-    val substType: ScType = UsageUtil.returnType(change, usage) match {
-      case Some(result) => result
-      case None => return
+    UsageUtil.returnType(change, usage).foreach { substType =>
+  
+      if (!change.isReturnTypeChanged)
+        addTypeAnnotationOption.foreach { addTypeAnnotation =>
+          if (addTypeAnnotation) {
+            if (oldTypeElem.isEmpty) addType(element, None, substType)
+          } else {
+            oldTypeElem.foreach(AddOnlyStrategy.withoutEditor.removeTypeAnnotation)
+          }
+        }
+      else
+        addType(element, oldTypeElem, substType)
     }
-
-    if (!change.isReturnTypeChanged)
-      addTypeAnnotation match {
-        case true if oldTypeElem.isEmpty => addType(element, oldTypeElem, substType)
-        case false if oldTypeElem.isDefined => AddOnlyStrategy.withoutEditor.removeTypeAnnotation(oldTypeElem.get)
-        case _ =>
-      }
-    else
-      addType(element, oldTypeElem, substType)
   }
 
   protected def handleParametersUsage(change: ChangeInfo, usage: ParameterUsageInfo): Unit = {

@@ -10,6 +10,7 @@ import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -29,7 +30,7 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
   */
 class ScalaOverrideContributor extends ScalaCompletionContributor {
   private def registerOverrideCompletion(filter: ElementFilter, keyword: String) {
-    extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+    extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
       and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))),
         new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), filter)))),
       new CompletionProvider[CompletionParameters] {
@@ -39,7 +40,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       })
   }
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
     and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter(".")))))), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
       def checkIfElementIsAvailable(element: PsiElement, clazz: ScTemplateDefinition): Boolean = {
@@ -148,6 +149,9 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false): String = {
+    ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
+      ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
+    
     val text: String = classMember match {
       case mm: ScMethodMember =>
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
@@ -162,7 +166,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         if (comment != null) {
           comment.delete()
         }
-        TypeAnnotationUtil.removeTypeAnnotationIfNeed(fun)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText
       case tm: ScAliasMember =>
         ScalaPsiElementFactory.getOverrideImplementTypeSign(tm.getElement,
@@ -170,12 +174,12 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       case member: ScValueMember =>
         val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
           member.element.getManager,needsOverrideModifier = false ,isVal = false)
-        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case member: ScVariableMember =>
         val variable = ScalaPsiElementFactory.createOverrideImplementVariable(member.element, member.substitutor,
           member.element.getManager,needsOverrideModifier = false ,isVal = false)
-        TypeAnnotationUtil.removeTypeAnnotationIfNeed(variable)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
         variable.getText
       case _ => " "
     }

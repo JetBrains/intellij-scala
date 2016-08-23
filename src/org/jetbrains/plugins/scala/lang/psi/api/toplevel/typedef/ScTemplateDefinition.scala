@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
@@ -39,7 +39,7 @@ import scala.collection.JavaConverters._
 /**
  * @author ven
  */
-trait ScTemplateDefinition extends ScNamedElement with PsiClass {
+trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   import com.intellij.psi.PsiMethod
   def qualifiedName: String = null
 
@@ -150,8 +150,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   override def getVisibleSignatures: JCollection[HierarchicalMethodSignature] = {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
-
-  def getType(ctx: TypingContext): TypeResult[ScType]
 
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 

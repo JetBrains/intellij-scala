@@ -27,7 +27,10 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean IGNORE_SETTINGS_CHECK = false;
 
   public boolean COPY_SCALADOC = true;
-  public boolean SPECIFY_RETURN_TYPE_EXPLICITLY = true;
+
+  public enum ReturnTypeLevel {ADD, REMOVE, BY_CODE_STYLE}
+  public ReturnTypeLevel SPECIFY_RETURN_TYPE_EXPLICITLY = ReturnTypeLevel.BY_CODE_STYLE;
+
   public boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = true;
   public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
   public boolean OPTIMIZE_IMPORTS_ON_THE_FLY = false;

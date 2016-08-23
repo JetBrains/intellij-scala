@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
@@ -54,7 +55,9 @@ object ScalaExtractMethodUtils {
     val project = settings.elements(0).getProject
     val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val retType =
-      if (!addTypeAnnotation(settings.nextSibling, settings.visibility)) " = "
+      if ((settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.REMOVE) ||
+        (settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
+          && !addTypeAnnotation(settings.nextSibling, settings.visibility))) " = "
       else if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
       else s": ${settings.calcReturnTypeText} ="
 
@@ -329,7 +332,7 @@ object ScalaExtractMethodUtils {
     }
 
     val settings = ScalaCodeStyleSettings.getInstance(nextElement.getProject)
-    TypeAnnotationUtil.addTypeAnnotation(
+    TypeAnnotationUtil.isTypeAnnotationNeeded(
       TypeAnnotationUtil.requirementForMethod(isLocal, TypeAnnotationUtil.visibilityFromString(visibilityString), settings),
       settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
       settings.SIMPLE_METHOD_TYPE_ANNOTATION,
@@ -356,7 +359,7 @@ object ScalaExtractMethodUtils {
 
     val base = s"$classText$prefix$typeParamsText$paramsText"
 
-    val returnTypeText = if (addTypeAnnotation(settings.nextSibling, settings.visibility))
+    val returnTypeText = if (settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.ADD)
       base + ": " + calcReturnType(settings) else base
 
     returnTypeText

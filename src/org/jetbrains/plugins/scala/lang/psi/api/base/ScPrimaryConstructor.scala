@@ -6,7 +6,6 @@ package base
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
@@ -67,7 +66,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
 
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = parameterList.clauses.exists(_.isImplicit)
-    if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(containingClass.asInstanceOf[ScTypeParametersOwner], parameterList, classParam = true)
+    ScalaPsiUtil.syntheticParamClause(containingClass, parameterList, classParam = true, hasImplicit)
   }
 
   def methodType(result: Option[ScType]): ScType = {

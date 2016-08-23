@@ -19,7 +19,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
  */
 object ClassParents extends ClassParents {
   override protected val constructor = Constructor
-  override protected val annotType = AnnotType
+
+  override protected def parseParent(builder: ScalaPsiBuilder): Boolean =
+    AnnotType.parse(builder, isPattern = false)
 }
 
 trait ClassParents extends Parents {
@@ -27,5 +29,5 @@ trait ClassParents extends Parents {
 
   override protected val elementType = ScalaElementTypes.CLASS_PARENTS
 
-  override protected def parseParent(builder: ScalaPsiBuilder) = constructor.parse(builder)
+  override protected def parseFirstParent(builder: ScalaPsiBuilder) = constructor.parse(builder)
 }

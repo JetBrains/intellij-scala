@@ -11,24 +11,27 @@ import com.intellij.refactoring.util.ParameterTablePanel;
 import com.intellij.refactoring.util.VariableData;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.EditorTextField;
+import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 import scala.Option;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
+import javax.swing.event.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 /**
@@ -49,7 +52,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private EditorTextField editorTextField;
   private JPanel visibilityPanel;
   private JPanel inputParametersPanel;
-  private JLabel returnTypeLabel;
   private JPanel myPreviewPanel;
   private JPanel multipleOutputPanel;
   private JRadioButton tupleRB;
@@ -59,9 +61,10 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private JTextField innerClassNameFld;
   private JPanel visibilityPanelKeeper;
   private JPanel multipleOutputPanelKeeper;
-    private JPanel myLinkContainer;
+  private JPanel myLinkContainer;
+  private JCheckBox mySpecifyTypeChb;
 
-    private boolean isDefaultClassName = true;
+  private boolean isDefaultClassName = true;
   private final MethodSignatureComponent mySignaturePreview;
 
   private ScalaExtractMethodSettings settings = null;
@@ -92,10 +95,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myOutput = output;
     myLastMeaningful = lastMeaningful;
     mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.SCALA_FILE_TYPE);
-    //mySignaturePreview.setPreferredSize(new Dimension(500, 70));
     mySignaturePreview.setMinimumSize(new Dimension(500, 70));
-
-    myLinkContainer.add(TypeAnnotationUtil.createTypeAnnotationsHLink(project));
 
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
@@ -107,6 +107,10 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     isInitialized = true;
 
     updateSettings();
+    updateSignature();
+    setUpTypeChb();
+    setUpHyperLink();
+
     updateOkStatus();
   }
 
@@ -179,8 +183,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     privateTextField.setEnabled(false);
     protectedTextField.setEnabled(false);
 
-    privateRadioButton.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
+    privateRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
         if (privateRadioButton.isSelected()) {
           privateTextField.setEnabled(true);
         } else privateTextField.setEnabled(false);
@@ -195,11 +200,19 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       }
     });
 
-    protectedRadioButton.addChangeListener(new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
+    protectedRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
         if (protectedRadioButton.isSelected()) {
           protectedTextField.setEnabled(true);
         } else protectedTextField.setEnabled(false);
+        updateSignature();
+      }
+    });
+
+    publicRadioButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
         updateSignature();
       }
     });
@@ -210,7 +223,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
         updateSignature();
       }
     });
-
     visibilityPanelKeeper.setVisible(isVisibilitySectionAvailable());
   }
 
@@ -298,7 +310,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     updateSettings();
     String text = ScalaExtractMethodUtils.previewSignatureText(settings);
     mySignaturePreview.setSignature(text);
-    returnTypeLabel.setText(ScalaExtractMethodUtils.calcReturnType(settings));
   }
 
   @Override
@@ -310,8 +321,67 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private void updateSettings() {
     boolean createClass = innerClassRB.isSelected() || caseClassRB.isSelected();
     InnerClassSettings ics = new InnerClassSettings(createClass, getClassName(), getReturns(), caseClassRB.isSelected());
+    ScalaApplicationSettings.ReturnTypeLevel addReturnType = mySpecifyTypeChb.isSelected() ?
+            ScalaApplicationSettings.ReturnTypeLevel.ADD : ScalaApplicationSettings.ReturnTypeLevel.REMOVE;
+
     settings = new ScalaExtractMethodSettings(getMethodName(), getParameters(), getReturns(),
-            getVisibility(), mySibling, myElements, myHasReturn, myLastReturn, myLastMeaningful, ics);
+            getVisibility(), mySibling, myElements, myHasReturn, addReturnType, myLastReturn, myLastMeaningful, ics);
+  }
+
+  private void setUpTypeChb() {
+    mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility()));
+
+    mySpecifyTypeChb.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        updateSignature();
+      }
+    });
+
+    protectedRadioButton.addItemListener(
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                mySpecifyTypeChb.setSelected(
+                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility())
+                );
+              }
+            }
+    );
+
+    publicRadioButton.addItemListener(
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                mySpecifyTypeChb.setSelected(
+                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility())
+                );
+              }
+            }
+    );
+
+    privateRadioButton.addItemListener(
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                mySpecifyTypeChb.setSelected(
+                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), settings.visibility())
+                );
+              }
+            }
+    );
+  }
+
+  private void setUpHyperLink() {
+    HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(settings.nextSibling().getProject(), ScalaBundle.message("default.ta.settings"));
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip") + " return type");
+    myLinkContainer.add(link);
+
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
+    link.addHyperlinkListener(new HyperlinkListener() {
+      @Override
+      public void hyperlinkUpdate(HyperlinkEvent e) {
+        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility()));
+        updateSignature();
+      }
+    });
   }
 
   private String getClassName() {
@@ -364,12 +434,14 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(8, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
     methodNamePanel = new JPanel();
     methodNamePanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(methodNamePanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
-    label1.setText("Name:");
+    label1.setText("Name");
+    label1.setDisplayedMnemonic('N');
+    label1.setDisplayedMnemonicIndex(0);
     methodNamePanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     editorTextField = new EditorTextField();
     editorTextField.setText("");
@@ -383,33 +455,34 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     visibilityPanel = new JPanel();
     visibilityPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
     visibilityPanelKeeper.add(visibilityPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    publicRadioButton = new JRadioButton();
-    publicRadioButton.setText("Public");
-    publicRadioButton.setMnemonic('P');
-    publicRadioButton.setDisplayedMnemonicIndex(0);
-    visibilityPanel.add(publicRadioButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     protectedRadioButton = new JRadioButton();
     protectedRadioButton.setText("Protected");
     protectedRadioButton.setMnemonic('O');
     protectedRadioButton.setDisplayedMnemonicIndex(2);
     visibilityPanel.add(protectedRadioButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    protectedTextField = new JTextField();
+    visibilityPanel.add(protectedTextField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     privateRadioButton = new JRadioButton();
     privateRadioButton.setText("Private");
     privateRadioButton.setMnemonic('R');
     privateRadioButton.setDisplayedMnemonicIndex(1);
-    visibilityPanel.add(privateRadioButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    protectedTextField = new JTextField();
-    visibilityPanel.add(protectedTextField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    privateRadioButton.setToolTipText("");
+    visibilityPanel.add(privateRadioButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    publicRadioButton = new JRadioButton();
+    publicRadioButton.setText("Public");
+    publicRadioButton.setMnemonic('P');
+    publicRadioButton.setDisplayedMnemonicIndex(0);
+    visibilityPanel.add(publicRadioButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     privateTextField = new JTextField();
-    visibilityPanel.add(privateTextField, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    visibilityPanel.add(privateTextField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     final TitledSeparator titledSeparator1 = new TitledSeparator();
     titledSeparator1.setText("Visibility");
     visibilityPanelKeeper.add(titledSeparator1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     inputParametersPanel = new JPanel();
     inputParametersPanel.setLayout(new BorderLayout(0, 0));
-    panel1.add(inputParametersPanel, new GridConstraints(0, 0, 4, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.add(inputParametersPanel, new GridConstraints(0, 0, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final TitledSeparator titledSeparator2 = new TitledSeparator();
-    titledSeparator2.setText("QWE");
+    titledSeparator2.setText("Parameters");
     inputParametersPanel.add(titledSeparator2, BorderLayout.NORTH);
     multipleOutputPanelKeeper = new JPanel();
     multipleOutputPanelKeeper.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
@@ -422,42 +495,56 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     multipleOutputPanelKeeper.add(multipleOutputPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     caseClassRB = new JRadioButton();
     caseClassRB.setText("Inner case class");
+    caseClassRB.setMnemonic('I');
+    caseClassRB.setDisplayedMnemonicIndex(0);
     multipleOutputPanel.add(caseClassRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     caseClassNameFld = new JTextField();
     caseClassNameFld.setText("");
     multipleOutputPanel.add(caseClassNameFld, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
     tupleRB = new JRadioButton();
     tupleRB.setText("Tuple");
+    tupleRB.setMnemonic('T');
+    tupleRB.setDisplayedMnemonicIndex(0);
     multipleOutputPanel.add(tupleRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     innerClassRB = new JRadioButton();
     innerClassRB.setText("Inner class");
+    innerClassRB.setMnemonic('C');
+    innerClassRB.setDisplayedMnemonicIndex(6);
     multipleOutputPanel.add(innerClassRB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     innerClassNameFld = new JTextField();
     innerClassNameFld.setText("");
     multipleOutputPanel.add(innerClassNameFld, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-    final Spacer spacer1 = new Spacer();
-    contentPane.add(spacer1, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-    final JPanel panel2 = new JPanel();
-    panel2.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final JLabel label2 = new JLabel();
-    label2.setText("Return type:");
-    panel2.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final Spacer spacer2 = new Spacer();
-    panel2.add(spacer2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-    returnTypeLabel = new JLabel();
-    returnTypeLabel.setFont(new Font(returnTypeLabel.getFont().getName(), Font.BOLD, returnTypeLabel.getFont().getSize()));
-    returnTypeLabel.setText("");
-    panel2.add(returnTypeLabel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myPreviewPanel = new JPanel();
     myPreviewPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(myPreviewPanel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    contentPane.add(myPreviewPanel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final TitledSeparator titledSeparator4 = new TitledSeparator();
+    titledSeparator4.setFocusable(true);
     titledSeparator4.setText("Signature preview");
-    contentPane.add(titledSeparator4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    contentPane.add(titledSeparator4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JPanel panel2 = new JPanel();
+    panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    panel2.setAlignmentX(0.0f);
+    panel2.setAlignmentY(0.0f);
+    contentPane.add(panel2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    mySpecifyTypeChb = new JCheckBox();
+    mySpecifyTypeChb.setAlignmentY(0.0f);
+    mySpecifyTypeChb.setBorderPainted(false);
+    mySpecifyTypeChb.setBorderPaintedFlat(false);
+    mySpecifyTypeChb.setContentAreaFilled(false);
+    mySpecifyTypeChb.setHideActionText(false);
+    mySpecifyTypeChb.setHorizontalAlignment(0);
+    mySpecifyTypeChb.setHorizontalTextPosition(11);
+    mySpecifyTypeChb.setInheritsPopupMenu(false);
+    mySpecifyTypeChb.setMargin(new Insets(0, 0, 0, 0));
+    mySpecifyTypeChb.setText("Specify return type");
+    mySpecifyTypeChb.setMnemonic('T');
+    mySpecifyTypeChb.setDisplayedMnemonicIndex(15);
+    panel2.add(mySpecifyTypeChb);
     myLinkContainer = new JPanel();
     myLinkContainer.setLayout(new BorderLayout(0, 0));
-    contentPane.add(myLinkContainer, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myLinkContainer.setAlignmentX(0.0f);
+    myLinkContainer.setAlignmentY(0.0f);
+    panel2.add(myLinkContainer);
   }
 
   /**

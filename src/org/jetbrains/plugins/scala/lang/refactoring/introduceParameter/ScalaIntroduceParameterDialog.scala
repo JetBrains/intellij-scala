@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
 class ScalaIntroduceParameterDialog(project: Project,
                               method: ScalaMethodDescriptor,
                               introduceData: ScalaIntroduceParameterData)
-        extends ScalaChangeSignatureDialog(project, method) {
+        extends ScalaChangeSignatureDialog(project, method, false) {
 
   private var paramNameField: EditorTextField = _
   private var typeCombobox: ComboBox[String] = _
@@ -68,7 +68,7 @@ class ScalaIntroduceParameterDialog(project: Project,
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))
     val changeInfo =
-      new ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs)
+      new ScalaChangeInfo(getVisibility, method.fun, getMethodName, returnType, parameters, isAddDefaultArgs, None)
 
     val newData = introduceData.copy(paramName = paramNameField.getText, tp = typeMap.get(typeCombobox.getSelectedItem),
       replaceAll = replaceOccurrencesChb.isSelected, defaultArg = defaultForIntroducedTextField.getText)
@@ -168,31 +168,17 @@ class ScalaIntroduceParameterDialog(project: Project,
     paramTypePanel
   }
 
-  private def createDefaultArgumentPanel(): JComponent = {
-    val panel = new JPanel(new BorderLayout())
-    defaultForIntroducedTextField = new EditorTextField(introduceData.defaultArg, project, ScalaFileType.SCALA_FILE_TYPE)
-    val label = new JLabel("Default value:")
-    label.setLabelFor(defaultForIntroducedTextField)
-    panel.add(label, BorderLayout.NORTH)
-    defaultForIntroducedTextField.setOneLineMode(false)
-    defaultForIntroducedTextField.setEnabled(true)
-    defaultForIntroducedTextField.addDocumentListener(new DocumentAdapter {
-      override def documentChanged(e: DocumentEvent): Unit = {
-        introducedParamTableItem.foreach(_.parameter.defaultValue = defaultForIntroducedTextField.getText.trim)
-      }
-    })
-    IJSwingUtilities.adjustComponentsOnMac(label, defaultForIntroducedTextField)
-    panel.add(defaultForIntroducedTextField, BorderLayout.CENTER)
-    val optionsPanel = new JPanel(new BorderLayout())
+  override def createDefaultArgumentPanel(): JPanel = {
+    val panel = super.createDefaultArgumentPanel()
+    val holder = new JPanel(new BorderLayout())
+  
     replaceOccurrencesChb = new JCheckBox("Replace all occurrences")
     replaceOccurrencesChb.setMnemonic('a')
     replaceOccurrencesChb.setSelected(false)
     replaceOccurrencesChb.setVisible(introduceData.occurrences.length > 1)
-    optionsPanel.add(replaceOccurrencesChb, BorderLayout.NORTH)
-    defaultValuesUsagePanel = new DefaultValuesUsagePanel("")
-    optionsPanel.add(defaultValuesUsagePanel, BorderLayout.CENTER)
-    panel.add(optionsPanel, BorderLayout.SOUTH)
-    panel
+    holder.add(replaceOccurrencesChb, BorderLayout.NORTH)
+    holder.add(panel, BorderLayout.LINE_START)
+    holder
   }
 
   private def introducedParamTableItem: Option[ScalaParameterTableModelItem] = {

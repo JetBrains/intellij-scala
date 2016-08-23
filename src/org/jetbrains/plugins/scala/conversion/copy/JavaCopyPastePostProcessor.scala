@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable.ListBuffer
 
@@ -140,6 +141,10 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         }
 
         ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getStartOffset + text.length, editor)
+        
+        TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
+          ConverterUtil.collectTopElements(bounds.getStartOffset, bounds.getStartOffset + text.length, file)
+        )
 
         markedAssociations.map {
           case (association, marker) =>
