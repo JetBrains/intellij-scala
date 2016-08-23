@@ -19,95 +19,86 @@ import scala.collection.mutable
 object BaseTypes {
   def get(`type`: ScType)
          (implicit typeSystem: TypeSystem = ScalaTypeSystem): Seq[ScType] =
-    getInner(`type`, HashSet.empty, notAll = false)
+    getInner(`type`)(typeSystem, HashSet.empty, notAll = false)
 
-  private def getInner(`type`: ScType,
+  private def getInner(`type`: ScType)
+                      (implicit typeSystem: TypeSystem,
                        visitedAliases: HashSet[ScTypeAlias],
-                       notAll: Boolean)
-                      (implicit typeSystem: TypeSystem): Seq[ScType] = {
+                       notAll: Boolean): Seq[ScType] = {
     ProgressManager.checkCanceled()
+
     `type` match {
       case ScDesignatorType(td: ScTemplateDefinition) =>
-        reduce(td.superTypes.flatMap(tp => if (!notAll) getInner(tp, visitedAliases, notAll) ++ Seq(tp) else Seq(tp)))
+        reduce(td.superTypes)
       case ScDesignatorType(c: PsiClass) =>
-        reduce(c.getSuperTypes.flatMap { p => {
-          val tp = p.toScType()
-          (if (!notAll) getInner(tp, visitedAliases, notAll)
-          else Seq()) ++ Seq(tp)
-        }
-        })
+        reduce(c.getSuperTypes.map(_.toScType()))
       case ScDesignatorType(ta: ScTypeAliasDefinition) =>
         if (visitedAliases.contains(ta)) return Seq.empty
-        getInner(ta.aliasedType.getOrElse(return Seq.empty), visitedAliases + ta, notAll = false)
+        getInner(ta.aliasedType.getOrElse(return Seq.empty))(typeSystem, visitedAliases + ta, notAll = false)
       case ScThisType(clazz) =>
-        getInner(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty), visitedAliases, notAll = false)
+        getInner(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty))(typeSystem, visitedAliases, notAll = false)
       case TypeParameterType(Nil, _, upper, _) =>
-        getInner(upper.v, visitedAliases, notAll)
+        getInner(upper.v)
       case ScExistentialArgument(_, Nil, _, upper) =>
-        getInner(upper, visitedAliases, notAll)
+        getInner(upper)
       case _: JavaArrayType => Seq(Any)
       case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
         if (visitedAliases.contains(ta)) return Seq.empty
-        getInner(p.actualSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases + ta, notAll = false)
+        getInner(p.actualSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + ta, notAll = false)
       case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
         if (visitedAliases.contains(ta)) return Seq.empty
         val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
-        getInner(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases + ta, notAll = false)
+        getInner(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + ta, notAll = false)
       case ParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
         if (visitedAliases.contains(ta)) return Seq.empty
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
         val s = p.actualSubst.followed(genericSubst)
-        getInner(s.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases + ta, notAll = false)
+        getInner(s.subst(ta.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + ta, notAll = false)
       case p: ScParameterizedType =>
-        p.designator.extractClass() match {
-          case Some(td: ScTypeDefinition) =>
-            reduce(td.superTypes.flatMap { tp =>
-              if (!notAll) getInner(p.substitutor.subst(tp), visitedAliases, notAll = false) ++ Seq(p.substitutor.subst(tp))
-              else Seq(p.substitutor.subst(tp))
-            })
-          case Some(clazz) =>
-            val s = p.substitutor
-            reduce(clazz.getSuperTypes.flatMap { t => {
-              val substituted = s.subst(t.toScType())
-              (if (!notAll) getInner(substituted, visitedAliases, notAll = false)
-              else Seq()) ++ Seq(substituted)
-            }
-            })
+        val types = p.designator.extractClass() match {
+          case Some(td: ScTypeDefinition) => td.superTypes
+          case Some(clazz) => clazz.getSuperTypes.toSeq.map(_.toScType())
           case _ => Seq.empty
         }
-      case ex: ScExistentialType => getInner(ex.quantified, visitedAliases, notAll).map {
-        _.unpackedType
-      }
-      case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => getInner(comp, visitedAliases, notAll = false) ++ Seq(comp)))
+
+        val substitutor = p.substitutor
+        reduce(types.map {
+          substitutor.subst
+        })
+      case ex: ScExistentialType =>
+        getInner(ex.quantified).map(_.unpackedType)
+      case ScCompoundType(comps, _, _) =>
+        reduce(comps)
       case proj@ScProjectionType(_, elem, _) =>
-        val s = proj.actualSubst
-        elem match {
-          case td: ScTypeDefinition => reduce(td.superTypes.flatMap { tp =>
-            if (!notAll) getInner(s.subst(tp), visitedAliases, notAll = false) ++ Seq(s.subst(tp))
-            else Seq(s.subst(tp))
-          })
-          case c: PsiClass =>
-            reduce(c.getSuperTypes.flatMap { st => {
-              val substituted = s.subst(st.toScType())
-              (if (!notAll) getInner(substituted, visitedAliases, notAll = false)
-              else Seq()) ++ Seq(substituted)
-            }
-            })
+        val types = elem match {
+          case td: ScTypeDefinition => td.superTypes
+          case c: PsiClass => c.getSuperTypes.toSeq.map(_.toScType())
           case _ => Seq.empty
         }
+
+        val substitutor = proj.actualSubst
+        reduce(types.map {
+          substitutor.subst
+        })
       case _ => Seq.empty
     }
   }
 
   private def reduce(types: Seq[ScType])
-                    (implicit typeSystem: TypeSystem): Seq[ScType] = {
+                    (implicit typeSystem: TypeSystem,
+                     visitedAliases: HashSet[ScTypeAlias],
+                     notAll: Boolean): Seq[ScType] = {
+    val updatedTypes = types.flatMap { tp =>
+      (if (!notAll) getInner(tp) else Seq.empty) :+ tp
+    }
+
     val typeToClass = mutable.Map[ScType, PsiClass]()
     val classToTypes = new mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
 
-    for (t <- types;
+    for (t <- updatedTypes;
          c <- t.extractClass()) {
       typeToClass(t) = c
       classToTypes.addBinding(c, t)
