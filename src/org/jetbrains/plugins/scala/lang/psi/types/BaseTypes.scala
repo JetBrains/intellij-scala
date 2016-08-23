@@ -28,58 +28,62 @@ object BaseTypes {
     ProgressManager.checkCanceled()
 
     `type` match {
-      case ScDesignatorType(td: ScTemplateDefinition) =>
-        reduce(td.superTypes)
-      case ScDesignatorType(c: PsiClass) =>
-        reduce(c.getSuperTypes.map(_.toScType()))
-      case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-        if (visitedAliases.contains(ta)) return Seq.empty
-        getInner(ta.aliasedType.getOrElse(return Seq.empty))(typeSystem, visitedAliases + ta, notAll = false)
+      case ScDesignatorType(definition: ScTemplateDefinition) =>
+        reduce(definition.superTypes)
+      case ScDesignatorType(clazz: PsiClass) =>
+        reduce(clazz.getSuperTypes.map(_.toScType()))
+      case ScDesignatorType(aliasDefinition: ScTypeAliasDefinition) =>
+        if (visitedAliases.contains(aliasDefinition)) return Seq.empty
+        getInner(aliasDefinition.aliasedType.getOrElse(return Seq.empty))(typeSystem, visitedAliases + aliasDefinition, notAll = false)
       case ScThisType(clazz) =>
         getInner(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty))(typeSystem, visitedAliases, notAll = false)
       case TypeParameterType(Nil, _, upper, _) =>
         getInner(upper.v)
       case ScExistentialArgument(_, Nil, _, upper) =>
         getInner(upper)
-      case _: JavaArrayType => Seq(Any)
-      case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
-        if (visitedAliases.contains(ta)) return Seq.empty
-        getInner(p.actualSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + ta, notAll = false)
-      case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
-        if (visitedAliases.contains(ta)) return Seq.empty
-        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
-        getInner(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + ta, notAll = false)
-      case ParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
-        val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
-        if (visitedAliases.contains(ta)) return Seq.empty
+      case _: JavaArrayType =>
+        Seq(Any)
+      case existentialType: ScExistentialType =>
+        getInner(existentialType.quantified).map(_.unpackedType)
+      case compoundType: ScCompoundType =>
+        reduce(compoundType.components)
+
+      case ParameterizedType(ScDesignatorType(aliasDefinition: ScTypeAliasDefinition), arguments) =>
+        if (visitedAliases.contains(aliasDefinition)) return Seq.empty
+        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(aliasDefinition.typeParameters.map(_.nameAndId), arguments)
+        getInner(genericSubst.subst(aliasDefinition.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + aliasDefinition, notAll = false)
+      case ParameterizedType(projectionType: ScProjectionType, arguments) if projectionType.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+        val aliasDefinition = projectionType.actualElement.asInstanceOf[ScTypeAliasDefinition]
+        if (visitedAliases.contains(aliasDefinition)) return Seq.empty
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
-        val s = p.actualSubst.followed(genericSubst)
-        getInner(s.subst(ta.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + ta, notAll = false)
-      case p: ScParameterizedType =>
-        val types = p.designator.extractClass() match {
+          typesCallSubstitutor(aliasDefinition.typeParameters.map(_.nameAndId), arguments)
+
+        val substitutor = projectionType.actualSubst.followed(genericSubst)
+        getInner(substitutor.subst(aliasDefinition.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + aliasDefinition, notAll = false)
+      case parameterizedType: ScParameterizedType =>
+        val types = parameterizedType.designator.extractClass() match {
           case Some(td: ScTypeDefinition) => td.superTypes
           case Some(clazz) => clazz.getSuperTypes.toSeq.map(_.toScType())
           case _ => Seq.empty
         }
 
-        val substitutor = p.substitutor
+        val substitutor = parameterizedType.substitutor
         reduce(types.map {
           substitutor.subst
         })
-      case ex: ScExistentialType =>
-        getInner(ex.quantified).map(_.unpackedType)
-      case ScCompoundType(comps, _, _) =>
-        reduce(comps)
-      case proj@ScProjectionType(_, elem, _) =>
-        val types = elem match {
+
+      case projectionType: ScProjectionType if projectionType.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+        val aliasDefinition = projectionType.actualElement.asInstanceOf[ScTypeAliasDefinition]
+        if (visitedAliases.contains(aliasDefinition)) return Seq.empty
+        getInner(projectionType.actualSubst.subst(aliasDefinition.aliasedType.getOrElse(return Seq.empty)))(typeSystem, visitedAliases + aliasDefinition, notAll = false)
+      case projectionType: ScProjectionType =>
+        val types = projectionType.element match {
           case td: ScTypeDefinition => td.superTypes
           case c: PsiClass => c.getSuperTypes.toSeq.map(_.toScType())
           case _ => Seq.empty
         }
 
-        val substitutor = proj.actualSubst
+        val substitutor = projectionType.actualSubst
         reduce(types.map {
           substitutor.subst
         })
