@@ -107,7 +107,8 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
       case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
         (psiTypeParameter, that.psiTypeParameter) match {
           case (myBound: ScTypeBoundsOwner, thatBound: ScTypeBoundsOwner) =>
-            myBound.lowerBound == thatBound.lowerBound && myBound.upperBound == thatBound.upperBound
+            myBound.lowerBound == thatBound.lowerBound && myBound.upperBound == thatBound.upperBound &&
+              myBound.name == thatBound.name
           case _ => false
         }
       }
