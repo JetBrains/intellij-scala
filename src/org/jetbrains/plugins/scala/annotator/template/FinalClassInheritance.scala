@@ -25,7 +25,7 @@ object FinalClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
       case (refElement, Some((psiClass, _))) if psiClass.hasFinalModifier =>
         holder.createErrorAnnotation(refElement,
           "Illegal inheritance from final %s %s".format(kindOf(psiClass).toLowerCase, psiClass.name))
-      case (refElement, Some((cl, _))) if ValueClassType.isValueClass(cl) =>
+      case (refElement, Some((cl, _))) if ValueClassType.extendsAnyVal(cl) =>
         holder.createErrorAnnotation(refElement, ScalaBundle.message("illegal.inheritance.from.value.class", cl.name))
       case _ =>
     }

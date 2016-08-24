@@ -391,7 +391,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitClass(cl: ScClass): Unit = {
-        if (typeAware && ValueClassType.isValueClass(cl)) annotateValueClass(cl, holder)
+        if (typeAware && ValueClassType.extendsAnyVal(cl)) annotateValueClass(cl, holder)
         super.visitClass(cl)
       }
     }
