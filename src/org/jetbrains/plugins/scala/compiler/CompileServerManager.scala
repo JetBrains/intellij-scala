@@ -117,7 +117,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      }
    }
 
-   private def title = "Scala compile server"
+   private def title = "Scala Compile Server"
 
    private def toggleList(e: MouseEvent) {
      val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
@@ -190,7 +190,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
        val errors = launcher.errors()
 
        if (errors.nonEmpty) {
-         Notifications.Bus.notify(new Notification("scala", title, errors.mkString, NotificationType.ERROR), project)
+         Notifications.Bus.notify(new Notification(title, title, errors.mkString, NotificationType.ERROR), project)
        }
      }
    }
