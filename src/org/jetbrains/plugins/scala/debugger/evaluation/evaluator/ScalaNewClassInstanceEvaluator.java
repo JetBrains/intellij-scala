@@ -12,6 +12,8 @@ import com.intellij.debugger.impl.DebuggerUtilsEx;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
+import com.sun.jdi.Value;
+import scala.Option;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,13 +48,17 @@ public class ScalaNewClassInstanceEvaluator implements Evaluator {
           DebuggerBundle.message("evaluation.error.cannot.resolve.constructor", myConstructorSignature.getDisplayName(debugProcess)));
     }
     // evaluate arguments
-    List<Object> arguments;
+    List<Value> arguments;
     if (myParamsEvaluators != null) {
-      arguments = new ArrayList<Object>(myParamsEvaluators.length);
+      arguments = new ArrayList<Value>(myParamsEvaluators.length);
       for (Evaluator evaluator : myParamsEvaluators) {
         Object result = evaluator.evaluate(context);
-        if (!FromLocalArgEvaluator.skipMarker().equals(result)) {
-          arguments.add(result);
+        if (result instanceof scala.Option) {
+          if (((Option) result).isDefined()) {
+            arguments.add((Value) result);
+          }
+        } else {
+          arguments.add((Value) result);
         }
       }
     }

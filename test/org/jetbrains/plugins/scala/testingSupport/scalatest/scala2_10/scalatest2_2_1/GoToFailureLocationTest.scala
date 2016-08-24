@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_10.scalatest
 
 import com.intellij.execution.filters.Filter
 import com.intellij.psi.search.ProjectScope
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.testingSupport.util.scalatest.ScalaTestFailureLocationFilter
 
 /**
@@ -29,7 +30,7 @@ class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
     val filter = new ScalaTestFailureLocationFilter(projectScope)
     val errorLocationString = "ScalaTestFailureLocation: FailureLocationTest at (FailureLocationTest.scala:6)"
     var filterRes: Filter.Result = null
-    UsefulTestCase.edt(new Runnable() {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = filterRes = filter.applyFilter(errorLocationString, errorLocationString.length)
     })
     assert(filterRes != null)

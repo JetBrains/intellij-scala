@@ -21,7 +21,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiCodeFragment
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
+import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.XBreakpointType
@@ -48,7 +49,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected def runDebugger(mainClass: String = mainClassName, debug: Boolean = false)(callback: => Unit) {
     var processHandler: ProcessHandler = null
-    UsefulTestCase.edt(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
         if (needMake) {
           make()
@@ -131,7 +132,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   private def clearXBreakpoints(): Unit = {
-    UsefulTestCase.edt(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
         val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
         inWriteAction {

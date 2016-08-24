@@ -39,7 +39,7 @@ class GoToExpandedMacroCallProviderExt extends LineMarkerProvider {
     macrosFound foreach {
       case macroCall =>
         val markerInfo = new RelatedItemLineMarkerInfo[PsiElement](macroCall, macroCall.getTextRange, Icons.NO_SCALA_SDK,
-          Pass.UPDATE_OVERRIDEN_MARKERS, new Function[PsiElement, String] {
+          Pass.LINE_MARKERS, new Function[PsiElement, String] {
             def fun(param: PsiElement): String = {
               if (!ScalaMacroDebuggingUtil.macrosToExpand.contains(macroCall)) {
                 "Expand macro"

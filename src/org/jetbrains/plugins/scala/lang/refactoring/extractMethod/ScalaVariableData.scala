@@ -26,5 +26,5 @@ class ScalaVariableData(val element: ScTypedDefinition,
 }
 
 private class FakePsiType(val tp: ScType) extends PsiPrimitiveType("fakeForScala", PsiAnnotation.EMPTY_ARRAY) {
-  override def getPresentableText: String = tp.presentableText
+  override def getPresentableText(boolean: Boolean): String = tp.presentableText
 }
