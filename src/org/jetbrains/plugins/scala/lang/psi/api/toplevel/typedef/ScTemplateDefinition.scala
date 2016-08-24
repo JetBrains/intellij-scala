@@ -7,6 +7,7 @@ package typedef
 
 import java.util
 
+import com.intellij.execution.junit.JUnitUtil
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
@@ -18,6 +19,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
@@ -31,6 +33,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+
+import scala.collection.JavaConverters._
 
 /**
  * @author ven
@@ -90,7 +94,22 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   }
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
-    PsiClassImplUtil.findMethodsByName(this, name, checkBases)
+    val toSearchWithIndices = Set("main", JUnitUtil.SUITE_METHOD_NAME) //these methods may be searched from EDT, search them without building a whole type hierarchy
+
+    def withIndices(): Array[PsiMethod] = {
+      val inThisClass = functionsByName(name)
+
+      val files = this.allSupers.flatMap(_.containingFile).flatMap(f => Option(f.getVirtualFile)).asJava
+      val scope = GlobalSearchScope.filesScope(getProject, files)
+      val manager = ScalaShortNamesCacheManager.getInstance(getProject)
+      val candidates = manager.getMethodsByName(name, scope)
+      val inBaseClasses = candidates.filter(m => this.isInheritor(m.containingClass, deep = true))
+
+      (inThisClass ++ inBaseClasses).toArray
+    }
+
+    if (toSearchWithIndices.contains(name)) withIndices()
+    else PsiClassImplUtil.findMethodsByName(this, name, checkBases)
   }
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
@@ -342,7 +361,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
                 case e: ScExtendsBlock if e != null =>
                   if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
                     this match {
-                      case t: ScTypeDefinition if selfTypeElement != None &&
+                      case t: ScTypeDefinition if selfTypeElement.isDefined &&
                         !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
                         PsiTreeUtil.isContextAncestor(e.templateBody.orNull, place, true) &&
                         processor.isInstanceOf[BaseProcessor] && !t.isInstanceOf[ScObject] =>

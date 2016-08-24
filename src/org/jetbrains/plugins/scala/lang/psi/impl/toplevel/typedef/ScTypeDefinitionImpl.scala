@@ -340,14 +340,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
 
-  override def getSupers: Array[PsiClass] = {
-    val direct = extendsBlock.supers.toArray
-    val res = new ArrayBuffer[PsiClass]
-    res ++= direct
-    for (sup <- direct if !res.contains(sup)) res ++= sup.getSupers
-    // return strict superclasses
-    res.filter(_ != this).toArray
-  }
+  override def getSupers: Array[PsiClass] = extendsBlock.supers.filter(_ != this).toArray
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean =
     super[ScTypeDefinition].isInheritor(baseClass, deep)
