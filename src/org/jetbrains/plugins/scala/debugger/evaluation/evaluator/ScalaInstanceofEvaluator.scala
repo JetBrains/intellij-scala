@@ -20,7 +20,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeE
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     val value: Value = operandEvaluator.evaluate(context).asInstanceOf[Value]
     if (value == null) {
-      return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, PsiType.BOOLEAN.getPresentableText, false)
+      return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, PsiType.BOOLEAN.getPresentableText(), false)
     }
     if (!value.isInstanceOf[ObjectReference]) {
       throw EvaluationException(DebuggerBundle.message("evaluation.error.object.reference.expected"))
@@ -30,7 +30,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeE
       val classObject: ClassObjectReference = refType.classObject
       val classRefType: ClassType = classObject.referenceType.asInstanceOf[ClassType]
       val method: Method = classRefType.concreteMethodByName("isAssignableFrom", "(Ljava/lang/Class;)Z")
-      val args: java.util.List[Object] = new util.LinkedList[Object]
+      val args: java.util.List[Value] = new util.LinkedList[Value]
       args.add(value.asInstanceOf[ObjectReference].referenceType.classObject)
       context.getDebugProcess.invokeMethod(context, classObject, method, args)
     }

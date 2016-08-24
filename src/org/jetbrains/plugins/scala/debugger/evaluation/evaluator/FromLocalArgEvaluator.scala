@@ -10,7 +10,7 @@ import scala.util.Try
   */
 case class FromLocalArgEvaluator(delegate: Evaluator) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): AnyRef =
-    evaluateNotFromField(delegate, context).getOrElse(FromLocalArgEvaluator.skipMarker)
+    evaluateNotFromField(delegate, context)
 
   override def getModifier: Modifier = null
 
@@ -26,8 +26,4 @@ case class FromLocalArgEvaluator(delegate: Evaluator) extends Evaluator {
       case _ => Some(evaluator.evaluate(context))
     }
   }
-}
-
-object FromLocalArgEvaluator {
-  val skipMarker = "skip_marker"
 }

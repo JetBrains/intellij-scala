@@ -44,13 +44,11 @@ import com.intellij.openapi.vfs.*;
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.packaging.artifacts.Artifact;
 import com.intellij.packaging.impl.compiler.ArtifactCompileScope;
-import com.intellij.testFramework.CompilerTester;
-import com.intellij.testFramework.IdeaTestUtil;
-import com.intellij.testFramework.PsiTestUtil;
-import com.intellij.testFramework.UsefulTestCase;
+import com.intellij.testFramework.*;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.ThrowableRunnable;
 import com.intellij.util.io.TestFileSystemItem;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
@@ -101,7 +99,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         setUpFixtures();
         myProject = myTestFixture.getProject();
 
-        edt(new Runnable() {
+        EdtTestUtil.runInEdtAndWait(new ThrowableRunnable<Throwable>() {
             @Override
             public void run() {
                 ApplicationManager.getApplication().runWriteAction(new Runnable() {
@@ -124,7 +122,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
 
         ArrayList<String> allowedRoots = new ArrayList<String>();
         collectAllowedRoots(allowedRoots);
-        registerAllowedRoots(allowedRoots, myTestRootDisposable);
+        registerAllowedRoots(allowedRoots, getTestRootDisposable());
 
         CompilerTestUtil.enableExternalCompiler();
     }
@@ -174,7 +172,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
     @Override
     public void tearDown() throws Exception {
         try {
-            edt(new Runnable() {
+            EdtTestUtil.runInEdtAndWait(new ThrowableRunnable<Throwable>() {
                 @Override
                 public void run() {
                     try {

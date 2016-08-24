@@ -11,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.NullableFunction
@@ -68,7 +69,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
 
   def getGatorInfo(element: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
-      val offset = element.getTextRange.getStartOffset
+      val range = element.getTextRange
 
       if (element.getParent.isInstanceOf[ScReferenceElement]) return null // e.g type A = /*Int*/
 
@@ -82,7 +83,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
         e
       }
       def marker(element: PsiElement, icon: Icon, typez: ScalaMarkerType): LineMarkerInfo[PsiElement] =
-        new LineMarkerInfo[PsiElement](element, offset, icon, Pass.UPDATE_ALL, typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
+        new LineMarkerInfo[PsiElement](element, range, icon, Pass.UPDATE_ALL, typez.fun, typez.handler, GutterIconRenderer.Alignment.LEFT)
 
       val parent = getParent
       if (parent == null) return null
@@ -139,10 +140,10 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
         case method: ScFunctionDefinition if method.nameId == element =>
           method.recursionType match {
             case RecursionType.OrdinaryRecursion =>
-              return new LineMarkerInfo[PsiElement](method.nameId, offset, RECURSION_ICON, Pass.UPDATE_ALL,
+              return new LineMarkerInfo[PsiElement](method.nameId, range, RECURSION_ICON, Pass.UPDATE_ALL,
                 (e: PsiElement) => "Method '%s' is recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
             case RecursionType.TailRecursion =>
-              return new LineMarkerInfo[PsiElement](method.nameId, offset, TAIL_RECURSION_ICON, Pass.UPDATE_ALL,
+              return new LineMarkerInfo[PsiElement](method.nameId, range, TAIL_RECURSION_ICON, Pass.UPDATE_ALL,
                 (e: PsiElement) => "Method '%s' is tail recursive".format(e.getText), null, GutterIconRenderer.Alignment.LEFT)
             case RecursionType.NoRecursion => // no markers
           }
@@ -187,13 +188,14 @@ private object GutterUtil {
 
     val inheritor = ClassInheritorsSearch.search(clazz, false).findFirst
     if (inheritor != null) {
-      val offset = clazz.getTextOffset
+      val range = clazz.getTextRange
       val icon = clazz match {
         case _: ScTrait => IMPLEMENTED_INTERFACE_MARKER_RENDERER
         case _ => SUBCLASSED_CLASS_MARKER_RENDERER
       }
       val typez = ScalaMarkerType.SUBCLASSED_CLASS
-      val info = new LineMarkerInfo[PsiElement](clazz.nameId, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
+      val info = new LineMarkerInfo[PsiElement](clazz.nameId, range, icon, Pass.LINE_MARKERS, typez.fun, typez.handler,
+        GutterIconRenderer.Alignment.RIGHT)
       result.add(info)
     }
   }
@@ -201,7 +203,7 @@ private object GutterUtil {
   def collectOverridingMembers(members: ArrayBuffer[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) {
     for (member <- members if !member.isInstanceOf[PsiMethod] || !member.asInstanceOf[PsiMethod].isConstructor) {
       ProgressManager.checkCanceled()
-      val offset = member.getTextOffset
+      val range = member.getTextRange
       val members = member match {
         case d: ScDeclaredElementsHolder => d.declaredElements.toArray
         case td: ScTypeDefinition => Array[PsiNamedElement](td)
@@ -214,7 +216,7 @@ private object GutterUtil {
         val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
         val info = new LineMarkerInfo[PsiElement](member match {case memb: ScNamedElement => memb.nameId
-          case _ => member}, offset, icon, Pass.UPDATE_OVERRIDEN_MARKERS, typez.fun, typez.handler)
+          case _ => member}, range, icon, Pass.LINE_MARKERS, typez.fun, typez.handler, GutterIconRenderer.Alignment.RIGHT)
         result.add(info)
       }
     }

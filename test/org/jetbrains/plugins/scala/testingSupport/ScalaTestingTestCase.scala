@@ -21,7 +21,8 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiManager}
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
+import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestBase, ScalaVersion_2_11}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -39,10 +40,10 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   protected val configurationProducer: AbstractTestConfigurationProducer
 
-  override protected def isRunInEdt = false
+  override def runInDispatchThread(): Boolean = false
 
   override protected def addFileToProject(fileName: String, fileText: String) = {
-    UsefulTestCase.edt(new Runnable() {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = {
         ScalaTestingTestCase.super.addFileToProject(fileName, fileText)
       }
@@ -50,7 +51,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   }
 
   override protected def tearDown() = {
-    UsefulTestCase.edt(new Runnable() {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = ScalaTestingTestCase.super.tearDown()
     })
   }
@@ -75,7 +76,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
     val ioFile = new java.io.File(srcDir, fileName)
     var wrapper: StructureViewComponent.StructureViewTreeElementWrapper = null
-    UsefulTestCase.edt(new Runnable(){
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = {
         val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
         val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
@@ -105,7 +106,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
     var psiElement: PsiElement = null
 
-    UsefulTestCase.edt(new Runnable() {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = {
         val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
         psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
@@ -123,7 +124,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
     var res: RunnerAndConfigurationSettings = null
-    UsefulTestCase.edt(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = {
         res = configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
           case Some(testConfig) => testConfig
@@ -144,7 +145,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
   override protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings = {
     var module: Module = null
-    UsefulTestCase.edt(new Runnable() {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit =
         module = ModuleManager.getInstance(ScalaTestingTestCase.this.getProject).findModuleByName(moduleName)
     })
@@ -169,7 +170,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None
-    UsefulTestCase.edt(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
         if (needMake) {
           make()

@@ -67,9 +67,9 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
   //
   // Either LayeredLexerEditorHighlighter#convertAttributes or LayeredLexerEditorHighlighter#Mapper#getAttributes
   // should be fixed instead.
-  @Override
-  protected TextAttributes convertAttributes(@NotNull TextAttributesKey[] keys) {
-    TextAttributesKey[] reversed = ArrayUtil.reverseArray(keys);
-    return super.convertAttributes(reversed);
-  }
+//  @Override
+//  protected TextAttributes convertAttributes(@NotNull TextAttributesKey[] keys) {
+//    TextAttributesKey[] reversed = ArrayUtil.reverseArray(keys);
+//    return super.convertAttributes(reversed);
+//  }
 }

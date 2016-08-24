@@ -54,10 +54,12 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     if (obj == null) {
       throw EvaluationException(new NullPointerException)
     }
-    val args = argumentEvaluators.flatMap { ev =>
-      val result = ev.evaluate(context)
-      if (result == FromLocalArgEvaluator.skipMarker) None
-      else Some(result)
+    val args: Seq[Value] = argumentEvaluators.flatMap { ev =>
+      ev.evaluate(context) match {
+        case Some(res) => Some(res.asInstanceOf[Value])
+        case None => None
+        case res => Some(res.asInstanceOf[Value])
+      }
     }
     try {
       def findClass(name: String) = debugProcess.findClass(context, name, context.getClassLoader)
@@ -253,11 +255,11 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     }
   }
 
-  private def unwrappedArgs(args: Seq[AnyRef], jdiMethod: Method): Seq[AnyRef] = {
+  private def unwrappedArgs(args: Seq[AnyRef], jdiMethod: Method): Seq[Value] = {
     val argTypeNames = jdiMethod.argumentTypeNames()
     args.zipWithIndex.map {
-      case (DebuggerUtil.scalaRuntimeRefTo(value), idx) if !DebuggerUtil.isScalaRuntimeRef(argTypeNames.get(idx)) => value
-      case (arg, _) => arg
+      case (DebuggerUtil.scalaRuntimeRefTo(value), idx) if !DebuggerUtil.isScalaRuntimeRef(argTypeNames.get(idx)) => value.asInstanceOf[Value]
+      case (arg, _) => arg.asInstanceOf[Value]
     }
   }
 }

@@ -23,7 +23,7 @@ class MacroExpansionProvider extends LineMarkerProvider {
     val expansions = elements.map(p => (p, p.getCopyableUserData(MacroExpandAction.EXPANDED_KEY))).filter(_._2 != null)
 
     val res = expansions.map { case (current, saved) =>
-      new RelatedItemLineMarkerInfo[PsiElement](current, current.getTextRange, Icons.NO_SCALA_SDK, Pass.UPDATE_OVERRIDEN_MARKERS,
+      new RelatedItemLineMarkerInfo[PsiElement](current, current.getTextRange, Icons.NO_SCALA_SDK, Pass.LINE_MARKERS,
         new Function[PsiElement, String] {
           def fun(param: PsiElement): String = "Undo Macro Expansion"
         },

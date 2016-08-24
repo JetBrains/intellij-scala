@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport
 
-import com.intellij.testFramework.UsefulTestCase
+import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
 import com.intellij.util.concurrency.Semaphore
 import javax.swing.SwingUtilities
 
@@ -11,6 +11,7 @@ import com.intellij.ide.util.treeView.smartTree.{TreeElement, TreeElementWrapper
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.TestItemRepresentation
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
@@ -59,7 +60,7 @@ trait IntegrationTest {
 
     var res = false
 
-    UsefulTestCase.edt(new Runnable() {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = res = helper(root, "")
     })
     res
@@ -195,7 +196,7 @@ trait IntegrationTest {
     val (_, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig)
 
     assert(testTreeRoot.isDefined)
-    UsefulTestCase.edt(new Runnable() {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine)
     })
   }

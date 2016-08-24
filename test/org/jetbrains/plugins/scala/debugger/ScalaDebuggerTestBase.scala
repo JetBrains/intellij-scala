@@ -11,7 +11,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
-import com.intellij.testFramework.{PlatformTestCase, PsiTestUtil, UsefulTestCase}
+import com.intellij.testFramework._
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -42,7 +43,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       if (testDataProjectPath.exists()) FileUtil.delete(testDataProjectPath)
     }
 
-    UsefulTestCase.edt(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
 
       def run() {
         ScalaDebuggerTestBase.super.setUp()
