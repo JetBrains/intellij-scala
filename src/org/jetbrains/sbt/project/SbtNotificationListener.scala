@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project
 
-import com.intellij.notification.{Notification, NotificationType, Notifications}
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskType, ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter}
+import com.intellij.notification._
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter, ExternalSystemTaskType}
 import org.jetbrains.sbt.project.settings.SbtLocalSettings
 
 /**
@@ -30,7 +30,8 @@ class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdap
   private def processOutput(text: String) {
     text match {
       case WarningMessage(message) =>
-        Notifications.Bus.notify(new Notification("scala", "SBT project import", message, NotificationType.WARNING))
+        val title = "SBT project import"
+        Notifications.Bus.notify(new Notification(title, title, message, NotificationType.WARNING))
       case _ => // do nothing
     }
   }
