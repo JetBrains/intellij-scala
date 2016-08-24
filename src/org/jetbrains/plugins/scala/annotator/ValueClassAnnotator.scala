@@ -72,7 +72,7 @@ trait ValueClassAnnotator {
     valueClass.constructor match {
       case Some(c) =>
         c.parameters match {
-          case Seq(param) if !param.isPrivateThis =>
+          case Seq(param) if !param.isPrivateThis && (param.isVal || param.isCaseClassVal) =>
           case Seq(param) => holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
           case _ =>
             holder.createErrorAnnotation(valueClass.nameId, ScalaBundle.message("value.class.can.have.only.one.parameter"))
