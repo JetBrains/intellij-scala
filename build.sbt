@@ -32,8 +32,8 @@ lazy val scalaCommunity: Project =
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
-    javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
-    scalacOptions in Global += "-target:jvm-1.6",
+    javacOptions in Global ++= Seq("-source", Versions.javaVersion, "-target", Versions.javaVersion),
+    scalacOptions in Global += s"-target:jvm-${Versions.javaVersion}",
     //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",

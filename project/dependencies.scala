@@ -2,6 +2,7 @@ import sbt._
 
 
 object Versions {
+  val javaVersion = "1.6"
   val scalaVersion = "2.11.6"
   val sbtVersion = "0.13.11"
   val ideaVersion = "162.1812.8"
