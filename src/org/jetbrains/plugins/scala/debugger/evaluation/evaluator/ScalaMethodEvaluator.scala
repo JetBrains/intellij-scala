@@ -131,7 +131,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
       }
 
       def invokeStaticMethod(referenceType: ReferenceType, jdiMethod: Method): AnyRef = {
-        def fixArguments(): Seq[AnyRef] = {
+        def fixArguments(): Seq[Value] = {
           def correctArgType(arg: AnyRef, typeName: String) = arg match {
             case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType())
             case _ => true

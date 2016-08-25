@@ -68,15 +68,14 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
     callback
 
-    UsefulTestCase.edt {
-      new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
         override def run(): Unit = {
           clearXBreakpoints()
           getDebugProcess.stop(true)
           processHandler.destroyProcess()
         }
       }
-    }
+    )
   }
 
   protected def runProcess(className: String,
