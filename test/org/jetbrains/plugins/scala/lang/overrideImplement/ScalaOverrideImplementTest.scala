@@ -1040,4 +1040,35 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val copyScalaDoc = true
     runTest(methodName, fileText, expectedText, isImplement, copyScalaDoc = copyScalaDoc)
   }
+
+  def testNoImportScalaSeq(): Unit = {
+    val fileText =
+      """
+        |import scala.collection.Seq
+        |
+        |class Test {
+        |  def foo: Seq[Int] = Seq(1)
+        |}
+        |
+        |class Test2 extends Test {
+        |<caret>
+        |}
+      """
+    val expectedText =
+      """
+        |import scala.collection.Seq
+        |
+        |class Test {
+        |  def foo: Seq[Int] = Seq(1)
+        |}
+        |
+        |class Test2 extends Test {
+        |  override def foo: Seq[Int] = super.foo
+        |}
+      """
+
+    val methodName: String = "foo"
+    val isImplement = false
+    runTest(methodName, fileText, expectedText, isImplement)
+  }
 }
