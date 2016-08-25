@@ -50,12 +50,6 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     })
   }
 
-  override protected def tearDown() = {
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = ScalaTestingTestCase.super.tearDown()
-    })
-  }
-
   override val testDataBasePrefix = "testingSupport"
 
   protected val useDynamicClassPath = false
