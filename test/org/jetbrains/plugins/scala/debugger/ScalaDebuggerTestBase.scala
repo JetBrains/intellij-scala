@@ -13,6 +13,7 @@ import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.testFramework._
 import com.intellij.util.ThrowableRunnable
+import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -88,7 +89,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   override def runInDispatchThread(): Boolean = false
 
-  override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
+  override def invokeTestRunnable(runnable: Runnable): Unit = UIUtil.invokeAndWaitIfNeeded(runnable)
 
   protected def getRunProfile(module: Module, className: String) = {
     val configuration: ApplicationConfiguration = new ApplicationConfiguration("app", module.getProject, ApplicationConfigurationType.getInstance)
