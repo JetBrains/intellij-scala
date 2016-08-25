@@ -370,6 +370,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     def invocationCount: Int
     def callGeneric: Option[ScGenericCall] = None
     def callReference: Option[ScReferenceExpression]
+    def arguments: Seq[ScExpression]
   }
 
   object Invocation {
@@ -381,6 +382,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       override def invocationCount: Int = args.invocationCount
 
       override def callReference: Option[ScReferenceExpression] = args.callReference
+
+      override def arguments: Seq[ScExpression] = args.exprs
     }
     private trait InfixInvocation extends Invocation {
       override def invocationCount: Int = 1
@@ -393,12 +396,18 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
     private class InfixExpressionInvocation(expr: ScExpression) extends InfixInvocation {
       override def element: PsiElement = expr
+
+      override def arguments: Seq[ScExpression] = Seq(expr)
     }
     private class InfixTupleInvocation(tuple: ScTuple) extends InfixInvocation {
       override def element: PsiElement = tuple
+
+      override def arguments: Seq[ScExpression] = tuple.exprs
     }
     private class InfixUnitInvocation(u: ScUnitExpr) extends InfixInvocation {
       override def element: PsiElement = u
+
+      override def arguments: Seq[ScExpression] = Seq(u)
     }
 
     def getInvocation(elem: PsiElement): Option[Invocation] = {
@@ -484,7 +493,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   } {
                     variant match {
                       case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
-                        res += ((new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), i))
+                        val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
+                        res += ((signature, i))
+                        ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
+                          res ++= enhancer.enhance(signature, args.arguments).map((_, i))
+                        }
                       case _ =>
                     }
                   }
@@ -519,7 +532,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       variant match {
                         //todo: Synthetic function
                         case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
-                          res += ((new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), 0))
+                          val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
+                          res += ((signature, 0))
+                          ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
+                            res ++= enhancer.enhance(signature, args.arguments).map(sign => (sign, 0))
+                          }
                         case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
                           val typez = subst.subst(typed.getType(TypingContext.empty).getOrNothing) //todo: implicit conversions
                           collectForType(typez)
