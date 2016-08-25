@@ -84,14 +84,20 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 
   protected override def tearDown() {
-    CompilerTestUtil.disableExternalCompiler(myProject)
-    CompileServerLauncher.instance.stop()
-    val baseDir = getBaseDir
-    scalaLibraryLoader.clean()
-    scalaLibraryLoader = null
-    super.tearDown()
+    UIUtil.invokeAndWaitIfNeeded {
+      new Runnable {
+        def run() {
+          CompilerTestUtil.disableExternalCompiler(myProject)
+          CompileServerLauncher.instance.stop()
+          val baseDir = getBaseDir
+          scalaLibraryLoader.clean()
+          scalaLibraryLoader = null
+          ScalaCompilerTestBase.super.tearDown()
 
-    if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
+          if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
+        }
+      }
+    }
   }
 
   protected def make(): List[String] = {
