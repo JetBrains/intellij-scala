@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -66,10 +65,6 @@ object TypeAdjuster extends ApplicationAdapter {
 
   private def newRef(text: String, position: PsiElement): Option[ScReferenceElement] = {
     findRef(newTypeElem(text, position))
-  }
-
-  private def newRef(sInfo: SimpleInfo): Option[ScReferenceElement] = {
-    findRef(newTypeElem(sInfo.replacement, sInfo.origTypeElem))
   }
 
   private def newTypeElem(name: String, position: PsiElement) = {
@@ -306,37 +301,47 @@ object TypeAdjuster extends ApplicationAdapter {
     def withNewText(s: String): SimpleInfo = copy(replacement = s)
 
     def updateTarget(target: PsiNamedElement): SimpleInfo = {
-      val (newText, pathToImport) = target match {
-        case clazz: PsiClass =>
-          val qName = clazz.qualifiedName
-          val needPrefix = ScalaCodeStyleSettings.getInstance(origTypeElem.getProject).hasImportWithPrefix(qName)
-          if (needPrefix) {
-            val words = qName.split('.')
-            val withPrefix = words.takeRight(2).mkString(".")
-            val packageName = words.dropRight(1).mkString(".")
-            (withPrefix, Some(packageName))
-          }
-          else (clazz.name, Some(qName))
-        case _ => (target.name, ScalaNamesUtil.qualifiedName(target))
+      def addSingletonType(typeText: String) = origTypeElem match {
+        case s: ScSimpleTypeElement if s.singleton => s"$typeText.type"
+        case _ => typeText
       }
-      val replacementText = origTypeElem match {
-        case s: ScSimpleTypeElement if s.singleton => s"$newText.type"
-        case _ => newText
-      }
-      val withoutImport = copy(replacement = replacementText, resolve = Some(target), pathsToImport = Seq.empty)
 
-      if (withoutImport.checkReplacementResolve) withoutImport
-      else withoutImport.copy(pathsToImport = pathToImport.toSeq)
+      target match {
+        case cl: PsiClass if needPrefix(cl) =>
+          val words = cl.qualifiedName.split('.')
+          val withPrefix = words.takeRight(2).mkString(".")
+          val packageName = words.dropRight(1).mkString(".")
+          copy(replacement = addSingletonType(withPrefix), resolve = Some(cl), pathsToImport = Seq(packageName))
+        case _ =>
+          val name = target.name
+
+          val alreadyResolvesToSameName = resolve match {
+            case Some(named: PsiNamedElement) =>
+              named.name == name && alreadyResolves(name)
+            case _ => false
+          }
+
+          if (alreadyResolvesToSameName) copy(replacement = addSingletonType(name), pathsToImport = Seq.empty)
+          else {
+            val withoutImport = copy(replacement = addSingletonType(name), resolve = Some(target), pathsToImport = Seq.empty)
+
+            if (withoutImport.checkReplacementResolve) withoutImport
+            else withoutImport.copy(pathsToImport = ScalaNamesUtil.qualifiedName(target).toSeq)
+          }
+      }
     }
 
-    override def checkReplacementResolve: Boolean = {
-      val newResolve = newRef(this).flatMap(_.resolve().toOption)
+    override def checkReplacementResolve: Boolean = alreadyResolves(replacement)
 
-      (newResolve, resolve) match {
+    private def alreadyResolves(refText: String) = {
+      val ref = newRef(refText, origTypeElem)
+      (ref.flatMap(_.resolve().toOption), resolve) match {
         case (Some(e1), Some(e2)) => ScEquivalenceUtil.smartEquivalence(e1, e2)
         case _ => false
       }
     }
+
+    private def needPrefix(c: PsiClass) = ScalaCodeStyleSettings.getInstance(origTypeElem.getProject).hasImportWithPrefix(c.qualifiedName)
   }
 
   private case class CompoundInfo(origTypeElem: ScTypeElement, tempTypeElem: ScTypeElement,
