@@ -25,7 +25,7 @@
           <element id="library" level="project" name="SBT: org.jetbrains:jline:1.0.0:jar" />
           <element id="library" level="project" name="SBT: org.jetbrains:sbt-interface:1.0.0:jar" />
           <element id="library" level="project" name="SBT: org.jetbrains:incremental-compiler:1.0.0:jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/SDK/dotty/dotty-interfaces.jar"/>
+          <element id="file-copy" path="$PROJECT_DIR$/SDK/dotty/dotty-interfaces.jar" />
         </element>
         <element id="archive" name="compiler-settings.jar">
           <element id="module-output" name="compilerSettings" />
@@ -73,13 +73,13 @@
         <element id="archive" name="scalap.jar">
           <element id="module-output" name="scalap" />
         </element>
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:5.1.2:jar" />
         <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.8:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:6.0.2:jar" />
       </element>
       <element id="directory" name="launcher">
-        <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.9:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:5.1.2:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:5.1.2:jar" />
+        <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.11:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:6.0.2:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:6.0.2:jar" />
       </element>
     </root>
   </artifact>

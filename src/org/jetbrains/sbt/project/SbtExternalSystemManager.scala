@@ -8,9 +8,8 @@ import java.util
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
-import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.openapi.externalSystem.util._
-import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemConfigurableAware, ExternalSystemManager}
+import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
@@ -23,8 +22,6 @@ import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSystemSettings}
-
-import scala.collection.mutable
 
 /**
  * @author Pavel Fatin
@@ -78,7 +75,7 @@ object SbtExternalSystemManager {
     val customSbtStructureFile = settings.customSbtStructurePath.nonEmpty.option(settings.customSbtStructurePath.toFile)
 
     val realProjectPath = Option(projectSettings.getExternalProjectPath).getOrElse(path)
-    val projectJdkName = getProjectJdkName(project, projectSettings)
+    val projectJdkName = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
     val vmExecutable = getVmExecutable(projectJdkName, settings)
     val vmOptions = getVmOptions(settings)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
@@ -86,12 +83,6 @@ object SbtExternalSystemManager {
     new SbtExecutionSettings(realProjectPath,
       vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers)
-  }
-
-  private def getProjectJdkName(project: Project, projectSettings: SbtProjectSettings): Option[String] = {
-    val jdkInProject = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
-    val jdkInImportSettings = projectSettings.jdkName
-    jdkInImportSettings.orElse(jdkInProject)
   }
 
   private def getVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File =
