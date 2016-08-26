@@ -28,6 +28,7 @@ object ResolverIndex {
   val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
   val CURRENT_INDEX_VERSION = "2"
   val NO_TIMESTAMP = -1
+  val MAVEN_UNAVALIABLE = -2
   protected val indexesDir: File = {
     if (ApplicationManager.getApplication.isUnitTestMode)
       Option(System.getProperty("ivy.test.indexes.dir"))
