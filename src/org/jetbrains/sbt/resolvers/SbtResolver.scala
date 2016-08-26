@@ -3,7 +3,8 @@ package org.jetbrains.sbt.resolvers
 import java.io.File
 import java.util.regex.Pattern
 
-import org.jetbrains.sbt.resolvers.indexes.{MavenProxyIndex, ResolverIndex}
+import org.jetbrains.idea.maven.indices.MavenIndicesManager
+import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, ResolverIndex}
 
 /**
   * @author Mikhail Mutcianko
@@ -34,7 +35,13 @@ object SbtResolver {
 }
 
 class SbtMavenResolver(val name: String, val root: String) extends SbtResolver {
-  override lazy val getIndex: ResolverIndex = new MavenProxyIndex(root, name)
+  override lazy val getIndex: ResolverIndex = try {
+    MavenIndicesManager.getInstance()
+    new MavenProxyIndex(root, name)
+  } catch {
+    case e:NoClassDefFoundError if e.getMessage.contains("MavenIndicesManager") =>
+      new FakeMavenIndex(root, name)
+  }
   override def toString = s"$root|maven|$name"
 }
 

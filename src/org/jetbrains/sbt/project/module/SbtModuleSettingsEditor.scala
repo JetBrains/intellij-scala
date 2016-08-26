@@ -4,14 +4,16 @@ package project.module
 import java.awt.event.{ActionEvent, ActionListener}
 import java.util
 import javax.swing.JPanel
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import javax.swing.table.AbstractTableModel
 
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.text.DateFormatUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 import org.jetbrains.plugins.scala.util.JListCompatibility
-import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper
+import org.jetbrains.plugins.scala.util.JListCompatibility.{CollectionListModelWrapper, JListContainer}
 import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolversManager}
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 import org.jetbrains.sbt.resolvers.SbtResolversManager
@@ -59,6 +61,21 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     myForm.resolversTable.getColumnModel.getColumn(0).setPreferredWidth(50)
     myForm.resolversTable.getColumnModel.getColumn(1).setPreferredWidth(400)
     myForm.resolversTable.getColumnModel.getColumn(2).setPreferredWidth(30)
+    myForm.resolversTable.getSelectionModel.addListSelectionListener(new ListSelectionListener {
+      override def valueChanged(event: ListSelectionEvent) = setupUpdateButton()
+    })
+    setupUpdateButton()
+  }
+
+  def setupUpdateButton(): Unit = {
+    // use first element in model to do availability checking if no ros has yet been selected
+    val selectedRow = Option(myForm.resolversTable.getSelectedRow).filter(_ >= 0).getOrElse(0)
+    try {
+      val value = myForm.resolversTable.getModel.getValueAt(selectedRow, 2)
+      myForm.updateButton.setEnabled(value != SbtBundle("sbt.settings.resolvers.mavenUnavaliable"))
+    } catch {
+      case _: IndexOutOfBoundsException => myForm.updateButton.setEnabled(false)  // no resolvers in project?
+    }
   }
 }
 
@@ -83,6 +100,8 @@ private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Projec
       val ts: Long = resolvers(rowIndex).getIndex.getUpdateTimeStamp(project)
       if (ts == ResolverIndex.NO_TIMESTAMP)
         SbtBundle("sbt.settings.resolvers.neverUpdated")
+      else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
+        SbtBundle("sbt.settings.resolvers.mavenUnavaliable")
       else
         DateFormatUtil.formatDate(ts)
   }
