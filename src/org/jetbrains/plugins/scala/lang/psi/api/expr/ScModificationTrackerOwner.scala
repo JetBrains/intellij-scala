@@ -23,7 +23,7 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
   def rawModificationCount: Long = blockModificationCount.get()
 
   def getModificationTracker: ModificationTracker = {
-    assert(isValidModificationTrackerOwner
+    assert(isValidModificationTrackerOwner)
     new ModificationTracker {
       override def getModificationCount: Long = getModificationCountImpl
     }
