@@ -61,6 +61,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     }
   }
 
+  override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
+
   override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
                                                   testStatus: Int = TestStructureViewElement.normalStatusId) = {
     val structureViewRoot = buildFileStructure(testClassName + ".scala")
