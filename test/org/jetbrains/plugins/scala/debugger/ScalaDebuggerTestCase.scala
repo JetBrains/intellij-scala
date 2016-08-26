@@ -24,6 +24,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
+import com.intellij.util.ui.UIUtil
 import com.intellij.xdebugger.XDebuggerManager
 import com.intellij.xdebugger.breakpoints.XBreakpointType
 import com.sun.jdi.VoidValue
@@ -77,6 +78,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     )
   }
+
+  override def invokeTestRunnable(runnable: Runnable): Unit = UIUtil.invokeAndWaitIfNeeded(runnable)
 
   protected def runProcess(className: String,
                            module: Module,

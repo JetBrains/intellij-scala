@@ -89,8 +89,6 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   override def runInDispatchThread(): Boolean = false
 
-  override def invokeTestRunnable(runnable: Runnable): Unit = UIUtil.invokeAndWaitIfNeeded(runnable)
-
   protected def getRunProfile(module: Module, className: String) = {
     val configuration: ApplicationConfiguration = new ApplicationConfiguration("app", module.getProject, ApplicationConfigurationType.getInstance)
     configuration.setModule(module)
