@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParame
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -63,7 +64,7 @@ class ScProjectionType private(val projected: ScType,
             typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
             ta.typeParameters.map(tp => {
               val name = tp.name + "$$"
-              val ex = new ScExistentialArgument(name, Nil, Nothing, Any)
+              val ex = ScExistentialArgument(name, Nil, Nothing, Any)
               args += ex
               ex
             }))
@@ -101,6 +102,7 @@ class ScProjectionType private(val projected: ScType,
 
   private var hash: Int = -1
 
+  //noinspection HashCodeUsesVar
   override def hashCode: Int = {
     if (hash == -1) {
       hash = projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
@@ -331,8 +333,8 @@ class ScProjectionType private(val projected: ScType,
 }
 
 object ScProjectionType {
-  def apply(projected: ScType, element: PsiNamedElement,
-            superReference: Boolean /* todo: find a way to remove it*/): ScType = {
+  def create(projected: ScType, element: PsiNamedElement,
+             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
     val res = new ScProjectionType(projected, element, superReference)
     projected match {
       case c: ScCompoundType =>
@@ -342,6 +344,13 @@ object ScProjectionType {
         }
       case _ => res
     }
+  }
+
+  def apply(projected: ScType, element: PsiNamedElement,
+            superReference: Boolean /* todo: find a way to remove it*/): ScType = {
+
+    val manager = ScalaPsiManager.instance(element.getProject)
+    manager.getProjectionTypeCached(projected, element, superReference)
   }
 
   def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement, Boolean)] = {

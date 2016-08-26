@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
  * @author Alefas
@@ -11,10 +13,17 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def runTest(methodName: String, fileText: String, expectedText: String, isImplement: Boolean,
-              needsInferType: Boolean = true) {
+              settings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)),
+              copyScalaDoc: Boolean = false) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = needsInferType
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
+    TypeAnnotationSettings.set(getProjectAdapter, settings)
+    
+
+    ScalaApplicationSettings.getInstance().COPY_SCALADOC = copyScalaDoc
     ScalaOIUtil.invokeOverrideImplement(getProjectAdapter, getEditorAdapter, getFileAdapter, isImplement, methodName)
+    
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
   }
 
@@ -43,8 +52,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testEmptyLinePos() {
@@ -77,8 +85,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "too"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testNewLineBetweenMethods() {
@@ -108,8 +115,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "too"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testNewLineUpper() {
@@ -141,8 +147,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "too"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testOverrideFunction() {
@@ -175,8 +180,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testImplementTypeAlias() {
@@ -208,8 +212,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "K"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testOverrideValue() {
@@ -239,8 +242,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testOverrideVar() {
@@ -274,8 +276,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testImplementFromSelfType() {
@@ -305,8 +306,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testOverrideFromSelfType() {
@@ -331,13 +331,14 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |trait B {
         |  self: A =>
-        |  override def foo: Int = <selection>self.foo</selection>
+        |  override def foo = <selection>self.foo</selection>
         |}
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    runTest(methodName, fileText, expectedText, isImplement, settings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
   def testTypeAlias() {
@@ -361,8 +362,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "L"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testVal() {
@@ -390,8 +390,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "too"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testVar() {
@@ -419,8 +418,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "too"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testClassTypeParam() {
@@ -446,8 +444,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testHardSubstituting() {
@@ -473,8 +470,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSimpleTypeParam() {
@@ -498,8 +494,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL1997() {
@@ -529,8 +524,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL1999() {
@@ -560,8 +554,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "m"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL2540() {
@@ -587,8 +580,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL2010() {
@@ -618,8 +610,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "doSmth"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL2052A() {
@@ -647,8 +638,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL2052B() {
@@ -676,8 +666,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL2052C() {
@@ -705,8 +694,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL3808() {
@@ -736,8 +724,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testSCL3305() {
@@ -789,8 +776,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testUnitReturn() {
@@ -818,8 +804,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testUnitInferredReturn() {
@@ -847,8 +832,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testInferredReturn() {
@@ -876,10 +860,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
+  //don't add return type for override public
   def testNoExplicitReturn() {
     val fileText =
       """
@@ -903,8 +887,11 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = false
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+   
+    runTest(methodName, fileText, expectedText, isImplement,
+      settings = TypeAnnotationSettings.noTypeAnnotationForPublic(TypeAnnotationSettings.noTypeAnnotationForOverride(settings)))
   }
 
   def testImplicitParams() {
@@ -925,15 +912,15 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class B extends A {
-        |  override def foo(x: Int)(implicit name: String) = <selection>super.foo(x)</selection>
+        |  override def foo(x: Int)(implicit name: String): Int = <selection>super.foo(x)</selection>
         |}
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = false
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
+  //don't add return type for protected
   def testProtectedMethod() {
     val fileText =
       """
@@ -957,8 +944,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = false
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    
+    runTest(methodName, fileText, expectedText, isImplement, settings = TypeAnnotationSettings.noTypeAnnotationForProtected(settings))
   }
 
   def testProtectedMethodNoBody() {
@@ -977,13 +966,12 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class B extends A {
-        |  protected def foo() = <selection>???</selection>
+        |  protected def foo(): Unit = <selection>???</selection>
         |}
       """
     val methodName: String = "foo"
     val isImplement = true
-    val needsInferType = false
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
   def testOverrideProtectedMethodNoBody() {
@@ -1007,8 +995,80 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
     val methodName: String = "foo"
     val isImplement = false
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
+    runTest(methodName, fileText, expectedText, isImplement)
   }
 
+
+  def testCopyScalaDoc() = {
+    val fileText =
+      """
+        |abstract class A {
+        |
+        |  /**
+        |    * qwerty
+        |    *
+        |    * @return
+        |    */
+        |  protected def foo(): Unit = {}
+        |}
+        |
+        |class B<caret> extends A
+      """
+    val expectedText =
+      """
+        |abstract class A {
+        |
+        |  /**
+        |    * qwerty
+        |    *
+        |    * @return
+        |    */
+        |  protected def foo(): Unit = {}
+        |}
+        |
+        |class B extends A {
+        |  /**
+        |    * qwerty
+        |    *
+        |    * @return
+        |    */
+        |  override protected def foo(): Unit = <selection>super.foo()</selection>
+        |}
+      """
+    val methodName: String = "foo"
+    val isImplement = false
+    val copyScalaDoc = true
+    runTest(methodName, fileText, expectedText, isImplement, copyScalaDoc = copyScalaDoc)
+  }
+
+  def testNoImportScalaSeq(): Unit = {
+    val fileText =
+      """
+        |import scala.collection.Seq
+        |
+        |class Test {
+        |  def foo: Seq[Int] = Seq(1)
+        |}
+        |
+        |class Test2 extends Test {
+        |<caret>
+        |}
+      """
+    val expectedText =
+      """
+        |import scala.collection.Seq
+        |
+        |class Test {
+        |  def foo: Seq[Int] = Seq(1)
+        |}
+        |
+        |class Test2 extends Test {
+        |  override def foo: Seq[Int] = super.foo
+        |}
+      """
+
+    val methodName: String = "foo"
+    val isImplement = false
+    runTest(methodName, fileText, expectedText, isImplement)
+  }
 }

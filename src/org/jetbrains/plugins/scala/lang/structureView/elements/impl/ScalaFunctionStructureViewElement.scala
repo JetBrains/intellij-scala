@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 * Date: 04.05.2008
 */
 
-class ScalaFunctionStructureViewElement(private val func: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(func, isInherited) {
+class ScalaFunctionStructureViewElement(func: ScFunction, val isInherited: Boolean) extends ScalaStructureViewElement(func, isInherited) {
 
   def getPresentation: ItemPresentation = {
     new ScalaFunctionItemPresentation(func, isInherited)

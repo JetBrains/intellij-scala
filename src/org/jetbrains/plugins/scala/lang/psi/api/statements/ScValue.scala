@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScModifiableTypedDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
  */
 
 trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder
-              with ScAnnotationsHolder with ScCommentOwner with ScModifiableTypedDeclaration {
+              with ScAnnotationsHolder with ScCommentOwner {
   self =>
   def valKeyword: PsiElement = findChildrenByType(ScalaTokenTypes.kVAL).apply(0)
 
@@ -67,6 +67,4 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
   def getValToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAL)
 
   override def isDeprecated: Boolean = hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
-
-  override def modifiableReturnType: Option[ScType] = getType(TypingContext.empty).toOption
 }

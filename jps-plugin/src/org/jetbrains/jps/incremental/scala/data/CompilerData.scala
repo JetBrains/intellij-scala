@@ -6,6 +6,7 @@ import java.io.File
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.jps.incremental.scala._
 import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, LibrarySettings}
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import org.jetbrains.jps.model.module.JpsModule
@@ -76,7 +77,18 @@ object CompilerData {
     }
   }
 
-  def isDotty(chunk: ModuleChunk): Boolean = chunk.getModules.asScala.exists(isDottyModule)
+  def needNoBootCp(chunk: ModuleChunk): Boolean = {
+    chunk.getModules.asScala.forall(needNoBootCp)
+  }
+
+  private def needNoBootCp(module: JpsModule): Boolean = {
+    def tooOld(version: Option[String]) = version.exists(v => v.startsWith("2.8") || v.startsWith("2.9"))
+
+    compilerJarsIn(module) match {
+      case Right(jars @ CompilerJars(_, compiler, _)) => jars.dotty.isEmpty && !tooOld(version(compiler))
+      case _ => false
+    }
+  }
 
   private def compilerJarsIn(module: JpsModule): Either[String, CompilerJars] = {
     val sdk = SettingsManager.getScalaSdk(module)
@@ -100,7 +112,7 @@ object CompilerData {
         val extraJars = files.filterNot(file => file == libraryJar || file == compilerJar)
 
         val reflectJarError = {
-          readProperty(compilerJar, "compiler.properties", "version.number").flatMap {
+          version(compilerJar).flatMap {
             case version if version.startsWith("2.10") => // TODO implement a better version comparison
               find(extraJars, "scala-reflect", ".jar").left.toOption
                       .map(_ + " in Scala compiler classpath in Scala SDK " + sdk.getName)
@@ -122,5 +134,12 @@ object CompilerData {
       case Seq(duplicates @ _*) =>
         Left("Multiple '%s*%s' files (%s)".format(prefix, suffix, duplicates.map(_.getName).mkString(", ")))
     }
+  }
+
+  private def version(compiler: File): Option[String] = readProperty(compiler, "compiler.properties", "version.number")
+
+  def compilerVersion(module: JpsModule): Option[String] = compilerJarsIn(module) match {
+    case Right(CompilerJars(_, compiler, _)) => version(compiler)
+    case _ => None
   }
 }
