@@ -107,9 +107,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     isInitialized = true;
 
     updateSettings();
-    updateSignature();
     setUpTypeChb();
     setUpHyperLink();
+    updateSignature();
 
     updateOkStatus();
   }
@@ -188,7 +188,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       public void actionPerformed(ActionEvent e) {
         if (privateRadioButton.isSelected()) {
           privateTextField.setEnabled(true);
-        } else privateTextField.setEnabled(false);
+        } else {
+          privateTextField.setEnabled(false);
+        }
         updateSignature();
       }
     });
@@ -205,7 +207,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       public void actionPerformed(ActionEvent e) {
         if (protectedRadioButton.isSelected()) {
           protectedTextField.setEnabled(true);
-        } else protectedTextField.setEnabled(false);
+        } else {
+          protectedTextField.setEnabled(false);
+        }
         updateSignature();
       }
     });
@@ -362,7 +366,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
             new ItemListener() {
               public void itemStateChanged(ItemEvent e) {
                 mySpecifyTypeChb.setSelected(
-                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), settings.visibility())
+                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility())
                 );
               }
             }
