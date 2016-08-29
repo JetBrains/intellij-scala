@@ -362,15 +362,21 @@ object Conformance extends api.Conformance {
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
         val comps = c.components
-        val iterator = comps.iterator
-        while (iterator.hasNext) {
-          val comp = iterator.next()
-          val t = conformsInner(l, comp, HashSet.empty, undefinedSubst)
-          if (t._1) {
-            result = (true, t._2)
-            return
+        def traverse(check: (ScType, ScUndefinedSubstitutor) => (Boolean, ScUndefinedSubstitutor)): Boolean = {
+          val iterator = comps.iterator
+          while (iterator.hasNext) {
+            val comp = iterator.next()
+            val t = check(comp, undefinedSubst)
+            if (t._1) {
+              result = (true, t._2)
+              return true
+            }
           }
+          false
         }
+        if (traverse(Equivalence.equivInner(l, _, _))) return
+        if (traverse(conformsInner(l, _, HashSet.empty, _))) return
+
         result = l.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, Success(comp: ScCompoundType, _), _)) =>
             conformsInner(comp, c, HashSet.empty, undefinedSubst)
@@ -887,13 +893,14 @@ object Conformance extends api.Conformance {
       //todo: looks like this code can be simplified and unified.
       //todo: what if left is type alias declaration, right is type alias definition, which is alias to that declaration?
       p.isAliasType match {
-        case Some(AliasType(_, lower, _)) =>
-          r match {
-            case ParameterizedType(proj, args2) if r.isAliasType.isDefined && (proj equiv p.designator) =>
-              processEquivalentDesignators(args2)
-              return
-            case _ =>
-          }
+        case Some(AliasType(ta, lower, _)) =>
+          if (ta.isInstanceOf[ScTypeAliasDeclaration])
+            r match {
+              case ParameterizedType(proj, args2) if r.isAliasType.isDefined && (proj equiv p.designator) =>
+                processEquivalentDesignators(args2)
+                return
+              case _ =>
+            }
           if (lower.isEmpty) {
             result = (false, undefinedSubst)
             return

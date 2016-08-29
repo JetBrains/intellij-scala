@@ -24,5 +24,7 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
 
   def testSCL9877_2() {doTest()}
 
+  def testSCL9877_3() {doTest()}
+
   def testSCL10237() {doTest()}
 }
