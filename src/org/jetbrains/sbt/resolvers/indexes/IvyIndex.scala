@@ -49,6 +49,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     val gaMap  = mutable.HashMap.empty[String, mutable.Set[String]]
     val gavMap = mutable.HashMap.empty[String, mutable.Set[String]]
     def processArtifact(artifact: ArtifactInfo) {
+      progressIndicator foreach { _.checkCanceled() }
       agMap.getOrElseUpdate(artifact.artifactId, mutable.Set.empty) += artifact.groupId
       gaMap.getOrElseUpdate(artifact.groupId, mutable.Set.empty) += artifact.artifactId
       gavMap.getOrElseUpdate(SbtResolverUtils.joinGroupArtifact(artifact), mutable.Set.empty) += artifact.version
