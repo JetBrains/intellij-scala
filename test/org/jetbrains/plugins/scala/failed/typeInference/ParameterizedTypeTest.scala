@@ -10,41 +10,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  def testSCL4990() = {
-    val text =
-      """
-        |object Example {
-        |  def mangle[A, M[_]](m: M[A]) = {}
-        |
-        |  case class OneParameterType[A](value: A)
-        |  case class TwoParameterType[S, A](value: (S, A))
-        |  type Alias[A] = TwoParameterType[String, A]
-        |
-        |  val a: OneParameterType[Int] = OneParameterType(1)
-        |  val b: Alias[Int] = TwoParameterType(("s", 1))
-        |  mangle(a)
-        |  mangle(b)
-        |}
-      """.stripMargin
-    checkTextHasNoErrors(text)
-  }
-
-  def testSCL8161() = {
-    val text =
-      """
-        |trait TypeMismatch {
-        |  type M[X]
-        |
-        |  def ok[F[_],A](v: F[A]) = ???
-        |
-        |  ok(??? : M[Option[Int]])
-        |}
-      """.stripMargin
-    checkTextHasNoErrors(text)
-  }
-
-  def testSCL6384() = {
+    def testSCL6384() = {
     val text =
       """
         |object Test {
@@ -189,22 +155,6 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |        }
         |    }
         |  }""".stripMargin
-    )
-  }
-
-  def testSCL10168() = {
-    checkTextHasNoErrors(
-      """  trait Members {
-        |  type F[_]
-        |  type A
-        |  val value: F[A]
-        |}
-        |object Scratch {
-        |  def meth[F[_], A](fa: F[A]) = {}
-        |
-        |  def callMethWithValue[F[_], A](members: Members) =
-        |    meth(members.value)
-        |}""".stripMargin
     )
   }
 

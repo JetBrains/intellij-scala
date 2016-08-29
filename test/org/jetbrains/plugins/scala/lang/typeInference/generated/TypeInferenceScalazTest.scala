@@ -26,4 +26,20 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
   def testSCL6417() {doTest()}
 
   def testSCL6417_Performance() {doTest()}
+
+  def testSCL7669(): Unit = {
+    doTest(
+      s"""
+         |import scalaz._
+         |import scalaz.std.list._
+         |import scalaz.syntax.monad._
+         |
+         |type Foo[A] = ReaderWriterState[String, List[Int], Unit, A]
+         |
+         |def foo[T](f: ⇒ T): Foo[T] = ReaderWriterState { (a, b) ⇒ (Nil, f, ()) }
+         |
+         |${START}foo(1) >> foo(2) >> foo(2)$END
+         |//Foo[Int]
+      """.stripMargin)
+  }
 }

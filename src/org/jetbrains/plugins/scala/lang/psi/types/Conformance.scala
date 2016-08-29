@@ -903,6 +903,105 @@ object Conformance extends api.Conformance {
         case _ =>
       }
 
+      r match {
+        case p2: ScParameterizedType =>
+          val des1 = p.designator
+          val des2 = p2.designator
+          val args1 = p.typeArguments
+          val args2 = p2.typeArguments
+          (des1, des2) match {
+            case (_: UndefinedType, UndefinedType(parameterType, _)) =>
+              val TypeParameterType(arguments, _, _, _) = parameterType
+              var anotherType = ScParameterizedType(des1, arguments)
+              var args1replace = args1
+              if (args1.length != args2.length) {
+                l.extractClassType() match {
+                  case Some((clazz, classSubst)) =>
+                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
+                    if (!t._1) {
+                      result = (false, undefinedSubst)
+                      return
+                    }
+                    t._2 match {
+                      case ParameterizedType(newDes, newArgs) =>
+                        args1replace = newArgs
+                        anotherType = ScParameterizedType(newDes, arguments)
+                      case _ =>
+                        result = (false, undefinedSubst)
+                        return
+                    }
+                  case _ =>
+                    result = (false, undefinedSubst)
+                    return
+                }
+              }
+              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
+              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1replace, args2,
+                undefinedSubst, visited, checkWeak)
+              return
+            case (UndefinedType(parameterType, _), _) =>
+              val TypeParameterType(arguments, _, _, _) = parameterType
+              var anotherType: ScType = ScParameterizedType(des2, arguments)
+              var args2replace = args2
+              if (args1.length != args2.length) {
+                r.extractClassType() match {
+                  case Some((clazz, classSubst)) =>
+                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args1.length)
+                    if (!t._1) {
+                      result = (false, undefinedSubst)
+                      return
+                    }
+                    t._2 match {
+                      case ParameterizedType(newDes, newArgs) =>
+                        args2replace = newArgs
+                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
+                      case _ =>
+                        result = (false, undefinedSubst)
+                        return
+                    }
+                  case _ =>
+                    result = (false, undefinedSubst)
+                    return
+                }
+              }
+              undefinedSubst = undefinedSubst.addLower(parameterType.nameAndId, anotherType)
+              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1, args2replace,
+                undefinedSubst, visited, checkWeak)
+              return
+            case (_, UndefinedType(parameterType, _)) =>
+              val TypeParameterType(arguments, _, _, _) = parameterType
+              var anotherType = ScParameterizedType(des1, arguments)
+              var args1replace = args1
+              if (args1.length != args2.length) {
+                l.extractClassType() match {
+                  case Some((clazz, classSubst)) =>
+                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
+                    if (!t._1) {
+                      result = (false, undefinedSubst)
+                      return
+                    }
+                    t._2 match {
+                      case ParameterizedType(newDes, newArgs) =>
+                        args1replace = newArgs
+                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
+                      case _ =>
+                        result = (false, undefinedSubst)
+                        return
+                    }
+                  case _ =>
+                    result = (false, undefinedSubst)
+                    return
+                }
+              }
+              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
+              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1, args1replace,
+                undefinedSubst, visited, checkWeak)
+              return
+            case _ =>
+          }
+        case _ =>
+      }
+
       rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -996,93 +1095,6 @@ object Conformance extends api.Conformance {
                 result = (false, undefinedSubst)
                 return
               }
-            case (_: UndefinedType, UndefinedType(parameterType, _)) =>
-              val TypeParameterType(arguments, _, _, _) = parameterType
-              var anotherType = ScParameterizedType(des1, arguments)
-              var args1replace = args1
-              if (args1.length != args2.length) {
-                l.extractClassType() match {
-                  case Some((clazz, classSubst)) =>
-                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
-                    if (!t._1) {
-                      result = (false, undefinedSubst)
-                      return
-                    }
-                    t._2 match {
-                      case ParameterizedType(newDes, newArgs) =>
-                        args1replace = newArgs
-                        anotherType = ScParameterizedType(newDes, arguments)
-                      case _ =>
-                        result = (false, undefinedSubst)
-                        return
-                    }
-                  case _ =>
-                    result = (false, undefinedSubst)
-                    return
-                }
-              }
-              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
-              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1replace, args2,
-                undefinedSubst, visited, checkWeak)
-              return
-            case (UndefinedType(parameterType, _), _) =>
-              val TypeParameterType(arguments, _, _, _) = parameterType
-              var anotherType: ScType = ScParameterizedType(des2, arguments)
-              var args2replace = args2
-              if (args1.length != args2.length) {
-                r.extractClassType() match {
-                  case Some((clazz, classSubst)) =>
-                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args1.length)
-                    if (!t._1) {
-                      result = (false, undefinedSubst)
-                      return
-                    }
-                    t._2 match {
-                      case ParameterizedType(newDes, newArgs) =>
-                        args2replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
-                      case _ =>
-                        result = (false, undefinedSubst)
-                        return
-                    }
-                  case _ =>
-                    result = (false, undefinedSubst)
-                    return
-                }
-              }
-              undefinedSubst = undefinedSubst.addLower(parameterType.nameAndId, anotherType)
-              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1, args2replace,
-                undefinedSubst, visited, checkWeak)
-              return
-            case (_, UndefinedType(parameterType, _)) =>
-              val TypeParameterType(arguments, _, _, _) = parameterType
-              var anotherType = ScParameterizedType(des1, arguments)
-              var args1replace = args1
-              if (args1.length != args2.length) {
-                l.extractClassType() match {
-                  case Some((clazz, classSubst)) =>
-                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
-                    if (!t._1) {
-                      result = (false, undefinedSubst)
-                      return
-                    }
-                    t._2 match {
-                      case ParameterizedType(newDes, newArgs) =>
-                        args1replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
-                      case _ =>
-                        result = (false, undefinedSubst)
-                        return
-                    }
-                  case _ =>
-                    result = (false, undefinedSubst)
-                    return
-                }
-              }
-              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
-              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1, args1replace,
-                undefinedSubst, visited, checkWeak)
-              return
             case _ if des1 equiv des2 =>
               if (args1.length != args2.length) {
                 result = (false, undefinedSubst)
