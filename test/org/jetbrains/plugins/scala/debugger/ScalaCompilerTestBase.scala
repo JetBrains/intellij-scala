@@ -13,7 +13,8 @@ import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
+import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
+import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
@@ -84,8 +85,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 
   protected override def tearDown() {
-    UIUtil.invokeAndWaitIfNeeded {
-      new Runnable {
+    EdtTestUtil.runInEdtAndWait {
+      new ThrowableRunnable[Throwable] {
         def run() {
           CompilerTestUtil.disableExternalCompiler(myProject)
           CompileServerLauncher.instance.stop()
@@ -104,18 +105,13 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
-    UIUtil.invokeAndWaitIfNeeded(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
-        try {
-          CompilerTestUtil.saveApplicationSettings()
-          val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
-          saveProject()
-          assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
-          CompilerManager.getInstance(getProject).rebuild(callback)
-        }
-        catch {
-          case e: Exception => throw new RuntimeException(e)
-        }
+        CompilerTestUtil.saveApplicationSettings()
+        val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
+        saveProject()
+        assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
+        CompilerManager.getInstance(getProject).rebuild(callback)
       }
     })
     val maxCompileTime = 6000
