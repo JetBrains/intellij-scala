@@ -20,7 +20,7 @@ foo(2)(<caret>)
     val resultText =
 """
 def foo[T](x: T)(y: T => Int) = 1
-foo(2)((i: Int) =><caret>)
+foo(2)((i: Int) => <caret>)
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -39,7 +39,7 @@ foo {<caret>}
     val resultText =
 """
 def foo(x: String => String) = 1
-foo {case s: String =><caret>}
+foo {case s: String => <caret>}
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -58,7 +58,7 @@ foo(<caret>)
     val resultText =
 """
 def foo(x: String => String) = 1
-foo((s: String) =><caret>)
+foo((s: String) => <caret>)
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -77,7 +77,7 @@ foo(<caret>)
     val resultText =
 """
 def foo(x: Tuple2[Int, Int] => Int) = 1
-foo((tuple: (Int, Int)) =><caret>)
+foo((tuple: (Int, Int)) => <caret>)
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -96,7 +96,7 @@ foo{<caret>}
     val resultText =
 """
 def foo(x: Tuple2[Int, Int] => Int) = 1
-foo{case (i: Int, i0: Int) =><caret>}
+foo{case (i: Int, i0: Int) => <caret>}
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -115,7 +115,7 @@ foo(<caret>)
     val resultText =
 """
 def foo[T <: Runnable](x: (T, String) => String) = 1
-foo((value: Runnable, s: String) =><caret>)
+foo((value: Runnable, s: String) => <caret>)
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -134,7 +134,7 @@ foo(<caret>)
     val resultText =
 """
 def foo[T >: Int](x: (T, String) => String) = 1
-foo((value: Int, s: String) =><caret>)
+foo((value: Int, s: String) => <caret>)
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -155,7 +155,7 @@ foo[X](<caret>)
 """
 def foo[T <: Runnable](x: T => String) = 1
 class X extends Runnable
-foo[X]((x: X) =><caret>)
+foo[X]((x: X) => <caret>)
 """.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -175,7 +175,7 @@ foo[X]((x: X) =><caret>)
     val resultText =
       """
       |def foo(c: (Int, Int, Int, Int) => Int) = 1
-      |foo((i: Int, i0: Int, i1: Int, i2: Int) =><caret>)
+      |foo((i: Int, i0: Int, i1: Int, i2: Int) => <caret>)
       """.stripMargin.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -194,7 +194,7 @@ foo[X]((x: X) =><caret>)
     val resultText =
       """
       |def foo(x: (Int, String, Int, String) => Int) = 1
-      |foo((i: Int, s: String, i0: Int, s0: String) =><caret>)
+      |foo((i: Int, s: String, i0: Int, s0: String) => <caret>)
       """.stripMargin.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -213,7 +213,7 @@ foo[X]((x: X) =><caret>)
     val resultText =
       """
       |def foo[T](x: (T, String) => String) = 1
-      |foo((value: T, s: String) =><caret>)
+      |foo((value: T, s: String) => <caret>)
       """.stripMargin.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
@@ -234,7 +234,7 @@ foo[X]((x: X) =><caret>)
       """
       |type T = Int => String
       |def zoo(p: T) {}
-      |zoo((i: Int) =><caret>)
+      |zoo((i: Int) => <caret>)
       """.stripMargin.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)

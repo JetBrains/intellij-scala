@@ -105,7 +105,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
   protected override def tearDown() {
     super.tearDown()
-    inWriteAction(LightPlatformTestCase.closeAndDeleteProject())
+    LightPlatformTestCase.closeAndDeleteProject()
   }
 
   private def projectAdapter = getProjectAdapter

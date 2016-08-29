@@ -4,7 +4,11 @@ public class NamedAndDefaultArgs {
     static class Inner extends NamedAndDefaultArgs {
         @Override
         public void foo(String s, boolean b, boolean b2) {
-            super.foo(s, b, b2);
+            System.out.println();
+        }
+
+        public void boo() {
+            super.foo("3", false, true)
         }
     }
 }
