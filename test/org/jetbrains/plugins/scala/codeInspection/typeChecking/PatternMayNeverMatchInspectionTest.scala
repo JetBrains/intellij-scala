@@ -12,23 +12,23 @@ class PatternMayNeverMatchInspectionTest extends ScalaLightInspectionFixtureTest
 
   override protected def annotation: String = PatternMayNeverMatchInspection.inspectionName
 
-  def testSCL9668(): Unit = {
-    val code =
-      s"""
-        |object Moo {
-        |  (1, 2) match {
-        |    case ${START}ScFunctionType(_, _)$END =>
-        |    case _ =>
-        |  }
-        |}
-        |class ScFunctionType(a: Foo, b: Seq[Foo])
-        |
-        |object ScFunctionType {
-        |  def unapply(f: Foo): Option[(Foo, Seq[Foo])] = ???
-        |}
-        |trait Foo
-      """.stripMargin
-    checkTextHasError(code)
-  }
+//  def testSCL9668(): Unit = {
+//    val code =
+//      s"""
+//        |object Moo {
+//        |  (1, 2) match {
+//        |    case ${START}ScFunctionType(_, _)$END =>
+//        |    case _ =>
+//        |  }
+//        |}
+//        |class ScFunctionType(a: Foo, b: Seq[Foo])
+//        |
+//        |object ScFunctionType {
+//        |  def unapply(f: Foo): Option[(Foo, Seq[Foo])] = ???
+//        |}
+//        |trait Foo
+//      """.stripMargin
+//    checkTextHasError(code)
+//  }
 }
 
