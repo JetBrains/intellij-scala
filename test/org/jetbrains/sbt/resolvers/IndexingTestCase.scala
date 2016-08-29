@@ -22,6 +22,7 @@ abstract class IndexingTestCase extends ScalaFixtureTestCase {
   override def tearDown(): Unit = {
     super.tearDown()
     storingManager.dispose()
+    storingManager = null
   }
 
   def createAndUpdateIndex(resolver: SbtResolver): SbtResolverIndex = {
