@@ -34,6 +34,9 @@ object Common {
   val perfOptCategory: String =
     "org.jetbrains.plugins.scala.PerfCycleTests"
 
+  val highlightingCategory =
+    "org.jetbrains.plugins.scala.HighlightingTests"
+
   val testConfigDir: File =
     Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"
 
