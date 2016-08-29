@@ -11,8 +11,6 @@ import org.junit.experimental.categories.Category
 class PatternsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL4500(): Unit = doTest()
-
   def testSCL9137(): Unit = doTest()
 
   def testSCL9888():Unit = doTest()

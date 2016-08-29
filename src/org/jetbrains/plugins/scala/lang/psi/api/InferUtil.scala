@@ -386,7 +386,7 @@ object InferUtil {
                         ScParameterizedType(_addLower, typeParameters.map(TypeParameterType(_)))
                       else _addLower
                     if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
-                    else lower = substedLowerType.lub(addLower)
+                    else lower = substedLowerType.lub(addLower, checkWeak = true)
                   case None =>
                     lower = unSubst.subst(lower)
                 }

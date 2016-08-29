@@ -39,7 +39,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       val clausesType = clauses.foldLeft(Nothing: ScType)((tp, clause) => tp.lub(clause.expr match {
         case Some(expr) => expr.getType(TypingContext.empty).getOrNothing
         case _ => Nothing
-      }))
+      }, checkWeak = true))
 
       getContext match {
         case _: ScCatchBlock =>
