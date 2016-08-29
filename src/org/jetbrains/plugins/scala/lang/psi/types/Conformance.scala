@@ -56,7 +56,7 @@ object Conformance extends api.Conformance {
                 //Special case for higher kind types passed to generics.
                 if (lClass.hasTypeParameters) {
                   left match {
-                    case p: ScParameterizedType =>
+                    case _: ScParameterizedType =>
                     case _ => return (true, substitutor)
                   }
                 }
@@ -334,7 +334,7 @@ object Conformance extends api.Conformance {
     trait ParameterizedAliasVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ParameterizedType) {
         p.isAliasType match {
-          case Some(AliasType(ta, lower, upper)) =>
+          case Some(AliasType(_, _, upper)) =>
             if (upper.isEmpty) {
               result = (false, undefinedSubst)
               return
@@ -350,7 +350,7 @@ object Conformance extends api.Conformance {
 
       override def visitDesignatorType(des: ScDesignatorType) {
         des.isAliasType match {
-          case Some(AliasType(ta, lower, upper)) =>
+          case Some(AliasType(_, _, upper)) =>
             if (upper.isEmpty) return
             val res = conformsInner(l, upper.get, visited, undefinedSubst)
             if (stopDesignatorAliasOnFailure || res._1) result = res
@@ -362,15 +362,21 @@ object Conformance extends api.Conformance {
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
         val comps = c.components
-        val iterator = comps.iterator
-        while (iterator.hasNext) {
-          val comp = iterator.next()
-          val t = conformsInner(l, comp, HashSet.empty, undefinedSubst)
-          if (t._1) {
-            result = (true, t._2)
-            return
+        def traverse(check: (ScType, ScUndefinedSubstitutor) => (Boolean, ScUndefinedSubstitutor)): Boolean = {
+          val iterator = comps.iterator
+          while (iterator.hasNext) {
+            val comp = iterator.next()
+            val t = check(comp, undefinedSubst)
+            if (t._1) {
+              result = (true, t._2)
+              return true
+            }
           }
+          false
         }
+        if (traverse(Equivalence.equivInner(l, _, _))) return
+        if (traverse(conformsInner(l, _, HashSet.empty, _))) return
+
         result = l.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, Success(comp: ScCompoundType, _), _)) =>
             conformsInner(comp, c, HashSet.empty, undefinedSubst)
@@ -390,7 +396,7 @@ object Conformance extends api.Conformance {
 
       override def visitProjectionType(proj2: ScProjectionType) {
         proj2.isAliasType match {
-          case Some(AliasType(ta, lower, upper)) =>
+          case Some(AliasType(_, _, upper)) =>
             if (upper.isEmpty) return
             val res = conformsInner(l, upper.get, visited, undefinedSubst)
             if (stopProjectionAliasOnFailure || res._1) result = res
@@ -585,7 +591,7 @@ object Conformance extends api.Conformance {
       }) && c.signatureMap.forall {
         case (s: Signature, retType) => workWithSignature(s, retType)
       } && c.typesMap.forall {
-        case (s, sign) => workWithTypeAlias(sign)
+        case (_, sign) => workWithTypeAlias(sign)
       }, undefinedSubst)
     }
 
@@ -627,7 +633,7 @@ object Conformance extends api.Conformance {
       }
 
       proj.isAliasType match {
-        case Some(AliasType(ta, lower, upper)) =>
+        case Some(AliasType(_, lower, _)) =>
           if (lower.isEmpty) {
               result = (false, undefinedSubst)
               return
@@ -887,13 +893,14 @@ object Conformance extends api.Conformance {
       //todo: looks like this code can be simplified and unified.
       //todo: what if left is type alias declaration, right is type alias definition, which is alias to that declaration?
       p.isAliasType match {
-        case Some(AliasType(ta, lower, upper)) =>
-          r match {
-            case ParameterizedType(proj, args2) if r.isAliasType.isDefined && (proj equiv p.designator) =>
-              processEquivalentDesignators(args2)
-              return
-            case _ =>
-          }
+        case Some(AliasType(ta, lower, _)) =>
+          if (ta.isInstanceOf[ScTypeAliasDeclaration])
+            r match {
+              case ParameterizedType(proj, args2) if r.isAliasType.isDefined && (proj equiv p.designator) =>
+                processEquivalentDesignators(args2)
+                return
+              case _ =>
+            }
           if (lower.isEmpty) {
             result = (false, undefinedSubst)
             return
@@ -1191,7 +1198,7 @@ object Conformance extends api.Conformance {
                 (true, tpt)
               case _ => (false, t)
             }
-          case ex@ScExistentialType(innerQ, wilds) =>
+          case ScExistentialType(innerQ, wilds) =>
             (true, ScExistentialType(updateType(innerQ, rejected ++ wilds.map(_.name)), wilds))
           case tp: ScType => (false, tp)
         }
@@ -1224,7 +1231,7 @@ object Conformance extends api.Conformance {
             }
             if (result == null) {
               val filterFunction: (((String, PsiElement), HashSet[ScType])) => Boolean = {
-                case (id: (String, PsiElement), types: HashSet[ScType]) =>
+                case (id: (String, PsiElement), _: HashSet[ScType]) =>
                   !tptsMap.values.exists(_.nameAndId == id)
               }
               val newUndefSubst = new ScUndefinedSubstitutor(
@@ -1293,7 +1300,7 @@ object Conformance extends api.Conformance {
       if (result != null) return
 
       des.isAliasType match {
-        case Some(AliasType(ta, lower, upper)) =>
+        case Some(AliasType(_, lower, _)) =>
           if (lower.isEmpty) {
               result = (false, undefinedSubst)
               return
@@ -1569,7 +1576,7 @@ object Conformance extends api.Conformance {
       }
       tp.extractClassType() match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
-        case Some((clazz: PsiClass, subst)) if condition(clazz) =>
+        case Some((clazz: PsiClass, _)) if condition(clazz) =>
           if (res == null) res = tp
           else if (tp.conforms(res)) res = tp
         case Some((clazz: PsiClass, subst)) =>

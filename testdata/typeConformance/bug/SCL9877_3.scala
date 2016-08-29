@@ -4,10 +4,12 @@ object Test {
   trait R
 
   sealed class M[-A, +B]
+  type EM[T] = M[T, ME]
   type RM[T] = M[T, R]
 
-  val r: RM[ME] = null
+  type T = ME
+  val r: EM[T] => RM[T] = null
   /*caret*/
-  val l: RM[ES] = r
+  val l: EM[ME] => RM[ES] = r
 }
 //True
