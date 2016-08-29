@@ -50,7 +50,10 @@ class ScalaCommunityProjectHighlightingTest extends DownloadingAndImportingTestC
     }
 
     override def reportResults(): Unit = {
-      println("##teamcity[buildProblem description='Found $totalErrors errors while highlighting the project' ]")
+      if (totalErrors > 0)
+        println(s"##teamcity[buildProblem description='Found $totalErrors errors while highlighting the project' ]")
+      else
+        println("##teamcity[buildStatus status='SUCCESS' text='No highlighting errors found in project']")
     }
   }
 
