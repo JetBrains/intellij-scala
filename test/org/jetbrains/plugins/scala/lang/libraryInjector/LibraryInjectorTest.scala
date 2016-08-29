@@ -77,6 +77,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     CompilerTestUtil.disableExternalCompiler(myProject)
     CompileServerLauncher.instance.stop()
     scalaLibraryLoader.clean()
+    scalaLibraryLoader = null
     super.tearDown()
   }
 
