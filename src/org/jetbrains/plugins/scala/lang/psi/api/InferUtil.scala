@@ -414,7 +414,7 @@ object InferUtil {
           } else {
             typeParams.foreach { case tp =>
               val nameAndId = tp.nameAndId
-              if (un.names.contains(nameAndId)) {
+              if (un.names.contains(nameAndId) || tp.lowerType.v != Nothing) {
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
                   var hasRecursiveTypeParameters = false
                   typez.recursiveUpdate {
