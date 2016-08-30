@@ -167,7 +167,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText
       case tm: ScAliasMember =>
-        getOverrideImplementTypeSign(tm.getElement, tm.substitutor, needsOverride = false)
+        getOverrideImplementTypeSign(tm.getElement, tm.substitutor, "this.type", needsOverride = false)
       case member: ScValueMember =>
         val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false)
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
