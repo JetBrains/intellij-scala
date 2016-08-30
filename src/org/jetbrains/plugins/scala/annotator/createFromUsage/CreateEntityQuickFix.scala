@@ -168,8 +168,9 @@ object CreateEntityQuickFix {
     val holder = anchor.getParent
     val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
 
-    val entity = holder.addAfter(parseElement(text, ref.getManager), anchor)
-    if (hasMembers) holder.addAfter(createNewLine(ref.getManager), entity)
+    implicit val manager = ref.getManager
+    val entity = holder.addAfter(createElementFromText(text), anchor)
+    if (hasMembers) holder.addAfter(createNewLine(), entity)
 
     entity
   }
@@ -178,10 +179,11 @@ object CreateEntityQuickFix {
     val anchor = anchorForUnqualified(ref).get
     val holder = anchor.getParent
 
-    val entity = holder.addBefore(parseElement(text, ref.getManager), anchor)
+    implicit val manager = ref.getManager
+    val entity = holder.addBefore(createElementFromText(text), anchor)
 
-    holder.addBefore(createNewLine(ref.getManager, "\n\n"), entity)
-    holder.addAfter(createNewLine(ref.getManager, "\n\n"), entity)
+    holder.addBefore(createNewLine("\n\n"), entity)
+    holder.addAfter(createNewLine("\n\n"), entity)
 
     entity
   }

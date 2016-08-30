@@ -17,6 +17,8 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
 
   implicit lazy val typeSystem = getProject.typeSystem
 
+  implicit def manager = getManager
+
   def isInCompiledFile: Boolean = getContainingFile match {
     case file: ScalaFile => file.isCompiled
     case _ => false

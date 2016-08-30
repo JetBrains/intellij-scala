@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.ANNOTATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
@@ -143,9 +144,7 @@ class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IEleme
         }
         val params: Seq[ScExpression] = args.flatMap(arg => arg.exprs)
         if (params.length == 1 && !params(0).isInstanceOf[ScAssignStmt]) {
-          params(0).replace(ScalaPsiElementFactory.
-            createExpressionFromText(PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params(0).getText,
-              params(0).getManager))
+          params(0).replace(createExpressionFromText(PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME + " = " + params(0).getText)(params(0).getManager))
         }
         var allowNoName: Boolean = params.length == 0 &&
           (PsiAnnotation.DEFAULT_REFERENCED_METHOD_NAME.equals(attributeName) || null == attributeName)
@@ -157,8 +156,7 @@ class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IEleme
           namePrefix = attributeName + " = "
         }
 
-        args(0).addBefore(
-          ScalaPsiElementFactory.createExpressionFromText(namePrefix + value.getText, value.getManager), null)
+        args(0).addBefore(createExpressionFromText(namePrefix + value.getText)(value.getManager), null)
       }
     }
     findDeclaredAttributeValue(attributeName).asInstanceOf[T]

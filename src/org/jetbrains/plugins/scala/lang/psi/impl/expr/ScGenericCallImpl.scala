@@ -10,10 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
@@ -43,8 +44,8 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                 if (isUpdate) curr.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
                   case Some(x) => Seq[ScExpression](x)
                   case None =>
-                    Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
-                      getManager)) //we can't to not add something => add Nothing expression
+                    Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}"))
+                  //we can't to not add something => add Nothing expression
                 }
                 else Seq.empty) :: Nil
       }

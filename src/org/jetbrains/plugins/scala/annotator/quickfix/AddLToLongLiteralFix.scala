@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 class AddLToLongLiteralFix(literal: ScLiteral) extends IntentionAction {
   val getText: String = "add L to Long number"
@@ -20,8 +20,7 @@ class AddLToLongLiteralFix(literal: ScLiteral) extends IntentionAction {
 
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!literal.isValid) return
-    val psi = ScalaPsiElementFactory.createExpressionFromText(literal.getText + "L", literal.getManager)
-    literal.replace(psi)
+    literal.replace(createExpressionFromText(literal.getText + "L")(literal.getManager))
   }
 }
 

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -29,8 +29,7 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType],
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     if (expr.isValid) {
       val newText = "Option(" + expr.getText + ")"
-      val newExpr = ScalaPsiElementFactory.createExpressionFromText(newText, expr.getManager)
-      expr.replaceExpression(newExpr, removeParenthesis = true)
+      expr.replaceExpression(createExpressionFromText(newText)(expr.getManager), removeParenthesis = true)
     }
   }
 

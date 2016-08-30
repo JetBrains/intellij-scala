@@ -37,7 +37,6 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.HashSet
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.language.higherKinds

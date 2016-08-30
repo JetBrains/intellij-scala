@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
@@ -94,7 +94,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 
   private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String)
                                   (implicit typeSystem: TypeSystem = oldExpr.typeSystem): Boolean = {
-    val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
+    val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
       case Some(expectedType) if FunctionType.isFunctionType(expectedType) =>
         def conformsExpected(expr: ScExpression): Boolean = expr.getType().getOrAny conforms expectedType
@@ -131,7 +131,7 @@ class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, 
   def doApplyFix(project: Project) {
     val scExpr = getElement
     if (!scExpr.isValid) return
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(replacement, scExpr.getManager)
+    val newExpr = createExpressionFromText(replacement)(scExpr.getManager)
     scExpr.replaceExpression(newExpr, removeParenthesis = true)
   }
 }

@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
 import scala.collection.mutable
@@ -85,13 +85,14 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
       newQual = argsBuilder.toString().drop(1).dropRight(1)
     }
 
-    val newQualExpr: ScExpression = ScalaPsiElementFactory.createExpressionFromText(newQual, element.getManager)
+    implicit val manager = element.getManager
+    val newQualExpr = createExpressionFromText(newQual)
 
     expr.append(methodCallExpr.args.getText).append(".").
             append(replaceOper(methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getText)).
             append(newArgs)
 
-    val newMethodCallExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newMethodCallExpr = createExpressionFromText(expr.toString())
 
     newMethodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(newQualExpr, removeParenthesis = true)
 

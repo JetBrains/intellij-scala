@@ -32,16 +32,17 @@ package object transformation {
   // TODO create a separate unit test for this method
   // Tries to use simple name, then partially qualified name, then fully qualified name instead of adding imports
   def bindTo(reference: ScReferenceElement, target: String) {
-    val context = reference.getParent
+    implicit val context = reference.getParent
 
-    val isExpression = reference.isInstanceOf[ScReferenceExpression]
+    implicit val isExpression = reference.isInstanceOf[ScReferenceExpression]
 
     @tailrec
     def bindTo0(r1: ScReferenceElement, paths: Seq[String]) {
       paths match {
         case Seq(path, alternatives @ _*)  =>
-          val r2 = r1.replace(createReferenceElement(path)(r1.psiManager, isExpression)).asInstanceOf[ScReferenceElement]
-          if (!isResolvedTo(r2, target)(context, isExpression)) {
+          implicit val manager = r1.getManager
+          val r2 = r1.replace(createReferenceElement(path)).asInstanceOf[ScReferenceElement]
+          if (!isResolvedTo(r2, target)) {
             bindTo0(r2, alternatives)
           }
         case _ =>
@@ -50,7 +51,7 @@ package object transformation {
 
     val variants = variantsOf(target)
 
-    if (!(reference.text == variants.head && isResolvedTo(reference, target)(context, isExpression))) {
+    if (!(reference.text == variants.head && isResolvedTo(reference, target))) {
       bindTo0(reference, variants)
     }
   }
@@ -61,13 +62,15 @@ package object transformation {
 
   private def relative(reference: String): String = reference.replaceFirst("^_root_.", "")
 
-  private def isResolvedTo(reference: ScReferenceElement, target: String)(context: PsiElement, isExpression: Boolean): Boolean =
+  private def isResolvedTo(reference: ScReferenceElement, target: String)
+                          (implicit context: PsiElement, isExpression: Boolean): Boolean =
     reference.bind().exists(result =>
       qualifiedNameOf(result.element) == relative(target))
 
-  private def createReferenceElement(reference: String)(manager: PsiManager, isExpression: Boolean): ScReferenceElement =
-    if (isExpression) parseElement(reference, manager).asInstanceOf[ScReferenceExpression]
-    else createTypeElementFromText(reference, manager).getFirstChild.asInstanceOf[ScReferenceElement]
+  private def createReferenceElement(reference: String)
+                                    (implicit manager: PsiManager, isExpression: Boolean): ScReferenceElement =
+    if (isExpression) createReferenceExpressionFromText(reference)
+    else createTypeElementFromText(reference).getFirstChild.asInstanceOf[ScReferenceElement]
 
   // TODO define PsiMember.qualifiedName
   def qualifiedNameOf(e: PsiNamedElement): String = e match {

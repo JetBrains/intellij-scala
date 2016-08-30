@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAssignStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeParameterFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
@@ -92,12 +92,11 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                           }
                         case _ => Seq(f.name)
                       }
-                    names.map {
-                      case name =>
+                    names.map { name =>
                         val substOpt = funTypeParamToLift match {
                           case Some(typeParam) if tpAdditional.nonEmpty =>
                             val subst = ScSubstitutor.empty.bindT(typeParam.nameAndId,
-                              TypeParameterType(ScalaPsiElementFactory.createTypeParameterFromText(tpAdditional.get, source.getManager)))
+                              TypeParameterType(createTypeParameterFromText(tpAdditional.get)(source.getManager)))
                             Some(subst)
                           case _ => None
                         }
@@ -136,8 +135,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                  |}
                """.stripMargin
 
-            val AllOpsSupers = clazz.extendsBlock.templateParents.toSeq.flatMap(parents => parents.typeElements.flatMap {
-              case te =>
+            val AllOpsSupers = clazz.extendsBlock.templateParents.toSeq.flatMap(parents => parents.typeElements.flatMap { te =>
                 te.getType(TypingContext.empty) match {
                   case Success(ParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
                     def fromType: Seq[String] = {

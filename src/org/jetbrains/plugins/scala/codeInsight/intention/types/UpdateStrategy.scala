@@ -13,12 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-
-import scala.collection.mutable
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -105,7 +103,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def patternWithType(pattern: ScTypedPattern) {
-    val newPattern = ScalaPsiElementFactory.createPatternFromText(pattern.name, pattern.getManager)
+    val newPattern = createPatternFromText(pattern.name)(pattern.getManager)
     pattern.replace(newPattern)
   }
 
@@ -121,7 +119,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
               val param1 = param.getParent match {
                 case x: ScParameterClause if x.parameters.length == 1 =>
                   // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
-                  val clause: PsiElement = x.replace(ScalaPsiElementFactory.createClauseForFunctionExprFromText("(" + param.getText + ")", param.getManager))
+                  val clause: PsiElement = x.replace(createClauseForFunctionExprFromText(param.getText.parenthesize(true))(param.getManager))
                   clause.asInstanceOf[ScParameterClause].parameters.head
                 case _ => param
               }
@@ -134,8 +132,9 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def parameterWithType(param: ScParameter) {
-    val newParam = ScalaPsiElementFactory.createParameterFromText(param.name, param.getManager)
-    val newClause = ScalaPsiElementFactory.createClauseForFunctionExprFromText(newParam.getText, param.getManager)
+    implicit val manager = param.getManager
+    val newParam = createParameterFromText(param.name)
+    val newClause = createClauseForFunctionExprFromText(newParam.getText)
     val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
     if (expr != null) {
       val firstClause = expr.params.clauses.head
@@ -152,10 +151,10 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     def addActualType(annotation: ScTypeElement) = {
       val parent = anchor.getParent
       val added = parent.addAfter(annotation, anchor)
-      val colon = ScalaPsiElementFactory.createColon(context.getManager)
-      val whitespace = ScalaPsiElementFactory.createWhitespace(context.getManager)
-      parent.addAfter(whitespace, anchor)
-      parent.addAfter(colon, anchor)
+
+      implicit val manager = context.getManager
+      parent.addAfter(createWhitespace, anchor)
+      parent.addAfter(createColon, anchor)
       added
     }
 
@@ -185,7 +184,7 @@ object UpdateStrategy {
 
   def annotationsFor(t: ScType, context: PsiElement)
                     (implicit typeSystem: TypeSystem = context.typeSystem): Seq[ScTypeElement] = {
-    def typeElemfromText(s: String) = ScalaPsiElementFactory.createTypeElementFromText(s, context.getManager)
+    def typeElemfromText(s: String) = createTypeElementFromText(s)(context.getManager)
     def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 
     t match {

@@ -9,6 +9,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createComma, createNewLineNode}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 /**
@@ -81,8 +82,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
       } else {
         val par: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
         if (par == null) return super.addBefore(element, anchor)
-        val comma = ScalaPsiElementFactory.createComma(getManager)
-        super.addAfter(par, comma)
+        super.addAfter(par, createComma)
         super.addAfter(par, element)
       }
     } else {
@@ -97,9 +97,7 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     val needCommaAndSpace = exprs.nonEmpty
     node.addChild(expr.getNode, nextNode)
     if (needCommaAndSpace) {
-      val comma = ScalaPsiElementFactory.createComma(getManager)
-      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
-      node.addChild(comma.getNode, nextNode)
+      node.addChild(comma, nextNode)
       node.addChild(space, nextNode)
     }
     this
@@ -107,18 +105,21 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
 
   def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList = {
     val nextNode = anchor.getNode.getTreeNext
-    val comma = ScalaPsiElementFactory.createComma(getManager)
-    val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
     val node = getNode
+
     if (nextNode != null) {
-      node.addChild(comma.getNode, nextNode)
+      node.addChild(comma, nextNode)
       node.addChild(space, nextNode)
       node.addChild(expr.getNode, nextNode)
     } else {
-      node.addChild(comma.getNode)
+      node.addChild(comma)
       node.addChild(space)
       node.addChild(expr.getNode)
     }
     this
   }
+
+  private def comma = createComma.getNode
+
+  private def space = createNewLineNode(" ")
 }

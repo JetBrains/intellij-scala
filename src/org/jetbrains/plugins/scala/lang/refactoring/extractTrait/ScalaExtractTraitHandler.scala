@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplat
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
@@ -76,7 +76,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     if (messages.nonEmpty) throw new RuntimeException(messages.mkString("\n"))
     inWriteCommandAction(project, "Extract trait") {
       val traitText = "trait ExtractedTrait {\n\n}"
-      val newTrt = ScalaPsiElementFactory.createTemplateDefinitionFromText(traitText, clazz.getContext, clazz)
+      val newTrt = createTemplateDefinitionFromText(traitText, clazz.getContext, clazz)
       val newTrtAdded = clazz match {
         case anon: ScNewTemplateDefinition =>
           val tBody = PsiTreeUtil.getParentOfType(anon, classOf[ScTemplateBody], true)
@@ -129,24 +129,26 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
       case None =>
       case Some(selfTpe) =>
         val traitText = s"trait ${trt.name} {\n$selfTpe\n}"
-        val dummyTrait = ScalaPsiElementFactory.createTemplateDefinitionFromText(traitText, trt.getParent, trt)
+        val dummyTrait = createTemplateDefinitionFromText(traitText, trt.getParent, trt)
         val selfTypeElem = dummyTrait.extendsBlock.selfTypeElement.get
         val extendsBlock = trt.extendsBlock
+
+        implicit val manager = trt.getManager
         val templateBody = extendsBlock.templateBody match {
           case Some(tb) => tb
-          case None => extendsBlock.add(ScalaPsiElementFactory.createTemplateBody(trt.getManager))
+          case None => extendsBlock.add(createTemplateBody)
         }
 
         val lBrace = templateBody.getFirstChild
         val ste = templateBody.addAfter(selfTypeElem, lBrace)
-        templateBody.addAfter(ScalaPsiElementFactory.createNewLine(trt.getManager), lBrace)
+        templateBody.addAfter(createNewLine(), lBrace)
         ScalaPsiUtil.adjustTypes(ste)
     }
   }
 
   private def addTypeParameters(trt: ScTrait, typeParamsText: String) {
     if (typeParamsText == null || typeParamsText.isEmpty) return
-    val clause = ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(typeParamsText, trt, trt.nameId)
+    val clause = createTypeParameterClauseFromTextWithContext(typeParamsText, trt, trt.nameId)
     trt.addAfter(clause, trt.nameId)
   }
 

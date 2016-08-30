@@ -8,13 +8,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createVarFromValDeclaration
 
 class ValToVarQuickFix(valDef: ScValue) extends IntentionAction {
   def startInWriteAction: Boolean = true
 
   def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    valDef.replace(ScalaPsiElementFactory.createVarFromValDeclaration(valDef, valDef.getManager))
+    valDef.replace(createVarFromValDeclaration(valDef)(valDef.getManager))
   }
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]

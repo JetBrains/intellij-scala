@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDeclaration
 
 /**
  * Nikolay.Tropin
@@ -18,8 +18,9 @@ class InsertReturnTypeAndEquals(functionDef: ScFunctionDefinition)
     val funDef = getElement
     funDef.removeAssignment()
     funDef.removeExplicitType()
-    val manager = funDef.getManager
-    val fakeDecl = ScalaPsiElementFactory.createDeclaration("x", "Unit", isVariable = false, null, manager)
+
+    implicit val manager = funDef.getManager
+    val fakeDecl = createDeclaration("x", "Unit", isVariable = false, null)
     val colon = fakeDecl.findFirstChildByType(ScalaTokenTypes.tCOLON)
     val assign = fakeDecl.findFirstChildByType(ScalaTokenTypes.tASSIGN)
     val body = funDef.body.get

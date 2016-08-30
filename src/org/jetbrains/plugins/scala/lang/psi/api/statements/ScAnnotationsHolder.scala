@@ -74,11 +74,10 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   }
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = {
-    val manager = getManager
     val container = findChildByClassScala(classOf[ScAnnotations])
 
-    val added = container.add(createAnAnnotation(qualifiedName, manager))
-    container.add(createNewLine(manager))
+    val added = container.add(createAnAnnotation(qualifiedName))
+    container.add(createNewLine())
 
     ScalaPsiUtil.adjustTypes(added, addImports = true)
     added.asInstanceOf[PsiAnnotation]

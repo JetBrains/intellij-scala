@@ -6,7 +6,7 @@ import java.util.{IllegalFormatConversionException, IllegalFormatException}
 import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 sealed trait StringPart
 
 case class Text(s: String) extends StringPart {
-  def withEscapedPercent(manager: PsiManager): List[StringPart] = {
-    val literal = ScalaPsiElementFactory.createExpressionFromText("\"%\"", manager)
+  def withEscapedPercent(implicit manager: PsiManager): List[StringPart] = {
+    val literal = createExpressionFromText("\"%\"")
     if (s == "%") List(Text(""), Injection(literal, None), Text(""))
     else {
       val splitted = s.split('%')

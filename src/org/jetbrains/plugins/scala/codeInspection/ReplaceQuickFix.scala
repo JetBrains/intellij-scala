@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createElementFromText
 
 /**
   * @author Pavel Fatin
@@ -14,8 +14,7 @@ class ReplaceQuickFix(family: String, name: String, substitution: String) extend
   override def getName: String = name
 
   override def applyFix(project: Project, descriptor: ProblemDescriptor): Unit = {
-    val element = descriptor.getPsiElement
-    val newElement = ScalaPsiElementFactory.parseElement(substitution, PsiManager.getInstance(project))
-    element.replace(newElement)
+    implicit val manager = PsiManager.getInstance(project)
+    descriptor.getPsiElement.replace(createElementFromText(substitution))
   }
 }

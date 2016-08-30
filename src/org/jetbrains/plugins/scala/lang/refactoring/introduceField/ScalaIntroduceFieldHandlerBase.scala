@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
@@ -36,7 +36,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
       val classes = ScalaPsiUtil.getParents(elem, file).collect {
         case t: ScTemplateDefinition if isSuitableClass(elem, t) => t
       }.toArray[PsiClass]
-      classes.size match {
+      classes.length match {
         case 0 =>
         case 1 => action(new IntroduceFieldContext[T](project, editor, file, elem, types, classes(0).asInstanceOf[ScTemplateDefinition]))
         case _ =>
@@ -53,7 +53,7 @@ abstract class ScalaIntroduceFieldHandlerBase extends RefactoringActionHandler{
       }
     }
     catch {
-      case _: IntroduceException => return
+      case _: IntroduceException =>
     }
   }
 
@@ -108,7 +108,7 @@ object ScalaIntroduceFieldHandlerBase {
     val parent =
       if (needBraces) {
         firstRange = firstRange.shiftRight(1)
-        parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
+        parExpr.replaceExpression(createExpressionFromText(s"{${parExpr.getText}}")(file.getManager),
           removeParenthesis = false)
       } else container
     if (parent == null) None

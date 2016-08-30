@@ -7,7 +7,7 @@ package expr
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -70,7 +70,7 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
     if (useFullQualifiedName) {
       super.createReplacingElementWithClassName(useFullQualifiedName, clazz)
     } else {
-      ScalaPsiElementFactory.createExpressionFromText(clazz.name, clazz.element.getManager).asInstanceOf[ScReferenceExpression]
+      createExpressionFromText(clazz.name)(clazz.element.getManager).asInstanceOf[ScReferenceExpression]
     }
   }
 

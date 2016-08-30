@@ -4,7 +4,6 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -23,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
@@ -59,10 +60,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     def tail(qualName: String)(simpleImport: => PsiElement): PsiElement = {
       safeBindToElement(qualName, {
         case (qual, true) =>
-          ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
-            asInstanceOf[ScReferenceExpression]
+          createExpressionWithContextFromText(qual, getContext, this).asInstanceOf[ScReferenceExpression]
         case (qual, false) =>
-          ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
+          createExpressionFromText(qual).asInstanceOf[ScReferenceExpression]
       })(simpleImport)
     }
 
@@ -85,7 +85,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
             //need to use unqualified reference with new import
             if (!this.isQualified) this
-            else this.replace(ScalaPsiElementFactory.createExpressionFromText(this.refName, getManager).asInstanceOf[ScReferenceExpression])
+            else this.replace(createExpressionFromText(this.refName).asInstanceOf[ScReferenceExpression])
             //todo: conflicts with other classes with same name?
           }
         }

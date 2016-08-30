@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 import scala.collection.mutable
 
@@ -64,7 +64,7 @@ class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
     expr.append(infixExpr.getArgExpr.getText).append(" ").
             append(replaceOper(infixExpr.operation.nameId.getText)).append(" ").append(infixExpr.getBaseExpr.getText)
 
-    val newInfixExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newInfixExpr = createExpressionFromText(expr.toString())(element.getManager)
 
     val size = newInfixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
             newInfixExpr.getTextRange.getStartOffset

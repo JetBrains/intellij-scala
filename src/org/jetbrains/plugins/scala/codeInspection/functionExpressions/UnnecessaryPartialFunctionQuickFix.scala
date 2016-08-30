@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 object UnnecessaryPartialFunctionQuickFix {
   val hint = InspectionBundle.message("convert.to.anonymous.function")
@@ -28,10 +28,7 @@ class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
           deleteLeadingWhitespace(expressionCopy)
           deleteTrailingWhitespace(expressionCopy)
         }
-        expr.replace(
-          ScalaPsiElementFactory.createExpressionFromText(
-            expressionCopy.getText,
-            expr.getManager))
+        expr.replace(createExpressionFromText(expressionCopy.getText)(expr.getManager))
       case _ => 
     }
   }

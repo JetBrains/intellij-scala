@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -61,7 +61,7 @@ class SplitElseIfIntention extends PsiElementBaseIntentionAction {
       append(ifStmt.thenBranch.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else {\n").
       append(ifStmt.elseBranch.get.getText).append("\n}")
 
-    val newIfStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
     val size = newIfStmt.asInstanceOf[ScIfStmt].thenBranch.get.getTextRange.getEndOffset -
       newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
 

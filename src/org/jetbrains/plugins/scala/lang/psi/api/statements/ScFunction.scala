@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, ScSyntheticTypeParameter, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -108,7 +108,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def isEmptyParen: Boolean = paramClauses.clauses.size == 1 && paramClauses.params.isEmpty
 
   def addEmptyParens() {
-    val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+    val clause = createClauseFromText("()")
     paramClauses.addClause(clause)
   }
 

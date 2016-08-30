@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -74,9 +74,8 @@ object IntentionUtils {
           case (_ childOf (a: ScAssignStmt), param) if a.getLExpression.getText == param.name =>
           case (argExpr, param) =>
             if (!onlyBoolean || (onlyBoolean && param.paramType == Boolean)) {
-              val newArgExpr = ScalaPsiElementFactory.createExpressionFromText(param.name + " = " + argExpr.getText, element.getManager)
               inWriteAction {
-                argExpr.replace(newArgExpr)
+                argExpr.replace(createExpressionFromText(param.name + " = " + argExpr.getText)(element.getManager))
               }
             }
           case _ =>
@@ -102,7 +101,8 @@ object IntentionUtils {
     }
   }
 
-  def negateAndValidateExpression(expr: ScExpression, manager: PsiManager, buf: scala.StringBuilder): (ScExpression, ScExpression, Int) = {
+  def negateAndValidateExpression(expr: ScExpression, buf: scala.StringBuilder)
+                                 (implicit manager: PsiManager): (ScExpression, ScExpression, Int) = {
     val parent =
       if (expr.getParent != null && expr.getParent.isInstanceOf[ScParenthesisedExpr]) expr.getParent.getParent
       else expr.getParent
@@ -110,7 +110,7 @@ object IntentionUtils {
     if (parent != null && parent.isInstanceOf[ScPrefixExpr] &&
             parent.asInstanceOf[ScPrefixExpr].operation.getText == "!") {
 
-      val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), manager)
+      val newExpr = createExpressionFromText(buf.toString())
 
       val size = newExpr match {
         case infix: ScInfixExpr =>infix.operation.nameId.getTextRange.getStartOffset -
@@ -121,7 +121,7 @@ object IntentionUtils {
       (parent.asInstanceOf[ScPrefixExpr], newExpr, size)
     } else {
       buf.insert(0, "!(").append(")")
-      val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), manager)
+      val newExpr = createExpressionFromText(buf.toString())
 
       val children = newExpr.asInstanceOf[ScPrefixExpr].getLastChild.asInstanceOf[ScParenthesisedExpr].getChildren
       val size = children(0) match {
@@ -140,9 +140,8 @@ object IntentionUtils {
           val exprWithoutParentheses =
             if (e.getBaseExpr.isInstanceOf[ScParenthesisedExpr]) e.getBaseExpr.getText.drop(1).dropRight(1)
             else e.getBaseExpr.getText
-          val newExpr = ScalaPsiElementFactory.createExpressionFromText(exprWithoutParentheses, expression.getManager)
           inWriteAction {
-            e.replaceExpression(newExpr, removeParenthesis = true).getText
+            e.replaceExpression(createExpressionFromText(exprWithoutParentheses)(expression.getManager), removeParenthesis = true).getText
           }
         }
         else "!(" + e.getText + ")"
@@ -167,10 +166,8 @@ object IntentionUtils {
         if (clazz != null && secondPart.contains(f)) buf.append(clazz.name).append(".")
 
         buf.append(f.name).append("(").append(expr.getText).append(")")
-        val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), expr.getManager)
-
         inWriteAction {
-          val replaced = expr.replace(newExpr)
+          val replaced = expr.replace(createExpressionFromText(buf.toString())(expr.getManager))
           val ref = replaced.asInstanceOf[ScMethodCall].deepestInvokedExpr.asInstanceOf[ScReferenceExpression]
           val qualRef = ref.qualifier.orNull
           if (clazz!= null && qualRef != null && secondPart.contains(f)) qualRef.asInstanceOf[ScReferenceExpression].bindToElement(clazz)
@@ -192,8 +189,10 @@ object IntentionUtils {
         val bufExpr = new StringBuilder
         bufExpr.append(f.name).append("(").append(expr.getText).append(")")
         buf.append(bufExpr.toString())
-        val newExpr = ScalaPsiElementFactory.createExpressionFromText(bufExpr.toString(), expr.getManager)
-        val fullRef = ScalaPsiElementFactory.createReferenceFromText(buf.toString(), expr.getManager).resolve()
+
+        implicit val manager = expr.getManager
+        val newExpr = createExpressionFromText(bufExpr.toString())
+        val fullRef = createReferenceFromText(buf.toString()).resolve()
 
         inWriteAction {
           val replaced = expr.replace(newExpr)

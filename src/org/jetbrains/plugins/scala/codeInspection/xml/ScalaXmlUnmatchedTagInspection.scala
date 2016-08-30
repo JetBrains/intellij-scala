@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
 
 /**
@@ -73,7 +73,7 @@ class RenameClosingTagQuickFix(s: ScXmlStartTag)
     val elem = getElement
     if (!elem.isValid) return
 
-    elem.getClosingTag.replace(ScalaPsiElementFactory.createXmlEndTag(elem.getTagName, elem.getManager))
+    elem.getClosingTag.replace(createXmlEndTag(elem.getTagName)(elem.getManager))
   }
 }
 
@@ -87,8 +87,8 @@ class RenameOpeningTagQuickFix(s: ScXmlEndTag)
     val openingTag = elem.getOpeningTag
     val attributes = openingTag.findChildrenByType(ScalaElementTypes.XML_ATTRIBUTE).map(_.getText)
 
-    elem.getOpeningTag.replace(ScalaPsiElementFactory.createXmlStartTag(elem.getTagName, elem.getManager,
-      if (attributes.isEmpty) "" else attributes.mkString(" ", " ", "")))
+    elem.getOpeningTag.replace(createXmlStartTag(elem.getTagName,
+      if (attributes.isEmpty) "" else attributes.mkString(" ", " ", ""))(elem.getManager))
   }
 }
 

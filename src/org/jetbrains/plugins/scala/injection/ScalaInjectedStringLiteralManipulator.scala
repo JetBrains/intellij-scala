@@ -6,7 +6,7 @@ import com.intellij.psi.AbstractElementManipulator
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
   * User: Dmitry.Naydanov
@@ -20,13 +20,14 @@ class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[S
       case _ => StringUtil escapeStringCharacters newContent
     }
     val newText = oldText.substring(0, range.getStartOffset) + contentString + oldText.substring(range.getEndOffset)
-    
+
+    implicit val manager = expr.getManager
     expr match {
       case inter: ScInterpolatedStringLiteral =>
         val quotes = if (inter.isMultiLineString) "\"\"\"" else "\""
-        
-        inter.reference.map {
-          case ref => ScalaPsiElementFactory.createExpressionFromText(s"${ref.getText}$quotes$newContent$quotes", expr.getManager)
+
+        inter.reference.map { ref =>
+          createExpressionFromText(s"${ref.getText}$quotes$newContent$quotes")
         } match {
           case Some(l: ScLiteral) => 
             expr.replace(l)
@@ -34,8 +35,7 @@ class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[S
           case _ => throw new IncorrectOperationException("cannot handle content change")
         }
       case str if str.isString =>
-        
-        val newExpr = ScalaPsiElementFactory.createExpressionFromText(newText, str.getManager)
+        val newExpr = createExpressionFromText(newText)
 
         val firstChild = str.getFirstChild
         val newElement = newExpr.getFirstChild

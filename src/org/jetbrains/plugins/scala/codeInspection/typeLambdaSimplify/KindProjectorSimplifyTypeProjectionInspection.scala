@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
@@ -169,8 +169,7 @@ AbstractFixOnPsiElement(inspectionName, e) {
     val elem = getElement
     if (!elem.isValid) return
 
-    val te = ScalaPsiElementFactory.createTypeElementFromText(replacement, elem.getManager)
-    elem.replace(te)
+    elem.replace(createTypeElementFromText(replacement)(elem.getManager))
   }
 }
 

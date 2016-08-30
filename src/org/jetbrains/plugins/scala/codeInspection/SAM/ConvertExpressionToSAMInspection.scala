@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -89,7 +89,7 @@ class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
   override def doApplyFix(project: Project): Unit = {
     val element = getElement
     if (!element.isValid) return
-    element.replace(ScalaPsiElementFactory.createExpressionFromText(replacement, element.getManager))
+    element.replace(createExpressionFromText(replacement)(element.getManager))
   }
 }
 

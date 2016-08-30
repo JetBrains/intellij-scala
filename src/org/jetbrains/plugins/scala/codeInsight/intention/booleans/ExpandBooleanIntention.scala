@@ -7,9 +7,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScReturnStmt}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScParenthesisedExpr, ScReturnStmt}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -62,10 +61,8 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
     expr.append("{ return true } else { return false }")
 
-    val newReturnStmt : ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
-
     inWriteAction {
-      returnStmt.replaceExpression(newReturnStmt, true)
+      returnStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), true)
       editor.getCaretModel.moveToOffset(start)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }

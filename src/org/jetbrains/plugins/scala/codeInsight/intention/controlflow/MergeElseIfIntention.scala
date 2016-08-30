@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -64,7 +64,7 @@ class MergeElseIfIntention extends PsiElementBaseIntentionAction {
     append(ifStmt.thenBranch.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else ").
     append(ifStmt.elseBranch.get.getText.trim.drop(1).dropRight(1))
 
-    val newIfStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newIfStmt = createExpressionFromText(expr.toString())(element.getManager)
     val size = newIfStmt.asInstanceOf[ScIfStmt].thenBranch.get.getTextRange.getEndOffset -
     newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
 

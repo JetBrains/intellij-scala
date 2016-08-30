@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -46,7 +46,7 @@ class UnnecessaryParenthesesQuickFix(parenthesized: ScParenthesisedExpr, textOfS
     val parenthExpr = getElement
     if (!parenthExpr.isValid) return
 
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(textOfStripped, parenthExpr.getManager)
+    val newExpr = createExpressionFromText(textOfStripped)(parenthExpr.getManager)
     val replaced = parenthExpr.replaceExpression(newExpr, removeParenthesis = true)
 
     val comments = Option(parenthExpr.expr.get).map(expr => IntentionUtil.collectComments(expr))

@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 
 import scala.collection.mutable.ArrayBuffer
@@ -108,7 +109,7 @@ class ScAccessModifierImpl private(stub: StubElement[ScAccessModifier], nodeType
       private def doRename(newName: String) = {
         val id = findChildByType[PsiElement](tIDENTIFIER)
         val parent = id.getNode.getTreeParent
-        parent.replaceChild(id.getNode, ScalaPsiElementFactory.createIdentifier(newName, getManager))
+        parent.replaceChild(id.getNode, createIdentifier(newName))
         ScAccessModifierImpl.this
       }
 

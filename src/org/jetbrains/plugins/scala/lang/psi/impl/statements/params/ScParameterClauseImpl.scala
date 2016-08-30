@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 
 
@@ -91,20 +92,20 @@ class ScParameterClauseImpl private (stub: StubElement[ScParameterClause], nodeT
   def addParameter(param: ScParameter): ScParameterClause = {
     val params = parameters
     val vararg =
-      if (params.length == 0) false
-      else params(params.length - 1).isRepeatedParameter
-    val rParen = if (vararg) params(params.length - 1).getNode else getLastChild.getNode
+      if (params.isEmpty) false
+      else params.last.isRepeatedParameter
+    val rParen = if (vararg) params.last.getNode else getLastChild.getNode
+
     val node = getNode
-    if (params.length > 0 && !vararg) {
-      val comma = ScalaPsiElementFactory.createComma(getManager).getNode
-      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+    def comma = createComma.getNode
+    def space = createNewLineNode(" ")
+
+    if (params.nonEmpty && !vararg) {
       node.addChild(comma, rParen)
       node.addChild(space, rParen)
     }
     node.addChild(param.getNode, rParen)
     if (vararg) {
-      val comma = ScalaPsiElementFactory.createComma(getManager).getNode
-      val space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
       node.addChild(comma, rParen)
       node.addChild(space, rParen)
     }

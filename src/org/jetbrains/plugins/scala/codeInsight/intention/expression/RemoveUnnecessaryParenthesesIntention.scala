@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * Nikolay.Tropin
@@ -34,9 +34,8 @@ class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionActio
     Option(PsiTreeUtil.getParentOfType(element, classOf[ScParenthesisedExpr])).map {
       case expr if UnnecessaryParenthesesUtil.canBeStripped(expr, ignoreClarifying = false) =>
         val stripped: String = UnnecessaryParenthesesUtil.getTextOfStripped(expr, ignoreClarifying = false)
-        val newExpr = ScalaPsiElementFactory.createExpressionFromText(stripped, expr.getManager)
         inWriteAction {
-          expr.replaceExpression(newExpr, removeParenthesis = true)
+          expr.replaceExpression(createExpressionFromText(stripped)(expr.getManager), removeParenthesis = true)
         }
       case _ =>
     }

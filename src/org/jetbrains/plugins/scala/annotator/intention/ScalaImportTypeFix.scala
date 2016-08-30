@@ -32,8 +32,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -148,7 +149,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               if (!ref.isValid) return
               if (!ref.isInstanceOf[ScDocResolvableCodeReference]) ref.bindToElement(clazz.element)
-              else ref.replace(ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, ref.getManager))
+              else ref.replace(createDocLinkValue(clazz.qualifiedName)(ref.getManager))
             }
           }, clazz.getProject, "Add import action")
         }

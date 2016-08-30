@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockFromExpr
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
@@ -91,11 +92,11 @@ class ScFunctionDefinitionImpl protected (stub: StubElement[ScFunction], nodeTyp
 
   def assignment = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 
-  def removeAssignment() {
+  def removeAssignment(): Unit = {
     body match {
       case Some(_: ScBlockExpr) => // do nothing
       case Some(exp: ScExpression) =>
-        val block = ScalaPsiElementFactory.createBlockFromExpr(exp, exp.getManager)
+        val block = createBlockFromExpr(exp)(exp.getManager)
         exp.replace(block)
       case _ =>
     }

@@ -5,7 +5,7 @@ package api
 package expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -19,7 +19,7 @@ trait ScMatchStmt extends ScExpression {
     case c => c.caseClauses.map {
       (clause: ScCaseClause) => clause.expr match {
         case Some(expr) => expr
-        case None => ScalaPsiElementFactory.createExpressionFromText("{}", getManager)
+        case None => createExpressionFromText("{}")
       }
     }
   }

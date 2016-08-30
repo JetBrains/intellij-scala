@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHol
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
@@ -258,29 +258,31 @@ trait IntroduceExpressions {
 
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getEndOffset)
 
+    implicit val manager = file.getManager
     def createEnumeratorIn(forStmt: ScForStatement): ScEnumerator = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
-      val created = ScalaPsiElementFactory.createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), file.getManager, typeName)
+      val created = createEnumerator(varName, ScalaRefactoringUtil.unparExpr(expression), typeName)
       val elem = parent.getChildren.filter(_.getTextRange.contains(firstRange)).head
       var result: ScEnumerator = null
       if (elem != null) {
         var needSemicolon = true
         var sibling = elem.getPrevSibling
+        implicit val manager = parent.getManager
         if (inParentheses) {
           while (sibling != null && sibling.getText.trim == "") sibling = sibling.getPrevSibling
           if (sibling != null && sibling.getText.endsWith(";")) needSemicolon = false
-          val semicolon = parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), elem)
+          val semicolon = parent.addBefore(createSemicolon, elem)
           result = parent.addBefore(created, semicolon).asInstanceOf[ScEnumerator]
           if (needSemicolon) {
-            parent.addBefore(ScalaPsiElementFactory.createSemicolon(parent.getManager), result)
+            parent.addBefore(createSemicolon, result)
           }
         } else {
           if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
           result = parent.addBefore(created, elem).asInstanceOf[ScEnumerator]
-          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(elem.getManager).getPsi, elem)
+          parent.addBefore(createNewLineNode()(elem.getManager).getPsi, elem)
           if (needSemicolon) {
-            parent.addBefore(ScalaPsiElementFactory.createNewLineNode(parent.getManager).getPsi, result)
+            parent.addBefore(createNewLineNode().getPsi, result)
           }
         }
       }
@@ -309,8 +311,8 @@ trait IntroduceExpressions {
       if (fastDefinition) {
         val addType = addTypeAnnotation(firstElement, expression, fromDialogMode)
         ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = addType
-        replaceRangeByDeclaration(replacedOccurences(0), ScalaPsiElementFactory.createDeclaration(varName, if (addType) typeName else  "", isVariable,
-          ScalaRefactoringUtil.unparExpr(expression), file.getManager))
+        replaceRangeByDeclaration(replacedOccurences(0), createDeclaration(varName, if (addType) typeName else "", isVariable,
+          ScalaRefactoringUtil.unparExpr(expression)))
       } else {
         var needFormatting = false
         val parent = commonParent match {
@@ -322,7 +324,7 @@ trait IntroduceExpressions {
             val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParent)
             if (needBraces) {
               firstRange = firstRange.shiftRight(1)
-              val replaced = commonParent.replace(ScalaPsiElementFactory.createExpressionFromText("{" + commonParent.getText + "}", file.getManager))
+              val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}"))
               replaced.getPrevSibling match {
                 case ws: PsiWhiteSpace if ws.getText.contains("\n") => ws.delete()
                 case _ =>
@@ -334,8 +336,8 @@ trait IntroduceExpressions {
         if (anchor != null) {
           val addType = addTypeAnnotation(anchor, expression, fromDialogMode)
 
-          val created = ScalaPsiElementFactory.createDeclaration(varName, if(addType) typeName else "", isVariable,
-            ScalaRefactoringUtil.unparExpr(expression), file.getManager)
+          val created = createDeclaration(varName, if (addType) typeName else "", isVariable,
+            ScalaRefactoringUtil.unparExpr(expression))
 
           val result = ScalaPsiUtil.addStatementBefore(created.asInstanceOf[ScBlockStatement], parent, Some(anchor))
           CodeEditUtil.markToReformat(parent.getNode, needFormatting)

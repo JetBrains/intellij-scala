@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 
 /**
  * @author Ksenia.Sautina
@@ -53,7 +53,6 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    val manager: PsiManager = PsiManager.getInstance(project)
     val ifStmt: ScIfStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIfStmt], false)
     if (ifStmt == null || !ifStmt.isValid) return
 
@@ -71,7 +70,7 @@ class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
       elseKeyWord.delete()
       elseBranch.delete()
       ifStmt.getParent.addRangeAfter(from, to, ifStmt)
-      ifStmt.getParent.addAfter(ScalaPsiElementFactory.createNewLine(manager), ifStmt)
+      ifStmt.getParent.addAfter(createNewLine()(PsiManager.getInstance(project)), ifStmt)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }

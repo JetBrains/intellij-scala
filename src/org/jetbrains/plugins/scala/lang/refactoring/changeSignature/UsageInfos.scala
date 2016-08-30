@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
@@ -129,7 +129,7 @@ private[changeSignature] case class ConstructorUsageInfo(ref: ScReferenceElement
   val substitutor = resolveResult.map(_.substitutor)
   val expr = {
     val newText = s"new ${constr.getText}"
-    ScalaPsiElementFactory.createExpressionFromText(newText, constr.getManager)
+    createExpressionFromText(newText)(constr.getManager)
   }
   val argsInfo = OldArgsInfo(constr.arguments.flatMap(_.exprs), method)
 }

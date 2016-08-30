@@ -6,7 +6,7 @@ package api
 
 import com.intellij.psi.javadoc.PsiDocTagValue
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocTagValue
 
 /**
  * User: Dmitry Naydanov
@@ -19,7 +19,7 @@ trait ScDocTagValue extends PsiDocTagValue with PsiReference with PsiNamedElemen
 //  def getName: String = getText
 
   def setName(name: String): PsiElement = {
-    replace(ScalaPsiElementFactory.createDocTagValue(name, getManager))
+    replace(createDocTagValue(name)(getManager))
     this
   }
 }

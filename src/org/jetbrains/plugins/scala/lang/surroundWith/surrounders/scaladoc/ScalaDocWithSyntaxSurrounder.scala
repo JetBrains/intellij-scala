@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocSimpleData
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 /**
@@ -20,7 +20,9 @@ trait ScalaDocWithSyntaxSurrounder extends Surrounder {
   def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange = {
     val startOffset = editor.getSelectionModel.getSelectionStart
     val endOffset = editor.getSelectionModel.getSelectionEnd
-    val offset = elements(0).getTextOffset
+
+    val element = elements(0)
+    val offset = element.getTextOffset
 
     def getNewExprText(expr: String): String = expr.substring(0, startOffset - offset) + getSyntaxTag +
             expr.substring(startOffset - offset, endOffset - offset) + getSyntaxTag + expr.substring(endOffset - offset)
@@ -28,10 +30,10 @@ trait ScalaDocWithSyntaxSurrounder extends Surrounder {
     val surroundedText = new StringBuilder()
     elements.foreach(surroundedText append _.getText)
 
-    var newExpr = ScalaPsiElementFactory.createDocSimpleData(getNewExprText(surroundedText.toString()), elements(0).getManager)
+    var newExpr = createDocSimpleData(getNewExprText(surroundedText.toString()))(element.getManager)
 
     while (newExpr != null && newExpr.getNode.getElementType != ScalaDocTokenType.DOC_COMMENT_END) {
-      elements(0).getParent.addBefore(newExpr, elements(0))
+      element.getParent.addBefore(newExpr, element)
       newExpr = newExpr.getNextSibling
     }
 

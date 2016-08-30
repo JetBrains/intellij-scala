@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 import scala.collection.JavaConverters._
@@ -26,7 +26,7 @@ abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends S
   override def createSuppression(project: Project, element: PsiElement, container: PsiElement): Unit = {
     val text: String = SuppressionUtilCore.SUPPRESS_INSPECTIONS_TAG_NAME + " " + key.getID
     val comment: PsiComment = SuppressionUtil.createComment(project, text, ScalaLanguage.Instance)
-    val newLine = ScalaPsiElementFactory.createNewLine(element.getManager)
+    val newLine = createNewLine()(element.getManager)
     container match {
       case owner: ScDocCommentOwner if owner.docComment.isDefined =>
         val docComment = owner.docComment.get

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
@@ -88,8 +88,7 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
 
   def doGetType(): ScType = {
     name match {
-      case "doMacro" =>
-        ScalaPsiElementFactory.createTypeElementFromText("(Int, String)", getManager).getType().get
+      case "doMacro" => createTypeElementFromText("(Int, String)").getType().get
       case _ => Any
     }
   }

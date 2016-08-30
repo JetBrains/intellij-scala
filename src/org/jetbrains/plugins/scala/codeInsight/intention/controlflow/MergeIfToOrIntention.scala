@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -79,7 +79,7 @@ class MergeIfToOrIntention extends PsiElementBaseIntentionAction {
     if (innerElseBranch != null) expr.append(if (newlineBeforeElse) "\n" else " ").append("else ").
       append(innerElseBranch.getText)
 
-    val newIfStmt : ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
 
     inWriteAction {
       ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
