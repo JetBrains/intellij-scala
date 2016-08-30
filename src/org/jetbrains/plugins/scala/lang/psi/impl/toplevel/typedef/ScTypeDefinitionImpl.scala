@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)

@@ -114,7 +114,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
           val parent = anchorForInit.getParent
           val assignStmt = createExpressionFromText(s"$name = ${expression.getText}")
           parent.addBefore(assignStmt, anchorForInit)
-          parent.addBefore(createNewLine(), anchorForInit)
+          parent.addBefore(createNewLineNode().getPsi, anchorForInit)
         case None => throw new IntroduceException
 
       }
@@ -123,7 +123,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     settings.visibilityLevel match {
       case "" =>
       case other =>
-        val modifier = createModifierFromText(other)
+        val modifier = createModifierFromText(other).getPsi
         createdDeclaration.asInstanceOf[ScMember].getModifierList.add(modifier)
     }
 
@@ -142,7 +142,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
         PsiDocumentManager.getInstance(ifc.project).commitDocument(document)
       case _ childOf parent =>
         createdDeclaration = parent.addBefore(createdDeclaration, anchor)
-        parent.addBefore(createNewLine(), anchor)
+        parent.addBefore(createNewLineNode().getPsi, anchor)
     }
 
     ScalaPsiUtil.adjustTypes(createdDeclaration)

@@ -73,15 +73,11 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         case mVar: ScVariableMember =>
           (mVar.name, mVar.scType.presentableText)
         case ta: ScAliasMember =>
-          val aliasType = Option(ta.getElement).collect {
-            case definition: ScTypeAliasDefinition => definition
-          }.flatMap {
-            _.aliasedTypeElement
-          }.map {
-            _.calcType
-          }.map {
-            _.presentableText
-          }.getOrElse("")
+          val aliasType = ta.getElement match {
+            case tad: ScTypeAliasDefinition =>
+              tad.aliasedTypeElement.calcType.presentableText
+            case _ => ""
+          }
           (ta.name, aliasType)
       }
 
@@ -171,7 +167,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText
       case tm: ScAliasMember =>
-        getOverrideImplementTypeSign(tm.getElement, tm.substitutor, needsOverride = false)
+        getOverrideImplementTypeSign(tm.getElement, tm.substitutor, "this.type", needsOverride = false)
       case member: ScValueMember =>
         val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false)
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)

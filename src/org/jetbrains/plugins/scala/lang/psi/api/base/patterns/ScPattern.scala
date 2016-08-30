@@ -121,7 +121,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       }
 
       def rightWay: ScSubstitutor = {
-        val conformance = substitutor.subst(funType).conforms(tp, ScUndefinedSubstitutor())
+        val conformance = substitutor.subst(funType).conforms(tp, new ScUndefinedSubstitutor())
         if (conformance._1) {
           val undefSubst = conformance._2
           undefSubst.getSubstitutor match {
@@ -132,7 +132,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       }
 
       //todo: looks quite hacky to try another direction first, do you know better? see SCL-6543
-      val conformance = tp.conforms(substitutor.subst(funType), ScUndefinedSubstitutor())
+      val conformance = tp.conforms(substitutor.subst(funType), new ScUndefinedSubstitutor())
       if (conformance._1) {
         val undefSubst = conformance._2
         undefSubst.getSubstitutor match {
@@ -248,7 +248,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
         val args = if (types.nonEmpty && params.last.isVarArgs) {
           val lastType = types.last
           val tp = createTypeFromText(s"scala.collection.Seq[${lastType.canonicalText}]", cl, cl)
-          types.dropRight(1) ++ tp
+          types.dropRight(1) :+ tp
         } else types
         if (argIndex < args.length) Some(args(argIndex))
         else None

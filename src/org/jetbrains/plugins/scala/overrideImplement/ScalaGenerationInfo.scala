@@ -53,7 +53,8 @@ class ScalaGenerationInfo(classMember: ClassMember)
         val alias = member.getElement
         val substitutor = member.substitutor
         val needsOverride = member.isOverride || toAddOverrideToImplemented
-        val m = createOverrideImplementType(alias, substitutor, needsOverride, comment)(alias.getManager)
+        val m = createOverrideImplementType(alias, substitutor,
+          alias.getManager, needsOverride, comment)
 
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
@@ -92,10 +93,7 @@ object ScalaGenerationInfo {
     val member = CodeStyleManager.getInstance(element.getProject).reformat(element)
     //Setting selection
     val body: PsiElement = member match {
-      case ta: ScTypeAliasDefinition => ta.aliasedTypeElement match {
-        case Some(x) => x
-        case None => return
-      }
+      case ta: ScTypeAliasDefinition => ta.aliasedTypeElement
       case ScPatternDefinition.expr(expr) => expr
       case ScVariableDefinition.expr(expr) => expr
       case method: ScFunctionDefinition => method.body match {

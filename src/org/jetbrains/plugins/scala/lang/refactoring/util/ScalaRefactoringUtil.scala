@@ -4,19 +4,19 @@ package refactoring
 package util
 
 import java.awt.Component
-import java.util
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import java.util
 
+import com.intellij.codeInsight.unwrap.ScopeHighlighter
+import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
 import com.intellij.openapi.editor.{Editor, RangeMarker, VisualPosition}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
@@ -179,7 +179,7 @@ object ScalaRefactoringUtil {
       case _ => false
     }
 
-    ownersArray
+    ownersArray.toSeq
   }
 
   def getMinOwner(ownres: Array[ScTypeParametersOwner], currentFile: PsiFile): PsiElement = {
@@ -192,7 +192,7 @@ object ScalaRefactoringUtil {
     val rangeText = file.getText.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {
-      val expr = createOptionExpressionFromText(rangeText)(file.getManager)
+      val expr = createOptionExpressionFromText(rangeText, file.getManager)
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
