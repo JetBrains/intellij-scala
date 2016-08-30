@@ -798,7 +798,7 @@ object ScalaPositionManager {
     element match {
       case null => null
       case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) || isLambda(elem) => elem
-      case InsideMacro(macroCall) => macroCall
+      case elem if isMacroCall(elem) => elem
       case elem => findGeneratingClassOrMethodParent(elem.getParent)
     }
   }
@@ -817,9 +817,16 @@ object ScalaPositionManager {
   private object InsideMacro {
     def unapply(elem: PsiElement): Option[ScMethodCall] = {
       elem.parentsInFile.collectFirst {
-        case mc @ ScMethodCall(ResolvesTo(MacroDef(_)), _) => mc
+        case mc: ScMethodCall if isMacroCall(mc) => mc
       }
     }
+  }
+
+  def isInsideMacro(elem: PsiElement): Boolean = elem.parentsInFile.exists(isMacroCall)
+
+  private def isMacroCall(elem: PsiElement): Boolean = elem match {
+    case mc @ ScMethodCall(ResolvesTo(MacroDef(_)), _) => true
+    case _ => false
   }
 
   object InsideAsync {
@@ -828,8 +835,6 @@ object ScalaPositionManager {
       case _ => None
     }
   }
-
-  def isInsideMacro(elem: PsiElement): Boolean = InsideMacro.unapply(elem).isDefined
 
   def shouldSkip(location: Location, debugProcess: DebugProcess): Boolean = {
     ScalaPositionManager.instance(debugProcess).forall(_.shouldSkip(location))
@@ -889,11 +894,15 @@ object ScalaPositionManager {
     }
     private var classJVMNameParts: Seq[String] = null
 
-    private def computeClassJVMNameParts: Seq[String] = {
+    private def computeClassJVMNameParts(elem: PsiElement): Seq[String] = {
       if (exactName.isDefined) Seq.empty
       else inReadAction {
-        val parts = elem.withParentsInFile.flatMap(partsFor)
-        parts.toSeq.reverse
+        elem match {
+          case InsideMacro(call) => computeClassJVMNameParts(call.getParent)
+          case _ =>
+            val parts = elem.withParentsInFile.flatMap(partsFor)
+            parts.toSeq.reverse
+        }
       }
     }
 
@@ -942,7 +951,7 @@ object ScalaPositionManager {
       val newValue = isCompiledWithIndyLambdas(containingFile)
       if (newValue != compiledWithIndyLambdas || classJVMNameParts == null) {
         compiledWithIndyLambdas = newValue
-        classJVMNameParts = computeClassJVMNameParts
+        classJVMNameParts = computeClassJVMNameParts(elem)
       }
     }
 

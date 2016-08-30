@@ -27,6 +27,7 @@ abstract class ScalaFixtureTestCase(private val scalaVersion: ScalaSdkVersion = 
 
   override def tearDown(): Unit = {
     libLoader.clean()
+    libLoader = null
     super.tearDown()
   }
 

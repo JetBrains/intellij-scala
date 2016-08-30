@@ -98,6 +98,23 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       else Indent.getNormalIndent()
     }
 
+    //TODO these are hack methods to facliltate indenting in cases when comment before def/val/var adds one more level of blocks
+    def funIndent = child.getPsi match {
+      case _: ScBlockExpr if settings.METHOD_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+        settings.METHOD_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
+      case _: ScBlockExpr => Indent.getNoneIndent
+      case _: ScExpression => Indent.getNormalIndent
+      case _: ScParameters if scalaSettings.INDENT_FIRST_PARAMETER_CLAUSE => Indent.getContinuationIndent
+      case _ => Indent.getNoneIndent
+    }
+    def valIndent = child.getPsi match {
+      case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+        settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
+      case _: ScBlockExpr => Indent.getNoneIndent
+      case _: ScExpression | _: ScTypeElement => Indent.getNormalIndent
+      case _ => Indent.getNoneIndent
+    }
+
     node.getPsi match {
       case expr: ScFunctionExpr => processFunExpr(expr)
       case el: ScXmlElement =>
@@ -163,14 +180,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent
         }
       case _: ScTryStmt => Indent.getNoneIndent
-      case _: ScFunction =>
-        child.getPsi match {
-          case _: ScBlockExpr if settings.METHOD_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
-              settings.METHOD_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
-          case _: ScBlockExpr => Indent.getNoneIndent
-          case _: ScExpression => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
-        }
+      case _: ScFunction => funIndent
+      case _ if node.getElementType == ScalaTokenTypes.kDEF => funIndent
       case _: ScMethodCall => processMethodCall
       case arg: ScArgumentExprList if arg.isBraceArgs =>
         if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS &&
@@ -178,16 +189,11 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
           child.getElementType != ScalaTokenTypes.tLPARENTHESIS) Indent.getNormalIndent
         else Indent.getNoneIndent
-      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
-              | _: ScFinallyBlock | _: ScCatchBlock | _: ScValue | _: ScVariable=>
+      case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement | _: ScFinallyBlock | _: ScCatchBlock |
+           _: ScValue | _: ScVariable | _: ScTypeAlias =>
         if (child.getElementType == ScalaTokenTypes.kYIELD) Indent.getNormalIndent
-        else child.getPsi match {
-          case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
-              settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
-          case _: ScBlockExpr => Indent.getNoneIndent
-          case _: ScExpression => Indent.getNormalIndent
-          case _ => Indent.getNoneIndent
-        }
+        else valIndent
+      case _ if node.getElementType == ScalaTokenTypes.kVAL || node.getElementType == ScalaTokenTypes.kVAR => valIndent
       case _: ScCaseClause =>
         child.getElementType match {
           case ScalaTokenTypes.kCASE | ScalaTokenTypes.tFUNTYPE => Indent.getNoneIndent
@@ -234,6 +240,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getNormalIndent
       case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
         Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
+      case _: ScTuple | _: ScUnitExpr =>
+        if (scalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE &&
+          child.getElementType == ScalaTokenTypes.tRPARENTHESIS) Indent.getSpaceIndent(0, scalaSettings.ALIGN_TUPLE_ELEMENTS)
+        else Indent.getContinuationWithoutFirstIndent(scalaSettings.ALIGN_TUPLE_ELEMENTS)
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs =>
         Indent.getContinuationWithoutFirstIndent

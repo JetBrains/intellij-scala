@@ -32,6 +32,7 @@ object WithDefinition {
       val y = 0
       y + 1
     }
+
     println(bar + i)
   }
 

@@ -8,6 +8,7 @@ import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
@@ -31,7 +32,9 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
       name <- Option(named.name)
       if !StringUtil.isEmptyOrSpaces(name)
     } {
-      val scope: SearchScope = inReadAction(parameters.getEffectiveSearchScope) // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
+      val scope: SearchScope = inReadAction {
+        ScalaSourceFilterScope(parameters.getEffectiveSearchScope, parameters.getProject)
+      }
       val collector: SearchRequestCollector = parameters.getOptimizer
       val session: SearchSession = collector.getSearchSession
       collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session))

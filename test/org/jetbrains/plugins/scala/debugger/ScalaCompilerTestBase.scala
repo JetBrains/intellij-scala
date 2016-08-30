@@ -86,6 +86,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     CompileServerLauncher.instance.stop()
     val baseDir = getBaseDir
     scalaLibraryLoader.clean()
+    scalaLibraryLoader = null
     super.tearDown()
 
     if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)

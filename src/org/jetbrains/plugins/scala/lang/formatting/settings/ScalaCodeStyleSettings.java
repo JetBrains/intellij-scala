@@ -30,12 +30,16 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = false;
   public boolean SPACE_INSIDE_CLOSURE_BRACES = true;
   public boolean PLACE_SELF_TYPE_ON_NEW_LINE = true;
+  public boolean SPACE_INSIDE_SELF_TYPE_BRACES = true;
   public boolean ALIGN_IF_ELSE = false;
   //indents
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
   public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
   public boolean ALIGN_COMPOSITE_PATTERN = true;
   public boolean DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = false;
+  public boolean DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true;
+  public boolean ALIGN_TUPLE_ELEMENTS = false;
+  public boolean INDENT_FIRST_PARAMETER_CLAUSE = false;
 
   public boolean USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = false;
   public int ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = 4;
@@ -67,6 +71,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean NEWLINE_AFTER_ANNOTATIONS = false;
   public boolean ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false;
   public boolean KEEP_COMMENTS_ON_SAME_LINE = false;
+  public boolean SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;

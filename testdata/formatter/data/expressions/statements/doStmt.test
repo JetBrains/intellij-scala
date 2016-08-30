@@ -9,7 +9,8 @@ class a{
 -----
 class a {
   do {
-    x => 1
+    x =>
+      1
       2
       2
   } +

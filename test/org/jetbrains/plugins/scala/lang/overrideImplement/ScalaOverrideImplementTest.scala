@@ -1011,4 +1011,35 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
 
+  def testNoImportScalaSeq(): Unit = {
+    val fileText =
+      """
+        |import scala.collection.Seq
+        |
+        |class Test {
+        |  def foo: Seq[Int] = Seq(1)
+        |}
+        |
+        |class Test2 extends Test {
+        |<caret>
+        |}
+      """
+    val expectedText =
+      """
+        |import scala.collection.Seq
+        |
+        |class Test {
+        |  def foo: Seq[Int] = Seq(1)
+        |}
+        |
+        |class Test2 extends Test {
+        |  override def foo: Seq[Int] = super.foo
+        |}
+      """
+
+    val methodName: String = "foo"
+    val isImplement = false
+    runTest(methodName, fileText, expectedText, isImplement)
+  }
+
 }

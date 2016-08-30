@@ -64,10 +64,18 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         }, runner)
       }
     })
+
     callback
-    clearXBreakpoints()
-    getDebugProcess.stop(true)
-    processHandler.destroyProcess()
+
+    UsefulTestCase.edt {
+      new Runnable {
+        override def run(): Unit = {
+          clearXBreakpoints()
+          getDebugProcess.stop(true)
+          processHandler.destroyProcess()
+        }
+      }
+    }
   }
 
   protected def runProcess(className: String,

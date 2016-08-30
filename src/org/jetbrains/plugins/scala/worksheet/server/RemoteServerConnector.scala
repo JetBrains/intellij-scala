@@ -61,7 +61,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
           val errorHandler = new ErrorHandler {
             override def error(message: String): Unit = Notifications.Bus notify {
               new Notification(
-                "scala",
+                "Scala Worksheet",
                 "Cannot run worksheet",
                 s"<html><body>${message.replace("\n", "<br>")}</body></html>",
                 NotificationType.ERROR

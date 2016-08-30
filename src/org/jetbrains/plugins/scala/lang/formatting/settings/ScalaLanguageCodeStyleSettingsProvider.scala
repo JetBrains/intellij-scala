@@ -41,7 +41,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         "SPACE_BEFORE_CLASS_LBRACE", "SPACE_BEFORE_METHOD_LBRACE", "SPACE_BEFORE_IF_LBRACE",
         "SPACE_BEFORE_WHILE_LBRACE", "SPACE_BEFORE_DO_LBRACE", "SPACE_BEFORE_FOR_LBRACE", "SPACE_BEFORE_TRY_LBRACE",
         "SPACE_BEFORE_CATCH_LBRACE", "SPACE_BEFORE_FINALLY_LBRACE", "SPACE_BEFORE_WHILE_PARENTHESES",
-        "SPACE_AFTER_SEMICOLON", "SPACE_BEFORE_ELSE_LBRACE")
+        "SPACE_AFTER_SEMICOLON", "SPACE_BEFORE_ELSE_LBRACE", "SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES",
+        "SPACE_BEFORE_TYPE_PARAMETER_LIST")
     }
 
     //blank lines
@@ -108,6 +109,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
+    consumer.renameStandardOption("SPACE_BEFORE_TYPE_PARAMETER_LIST", "Before opening square bracket")
 
     //Custom options
     if (settingsType == SettingsType.WRAPPING_AND_BRACES_SETTINGS) {
@@ -132,6 +134,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
       showCustomOption("ALIGN_TYPES_IN_MULTILINE_DECLARATIONS", "Align parameter types in multiline declarations",
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
+      showCustomOption("INDENT_FIRST_PARAMETER_CLAUSE", "Indent first parameter clause",
+        CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
       showCustomOption("DO_NOT_INDENT_CASE_CLAUSE_BODY", "Do not indent case clause body", CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
       showCustomOption("INDENT_BRACED_FUNCTION_ARGS", "Indent braced arguments", CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
       showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
@@ -142,7 +146,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("KEEP_XML_FORMATTING", "Keep xml formatting", XML_FORMATTING)
       showCustomOption("KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST", "Do not format one-line lambdas in arg list",
         CodeStyleSettingsCustomizable.WRAPPING_KEEP)
-      showCustomOption("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", "Do not align block expression parameters", CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+      showCustomOption("DO_NOT_ALIGN_BLOCK_EXPR_PARAMS", "Do not align block expression parameters",
+        CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
+      showCustomOption("DO_NOT_INDENT_TUPLES_CLOSE_BRACE", "Do not indent tuples closing parenthesis", TUPLES_WRAP)
+      showCustomOption("ALIGN_TUPLE_ELEMENTS", "Align tuple elements", TUPLES_WRAP)
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {
@@ -169,6 +176,8 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("NEWLINE_AFTER_ANNOTATIONS", "Newline after annotations", CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("KEEP_COMMENTS_ON_SAME_LINE", "Keep one-line comments on same line", CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST", "Before opening square bracket", CodeStyleSettingsCustomizable.SPACES_IN_TYPE_PARAMETERS)
+      showCustomOption("SPACE_INSIDE_SELF_TYPE_BRACES", "Self type braces", CodeStyleSettingsCustomizable.SPACES_WITHIN)
     }
 
     if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {
@@ -194,6 +203,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   private val ANONYMOUS_METHOD = "Anonymous method definition"
   private val CLASS_DEFINITION = "Class definition"
   private val XML_FORMATTING = "Xml formatting"
+  private val TUPLES_WRAP = "Tuple"
 
   override def getDefaultCommonSettings: CommonCodeStyleSettings = {
     val commonCodeStyleSettings: CommonCodeStyleSettings = new CommonCodeStyleSettings(getLanguage)
@@ -210,9 +220,13 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   override def getIndentOptionsEditor = new SmartIndentOptionsEditor
 
   private val GENERAL_CODE_SAMPLE =
-    "class A {\n" +
-            "  def foo(): Int = 1\n" +
-            "}"
+    """
+      |class A {
+      |  def foo[A](): Int = 42
+      |
+      |  foo[Int]( )
+      |}
+    """.stripMargin.trim
 
   private val WRAPPING_AND_BRACES_SAMPLE =
     "class A {\n" +
