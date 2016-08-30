@@ -32,7 +32,7 @@ object ScSubstitutor {
 
   var cacheSubstitutions = false
 
-  val cache: scala.collection.mutable.Map[(String, PsiElement), ScType] = scala.collection.mutable.Map()
+  val cache: scala.collection.mutable.Map[(String, Long), ScType] = scala.collection.mutable.Map()
 }
 
 class ScSubstitutor(val tvMap: Map[(String, Long), ScType],

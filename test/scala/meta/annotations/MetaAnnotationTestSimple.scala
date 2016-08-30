@@ -18,7 +18,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
 
   override def getCompileableProject: Project = myFixture.getProject
   override def getMainModule: Module = myModule
-  override def getRootDisposable: Disposable = myTestRootDisposable
+  override def getRootDisposable: Disposable = getTestRootDisposable
   override def getTestName: String = getTestName(false)
 
   val metaVersion = "0.23.0"

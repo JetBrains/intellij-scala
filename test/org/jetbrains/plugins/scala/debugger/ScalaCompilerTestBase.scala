@@ -14,6 +14,7 @@ import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
@@ -58,7 +59,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
     }
 
-  protected def addRoots() {
+//  protected def addRoots() {
 
     inWriteAction {
       val srcRoot = getOrCreateChildDir("src")
