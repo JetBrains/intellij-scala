@@ -49,8 +49,8 @@ trait AllProjectHighlightingTest {
 
     override def reportError(file: VirtualFile, range: TextRange, message: String): Unit = {
       totalErrors += 1
-      val escaped = escapeTC(message)
-      val testName = s"${getClass.getName}.${file.getName}$range"
+      val escaped = escapeTC(Option(message).getOrElse(""))
+      val testName = s"${getClass.getName}.${Option(file).map(_.getName).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
       println(s"##teamcity[testStarted name='$testName']")
       println(s"##teamcity[testFailed name='$testName' message='Highlighting error' details='$escaped']")
       println(s"##teamcity[testFinished name='$testName']")
