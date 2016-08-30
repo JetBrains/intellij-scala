@@ -22,4 +22,22 @@ class PatternResolveTest extends FailedResolveCaretTestBase {
       """.stripMargin)
 
   }
+
+  def testSCL10735(): Unit = {
+    doResolveCaretTest(
+      """
+        |sealed trait ST[T]
+        |case object A extends ST[String]
+        |case object B extends ST[Boolean]
+        |case class Value[T](obj: ST[T], value: T)
+        |
+        |object Main extends App {
+        |  val v: Value[_] = Value(A, "wtf")
+        |  val res = v match {
+        |    case Value(A, x) => x.<caret>split(",")
+        |  }
+        |}
+      """.stripMargin)
+
+  }
 }
