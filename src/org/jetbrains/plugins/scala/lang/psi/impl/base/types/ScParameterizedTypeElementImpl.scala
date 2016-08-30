@@ -230,14 +230,14 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
                         val upperBound = text.indexOf("<:")
                         //we have to call processor execute so both `+A` and A resolve: Lambda[`+A` => (A, A)]
                         processor.execute(tp, state)
-                        processor.execute(new ScSyntheticClass(getManager, s"`$text`", Any), state)
+                        processor.execute(new ScSyntheticClass(s"`$text`", Any), state)
                         if (lowerBound < 0 && upperBound > 0) {
-                          processor.execute(new ScSyntheticClass(getManager, text.substring(0, upperBound), Any), state)
+                          processor.execute(new ScSyntheticClass(text.substring(0, upperBound), Any), state)
                         } else if (upperBound < 0 && lowerBound > 0) {
-                          processor.execute(new ScSyntheticClass(getManager, text.substring(0, lowerBound), Any), state)
+                          processor.execute(new ScSyntheticClass(text.substring(0, lowerBound), Any), state)
                         } else if (upperBound > 0 && lowerBound > 0) {
                           val actualText = text.substring(0, math.min(lowerBound, upperBound))
-                          processor.execute(new ScSyntheticClass(getManager, actualText, Any), state)
+                          processor.execute(new ScSyntheticClass(actualText, Any), state)
                         }
                       }
                     case _ =>
@@ -248,9 +248,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
             }
             case _ =>
           }
-          val manager = getManager
-          processor.execute(new ScSyntheticClass(manager, "+", Any), state)
-          processor.execute(new ScSyntheticClass(manager, "-", Any), state)
+          processor.execute(new ScSyntheticClass("+", Any), state)
+          processor.execute(new ScSyntheticClass("-", Any), state)
         case _ =>
       }
     }

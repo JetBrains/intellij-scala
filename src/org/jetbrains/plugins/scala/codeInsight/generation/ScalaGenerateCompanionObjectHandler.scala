@@ -8,7 +8,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
 /**
  * Nikolay.Tropin
@@ -25,7 +25,7 @@ class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandl
       val obj = createCompanionObject(clazz)
       val parent = clazz.getParent
       val addedObj = parent.addAfter(obj, clazz)
-      parent.addAfter(ScalaPsiElementFactory.createNewLine(clazz.getManager), clazz)
+      parent.addAfter(createNewLine()(clazz.getManager), clazz)
       val document = editor.getDocument
       PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
       val offset = addedObj.getTextRange.getStartOffset
@@ -46,9 +46,8 @@ class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandl
 
   private def createCompanionObject(clazz: ScTemplateDefinition): ScObject = {
     if (canAddCompanionObject(clazz)) {
-      val name = clazz.name
-      val text = s"object $name {\n \n}"
-      ScalaPsiElementFactory.createObjectWithContext(text, clazz.getContext, clazz)
+      val text = s"object ${clazz.name} {\n \n}"
+      createObjectWithContext(text, clazz.getContext, clazz)
     }
     else throw new IllegalArgumentException("Cannot create companion object")
   }

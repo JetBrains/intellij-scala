@@ -20,14 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConversions._
@@ -59,7 +58,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
         val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
         val generatedMethods = for (member <- candidates) yield {
           val prototype: ScFunctionDefinition =
-            ScalaPsiElementFactory.createMethodFromSignature(member.sign, aClass.getManager, needsInferType = true, body = "???")
+            createMethodFromSignature(member.sign, needsInferType = true, body = "???")(aClass.getManager)
                   .asInstanceOf[ScFunctionDefinition]
           TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
           prototype.setModifierProperty("override", value = member.isOverride)
@@ -105,7 +104,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       paramClause.parameters.map(_.name).mkString("(", ", ", ")")
     }
     val params = prototype.effectiveParameterClauses.map(paramClauseApplicationText).mkString
-    ScalaPsiElementFactory.createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params", prototype.getManager)
+    createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params")(prototype.getManager)
   }
 
 
@@ -128,7 +127,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
     val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
     val tBody = aClass.extendsBlock.templateBody.get
-    val place = ScalaPsiElementFactory.createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
+    val place = createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
     if (aClass == null) return null
     val processor = new CompletionProcessor(StdKinds.methodRef, place, false)
     processor.processType(delegateType, place)

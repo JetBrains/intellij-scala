@@ -3,16 +3,15 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplatePsiInfo
 import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
-import org.jetbrains.plugins.scala.codeInspection.parentheses.{UnnecessaryParenthesesQuickFix, UnnecessaryParenthesesUtil}
+import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.project.ProjectExt
-
 
 /**
  * @author Roman.Shein
@@ -45,9 +44,8 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
       SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false) match {
         case parenthesized: ScParenthesisedExpr
           if UnnecessaryParenthesesUtil.canBeStripped(parenthesized, ignoreClarifying = false) =>
-          ScalaPsiElementFactory.createExpressionFromText(
-            UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, ignoreClarifying = false),
-            PsiManager.getInstance(parenthesized.getProject))
+          implicit val manager = PsiManager.getInstance(parenthesized.getProject)
+          createExpressionFromText(UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, ignoreClarifying = false))
         case other => other
       }
     }
@@ -62,5 +60,5 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
     }
 
   override def createExpression(context: PsiElement, prefix: String, suffix: String): PsiElement =
-    ScalaPsiElementFactory.createExpressionFromText(prefix + context.getText + suffix, context)
+    createExpressionFromText(prefix + context.getText + suffix, context)
 }

@@ -7,7 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -73,10 +73,8 @@ class MergeIfToAndIntention extends PsiElementBaseIntentionAction {
     expr.append("if (").append(outerCondition).append(" && ").append(innerCondition).append(") ").
       append(innerThenBranch.getText)
 
-    val newIfStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
-
     inWriteAction {
-      ifStmt.replaceExpression(newIfStmt, true)
+      ifStmt.replaceExpression(createExpressionFromText(expr.toString())(element.getManager), true)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
   }

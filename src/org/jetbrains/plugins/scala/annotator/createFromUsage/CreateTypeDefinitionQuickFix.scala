@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -80,7 +80,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   private def createInnerClassIn(target: ScTemplateDefinition): Unit = {
     val extBlock = target.extendsBlock
     val targetBody = extBlock.templateBody.getOrElse(
-      extBlock.add(ScalaPsiElementFactory.createTemplateBody(target.getManager)))
+      extBlock.add(createTemplateBody(target.getManager)))
     createClassIn(targetBody, Some(targetBody.getLastChild))
   }
 
@@ -89,9 +89,9 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
       if (!FileModificationService.getInstance.preparePsiElementForWrite(parent)) return
 
       val text = s"${kind.keyword} $name"
-      val newTd = ScalaPsiElementFactory.createTemplateDefinitionFromText(text, parent, parent.getFirstChild)
+      val newTd = createTemplateDefinitionFromText(text, parent, parent.getFirstChild)
       val anchor = anchorAfter.orNull
-      parent.addBefore(ScalaPsiElementFactory.createNewLine(parent.getManager), anchor)
+      parent.addBefore(createNewLine()(parent.getManager), anchor)
       val result = parent.addBefore(newTd, anchor)
       afterCreationWork(result.asInstanceOf[ScTypeDefinition])
     }
@@ -192,7 +192,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
         case args => args.indices.map(i => s"T${i + 1}").mkString("[",", ", "]")
       }
       val nameId = clazz.nameId
-      val clause = ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(paramsText, clazz, nameId)
+      val clause = createTypeParameterClauseFromTextWithContext(paramsText, clazz, nameId)
       clazz.addAfter(clause, nameId)
     case _ =>
   }
@@ -202,7 +202,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
       case cl: ScClass =>
         val constr = cl.constructor.get
         val text = parametersText(ref)
-        val parameters = ScalaPsiElementFactory.createParamClausesWithContext(text, constr, constr.getFirstChild)
+        val parameters = createParamClausesWithContext(text, constr, constr.getFirstChild)
         constr.parameterList.replace(parameters)
       case _ =>
     }

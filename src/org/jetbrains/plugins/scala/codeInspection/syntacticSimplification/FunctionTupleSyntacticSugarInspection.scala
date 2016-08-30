@@ -79,7 +79,7 @@ object FunctionTupleSyntacticSugarInspection {
         }
         ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens)(typeElement.getManager))
     }
   }
 
@@ -109,7 +109,7 @@ object FunctionTupleSyntacticSugarInspection {
         val arrow = ScalaPsiUtil.functionArrow(project)
         s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens)(typeElement.getManager))
     }
   }
 }

@@ -24,7 +24,6 @@ trait PsiElementExtTrait extends Any {
   def withParents: Iterator[PsiElement] = new ParentsIterator(repr, strict = false)
 
   def containingFile: Option[PsiFile] = Option(repr.getContainingFile)
-  def psiManager: PsiManager = repr.getManager
 
   def parentsInFile: Iterator[PsiElement] = {
     repr match {

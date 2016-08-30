@@ -14,8 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeParameterFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -1198,7 +1199,7 @@ object Conformance extends api.Conformance {
               case Some(ScExistentialArgument(thatName, args, lower, upper)) if !rejected.contains(thatName) =>
                 val tpt = tptsMap.getOrElseUpdate(thatName,
                   TypeParameterType(args, new Suspension(lower), new Suspension(upper),
-                    ScalaPsiElementFactory.createTypeParameterFromText(name, PsiManager.getInstance(DecompilerUtil.obtainProject))) //todo: remove obtainProject?
+                    createTypeParameterFromText(name)(PsiManager.getInstance(DecompilerUtil.obtainProject))) //todo: remove obtainProject?
                 )
                 (true, tpt)
               case _ => (false, t)

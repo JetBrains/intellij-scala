@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -57,7 +57,7 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseInt
     expr.append(methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].
             qualifier.get.getText).append(".").append(replaceOper(oper)).append(methodCallExpr.args.getText)
 
-    val newMethodCallExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newMethodCallExpr = createExpressionFromText(expr.toString())(element.getManager)
 
     val size = newMethodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.
             getTextRange.getStartOffset - newMethodCallExpr.getTextRange.getStartOffset

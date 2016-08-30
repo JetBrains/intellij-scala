@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Alexander Podkhalyuzin
@@ -154,7 +154,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
 
   private def replaceExprsWithBlock(elements: PsiElement*): Unit = {
     assert(elements.nonEmpty && elements.forall(_.isValid))
-    if (!elements.forall(checkElementContainsRange(_))) return
+    if (!elements.forall(checkElementContainsRange)) return
 
     val head = elements.head
     val parent = head.getParent
@@ -162,7 +162,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
     try {
       val project = head.getProject
       val concatText = "{\n" + elements.tail.foldLeft(head.getText)((res, expr) => res + "\n"+ expr.getText) + "\n}"
-      val newExpr = ScalaPsiElementFactory.createExpressionFromText(concatText, head.getManager)
+      val newExpr = createExpressionFromText(concatText)(head.getManager)
       val prev = head.getPrevSibling
       if (ScalaPsiUtil.isLineTerminator(prev) || prev.isInstanceOf[PsiWhiteSpace]) {
         CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(prev))

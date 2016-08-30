@@ -4,7 +4,7 @@ package format
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.junit.Assert._
 
 /**
@@ -107,7 +107,7 @@ class StringConcatenationFormatterTest extends SimpleTestCase {
   }
 
   private def exp(s: String): ScExpression = {
-    val manager = PsiManager.getInstance(fixture.getProject)
-    ScalaPsiElementFactory.createExpressionFromText(s, manager)
+    implicit val manager = PsiManager.getInstance(fixture.getProject)
+    createExpressionFromText(s)
   }
 }

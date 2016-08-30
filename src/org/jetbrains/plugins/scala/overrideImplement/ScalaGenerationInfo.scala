@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
@@ -53,7 +53,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
         val alias = member.getElement
         val substitutor = member.substitutor
         val needsOverride = member.isOverride || toAddOverrideToImplemented
-        val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor,
+        val m = createOverrideImplementType(alias, substitutor,
           alias.getManager, needsOverride, comment)
 
         val added = templDef.addMember(m, Option(anchor))
@@ -83,7 +83,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
 
 object ScalaGenerationInfo {
   def defaultValue(returnType: ScType, file: PsiFile): String = {
-    val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
+    val standardValue = getStandardValue(returnType)
 
     if (file.scalaLanguageLevel.exists(_ < Scala_2_10)) standardValue else "???"
   }
@@ -175,7 +175,7 @@ object ScalaGenerationInfo {
 
     val returnType = member.scType
 
-    val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
+    val standardValue = getStandardValue(returnType)
 
     val method = member.getElement
 
@@ -207,7 +207,7 @@ object ScalaGenerationInfo {
       }
     }
 
-    val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, body)
+    val m = createOverrideImplementMethod(sign, needsOverride, body)(method.getManager)
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m)
     val added = td.addMember(m, Option(anchor))
     TypeAdjuster.markToAdjust(added)
@@ -226,8 +226,7 @@ object ScalaGenerationInfo {
       case x: ScVariableMember => (x.substitutor, x.isOverride)
     }
     val addOverride = needsOverride || toAddOverrideToImplemented
-    val m = ScalaPsiElementFactory.createOverrideImplementVariable(value, substitutor, value.getManager,
-      addOverride, isVal, comment)
+    val m = createOverrideImplementVariable(value, substitutor, addOverride, isVal, comment)(value.getManager)
 
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m)
     m

@@ -8,7 +8,8 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.{FileViewProvider, PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.sbt.project.module.SbtModule
 
 import scala.collection.JavaConverters._
@@ -44,7 +45,7 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
 
     expressions0.isEmpty || {
       val code = s"import ${expressions0.mkString(", ")};"
-      val file = ScalaPsiElementFactory.parseFile(code, getManager)
+      val file = createScalaFileFromText(code)(getManager)
       file.processDeclarations(processor, state, file.lastChild.get, place)
     }
   }

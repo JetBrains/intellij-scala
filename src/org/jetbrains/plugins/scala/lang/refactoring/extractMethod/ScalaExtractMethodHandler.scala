@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -284,7 +284,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     if (method == null) return
     val ics = settings.innerClassSettings
 
-    def newLine = ScalaPsiElementFactory.createNewLine(method.getManager)
+    def newLine = createNewLine()(method.getManager)
 
     def addElementBefore(elem: PsiElement, nextSibling: PsiElement) = {
       val added = nextSibling.getParent.addBefore(elem, nextSibling)
@@ -296,7 +296,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       if (!ics.needClass) return
 
       val classText = ics.classText(canonTextForTypes = true)
-      val clazz = ScalaPsiElementFactory.createTemplateDefinitionFromText(classText, anchorNext.getContext, anchorNext)
+      val clazz = createTemplateDefinitionFromText(classText, anchorNext.getContext, anchorNext)
       addElementBefore(clazz, anchorNext)
       addElementBefore(newLine, anchorNext)
     }

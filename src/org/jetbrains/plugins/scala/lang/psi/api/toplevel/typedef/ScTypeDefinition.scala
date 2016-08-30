@@ -10,7 +10,7 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -105,7 +105,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
                       else parameterText
                     }).mkString("(", ", ", ")")
                 }.mkString("(", " => ", s" => $name)")
-              val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
+              val typeElement = createTypeElementFromText(typeElementText)
               s" extends ${typeElement.getText}"
             } else {
               ""
@@ -127,7 +127,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
     val obj: ScObject =
-      ScalaPsiElementFactory.createObjectWithContext(objText, getContext, if (next != null) next else this)
+      createObjectWithContext(objText, getContext, if (next != null) next else this)
     import org.jetbrains.plugins.scala.extensions._
     val objOption: Option[ScObject] = obj.toOption
     objOption.foreach { (obj: ScObject) =>

@@ -6,15 +6,11 @@ package impl
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.impl.PsiClassImplUtil
-import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -27,7 +23,7 @@ import org.jetbrains.plugins.scala.project._
  */
 
 class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeReferenceElementImpl(node) with ScDocResolvableCodeReference {
-  private def is2_10plus: Boolean = this.scalaLanguageLevel.map(_ >= ScalaLanguageLevel.Scala_2_10).getOrElse(true)
+  private def is2_10plus: Boolean = this.scalaLanguageLevel.forall(_ >= ScalaLanguageLevel.Scala_2_10)
 
   override def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
     val s = super.multiResolve(incomplete)
@@ -43,8 +39,8 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
   override def getKinds(incomplete: Boolean, completion: Boolean): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = stableImportSelector
 
   override def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
-    if (is2_10plus) super.createReplacingElementWithClassName(true, clazz) 
-    else ScalaPsiElementFactory.createDocLinkValue(clazz.qualifiedName, clazz.element.getManager)
+    if (is2_10plus) super.createReplacingElementWithClassName(true, clazz)
+    else createDocLinkValue(clazz.qualifiedName)(clazz.element.getManager)
 
   override protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {
     if (is2_10plus) super.processQualifier(ref, processor) else pathQualifier match {

@@ -18,7 +18,7 @@ class AddTypeToReferencePattern extends AbstractTransformer {
       if !e.nextSibling.exists(_.getText == ":") =>
 
       val annotation = annotationFor(t, e)
-      val typedPattern = ScalaPsiElementFactory.createPatternFromText(e.text + ": " + annotation.text, e.psiManager)
+      val typedPattern = ScalaPsiElementFactory.createPatternFromText(e.text + ": " + annotation.text)(e.getManager)
 
       val result = e.replace(typedPattern)
 

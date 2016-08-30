@@ -4,7 +4,6 @@ package psi
 package api
 package base
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -19,10 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createIdentifier, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.{Set, mutable}
@@ -80,7 +80,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     if (!ScalaNamesUtil.isIdentifier(newName)) return this
     val id = nameId.getNode
     val parent = id.getTreeParent
-    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newName, getManager))
+    parent.replaceChild(id, createIdentifier(newName))
     resolve()
     this
   }
@@ -104,8 +104,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
   }
 
   def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
-    ScalaPsiElementFactory.createReferenceFromText(
-      if (useFullQualifiedName) clazz.qualifiedName else clazz.name, clazz.element.getManager)
+    createReferenceFromText(if (useFullQualifiedName) clazz.qualifiedName else clazz.name)(clazz.element.getManager)
 
   def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
@@ -329,9 +328,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         } else qualifiedName
       this match {
         case stRef: ScStableCodeReferenceElement =>
-          stRef.replace(ScalaPsiElementFactory.createReferenceFromText(refText, stRef.getManager))
+          stRef.replace(createReferenceFromText(refText))
         case ref: ScReferenceExpression =>
-          ref.replace(ScalaPsiElementFactory.createExpressionFromText(refText, ref.getManager))
+          ref.replace(createExpressionFromText(refText))
         case _ => null
       }
     }
@@ -340,7 +339,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 }
 
 object ScReferenceElement {
-  def unapply(e: ScReferenceElement): Option[PsiElement] = Option(e.resolve)
+  def unapply(e: ScReferenceElement): Option[PsiElement] = Option(e.resolve())
 
   object withQualifier {
     def unapply(ref: ScReferenceElement): Option[ScalaPsiElement] = ref.qualifier

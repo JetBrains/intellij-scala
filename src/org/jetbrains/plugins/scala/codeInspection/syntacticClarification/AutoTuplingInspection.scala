@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTup
 import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.MakeTuplesExplicitFix.hint
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * Nikolay.Tropin
@@ -32,7 +32,7 @@ class MakeTuplesExplicitFix(invoc: MethodInvocation) extends AbstractFixOnPsiEle
       case mc: ScMethodCall =>
         val newArgsText = s"(${mc.args.getText})"
         val invokedExprText = mc.getInvokedExpr.getText
-        val newCall = ScalaPsiElementFactory.createExpressionFromText(s"$invokedExprText$newArgsText", mc.getManager)
+        val newCall = createExpressionFromText(s"$invokedExprText$newArgsText")(mc.getManager)
         mc.replaceExpression(newCall, removeParenthesis = false)
       case _ =>
     }

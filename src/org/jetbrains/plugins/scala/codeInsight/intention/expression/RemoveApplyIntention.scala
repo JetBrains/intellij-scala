@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -188,10 +188,8 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     }
 
     buf.append(expr.args.getText)
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), element.getManager)
-
     inWriteAction {
-      expr.replace(newExpr)
+      expr.replace(createExpressionFromText(buf.toString())(element.getManager))
       editor.getCaretModel.moveToOffset(start)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }

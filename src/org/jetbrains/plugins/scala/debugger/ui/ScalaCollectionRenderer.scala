@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 import scala.collection.mutable
 import scala.reflect.NameTransformer
@@ -183,8 +183,10 @@ object ScalaCollectionRenderer {
       }
     }
 
-    override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement =
-      ScalaPsiElementFactory.createExpressionFromText("this.toArray()", PsiManager.getInstance(context.getProject))
+    override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement = {
+      implicit val manager = PsiManager.getInstance(context.getProject)
+      createExpressionFromText("this.toArray()")
+    }
 
 
     override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext) {

@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLineNode
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -197,7 +198,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
     getNode.addChild(decl.getNode,before.getNode)
-    getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
+    getNode.addChild(createNewLineNode(), before.getNode)
     true
   }
 

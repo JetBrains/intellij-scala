@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.format._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * Pavel Fatin
@@ -23,11 +23,7 @@ class LegacyStringFormattingInspection extends AbstractInspection {
       val elem = getElement
       FormattedStringParser.parse(elem).foreach { parts =>
 
-        val expression = {
-          val s = InterpolatedStringFormatter.format(parts)
-          ScalaPsiElementFactory.createExpressionFromText(s, elem.getManager)
-        }
-
+        val expression = createExpressionFromText(InterpolatedStringFormatter.format(parts))(elem.getManager)
         elem.replace(expression)
       }
     }

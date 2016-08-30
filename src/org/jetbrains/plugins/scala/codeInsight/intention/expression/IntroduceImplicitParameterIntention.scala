@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -101,7 +101,7 @@ object IntroduceImplicitParameterIntention {
       buf.replace(offset, offset + p.name.length, newParam)
     }
 
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), expr.getManager)
+    val newExpr = createExpressionFromText(buf.toString())(expr.getManager)
 
     if (!isValidExpr(newExpr, expr.parameters.length))
       return Right(InspectionBundle.message("introduce.implicit.not.allowed.here"))

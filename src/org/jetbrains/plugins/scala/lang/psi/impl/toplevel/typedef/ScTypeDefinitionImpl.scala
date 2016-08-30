@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -41,9 +42,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import scala.annotation.tailrec
 import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
@@ -56,7 +57,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
         val newMemberText = JavaToScala.convertPsiToText(member).trim()
         val mem: Option[ScMember] = member match {
           case _: PsiMethod =>
-            Some(ScalaPsiElementFactory.createMethodFromText(newMemberText, getManager))
+            Some(createMethodFromText(newMemberText))
           case _ => None
         }
         mem match {

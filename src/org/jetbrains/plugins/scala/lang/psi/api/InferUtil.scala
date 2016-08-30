@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -198,7 +198,7 @@ object InferUtil {
             resolveResults += new ScalaResolveResult(param.paramInCode.get)
           } else if (r == null && check) throw new SafeCheckException
           else if (r == null) {
-            val parameter = ScalaPsiElementFactory.createParameterFromText(s"$notFoundParameterName: Int", place.getManager)
+            val parameter = createParameterFromText(s"$notFoundParameterName: Int")(place.getManager)
             resolveResults += new ScalaResolveResult(parameter, implicitSearchState = Some(implicitState))
           } else resolveResults += r
         })
@@ -266,7 +266,7 @@ object InferUtil {
               returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))(mt.project, mt.scope)
             case _ =>
           }
-          val dummyExpr = ScalaPsiElementFactory.createExpressionWithContextFromText("null", expr.getContext, expr)
+          val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
           dummyExpr.asInstanceOf[ScLiteral].setTypeWithoutImplicits(Some(mt.returnType))
           val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 

@@ -12,7 +12,7 @@ import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.indexing.FileContent
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
 
 import scala.annotation.tailrec
@@ -72,9 +72,10 @@ class ScClsStubBuilder extends ClsStubBuilder {
   private def buildFileStub(vFile: VirtualFile, bytes: Array[Byte], project: Project): PsiFileStub[ScalaFile] = {
     val result = DecompilerUtil.decompile(vFile, bytes)
     val source = result.sourceName
-    val text = result.sourceText
-    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""),
-      PsiManager.getInstance(DefaultProjectFactory.getInstance().getDefaultProject))
+
+    val text = result.sourceText.replace("\r", "")
+    implicit val manager = PsiManager.getInstance(DefaultProjectFactory.getInstance().getDefaultProject)
+    val file = createScalaFileFromText(text)(manager)
 
     val adj = file.asInstanceOf[CompiledFileAdjuster]
     adj.setCompiled(c = true)

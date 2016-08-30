@@ -6,7 +6,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMonospaceSyntaxFromText
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
 
@@ -51,12 +51,10 @@ class ScalaDocInlinedTagReplaceQuickFix(inlinedTag: ScDocInlinedTag)
     val tag = getElement
     if (!tag.isValid) return
 
-    if (tag.getValueElement == null) {
-      tag.replace(ScalaPsiElementFactory.createMonospaceSyntaxFromText("", tag.getManager))
-    } else{
-      val tagText =
-        tag.getValueElement.getText.replace("`", MyScaladocParsing.escapeSequencesForWiki.get("`").get)
-      tag.replace(ScalaPsiElementFactory.createMonospaceSyntaxFromText(tagText, tag.getManager))
-    }
+    val text = Option(tag.getValueElement).map {
+      _.getText.replace("`", MyScaladocParsing.escapeSequencesForWiki("`"))
+    }.getOrElse("")
+
+    tag.replace(createMonospaceSyntaxFromText(text)(tag.getManager))
   }
 }

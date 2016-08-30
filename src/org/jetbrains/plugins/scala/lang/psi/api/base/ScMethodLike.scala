@@ -7,7 +7,7 @@ package base
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseFromText, createTypeParameterClauseFromTextWithContext}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
@@ -35,8 +35,7 @@ trait ScMethodLike extends ScMember with PsiMethod {
           case c: ScTypeDefinition =>
             c.typeParametersClause.map((typeParamClause: ScTypeParamClause) => {
               val paramClauseText = typeParamClause.getTextByStub
-              ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(paramClauseText,
-                typeParamClause.getContext, typeParamClause)
+              createTypeParameterClauseFromTextWithContext(paramClauseText, typeParamClause.getContext, typeParamClause)
             })
           case _ => None
         }
@@ -62,7 +61,7 @@ trait ScMethodLike extends ScMember with PsiMethod {
     if (parameterList.clauses.length > 0)
       parameterList.clauses.apply(0).addParameter(param)
     else {
-      val clause: ScParameterClause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+      val clause = createClauseFromText("()")
       val newClause = clause.addParameter(param)
       parameterList.addClause(newClause)
     }

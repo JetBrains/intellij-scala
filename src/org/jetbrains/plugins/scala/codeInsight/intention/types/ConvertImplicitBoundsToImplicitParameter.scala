@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
 import scala.collection.JavaConverters._
@@ -54,8 +54,10 @@ object ConvertImplicitBoundsToImplicitParameter {
     def removeImplicitBounds() {
       typeParamOwner.typeParameters.foreach(_.removeImplicitBounds())
     }
+
     val declaredClauses: Seq[ScParameterClause] = paramOwner.allClauses
-    val manager = paramOwner.getManager
+    implicit val manager = paramOwner.getManager
+    
     declaredClauses.lastOption match {
       case Some(paramClause) if paramClause.isImplicit =>
         // Already has an implicit parameter clause: delete it, add the bounds, then
@@ -63,10 +65,10 @@ object ConvertImplicitBoundsToImplicitParameter {
         paramClause.delete()
         function.effectiveParameterClauses.lastOption match {
           case Some(implicitParamClause) if implicitParamClause.isImplicit =>
-            val newClause = ScalaPsiElementFactory.createClauseFromText(implicitParamClause.getText, manager)
+            val newClause = createClauseFromText(implicitParamClause.getText)
             val addedParametersCount = newClause.parameters.size
             for (p <- paramClause.parameters) {
-              val newParam = ScalaPsiElementFactory.createParameterFromText(p.getText, manager)
+              val newParam = createParameterFromText(p.getText)
               newClause.addParameter(newParam)
             }
             val addedClause = function.parameterList.addClause(newClause).clauses.last
@@ -83,7 +85,7 @@ object ConvertImplicitBoundsToImplicitParameter {
             val extra = function.effectiveParameterClauses.drop(declaredClauses.size).headOption
             var result: Seq[ScParameter] = Seq.empty
             for(c <- extra) {
-              val newClause = ScalaPsiElementFactory.createClauseFromText(c.getText, manager)
+              val newClause = createClauseFromText(c.getText)
               val addedParametersCount = c.parameters.size
               val addedClause = function.parameterList.addClause(newClause).clauses.last
               result = addedClause.parameters.take(addedParametersCount)

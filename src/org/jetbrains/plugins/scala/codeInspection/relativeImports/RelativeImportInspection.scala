@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -70,13 +70,13 @@ private class MakeFullQualifiedImportFix(q: ScStableCodeReferenceElement, fqn: S
   def doApplyFix(project: Project) {
     val ref = getElement
     if (ref == null || !ref.isValid) return
-    val newRef = ScalaPsiElementFactory.createReferenceFromText(fqn, ref.getContext, ref)
+    val newRef = createReferenceFromText(fqn, ref.getContext, ref)
     import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
     val newFqn = qual(newRef).resolve() match {
       case p: PsiPackage if p.getQualifiedName.contains(".") => "_root_." + fqn
       case _: PsiPackage => fqn
       case _ => "_root_." + fqn
     }
-    ref.replace(ScalaPsiElementFactory.createReferenceFromText(newFqn, ref.getManager))
+    ref.replace(createReferenceFromText(newFqn)(ref.getManager))
   }
 }

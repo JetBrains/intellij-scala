@@ -52,9 +52,9 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     val holder = anchor.getParent
     val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
 
-    val entity = holder.addAfter(parseElement(text, td.getManager), anchor)
-
-    if (hasMembers) holder.addAfter(createNewLine(td.getManager), entity)
+    implicit val manager = td.getManager
+    val entity = holder.addAfter(createElementFromText(text), anchor)
+    if (hasMembers) holder.addAfter(createNewLine(), entity)
 
     entity
   }

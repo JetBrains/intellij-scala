@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -99,6 +99,7 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => None
         }
         replacementOpt.foreach { replacement =>
+          implicit val manager = replacement.getManager
           val newValue = replacement match {
             case expression: ScExpression =>
               val oldValue = expression match {
@@ -107,14 +108,13 @@ class ScalaInlineHandler extends InlineHandler {
                 case _ =>
                   replacementValue
               }
-              expression.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(oldValue, replacement.getManager), removeParenthesis = true)
+              expression.replaceExpression(createExpressionFromText(oldValue), removeParenthesis = true)
             case _: ScTypeElement =>
-              replacement.replace(ScalaPsiElementFactory.createTypeElementFromText(replacementValue, replacement.getManager))
+              replacement.replace(createTypeElementFromText(replacementValue))
           }
 
           val project = newValue.getProject
-          val manager = FileEditorManager.getInstance(project)
-          val editor = manager.getSelectedTextEditor
+          val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
           occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newValue), editor)
           CodeStyleManager.getInstance(project).reformatRange(newValue.getContainingFile, newValue.getTextRange.getStartOffset - 1,
             newValue.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)

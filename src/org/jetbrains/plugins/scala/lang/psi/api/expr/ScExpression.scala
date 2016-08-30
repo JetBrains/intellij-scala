@@ -7,7 +7,7 @@ package expr
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.extensions.{ElementText, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -424,8 +425,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     if (removeParenthesis && oldParent.isInstanceOf[ScParenthesisedExpr]) {
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
-    val newExpr: ScExpression = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      ScalaPsiElementFactory.createExpressionFromText("(" + expr.getText + ")", getManager)
+    val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
+      createExpressionFromText(expr.getText.parenthesize(needParenthesis = true))
     } else expr
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode

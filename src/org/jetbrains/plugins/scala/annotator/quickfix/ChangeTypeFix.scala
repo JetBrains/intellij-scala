@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
@@ -26,8 +26,7 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
     if (!typeElement.isValid) return
     if (!FileModificationService.getInstance.prepareFileForWrite(typeElement.getContainingFile)) return
     if (typeElement.getParent == null || typeElement.getParent.getNode == null) return
-    val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newType.canonicalText, typeElement.getManager)
-    val replaced = typeElement.replace(newTypeElement)
+    val replaced = typeElement.replace(createTypeElementFromText(newType.canonicalText)(typeElement.getManager))
     ScalaPsiUtil.adjustTypes(replaced)
     UndoUtil.markPsiFileForUndo(file)
   }

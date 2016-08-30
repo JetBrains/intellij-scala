@@ -5,13 +5,13 @@ package psi
 package impl
 
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import com.intellij.lang.ASTNode
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTagValue}
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocTagName
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
@@ -55,7 +55,7 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
 
   def setName(name: String): PsiElement = {
     if (findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME) != null) {
-      findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME).replace(ScalaPsiElementFactory.createDocTagName(name, getManager))
+      findChildByType[PsiElement](ScalaDocTokenType.DOC_TAG_NAME).replace(createDocTagName(name))
     }
 
     this

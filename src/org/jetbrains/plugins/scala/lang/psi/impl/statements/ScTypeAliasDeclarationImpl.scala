@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
@@ -43,7 +44,7 @@ class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeTy
   }
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
-    case null => ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName, getManager).getPsi
+    case null => createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName).getPsi
     case n => n
   }
   

@@ -4,7 +4,7 @@ package codeInsight.unwrap
 import com.intellij.codeInsight.unwrap.AbstractUnwrapper
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 
 /**
  * Nikolay.Tropin
@@ -22,7 +22,7 @@ class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
 
   def insertNewLine() {
     val lastExtracted = myElementsToExtract.get(myElementsToExtract.size() - 1)
-    val newLine = ScalaPsiElementFactory.createNewLine(lastExtracted.getManager)
+    val newLine = createNewLine()(lastExtracted.getManager)
     if (myIsEffective && lastExtracted.isValid) {
       lastExtracted.getParent.addAfter(newLine, lastExtracted)
     }

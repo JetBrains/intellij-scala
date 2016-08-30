@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -55,12 +55,12 @@ class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass)
     val newRefText = parts.takeRight(2).mkString(".")
     refElem match {
       case stRef: ScStableCodeReferenceElement =>
-        stRef.replace(ScalaPsiElementFactory.createReferenceFromText(newRefText, stRef.getManager)) match {
+        stRef.replace(createReferenceFromText(newRefText)(stRef.getManager)) match {
           case r: ScStableCodeReferenceElement => r.qualifier.foreach(_.bindToPackage(pckg, addImport = true))
           case _ =>
         }
       case ref: ScReferenceExpression =>
-        ref.replace(ScalaPsiElementFactory.createExpressionWithContextFromText(newRefText, ref.getContext, ref)) match {
+        ref.replace(createExpressionWithContextFromText(newRefText, ref.getContext, ref)) match {
           case ScReferenceExpression.withQualifier(q: ScReferenceExpression) => q.bindToPackage(pckg, addImport = true)
           case _ =>
         }

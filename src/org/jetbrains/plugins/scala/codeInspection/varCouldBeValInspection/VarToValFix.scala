@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createValFromVarDefinition
 
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
@@ -20,7 +20,7 @@ class VarToValFix(elem: ScVariableDefinition) extends LocalQuickFixAndIntentionA
     startElement match {
       case varDef: ScVariableDefinition =>
         if (FileModificationService.getInstance.prepareFileForWrite(varDef.getContainingFile)) {
-          varDef.replace(ScalaPsiElementFactory.createValFromVarDefinition(varDef, varDef.getManager))
+          varDef.replace(createValFromVarDefinition(varDef)(varDef.getManager))
         }
       case _ =>
     }

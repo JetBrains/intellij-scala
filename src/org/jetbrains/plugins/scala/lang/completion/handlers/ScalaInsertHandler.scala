@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 import scala.annotation.tailrec
@@ -108,7 +108,7 @@ class ScalaInsertHandler extends InsertHandler[LookupElement] {
             && elem.getParent.getParent.isInstanceOf[ScReferenceExpression] && item.getAllLookupStrings.size() > 1 =>
             val ref = elem.getParent.asInstanceOf[ScReferenceExpression]
             val newRefText = ref.getText
-            val newRef = ScalaPsiElementFactory.createExpressionFromText(newRefText, ref.getManager)
+            val newRef = createExpressionFromText(newRefText)(ref.getManager)
             ref.getParent.replace(newRef).getFirstChild
           case elem => elem
         }

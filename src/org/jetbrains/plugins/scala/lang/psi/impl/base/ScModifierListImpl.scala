@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 
 import scala.collection.mutable.ArrayBuffer
@@ -91,7 +92,7 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
   def hasExplicitModifier(name: String) = false
 
   def setModifierProperty(name: String, value: Boolean) {
-    def space = ScalaPsiElementFactory.createNewLineNode(getManager, " ")
+    def space = createNewLineNode(" ")
     checkSetModifierProperty(name, value)
     if (hasModifierProperty(name) == value) return
     def addAfter(node: ASTNode) {
@@ -124,13 +125,11 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
     }
     name match {
       case "override" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("override", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("override"))
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kOVERRIDE).getNode)
       case "private" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("private", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("private"))
       }
         else {
         for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isPrivate) {
@@ -139,8 +138,7 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
         }
       }
       case "protected" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("protected", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("protected"))
       }
         else {
         for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isProtected) {
@@ -149,33 +147,27 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
         }
       }
       case "final" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("final", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("final"))
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kFINAL).getNode)
       case "implicit" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("implicit", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("implicit"))
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kIMPLICIT).getNode)
       case "abstract" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("abstract", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("abstract"))
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kABSTRACT).getNode)
       case "sealed" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("sealed", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("sealed"))
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kSEALED).getNode)
       case "lazy" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("lazy", getManager)
-        addBefore(node)
+        addBefore(createModifierFromText("lazy"))
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kLAZY).getNode)
       case "case" => if (value) {
-        val node = ScalaPsiElementFactory.createModifierFromText("case", getManager)
-        addAfter(node)
+        addAfter(createModifierFromText("case"))
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kCASE).getNode)
       case _ =>

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
@@ -58,7 +58,7 @@ object SimplifyBooleanUtil {
 
   def simplify(expr: ScExpression, isTopLevel: Boolean = true): ScExpression = {
     if (canBeSimplified(expr, isTopLevel) && booleanConst(expr).isEmpty) {
-      val exprCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(expr.getText, expr.getContext, expr)
+      val exprCopy = createExpressionWithContextFromText(expr.getText, expr.getContext, expr)
       val children = getScExprChildren(exprCopy)
       children.foreach(child => exprCopy.getNode.replaceChild(child.getNode, simplify(child, isTopLevel = false).getNode))
       simplifyTrivially(exprCopy)
@@ -100,7 +100,7 @@ object SimplifyBooleanUtil {
       else {
         booleanConst(operand) match {
           case Some(bool: Boolean) =>
-            ScalaPsiElementFactory.createExpressionFromText((!bool).toString, expr.getManager)
+            createExpressionFromText((!bool).toString)(expr.getManager)
           case None => expr
         }
       }
@@ -120,7 +120,7 @@ object SimplifyBooleanUtil {
   }
 
   private def simplifyInfixWithLiteral(value: Boolean, operation: String, expr: ScExpression): ScExpression = {
-    val manager = expr.getManager
+    implicit val manager = expr.getManager
     val text: String = booleanConst(expr) match {
       case Some(bool: Boolean) =>
         val result: Boolean = operation match {
@@ -133,7 +133,7 @@ object SimplifyBooleanUtil {
       case _ => (value, operation) match {
         case (true, "==") | (false, "!=") | (false, "^") | (true, "&&") | (true, "&") | (false, "||") | (false, "|")  => expr.getText
         case (false, "==") | (true, "!=") | (true, "^") =>
-          val negated: ScPrefixExpr = ScalaPsiElementFactory.createExpressionFromText("!a", manager).asInstanceOf[ScPrefixExpr]
+          val negated: ScPrefixExpr = createExpressionFromText("!a").asInstanceOf[ScPrefixExpr]
           val copyExpr = expr.copy.asInstanceOf[ScExpression]
           negated.operand.replaceExpression(copyExpr, removeParenthesis = true)
           negated.getText
@@ -144,7 +144,6 @@ object SimplifyBooleanUtil {
         case _ => throw new IllegalArgumentException("Wrong operation")
       }
     }
-    ScalaPsiElementFactory.createExpressionFromText(text, manager)
-
+    createExpressionFromText(text)
   }
 }

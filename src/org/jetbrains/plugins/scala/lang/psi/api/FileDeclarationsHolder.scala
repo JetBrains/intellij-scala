@@ -51,12 +51,12 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
 
     if (ScalaPsiUtil.kindProjectorPluginEnabled(place)) {
-      val manager = place.getManager
-      processor.execute(new ScSyntheticClass(manager, "Lambda", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "λ", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "?", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "+?", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "-?", Any), state)
+      implicit val manager = place.getManager
+      processor.execute(new ScSyntheticClass("Lambda", Any), state)
+      processor.execute(new ScSyntheticClass("λ", Any), state)
+      processor.execute(new ScSyntheticClass("?", Any), state)
+      processor.execute(new ScSyntheticClass("+?", Any), state)
+      processor.execute(new ScSyntheticClass("-?", Any), state)
     }
 
     val scope = place.getResolveScope

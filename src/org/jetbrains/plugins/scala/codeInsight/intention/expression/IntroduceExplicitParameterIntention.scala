@@ -20,8 +20,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
@@ -78,6 +77,8 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       macros.add(m.getName)
     }
 
+    implicit val manager = element.getManager
+
     for (u <- underscores) {
       if (needComma) buf.append(",")
       if (underscores.size > 1) needComma = true
@@ -123,7 +124,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
         case _ =>
       }
 
-      val newParam = ScalaPsiElementFactory.createParameterFromText(un, element.getManager)
+      val newParam = createParameterFromText(un)
       underscoreToParam.put(u, newParam)
     }
 
@@ -142,7 +143,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     val diff = buf.length
     buf.append(expr.getText)
 
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(buf.toString(), element.getManager)
+    val newExpr = createExpressionFromText(buf.toString())
 
     inWriteAction {
       val document = editor.getDocument

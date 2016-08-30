@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, IntentionUtils}
 
 /**
@@ -96,19 +96,17 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
       forB = argsBuilder.toString().drop(1).dropRight(1)
     }
 
-    val exprA : ScExpression = ScalaPsiElementFactory.createExpressionFromText(forA, element.getManager)
-    val exprB : ScExpression = ScalaPsiElementFactory.createExpressionFromText(forB, element.getManager)
-
     val expr = putArgsFirst match {
       case true => argsBuilder.append(" ").append(invokedExprBuilder)
       case false =>  invokedExprBuilder.append(" ").append(argsBuilder)
     }
-
     val text = expr.toString()
-    ScalaPsiElementFactory.createExpressionFromText(text, element.getManager) match {
+
+    implicit val manager = element.getManager
+    createExpressionFromText(text) match {
       case infixExpr: ScInfixExpr =>
-        infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(exprA, removeParenthesis = true)
-        infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(exprB, removeParenthesis = true)
+        infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(createExpressionFromText(forA), removeParenthesis = true)
+        infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(createExpressionFromText(forB), removeParenthesis = true)
 
         val size = infixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
           infixExpr.getTextRange.getStartOffset

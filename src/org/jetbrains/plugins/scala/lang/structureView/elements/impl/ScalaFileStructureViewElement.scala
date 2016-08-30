@@ -11,11 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
-import _root_.scala.collection.mutable._
-import scala.collection.mutable
+import scala.collection._
 
 /**
 * @author Alexander Podkhalyuzin
@@ -28,14 +27,14 @@ class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaL
   }
 
   def getChildren: Array[TreeElement] = {
-    val children = new ArrayBuffer[ScalaStructureViewElement[_]]
+    val children = new mutable.ArrayBuffer[ScalaStructureViewElement[_]]
     for (child <- findRightFile().getChildren) {
       child match {
         case td: ScTypeDefinition =>
           children += new ScalaTypeDefinitionStructureViewElement(td)
         case packaging: ScPackaging =>
           def getChildren(pack: ScPackaging): Array[ScalaStructureViewElement[_]] = {
-            val children = new ArrayBuffer[ScalaStructureViewElement[_]]
+            val children = new mutable.ArrayBuffer[ScalaStructureViewElement[_]]
             for (td <- pack.immediateTypeDefinitions) {
               children += new ScalaTypeDefinitionStructureViewElement(td)
             }
@@ -62,15 +61,9 @@ class ScalaFileStructureViewElement(file: ScalaFile, private val console: ScalaL
     children.toArray
   }
 
-  private def findRightFile(): ScalaFile =  {
-    if (console != null) {
-      val buffer = new mutable.StringBuilder
-      buffer.append(console.getHistory)
-      buffer.append(file.getText)
-      val newFile = ScalaPsiElementFactory.createScalaFile(buffer.toString(), file.getManager)
-      newFile
-    } else {
-      file
-    }
-  }
+  private def findRightFile(): ScalaFile = Option(console).map {
+    _.getHistory
+  }.map { history =>
+    createScalaFileFromText(s"$history${file.getText}")(file.getManager)
+  }.getOrElse(file)
 }

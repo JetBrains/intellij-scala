@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -397,16 +397,16 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
             }
         }
         if (ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+          body.getNode.addChild(createNewLineNode(), before)
         body.getNode.addChild(member.getNode, before)
         if (!ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
+          body.getNode.addChild(createNewLineNode(), before)
         else
-          body.getNode.replaceChild(before, ScalaPsiElementFactory.createNewLineNode(member.getManager))
+          body.getNode.replaceChild(before, createNewLineNode())
       case None =>
         val eBlockNode: ASTNode = extendsBlock.getNode
-        eBlockNode.addChild(ScalaPsiElementFactory.createWhitespace(member.getManager).getNode)
-        eBlockNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
+        eBlockNode.addChild(createWhitespace.getNode)
+        eBlockNode.addChild(createBodyFromMember(member).getNode)
         return members(0)
     }
     member

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStab
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
@@ -46,20 +46,22 @@ object ImportMembersUtil {
 
   @tailrec
   def replaceWithName(oldRef: ScReferenceElement, name: String): ScReferenceElement = {
+    implicit val manager = oldRef.getManager
+
     oldRef match {
       case _ childOf (inf @ ScInfixExpr(_: ScReferenceExpression, `oldRef`, _)) =>
-        val call = ScalaPsiElementFactory.createEquivMethodCall(inf)
+        val call = createEquivMethodCall(inf)
         val replacedCall = inf.replace(call).asInstanceOf[ScMethodCall]
         val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
         replaceWithName(ref, name)
       case _ childOf (postfix @ ScPostfixExpr(qual: ScReferenceExpression, `oldRef`)) =>
-        val withDot = postfix.replace(ScalaPsiElementFactory.createExpressionFromText(s"${qual.getText}.$name", oldRef.getManager))
+        val withDot = postfix.replace(createExpressionFromText(s"${qual.getText}.$name"))
                 .asInstanceOf[ScReferenceExpression]
         replaceWithName(withDot, name)
       case _: ScReferenceExpression =>
-        oldRef.replace(ScalaPsiElementFactory.createExpressionFromText(name, oldRef.getManager)).asInstanceOf[ScReferenceElement]
+        oldRef.replace(createExpressionFromText(name)).asInstanceOf[ScReferenceElement]
       case _: ScStableCodeReferenceElement =>
-        oldRef.replace(ScalaPsiElementFactory.createReferenceFromText(name, oldRef.getManager)).asInstanceOf[ScReferenceElement]
+        oldRef.replace(createReferenceFromText(name)).asInstanceOf[ScReferenceElement]
       case _ => null
     }
   }
@@ -74,14 +76,15 @@ object ImportMembersUtil {
           case _ =>
         }
       case _ =>
+        implicit val manager = oldRef.getManager
         oldRef match {
           case _ childOf (inf @ ScInfixExpr(_: ScReferenceExpression, `oldRef`, _)) =>
-            val call = ScalaPsiElementFactory.createEquivMethodCall(inf)
+            val call = createEquivMethodCall(inf)
             val replacedCall = inf.replaceExpression(call, removeParenthesis = true).asInstanceOf[ScMethodCall]
             val ref = replacedCall.getInvokedExpr.asInstanceOf[ScReferenceExpression]
             replaceAndBind(ref, name, toBind)
           case _ childOf (postfix @ ScPostfixExpr(_: ScReferenceExpression, `oldRef`)) =>
-            val refExpr = ScalaPsiElementFactory.createEquivQualifiedReference(postfix)
+            val refExpr = createEquivQualifiedReference(postfix)
             val withDot = postfix.replaceExpression(refExpr, removeParenthesis = true).asInstanceOf[ScReferenceExpression]
             replaceAndBind(withDot, name, toBind)
           case expr: ScReferenceExpression =>
@@ -89,11 +92,11 @@ object ImportMembersUtil {
               case m: PsiMember => Option(m.getContainingClass)
               case _ => None
             }
-            val refExpr = ScalaPsiElementFactory.createExpressionFromText(name, oldRef.getManager)
+            val refExpr = createExpressionFromText(name)
             val replaced = expr.replaceExpression(refExpr, removeParenthesis = true)
             replaced.asInstanceOf[ScReferenceExpression].bindToElement(toBind, clazz)
           case _: ScStableCodeReferenceElement =>
-            val replaced = oldRef.replace(ScalaPsiElementFactory.createReferenceFromText(name, oldRef.getManager))
+            val replaced = oldRef.replace(createReferenceFromText(name))
             replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
           case _ =>
         }

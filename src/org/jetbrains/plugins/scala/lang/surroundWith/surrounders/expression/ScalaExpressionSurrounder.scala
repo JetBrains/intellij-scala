@@ -17,11 +17,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /*
  * Surrounds an expression and return an expression
@@ -81,11 +82,8 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
     getSurroundSelectionRange(newNode)
   }
 
-  def surroundPsi(elements: Array[PsiElement]): ScExpression = ScalaPsiElementFactory.createExpressionFromText(
-    if (needParenthesis(elements)) "(" + getTemplateAsString(elements) + ")"
-    else getTemplateAsString(elements),
-    elements(0).getManager
-  )
+  def surroundPsi(elements: Array[PsiElement]): ScExpression =
+    createExpressionFromText(getTemplateAsString(elements).parenthesize(needParenthesis(elements)))(elements(0).getManager)
 
   def getTemplateAsString(elements: Array[PsiElement]): String = {
     var s: String = ""

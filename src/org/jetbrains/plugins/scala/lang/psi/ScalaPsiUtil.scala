@@ -39,9 +39,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageCon
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
@@ -429,12 +430,13 @@ object ScalaPsiUtil {
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
       else if (isUpdate) "update"
       else "apply"
+
+    implicit val manager = call.getManager
     val args: Seq[ScExpression] = call.argumentExpressions ++ (
             if (isUpdate) call.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
               case Some(x) => Seq[ScExpression](x)
               case None =>
-                Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
-                  call.getManager)) //we can't to not add something => add Nothing expression
+                Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}")) //we can't to not add something => add Nothing expression
             }
             else Seq.empty)
     val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = call.getEffectiveInvokedExpr match {
@@ -454,7 +456,7 @@ object ScalaPsiUtil {
       case ScTypePolymorphicType(_, tps) => tps
       case _ => Seq.empty
     }.getOrElse(Seq.empty)
-    val emptyStringExpression = ScalaPsiElementFactory.createExpressionFromText("\"\"", call.getManager)
+    val emptyStringExpression = createExpressionFromText("\"\"")
     val processor = new MethodResolveProcessor(expr, methodName, if (!isDynamic) args :: Nil
       else List(List(emptyStringExpression), args), typeArgs, typeParams,
       isShapeResolve = isShape, enableTupling = true, isDynamic = isDynamic)
@@ -1445,7 +1447,7 @@ object ScalaPsiUtil {
             val endInParent: Int = startInParent + from.getTextLength
             val parentText = parent.getText
             val modifiedParentText = parentText.substring(0, startInParent) + from.getText + parentText.substring(endInParent)
-            val modifiedParent = ScalaPsiElementFactory.createExpressionFromText(modifiedParentText, parent.getContext)
+            val modifiedParent = createExpressionFromText(modifiedParentText, parent.getContext)
             modifiedParent match {
               case ScInfixExpr(_, newOper, _: ScTuple) =>
                 newOper.bind() match {
@@ -1465,7 +1467,7 @@ object ScalaPsiUtil {
         expr.getParent match {
           case ScParenthesisedExpr(_) =>
             val text = expr.getText
-            val dummyFile = ScalaPsiElementFactory.createScalaFile(text, expr.getManager)
+            val dummyFile = createScalaFileFromText(text)(expr.getManager)
             dummyFile.firstChild match {
               case Some(newExpr: ScExpression) => newExpr.getText != text
               case _ => true
@@ -1732,8 +1734,8 @@ object ScalaPsiUtil {
 
     val result = maybeText.map {
       def createClause =
-        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext _
-        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext _
+        if (classParam) createImplicitClassParamClauseFromTextWithContext _
+        else createImplicitClauseFromTextWithContext _
       createClause(_, element.getManager, paramClauses)
     }
 
@@ -1797,7 +1799,7 @@ object ScalaPsiUtil {
 
     def correctResolve(alias: (ScReferenceElement, String)): Boolean = {
       val (aliasRef, text) = alias
-      val ref = ScalaPsiElementFactory.createReferenceFromText(text, position.getContext, position)
+      val ref = createReferenceFromText(text, position.getContext, position)
       val resolves = aliasRef.multiResolve(false)
       resolves.exists {
         case rr: ScalaResolveResult => ref.isReferenceTo(rr.element)
@@ -1814,7 +1816,7 @@ object ScalaPsiUtil {
         if aliasRef.multiResolve(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
     }
     if (suitableAliases.nonEmpty) {
-      val newRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(suitableAliases.head, refPosition.getManager)
+      val newRef: ScStableCodeReferenceElement = createReferenceFromText(suitableAliases.head)(refPosition.getManager)
       Some(newRef)
     } else None
   }
@@ -1835,10 +1837,10 @@ object ScalaPsiUtil {
         parent <- element.parent
       } {
         if (!prevElement.isInstanceOf[PsiWhiteSpace]) {
-          parent.addBefore(ScalaPsiElementFactory.createWhitespace(element.getManager), element)
+          parent.addBefore(createWhitespace(element.getManager), element)
         }
         if (!nextElement.isInstanceOf[PsiWhiteSpace]) {
-          parent.addAfter(ScalaPsiElementFactory.createWhitespace(element.getManager), element)
+          parent.addAfter(createWhitespace(element.getManager), element)
         }
       }
   }
@@ -1881,7 +1883,7 @@ object ScalaPsiUtil {
     }
 
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
-    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(element.getManager).getPsi
+    def newLine: PsiElement = createNewLineNode()(element.getManager).getPsi
 
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)
@@ -1906,13 +1908,13 @@ object ScalaPsiUtil {
   }
 
   def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
-    val manager = member.getManager
+    implicit val manager = member.getManager
     val modifierList = member.getModifierList
     if (newVisibility == "" || newVisibility == "public") {
       modifierList.accessModifier.foreach(_.delete())
       return
     }
-    val newElem = ScalaPsiElementFactory.createModifierFromText(newVisibility, manager).getPsi
+    val newElem = createModifierFromText(newVisibility).getPsi
     modifierList.accessModifier match {
       case Some(mod) => mod.replace(newElem)
       case None =>
@@ -1921,7 +1923,7 @@ object ScalaPsiUtil {
         } else {
           val mod = modifierList.getFirstChild
           modifierList.addBefore(newElem, mod)
-          modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), mod)
+          modifierList.addBefore(createWhitespace(manager), mod)
         }
     }
   }
@@ -2125,8 +2127,8 @@ object ScalaPsiUtil {
   }
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
-    val manager = element.getManager
-    val block = ScalaPsiElementFactory.parseElement("(_)", manager)
+    implicit val manager = element.getManager
+    val block = createElementFromText("(_)")
 
     for (lBrace <- Option(element.findFirstChildByType(ScalaTokenTypes.tLBRACE))) {
       lBrace.replace(block.getFirstChild)

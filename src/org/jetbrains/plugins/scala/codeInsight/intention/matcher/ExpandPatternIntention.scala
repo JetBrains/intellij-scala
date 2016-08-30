@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScReferencePattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -41,7 +41,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
         PsiDocumentManager.getInstance(project).commitAllDocuments()
         if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
         IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-        val newPattern = ScalaPsiElementFactory.createPatternFromText(newPatternText, element.getManager)
+        val newPattern = createPatternFromText(newPatternText)(element.getManager)
         val replaced = origPattern.replace(newPattern)
         ScalaPsiUtil.adjustTypes(replaced)
       case None =>

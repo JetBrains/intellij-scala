@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -30,7 +30,7 @@ class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
     val block = element.getParent.asInstanceOf[ScBlockExpr]
     val s = block.getText
     val text = "foo(%s)".format(s.substring(1, s.length - 1).replaceAll("\n", ""))
-    val arguments = ScalaPsiElementFactory.createExpressionFromText(text, block.getManager)
+    val arguments = createExpressionFromText(text)(block.getManager)
             .children.findByType(classOf[ScArgumentExprList]).get
     val replacement = block.getParent.replace(arguments)
     replacement.getPrevSibling match {

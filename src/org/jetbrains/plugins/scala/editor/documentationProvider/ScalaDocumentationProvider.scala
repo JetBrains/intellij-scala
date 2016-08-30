@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType}
@@ -885,8 +885,8 @@ object ScalaDocumentationProvider {
     })
 
     val (commentBody, tagsPart) = getWikiTextRepresentation(macroFinder)(comment)
-    val scalaComment = ScalaPsiElementFactory.createScalaFile(commentBody.append("<br/>\n").
-      append(tagsPart).toString() + " class a {}", comment.getManager).typeDefinitions.head.getDocComment
+    val text = commentBody.append("<br/>\n").append(tagsPart).append(" class a {}").toString()
+    val scalaComment = createScalaFileFromText(text)(comment.getManager).typeDefinitions.head.getDocComment
 
     scalaComment
   }

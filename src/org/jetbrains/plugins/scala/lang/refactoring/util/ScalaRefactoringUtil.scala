@@ -3,12 +3,12 @@ package lang
 package refactoring
 package util
 
-import _root_.java.awt.Component
-import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import java.awt.Component
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import java.util
 
-import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
-import _root_.com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
+import com.intellij.codeInsight.unwrap.ScopeHighlighter
+import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.openapi.actionSystem.DataContext
@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType, TypeSystem}
@@ -92,10 +92,11 @@ object ScalaRefactoringUtil {
       if (text(i) == '\n') hasNlToken = true
       i = i - 1
     }
-    if (hasNlToken) e = ScalaPsiElementFactory.createExpressionFromText(text.substring(0, i + 1), e.getManager)
+
+    implicit val manager = e.getManager
+    if (hasNlToken) e = createExpressionFromText(text.substring(0, i + 1))
     e.getParent match {
-      case x: ScMethodCall if x.args.exprs.nonEmpty =>
-        ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
+      case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")
       case _ => e
     }
   }
@@ -147,7 +148,7 @@ object ScalaRefactoringUtil {
         }
       case _ =>
     }
-    ownersArray.toSeq
+    ownersArray
   }
 
   def getTypeAliasOwnersList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
@@ -191,7 +192,7 @@ object ScalaRefactoringUtil {
     val rangeText = file.getText.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {
-      val expr = ScalaPsiElementFactory.createOptionExpressionFromText(rangeText, file.getManager)
+      val expr = createOptionExpressionFromText(rangeText, file.getManager)
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
@@ -240,7 +241,7 @@ object ScalaRefactoringUtil {
       val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
 
       val text = s"$prefix$quote$rangeText$quote"
-      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, lit.getContext, lit).asInstanceOf[ScLiteral]
+      val expr = createExpressionWithContextFromText(text, lit.getContext, lit).asInstanceOf[ScLiteral]
       val tpe = expr.getNonValueType().getOrAny
       Some(expr, Array(tpe))
     }
@@ -271,7 +272,7 @@ object ScalaRefactoringUtil {
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
-    def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expr.getText + " _", expr.getManager)
+    def liftMethod = createExpressionFromText(expr.getText + " _")(expr.getManager)
     expr match {
       case ref: ScReferenceExpression =>
         ref.resolve() match {
@@ -1011,8 +1012,7 @@ object ScalaRefactoringUtil {
           case ScPostfixExpr(_, `ref`) =>
           case ScPrefixExpr(`ref`, _) =>
           case _ =>
-            val newRef = ScalaPsiElementFactory.createExpressionFromText(ref.getText, position)
-              .asInstanceOf[ScReferenceExpression]
+            val newRef = createExpressionFromText(ref.getText, position).asInstanceOf[ScReferenceExpression]
             result &= ref.resolve() == newRef.resolve()
         }
         super.visitReferenceExpression(ref)

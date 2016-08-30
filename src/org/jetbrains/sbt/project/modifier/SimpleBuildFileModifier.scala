@@ -1,12 +1,12 @@
 package org.jetbrains.sbt.project.modifier
 
-import com.intellij.openapi.module.{Module => IJModule}
-import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
-import com.intellij.psi.{PsiFile, PsiManager, PsiElement}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.project.{Project => IJProject}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.sbt.project.modifier.location._
 
 import scala.collection.mutable
@@ -26,7 +26,7 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String], val resolvers: S
    * Performs some specific modification(s) of sbt build file(s) (library dependencies, resolvers, sbt options, etc.)
    * @param module - module within IJ project to modify build file(s) for
    */
-  override protected def modifyInner(module: IJModule, fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[List[VirtualFile]] = {
+  override protected def modifyInner(module: Module, fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[List[VirtualFile]] = {
     val empty: Option[List[VirtualFile]] = Some(List())
     requiredElementTypes.foldLeft(empty)((acc, nextType) =>
       acc match{
@@ -35,8 +35,8 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String], val resolvers: S
       })
   }
 
-  protected def addElements(module: IJModule, elementType: BuildFileElementType,
-                          fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[VirtualFile] = {
+  protected def addElements(module: Module, elementType: BuildFileElementType,
+                            fileToWorkingCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[VirtualFile] = {
     val locationProvidersStream = buildFileLocationProviders.toStream
     //TODO: rewrite this?
     buildFileProviders.map(fileProvider =>
@@ -44,12 +44,12 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String], val resolvers: S
       locationProvidersStream.map(locationProvider => buildPsiElement(module.getProject,
         Option(if (buildFileEntry.isModuleLocal) null else module.getName), elementType).map(
             SimpleBuildFileModifier.addElementsToBuildFile(module, locationProvider,elementType, buildFileEntry.file,
-          SimpleBuildFileModifier.newLine(module.getProject), _)
+              createNewLine()(PsiManager.getInstance(module.getProject)), _)
         )).find(_.isDefined).flatten
       )).map(opt => opt.flatten.flatten).find(_.isDefined).flatten
   }
 
-  protected def buildPsiElement(project: IJProject, inName: Option[String], elementType: BuildFileElementType): Option[PsiElement] = {
+  protected def buildPsiElement(project: Project, inName: Option[String], elementType: BuildFileElementType): Option[PsiElement] = {
     elementType match {
       case BuildFileElementType.libraryDependencyElementId =>
         SimpleBuildFileModifier.buildLibraryDependenciesPsi(project, inName, libDependencies)
@@ -73,28 +73,27 @@ class SimpleBuildFileModifier(val libDependencies: Seq[String], val resolvers: S
 
 object SimpleBuildFileModifier {
 
-  def newLine(project: IJProject): PsiElement = ScalaPsiElementFactory.createNewLine(PsiManager.getInstance(project))
-
   def createSeqString(normalIndent: String, seq: Seq[String]): String =
     "Seq(\n" + seq.tail.fold(normalIndent + seq.head)(_ + ",\n" + normalIndent + _) + "\n)"
 
-  def createSeqPsiExpr(project: IJProject, inName: Option[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
-    if (seq.isEmpty) None else Some(ScalaPsiElementFactory.createExpressionFromText(prefix + inName.map(" in " + _).getOrElse("") + " ++= " +
-      createSeqString(FormatterUtil.getNormalIndentString(project), seq), PsiManager.getInstance(project)))
+  def createSeqPsiExpr(project: Project, inName: Option[String], prefix: String, seq: Seq[String]): Option[PsiElement] =
+    if (seq.isEmpty) None
+    else Some(createExpressionFromText(prefix + inName.map(" in " + _).getOrElse("") + " ++= " +
+      createSeqString(FormatterUtil.getNormalIndentString(project), seq))(PsiManager.getInstance(project)))
 
-  def buildLibraryDependenciesPsi(project: IJProject, inName: Option[String], dependencies: Seq[String]): Option[PsiElement] =
+  def buildLibraryDependenciesPsi(project: Project, inName: Option[String], dependencies: Seq[String]): Option[PsiElement] =
     createSeqPsiExpr(project, inName, "libraryDependencies", dependencies)
 
-  def buildResolversPsi(project: IJProject, inName: Option[String], resolvers: Seq[String]): Option[PsiElement] =
+  def buildResolversPsi(project: Project, inName: Option[String], resolvers: Seq[String]): Option[PsiElement] =
     createSeqPsiExpr(project, inName, "resolvers", resolvers)
 
-  def buildScalacOptionsPsi(project: IJProject, inName: Option[String], options: Seq[String]): Option[PsiElement] =
+  def buildScalacOptionsPsi(project: Project, inName: Option[String], options: Seq[String]): Option[PsiElement] =
     createSeqPsiExpr(project, inName, "scalacOptions", options)
 
   val supportedElementTypes: List[BuildFileElementType] = List(BuildFileElementType.libraryDependencyElementId,
     BuildFileElementType.resolverElementId, BuildFileElementType.scalacOptionsElementId)
 
-  def addElementsToBuildFile(module: IJModule, locationProvider: BuildFileModificationLocationProvider,
+  def addElementsToBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
                              elementType: BuildFileElementType, buildFile: PsiFile, psiElements: PsiElement*): Option[VirtualFile] = {
     locationProvider.getAddElementLocation(module, elementType, buildFile) match {
       case Some((parent, index)) if (index == 0) || parent.getChildren.size >= index =>
@@ -117,12 +116,12 @@ object SimpleBuildFileModifier {
     }
   }
 
-  def addElementToBuildFile(module: IJModule, locationProvider: BuildFileModificationLocationProvider,
+  def addElementToBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
                             elementType: BuildFileElementType, buildFile: PsiFile, psiElement: PsiElement): Option[VirtualFile] = {
     addElementsToBuildFile(module, locationProvider, elementType, buildFile, psiElement)
   }
 
-  def removeElementFromBuildFile(module: IJModule, locationProvider: BuildFileModificationLocationProvider,
+  def removeElementFromBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
                                  buildFile: PsiFile, elementType: BuildFileElementType, elementCondition: PsiElement => Boolean): Option[PsiFile] = {
     locationProvider.getModifyOrRemoveElement(module, elementType, elementCondition, buildFile) match {
       case Some(element) =>
@@ -133,7 +132,7 @@ object SimpleBuildFileModifier {
     }
   }
 
-  def modifyElementInBuildFile(module: IJModule, locationProvider: BuildFileModificationLocationProvider,
+  def modifyElementInBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
                                elementType: BuildFileElementType, buildFile: PsiFile,
                                elementCondition: PsiElement => Boolean, modifyFunction: PsiElement => PsiElement): Option[PsiFile] = {
     locationProvider.getModifyOrRemoveElement(module, elementType, elementCondition, buildFile) match {

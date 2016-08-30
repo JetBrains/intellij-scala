@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 
 /**
@@ -32,7 +33,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDefiniti
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null =>
       val name = getStub.asInstanceOf[ScTypeAliasStub].getName
-      val id = ScalaPsiElementFactory.createIdentifier(name, getManager)
+      val id = createIdentifier(name)
       if (id == null) {
         assert(assertion = false, s"Id is null. Name: $name. Text: $getText. Parent text: ${getParent.getText}.")
       }
