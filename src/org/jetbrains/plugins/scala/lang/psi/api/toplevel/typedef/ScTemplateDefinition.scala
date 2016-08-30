@@ -406,7 +406,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
       case None =>
         val eBlockNode: ASTNode = extendsBlock.getNode
         eBlockNode.addChild(createWhitespace.getNode)
-        eBlockNode.addChild(createBodyFromMember(member.getText).getNode)
+        eBlockNode.addChild(createBodyFromMember(member).getNode)
         return members(0)
     }
     member

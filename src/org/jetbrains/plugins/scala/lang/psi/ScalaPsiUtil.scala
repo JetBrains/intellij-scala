@@ -1734,8 +1734,8 @@ object ScalaPsiUtil {
 
     val result = maybeText.map {
       def createClause =
-        if (classParam) (clauseText: String, manager: PsiManager, context: PsiElement) => createImplicitClassParamClauseFromTextWithContext(clauseText, context)
-        else (clauseText: String, manager: PsiManager, context: PsiElement) => createImplicitClauseFromTextWithContext(clauseText, context)
+        if (classParam) createImplicitClassParamClauseFromTextWithContext _
+        else createImplicitClauseFromTextWithContext _
       createClause(_, element.getManager, paramClauses)
     }
 
@@ -1883,7 +1883,7 @@ object ScalaPsiUtil {
     }
 
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
-    def newLine: PsiElement = createNewLine()(element.getManager)
+    def newLine: PsiElement = createNewLineNode()(element.getManager).getPsi
 
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)
@@ -1914,7 +1914,7 @@ object ScalaPsiUtil {
       modifierList.accessModifier.foreach(_.delete())
       return
     }
-    val newElem = createModifierFromText(newVisibility)
+    val newElem = createModifierFromText(newVisibility).getPsi
     modifierList.accessModifier match {
       case Some(mod) => mod.replace(newElem)
       case None =>

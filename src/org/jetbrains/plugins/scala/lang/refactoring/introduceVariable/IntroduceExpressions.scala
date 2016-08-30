@@ -280,9 +280,9 @@ trait IntroduceExpressions {
         } else {
           if (sibling.getText.indexOf('\n') != -1) needSemicolon = false
           result = parent.addBefore(created, elem).asInstanceOf[ScEnumerator]
-          parent.addBefore(createNewLine()(elem.getManager), elem)
+          parent.addBefore(createNewLineNode()(elem.getManager).getPsi, elem)
           if (needSemicolon) {
-            parent.addBefore(createNewLine(), result)
+            parent.addBefore(createNewLineNode().getPsi, result)
           }
         }
       }
