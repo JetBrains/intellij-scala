@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeSystem,
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
-import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.Set
 
 /**
  * User: Alexander Podkhalyuzin
@@ -52,14 +52,31 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
 
   def nextLayerSpecificForImplicitParameters(filterRest: Option[ScalaResolveResult],
                                              rest: Seq[ScalaResolveResult]): (Option[ScalaResolveResult], Seq[ScalaResolveResult]) = {
-    def update(r: ScalaResolveResult): InnerScalaResolveResult[ScalaResolveResult] = {
-      r.innerResolveResult match {
-        case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
-        case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
-      }
-    }
-    val (next, r) = nextLayerSpecificGeneric(filterRest.map(update), rest.map(update))
+    val (next, r) = nextLayerSpecificGeneric(filterRest.map(toInnerSRR), rest.map(toInnerSRR))
     (next.map(_.repr), r.map(_.repr))
+  }
+
+  private def toInnerSRR(r: ScalaResolveResult): InnerScalaResolveResult[ScalaResolveResult] = {
+    r.innerResolveResult match {
+      case Some(rr) => new InnerScalaResolveResult(rr.element, rr.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
+      case None => new InnerScalaResolveResult(r.element, r.implicitConversionClass, r, ScSubstitutor.empty, implicitCase = true)
+    }
+  }
+
+  def nextMostSpecific(rest: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
+    nextMostSpecificGeneric(rest.map(toInnerSRR)).map(_.repr)
+  }
+
+  def notMoreSpecificThan(result: ScalaResolveResult): (ScalaResolveResult) => Boolean = {
+    val inner = toInnerSRR(result)
+
+    cand => !isMoreSpecific(inner, toInnerSRR(cand), checkImplicits = false)
+  }
+
+  def filterLessSpecific(result: ScalaResolveResult, rest: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
+    val inners = rest.map(toInnerSRR)
+    val innerResult = toInnerSRR(result)
+    inners.filter(!isMoreSpecific(innerResult, _, checkImplicits = false)).map(_.repr)
   }
 
   def mostSpecificForImplicit(applicable: Set[ImplicitResolveResult]): Option[ImplicitResolveResult] = {
@@ -109,10 +126,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
+                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
+                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
@@ -127,10 +144,10 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
+                      ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
+                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
                 Right(ScExistentialType(s.subst(internal), arguments))
               }
             case _ => Right(tp)
@@ -312,6 +329,21 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
       } else out += res
     }
     (Some(found), out)
+  }
+
+  private def nextMostSpecificGeneric[T](rest: Set[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {
+    if (rest.isEmpty) return None
+    if (rest.size == 1) return Some(rest.head)
+
+    val iter = rest.iterator
+    var foundMax = iter.next
+
+    while (iter.hasNext) {
+      val res = iter.next()
+      if (isDerived(getClazz(res), getClazz(foundMax)))
+        foundMax = res
+    }
+    Some(foundMax)
   }
 
   //todo: implement existential dual

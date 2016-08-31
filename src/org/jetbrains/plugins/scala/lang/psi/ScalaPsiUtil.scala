@@ -319,8 +319,8 @@ object ScalaPsiUtil {
       if (exprType.equiv(Nothing)) return //do not proceed with nothing type, due to performance problems.
       val convertible = new ImplicitCollector(e,
         FunctionType(Any, Seq(exprType))(e.getProject, e.getResolveScope),
-        FunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
-          predicate = Some((rr, subst) => {
+        FunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true,
+          extensionPredicate = Some { case (rr, subst) => {
             ProgressManager.checkCanceled()
             specialExtractParameterType(rr) match {
               case (Some(FunctionType(tp, _)), _) =>
@@ -361,7 +361,8 @@ object ScalaPsiUtil {
                 } else None
               case _ => None
             }
-          }))
+          }
+          })
       implicitMap = convertible.collect()
     }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
