@@ -56,7 +56,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def methodType: ScType = {
     paramClauses.foldRight[ScType](retType) {
-      (params: Seq[Parameter], tp: ScType) => new ScMethodType(tp, params, false)(getProject, getResolveScope)
+      (params: Seq[Parameter], tp: ScType) => ScMethodType(tp, params, isImplicit = false)(getProject, getResolveScope)
     }
   }
 
@@ -222,9 +222,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (!hasParameterClause) return resultType
     val res = if (clauses.nonEmpty)
       clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-        new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
       }
-      else new ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
+      else ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
     res.asInstanceOf[ScMethodType]
   }
 
@@ -323,13 +323,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
       case -1 =>
-        parameters.find { case param =>
+        parameters.find { param =>
           ScalaNamesUtil.equivalent(param.name, name) ||
-              param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
+            param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
         }
       case i if i < 0 || i >= effectiveParameterClauses.length => None
       case _ =>
-        effectiveParameterClauses.apply(clausePosition).effectiveParameters.find { case param =>
+        effectiveParameterClauses.apply(clausePosition).effectiveParameters.find { param =>
           ScalaNamesUtil.equivalent(param.name, name) ||
             param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
         }
@@ -633,9 +633,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   //Why not to use default value? It's not working in Scala...
-  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType] = getTypeNoImplicits(ctx, returnType)
+  def getTypeNoImplicits: TypeResult[ScType] = getTypeNoImplicits(returnType)
 
-  def getTypeNoImplicits(ctx: TypingContext, rt: TypeResult[ScType]): TypeResult[ScType] = {
+  def getTypeNoImplicits(rt: TypeResult[ScType]): TypeResult[ScType] = {
     collectReverseParamTypesNoImplicits match {
       case Some(params) =>
         val project = getProject
