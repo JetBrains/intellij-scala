@@ -87,8 +87,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
 
               val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
-              val results = new ImplicitCollector(ScExpression.this, functionType, functionType, None,
-                isImplicitConversion = true, isExtensionConversion = false).collect()
+              val implicitCollector = new ImplicitCollector(ScExpression.this, functionType, functionType, None, isImplicitConversion = true)
+              val results = implicitCollector.collect()
               if (results.length == 1) {
                 val res = results.head
                 val paramType = InferUtil.extractImplicitParameterType(res)

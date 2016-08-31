@@ -58,8 +58,7 @@ object Compatibility {
         case Some(expected) =>
           val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
           val functionType = FunctionType(expected, Seq(typez))(place.getProject, place.getResolveScope)
-          val results = new ImplicitCollector(place, functionType, functionType, None,
-            isImplicitConversion = true, isExtensionConversion = false).collect()
+          val results = new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect()
           if (results.length == 1) {
             val res = results.head
             val paramType = InferUtil.extractImplicitParameterType(res)
