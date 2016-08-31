@@ -13,7 +13,7 @@ import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, Ext
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Pair
 import com.intellij.testFramework.IdeaTestUtil
@@ -101,18 +101,25 @@ object SbtExternalSystemManager {
   private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File = {
     val customVmFile = new File(settings.getCustomVMPath) / "bin" / "java"
     val customVmExecutable = settings.customVMEnabled.option(customVmFile)
+    val jdkType = JavaSdk.getInstance()
 
     customVmExecutable.orElse {
-      val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
-      projectSdk.map { sdk =>
-        sdk.getSdkType match {
-          case sdkType : JavaSdkType =>
-            new File(sdkType.getVMExecutablePath(sdk))
-          case _ =>
-            throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
+      projectJdkName
+        .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
+        .map { sdk =>
+          if (sdk.getSdkType == jdkType)
+            new File(jdkType.getVMExecutablePath(sdk))
+          else
+          throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
         }
-      }
-    } getOrElse {
+    }
+    .orElse {
+      Option(ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType))
+        .map { sdk =>
+          new File(jdkType.getVMExecutablePath(sdk))
+        }
+    }
+    .getOrElse {
       throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
     }
   }
