@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
@@ -51,10 +51,10 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
       LanguageLevel.JDK_1_6)
 
   def testInvalidSdk(): Unit =
-    doTestSdk(Some(data.JdkByName("20")), defaultJdk, LanguageLevel.JDK_1_7)
+    doTestSdk(Some(data.JdkByName("20")), defaultJdk, LanguageLevel.JDK_1_8)
 
   def testAbsentSdk(): Unit =
-    doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_7)
+    doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_8)
 
   def testJavacOptions(): Unit = {
     val options = Seq(
@@ -134,7 +134,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
   }
 
   private def defaultJdk: Sdk =
-    ProjectJdkTable.getInstance().getAllJdks.head
+    ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance())
 
   private def doTestSdk(sdk: Option[data.Sdk], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit =
     doTestSdk(sdk, Seq.empty, expectedSdk, expectedLanguageLevel)
