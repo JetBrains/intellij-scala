@@ -62,6 +62,8 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     mySimpleMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
 
     HyperlinkLabel link = new HyperlinkLabel("Configure type annotation inspection");
+    link.setVisible(Settings.KEY.getData(DataManager.getInstance().getDataContextFromFocus().getResultSync()) != null);
+
     link.addHyperlinkListener(new HyperlinkListener() {
       public void hyperlinkUpdate(final HyperlinkEvent e) {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {

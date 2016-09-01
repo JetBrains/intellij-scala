@@ -71,10 +71,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   }
   
   private def setUpTypePanel(): JPanel ={
-    soleSelectedElement.foreach{ element =>
-      mySpecifyTypeChb.setSelected(istypeNeeded(element))
-    }
-    
+    updateSpecifyTypeChb
     typePanel.add(mySpecifyTypeChb)
     
     val myLinkContainer = new JPanel
@@ -97,13 +94,8 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     link
   }
   
-  private def updateSpecifyTypeChb(): Unit ={
-    soleSelectedElement match {
-      case Some(psiElement) => mySpecifyTypeChb.setSelected(istypeNeeded(psiElement))
-      case None => mySpecifyTypeChb.setState(ThreeStateCheckBox.State.DONT_CARE)
-    }
-  }
-  
+  private def updateSpecifyTypeChb(): Unit = mySpecifyTypeChb.setState(computeCheckBoxState)
+    
   private def trackSelection(): Unit = {
     val selectionListener = new TreeSelectionListener {
       override def valueChanged(e: TreeSelectionEvent): Unit = {
@@ -119,20 +111,20 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     myTree.addTreeSelectionListener(selectionListener)
     listeners.foreach(myTree.addTreeSelectionListener)
   }
+    
+  private def computeCheckBoxState: ThreeStateCheckBox.State = {
+    import scala.collection.JavaConversions._
+    
+    val distintValues = mySelectedElements.iterator
+      .collect{case member: ClassMember => member}
+      .map(member => istypeNeeded(member.getElement))
+      .toList.distinct
   
-  private def soleSelectedElement: Option[PsiElement] = {
-    if (mySelectedElements.size() != 1) {
-      None
-    } else {
-      val iterator = mySelectedElements.iterator()
-      if (iterator.hasNext()) {
-        val next = iterator.next
-        if (next.isInstanceOf[ClassMember]) Some(next.getElement())
-        else None
-      } else None
+    distintValues.length match {
+      case 1 => if (distintValues.head) State.SELECTED else State.NOT_SELECTED
+      case _ => State.DONT_CARE
     }
   }
-  
   
   private def istypeNeeded(element: PsiElement): Boolean = {
     def defaults: (Int, Int, Int) =
