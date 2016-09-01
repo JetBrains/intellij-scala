@@ -29,7 +29,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   protected var taskListener: TaskListener = SilentTaskListener
 
-  def resolveProjectInfo(id: ExternalSystemTaskId,
+  override def resolveProjectInfo(id: ExternalSystemTaskId,
                          wrongProjectPathDontUseIt: String,
                          isPreview: Boolean,
                          settings: SbtExecutionSettings,
@@ -120,6 +120,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val i = javacOptions.indexOf("-target")
       if (i >= 0) Option(javacOptions(i+1)) else None
     }.map(JdkByVersion)
+
+    // default either from project structure or initial import settings
     val default = defaultJdk.map(JdkByName)
 
     androidSdk

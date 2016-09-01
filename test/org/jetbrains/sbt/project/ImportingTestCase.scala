@@ -3,15 +3,20 @@ package project
 
 import java.io.File
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
+import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
+import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.SbtStructureSetup
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
  * @author Nikolay Obedin
@@ -37,8 +42,12 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
 
   override protected def getTestsTempDir: String = "" // Use default temp directory
 
-  override protected def getCurrentExternalProjectSettings: ExternalProjectSettings =
-    new SbtProjectSettings
+  override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
+    val settings = new SbtProjectSettings
+    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+    settings.setJdk(internalSdk.getName)
+    settings
+  }
 
   override protected def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()

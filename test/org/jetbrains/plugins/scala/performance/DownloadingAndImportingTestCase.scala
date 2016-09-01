@@ -35,6 +35,10 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
+    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+    val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk18
+    else internalSdk
+    settings.setJdk(sdk.getName)
     settings.setCreateEmptyContentRootDirectories(true)
     settings
   }

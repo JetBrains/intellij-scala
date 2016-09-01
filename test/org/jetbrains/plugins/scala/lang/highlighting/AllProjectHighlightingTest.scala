@@ -10,8 +10,8 @@ import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
-import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
+import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, SlowTests, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.junit.experimental.categories.Category
 
 /**
@@ -40,6 +41,10 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+    val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
+    else internalSdk
+    val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
+    settings.setJdk(sdk.getName)
     settings.setCreateEmptyContentRootDirectories(true)
     settings
   }
