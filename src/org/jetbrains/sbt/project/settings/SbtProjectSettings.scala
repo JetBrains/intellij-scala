@@ -13,6 +13,14 @@ class SbtProjectSettings extends ExternalProjectSettings {
 
   super.setUseAutoImport(false)
 
+  def jdkName: Option[String] = Option(jdk)
+
+  def jdkName_=(name: Option[String]): Unit = jdk = name.orNull
+
+  @Nullable
+  @BeanProperty
+  var jdk: String = null
+
   @BeanProperty
   var resolveClassifiers: Boolean = true
 
@@ -32,6 +40,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
   override def clone(): SbtProjectSettings = {
     val result = new SbtProjectSettings()
     copyTo(result)
+    result.jdk = jdk
     result.resolveClassifiers = resolveClassifiers
     result.resolveJavadocs = resolveJavadocs
     result.resolveSbtClassifiers = resolveSbtClassifiers

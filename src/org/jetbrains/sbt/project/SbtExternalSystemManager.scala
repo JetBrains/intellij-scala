@@ -76,7 +76,7 @@ object SbtExternalSystemManager {
     val customSbtStructureFile = settings.customSbtStructurePath.nonEmpty.option(settings.customSbtStructurePath.toFile)
 
     val realProjectPath = Option(projectSettings.getExternalProjectPath).getOrElse(path)
-    val projectJdkName = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
+    val projectJdkName = bootstrapJdk(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settings)
     val vmOptions = getVmOptions(settings)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
@@ -84,6 +84,18 @@ object SbtExternalSystemManager {
     new SbtExecutionSettings(realProjectPath,
       vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers)
+  }
+
+  /** Choose a jdk for imports. This is then only used when no overriding information is available from sbt definition.
+    * SbtProjectResolver figures out that part
+    */
+  private def bootstrapJdk(project: Project, importSettings: SbtProjectSettings) = {
+    // either what was set in previous import, or default from Project Structure defaults
+    val jdkInProject = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
+    // setting used *only* for initial import
+    val jdkInImportSettings = importSettings.jdkName
+    // use setting from initial import only when there is no other information
+    jdkInProject.orElse(jdkInImportSettings)
   }
 
   private def getVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File =
