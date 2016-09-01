@@ -30,11 +30,11 @@ class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings, SbtLocalSettings, SbtExecutionSettings]
   with ExternalSystemConfigurableAware {
 
-  def enhanceLocalProcessing(urls: util.List[URL]) {
+  override def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
 
-  def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
+  override def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type])
@@ -49,21 +49,22 @@ class SbtExternalSystemManager
       PathManager.PROPERTY_LOG_PATH, PathManager.getLogPath)
   }
 
-  def getSystemId = SbtProjectSystem.Id
+  override def getSystemId = SbtProjectSystem.Id
 
-  def getSettingsProvider: Function[Project, SbtSystemSettings] = SbtSystemSettings.getInstance _
+  override def getSettingsProvider: Function[Project, SbtSystemSettings] = SbtSystemSettings.getInstance _
 
-  def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
+  override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
 
-  def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] = SbtExternalSystemManager.executionSettingsFor _
+  override def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] =
+    SbtExternalSystemManager.executionSettingsFor _
 
-  def getProjectResolverClass: Class[SbtProjectResolver] = classOf[SbtProjectResolver]
+  override def getProjectResolverClass: Class[SbtProjectResolver] = classOf[SbtProjectResolver]
 
-  def getTaskManagerClass: Class[SbtTaskManager] = classOf[SbtTaskManager]
+  override def getTaskManagerClass: Class[SbtTaskManager] = classOf[SbtTaskManager]
 
-  def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
+  override def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
 
-  def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
+  override def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
 }
 
 object SbtExternalSystemManager {
