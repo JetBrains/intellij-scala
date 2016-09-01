@@ -369,6 +369,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL4493(): Unit = doTest()
 
+  def testSCL4500(): Unit = doTest()
+
   def testSCL4513(): Unit = doTest()
 
   def testSCL4545(): Unit = doTest()
@@ -442,6 +444,19 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL5159(): Unit = doTest()
 
   def testSCL5180(): Unit = doTest()
+
+  def testSCL5183(): Unit = {
+    doTest(
+      s"""
+         |class D
+         |def foo[Q >: List[T], T >: D](): Q = List(new D)
+         |
+        |val x = foo()
+         |
+        |${START}x$END
+         |//List[D]
+      """.stripMargin)
+  }
 
   def testSCL5185(): Unit = doTest()
 
@@ -520,6 +535,32 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL5834(): Unit = doTest()
 
   def testSCL5840(): Unit = doTest()
+
+  def testSCL5854(): Unit = doTest(
+    """
+      |object SCL5854 {
+      |
+      |  case class MayErr[+E, +A](e: Either[E, A])
+      |
+      |  object MayErr {
+      |    import scala.language.implicitConversions
+      |    implicit def eitherToError[E, EE >: E, A, AA >: A](e: Either[E, A]): MayErr[EE, AA] = MayErr[E, A](e)
+      |  }
+      |
+      |  abstract class SQLError
+      |
+      |  import scala.collection.JavaConverters._
+      |  def convert = {
+      |    val m = new java.util.HashMap[String, String]
+      |    m.asScala.toMap
+      |  }
+      |
+      |  /*start*/MayErr.eitherToError(Right(convert))/*end*/: MayErr[SQLError, Map[String, String]]
+      |}
+      |
+      |//SCL5854.MayErr[SCL5854.SQLError, Map[String, String]]
+    """.stripMargin
+  )
 
   def testSCL5856(): Unit = doTest()
 
@@ -662,6 +703,10 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL7502B(): Unit = doTest()
 
+  def testSCL7521(): Unit = doTest()
+
+  def testSCL7521B(): Unit = doTest()
+
   def testSCL7544A(): Unit = doTest()
 
   def testSCL7544B(): Unit = doTest()
@@ -794,6 +839,32 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   }
 
   def testSCL9877_1(): Unit = doTest()
+
+  def testSCL9925(): Unit = {
+    doTest(
+      """
+        |object SCL9925 {
+        |
+        |  abstract class Parser[+T] {
+        |    def |[U >: T](x: => Parser[U]): Parser[U] = ???
+        |  }
+        |
+        |  abstract class PerfectParser[+T] extends Parser[T]
+        |
+        |  implicit def parser2packrat[T](p: => Parser[T]): PerfectParser[T] = ???
+        |
+        |  def foo: PerfectParser[String] = ???
+        |
+        |  def foo1: PerfectParser[Nothing] = ???
+        |
+        |  def fooo4: PerfectParser[String] = /*start*/foo | foo1 | foo1/*end*/
+        |}
+        |
+        |//SCL9925.PerfectParser[String]
+      """.stripMargin)
+  }
+
+  def testSCL9929() = doTest()
 
   def testSOE(): Unit = doTest()
 

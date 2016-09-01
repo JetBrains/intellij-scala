@@ -674,7 +674,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] 
                 var lower: ScType = Nothing
                 val setIterator = set.iterator
                 while (setIterator.hasNext) {
-                  lower = lower.lub(subst.subst(setIterator.next()))
+                  lower = lower.lub(subst.subst(setIterator.next()), checkWeak = true)
                 }
                 lMap += ((name, lower))
                 tvMap += ((name, lower))

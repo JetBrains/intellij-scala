@@ -51,7 +51,7 @@ package object types {
       typeSystem.bounds.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
+    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.lub(scType, `type`, checkWeak)
     }
 
@@ -134,7 +134,7 @@ package object types {
       typeSystem.bounds.glb(types, checkWeak)
     }
 
-    def lub(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
+    def lub(checkWeak: Boolean = true)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.glb(types, checkWeak)
     }
   }

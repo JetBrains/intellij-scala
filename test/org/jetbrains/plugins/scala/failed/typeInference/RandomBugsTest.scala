@@ -11,10 +11,6 @@ import org.junit.experimental.categories.Category
 class RandomBugsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL7521() = doTest()
-  
-  def testSCL9929() = doTest()
-
   def testSCL7333() = doTest()
   
   def testSCL9857() = doTest()
