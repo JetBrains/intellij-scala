@@ -349,7 +349,10 @@ object MacroExpandAction {
       }
 
       val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
-      val annotee = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
+      val annotee: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
+        .copy()
+        .asInstanceOf[ScAnnotationsHolder]
+      annotee.annotations.find(_.getQualifiedName == annot.getQualifiedName).foreach(_.delete())
       val converted = annotClass.map {
         case o: ScTypeDefinition if o.isMetaAnnotatationImpl =>
           converter.ideaToMeta(annotee)

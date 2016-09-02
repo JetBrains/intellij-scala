@@ -662,23 +662,24 @@ object TypeDefinitionMembers {
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
-    val metaAnnot: Option[ScAnnotation] = clazz match {
-      case ah: ScAnnotationsHolder => ah.annotations.find(_.isMetaAnnotation)
-      case _ => None
+    val expansion = clazz match {
+      case ah: ScAnnotationsHolder => ah.getExpansionText
+      case _ => ""
     }
 
-    metaAnnot match {
-      case Some(annot) =>
-        val result = try {
-          MacroExpandAction.runMetaAnnotation(annot).toString()
-        } catch {
-          case _: IOException | _: ClassNotFoundException => ""
+    if (expansion.nonEmpty) {
+      val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion, clazz.getManager)
+      if (blockImpl != null) {
+        val td: Option[PsiClass] = blockImpl.firstChild.get.children.findByType(classOf[PsiClass])
+        td match {
+          case Some(c) =>
+            if(!processDeclarations(c, processor, state, lastParent, place)) return false
+            ScalaPsiUtil.getCompanionModule(c).foreach { co =>
+              if(!processDeclarations(co, processor, state, lastParent, place)) return false
+            }
+          case None =>
         }
-        if (result.nonEmpty) {
-          val c = ScalaPsiElementFactory.createTypeDefinitionWithContext(result, clazz.getContext, lastParent)
-          if(!processDeclarations(c, processor, state, lastParent, place)) return false
-        }
-      case None =>
+      }
     }
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),

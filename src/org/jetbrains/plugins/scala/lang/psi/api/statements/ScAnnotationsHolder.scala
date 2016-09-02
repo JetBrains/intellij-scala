@@ -4,11 +4,14 @@ package psi
 package api
 package statements
 
+import java.io.IOException
+
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
@@ -17,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedMacroUtil, ModCount}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -103,6 +107,21 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     } map { _ =>
       findAnnotation(qualifiedName)
     } orNull
+  }
+
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  def getExpansionText: String = {
+    val metaAnnotation = annotations.find(_.isMetaAnnotation)
+    metaAnnotation match {
+      case Some(annotation) =>
+        val result = try {
+          MacroExpandAction.runMetaAnnotation(annotation).toString()
+        } catch {
+          case _: IOException | _: ClassNotFoundException => ""
+        }
+        result
+      case None => ""
+    }
   }
 
   def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix

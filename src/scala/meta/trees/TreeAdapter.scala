@@ -234,6 +234,10 @@ trait TreeAdapter {
     }
   }
 
+  def toAnnot(annot: ScAnnotation): m.Mod.Annot = {
+    m.Mod.Annot(toCtor(annot.constructor))
+  }
+
   def expression(e: ScExpression): m.Term = {
     import p.expr._
     import p.expr.xml._
@@ -476,8 +480,12 @@ trait TreeAdapter {
       case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
       case None => Seq.empty
     }
+    val annotations: Seq[m.Mod.Annot] = t match {
+      case ah: ScAnnotationsHolder => Seq(ah.annotations.filterNot(_.strip).map(toAnnot):_*)
+      case _ => Seq.empty
+    }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
-    overrideMod ++ common ++ classParam
+    annotations ++ overrideMod ++ common ++ classParam
   }
 
   // Java conversion

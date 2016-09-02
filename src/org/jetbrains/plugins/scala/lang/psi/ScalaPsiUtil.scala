@@ -55,7 +55,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
@@ -1165,6 +1165,17 @@ object ScalaPsiUtil {
         getBaseCompanionModule(definition).orElse(definition.fakeCompanionModule)
       case _ => None
     }
+  }
+
+  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[ScObject] = {
+    val expansionText = ah.getExpansionText
+    if (expansionText.nonEmpty) {
+      val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansionText, ah.getManager)
+      if (blockImpl != null) {
+        val maybeScObject: Option[ScObject] = blockImpl.firstChild.get.children.findByType(classOf[ScObject])
+        maybeScObject
+      } else None
+    } else None
   }
 
   //Performance critical method

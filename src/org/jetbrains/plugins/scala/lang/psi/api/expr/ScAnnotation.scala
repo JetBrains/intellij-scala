@@ -43,4 +43,7 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
       }
     }
   }
+
+  @volatile
+  var strip = false
 }
