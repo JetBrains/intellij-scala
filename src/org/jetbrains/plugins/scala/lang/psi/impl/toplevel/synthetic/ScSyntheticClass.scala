@@ -76,6 +76,8 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
     findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+
+  override def isHigherKindedTypeParameter: Boolean = false
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly

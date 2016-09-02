@@ -61,4 +61,6 @@ class ScLightTypeParam(t: TypeParameter, tParam: ScTypeParam)
 
   override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T =
     throw new UnsupportedOperationException("Operation on light element")
+
+  override def isHigherKindedTypeParameter: Boolean = tParam.isHigherKindedTypeParameter
 }
