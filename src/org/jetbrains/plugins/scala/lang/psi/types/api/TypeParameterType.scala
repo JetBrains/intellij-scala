@@ -108,9 +108,11 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     (`type` match {
       case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
         (psiTypeParameter, that.psiTypeParameter) match {
-          case (myBound: ScTypeBoundsOwner, thatBound: ScTypeBoundsOwner) =>
-            myBound.lowerBound == thatBound.lowerBound && myBound.upperBound == thatBound.upperBound &&
-              myBound.name == thatBound.name
+          case (myBound: ScTypeParam, thatBound: ScTypeParam) =>
+            //TODO this is a temporary hack, so ignore substitutor for now
+            myBound.lowerBound.exists(typeSystem.equivalence.equiv(_, thatBound.lowerBound.getOrNothing)) &&
+              myBound.upperBound.exists(typeSystem.equivalence.equiv(_, thatBound.upperBound.getOrNothing)) &&
+              (myBound.name == thatBound.name || thatBound.isHigherKindedTypeParameter || myBound.isHigherKindedTypeParameter)
           case _ => false
         }
       }
