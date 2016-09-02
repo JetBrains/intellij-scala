@@ -513,7 +513,8 @@ object MethodResolveProcessor {
       def applyMethodsFor(tp: ScType) = {
         val processor = new CollectMethodsProcessor(ref, "apply")
         processor.processType(tp, ref.asInstanceOf[ScalaPsiElement])
-        processor.candidatesS.map(rr => r.copy(innerResolveResult = Some(rr)))
+        val cands = processor.candidatesS.map(rr => r.copy(innerResolveResult = Some(rr)))
+        if (cands.isEmpty) HashSet(r) else cands
       }
       r.element match {
         case f: ScFunction if f.hasParameterClause => HashSet(r)

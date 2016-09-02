@@ -933,4 +933,23 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       """.stripMargin
     doTest(code)
   }
+
+  def testEmptyImplicits(): Unit = {
+    val code =
+      """
+        |trait A {
+        |  def foo: Int = 1
+        |}
+        |
+        |implicit class AExt(a: A) {
+        |  def foo(x : Int = 1): Boolean = false
+        |}
+        |
+        |val l : List[A] = List(new A {})
+        |
+        |/*start*/l.map(_.foo())/*end*/
+        |//List[Boolean]
+      """.stripMargin
+    doTest(code)
+  }
 }
