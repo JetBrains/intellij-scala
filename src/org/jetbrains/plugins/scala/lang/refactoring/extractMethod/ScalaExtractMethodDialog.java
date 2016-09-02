@@ -26,7 +26,9 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 import scala.Option;
 
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,26 +45,19 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private String REFACTORING_NAME = ScalaBundle.message("extract.method.title");
   private JPanel contentPane;
-  private JRadioButton publicRadioButton;
-  private JRadioButton protectedRadioButton;
-  private JRadioButton privateRadioButton;
-  private JTextField protectedTextField;
-  private JTextField privateTextField;
   private JPanel methodNamePanel;
   private EditorTextField editorTextField;
-  private JPanel visibilityPanel;
   private JPanel inputParametersPanel;
   private JPanel myPreviewPanel;
-  private JPanel multipleOutputPanel;
-  private JRadioButton tupleRB;
-  private JRadioButton innerClassRB;
-  private JTextField caseClassNameFld;
-  private JRadioButton caseClassRB;
-  private JTextField innerClassNameFld;
-  private JPanel visibilityPanelKeeper;
-  private JPanel multipleOutputPanelKeeper;
   private JPanel myLinkContainer;
   private JCheckBox mySpecifyTypeChb;
+  private JComboBox multipleOutputCombobox;
+  private JComboBox visibilityComboBox;
+  private JTextField visibiltyTextField;
+  private JTextField multipleOutputTextField;
+  private JLabel visibilityLabel;
+  private JLabel multipleOutputLabel;
+  private JLabel myNameLabel;
 
   private boolean isDefaultClassName = true;
   private final MethodSignatureComponent mySignaturePreview;
@@ -131,22 +126,20 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private void updateOkStatus() {
     setOKActionEnabled(ScalaNamesUtil.isIdentifier(getMethodName()) &&
-            (!protectedRadioButton.isSelected() || getProtectedEncloser().equals("") || ScalaNamesUtil.isIdentifier(getProtectedEncloser())) &&
-            (!privateRadioButton.isSelected() || getPrivateEncloser().equals("") || ScalaNamesUtil.isIdentifier(getPrivateEncloser())) &&
-            (!innerClassRB.isSelected() || ScalaNamesUtil.isIdentifier(innerClassNameFld.getText())) &&
-            (!caseClassRB.isSelected() || ScalaNamesUtil.isIdentifier(caseClassNameFld.getText()))
-    );
+            (isPublic() || getVisibilityEncloser().equals("") || ScalaNamesUtil.isIdentifier(getVisibilityEncloser())) &&
+            (isTuple() || ScalaNamesUtil.isIdentifier(getMultipleOutputEncloser())));
   }
 
-  private String getProtectedEncloser() {
-    return protectedTextField.getText();
+  private String getVisibilityEncloser() {
+    return visibiltyTextField.getText();
   }
 
-  private String getPrivateEncloser() {
-    return privateTextField.getText();
+  private String getMultipleOutputEncloser() {
+    return multipleOutputTextField.getText();
   }
 
   private void setUpDialog() {
+    myNameLabel.setLabelFor(editorTextField);
     editorTextField.addDocumentListener(new DocumentListener() {
       @Override
       public void beforeDocumentChange(com.intellij.openapi.editor.event.DocumentEvent event) {
@@ -168,66 +161,39 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private void updateClassName(String newName) {
     if (isDefaultClassName) {
-      innerClassNameFld.setText(newName);
-      caseClassNameFld.setText(newName);
+      multipleOutputTextField.setText(newName);
       isDefaultClassName = true;
     }
   }
 
   private void setupVisibilityPanel() {
-    ButtonGroup visibilityGroup = new ButtonGroup();
-    visibilityGroup.add(privateRadioButton);
-    visibilityGroup.add(protectedRadioButton);
-    visibilityGroup.add(publicRadioButton);
-    publicRadioButton.setSelected(true); //todo: ApplicationSettings?
-    privateTextField.setEnabled(false);
-    protectedTextField.setEnabled(false);
+    final String[] visibility = {"Private", "Protected", "Public"};
+    for (String v : visibility) {
+      visibilityComboBox.addItem(v);
+    }
 
-    privateRadioButton.addActionListener(new ActionListener() {
+    visibilityComboBox.addItemListener(new ItemListener() {
       @Override
-      public void actionPerformed(ActionEvent e) {
-        if (privateRadioButton.isSelected()) {
-          privateTextField.setEnabled(true);
-        } else {
-          privateTextField.setEnabled(false);
-        }
+      public void itemStateChanged(ItemEvent e) {
+        visibiltyTextField.setEnabled(!isPublic());
         updateSignature();
       }
     });
 
-    privateTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+    visibiltyTextField.getDocument().addDocumentListener(new DocumentAdapter() {
       @Override
       protected void textChanged(DocumentEvent e) {
         updateSignature();
       }
     });
 
-    protectedRadioButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (protectedRadioButton.isSelected()) {
-          protectedTextField.setEnabled(true);
-        } else {
-          protectedTextField.setEnabled(false);
-        }
-        updateSignature();
-      }
-    });
+    setVisibilityPanelVisisbility(isVisibilitySectionAvailable());
+  }
 
-    publicRadioButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        updateSignature();
-      }
-    });
-
-    protectedTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-      @Override
-      protected void textChanged(DocumentEvent e) {
-        updateSignature();
-      }
-    });
-    visibilityPanelKeeper.setVisible(isVisibilitySectionAvailable());
+  private void setVisibilityPanelVisisbility(boolean value) {
+    visibilityLabel.setVisible(value);
+    visibilityComboBox.setVisible(value);
+    visibiltyTextField.setVisible(value);
   }
 
   private void setupParametersPanel() {
@@ -246,58 +212,50 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private String getVisibility() {
     if (!isVisibilitySectionAvailable()) return "";
-    if (publicRadioButton.isSelected()) return "";
-    else if (privateRadioButton.isSelected()) {
-      if (getPrivateEncloser().equals("")) return "private ";
-      else return "private[" + getPrivateEncloser() + "] ";
-    } else {
-      if (getProtectedEncloser().equals("")) return "protected ";
-      else return "protected[" + getProtectedEncloser() + "] ";
+    if (isPublic()) return "";
+
+    if (getVisibilityEncloser().equals("")) {
+      return visibilityComboBox.getSelectedItem().toString().toLowerCase() + " ";
     }
+
+    return visibilityComboBox.getSelectedItem().toString().toLowerCase() + "[" + getVisibilityEncloser() + "] ";
+  }
+
+  private void setMultipleOutputPanelVisibility(boolean value) {
+    multipleOutputLabel.setVisible(value);
+    multipleOutputCombobox.setVisible(value);
+    multipleOutputTextField.setVisible(value);
   }
 
   protected void setupMultipleOutputsPanel() {
     updateSettings();
-    if (settings.outputs().length <= 1) multipleOutputPanelKeeper.setVisible(false);
+    setMultipleOutputPanelVisibility(settings.outputs().length > 1);
 
-    ButtonGroup outputGroup = new ButtonGroup();
-    outputGroup.add(tupleRB);
-    outputGroup.add(innerClassRB);
-    outputGroup.add(caseClassRB);
+    final String[] outputs = {"Tuple", "Inner case class", "Inner class"};
+    for (String v : outputs) {
+      multipleOutputCombobox.addItem(v);
+    }
 
-    tupleRB.setMnemonic('T');
-    innerClassRB.setMnemonic('I');
-    caseClassRB.setMnemonic('C');
-
-    ChangeListener updater = new ChangeListener() {
-      public void stateChanged(ChangeEvent e) {
-        updateSignature();
-        innerClassNameFld.setEnabled(innerClassRB.isSelected());
-        caseClassNameFld.setEnabled(caseClassRB.isSelected());
-        if (innerClassRB.isSelected()) innerClassNameFld.requestFocus();
-        if (caseClassRB.isSelected()) caseClassNameFld.requestFocus();
-      }
-    };
-    tupleRB.addChangeListener(updater);
-    innerClassRB.addChangeListener(updater);
-    caseClassRB.addChangeListener(updater);
-
-    tupleRB.setSelected(true);
-
-    caseClassNameFld.getDocument().addDocumentListener(new DocumentAdapter() {
+    multipleOutputCombobox.addItemListener(new ItemListener() {
       @Override
-      protected void textChanged(DocumentEvent e) {
-        isDefaultClassName = false;
+      public void itemStateChanged(ItemEvent e) {
+        multipleOutputTextField.setEnabled(!isTuple());
         updateSignature();
       }
     });
-    innerClassNameFld.getDocument().addDocumentListener(new DocumentAdapter() {
+
+    multipleOutputTextField.getDocument().addDocumentListener(new DocumentAdapter() {
       @Override
       protected void textChanged(DocumentEvent e) {
-        isDefaultClassName = false;
+        if (!multipleOutputCombobox.getSelectedItem().equals(outputs[0])) {
+          isDefaultClassName = false;
+        }
+
         updateSignature();
       }
     });
+
+    multipleOutputTextField.setEnabled(!isTuple());
   }
 
   protected void setupPreviewPanel() {
@@ -322,9 +280,29 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     super.doOKAction();
   }
 
+  private boolean isInnerClass() {
+    return multipleOutputCombobox.getSelectedItem() != null
+            && multipleOutputCombobox.getSelectedItem().equals("Inner case class");
+  }
+
+  private boolean isCaseClass() {
+    return multipleOutputCombobox.getSelectedItem() != null
+            && multipleOutputCombobox.getSelectedItem().equals("Inner class");
+  }
+
+  private boolean isPublic() {
+    return visibilityComboBox.getSelectedItem() != null
+            && visibilityComboBox.getSelectedItem().equals("Public");
+  }
+
+  private boolean isTuple() {
+    return multipleOutputCombobox.getSelectedItem() != null
+            && multipleOutputCombobox.getSelectedItem().equals("Tuple");
+  }
+
   private void updateSettings() {
-    boolean createClass = innerClassRB.isSelected() || caseClassRB.isSelected();
-    InnerClassSettings ics = new InnerClassSettings(createClass, getClassName(), getReturns(), caseClassRB.isSelected());
+    boolean createClass = isInnerClass() || isCaseClass();
+    InnerClassSettings ics = new InnerClassSettings(createClass, getClassName(), getReturns(), isCaseClass());
     ScalaApplicationSettings.ReturnTypeLevel addReturnType = mySpecifyTypeChb.isSelected() ?
             ScalaApplicationSettings.ReturnTypeLevel.ADD : ScalaApplicationSettings.ReturnTypeLevel.REMOVE;
 
@@ -342,35 +320,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       }
     });
 
-    protectedRadioButton.addItemListener(
-            new ItemListener() {
-              public void itemStateChanged(ItemEvent e) {
-                mySpecifyTypeChb.setSelected(
-                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility())
-                );
-              }
-            }
-    );
-
-    publicRadioButton.addItemListener(
-            new ItemListener() {
-              public void itemStateChanged(ItemEvent e) {
-                mySpecifyTypeChb.setSelected(
-                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility())
-                );
-              }
-            }
-    );
-
-    privateRadioButton.addItemListener(
-            new ItemListener() {
-              public void itemStateChanged(ItemEvent e) {
-                mySpecifyTypeChb.setSelected(
-                        ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility())
-                );
-              }
-            }
-    );
+    visibilityComboBox.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility()));
+      }
+    });
   }
 
   private void setUpHyperLink() {
@@ -389,9 +344,11 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private String getClassName() {
-    if (innerClassRB.isSelected()) return innerClassNameFld.getText();
-    else if (caseClassRB.isSelected()) return caseClassNameFld.getText();
-    else return "";
+    if (isCaseClass() || isInnerClass()) {
+      return getMultipleOutputEncloser();
+    }
+
+    return "";
   }
 
   public ExtractMethodParameter[] getParameters() {
@@ -440,91 +397,50 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     contentPane = new JPanel();
     contentPane.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
     methodNamePanel = new JPanel();
-    methodNamePanel.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
+    methodNamePanel.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(methodNamePanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final JLabel label1 = new JLabel();
-    label1.setText("Name");
-    label1.setDisplayedMnemonic('N');
-    label1.setDisplayedMnemonicIndex(0);
-    methodNamePanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myNameLabel = new JLabel();
+    myNameLabel.setText("Name");
+    myNameLabel.setDisplayedMnemonic('N');
+    myNameLabel.setDisplayedMnemonicIndex(0);
+    methodNamePanel.add(myNameLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    visibilityLabel = new JLabel();
+    visibilityLabel.setText("Visibility");
+    visibilityLabel.setDisplayedMnemonic('V');
+    visibilityLabel.setDisplayedMnemonicIndex(0);
+    methodNamePanel.add(visibilityLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    visibiltyTextField = new JTextField();
+    methodNamePanel.add(visibiltyTextField, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    multipleOutputTextField = new JTextField();
+    methodNamePanel.add(multipleOutputTextField, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    visibilityComboBox = new JComboBox();
+    methodNamePanel.add(visibilityComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    multipleOutputCombobox = new JComboBox();
+    methodNamePanel.add(multipleOutputCombobox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     editorTextField = new EditorTextField();
     editorTextField.setText("");
-    methodNamePanel.add(editorTextField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    methodNamePanel.add(editorTextField, new GridConstraints(2, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    multipleOutputLabel = new JLabel();
+    multipleOutputLabel.setText("Multiple output");
+    multipleOutputLabel.setDisplayedMnemonic('M');
+    multipleOutputLabel.setDisplayedMnemonicIndex(0);
+    methodNamePanel.add(multipleOutputLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new GridLayoutManager(5, 2, new Insets(0, 0, 0, 0), -1, -1));
+    panel1.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    visibilityPanelKeeper = new JPanel();
-    visibilityPanelKeeper.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-    panel1.add(visibilityPanelKeeper, new GridConstraints(0, 1, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    visibilityPanel = new JPanel();
-    visibilityPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
-    visibilityPanelKeeper.add(visibilityPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    protectedRadioButton = new JRadioButton();
-    protectedRadioButton.setText("Protected");
-    protectedRadioButton.setMnemonic('O');
-    protectedRadioButton.setDisplayedMnemonicIndex(2);
-    visibilityPanel.add(protectedRadioButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    protectedTextField = new JTextField();
-    visibilityPanel.add(protectedTextField, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-    privateRadioButton = new JRadioButton();
-    privateRadioButton.setText("Private");
-    privateRadioButton.setMnemonic('R');
-    privateRadioButton.setDisplayedMnemonicIndex(1);
-    privateRadioButton.setToolTipText("");
-    visibilityPanel.add(privateRadioButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    publicRadioButton = new JRadioButton();
-    publicRadioButton.setText("Public");
-    publicRadioButton.setMnemonic('P');
-    publicRadioButton.setDisplayedMnemonicIndex(0);
-    visibilityPanel.add(publicRadioButton, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    privateTextField = new JTextField();
-    visibilityPanel.add(privateTextField, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-    final TitledSeparator titledSeparator1 = new TitledSeparator();
-    titledSeparator1.setText("Visibility");
-    visibilityPanelKeeper.add(titledSeparator1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     inputParametersPanel = new JPanel();
     inputParametersPanel.setLayout(new BorderLayout(0, 0));
     panel1.add(inputParametersPanel, new GridConstraints(0, 0, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final TitledSeparator titledSeparator2 = new TitledSeparator();
-    titledSeparator2.setText("Parameters");
-    inputParametersPanel.add(titledSeparator2, BorderLayout.NORTH);
-    multipleOutputPanelKeeper = new JPanel();
-    multipleOutputPanelKeeper.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
-    panel1.add(multipleOutputPanelKeeper, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final TitledSeparator titledSeparator3 = new TitledSeparator();
-    titledSeparator3.setText("Multiple output");
-    multipleOutputPanelKeeper.add(titledSeparator3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    multipleOutputPanel = new JPanel();
-    multipleOutputPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
-    multipleOutputPanelKeeper.add(multipleOutputPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    caseClassRB = new JRadioButton();
-    caseClassRB.setText("Inner case class");
-    caseClassRB.setMnemonic('I');
-    caseClassRB.setDisplayedMnemonicIndex(0);
-    multipleOutputPanel.add(caseClassRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    caseClassNameFld = new JTextField();
-    caseClassNameFld.setText("");
-    multipleOutputPanel.add(caseClassNameFld, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-    tupleRB = new JRadioButton();
-    tupleRB.setText("Tuple");
-    tupleRB.setMnemonic('T');
-    tupleRB.setDisplayedMnemonicIndex(0);
-    multipleOutputPanel.add(tupleRB, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    innerClassRB = new JRadioButton();
-    innerClassRB.setText("Inner class");
-    innerClassRB.setMnemonic('C');
-    innerClassRB.setDisplayedMnemonicIndex(6);
-    multipleOutputPanel.add(innerClassRB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    innerClassNameFld = new JTextField();
-    innerClassNameFld.setText("");
-    multipleOutputPanel.add(innerClassNameFld, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    final TitledSeparator titledSeparator1 = new TitledSeparator();
+    titledSeparator1.setText("Parameters");
+    inputParametersPanel.add(titledSeparator1, BorderLayout.NORTH);
     myPreviewPanel = new JPanel();
     myPreviewPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPane.add(myPreviewPanel, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    final TitledSeparator titledSeparator4 = new TitledSeparator();
-    titledSeparator4.setFocusable(true);
-    titledSeparator4.setText("Signature preview");
-    contentPane.add(titledSeparator4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final TitledSeparator titledSeparator2 = new TitledSeparator();
+    titledSeparator2.setFocusable(true);
+    titledSeparator2.setText("Signature preview");
+    contentPane.add(titledSeparator2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel2 = new JPanel();
     panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     panel2.setAlignmentX(0.0f);
@@ -549,6 +465,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myLinkContainer.setAlignmentX(0.0f);
     myLinkContainer.setAlignmentY(0.0f);
     panel2.add(myLinkContainer);
+    visibilityLabel.setLabelFor(visibilityComboBox);
+    multipleOutputLabel.setLabelFor(multipleOutputCombobox);
   }
 
   /**
