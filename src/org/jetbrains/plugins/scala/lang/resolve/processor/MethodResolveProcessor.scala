@@ -7,6 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -297,8 +298,15 @@ object MethodResolveProcessor {
       }
     }
 
+    if (element.isInstanceOf[ScReferencePattern]) {
+      "stop here"
+    }
+
     val result = element match {
       //objects
+      case _: ScObject if argumentClauses.nonEmpty =>
+        problems += new DoesNotTakeParameters
+        ConformanceExtResult(problems)
       case _: PsiClass =>
         ConformanceExtResult(problems)
       case _: ScTypeAlias =>
@@ -382,6 +390,7 @@ object MethodResolveProcessor {
         }
       case _ =>
         if (typeArgElements.nonEmpty) problems += DoesNotTakeTypeParameters
+        if (argumentClauses.nonEmpty) problems += new DoesNotTakeParameters
         addExpectedTypeProblems()
         ConformanceExtResult(problems)
     }
@@ -557,7 +566,13 @@ object MethodResolveProcessor {
       if (filtered.isEmpty) filtered = mapped.filter(_.isApplicableInternal(withExpectedType = false))
     }
 
-    val onlyValues = mapped.forall(_.isApplicable())
+    val onlyValues = mapped.forall { r =>
+      r.element match {
+        case f: ScFunction => false
+        case t: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
+        case _ => false
+      }
+    }
     if (filtered.isEmpty && onlyValues) {
       //possible implicit conversions in ScMethodCall
       return input.map(_.copy(notCheckedResolveResult = true))

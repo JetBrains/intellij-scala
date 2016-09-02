@@ -1,1 +1,1 @@
-println(/* resolved: false */ a.getClass)
+println(/* resolved: false */ aasdfasdfasdf.getClass)
