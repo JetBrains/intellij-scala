@@ -25,8 +25,8 @@ class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPa
     myRbModifyCalls.setMnemonic('m')
     myRbModifyCalls.setSelected(true)
 
-    add(myRbAddDefaultArg)
     add(myRbModifyCalls)
+    add(myRbAddDefaultArg)
     add(Box.createHorizontalGlue)
     
 
