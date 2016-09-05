@@ -165,7 +165,7 @@ object TypeAnnotationUtil {
   }
   
   def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement]): Unit = {
-    elements.filter(el => el != null).foreach(_.depthFirst.foreach {
+    elements.foreach(_.depthFirst.foreach {
       case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement)
       case _ =>
     })

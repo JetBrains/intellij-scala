@@ -131,7 +131,7 @@ object ConverterUtil {
       elem = elem.getNextSibling
       buf += elem
     }
-    buf.toArray
+    buf.filter(el => el!= null && el.isValid).toArray
   }
 
   def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
