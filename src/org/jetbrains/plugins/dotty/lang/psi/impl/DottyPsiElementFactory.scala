@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEl
   */
 object DottyPsiElementFactory {
 
-  def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement = {
-    createElementWithContext(text, context, child, parse(_)) match {
-      case te: ScTypeElement => te
-      case _ => null
-    }
-  }
+  def createTypeElementFromText(text: String, context: PsiElement, child: PsiElement): ScTypeElement =
+    createElementWithContext[ScTypeElement](text, context, child, parse(_)).orNull
 }
