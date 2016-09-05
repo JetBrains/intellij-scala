@@ -923,7 +923,7 @@
                          shortName="RedundantNewCaseClass"
                          id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
 
-        <!--Syntacitc clarification inspections (including syntactic desugaring), see SCL-10327-->
+        <!--Syntactic clarification inspections (including syntactic desugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection"
                          displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic Clarification"
                          shortName="AutoTupling" level="WARNING"
