@@ -346,10 +346,17 @@ object WorksheetSourceProcessor {
 
     protected def processComment(comment: PsiComment) {
       val range = comment.getTextRange
-      val backOffset = comment.getPrevSibling match {
-        case ws: PsiWhiteSpace if countNls(ws.getText) > 0 => 0
-        case _ => 1
+      
+      @scala.annotation.tailrec
+      def getBackOffset(from: PsiElement): Int = {
+        if (from == null) 1 else from.getPrevSibling match {
+          case ws: PsiWhiteSpace if countNls(ws.getText) > 0 => 0
+          case null => getBackOffset(from.getParent)
+          case _ => 1
+        }
       }
+
+      val backOffset = getBackOffset(comment)
       
       documentOpt match {
         case Some(document) => 
