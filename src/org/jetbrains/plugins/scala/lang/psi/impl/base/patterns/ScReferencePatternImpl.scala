@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScReferencePatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
@@ -91,8 +92,7 @@ class ScReferencePatternImpl private (stub: StubElement[ScReferencePattern], nod
       case _ =>
         // val (a, b) = t
         // val (_, b) = t
-        val anonymousRefPattern = ScalaPsiElementFactory.createWildcardPattern(getManager)
-        replace(anonymousRefPattern)
+        replace(createWildcardPattern)
     }
   }
 

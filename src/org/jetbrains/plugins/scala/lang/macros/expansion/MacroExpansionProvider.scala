@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.Function
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText
 
 import scala.collection.JavaConversions._
 
@@ -30,7 +30,8 @@ class MacroExpansionProvider extends LineMarkerProvider {
         new GutterIconNavigationHandler[PsiElement] {
           def navigate(mouseEvent: MouseEvent, elt: PsiElement): Unit = {
             inWriteAction {
-              val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(saved, PsiManager.getInstance(current.getProject))
+              implicit val manager = PsiManager.getInstance(current.getProject)
+              val newPsi = createBlockExpressionWithoutBracesFromText(saved)
               current.replace(newPsi)
               saved
             }

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createWildcardNode, createWildcardPattern}
 
 class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentionActionOnPsiElement(e) {
   override def getText: String = DeleteUnusedElementFix.Hint
@@ -20,7 +20,8 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
 
   override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (FileModificationService.getInstance.prepareFileForWrite(startElement.getContainingFile)) {
-      def wildcard = ScalaPsiElementFactory.createWildcardNode(startElement.getManager).getPsi
+      implicit val manager = startElement.getManager
+      def wildcard = createWildcardNode.getPsi
 
       startElement match {
         case ref: ScReferencePattern => ref.getContext match {
@@ -36,13 +37,11 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
           case _ =>
             // val (a, b) = t
             // val (_, b) = t
-            val anonymousRefPattern = ScalaPsiElementFactory.createWildcardPattern(ref.getManager)
-            ref.replace(anonymousRefPattern)
+            ref.replace(createWildcardPattern)
         }
         case typed: ScTypedPattern => typed.nameId.replace(wildcard)
         case p: ScParameter => p.nameId.replace(wildcard)
-        case naming: ScNamingPattern =>
-          naming.replace(naming.named)
+        case naming: ScNamingPattern => naming.replace(naming.named)
         case _ => startElement.delete()
       }
     }

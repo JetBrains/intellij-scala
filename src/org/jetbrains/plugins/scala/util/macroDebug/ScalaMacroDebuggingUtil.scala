@@ -16,7 +16,7 @@ import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 import scala.collection.mutable
@@ -175,7 +175,9 @@ object ScalaMacroDebuggingUtil {
                 |print("!")
                 |()
               """.stripMargin
-            val expansion = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(s"{$macroExpansion}", PsiManager.getInstance(project))
+
+            implicit val manager = PsiManager.getInstance(project)
+            val expansion = createBlockExpressionWithoutBracesFromText(s"{$macroExpansion}")
             var statement = macroCall.getParent.addAfter(expansion, macroCall)
             macroCall.delete()
             statement = CodeStyleManager.getInstance(project).reformat(statement)
