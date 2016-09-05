@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClassTemplateParents
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
 
 import scala.collection.JavaConverters._
@@ -88,13 +88,15 @@ object ExtractSuperUtil {
     val name = typeToExtend.name
     val text = name + parameters
     val oldExtBlock = clazz.extendsBlock
+    implicit val manager = clazz.getManager
+
     val templParents = oldExtBlock.templateParents match {
       case Some(tp: ScTemplateParents) =>
         val tpText = s"${tp.getText} with $text"
-        val (_, newTp) = ScalaPsiElementFactory.createClassTemplateParents(tpText, clazz.getManager)
+        val (_, newTp) = createClassTemplateParents(tpText)
         tp.replace(newTp).asInstanceOf[ScTemplateParents]
       case None =>
-        val (extKeyword, newTp) = ScalaPsiElementFactory.createClassTemplateParents(text, clazz.getManager)
+        val (extKeyword, newTp) = createClassTemplateParents(text)
         oldExtBlock.addRangeBefore(extKeyword, newTp, oldExtBlock.getFirstChild)
         oldExtBlock.templateParents.get
     }

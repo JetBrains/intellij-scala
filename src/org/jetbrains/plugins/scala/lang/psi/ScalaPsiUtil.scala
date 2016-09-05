@@ -1734,8 +1734,8 @@ object ScalaPsiUtil {
 
     val result = maybeText.map {
       def createClause =
-        if (classParam) createImplicitClassParamClauseFromTextWithContext _
-        else createImplicitClauseFromTextWithContext _
+        if (classParam) (clauseText: String, manager: PsiManager, context: PsiElement) => createImplicitClassParamClauseFromTextWithContext(clauseText, context)
+        else (clauseText: String, manager: PsiManager, context: PsiElement) => createImplicitClauseFromTextWithContext(clauseText, context)
       createClause(_, element.getManager, paramClauses)
     }
 

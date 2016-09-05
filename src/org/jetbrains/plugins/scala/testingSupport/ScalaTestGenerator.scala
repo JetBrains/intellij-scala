@@ -74,7 +74,7 @@ class ScalaTestGenerator extends TestGenerator {
   private def addSuperClass(typeDefinition: ScTypeDefinition, psiClass: Option[PsiClass], fqName: String) = {
     val extendsBlock = typeDefinition.extendsBlock
     def addExtendsRef(refName: String) = {
-      val (extendsToken, classParents) = createClassTemplateParents(refName, typeDefinition.getManager)
+      val (extendsToken, classParents) = createClassTemplateParents(refName)(typeDefinition.getManager)
       val extendsAdded = extendsBlock.addBefore(extendsToken, extendsBlock.getFirstChild)
       extendsBlock.addAfter(classParents, extendsAdded)
     }
@@ -335,12 +335,11 @@ object ScalaTestGenerator {
   private def generateUTestMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String, project: Project)
                                   (implicit manager: PsiManager): Unit = {
     val normalIndentString = FormatterUtil.getNormalIndentString(project)
-    templateBody.addBefore(createElement("val tests = TestSuite{}", manager, Def.parse(_)),
+    templateBody.addBefore(createElement("val tests = TestSuite{}", Def.parse(_)),
       templateBody.getLastChild)
     if (methods.nonEmpty) {
       templateBody.addBefore(createElement(methods.map(normalIndentString + "\"" +
-        _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", manager,
-        Def.parse(_)), templateBody.getLastChild)
+        _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", Def.parse(_)), templateBody.getLastChild)
     }
   }
 

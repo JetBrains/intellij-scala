@@ -53,8 +53,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
         val alias = member.getElement
         val substitutor = member.substitutor
         val needsOverride = member.isOverride || toAddOverrideToImplemented
-        val m = createOverrideImplementType(alias, substitutor,
-          alias.getManager, needsOverride, comment)
+        val m = createOverrideImplementType(alias, substitutor, needsOverride, comment)(alias.getManager)
 
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
