@@ -9,15 +9,15 @@ import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.Te
  * @author Roman.Shein
  * @since 09.04.2015.
  */
-class TestStructureViewElement(override protected val myElement: PsiElement, protected val testName: String,
-                                          protected val myChildren: Array[TreeElement] = Array[TreeElement](),
-                                          val testStatus: Int = TestStructureViewElement.normalStatusId)
-    extends ScalaStructureViewElement(myElement, false) {
+class TestStructureViewElement(elem: PsiElement, protected val testName: String,
+                               protected val myChildren: Array[TreeElement] = Array[TreeElement](),
+                               val testStatus: Int = TestStructureViewElement.normalStatusId)
+    extends ScalaStructureViewElement(elem, false) {
 
   override def getChildren: Array[TreeElement] = myChildren
 
   override def getPresentation: ItemPresentation = {
-    new TestItemRepresentation(myElement, testName, testStatus)
+    new TestItemRepresentation(elem, testName, testStatus)
   }
 }
 

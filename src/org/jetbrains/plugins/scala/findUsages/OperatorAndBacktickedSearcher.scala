@@ -18,6 +18,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.{CommonProcessors, Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -27,9 +28,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = inReadAction(queryParameters.getEffectiveSearchScope)
+    val project = queryParameters.getProject
+    val scope = inReadAction {
+      ScalaSourceFilterScope(queryParameters.getEffectiveSearchScope, project)
+    }
     val element = queryParameters.getElementToSearch
-    val manager = PsiManager.getInstance(queryParameters.getProject)
+    val manager = PsiManager.getInstance(project)
 
     val toProcess: Seq[(PsiElement, String)] = inReadAction {
       element match {

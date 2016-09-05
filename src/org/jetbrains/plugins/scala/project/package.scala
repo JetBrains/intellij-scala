@@ -118,7 +118,9 @@ package object project {
       if (cached != null) cached
       else {
         val result = modulesWithScala.exists(_.hasDotty)
-        project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, java.lang.Boolean.valueOf(result))
+        if (project.isInitialized) {
+          project.putUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY, java.lang.Boolean.valueOf(result))
+        }
         result
       }
     }

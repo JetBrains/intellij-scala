@@ -3,7 +3,7 @@ package project
 
 import java.io.File
 
-import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
@@ -20,8 +20,6 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
 
-import scala.collection.immutable.HashMap
-
 /**
  * @author Pavel Fatin
  */
@@ -31,11 +29,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   protected var taskListener: TaskListener = SilentTaskListener
 
-  def resolveProjectInfo(id: ExternalSystemTaskId,
+  override def resolveProjectInfo(id: ExternalSystemTaskId,
                          wrongProjectPathDontUseIt: String,
                          isPreview: Boolean,
                          settings: SbtExecutionSettings,
-                         listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
+                         listener: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
     val root = {
       val file = new File(settings.realProjectPath)
       if (file.isDirectory) file.getPath else file.getParent
@@ -72,9 +70,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     convert(root, data, settings.jdk).toDataNode
   }
 
-  private def convert(root: String, data: sbtStructure.StructureData, jdk: Option[String]): Node[ProjectData] = {
+  private def convert(root: String, data: sbtStructure.StructureData, settingsJdk: Option[String]): Node[ESProjectData] = {
     val projects = data.projects
-    val project = data.projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
+    val project: sbtStructure.ProjectData = data.projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
       .orElse(data.projects.headOption)
       .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
@@ -82,8 +80,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val basePackages = projects.flatMap(_.basePackages).distinct
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
-    val projectJdk = project.android.map(android => Android(android.targetVersion))
-            .orElse(jdk.map(JdkByName))
+
+    val projectJdk = chooseJdk(project, settingsJdk)
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
@@ -105,6 +103,32 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath)))
     projectNode
+  }
+
+  /** Heuristically choose a project jdk based on information from sbt settings and IDE.
+    * More specific settings from sbt are preferred over IDE settings, on the assumption that the sbt project definition
+    * is what is more likely to be under source control.
+    */
+  private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]) = {
+    // TODO put some of this logic elsewhere in resolving process?
+    val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
+    val scalacOptions = project.scala.map(_.options).getOrElse(Seq.empty)
+    val androidSdk = project.android.map(android => Android(android.targetVersion))
+    val jdkHomeInSbtProject = project.java.flatMap(_.home).map(JdkByHome)
+    val jdkFromScalacOptions = scalacOptions.find(_.contains("-target:jvm-")).map(_.substring(12)).map(JdkByVersion)
+    val jdkFromJavacOptions = {
+      val i = javacOptions.indexOf("-target")
+      if (i >= 0) Option(javacOptions(i+1)) else None
+    }.map(JdkByVersion)
+
+    // default either from project structure or initial import settings
+    val default = defaultJdk.map(JdkByName)
+
+    androidSdk
+      .orElse(jdkHomeInSbtProject)
+      .orElse(jdkFromScalacOptions)
+      .orElse(jdkFromJavacOptions)
+      .orElse(default)
   }
 
   def createModuleDependencies(projects: Seq[sbtStructure.ProjectData], moduleNodes: Seq[ModuleNode]): Unit = {
@@ -262,7 +286,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createBuildModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
-    val name = project.name + Sbt.BuildModuleSuffix
     val buildRoot = project.base / Sbt.ProjectDirectory
 
     // TODO use both ID and Name when related flaws in the External System will be fixed

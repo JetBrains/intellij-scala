@@ -7,9 +7,9 @@ import org.jetbrains.plugins.scala.debugger.ScalaVersion_2_11
  * @author Nikolay.Tropin
  */
 
-class StepOverCaseClausesTest extends StepOverCaseClausesTestBase with ScalaVersion_2_11
+class StepOverTest_2_11 extends StepOverTest with ScalaVersion_2_11
 
-abstract class StepOverCaseClausesTestBase extends StepOverTestBase {
+abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("Simple.scala",
     s"""
       |object Simple {
@@ -189,5 +189,18 @@ abstract class StepOverCaseClausesTestBase extends StepOverTestBase {
 
   def testCaseClausesReturn(): Unit = {
     testStepThrough(Seq(6, 7, 9, 11, 12, 2))
+  }
+
+  addFileWithBreakpoints("AccessorInDelayedInit.scala",
+  s"""
+     |object AccessorInDelayedInit extends App {
+     |  var x = 5 $bp
+     |  x = x + 10
+     |  x
+     |  println(x)
+     |}
+  """.stripMargin.trim)
+  def testAccessorInDelayedInit(): Unit = {
+    testStepThrough(Seq(1, 2, 3, 4, 0))
   }
 }

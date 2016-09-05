@@ -57,7 +57,6 @@ object CachedInsidePsiElement {
           else EmptyTree
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = $actualCalculation
-          $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           ..$analyzeCachesEnterCacheArea
           $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItem))
           """

@@ -7,7 +7,7 @@ package impl
 import javax.swing._
 
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.base._;
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 /**
 * @author Alexander Podkhalyuzin

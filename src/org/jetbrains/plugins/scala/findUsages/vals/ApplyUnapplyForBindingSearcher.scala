@@ -8,6 +8,7 @@ import com.intellij.psi.search.{PsiSearchHelper, SearchScope, TextOccurenceProce
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern}
@@ -21,16 +22,19 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, Res
  */
 class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = inReadAction(queryParameters.getEffectiveSearchScope)
+    val project = queryParameters.getProject
+    val scope = inReadAction {
+      ScalaSourceFilterScope(queryParameters.getEffectiveSearchScope, project)
+    }
     val element = queryParameters.getElementToSearch
     element match {
       case _ if inReadAction(!element.isValid) => true
       case binding: ScBindingPattern =>
         val processor = createProcessor(consumer, binding, checkApply = true, checkUnapply = true)
-        processBinding(processor, scope, binding, queryParameters.getProject)
+        processBinding(processor, scope, binding, project)
       case inAnonClassWithBinding((binding, checkApply, checkUnapply)) =>
         val processor = createProcessor(consumer, binding, checkApply, checkUnapply)
-        processBinding(processor, scope, binding, queryParameters.getProject)
+        processBinding(processor, scope, binding, project)
       case _ => true
     }
   }

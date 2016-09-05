@@ -2,8 +2,9 @@ package org.jetbrains.sbt.project.data
 
 import java.io.File
 
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.projectRoots
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk => OaSdk}
+import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
@@ -15,24 +16,42 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 7/14/15.
  */
-sealed trait Sdk
+sealed abstract class Sdk
 
 final case class JdkByName(name: String) extends Sdk
 final case class JdkByHome(home: File) extends Sdk
+final case class JdkByVersion(version: String) extends Sdk
 final case class Android(version: String) extends Sdk
 
 object SdkUtils {
-  def findProjectSdk(sdk: Sdk): Option[projectRoots.Sdk] = sdk match {
-    case Android(version) => findAndroidJdkByVersion(version)
-    case JdkByName(version) => allJdks.find(_.getName.contains(version))
-    case JdkByHome(homeFile) => findJdkByHome(homeFile)
+  def findProjectSdk(sdk: Sdk): Option[projectRoots.Sdk] = {
+
+    sdk match {
+      case Android(version) =>
+        findAndroidJdkByVersion(version)
+      case JdkByVersion(version) =>
+        findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getVersionString.contains(version) }
+      case JdkByName(version) =>
+        findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getName.contains(version) }
+      case JdkByHome(homeFile) =>
+        findMostRecentJdk {sdk: projectRoots.Sdk =>
+          FileUtil.comparePaths(homeFile.getCanonicalPath, sdk.getHomePath) == 0
+        }
+    }
   }
+
+  def findMostRecentJdk(condition: projectRoots.Sdk => Boolean): Option[projectRoots.Sdk] = {
+    val jdkCondition = { sdk: projectRoots.Sdk => sdk.getSdkType == JavaSdk.getInstance }
+    val combinedCondition = { sdk: projectRoots.Sdk => condition(sdk) && jdkCondition(sdk) }
+    Option(inReadAction(ProjectJdkTable.getInstance().findMostRecentSdk(combinedCondition)))
+  }
+
+  def mostRecentJdk: Option[projectRoots.Sdk] =
+    findMostRecentJdk(_ => true)
 
   def allAndroidSdks: Seq[projectRoots.Sdk] =
     inReadAction(ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala)
 
-  def allJdks: Seq[projectRoots.Sdk] =
-    inReadAction(ProjectJdkTable.getInstance.getAllJdks.toSeq)
 
   def defaultJavaLanguageLevelIn(jdk: projectRoots.Sdk): Option[LanguageLevel] = {
     val JavaLanguageLevels = Map(
@@ -76,6 +95,7 @@ object SdkUtils {
     matchingSdks.headOption
   }
 
-  private def findJdkByHome(homeFile: File): Option[projectRoots.Sdk] =
-    allJdks.find(jdk => FileUtil.comparePaths(homeFile.getCanonicalPath, jdk.getHomePath) == 0)
+  private implicit def asCondition[A](f: A => Boolean): Condition[A] = new Condition[A] {
+    override def value(a: A): Boolean = f(a)
+  }
 }

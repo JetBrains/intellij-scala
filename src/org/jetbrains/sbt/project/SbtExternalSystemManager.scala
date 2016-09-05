@@ -8,13 +8,12 @@ import java.util
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
-import com.intellij.openapi.externalSystem.service.project.autoimport.CachingExternalSystemAutoImportAware
 import com.intellij.openapi.externalSystem.util._
-import com.intellij.openapi.externalSystem.{ExternalSystemAutoImportAware, ExternalSystemConfigurableAware, ExternalSystemManager}
+import com.intellij.openapi.externalSystem.{ExternalSystemConfigurableAware, ExternalSystemManager}
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Pair
 import com.intellij.testFramework.IdeaTestUtil
@@ -24,8 +23,6 @@ import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSystemSettings}
 
-import scala.collection.mutable
-
 /**
  * @author Pavel Fatin
  */
@@ -33,11 +30,11 @@ class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSystemSettings, SbtLocalSettings, SbtExecutionSettings]
   with ExternalSystemConfigurableAware {
 
-  def enhanceLocalProcessing(urls: util.List[URL]) {
+  override def enhanceLocalProcessing(urls: util.List[URL]) {
     urls.add(jarWith[scala.App].toURI.toURL)
   }
 
-  def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
+  override def enhanceRemoteProcessing(parameters: SimpleJavaParameters) {
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type])
@@ -52,21 +49,22 @@ class SbtExternalSystemManager
       PathManager.PROPERTY_LOG_PATH, PathManager.getLogPath)
   }
 
-  def getSystemId = SbtProjectSystem.Id
+  override def getSystemId = SbtProjectSystem.Id
 
-  def getSettingsProvider: Function[Project, SbtSystemSettings] = SbtSystemSettings.getInstance _
+  override def getSettingsProvider: Function[Project, SbtSystemSettings] = SbtSystemSettings.getInstance _
 
-  def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
+  override def getLocalSettingsProvider: Function[Project, SbtLocalSettings] = SbtLocalSettings.getInstance _
 
-  def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] = SbtExternalSystemManager.executionSettingsFor _
+  override def getExecutionSettingsProvider: Function[Pair[Project, String], SbtExecutionSettings] =
+    SbtExternalSystemManager.executionSettingsFor _
 
-  def getProjectResolverClass: Class[SbtProjectResolver] = classOf[SbtProjectResolver]
+  override def getProjectResolverClass: Class[SbtProjectResolver] = classOf[SbtProjectResolver]
 
-  def getTaskManagerClass: Class[SbtTaskManager] = classOf[SbtTaskManager]
+  override def getTaskManagerClass: Class[SbtTaskManager] = classOf[SbtTaskManager]
 
-  def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
+  override def getExternalProjectDescriptor = new SbtOpenProjectDescriptor()
 
-  def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
+  override def getConfigurable(project: Project): Configurable = new SbtExternalSystemConfigurable(project)
 }
 
 object SbtExternalSystemManager {
@@ -78,7 +76,7 @@ object SbtExternalSystemManager {
     val customSbtStructureFile = settings.customSbtStructurePath.nonEmpty.option(settings.customSbtStructurePath.toFile)
 
     val realProjectPath = Option(projectSettings.getExternalProjectPath).getOrElse(path)
-    val projectJdkName = getProjectJdkName(project, projectSettings)
+    val projectJdkName = bootstrapJdk(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settings)
     val vmOptions = getVmOptions(settings)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
@@ -88,10 +86,16 @@ object SbtExternalSystemManager {
       projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers)
   }
 
-  private def getProjectJdkName(project: Project, projectSettings: SbtProjectSettings): Option[String] = {
+  /** Choose a jdk for imports. This is then only used when no overriding information is available from sbt definition.
+    * SbtProjectResolver figures out that part
+    */
+  private def bootstrapJdk(project: Project, importSettings: SbtProjectSettings) = {
+    // either what was set in previous import, or default from Project Structure defaults
     val jdkInProject = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
-    val jdkInImportSettings = projectSettings.jdkName
-    jdkInImportSettings.orElse(jdkInProject)
+    // setting used *only* for initial import
+    val jdkInImportSettings = importSettings.jdkName
+    // use setting from initial import only when there is no other information
+    jdkInProject.orElse(jdkInImportSettings)
   }
 
   private def getVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File =
@@ -110,18 +114,25 @@ object SbtExternalSystemManager {
   private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File = {
     val customVmFile = new File(settings.getCustomVMPath) / "bin" / "java"
     val customVmExecutable = settings.customVMEnabled.option(customVmFile)
+    val jdkType = JavaSdk.getInstance()
 
     customVmExecutable.orElse {
-      val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
-      projectSdk.map { sdk =>
-        sdk.getSdkType match {
-          case sdkType : JavaSdkType =>
-            new File(sdkType.getVMExecutablePath(sdk))
-          case _ =>
-            throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
+      projectJdkName
+        .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
+        .map { sdk =>
+          if (sdk.getSdkType == jdkType)
+            new File(jdkType.getVMExecutablePath(sdk))
+          else
+          throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
         }
-      }
-    } getOrElse {
+    }
+    .orElse {
+      Option(ProjectJdkTable.getInstance().findMostRecentSdkOfType(jdkType))
+        .map { sdk =>
+          new File(jdkType.getVMExecutablePath(sdk))
+        }
+    }
+    .getOrElse {
       throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
     }
   }
