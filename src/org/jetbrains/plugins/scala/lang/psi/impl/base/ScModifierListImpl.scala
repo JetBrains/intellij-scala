@@ -95,13 +95,17 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
     def space = createNewLineNode(" ")
     checkSetModifierProperty(name, value)
     if (hasModifierProperty(name) == value) return
-    def addAfter(node: ASTNode) {
+
+    def addAfter(modifier: String): Unit = {
       val wasEmpty = getFirstChild == null
       if (!wasEmpty) getNode.addChild(space)
-      getNode.addChild(node)
+      getNode.addChild(createModifierFromText(modifier).getNode)
       if (wasEmpty) getNode.addChild(space)
     }
-    def addBefore(node: ASTNode) {
+
+    def addBefore(modifier: String): Unit = {
+      val node = createModifierFromText(modifier).getNode
+
       val first = getFirstChild
       if (first == null) {
         val buf = new ArrayBuffer[ASTNode]()
@@ -125,11 +129,11 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
     }
     name match {
       case "override" => if (value) {
-        addBefore(createModifierFromText("override"))
+        addBefore("override")
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kOVERRIDE).getNode)
       case "private" => if (value) {
-        addBefore(createModifierFromText("private"))
+        addBefore("private")
       }
         else {
         for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isPrivate) {
@@ -138,7 +142,7 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
         }
       }
       case "protected" => if (value) {
-        addBefore(createModifierFromText("protected"))
+        addBefore("protected")
       }
         else {
         for (child <- getChildren if child.isInstanceOf[ScAccessModifier] && child.asInstanceOf[ScAccessModifier].isProtected) {
@@ -147,27 +151,27 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
         }
       }
       case "final" => if (value) {
-        addBefore(createModifierFromText("final"))
+        addBefore("final")
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kFINAL).getNode)
       case "implicit" => if (value) {
-        addBefore(createModifierFromText("implicit"))
+        addBefore("implicit")
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kIMPLICIT).getNode)
       case "abstract" => if (value) {
-        addBefore(createModifierFromText("abstract"))
+        addBefore("abstract")
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kABSTRACT).getNode)
       case "sealed" => if (value) {
-        addBefore(createModifierFromText("sealed"))
+        addBefore("sealed")
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kSEALED).getNode)
       case "lazy" => if (value) {
-        addBefore(createModifierFromText("lazy"))
+        addBefore("lazy")
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kLAZY).getNode)
       case "case" => if (value) {
-        addAfter(createModifierFromText("case"))
+        addAfter("case")
       }
         else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kCASE).getNode)
       case _ =>
