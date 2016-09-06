@@ -1883,7 +1883,7 @@ object ScalaPsiUtil {
     }
 
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
-    def newLine: PsiElement = createNewLineNode()(element.getManager).getPsi
+    def newLine: PsiElement = createNewLine()(element.getManager)
 
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)

@@ -84,10 +84,13 @@ class ScalaPsiElementFactoryImpl(implicit val manager: PsiManager) extends JVMEl
   def createMethod(name: String, returnType: PsiType, context: PsiElement): PsiMethod = throw new IncorrectOperationException
 
   def createConstructor(): PsiMethod =
-    ScalaPsiElementFactory.createMethodFromText("def this() {\nthis()\n}")
+    ScalaPsiElementFactory.createMethodFromText(
+      """def this() {
+        |this()
+        |}""".stripMargin)
 
   def createConstructor(name: String): PsiMethod =
-    ScalaPsiElementFactory.createMethodFromText("def this() {\nthis()\n}")
+    createConstructor()
 
   def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
 
@@ -199,7 +202,7 @@ object ScalaPsiElementFactory {
 
   def createMatch(element: String, caseClauses: Seq[String])
                  (implicit manager: PsiManager): ScMatchStmt = {
-    val clausesText = caseClauses.mkString("{ ", System.lineSeparator, " }")
+    val clausesText = caseClauses.mkString("{ ", "\n", " }")
     createElementFromText(s"$element match $clausesText", classOf[ScMatchStmt])
   }
 
@@ -340,7 +343,10 @@ object ScalaPsiElementFactory {
             else fun.params.getText
           } else fun.params.getText
         val resultText = result match {
-          case block: ScBlock if !block.hasRBrace && block.statements.size != 1 => s"{\n${block.getText}\n}"
+          case block: ScBlock if !block.hasRBrace && block.statements.size != 1 =>
+            s"""{
+                |${block.getText}
+                |}""".stripMargin
           case block @ ScBlock(st) if !block.hasRBrace => stmtText(st)
           case _ => result.getText
         }
@@ -407,15 +413,15 @@ object ScalaPsiElementFactory {
     forStmt.enumerators.flatMap {
       _.enumerators.headOption
     }.getOrElse {
-      throw new IllegalArgumentException(s"Could not create enumerator from text:\n $enumText")
+      throw new IllegalArgumentException(s"Could not create enumerator from text: $enumText")
     }
   }
 
-  def createNewLine(text: String = System.lineSeparator)
+  def createNewLine(text: String = "\n")
                    (implicit manager: PsiManager): PsiElement =
     createNewLineNode(text).getPsi
 
-  def createNewLineNode(text: String = System.lineSeparator)
+  def createNewLineNode(text: String = "\n")
                        (implicit manager: PsiManager): ASTNode =
     createScalaFileFromText(text).getNode.getFirstChildNode
 
