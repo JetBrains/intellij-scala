@@ -123,7 +123,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     settings.visibilityLevel match {
       case "" =>
       case other =>
-        val modifier = createModifierFromText(other).getPsi
+        val modifier = createModifierFromText(other)
         createdDeclaration.asInstanceOf[ScMember].getModifierList.add(modifier)
     }
 
