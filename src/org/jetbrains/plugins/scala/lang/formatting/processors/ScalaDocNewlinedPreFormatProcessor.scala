@@ -9,7 +9,7 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDocWhiteSpace, createLeadingAsterisk}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
@@ -87,17 +87,17 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
     val parent = element.getParent
     //add asterisks inside multi-line newLines (e.g. "\n\n\n" -> "\n*\n*\n")
     if (nextElement != null && ScalaDocNewlinedPreFormatProcessor.isNewLine(element)) {
-      val manager = PsiManager.getInstance(element.getProject)
+      implicit val manager = PsiManager.getInstance(element.getProject)
       for (_ <- 2 to element.getText.count(_ == '\n')) {
-        parent.addAfter(ScalaPsiElementFactory.createDocWhiteSpace(manager), element)
-        parent.addAfter(ScalaPsiElementFactory.createLeadingAsterisk(PsiManager.getInstance(element.getProject)), element)
+        parent.addAfter(createDocWhiteSpace, element)
+        parent.addAfter(createLeadingAsterisk, element)
       }
       val newElement =
-        if (element.getText.count(_ == '\n') > 1) element.replace(ScalaPsiElementFactory.createDocWhiteSpace(manager))
+        if (element.getText.count(_ == '\n') > 1) element.replace(createDocWhiteSpace)
         else element
       if (!Set(ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, ScalaDocTokenType.DOC_COMMENT_END).
         contains(nextElement.getNode.getElementType))
-        parent.addAfter(ScalaPsiElementFactory.createLeadingAsterisk(manager), newElement)
+        parent.addAfter(createLeadingAsterisk, newElement)
     } else {
       //since siblings can be replaced, first make a list of children and only then process them
       def getSiblings(current: PsiElement): List[PsiElement] =
@@ -127,11 +127,11 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
         } else if (newlinesOld < newlinesNew) {
           //add more newlines along with leading asterisks
           val parent = lastWs.getParent
-          val manager = PsiManager.getInstance(lastWs.getProject)
+          implicit val manager = PsiManager.getInstance(lastWs.getProject)
           val prev = lastWs.getPrevSibling
           for (i <- 1 to newlinesNew - newlinesOld) {
-            parent.addBefore(ScalaPsiElementFactory.createLeadingAsterisk(manager), lastWs)
-            parent.addAfter(ScalaPsiElementFactory.createDocWhiteSpace(manager), prev)
+            parent.addBefore(createLeadingAsterisk, lastWs)
+            parent.addAfter(createDocWhiteSpace, prev)
           }
         }
       case _ =>
