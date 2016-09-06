@@ -40,4 +40,55 @@ class ExistentialConformanceTest extends TypeConformanceTestBase {
         |}
       """.stripMargin)
   }
+
+  def testSCL10753a(): Unit = {
+    doTest(
+      s"""
+         |import scala.language.higherKinds
+         |
+         |  class Holder[T[_]] {
+         |    // a trait to hold a parametrized type T
+         |    def t: T[Any] = null.asInstanceOf[T[Any]]
+         |  }
+         |
+         |  class X[T] {
+         |
+         |    // a method that extract the parametrized type, when it is so.
+         |    def foo[Q, X[_]](implicit x: X[Q] =:= T): Holder[X] = {
+         |      new Holder[X]
+         |    }
+         |
+         |  }
+         |
+         |  val o = new X[Seq[String]]
+         |  val oVal = o.foo // REPL infers type Holder[Seq]; IDE infers type Holder[Nothing]
+         |  val test: Holder[Seq] = oVal
+         |//True""".stripMargin)
+  }
+
+  def testSCL10753b(): Unit = {
+    doTest(
+      s"""
+         |  import scala.language.higherKinds
+         |
+         |  class Holder[T[_]] {
+         |    // a trait to hold a parametrized type T
+         |    def t: T[Any] = null.asInstanceOf[T[Any]]
+         |  }
+         |
+         |  class X[T] {
+         |
+         |    // a method that extract the parametrized type, when it is so.
+         |    def foo[Q, X[_]](implicit x: X[Q] =:= T): Holder[X] = {
+         |      new Holder[X]
+         |    }
+         |
+         |  }
+         |
+         |  val o = new X[Seq[String]]
+         |           |
+         |  val ot = o.foo.t // REPL infers type Seq[Any]; IDE infers type Nothing[Any]
+         |  val test2: Seq[Any] = ot
+         |//True""".stripMargin)
+  }
 }
