@@ -1915,7 +1915,7 @@ object ScalaPsiUtil {
       modifierList.accessModifier.foreach(_.delete())
       return
     }
-    val newElem = createModifierFromText(newVisibility).getPsi
+    val newElem = createModifierFromText(newVisibility)
     modifierList.accessModifier match {
       case Some(mod) => mod.replace(newElem)
       case None =>
