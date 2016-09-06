@@ -114,7 +114,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
           val parent = anchorForInit.getParent
           val assignStmt = createExpressionFromText(s"$name = ${expression.getText}")
           parent.addBefore(assignStmt, anchorForInit)
-          parent.addBefore(createNewLineNode().getPsi, anchorForInit)
+          parent.addBefore(createNewLine(), anchorForInit)
         case None => throw new IntroduceException
 
       }
@@ -142,7 +142,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
         PsiDocumentManager.getInstance(ifc.project).commitDocument(document)
       case _ childOf parent =>
         createdDeclaration = parent.addBefore(createdDeclaration, anchor)
-        parent.addBefore(createNewLineNode().getPsi, anchor)
+        parent.addBefore(createNewLine(), anchor)
     }
 
     ScalaPsiUtil.adjustTypes(createdDeclaration)
