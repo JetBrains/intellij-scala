@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass, TypeSy
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 /**
  * Nikolay.Tropin
  * 2014-07-31
@@ -30,9 +31,9 @@ object CreateFromUsageUtil {
       (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r
     }.reverse
   }
-  
+
   def nameByType(tp: ScType): String = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
-  
+
   def nameAndTypeForArg(arg: PsiElement): (String, ScType) = arg match {
     case ref: ScReferenceExpression => (ref.refName, ref.getType().getOrAny)
     case expr: ScExpression =>
@@ -44,7 +45,7 @@ object CreateFromUsageUtil {
       (nameByType(tp), tp)
     case _ => ("value", Any)
   }
-  
+
   def paramsText(args: Seq[PsiElement]): String = {
     val (names, types) = args.map(nameAndTypeForArg).unzip
     (uniqueNames(names), types).zipped.map((name, tpe) => s"$name: ${tpe.canonicalText}").mkString("(", ", ", ")")
@@ -99,6 +100,8 @@ object CreateFromUsageUtil {
   }
 
   def addUnapplyResultTypesToTemplate(fun: ScFunction, builder: TemplateBuilder): Unit = {
+    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
+
     fun.returnTypeElement match {
       case Some(ScParameterizedTypeElement(_, Seq(tuple: ScTupleTypeElement))) => //Option[(A, B)]
         tuple.components.foreach(te => builder.replaceElement(te, te.getText))
