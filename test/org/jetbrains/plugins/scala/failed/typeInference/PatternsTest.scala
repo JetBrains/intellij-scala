@@ -163,4 +163,77 @@ class PatternsTest extends TypeInferenceTestBase {
          |//Nothing
       """.stripMargin)
   }
+
+  def testSCL10741a(): Unit = {
+    doTest(
+      s"""
+         |sealed trait IO[A] { }
+         |
+         |  case class Return[A](a: A) extends IO[A]
+         |  case class FlatMap[B, A](sub: IO[B], k: B => IO[A]) extends IO[A]
+         |
+         |  def run[A](io: IO[A]): A = io match {
+         |    case FlatMap(x, f) => x match {
+         |      case Return(a) => run(f(${START}a$END))
+         |    }
+         |  }
+         |//Nothing
+      """.stripMargin)
+  }
+
+  def testSCL10741b(): Unit = {
+    doTest(
+      s"""
+         |  sealed trait IO[A] { }
+         |
+         |  case class Suspend[A](resume: () => A) extends IO[A]
+         |  case class FlatMap[B, A](sub: IO[B], k: B => IO[A]) extends IO[A]
+         |
+         |  def run[A](io: IO[A]): A = io match {
+         |    case FlatMap(x, f) => x match {
+         |      case Suspend(r) => run(f(${START}r()$END))
+         |    }
+         |  }
+         |//Nothing
+      """.stripMargin)
+  }
+
+  def testSCL10741c(): Unit = {
+    doTest(
+      s"""
+         |sealed trait IO[A] {
+         |    def flatMap[B](f: A => IO[B]): IO[B] =
+         |      FlatMap(this, f)
+         |  }
+         |
+         |  case class FlatMap[B, A](sub: IO[B], k: B => IO[A]) extends IO[A]
+         |
+         |  def run[A](io: IO[A]): A = io match {
+         |    case FlatMap(x, f) => x match {
+         |      case FlatMap(y, g) => run(y flatMap(a => g(${START}a$END) flatMap f))
+         |    }
+         |  }
+         |//Nothing
+      """.stripMargin)
+  }
+
+  def testSCL10741d(): Unit = {
+    doTest(
+      s"""
+         |sealed trait IO[A] {
+         |    def flatMap[B](f: A => IO[B]): IO[B] =
+         |      FlatMap(this, f)
+         |  }
+         |
+         |  case class FlatMap[B, A](sub: IO[B], k: B => IO[A]) extends IO[A]
+         |
+         |  def run[A](io: IO[A]): A = io match {
+         |    case FlatMap(x, f) => x match {
+         |      case FlatMap(y, g) => run(y flatMap(a => g(a) flatMap ${START}f$END))
+         |    }
+         |  }
+         |//(Any) => IO[NotInferedB]
+      """.stripMargin)
+  }
+
 }
