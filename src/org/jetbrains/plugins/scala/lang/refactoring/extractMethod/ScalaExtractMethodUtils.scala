@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -57,7 +57,7 @@ object ScalaExtractMethodUtils {
     val retType =
       if ((settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.REMOVE) ||
         (settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
-          && !addTypeAnnotation(settings.nextSibling, settings.visibility))) " = "
+          && !addTypeAnnotation(settings, settings.visibility))) " = "
       else if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
       else s": ${settings.calcReturnTypeText} ="
 
@@ -323,16 +323,16 @@ object ScalaExtractMethodUtils {
     s"$name$colon$byNameArrow$typeText"
   }
 
-  def addTypeAnnotation(nextElement: PsiElement, visibilityString: String): Boolean = {
-    val isLocal = TypeAnnotationUtil.isLocal(nextElement)
+  def addTypeAnnotation(extractMethodSettings: ScalaExtractMethodSettings, visibilityString: String): Boolean = {
+    val isLocal = TypeAnnotationUtil.isLocal(extractMethodSettings.nextSibling)
 
-    val isSimple = nextElement match {
-      case func: ScFunctionDefinition =>
-        func.body.exists(TypeAnnotationUtil.isSimple)
+    val isSimple = extractMethodSettings.elements.head match {
+      case expression: ScExpression if extractMethodSettings.elements.length == 1 =>
+        TypeAnnotationUtil.isSimple(expression)
       case _ => false
     }
 
-    val settings = ScalaCodeStyleSettings.getInstance(nextElement.getProject)
+    val settings = ScalaCodeStyleSettings.getInstance(extractMethodSettings.nextSibling.getProject)
     TypeAnnotationUtil.isTypeAnnotationNeeded(
       TypeAnnotationUtil.requirementForMethod(isLocal, TypeAnnotationUtil.visibilityFromString(visibilityString), settings),
       settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
