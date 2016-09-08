@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
+import com.intellij.psi.ResolveResult
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
@@ -9,11 +10,12 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScSelfInvocation}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -52,31 +54,40 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
       }
     }
 
+    /**
+      * Extra targets:
+      *
+      * actualElement              type alias used to access a constructor.
+      *                            See also [[org.jetbrains.plugins.scala.findUsages.TypeAliasUsagesSearcher]]
+      * innerResolveResult#element apply method
+      */
+    def handleScalaResolveResult(scalaResolveResult: ScalaResolveResult): Seq[PsiElement] = {
+      val all = Seq(scalaResolveResult.getActualElement, scalaResolveResult.element) ++ scalaResolveResult.innerResolveResult.map(_.getElement)
+      scalaResolveResult.element match {
+        case f: ScFunction if f.isSynthetic => Seq(scalaResolveResult.getActualElement).flatMap(goToTargets)
+        case c: PsiMethod if c.isConstructor =>
+          val clazz = c.containingClass
+          if (clazz == scalaResolveResult.getActualElement) Seq(scalaResolveResult.element).flatMap(goToTargets)
+          else all.distinct flatMap goToTargets
+        case _ =>
+          all.distinct flatMap goToTargets
+      }
+    }
+
+    def handleDynamicResolveResult(dynamicResolveResult: Seq[ResolveResult]): Seq[PsiElement] = {
+      dynamicResolveResult.distinct.map(_.getElement).flatMap(goToTargets)
+    }
+
     if (sourceElement.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
       val file = sourceElement.getContainingFile
       val ref = file.findReferenceAt(sourceElement.getTextRange.getStartOffset)
       if (ref == null) return null
       val targets = ref match {
+        case expression: ScReferenceExpression if DynamicResolveProcessor.isDynamicReference(expression) =>
+          handleDynamicResolveResult(new DynamicResolveProcessor(expression).resolve())
         case resRef: ResolvableReferenceElement =>
           resRef.bind() match {
-            case Some(x) =>
-              /**
-               * Extra targets:
-               *
-               * actualElement              type alias used to access a constructor.
-               *                            See also [[org.jetbrains.plugins.scala.findUsages.TypeAliasUsagesSearcher]]
-               * innerResolveResult#element apply method
-               */
-              val all = Seq(x.getActualElement, x.element) ++ x.innerResolveResult.map(_.getElement)
-              x.element match {
-                case f: ScFunction if f.isSynthetic => Seq(x.getActualElement).flatMap(goToTargets)
-                case c: PsiMethod if c.isConstructor =>
-                  val clazz = c.containingClass
-                  if (clazz == x.getActualElement) Seq(x.element).flatMap(goToTargets)
-                  else all.distinct flatMap goToTargets
-                case _ =>
-                  all.distinct flatMap goToTargets
-              }
+            case Some(x)  => handleScalaResolveResult(x)
             case None => return null
           }
         case r =>
