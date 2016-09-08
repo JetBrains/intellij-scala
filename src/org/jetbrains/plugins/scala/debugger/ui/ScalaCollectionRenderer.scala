@@ -36,10 +36,6 @@ class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSett
   }
 
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
-
-  private def notView(tp: Type): Boolean = !DebuggerUtils.instanceOf(tp, viewClassName)
-
-  private def notStream(tp: Type): Boolean = !DebuggerUtils.instanceOf(tp, streamClassName)
 }
 
 object ScalaCollectionRenderer {
@@ -78,8 +74,7 @@ object ScalaCollectionRenderer {
 
   def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
-      case ct: ClassType if ct.name.startsWith("scala.collection") &&
-        !DebuggerUtils.instanceOf(ct, streamClassName) && !DebuggerUtils.instanceOf(ct, iteratorClassName) => true
+      case ct: ClassType if ct.name.startsWith("scala.collection") && notStream(ct) && notIterator(ct) => true
       case _ => evaluateBoolean(value, evaluationContext, hasDefiniteSizeEval(evaluationContext))
     }
   }
@@ -93,6 +88,13 @@ object ScalaCollectionRenderer {
 
   def size(value: Value, evaluationContext: EvaluationContext): Int = evaluateInt(value, evaluationContext, sizeEval(evaluationContext))
 
+  private def checkNotCollectionOfKind(tp: Type, shortName: String, baseClassName: String) = !tp.name.contains(shortName) && !DebuggerUtils.instanceOf(tp, baseClassName)
+
+  private def notView(tp: Type): Boolean = checkNotCollectionOfKind(tp, "View", viewClassName)
+
+  private def notStream(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Stream", streamClassName)
+
+  private def notIterator(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Iterator", iteratorClassName)
   /**
    * util method for collection displaying in debugger
     *
@@ -243,7 +245,7 @@ object ScalaCollectionRenderer {
       ScalaMethodEvaluator(new ScalaThisEvaluator(), "toArray", null, Seq(argEval))
     }
 
-    private def stableObjectEval(name: String) = ScalaFieldEvaluator(new TypeEvaluator(JVMNameUtil.getJVMRawText(name)), "MODULE$", false)
+    private def stableObjectEval(name: String) = ScalaFieldEvaluator(new TypeEvaluator(JVMNameUtil.getJVMRawText(name)), "MODULE$", classPrivateThisField = false)
   }
 }
 
