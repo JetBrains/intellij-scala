@@ -311,7 +311,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void setUpTypeChb() {
-    mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility()));
+    mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
 
     mySpecifyTypeChb.addActionListener(new ActionListener() {
       @Override
@@ -323,7 +323,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     visibilityComboBox.addItemListener(new ItemListener() {
       @Override
       public void itemStateChanged(ItemEvent e) {
-        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility()));
+        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
       }
     });
   }
@@ -337,7 +337,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
-        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings.nextSibling(), getVisibility()));
+        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
         updateSignature();
       }
     });
