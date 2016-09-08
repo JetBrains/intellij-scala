@@ -730,7 +730,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         } else false
       }
 
-      refElement.getParent match {
+      parent match {
         case _: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
           val messageKey = "cannot.resolve.apply.method"
@@ -803,6 +803,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 0 || refElement.isSoft) return
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
+      if (resolve.count(_.isInstanceOf[ScalaResolveResult]) == 1) {
+        return
+      }
+
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return
         case _ =>

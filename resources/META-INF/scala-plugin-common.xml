@@ -15,6 +15,7 @@
         <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
         <extensionPoint name="syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"/>
         <extensionPoint name="scalaTestDefaultWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider"/>
+        <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
