@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
@@ -26,6 +26,7 @@ class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandl
       val parent = clazz.getParent
       val addedObj = parent.addAfter(obj, clazz)
       parent.addAfter(createNewLine()(clazz.getManager), clazz)
+
       val document = editor.getDocument
       PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
       val offset = addedObj.getTextRange.getStartOffset
@@ -38,16 +39,12 @@ class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandl
 
   def startInWriteAction(): Boolean = true
 
-  private def canAddCompanionObject(clazz: ScTemplateDefinition): Boolean = clazz match {
-    case td: ScTypeDefinition if td.fakeCompanionModule.nonEmpty => false
-    case _: ScTrait | _: ScClass => ScalaPsiUtil.getBaseCompanionModule(clazz).isEmpty
-    case _ => false
-  }
+  private def canAddCompanionObject(clazz: ScTypeDefinition): Boolean =
+    getCompanionModule(clazz).isEmpty
 
-  private def createCompanionObject(clazz: ScTemplateDefinition): ScObject = {
+  private def createCompanionObject(clazz: ScTypeDefinition): ScObject = {
     if (canAddCompanionObject(clazz)) {
-      val text = s"object ${clazz.name} {\n \n}"
-      createObjectWithContext(text, clazz.getContext, clazz)
+      createObjectWithContext(s"object ${clazz.name} {\n \n}", clazz.getContext, clazz)
     }
     else throw new IllegalArgumentException("Cannot create companion object")
   }

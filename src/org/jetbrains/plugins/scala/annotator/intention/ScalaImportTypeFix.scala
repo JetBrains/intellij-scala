@@ -336,15 +336,13 @@ object ScalaImportTypeFix {
         }
       }
       addClazz(clazz)
-      clazz match {
-        case c: ScTypeDefinition if c.fakeCompanionModule.isDefined =>
-          if (ScalaPsiUtil.getBaseCompanionModule(c).isEmpty) {
-            ScalaPsiUtil.getCompanionModule(c) match {
-              case Some(companion) => addClazz(companion)
-              case _ =>
-            }
-          }
-        case _ =>
+
+      Option(clazz).collect {
+        case definition: ScTypeDefinition => definition
+      }.flatMap {
+        _.fakeCompanionModule
+      }.foreach {
+        addClazz
       }
     }
 

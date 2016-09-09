@@ -8,7 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenameHandler, MemberInplaceRenamer}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
 /**
@@ -32,15 +33,22 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
   protected override def createMemberRenamer(substituted: PsiElement,
                                              elementToRename: PsiNameIdentifierOwner,
                                              editor: Editor): MemberInplaceRenamer = {
-    substituted match {
+    val (maybeFirstElement, maybeSecondElement) = substituted match {
       case clazz: PsiClass if elementToRename.isInstanceOf[PsiClassWrapper] =>
-        new ScalaMemberInplaceRenamer(elementToRename, clazz, editor)
+        (None, None)
+      case definition: ScTypeDefinition =>
+        (Some(definition), getBaseCompanionModule(definition))
       case clazz: PsiClass =>
-        val companion = ScalaPsiUtil.getBaseCompanionModule(clazz)
-        new ScalaMemberInplaceRenamer(clazz, companion.getOrElse(clazz), editor)
-      case subst: PsiNamedElement => new ScalaMemberInplaceRenamer(elementToRename, subst, editor)
+        (Some(clazz), None)
+      case subst: PsiNamedElement =>
+        (None, None)
       case _ => throw new IllegalArgumentException("Substituted element for renaming has no name")
     }
+
+
+    new ScalaMemberInplaceRenamer(maybeFirstElement.getOrElse(elementToRename),
+      maybeSecondElement.getOrElse(substituted),
+      editor)
   }
 
   override def doRename(elementToRename: PsiElement, editor: Editor, dataContext: DataContext): InplaceRefactoring = {

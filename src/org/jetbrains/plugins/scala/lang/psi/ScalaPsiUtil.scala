@@ -15,7 +15,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
@@ -1238,59 +1238,44 @@ object ScalaPsiUtil {
   }
 
   def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    getBaseCompanionModule(clazz) match {
-      case Some(td) => Some(td)
-      case _ =>
-        clazz match {
-          case x: ScTypeDefinition => x.fakeCompanionModule
-          case _ => None
-        }
+    clazz match {
+      case definition: ScTypeDefinition =>
+        getBaseCompanionModule(definition).orElse(definition.fakeCompanionModule)
+      case _ => None
     }
   }
 
   //Performance critical method
-  def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    val (definition, scope) = clazz match {
-      case t: ScTypeDefinition if t.getContext != null => (t, t.getContext)
-      case _ => return None
-    }
+  def getBaseCompanionModule(definition: ScTypeDefinition): Option[ScTypeDefinition] = {
+    Option(definition.getContext).flatMap { scope =>
+      val tokenSet = ScalaTokenSets.typeDefinitions
 
-    val tokenSet = ScalaTokenSets.typeDefinitions
+      val arrayOfElements: Array[PsiElement] = scope match {
+        case stub: StubBasedPsiElement[_] if stub.getStub != null =>
+          stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+        case file: PsiFileImpl if file.getStub != null =>
+          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+        case context => context.getChildren
+      }
 
-    val arrayOfElements: Array[PsiElement] = scope match {
-      case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-        stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl if file.getStub != null =>
-        file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-      case context => context.getChildren
-    }
-
-    val name = definition.name
-    definition match {
-      case _: ScClass | _: ScTrait =>
-        arrayOfElements.collectFirst {
-          case o: ScObject if o.name == name => o
-        }
-      case _: ScObject =>
-        arrayOfElements.collectFirst {
-          case c: ScClass if c.name == name => c
-          case t: ScTrait if t.name == name => t
-        }
-      case _ => None
+      val name = definition.name
+      definition match {
+        case _: ScClass | _: ScTrait =>
+          arrayOfElements.collectFirst {
+            case o: ScObject if o.name == name => o
+          }
+        case _: ScObject =>
+          arrayOfElements.collectFirst {
+            case c: ScClass if c.name == name => c
+            case t: ScTrait if t.name == name => t
+          }
+        case _ => None
+      }
     }
   }
 
   object FakeCompanionClassOrCompanionClass {
     def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
-  }
-
-  def withCompanionSearchScope(clazz: PsiClass): SearchScope = {
-    val scope = new LocalSearchScope(clazz)
-    getBaseCompanionModule(clazz).map {
-      new LocalSearchScope(_)
-    }.map {
-      scope.union
-    }.getOrElse(scope)
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {

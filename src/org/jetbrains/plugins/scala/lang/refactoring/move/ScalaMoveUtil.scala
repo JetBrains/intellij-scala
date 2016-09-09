@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.move
 
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.Key
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement, PsiFile}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.conversion.copy.{Associations, ScalaCopyPastePostProcessor}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaNamesUtil}
@@ -44,18 +44,16 @@ object ScalaMoveUtil {
 
   def doMoveClass(@NotNull aClass: PsiClass, @NotNull moveDestination: PsiDirectory, withCompanion: Boolean): PsiClass = {
     var fileWasDeleted: Boolean = false
-    val maybeCompanion = if(withCompanion) ScalaPsiUtil.getBaseCompanionModule(aClass) else None
+    val maybeCompanion = companionModule(aClass, withCompanion)
 
-    def deleteClass(aClass: PsiClass) = {
-      aClass.getContainingFile match {
-        case file: ScalaFile =>
-          file.typeDefinitions match {
-            case Seq(`aClass`) if !file.isScriptFile() && !file.isWorksheetFile =>
-              file.delete()
-              fileWasDeleted = true
-            case _ => aClass.delete()
-          }
-      }
+    def deleteClass(aClass: PsiClass): Unit = aClass.getContainingFile match {
+      case file: ScalaFile =>
+        file.typeDefinitions match {
+          case Seq(`aClass`) if !file.isScriptFile() && !file.isWorksheetFile =>
+            file.delete()
+            fileWasDeleted = true
+          case _ => aClass.delete()
+        }
     }
 
     def moveClassInner(aClass: PsiClass, moveDestination: PsiDirectory): PsiClass = {
@@ -101,70 +99,70 @@ object ScalaMoveUtil {
       newClass
     }
 
-    def moveCompanion(aCompanion: PsiClass, movedClass:PsiClass): PsiClass = {
-      val movedCompanion = movedClass.getContainingFile.add(aCompanion).asInstanceOf[PsiClass]
-      deleteClass(aCompanion)
-      movedCompanion
+    val movedClass = moveClassInner(aClass, moveDestination)
+    maybeCompanion.foreach { companion =>
+      movedClass.getContainingFile.add(companion)
+      deleteClass(companion)
     }
 
-    val movedClass: PsiClass = moveClassInner(aClass, moveDestination)
-    maybeCompanion.foreach(c => moveCompanion(c, movedClass))
     movedClass
   }
 
   def collectAssociations(@NotNull aClass: PsiClass, withCompanion: Boolean) {
-    def collectData(clazz: PsiClass, file: ScalaFile) {
-      val range: TextRange = clazz.getTextRange
-      val associations = PROCESSOR.collectTransferableData(file, null,
-        Array[Int](range.getStartOffset), Array[Int](range.getEndOffset))
-      clazz.putCopyableUserData(ASSOCIATIONS_KEY, if (associations.isEmpty) null else associations.get(0))
-    }
     val alreadyMoved = getMoveDestination(aClass) == aClass.getContainingFile.getContainingDirectory
     aClass.getContainingFile match {
       case file: ScalaFile if !alreadyMoved =>
-        collectData(aClass, file)
-        if (withCompanion)
-          ScalaPsiUtil.getBaseCompanionModule(aClass).foreach(c => collectData(c, file))
+        applyWithCompanionModule(aClass, withCompanion) { clazz =>
+          val range = clazz.getTextRange
+          val associations = PROCESSOR.collectTransferableData(file, null,
+            Array[Int](range.getStartOffset), Array[Int](range.getEndOffset))
+          clazz.putCopyableUserData(ASSOCIATIONS_KEY, if (associations.isEmpty) null else associations.get(0))
+        }
       case _ =>
     }
   }
 
-  def restoreAssociations(@NotNull aClass: PsiClass, withCompanion: Boolean) {
-    def restoreInner(clazz: PsiClass) {
-      val associations: Associations = clazz.getCopyableUserData(ASSOCIATIONS_KEY)
-      if (associations != null) {
+  def restoreAssociations(@NotNull aClass: PsiClass, withCompanion: Boolean): Unit =
+    applyWithCompanionModule(aClass, withCompanion) { clazz =>
+      Option(clazz.getCopyableUserData(ASSOCIATIONS_KEY)).foreach {
         try {
-          PROCESSOR.restoreAssociations(associations, clazz.getContainingFile, clazz.getTextRange.getStartOffset, clazz.getProject)
-        }
-        finally {
+          PROCESSOR.restoreAssociations(_, clazz.getContainingFile, clazz.getTextRange.getStartOffset, clazz.getProject)
+        } finally {
           clazz.putCopyableUserData(ASSOCIATIONS_KEY, null)
         }
       }
     }
-    restoreInner(aClass)
-    if (withCompanion)
-      ScalaPsiUtil.getBaseCompanionModule(aClass).foreach(restoreInner)
-  }
 
-  def shiftAssociations(aClass: PsiClass, offsetChange: Int) {
+  def shiftAssociations(aClass: PsiClass, offsetChange: Int): Unit =
     aClass.getCopyableUserData(ASSOCIATIONS_KEY) match {
       case null =>
       case as: Associations =>  as.associations.foreach(a => a.range = a.range.shiftRight(offsetChange))
     }
-  }
 
   def saveMoveDestination(@NotNull element: PsiElement, moveDestination: PsiDirectory): Unit = {
     val classes = element match {
       case c: PsiClass => Seq(c)
       case f: ScalaFile => f.typeDefinitions
       case p: ScPackage => p.getClasses.toSeq
-      case _ => Nil
+      case _ => Seq.empty
     }
-    classes.flatMap{
-      case td: ScTypeDefinition => td :: ScalaPsiUtil.getBaseCompanionModule(td).toList
-      case e => List(e)
-    }.foreach(_.putUserData(MOVE_DESTINATION, moveDestination))
+
+    classes.foreach {
+      applyWithCompanionModule(_, withCompanion = true) {
+        _.putUserData(MOVE_DESTINATION, moveDestination)
+      }
+    }
   }
 
   def getMoveDestination(@NotNull element: PsiElement): PsiDirectory = element.getUserData[PsiDirectory](MOVE_DESTINATION)
+
+  private def applyWithCompanionModule(clazz: PsiClass, withCompanion: Boolean)(function: PsiClass => Unit): Unit =
+    (Option(clazz) ++ companionModule(clazz, withCompanion)).foreach(function)
+
+  private def companionModule(clazz: PsiClass, withCompanion: Boolean): Option[ScTypeDefinition] =
+    Option(clazz).collect {
+      case definition: ScTypeDefinition if withCompanion => definition
+    }.flatMap {
+      getBaseCompanionModule
+    }
 }
