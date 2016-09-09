@@ -1250,47 +1250,32 @@ object ScalaPsiUtil {
 
   //Performance critical method
   def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    val (td, scope) = clazz match {
+    val (definition, scope) = clazz match {
       case t: ScTypeDefinition if t.getContext != null => (t, t.getContext)
       case _ => return None
     }
 
-    val name: String = td.name
     val tokenSet = ScalaTokenSets.typeDefinitions
+
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
         stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl =>
-        val stub = file.getStub
-        if (stub != null) {
-          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        } else scope.getChildren
-      case _ => scope.getChildren
+      case file: PsiFileImpl if file.getStub != null =>
+        file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+      case context => context.getChildren
     }
-    td match {
+
+    val name = definition.name
+    definition match {
       case _: ScClass | _: ScTrait =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case obj: ScObject if obj.name == name => return Some(obj)
-            case _ =>
-          }
-          i = i + 1
+        arrayOfElements.collectFirst {
+          case o: ScObject if o.name == name => o
         }
-        None
       case _: ScObject =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case c: ScClass if c.name == name => return Some(c)
-            case t: ScTrait if t.name == name => return Some(t)
-            case _ =>
-          }
-          i = i + 1
+        arrayOfElements.collectFirst {
+          case c: ScClass if c.name == name => c
+          case t: ScTrait if t.name == name => t
         }
-        None
       case _ => None
     }
   }
@@ -1300,10 +1285,12 @@ object ScalaPsiUtil {
   }
 
   def withCompanionSearchScope(clazz: PsiClass): SearchScope = {
-    getBaseCompanionModule(clazz) match {
-      case Some(companion) => new LocalSearchScope(clazz).union(new LocalSearchScope(companion))
-      case None => new LocalSearchScope(clazz)
-    }
+    val scope = new LocalSearchScope(clazz)
+    getBaseCompanionModule(clazz).map {
+      new LocalSearchScope(_)
+    }.map {
+      scope.union
+    }.getOrElse(scope)
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
