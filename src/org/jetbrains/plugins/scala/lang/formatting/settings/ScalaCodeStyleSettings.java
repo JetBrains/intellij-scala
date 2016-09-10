@@ -125,6 +125,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = false;
   public boolean REPLACE_LAMBDA_WITH_GREEK_LETTER = false;
+  public boolean LINE_COMMENT_AT_FIRST_COLUMN = false;
 
 
   @Override

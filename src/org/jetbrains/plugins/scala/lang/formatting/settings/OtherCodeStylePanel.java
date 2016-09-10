@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -75,13 +74,12 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     if (!isModified(settings)) return;
 
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.Instance);
     scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = enforceFunctionalSyntaxForCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox1.isSelected();
     scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = replaceInForGeneratorCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER = replaceLambdaWithGreekLetter.isSelected();
-    commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN = lineCommentAtFirstColumnCheckBox.isSelected();
+    scalaCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN = lineCommentAtFirstColumnCheckBox.isSelected();
     scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = alternateIndentationForParamsCheckBox.isSelected();
     scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = (Integer) alternateIndentationForParamsSpinner.getValue();
   }
@@ -89,7 +87,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   @Override
   public boolean isModified(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.Instance);
 
     if (scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT != enforceFunctionalSyntaxForCheckBox.isSelected())
       return true;
@@ -101,7 +98,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
       return true;
     if (scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER != replaceLambdaWithGreekLetter.isSelected())
       return true;
-    if (commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN != lineCommentAtFirstColumnCheckBox.isSelected())
+    if (scalaCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN != lineCommentAtFirstColumnCheckBox.isSelected())
       return true;
     if (scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != alternateIndentationForParamsCheckBox.isSelected())
       return true;
@@ -121,13 +118,12 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   @Override
   protected void resetImpl(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.Instance);
     enforceFunctionalSyntaxForCheckBox.setSelected(scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT);
     replaceWithUnicodeSymbolCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR);
     replaceWithUnicodeSymbolCheckBox1.setSelected(scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR);
     replaceInForGeneratorCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR);
     replaceLambdaWithGreekLetter.setSelected(scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER);
-    lineCommentAtFirstColumnCheckBox.setSelected(commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN);
+    lineCommentAtFirstColumnCheckBox.setSelected(scalaCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN);
     alternateIndentationForParamsCheckBox.setSelected(scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
     alternateIndentationForParamsSpinner.setValue(scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
   }
