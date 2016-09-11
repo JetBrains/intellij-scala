@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createTypeFromText}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScPatternListImpl, ScStableCodeReferenceElementImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -149,16 +150,18 @@ trait ScPattern extends ScalaPsiElement with Typeable {
             val parts = getParent.asInstanceOf[ScalaPsiElement]
               .findChildrenByType(ScalaTokenTypes.tINTERPOLATED_STRING)
               .map(_.getText)
-
-            val text =
-              if (argIndex < parts.length && parts(argIndex).endsWith("..."))
-                "Seq[Seq[scala.reflect.api.Trees#Tree]]"
-              else if (argIndex < parts.length && parts(argIndex).endsWith(".."))
-                "Seq[scala.reflect.api.Trees#Tree]"
-              else
-                "scala.reflect.api.Trees#Tree"
-            createExpressionFromText(text)(PsiManager.getInstance(getProject))
+            if (argIndex < parts.length && parts(argIndex).endsWith("..."))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", PsiManager.getInstance(getProject))
+            if (argIndex < parts.length && parts(argIndex).endsWith(".."))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", PsiManager.getInstance(getProject))
+            else
+              ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", PsiManager.getInstance(getProject))
         }
+        tpe.getType().toOption
+      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isMetaQQ(fun) =>
+        val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(getParent.getParent.asInstanceOf[ScInterpolationPatternImpl])
+        val clazz = patterns(argIndex)
+        val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz, PsiManager.getInstance(getProject))
         tpe.getType().toOption
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.count(!_.isImplicitParameter) == 1 =>
@@ -476,6 +479,11 @@ object ScPattern {
   def isQuasiquote(fun: ScFunction): Boolean = {
     val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
     fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
+  }
+
+  def isMetaQQ(fun: ScFunction): Boolean = {
+    val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
+    fqnO.exists(fqn => fqn == "scala.meta.quasiquotes.Api.XtensionQuasiquoteTerm.q")
   }
 
 }
