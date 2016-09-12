@@ -43,15 +43,15 @@ class PackageTypeInferenceTest extends ScalaFixtureTestCase with TypeInferenceDo
 
     addFile(foo, "Foo.scala")
     addFile(packObject, "a.scala")
-    doTest(testFile)
+    doTest(Some(testFile))
   }
 
   protected def addFile(text: String, name: String) = {
     myFixture.addFileToProject(name, text)
   }
 
-  override def configureFromFileText(fileName: String, fileText: String): ScalaFile = {
-    val file: ScalaFile = myFixture.configureByText(fileName, fileText).asInstanceOf[ScalaFile]
+  override def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile = {
+    val file: ScalaFile = myFixture.configureByText(fileName, fileText.get.trim.replace("\r", "")).asInstanceOf[ScalaFile]
     file
   }
 }
