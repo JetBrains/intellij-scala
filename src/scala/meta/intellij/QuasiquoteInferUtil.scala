@@ -1,20 +1,18 @@
 package scala.meta.intellij
 
-import com.intellij.psi.{PsiElementFactory, PsiManager}
-import org.jetbrains.plugins.scala.lang.parser.ScalaParser
+import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeSystem}
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StableCodeReferenceElementResolver}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.meta.Term
 import scala.meta.inputs.Input
 import scala.meta.internal.parsers.ScalametaParser
-import scala.meta.parsers.Parsed
+import scala.meta.parsers.{ParseException, Parsed}
 import scala.meta.parsers.Parsed._
 
 /**
@@ -22,14 +20,8 @@ import scala.meta.parsers.Parsed._
   * @since 11.09.16
   */
 object QuasiquoteInferUtil {
-  import org.jetbrains.plugins.scala.extensions._
+
   import scala.{meta => m}
-
-
-  def isMetaQQ(fun: ScFunction): Boolean = {
-    val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
-    fqnO.contains("scala.meta.quasiquotes.Api.XtensionQuasiquoteTerm.q")
-  }
 
 
   def isMetaQQ(ref: ScStableCodeReferenceElement): Boolean = {
@@ -39,6 +31,11 @@ object QuasiquoteInferUtil {
     }
   }
 
+  def isMetaQQ(fun: ScFunction): Boolean = {
+    val fqnO = Option(fun.containingClass).map(_.qualifiedName)
+    fqnO.contains("scala.meta.quasiquotes.Api.XtensionQuasiquoteTerm.q")
+  }
+
   def isMetaQQ(ref: ScReferenceExpression): Boolean = {
     ref.bind() match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
@@ -46,14 +43,13 @@ object QuasiquoteInferUtil {
     }
   }
 
-  private def classToScTypeString(c: Class[_]): String = {
-    if(c.isArray) {
-      s"scala.collection.immutable.Seq[${classToScTypeString(c.getComponentType)}]"
-    } else {
-      c.getTypeName.replaceAll("\\$", ".")
+  def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): m.Tree = {
+    val parser = new ScalametaParser(Input.String(text), dialect)
+    prefix match {
+      case "q" => parser.parseQuasiquoteStat()
+      case "t" => parser.parseType()
     }
   }
-
 
   def getMetaQQExprType(pat: ScInterpolatedStringLiteral): TypeResult[ScType] = {
     val patternText = escapeQQ(pat)
@@ -63,12 +59,22 @@ object QuasiquoteInferUtil {
     else
       m.Dialect.forName("QuasiquoteTerm(Scala211, Single)")
     val parser = new ScalametaParser(Input.String(patternText), qqdialect)
-//    val parsed: Parsed[m.Stat] = qqdialect(patternText).parse[m.Stat]
-    val parsed = parser.parseQuasiquoteStat()
-    val element = ScalaPsiElementFactory.createTypeElementFromText(s"scala.meta.${parsed.productPrefix}", PsiManager.getInstance(pat.getProject))
-    element.getType()
+    try {
+      val parsed: m.Stat = parser.parseQuasiquoteStat()
+      ScalaPsiElementFactory.createTypeElementFromText(s"scala.meta.${parsed.productPrefix}", PsiManager.getInstance(pat.getProject)).getType()
+    } catch {
+      case e: ParseException => Failure(e.getMessage, None)
+    }
   }
 
+  def escapeQQ(pat: ScInterpolatedStringLiteral): String = {
+    val c = pat.getFirstChild
+    if (pat.isMultiLineString) {
+      pat.getText.replaceAll("^q\"\"\"", "").replaceAll("\"\"\"$", "").trim
+    } else {
+      pat.getText.replaceAll("^q\"", "").replaceAll("\"$", "").trim
+    }
+  }
 
   def getMetaQQPatternTypes(pat: ScInterpolationPatternImpl): Seq[String] = {
 
@@ -82,9 +88,9 @@ object QuasiquoteInferUtil {
     val patternText = escapeQQ(pat)
 
     val qqdialect = if (pat.isMultiLineString)
-        m.Dialect.forName("QuasiquotePat(Scala211, Multi)")
-      else
-        m.Dialect.forName("QuasiquotePat(Scala211, Single)")
+      m.Dialect.forName("QuasiquotePat(Scala211, Multi)")
+    else
+      m.Dialect.forName("QuasiquotePat(Scala211, Single)")
     val parsed: Parsed[m.Stat] = qqdialect(patternText).parse[m.Stat]
     parsed match {
       case Success(term) =>
@@ -98,6 +104,7 @@ object QuasiquoteInferUtil {
   }
 
   def escapeQQ(pat: ScInterpolationPatternImpl): String = {
+    val c = pat.getFirstChild
     if (pat.isMultiLineString) {
       pat.getText.replaceAll("^q\"\"\"", "").replaceAll("\"\"\"$", "").trim
     } else {
@@ -105,11 +112,11 @@ object QuasiquoteInferUtil {
     }
   }
 
-  def escapeQQ(pat: ScInterpolatedStringLiteral): String = {
-    if (pat.isMultiLineString) {
-      pat.getText.replaceAll("^q\"\"\"", "").replaceAll("\"\"\"$", "").trim
+  private def classToScTypeString(c: Class[_]): String = {
+    if (c.isArray) {
+      s"scala.collection.immutable.Seq[${classToScTypeString(c.getComponentType)}]"
     } else {
-      pat.getText.replaceAll("^q\"", "").replaceAll("\"$", "").trim
+      c.getTypeName.replaceAll("\\$", ".")
     }
   }
 }

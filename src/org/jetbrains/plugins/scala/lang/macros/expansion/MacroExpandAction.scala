@@ -363,13 +363,13 @@ object MacroExpandAction {
       val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
       val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
       val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
-      val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$impl$")
+      val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$")
       val ctor = outer.getDeclaredConstructors.head
       ctor.setAccessible(true)
       val inst = ctor.newInstance()
-      val meth = outer.getDeclaredMethods.find(_.getName == "apply$impl").get
+      val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
       meth.setAccessible(true)
-      val result = meth.invoke(inst, converted.get.asInstanceOf[AnyRef])
+      val result = meth.invoke(inst, null, converted.get.asInstanceOf[AnyRef])
       result.asInstanceOf[Tree]
     }
 
