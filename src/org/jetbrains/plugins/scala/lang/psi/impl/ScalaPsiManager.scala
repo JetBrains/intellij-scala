@@ -20,6 +20,7 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.{ContainerUtil, WeakValueHashMap}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
@@ -350,6 +351,17 @@ class ScalaPsiManager(val project: Project) {
   def getModificationCount: Long = modificationTracker.getModificationCount
 
   def incModificationCount(): Long = modificationTracker.incModificationCount()
+
+  @TestOnly
+  def clearAllCaches(): Unit = {
+    clearOnChange()
+    clearOnOutOfCodeBlockChange()
+  }
+
+  @TestOnly
+  def clearCachesOnChange(): Unit = {
+    clearOnChange()
+  }
 }
 
 object ScalaPsiManager {

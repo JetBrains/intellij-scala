@@ -179,6 +179,11 @@ lazy val sbtLaunchTestDownloader =
 //  )
 //}
 
+lazy val jmhBenchmarks =
+  newProject("jmhBenchmarks")
+    .dependsOn(scalaCommunity % "test->test")
+    .enablePlugins(JmhPlugin)
+
 // Testing keys and settings
 
 addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptCategory")
