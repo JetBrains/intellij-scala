@@ -158,7 +158,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
               ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", PsiManager.getInstance(getProject))
         }
         tpe.getType().toOption
-      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isMetaQQ(fun) =>
+      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && QuasiquoteInferUtil.isMetaQQ(fun) =>
         val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(getParent.getParent.asInstanceOf[ScInterpolationPatternImpl])
         val clazz = patterns(argIndex)
         val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz, PsiManager.getInstance(getProject))
@@ -481,9 +481,6 @@ object ScPattern {
     fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
   }
 
-  def isMetaQQ(fun: ScFunction): Boolean = {
-    val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
-    fqnO.exists(fqn => fqn == "scala.meta.quasiquotes.Api.XtensionQuasiquoteTerm.q")
-  }
+
 
 }
