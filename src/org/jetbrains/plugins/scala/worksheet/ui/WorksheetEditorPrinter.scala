@@ -369,7 +369,7 @@ object WorksheetEditorPrinter {
             )
 
             val syncSupport = new SyncScrollSupport
-            syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer)))
+            syncSupport.install(Array[EditingSides](new WorksheetDiffSplitters.WorksheetEditingSides(originalEditor, worksheetViewer, foldGroup)))
 
             originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
 
