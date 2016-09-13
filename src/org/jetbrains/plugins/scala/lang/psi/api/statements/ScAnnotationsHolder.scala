@@ -114,10 +114,9 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     val metaAnnotation = annotations.find(_.isMetaAnnotation)
     metaAnnotation match {
       case Some(annotation) =>
-        val result = try {
-          MacroExpandAction.runMetaAnnotation(annotation).toString()
-        } catch {
-          case _: IOException | _: ClassNotFoundException => ""
+        val result = MacroExpandAction.runMetaAnnotation(annotation) match {
+          case Some(tree) => tree.toString
+          case None       => ""
         }
         result
       case None => ""

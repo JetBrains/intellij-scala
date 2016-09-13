@@ -322,55 +322,69 @@ object MacroExpandAction {
     }
   }
 
-  def expandMetaAnnotation(annot: ScAnnotation): String = {
-    val result: scala.meta.Tree = runMetaAnnotation(annot)
-
-    inWriteCommandAction(annot.getProject) {
-      expandAnnotation(annot, MacroExpansion(null, result.toString))
+  def expandMetaAnnotation(annot: ScAnnotation) = {
+    val result = runMetaAnnotation(annot)
+    result match {
+      case Some(tree) =>
+        inWriteCommandAction(annot.getProject) {
+          expandAnnotation(annot, MacroExpansion(null, tree.toString))
+        }
+      case None =>
     }
-    ""
+  }
+
+  def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = {
+    import org.jetbrains.plugins.scala.project._
+
+    def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
+    def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
+      .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
+
+    val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
+    val metaModule = annotClass.flatMap(_.module)
+    val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
+    val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
+    val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
+    try {
+      Some(classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$"))
+    } catch {
+      case _:  ClassNotFoundException => None
+    }
   }
 
 
-  def runMetaAnnotation(annot: ScAnnotation): scala.meta.Tree = {
+  def runMetaAnnotation(annot: ScAnnotation): Option[Tree] = {
 
     @CachedInsidePsiElement(annot, ModCount.getModificationCount)
-    def runMetaAnnotationsImpl: Tree = {
-      import org.jetbrains.plugins.scala.project._
-
-      def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
-        .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
-
-      def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
+    def runMetaAnnotationsImpl: Option[Tree] = {
 
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
-
         override def dumbMode: Boolean = true
       }
 
-      val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
       val annotee: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
         .copy()
         .asInstanceOf[ScAnnotationsHolder]
+
       annotee.annotations.find(_.getQualifiedName == annot.getQualifiedName).foreach(_.delete())
-      val converted = annotClass.map {
-        case o: ScTypeDefinition if o.isMetaAnnotatationImpl =>
-          converter.ideaToMeta(annotee)
-        case _ =>
+      val converted = converter.ideaToMeta(annotee)
+      val clazz = getCompiledMetaAnnotClass(annot)
+      clazz.flatMap { outer =>
+        val ctor = outer.getDeclaredConstructors.head
+        ctor.setAccessible(true)
+        val inst = ctor.newInstance()
+        val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
+        meth.setAccessible(true)
+        try {
+          val result = meth.invoke(inst, null, converted.asInstanceOf[AnyRef])
+          Some(result.asInstanceOf[Tree])
+        } catch {
+          case e: Exception =>
+            LOG.error(e)
+            None
+        }
       }
-      val metaModule = annotClass.flatMap(_.module)
-      val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
-      val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
-      val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
-      val outer = classLoader.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$")
-      val ctor = outer.getDeclaredConstructors.head
-      ctor.setAccessible(true)
-      val inst = ctor.newInstance()
-      val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
-      meth.setAccessible(true)
-      val result = meth.invoke(inst, null, converted.get.asInstanceOf[AnyRef])
-      result.asInstanceOf[Tree]
     }
 
     runMetaAnnotationsImpl

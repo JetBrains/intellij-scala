@@ -1,19 +1,19 @@
 package scala.meta.intellij
 
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 import scala.meta.inputs.Input
 import scala.meta.internal.parsers.ScalametaParser
-import scala.meta.parsers.{ParseException, Parsed}
 import scala.meta.parsers.Parsed._
+import scala.meta.parsers.{ParseException, Parsed}
 
 /**
   * @author Mikhail Mutcianko
@@ -23,10 +23,9 @@ object QuasiquoteInferUtil {
 
   import scala.{meta => m}
 
-
-  def isMetaQQ(ref: ScStableCodeReferenceElement): Boolean = {
+  def isMetaQQ(ref: ScDocResolvableCodeReference): Boolean = {
     ref.bind() match {
-      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && isMetaQQ(fun) => true
+      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
       case _ => false
     }
   }
@@ -34,13 +33,6 @@ object QuasiquoteInferUtil {
   def isMetaQQ(fun: ScFunction): Boolean = {
     val fqnO = Option(fun.containingClass).map(_.qualifiedName)
     fqnO.contains("scala.meta.quasiquotes.Api.XtensionQuasiquoteTerm.q")
-  }
-
-  def isMetaQQ(ref: ScReferenceExpression): Boolean = {
-    ref.bind() match {
-      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
-      case _ => false
-    }
   }
 
   def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): m.Tree = {
@@ -96,8 +88,7 @@ object QuasiquoteInferUtil {
       case Success(term) =>
         val parts = collectQQParts(term)
         val classes = parts.map(_.pt)
-        val map = classes.map(classToScTypeString)
-        map
+        classes.map(classToScTypeString)
       case Error(pos, message, details) =>
         Seq.empty
     }
