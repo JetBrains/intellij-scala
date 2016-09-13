@@ -1237,7 +1237,8 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
+  def getCompanionModule(clazz: PsiClass)
+                        (implicit tokenSets: TokenSets = clazz.getProject.tokenSets): Option[ScTypeDefinition] = {
     clazz match {
       case definition: ScTypeDefinition =>
         getBaseCompanionModule(definition).orElse(definition.fakeCompanionModule)
@@ -1246,9 +1247,10 @@ object ScalaPsiUtil {
   }
 
   //Performance critical method
-  def getBaseCompanionModule(definition: ScTypeDefinition): Option[ScTypeDefinition] = {
+  def getBaseCompanionModule(definition: ScTypeDefinition)
+                            (implicit tokenSets: TokenSets = definition.getProject.tokenSets): Option[ScTypeDefinition] = {
     Option(definition.getContext).flatMap { scope =>
-      val tokenSet = ScalaTokenSets.typeDefinitions
+      val tokenSet = tokenSets.typeDefinitions
 
       val arrayOfElements: Array[PsiElement] = scope match {
         case stub: StubBasedPsiElement[_] if stub.getStub != null =>
