@@ -64,7 +64,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       val scalaLibrary =modelsProvider.getAllLibraries.toSeq
               .filter(_.getName.contains("scala-library"))
-              .find(_.scalaVersion == Some(compilerVersion))
+              .find(_.scalaVersion.contains(compilerVersion))
               .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
               compilerVersion.number + " for module " + module.getName))
 
