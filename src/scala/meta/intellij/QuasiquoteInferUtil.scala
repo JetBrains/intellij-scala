@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 import scala.meta.inputs.Input
@@ -23,7 +23,7 @@ object QuasiquoteInferUtil {
 
   import scala.{meta => m}
 
-  def isMetaQQ(ref: ScDocResolvableCodeReference): Boolean = {
+  def isMetaQQ(ref: ResolvableReferenceElement): Boolean = {
     ref.bind() match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
       case _ => false

@@ -7,6 +7,7 @@ import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{GutterIconNavigationHandler, LineMarkerInfo, LineMarkerProvider, RelatedItemLineMarkerInfo}
 import com.intellij.icons.AllIcons
 import com.intellij.navigation.GotoRelatedItem
+import com.intellij.openapi.compiler.CompilerManager
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.Function
@@ -55,13 +56,16 @@ class MacroExpansionProvider extends LineMarkerProvider {
   }
 
   def createNotCompiledLineMarker(o: ScAnnotationsHolder, annot: ScAnnotation): RelatedItemLineMarkerInfo[PsiElement] = {
+    import org.jetbrains.plugins.scala.project._
     new RelatedItemLineMarkerInfo[PsiElement](o, o.getTextRange,
-      AllIcons.General.TodoQuestion,
+      AllIcons.General.Help,
       Pass.LINE_MARKERS, new Function[PsiElement, String] {
-        override def fun(param: PsiElement): String = "Metaprogram not compiled. Click here to compile"
+        override def fun(param: PsiElement): String = "Metaprogram not compiled. Click here to compile."
       },
       new GutterIconNavigationHandler[PsiElement] {
-        override def navigate(e: MouseEvent, elt: PsiElement): Unit = NotificationUtil.showMessage(elt.getProject, "Please compile metaprogramm to be able to run it")
+        override def navigate(e: MouseEvent, elt: PsiElement): Unit = {
+          CompilerManager.getInstance(elt.getProject).compile(annot.constructor.reference.get.resolve().module.get, null)
+        }
       }, GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]()
     )
   }
