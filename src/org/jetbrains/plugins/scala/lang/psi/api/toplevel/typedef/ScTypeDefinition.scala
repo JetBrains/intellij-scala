@@ -76,8 +76,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def fakeCompanionModule: Option[ScObject] = {
     if (this.isInstanceOf[ScObject]) return None
-    val baseCompanion = ScalaPsiUtil.getBaseCompanionModule(this)
-    baseCompanion match {
+    ScalaPsiUtil.getBaseCompanionModule(this) match {
       case Some(_: ScObject) => return None
       case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => return None
       case _ =>

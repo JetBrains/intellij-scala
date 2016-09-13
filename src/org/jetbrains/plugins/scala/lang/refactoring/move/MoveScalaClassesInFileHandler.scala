@@ -6,8 +6,9 @@ import java.util
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveAllClassesInFileHandler
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
@@ -21,11 +22,13 @@ class MoveScalaClassesInFileHandler extends MoveAllClassesInFileHandler {
                                   elementsToMove: PsiElement*): Unit = {
     psiClass.getContainingFile match {
       case file: ScalaFile if ScalaApplicationSettings.getInstance().MOVE_COMPANION =>
-        val classesInFile = file.typeDefinitions.toSet
-        ScalaPsiUtil.getBaseCompanionModule(psiClass) match {
-          case Some(companion) if !elementsToMove.contains(companion) && classesInFile == Set(psiClass, companion) =>
-              allClasses.put(psiClass, true)
-          case _ =>
+        Option(psiClass).flatMap {
+          case definition: ScTypeDefinition => getBaseCompanionModule(definition)
+          case _ => None
+        }.filter { companion =>
+          !elementsToMove.contains(companion) && file.typeDefinitions.toSet == Set(psiClass, companion)
+        }.foreach { _ =>
+          allClasses.put(psiClass, true)
         }
       case file: ScalaFile if allClasses.get(psiClass) =>
         //if move destination contains file with such name, we will try to move classes, not a whole file

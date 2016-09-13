@@ -19,7 +19,7 @@ import scala.collection.mutable.ListBuffer
  * 8/19/13
  */
 object GenerationUtil {
-  def classOrTraitAtCaret(editor: Editor, file: PsiFile): Option[ScTemplateDefinition] =
+  def classOrTraitAtCaret(editor: Editor, file: PsiFile): Option[ScTypeDefinition] =
     elementOfTypeAtCaret(editor, file, classOf[ScClass], classOf[ScTrait])
 
   def classAtCaret(editor: Editor, file: PsiFile): Option[ScClass] =
