@@ -35,3 +35,8 @@ trait ScGenericCall extends ScExpression {
 
   def multiResolve: Option[Array[ResolveResult]]
 }
+
+object ScGenericCall {
+  def unapply(gc: ScGenericCall): Option[(ScExpression, Seq[ScTypeElement])] = Some(gc.referencedExpr, gc.arguments)
+}
+
