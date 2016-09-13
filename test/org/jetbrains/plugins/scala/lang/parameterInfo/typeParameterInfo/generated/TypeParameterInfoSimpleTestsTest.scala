@@ -30,4 +30,8 @@ class TypeParameterInfoSimpleTestsTest extends TypeParameterInfoTestBase {
   def testTypeParam() = doTest()
 
   def testAliasedClassTypeParams() = doTest()
+
+  def testApplyFromVal() = doTest()
+
+  def testInfixCall() = doTest()
 }
