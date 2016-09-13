@@ -40,12 +40,12 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     doTestBasePackages(Seq("com.test1.base", "com.test2.base"))
 
   def testValidJavaSdk(): Unit =
-    doTestSdk(Some(data.JdkByName("1.8")),
+    doTestSdk(Option(data.JdkByName("1.8")),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_8)
 
   def testValidJavaSdkWithDifferentLanguageLevel(): Unit =
-    doTestSdk(Some(data.JdkByName("1.8")),
+    doTestSdk(Option(data.JdkByName("1.8")),
       Seq("-source", "1.6"),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_6)
