@@ -518,17 +518,15 @@ class ImplicitCollector(private var place: PsiElement,
       if (isImplicitConversion) compute()
       else {
         val coreTypeForTp = coreType(tp)
-        doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
-          !searches.exists {
-            case t: ScType if tp.isInstanceOf[ScType] =>
-              if (t.equiv(tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
-              else dominates(tp.asInstanceOf[ScType], t)
-            case _ => false
-          }
-        }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
+
+        def equivOrDominates(tp: ScType, found: ScType): Boolean =
+          found.equiv(tp, new ScUndefinedSubstitutor(), falseUndef = false)._1 || dominates(tp, found)
+
+        val checkAdd: (ScType, Seq[ScType]) => Boolean = (tp, searches) => !searches.exists(equivOrDominates(tp, _))
+
+        doComputations(coreElement.getOrElse(place), checkAdd, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
           case Some(res) => res
-          case None =>
-            reportWrong(c, subst, DivergedImplicitResult)
+          case None => reportWrong(c, subst, DivergedImplicitResult)
         }
       }
     }
