@@ -12,8 +12,10 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.Function
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.collection.JavaConversions._
 
@@ -28,22 +30,40 @@ class MacroExpansionProvider extends LineMarkerProvider {
 
   def collectMetaExpansions(elements: util.List[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) = {
     elements foreach {
-      case o: ScAnnotationsHolder =>
-        val metaAnnot = o.annotations.find(_.isMetaAnnotation)
+      case annotationsHolder: ScAnnotationsHolder =>
+        val metaAnnot: Option[ScAnnotation] = annotationsHolder.annotations.find(_.isMetaAnnotation)
         if (metaAnnot.isDefined) {
-          val item = new RelatedItemLineMarkerInfo[PsiElement](o, o.getTextRange,
-            AllIcons.General.ExpandAllHover,
-            Pass.UPDATE_OVERRIDDEN_MARKERS, new Function[PsiElement, String] {
-              override def fun(param: PsiElement): String = "Expand scala.meta macro"
-            },
-            new GutterIconNavigationHandler[PsiElement] {
-              override def navigate(e: MouseEvent, elt: PsiElement): Unit = MacroExpandAction.expandMetaAnnotation(metaAnnot.get)
-            }, GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]()
-          )
-          result.add(item)
+          MacroExpandAction.getCompiledMetaAnnotClass(metaAnnot.get) match {
+            case Some(_) => result.add(createExpandLineMarker(annotationsHolder, metaAnnot.get))
+            case None    => result.add(createNotCompiledLineMarker(annotationsHolder, metaAnnot.get))
+          }
         }
       case _ =>
     }
+  }
+
+  def createExpandLineMarker(holder: ScAnnotationsHolder, annot: ScAnnotation): RelatedItemLineMarkerInfo[PsiElement] = {
+    new RelatedItemLineMarkerInfo[PsiElement](holder, holder.getTextRange,
+      AllIcons.General.ExpandAllHover,
+      Pass.LINE_MARKERS, new Function[PsiElement, String] {
+        override def fun(param: PsiElement): String = "Expand scala.meta macro"
+      },
+      new GutterIconNavigationHandler[PsiElement] {
+        override def navigate(e: MouseEvent, elt: PsiElement): Unit = MacroExpandAction.expandMetaAnnotation(annot)
+      }, GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]()
+    )
+  }
+
+  def createNotCompiledLineMarker(o: ScAnnotationsHolder, annot: ScAnnotation): RelatedItemLineMarkerInfo[PsiElement] = {
+    new RelatedItemLineMarkerInfo[PsiElement](o, o.getTextRange,
+      AllIcons.General.TodoQuestion,
+      Pass.LINE_MARKERS, new Function[PsiElement, String] {
+        override def fun(param: PsiElement): String = "Metaprogram not compiled. Click here to compile"
+      },
+      new GutterIconNavigationHandler[PsiElement] {
+        override def navigate(e: MouseEvent, elt: PsiElement): Unit = NotificationUtil.showMessage(elt.getProject, "Please compile metaprogramm to be able to run it")
+      }, GutterIconRenderer.Alignment.RIGHT, util.Arrays.asList[GotoRelatedItem]()
+    )
   }
 
   def collectReflectExpansions(elements: util.List[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]): Unit = {
