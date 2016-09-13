@@ -238,7 +238,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   }
 
   override def getTextRange: TextRange = {
-    if (isSyntheticObject) null
+    if (isSyntheticObject) getNavigationElement.getTextRange
     else super.getTextRange
   }
 
