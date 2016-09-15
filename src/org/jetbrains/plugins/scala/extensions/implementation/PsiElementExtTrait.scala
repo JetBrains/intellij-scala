@@ -102,26 +102,10 @@ trait PsiElementExtTrait extends Any {
   def breadthFirst(predicate: PsiElement => Boolean): Iterator[PsiElement] =
     new BreadthFirstIterator(repr, predicate)
 
-  def isScope: Boolean = ScalaPsiUtil.isScope(repr)
-
   def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
 
   def containingScalaFile: Option[ScalaFile] = repr.getContainingFile match {
     case sf: ScalaFile => Some(sf)
     case _ => None
-  }
-
-  def append(elements: PsiElement*): Seq[PsiElement] = addElementsAfter(repr, elements: _*)
-
-  def prepend(elements: PsiElement*): Seq[PsiElement] = addElementsBefore(repr, elements: _*)
-
-  def addElementsAfter(anchor: PsiElement, elements: PsiElement*): Seq[PsiElement] = {
-    val p = repr.getParent
-    elements.scanLeft(anchor)((acc, e) => p.addAfter(e, acc)).tail
-  }
-
-  def addElementsBefore(anchor: PsiElement, elements: PsiElement*): Seq[PsiElement] = {
-    val p = repr.getParent
-    elements.scanRight(anchor)((e, acc) => p.addAfter(e, acc)).reverse.tail
   }
 }
