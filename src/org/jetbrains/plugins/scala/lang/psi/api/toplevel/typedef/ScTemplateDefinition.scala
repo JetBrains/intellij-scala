@@ -99,7 +99,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     def withIndices(): Array[PsiMethod] = {
       val inThisClass = functionsByName(name)
 
-      val files = this.allSupers.flatMap(_.containingFile).flatMap(f => Option(f.getVirtualFile)).asJava
+      val files = this.allSupers.flatMap(_.containingVirtualFile).asJava
       val scope = GlobalSearchScope.filesScope(getProject, files)
       val manager = ScalaShortNamesCacheManager.getInstance(getProject)
       val candidates = manager.getMethodsByName(name, scope)
