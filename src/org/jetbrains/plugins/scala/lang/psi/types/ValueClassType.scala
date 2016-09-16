@@ -3,11 +3,10 @@ package lang.psi.types
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyVal, ExtractClass, TypeSystem, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem, ValType}
 
 /**
  * Nikolay.Tropin
@@ -42,11 +41,6 @@ object ValueClassType {
 
   private def isValOrCompiled(p: ScClassParameter) = {
     if (p.isVal || p.isCaseClassVal) true
-    else {
-      p.containingFile match {
-        case Some(f: ScalaFile) => f.isCompiled // ScalaSigPrinter doesn't show `val` for value class parameters
-        case _ => false
-      }
-    }
+    else p.containingScalaFile.exists(_.isCompiled)
   }
 }
