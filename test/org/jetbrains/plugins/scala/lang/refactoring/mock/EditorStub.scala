@@ -2,9 +2,12 @@ package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import java.awt.event.MouseEvent
 import java.awt.{Insets, Point}
+import java.util
 import javax.swing.JComponent
 import javax.swing.border.Border
 
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.editor.InlayModel.Listener
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.editor.event.{EditorMouseEventArea, EditorMouseListener, EditorMouseMotionListener}
@@ -100,4 +103,16 @@ class EditorStub extends Editor {
   def getInsets: Insets = null
 
   override def offsetToVisualPosition(i: Int, b: Boolean, b1: Boolean): VisualPosition = null
+
+  override def getInlayModel: InlayModel = new InlayModel {
+    override def hasInlineElementAt(i: Int): Boolean = false
+
+    override def hasInlineElementAt(visualPosition: VisualPosition): Boolean = false
+
+    override def addInlineElement(i: Int, editorCustomElementRenderer: EditorCustomElementRenderer): Inlay = null
+
+    override def addListener(listener: Listener, disposable: Disposable): Unit = {}
+
+    override def getInlineElementsInRange(i: Int, i1: Int): util.List[Inlay] = util.Arrays.asList()
+  }
 }
