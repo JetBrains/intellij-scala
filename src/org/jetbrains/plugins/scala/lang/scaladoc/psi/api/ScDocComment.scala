@@ -6,6 +6,7 @@ package api
 
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.javadoc.{PsiDocComment, PsiDocTag}
 
 /**
@@ -18,4 +19,6 @@ trait ScDocComment extends PsiDocComment with ScalaPsiElement {
   def findTagsByName(name: String): Array[PsiDocTag]
 
   def findTagsByName(filter: String => Boolean): Array[PsiDocTag]
+
+  def getOwner: PsiDocCommentOwner
 }

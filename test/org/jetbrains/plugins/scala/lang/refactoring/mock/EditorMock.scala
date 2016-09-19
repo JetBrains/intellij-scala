@@ -1,5 +1,9 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
+import java.util
+
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.editor.InlayModel.Listener
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.impl.DocumentImpl
 
@@ -9,6 +13,18 @@ import com.intellij.openapi.editor.impl.DocumentImpl
 
 class EditorMock(text: String, offset: Int) extends EditorStub {
   private val selection = new SelectionModelStub()
+
+  override def getInlayModel: InlayModel = new InlayModel {
+    override def hasInlineElementAt(i: Int): Boolean = false
+
+    override def hasInlineElementAt(visualPosition: VisualPosition): Boolean = false
+
+    override def addInlineElement(i: Int, editorCustomElementRenderer: EditorCustomElementRenderer): Inlay = null
+
+    override def addListener(listener: Listener, disposable: Disposable): Unit = {}
+
+    override def getInlineElementsInRange(i: Int, i1: Int): util.List[Inlay] = util.Arrays.asList()
+  }
 
   override def offsetToLogicalPosition(offset: Int) = {
     val s = text.take(offset)
