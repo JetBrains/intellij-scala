@@ -21,7 +21,7 @@
     <description>Plugin for Scala language support</description>
     <version>VERSION</version>
     <vendor url="http://www.jetbrains.com" logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png">JetBrains</vendor>
-    <idea-version since-build="163.3094" until-build="164.0"/>
+    <idea-version since-build="163.4396" until-build="164.0"/>
     <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
