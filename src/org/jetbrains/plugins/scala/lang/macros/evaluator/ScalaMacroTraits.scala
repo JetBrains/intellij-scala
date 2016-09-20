@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.plugins.scala.lang.psi.api.macros
+package org.jetbrains.plugins.scala.lang.macros.evaluator
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
