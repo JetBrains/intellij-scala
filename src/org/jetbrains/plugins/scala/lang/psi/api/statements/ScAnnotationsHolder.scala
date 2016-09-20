@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedMacroUtil, ModCount}
 
+import scala.meta.intellij.ExpansionUtil
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 10.01.2009
@@ -114,7 +116,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     val metaAnnotation = annotations.find(_.isMetaAnnotation)
     metaAnnotation match {
       case Some(annotation) =>
-        val result = MacroExpandAction.runMetaAnnotation(annotation) match {
+        val result = ExpansionUtil.runMetaAnnotation(annotation) match {
           case Some(tree) => tree.toString
           case None       => ""
         }
