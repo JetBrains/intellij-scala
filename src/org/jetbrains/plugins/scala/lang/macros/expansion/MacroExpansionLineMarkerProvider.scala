@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.JavaConversions._
 
-class MacroExpansionProvider extends RelatedItemLineMarkerProvider {
+class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
   private type Marker = RelatedItemLineMarkerInfo[_ <: PsiElement]
   private type Markers = util.Collection[_ >: Marker]
