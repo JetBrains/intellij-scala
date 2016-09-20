@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.JavaConversions._
+import scala.meta.intellij.ExpansionUtil
 
 class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
@@ -34,7 +35,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
       case holder: ScAnnotationsHolder =>
         val metaAnnot: Option[ScAnnotation] = holder.annotations.find(_.isMetaAnnotation)
         metaAnnot.map { annot =>
-          MacroExpandAction.getCompiledMetaAnnotClass(annot) match {
+          ExpansionUtil.getCompiledMetaAnnotClass(annot) match {
             case Some(clazz) if isUpToDate(annot, clazz) => createExpandLineMarker(holder, annot)
             case _                                       => createNotCompiledLineMarker(holder, annot)
           }
