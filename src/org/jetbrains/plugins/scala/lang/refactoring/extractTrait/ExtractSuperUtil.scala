@@ -15,7 +15,6 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.RefactoringMessageUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -77,12 +76,10 @@ object ExtractSuperUtil {
     }
   }
 
-  def packageName(clazz: ScTemplateDefinition): String = {
-    clazz.containingFile match {
-      case Some(f: ScalaFile) => f.getPackageName
-      case _ => ""
-    }
-  }
+  def packageName(clazz: ScTemplateDefinition): String =
+    clazz.containingScalaFile.map {
+      _.getPackageName
+    }.getOrElse("")
 
   def addExtendsTo(clazz: ScTemplateDefinition, typeToExtend: ScTypeDefinition, parameters: String = "") {
     val name = typeToExtend.name

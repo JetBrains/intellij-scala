@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.extensions.implementation
 
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
@@ -24,6 +25,14 @@ trait PsiElementExtTrait extends Any {
   def withParents: Iterator[PsiElement] = new ParentsIterator(repr, strict = false)
 
   def containingFile: Option[PsiFile] = Option(repr.getContainingFile)
+
+  def containingVirtualFile: Option[VirtualFile] = containingFile.flatMap { file =>
+    Option(file.getVirtualFile)
+  }
+
+  def containingScalaFile: Option[ScalaFile] = containingFile.collect {
+    case file: ScalaFile => file
+  }
 
   def parentsInFile: Iterator[PsiElement] = {
     repr match {
@@ -74,8 +83,8 @@ trait PsiElementExtTrait extends Any {
       next = next.getNextSibling
     next
   }
-
   def prevSibling: Option[PsiElement] = Option(repr.getPrevSibling)
+
   def nextSibling: Option[PsiElement] = Option(repr.getNextSibling)
 
   def prevSiblings: Iterator[PsiElement] = new PrevSiblignsIterator(repr)
@@ -102,26 +111,5 @@ trait PsiElementExtTrait extends Any {
   def breadthFirst(predicate: PsiElement => Boolean): Iterator[PsiElement] =
     new BreadthFirstIterator(repr, predicate)
 
-  def isScope: Boolean = ScalaPsiUtil.isScope(repr)
-
   def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
-
-  def containingScalaFile: Option[ScalaFile] = repr.getContainingFile match {
-    case sf: ScalaFile => Some(sf)
-    case _ => None
-  }
-
-  def append(elements: PsiElement*): Seq[PsiElement] = addElementsAfter(repr, elements: _*)
-
-  def prepend(elements: PsiElement*): Seq[PsiElement] = addElementsBefore(repr, elements: _*)
-
-  def addElementsAfter(anchor: PsiElement, elements: PsiElement*): Seq[PsiElement] = {
-    val p = repr.getParent
-    elements.scanLeft(anchor)((acc, e) => p.addAfter(e, acc)).tail
-  }
-
-  def addElementsBefore(anchor: PsiElement, elements: PsiElement*): Seq[PsiElement] = {
-    val p = repr.getParent
-    elements.scanRight(anchor)((e, acc) => p.addAfter(e, acc)).reverse.tail
-  }
 }
