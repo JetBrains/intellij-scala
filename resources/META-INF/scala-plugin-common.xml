@@ -842,6 +842,10 @@
                          displayName="Simplify boolean expression" groupPath="Scala" groupName="General"
                          shortName="SimplifyBoolean" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimpleBooleanMatchInspection"
+                         displayName="Simplify trivial match to if" groupPath="Scala" groupName="General"
+                         shortName="SimpleBooleanMatch" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection"
                          displayName="Unnecessary parentheses" groupPath="Scala" groupName="General"
                          shortName="ScalaUnnecessaryParentheses" level="WARNING"
