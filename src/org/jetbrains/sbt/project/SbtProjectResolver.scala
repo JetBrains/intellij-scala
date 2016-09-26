@@ -20,6 +20,8 @@ import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
 
+import scala.util.{Failure, Success}
+
 /**
  * @author Pavel Fatin
  */
@@ -54,11 +56,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
-      case Left(errors) => errors match {
+      case Failure(errors) => errors match {
         case _ : SbtRunner.ImportCancelledException => return null
         case _ => throw new ExternalSystemException(errors)
       }
-      case Right(node) => node
+      case Success(node) => node
     }
 
     if (warnings.nonEmpty) {
