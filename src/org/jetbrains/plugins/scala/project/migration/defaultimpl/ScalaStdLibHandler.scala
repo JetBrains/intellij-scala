@@ -15,17 +15,12 @@ import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationLocalFixHo
 import org.jetbrains.plugins.scala.project.migration.handlers.VersionedArtifactHandlerBase
 import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
 
-import ScalaStdLibHandler._
-
 /**
   * User: Dmitry.Naydanov
   * Date: 06.09.16.
   */
-class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(SCALA_LIBRARY_2_11), Seq(SCALA_LIBRARY_2_12), true) {
-  override def getMigrators(from: Library, to: LibraryData): Iterable[ScalaLibraryMigrator] = {
-    if(extractVersion(from).exists(v => isVersionMoreSpecific(SCALA_LIBRARY_2_11, v)) && 
-      extractVersion(to).exists(v => isVersionMoreSpecific(SCALA_LIBRARY_2_12, v))) Seq(new StdLib211to212) else Seq.empty
-  }
+class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(Version("2.11")), Seq(Version("2.12")), true) {
+  override def getMigrators(from: Library, to: LibraryData): Iterable[ScalaLibraryMigrator] = Seq(new StdLib211to212)
   
   
   private class StdLib211to212 extends ScalaLibraryMigrator {
@@ -51,7 +46,7 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
 
     override def migrateLocal(file: PsiFile, localFixHolder: MigrationLocalFixHolder): Option[PartialFunction[PsiElement, Any]] = {
       file match {
-        case scalaFile: ScalaFile =>
+        case scalaFile: ScalaFile if !scalaFile.isCompiled && !scalaFile.isWorksheetFile =>
           Some(samInspection actionFor localFixHolder.asInstanceOf[MigrationLocalFixHolderImpl].getHolder)
         case _ => None
       }
@@ -61,9 +56,4 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
 
     override def getDescription: String = "Azaza"
   }
-}
-
-object ScalaStdLibHandler {
-  val SCALA_LIBRARY_2_11 = Version("2.11")
-  val SCALA_LIBRARY_2_12 = Version("2.12")
 }
