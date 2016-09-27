@@ -5,19 +5,17 @@ import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.openapi.vfs.newvfs.FileAttribute
-import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
 import com.intellij.psi.{PsiErrorElement, PsiFile}
-import com.intellij.ui.content.{Content, ContentFactory, MessageView}
+import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
@@ -104,27 +102,13 @@ class WorksheetCompiler {
             contentManager addContent errorContent
             contentManager setSelectedContent errorContent
 
-            openMessageView(project, errorContent, treeError)
+            MigrationApiImpl.openMessageView(project, errorContent, treeError)
             editor.getCaretModel moveToLogicalPosition pos
           }
         })
 
       case _ =>
     }
-  }
-
-  private def openMessageView(project: Project, content: Content, treeView: CompilerErrorTreeView) {
-    val commandProcessor = CommandProcessor.getInstance()
-    commandProcessor.executeCommand(project, new Runnable {
-      override def run() {
-        Disposer.register(content, treeView, null)
-        val messageView = ServiceManager.getService(project, classOf[MessageView])
-        messageView.getContentManager setSelectedContent content
-
-        val toolWindow = ToolWindowManager getInstance project getToolWindow ToolWindowId.MESSAGES_WINDOW
-        if (toolWindow != null) toolWindow.show(null)
-      }
-    }, null, null)
   }
 }
 
