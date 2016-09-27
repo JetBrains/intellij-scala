@@ -20,6 +20,7 @@ import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.collection.convert.wrapAsJava
+import scala.collection.mutable
 
 /**
  * User: Dmitry.Naydanov
@@ -34,7 +35,7 @@ object WorksheetDiffSplitters {
     new SimpleWorksheetSplitter(originalEditor, viewerEditor, intervals, changes, prop)
   }
 
-  class WorksheetEditingSides(originalEditor: Editor, viewerEditor: Editor) extends EditingSides {
+  class WorksheetEditingSides(originalEditor: Editor, viewerEditor: Editor, foldInfo: Option[WorksheetFoldGroup] = None) extends EditingSides {
     private val left = new WeakReference(originalEditor)
     private val right = new WeakReference(viewerEditor)
 

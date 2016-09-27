@@ -9,9 +9,7 @@ case class Version(number: String) extends AnyVal with Comparable[Version] {
 
   def compareTo(other: Version): Int = (digits, other.digits).zipped.collectFirst {
     case (a, b) if a != b => a.compareTo(b)
-  } getOrElse {
-    0
-  }
+  } getOrElse 0
 
   def >(other: Version): Boolean = compareTo(other) > 0
 
