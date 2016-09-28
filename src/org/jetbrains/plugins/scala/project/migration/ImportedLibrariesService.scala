@@ -19,7 +19,7 @@ import scala.collection.mutable
   * Date: 25.07.16.
   */
 class ImportedLibrariesService extends AbstractProjectDataService[LibraryDependencyData, LibraryOrderEntry] {
-  private def isEnabled = false
+  private def isEnabled = true
   
   override def getTargetDataKey: Key[LibraryDependencyData] = ProjectKeys.LIBRARY_DEPENDENCY
 
@@ -41,7 +41,7 @@ class ImportedLibrariesService extends AbstractProjectDataService[LibraryDepende
       val handlersForTarget = handlerComponent.getAllForTo(target)
       
       if (handlersForTarget.nonEmpty) modelsProvider.getAllLibraries foreach { //todo performance ?   
-        case lib if lib.getName != target.getInternalName => //to do better comparison? 
+        case lib if lib.getName != target.getInternalName => //todo better comparison? 
           val foundHandlers = handlersForTarget.filter(_.acceptsFrom(lib))
           
           val filteredHandlers = foundHandlers.foldLeft(mutable.HashSet[ScalaLibraryMigrationHandler]()) {
@@ -64,7 +64,7 @@ class ImportedLibrariesService extends AbstractProjectDataService[LibraryDepende
                 case ((_, isSelected), migrator) if isSelected => migrator
               }
               
-              new ScalaMigrationRunner().runMigrators(choosen.toSeq, service)
+              new ScalaMigrationRunner(project).runMigrators(choosen.toSeq, service)
             }, ())
         case "close" =>
         case _ => 
