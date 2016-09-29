@@ -11,4 +11,6 @@ class TypeInferenceCatsTest extends TypeInferenceTestBase {
   override protected def folderPath: String = super.folderPath + "cats/"
 
   def testSCL10006() = doTest()
+
+  def testSCL10237() = doTest()
 }
