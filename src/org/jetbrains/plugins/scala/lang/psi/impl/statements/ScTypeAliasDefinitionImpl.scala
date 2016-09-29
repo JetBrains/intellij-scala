@@ -44,7 +44,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDefiniti
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def navigate(requestFocus: Boolean) {
-    val descriptor =  EditSourceUtil.getDescriptor(nameId);
+    val descriptor =  EditSourceUtil.getDescriptor(nameId)
     if (descriptor != null) descriptor.navigate(requestFocus)
   }
 
