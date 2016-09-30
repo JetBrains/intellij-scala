@@ -2385,5 +2385,31 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL10632() = {
+    val before =
+      """
+        |class IndentBug {
+        |  //someComment
+        |  lazy val myVal =
+        |    42
+        |
+        |  //someComment
+        |  private val myVal2 =
+        |    42
+        |
+        |  /*Some other comment*/
+        |  override def foo =
+        |    42
+        |
+        |  /**
+        |    * ScalaDoc
+        |    */
+        |  protected def foo2 =
+        |    42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
