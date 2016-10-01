@@ -673,11 +673,11 @@ object ScalaPsiElementFactory {
     case _ => "null"
   }
 
-  def createTypeFromText(text: String, context: PsiElement, child: PsiElement): ScType = {
+  def createTypeFromText(text: String, context: PsiElement, child: PsiElement): Option[ScType] = {
     val typeElement = createTypeElementFromText(text, context, child)
     Option(typeElement).map {
       _.getType().getOrAny
-    }.orNull
+    }
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction =
