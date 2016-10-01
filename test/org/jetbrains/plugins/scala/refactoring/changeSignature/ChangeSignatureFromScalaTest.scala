@@ -4,9 +4,9 @@ package refactoring.changeSignature
 import com.intellij.psi.PsiMember
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, ParameterInfo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
 import org.junit.Assert._
 
@@ -74,7 +74,7 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
   }
 
   def testGenerics() = {
-    def tpe = ScalaPsiElementFactory.createTypeFromText("T", targetMethod, targetMethod)
+    def tpe = createTypeFromText("T", targetMethod, targetMethod).get
     doTest(null, "foo", "T", Seq(Seq(parameterInfo("t", 0, tpe))))
   }
 
