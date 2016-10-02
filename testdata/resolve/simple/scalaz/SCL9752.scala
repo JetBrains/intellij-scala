@@ -9,4 +9,3 @@ object SCL9752 {
   val k: Map[String, List[Int]] = ??? //ok
   k.map { case (a, g) => a } //ok
 }
-
