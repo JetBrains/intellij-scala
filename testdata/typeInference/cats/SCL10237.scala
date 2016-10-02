@@ -11,6 +11,6 @@ class TestCats {
   val q = valida(4)
   val w = valida(-2)
 
-  q |@| w
+  /*start*/q |@| w/*end*/
 }
 //CartesianOps[T, Int]
