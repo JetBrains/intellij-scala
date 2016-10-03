@@ -1,18 +1,23 @@
 package org.jetbrains.plugins.scala.project.migration
 
+import java.io.File
+import java.net.URLClassLoader
 import java.util
 
-import com.intellij.openapi.externalSystem.model.project.{LibraryDependencyData, ProjectData}
+import com.intellij.openapi.externalSystem.model.project.{LibraryData, LibraryDependencyData, LibraryPathType, ProjectData}
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LibraryOrderEntry
-import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, SettingsDescriptor}
+import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
-import org.jetbrains.plugins.scala.project.migration.handlers.{ArtifactHandlerComponent, ScalaLibraryMigrationHandler}
+import org.jetbrains.plugins.scala.project.migration.handlers.{ArtifactHandlerComponent, ScalaLibraryMigrationHandler, VersionedArtifactHandlerBase}
+import org.jetbrains.plugins.scala.project.migration.store.ManifestAttributes.ManifestAttribute
+import org.jetbrains.plugins.scala.project.migration.store.{ManifestAttributes, SerializationUtil}
 
 import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
 
 /**
   * User: Dmitry.Naydanov
@@ -33,23 +38,65 @@ class ImportedLibrariesService extends AbstractProjectDataService[LibraryDepende
 
     val handlerComponent = ArtifactHandlerComponent.getInstance(project)
     val foundMigrators = mutable.HashSet[ScalaLibraryMigrator]()
-    //val oldLibraries = modelsProvider.getAllLibraries
     
-    while (it.hasNext) {
-      val data = it.next().getData
-      val target = data.getTarget
-      val handlersForTarget = handlerComponent.getAllForTo(target)
-      
-      if (handlersForTarget.nonEmpty) modelsProvider.getAllLibraries foreach { //todo performance ?   
+    def warning(txt: String) = service.showReport(MigrationReport.createSingleMessageReport(MigrationReport.Warning, txt))
+    
+    def processFoundToHandlers(toHandlers: Iterable[ScalaLibraryMigrationHandler], target: LibraryData) {
+      modelsProvider.getAllLibraries foreach { //todo performance ?   
         case lib if lib.getName != target.getInternalName => //todo better comparison? 
-          val foundHandlers = handlersForTarget.filter(_.acceptsFrom(lib))
-          
+          val foundHandlers = toHandlers.filter(_.acceptsFrom(lib))
+
           val filteredHandlers = foundHandlers.foldLeft(mutable.HashSet[ScalaLibraryMigrationHandler]()) {
             case (set, handler) => if (set.exists(_.precede(handler))) set else {set.add(handler); set}
           }
 
           foundMigrators ++= filteredHandlers.flatMap(_.getMigrators(lib, target))
-        case _ => 
+        case _ =>
+      }
+    }
+    
+    while (it.hasNext) {
+      val data = it.next().getData
+      val target = data.getTarget
+      
+      val predefinedHandlersForTarget = handlerComponent.getAllForTo(target)
+      
+      if (predefinedHandlersForTarget.nonEmpty) processFoundToHandlers(predefinedHandlersForTarget, target) else {
+        val i = target.getPaths(LibraryPathType.BINARY).iterator()
+        var bundledFound = Seq.empty[(ManifestAttribute, String)]
+        var pathFound = ""
+        
+        while (i.hasNext && bundledFound.isEmpty) {
+          val p = i.next()
+          val f = SerializationUtil.discoverIn(p)
+          
+          if (f.nonEmpty) {
+            bundledFound = f
+            pathFound = SerializationUtil.stripPath(p)
+          }
+        }
+        
+        if (bundledFound.nonEmpty) {
+          bundledFound foreach {
+            case (ManifestAttributes.MigratorFqnAttribute, fqn) =>
+              val containingFile = new File(pathFound)
+              val myClassLoader = new URLClassLoader(Array(containingFile.toURI.toURL), classOf[VersionedArtifactHandlerBase].getClassLoader)
+              
+              Try(myClassLoader loadClass fqn) flatMap (
+                cz => Try(cz.newInstance().asInstanceOf[ScalaLibraryMigrationHandler])
+              ) match {
+                case Success(handler) =>
+                  processFoundToHandlers(Seq(handler), target)
+                case Failure(ex: ClassNotFoundException) =>
+                  warning(s"Migrator $fqn in ${containingFile.getName} declared but cannot be found")
+                case Failure(ex: ClassCastException) =>
+                  warning(s"Migrator $fqn in ${containingFile.getName} found but cannot be casted to the proper type")
+                case _ => //ignore that
+              }
+            case (ManifestAttributes.InspectionPackageAttribute, fqn) => //todo save
+            case (a, v) => warning(s"Unknown attribute: ${a.name} : $v")
+          }
+        }
       }
     }
     
