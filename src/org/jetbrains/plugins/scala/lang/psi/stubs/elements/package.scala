@@ -24,8 +24,16 @@ package object elements {
     }
   }
 
+  implicit class MaybeStringRefExt(val maybeStringRef: Option[StringRef]) extends AnyVal {
+    def asString: Option[String] = maybeStringRef.map {
+      StringRef.toString
+    }.filter {
+      _.nonEmpty
+    }
+  }
+
   implicit class MaybeStringExt(val maybeString: Option[String]) extends AnyVal {
-    def toReference: Option[StringRef] = maybeString.filter {
+    def asReference: Option[StringRef] = maybeString.filter {
       _.nonEmpty
     }.map {
       StringRef.fromString

@@ -63,7 +63,7 @@ abstract class ScParamElementType[Param <: ScParameter](debugName: String)
       isVal = isVal,
       isVar = isVar,
       isCallByNameParameter = parameter.isCallByNameParameter,
-      defaultExprTextRef = defaultExprText.toReference,
-      deprecatedNameRef = parameter.deprecatedName.toReference)
+      defaultExprTextRef = defaultExprText.asReference,
+      deprecatedNameRef = parameter.deprecatedName.asReference)
   }
 }
