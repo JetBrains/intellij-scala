@@ -5,7 +5,6 @@ import java.awt.Point
 import javax.swing.Icon
 
 import com.intellij.codeInsight.completion.JavaCompletionUtil
-import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
 import com.intellij.codeInsight.{FileModificationService, JavaProjectCodeInsightSettings}
@@ -49,13 +48,18 @@ import scala.collection.mutable.ArrayBuffer
   * Date: 15.07.2009
   */
 
-class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReferenceElement) extends {
-  val project = ref.getProject
-} with HintAction {
+class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReferenceElement) extends HintAction {
 
-  def getText: String =
+  private val project = ref.getProject
+
+  def getText: String = {
     if (classes.length == 1) ScalaBundle.message("import.with", classes(0).qualifiedName)
-    else ScalaBundle.message("import.class")
+    else byType(classes)(
+      ScalaBundle.message("import.class"),
+      ScalaBundle.message("import.package"),
+      ScalaBundle.message("import.something")
+    )
+  }
 
   def getFamilyName: String = ScalaBundle.message("import.class")
 
@@ -137,6 +141,13 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     })
   }
 
+  private def byType(toImport: Array[TypeToImport])(classes: String, packages: String, mixed: String) = {
+    val toImportSeq = toImport.toSeq
+    if (toImportSeq.forall(_.element.isInstanceOf[PsiClass])) classes
+    else if (toImportSeq.forall(_.element.isInstanceOf[PsiPackage])) packages
+    else mixed
+  }
+
   def startInWriteAction(): Boolean = true
 
   class ScalaAddImportAction(editor: Editor, classes: Array[TypeToImport], ref: ScReferenceElement) extends QuestionAction {
@@ -148,8 +159,15 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
             def run() {
               PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
               if (!ref.isValid) return
-              if (!ref.isInstanceOf[ScDocResolvableCodeReference]) ref.bindToElement(clazz.element)
-              else ref.replace(createDocLinkValue(clazz.qualifiedName)(ref.getManager))
+
+              ref match {
+                case _: ScDocResolvableCodeReference => ref.replace(createDocLinkValue(clazz.qualifiedName)(ref.getManager))
+                case _ =>
+                  clazz match {
+                    case ScalaImportTypeFix.PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
+                    case _ => ref.bindToElement(clazz.element)
+                  }
+              }
             }
           }, clazz.getProject, "Add import action")
         }
@@ -157,7 +175,12 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     }
 
     def chooseClass() {
-      val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes: _*) {
+      val title = byType(classes)(
+        ScalaBundle.message("import.class.chooser.title"),
+        ScalaBundle.message("import.package.chooser.title"),
+        ScalaBundle.message("import.something.chooser.title")
+      )
+      val popup = new BaseListPopupStep[TypeToImport](title, classes: _*) {
         override def getIconFor(aValue: TypeToImport): Icon = {
           aValue.getIcon
         }
@@ -326,25 +349,22 @@ object ScalaImportTypeFix {
     val kinds = ref.getKinds(incomplete = false)
     val cache = ScalaPsiManager.instance(myProject)
     val classes = cache.getClassesByName(ref.refName, ref.getResolveScope)
-    val buffer = new ArrayBuffer[TypeToImport]
-    for (clazz <- classes) {
-      def addClazz(clazz: PsiClass) {
-        if (clazz != null && clazz.qualifiedName != null && clazz.qualifiedName.indexOf(".") > 0 &&
-          ResolveUtils.kindMatches(clazz, kinds) && notInner(clazz, ref) && ResolveUtils.isAccessible(clazz, ref) &&
-          !JavaCompletionUtil.isInExcludedPackage(clazz, false)) {
-          buffer += ClassTypeToImport(clazz)
-        }
-      }
-      addClazz(clazz)
 
-      Option(clazz).collect {
-        case definition: ScTypeDefinition => definition
-      }.flatMap {
-        _.fakeCompanionModule
-      }.foreach {
-        addClazz
-      }
+    def shouldAddClass(clazz: PsiClass) = {
+      clazz != null &&
+        clazz.qualifiedName != null &&
+        clazz.qualifiedName.indexOf(".") > 0 &&
+        ResolveUtils.kindMatches(clazz, kinds) &&
+        notInner(clazz, ref) &&
+        ResolveUtils.isAccessible(clazz, ref) &&
+        !JavaCompletionUtil.isInExcludedPackage(clazz, false)
     }
+    val buffer = new ArrayBuffer[TypeToImport]
+
+    classes.flatMap {
+      case df: ScTypeDefinition => df.fakeCompanionModule ++: Seq(df)
+      case c => Seq(c)
+    }.filter(shouldAddClass).foreach(buffer += ClassTypeToImport(_))
 
     val typeAliases = cache.getStableAliasesByName(ref.refName, ref.getResolveScope)
     for (alias <- typeAliases) {
@@ -362,7 +382,7 @@ object ScalaImportTypeFix {
         val parts = include.split('.')
         if (parts.length > 1) parts.takeRight(2).head == ref.refName
         else false
-    }.map { case s => s.reverse.dropWhile(_ != '.').tail.reverse }
+    }.map(s => s.reverse.dropWhile(_ != '.').tail.reverse)
 
     for (packageQualifier <- packagesList) {
       val pack = ScPackageImpl.findPackage(myProject, packageQualifier)
