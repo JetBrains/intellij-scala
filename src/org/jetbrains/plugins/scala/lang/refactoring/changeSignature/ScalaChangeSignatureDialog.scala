@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
@@ -351,13 +351,10 @@ class ScalaChangeSignatureDialog(val project: Project,
 
   protected def returnTypeText: String = Option(myReturnTypeCodeFragment).fold("")(_.getText)
 
-  protected def returnType: ScType = {
-    if (myReturnTypeCodeFragment == null) Any
-    else {
-      val fragment = myReturnTypeCodeFragment
-      ScalaPsiElementFactory.createTypeFromText(fragment.getText, fragment.getContext, fragment)
-    }
-  }
+  protected def returnType: ScType =
+    Option(myReturnTypeCodeFragment).flatMap { fragment =>
+      createTypeFromText(fragment.getText, fragment.getContext, fragment)
+    }.getOrElse(Any)
 
   protected def splittedItems: Seq[Seq[ScalaParameterTableModelItem]] = {
     def inner(items: Seq[ScalaParameterTableModelItem]): Seq[Seq[ScalaParameterTableModelItem]] = {

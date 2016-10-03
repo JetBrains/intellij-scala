@@ -86,7 +86,7 @@ class ScParameterImpl protected (stub: StubElement[ScParameter], nodeType: IElem
   def typeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].getTypeElement
+      return stub.asInstanceOf[ScParameterStub].typeElement
     }
     paramType match {
       case Some(x) if x.typeElement != null => Some(x.typeElement)
@@ -99,11 +99,11 @@ class ScParameterImpl protected (stub: StubElement[ScParameter], nodeType: IElem
     val computeType: ScType = {
       val stub = getStub
       if (stub != null) {
-        stub.asInstanceOf[ScParameterStub].getTypeText match {
-          case "" if stub.getParentStub != null && stub.getParentStub.getParentStub != null &&
+        stub.asInstanceOf[ScParameterStub].typeText match {
+          case None if stub.getParentStub != null && stub.getParentStub.getParentStub != null &&
                   stub.getParentStub.getParentStub.getParentStub.isInstanceOf[ScFunctionStub] => return Failure("Cannot infer type", Some(this))
-          case "" => return Failure("Wrong Stub problem", Some(this)) //shouldn't be
-          case _: String => stub.asInstanceOf[ScParameterStub].getTypeElement match {
+          case None => return Failure("Wrong Stub problem", Some(this)) //shouldn't be
+          case Some(_: String) => stub.asInstanceOf[ScParameterStub].typeElement match {
             case Some(te) => return te.getType(TypingContext.empty)
             case None => return Failure("Wrong type element", Some(this))
           }
@@ -129,7 +129,7 @@ class ScParameterImpl protected (stub: StubElement[ScParameter], nodeType: IElem
   def baseDefaultParam: Boolean = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].isDefaultParam
+      return stub.asInstanceOf[ScParameterStub].isDefaultParameter
     }
     findChildByType[PsiElement](ScalaTokenTypes.tASSIGN) != null
   }
@@ -148,7 +148,7 @@ class ScParameterImpl protected (stub: StubElement[ScParameter], nodeType: IElem
   def getActualDefaultExpression: Option[ScExpression] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].getDefaultExpr
+      return stub.asInstanceOf[ScParameterStub].defaultExpr
     }
     findChild(classOf[ScExpression])
   }

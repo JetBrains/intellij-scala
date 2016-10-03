@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
@@ -151,17 +151,20 @@ abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTest
                                newReturnType: String,
                                newParams: => Seq[Seq[ParameterInfo]],
                                isAddDefaultValue: Boolean): ChangeSignatureProcessorBase = {
-    val retType = targetMethod match {
+    val maybeReturnType = targetMethod match {
       case fun: ScFunction =>
-        if (newReturnType != null) ScalaPsiElementFactory.createTypeFromText(newReturnType, fun, fun)
-        else fun.returnType.getOrAny
-      case _ => Any
+        Option(newReturnType).flatMap {
+          createTypeFromText(_, fun, fun)
+        }.orElse {
+          fun.returnType.toOption
+        }
+      case _ => None
     }
 
     val params = newParams.map(_.map(_.asInstanceOf[ScalaParameterInfo]))
 
     val changeInfo =
-      new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, retType, params,
+      new ScalaChangeInfo(newVisibility, targetMethod.asInstanceOf[ScMethodLike], newName, maybeReturnType.getOrElse(Any), params,
         isAddDefaultValue, Some(addTypeAnnotation(targetMethod, newVisibility)))
 
     new ScalaChangeSignatureProcessor(getProjectAdapter, changeInfo)

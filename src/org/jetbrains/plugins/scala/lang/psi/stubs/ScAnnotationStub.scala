@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
  */
 
 trait ScAnnotationStub extends StubElement[ScAnnotation] {
-  def name: String
+  def name: Option[String]
 
   def typeElement: ScTypeElement
 
-  def typeText: String
+  def typeText: Option[String]
 }
