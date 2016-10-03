@@ -11,7 +11,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StubBaseExt}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -30,16 +30,9 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
   def typeText: Option[String] = typeTextRef.asString
 
   def typeElement: ScTypeElement = {
-    if (typeElementReference != null) {
-      typeElementReference.get match {
-        case null =>
-        case typeElement if typeElement.getContext eq getPsi =>
-          return typeElement
-      }
+    typeElementReference = this.updateReference(typeElementReference) {
+      createTypeElementFromText(typeText.getOrElse(""), _, _)
     }
-
-    val result = createTypeElementFromText(typeText.getOrElse(""), getPsi, null)
-    typeElementReference = new SofterReference[ScTypeElement](result)
-    result
+    typeElementReference.get
   }
 }

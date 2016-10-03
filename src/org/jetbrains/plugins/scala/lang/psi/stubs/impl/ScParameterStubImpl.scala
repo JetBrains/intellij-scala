@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createTypeElementFromText}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StubBaseExt}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -33,8 +33,8 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
                                                    private val deprecatedNameRef: Option[StringRef])
   extends StubBase[ScParameter](parent, elementType) with ScParameterStub {
 
-  private var myTypeElement: SofterReference[Option[ScTypeElement]] = null
-  private var myDefaultExpression: SofterReference[Option[ScExpression]] = null
+  private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
+  private var defaultExpressionReference: SofterReference[Option[ScExpression]] = null
 
   override def getName: String = StringRef.toString(nameRef)
 
@@ -45,36 +45,24 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   override def deprecatedName: Option[String] = deprecatedNameRef.asString
 
   def typeElement: Option[ScTypeElement] = {
-    if (myTypeElement != null) {
-      myTypeElement.get match {
-        case null =>
-        case None => return None
-        case result@Some(element) if element.getContext eq getPsi => return result
-      }
+    typeElementReference = this.updateOptionalReference(typeElementReference) {
+      case (context, child) =>
+        Option(typeText).filter {
+          _.nonEmpty
+        }.map {
+          createTypeElementFromText(_, context, child)
+        }
     }
-
-    val result = Option(typeText).filter {
-      _.nonEmpty
-    }.map {
-      createTypeElementFromText(_, getPsi, null)
-    }
-    myTypeElement = new SofterReference[Option[ScTypeElement]](result)
-    result
+    typeElementReference.get
   }
 
   def defaultExpr: Option[ScExpression] = {
-    if (myDefaultExpression != null) {
-      myDefaultExpression.get match {
-        case null =>
-        case None => return None
-        case result@Some(expression) if expression.getContext eq getPsi => return result
-      }
+    defaultExpressionReference = this.updateOptionalReference(defaultExpressionReference) {
+      case (context, child) =>
+        defaultExprText.map {
+          createExpressionWithContextFromText(_, context, child)
+        }
     }
-
-    val result = defaultExprText.map {
-      createExpressionWithContextFromText(_, getPsi, null)
-    }
-    myDefaultExpression = new SofterReference[Option[ScExpression]](result)
-    result
+    defaultExpressionReference.get
   }
 }
