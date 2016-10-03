@@ -11,6 +11,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
 
 /**
   * User: Alexander Podkhalyuzin
@@ -18,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
   */
 class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                     elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                    private val nameRef: StringRef,
-                                                    private val typeTextRef: StringRef)
+                                                    private val nameRef: Option[StringRef],
+                                                    private val typeTextRef: Option[StringRef])
   extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub {
 
   private var typeElementReference: SofterReference[ScTypeElement] = null
 
-  def name: String = StringRef.toString(nameRef)
+  def name: Option[String] = nameRef.asString
 
-  def typeText: String = StringRef.toString(typeTextRef)
+  def typeText: Option[String] = typeTextRef.asString
 
   def typeElement: ScTypeElement = {
     if (typeElementReference != null) {
@@ -36,7 +37,8 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
           return typeElement
       }
     }
-    val result = createTypeElementFromText(typeText, getPsi, null)
+
+    val result = createTypeElementFromText(typeText.getOrElse(""), getPsi, null)
     typeElementReference = new SofterReference[ScTypeElement](result)
     result
   }

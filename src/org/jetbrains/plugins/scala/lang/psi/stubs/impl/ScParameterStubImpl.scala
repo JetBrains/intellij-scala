@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createTypeElementFromText}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
 
 /**
   * User: Alexander Podkhalyuzin
@@ -39,13 +40,9 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 
   override def typeText: String = StringRef.toString(typeTextRef)
 
-  override def defaultExprText: Option[String] = defaultExprTextRef.map {
-    StringRef.toString
-  }
+  override def defaultExprText: Option[String] = defaultExprTextRef.asString
 
-  override def deprecatedName: Option[String] = deprecatedNameRef.map {
-    StringRef.toString
-  }
+  override def deprecatedName: Option[String] = deprecatedNameRef.asString
 
   def typeElement: Option[ScTypeElement] = {
     if (myTypeElement != null) {
@@ -74,9 +71,7 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
       }
     }
 
-    val result = defaultExprText.filter {
-      _.nonEmpty
-    }.map {
+    val result = defaultExprText.map {
       createExpressionWithContextFromText(_, getPsi, null)
     }
     myDefaultExpression = new SofterReference[Option[ScExpression]](result)
