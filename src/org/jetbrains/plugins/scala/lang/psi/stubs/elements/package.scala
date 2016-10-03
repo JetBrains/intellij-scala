@@ -24,4 +24,12 @@ package object elements {
     }
   }
 
+  implicit class MaybeStringExt(val maybeString: Option[String]) extends AnyVal {
+    def toReference: Option[StringRef] = maybeString.filter {
+      _.nonEmpty
+    }.map {
+      StringRef.fromString
+    }
+  }
+
 }
