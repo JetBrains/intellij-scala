@@ -36,7 +36,7 @@ class ScVariableDeclarationImpl private (stub: StubElement[ScVariable], nodeType
   def typeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].getTypeElement
+      stub.asInstanceOf[ScVariableStub].typeElement
     }
     else findChild(classOf[ScTypeElement])
   }

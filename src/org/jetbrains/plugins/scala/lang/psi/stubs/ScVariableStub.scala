@@ -11,18 +11,26 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 17.10.2008
+  */
 
 trait ScVariableStub extends StubElement[ScVariable] with ScMemberOrLocal {
   def isDeclaration: Boolean
-  def getNames: Array[String]
-  def getBodyText: String
-  def getTypeText: String
-  def getBindingsContainerText: String
-  def getTypeElement: Option[ScTypeElement]
-  def getBodyExpr: Option[ScExpression]
-  def getIdsContainer: Option[ScIdList]
-  def getPatternsContainer: Option[ScPatternList]
+
+  def names: Array[String]
+
+  def bodyText: Option[String]
+
+  def typeText: Option[String]
+
+  def bindingsContainerText: Option[String]
+
+  def typeElement: Option[ScTypeElement]
+
+  def bodyExpression: Option[ScExpression]
+
+  def idsContainer: Option[ScIdList]
+
+  def patternsContainer: Option[ScPatternList]
 }
