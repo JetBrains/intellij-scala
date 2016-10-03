@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex.KEY
 
 /**
   * User: Alexander Podkhalyuzin
@@ -40,11 +40,8 @@ class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
     new ScSelfTypeElementStubImpl(parentStub, this,
       psi.name, psi.typeElement.text, psi.getClassNames)
 
-  override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit = {
-    for (name <- stub.getClassNames) {
-      sink.occurrence(ScSelfTypeInheritorsIndex.KEY, name)
-    }
-  }
+  override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit =
+    this.indexStub(stub.getClassNames, sink, KEY)
 
   override def createElement(node: ASTNode): ScSelfTypeElement = new ScSelfTypeElementImpl(node)
 

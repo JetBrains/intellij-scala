@@ -8,8 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScVariableStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.cleanFqn
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.VARIABLE_NAME_KEY
 
 /**
   * User: Alexander Podkhalyuzin
@@ -68,14 +67,6 @@ abstract class ScVariableElementType[Variable <: ScVariable](debugName: String)
       variable.containingClass == null)
   }
 
-  override def indexStub(stub: ScVariableStub, sink: IndexSink): Unit = {
-    stub.names.filter {
-      case null => false
-      case _ => true
-    }.map {
-      cleanFqn
-    }.foreach {
-      sink.occurrence(ScalaIndexKeys.VARIABLE_NAME_KEY, _)
-    }
-  }
+  override def indexStub(stub: ScVariableStub, sink: IndexSink): Unit =
+    this.indexStub(stub.names, sink, VARIABLE_NAME_KEY)
 }
