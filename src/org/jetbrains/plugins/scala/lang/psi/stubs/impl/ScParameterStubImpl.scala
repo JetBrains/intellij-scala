@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
 class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                    elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                                                    private val nameRef: StringRef,
-                                                   private val typeTextRef: StringRef,
+                                                   private val typeTextRef: Option[StringRef],
                                                    val isStable: Boolean,
                                                    val isDefaultParameter: Boolean,
                                                    val isRepeated: Boolean,
@@ -38,7 +38,7 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
 
   override def getName: String = StringRef.toString(nameRef)
 
-  override def typeText: String = StringRef.toString(typeTextRef)
+  override def typeText: Option[String] = typeTextRef.asString
 
   override def defaultExprText: Option[String] = defaultExprTextRef.asString
 
@@ -47,9 +47,7 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   def typeElement: Option[ScTypeElement] = {
     typeElementReference = this.updateOptionalReference(typeElementReference) {
       case (context, child) =>
-        Option(typeText).filter {
-          _.nonEmpty
-        }.map {
+        typeText.map {
           createTypeElementFromText(_, context, child)
         }
     }

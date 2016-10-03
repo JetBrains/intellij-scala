@@ -8,7 +8,6 @@ package signatures
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 
@@ -21,7 +20,7 @@ abstract class ScParamElementType[Param <: ScParameter](debugName: String)
 
   override def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeName(stub.typeText)
+    dataStream.writeOptionName(stub.typeText)
     dataStream.writeBoolean(stub.isStable)
     dataStream.writeBoolean(stub.isDefaultParameter)
     dataStream.writeBoolean(stub.isRepeated)
@@ -35,7 +34,7 @@ abstract class ScParamElementType[Param <: ScParameter](debugName: String)
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
     new ScParameterStubImpl(parentStub, this,
       nameRef = dataStream.readName,
-      typeTextRef = dataStream.readName,
+      typeTextRef = dataStream.readOptionName,
       isStable = dataStream.readBoolean,
       isDefaultParameter = dataStream.readBoolean,
       isRepeated = dataStream.readBoolean,
@@ -46,6 +45,9 @@ abstract class ScParamElementType[Param <: ScParameter](debugName: String)
       deprecatedNameRef = dataStream.readOptionName)
 
   override def createStub(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
+    val typeText = parameter.typeElement.map {
+      _.getText
+    }
     val (isVal, isVar) = parameter match {
       case parameter: ScClassParameter => (parameter.isVal, parameter.isVar)
       case _ => (false, false)
@@ -56,7 +58,7 @@ abstract class ScParamElementType[Param <: ScParameter](debugName: String)
 
     new ScParameterStubImpl(parentStub, this,
       nameRef = StringRef.fromString(parameter.name),
-      typeTextRef = StringRef.fromString(parameter.typeElement.text),
+      typeTextRef = typeText.asReference,
       isStable = parameter.isStable,
       isDefaultParameter = parameter.baseDefaultParam,
       isRepeated = parameter.isRepeatedParameter,

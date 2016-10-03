@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 trait ScParameterStub extends NamedStub[ScParameter] {
   def typeElement: Option[ScTypeElement]
 
-  def typeText: String
+  def typeText: Option[String]
 
   def isStable: Boolean
 
