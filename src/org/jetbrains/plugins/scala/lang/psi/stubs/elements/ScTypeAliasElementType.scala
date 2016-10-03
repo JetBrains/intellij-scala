@@ -11,8 +11,7 @@ import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.{STABLE_ALIAS_NAME_KEY, TYPE_ALIAS_NAME_KEY}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -65,12 +64,10 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   }
 
   override def indexStub(stub: ScTypeAliasStub, sink: IndexSink): Unit = {
-    val name = ScalaNamesUtil.cleanFqn(stub.getName)
-    if (name != null) {
-      sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
-      if (stub.isStableQualifier) {
-        sink.occurrence(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, name)
-      }
+    val names = Array(stub.getName)
+    this.indexStub(names, sink, TYPE_ALIAS_NAME_KEY)
+    if (stub.isStableQualifier) {
+      this.indexStub(names, sink, STABLE_ALIAS_NAME_KEY)
     }
   }
 }

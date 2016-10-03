@@ -10,8 +10,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScValueStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.VALUE_NAME_KEY
 
 /**
   * User: Alexander Podkhalyuzin
@@ -58,11 +57,9 @@ abstract class ScValueElementType[Value <: ScValue](debugName: String)
   }
 
   override def indexStub(stub: ScValueStub, sink: IndexSink): Unit = {
-    val names = stub.getNames
-
-    for (name <- names if name != null) {
-      sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
+    this.indexStub(stub.getNames, sink, VALUE_NAME_KEY)
+    if (stub.isImplicit) {
+      this.indexImplicit(sink)
     }
-    if (stub.isImplicit) sink.occurrence(ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }
 }

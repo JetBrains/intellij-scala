@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubBase, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs._
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.IMPLICITS_KEY
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
 /**
   * @author adkozlov
@@ -70,6 +72,22 @@ package object elements {
     }.map {
       StringRef.fromString
     }
+  }
+
+  implicit class SerializerExt[S <: StubElement[T], T <: PsiElement](val serializer: IStubElementType[S, T] with DefaultStubSerializer[S]) extends AnyVal {
+    def indexStub(names: Array[String], sink: IndexSink, key: StubIndexKey[String, _ <: T]): Unit =
+      names.filter {
+        _ != null
+      }.map {
+        cleanFqn
+      }.filter {
+        _.nonEmpty
+      }.foreach {
+        sink.occurrence(key, _)
+      }
+
+    def indexImplicit(sink: IndexSink): Unit =
+      sink.occurrence(IMPLICITS_KEY, "implicit")
   }
 
   implicit class StubBaseExt(val stubBase: StubBase[_ <: PsiElement]) extends AnyVal {

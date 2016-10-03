@@ -147,7 +147,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         sink.occurrence(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, pack)
       }
       if (stub.isImplicitClass) {
-        sink.occurrence(ScalaIndexKeys.IMPLICITS_KEY, "implicit")
+        this.indexImplicit(sink)
       }
     }
     if (stub.isPackageObject) {
