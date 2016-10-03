@@ -15,12 +15,26 @@ package object elements {
       val isDefined = dataStream.readBoolean
       if (isDefined) Some(dataStream.readName) else None
     }
+
+    def readNames: Array[StringRef] = {
+      val length = dataStream.readInt
+      (0 until length).map { _ =>
+        dataStream.readName
+      }.toArray
+    }
   }
 
   implicit class StubOutputStreamExt(val dataStream: StubOutputStream) extends AnyVal {
     def writeOptionName(maybeName: Option[String]): Unit = {
       dataStream.writeBoolean(maybeName.isDefined)
       maybeName.foreach {
+        dataStream.writeName
+      }
+    }
+
+    def writeNames(names: Array[String]): Unit = {
+      dataStream.writeInt(names.length)
+      names.foreach {
         dataStream.writeName
       }
     }
@@ -36,6 +50,22 @@ package object elements {
 
   implicit class MaybeStringExt(val maybeString: Option[String]) extends AnyVal {
     def asReference: Option[StringRef] = maybeString.filter {
+      _.nonEmpty
+    }.map {
+      StringRef.fromString
+    }
+  }
+
+  implicit class StringRefArrayExt(val stringRefs: Array[StringRef]) extends AnyVal {
+    def asStrings: Array[String] = stringRefs.map {
+      StringRef.toString
+    }.filter {
+      _.nonEmpty
+    }
+  }
+
+  implicit class StringArrayExt(val strings: Array[String]) extends AnyVal {
+    def asReferences: Array[StringRef] = strings.filter {
       _.nonEmpty
     }.map {
       StringRef.fromString
