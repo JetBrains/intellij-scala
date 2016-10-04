@@ -62,22 +62,24 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     mySimpleMethodComboBox.setModel(new EnumComboBoxModel<TypeAnnotationPolicy>(TypeAnnotationPolicy.class));
 
     HyperlinkLabel link = new HyperlinkLabel("Configure type annotation inspection");
-    link.setVisible(Settings.KEY.getData(DataManager.getInstance().getDataContextFromFocus().getResultSync()) != null);
 
     link.addHyperlinkListener(new HyperlinkListener() {
       public void hyperlinkUpdate(final HyperlinkEvent e) {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
           final Settings optionsEditor = Settings.KEY.getData(DataManager.getInstance().getDataContextFromFocus().getResultSync());
-          final ErrorsConfigurable configurable = optionsEditor.find(ProjectInspectionToolsConfigurable.class);
-          optionsEditor.select(configurable).doWhenDone(new Runnable() {
-            public void run() {
-              assert configurable != null;
-              configurable.selectInspectionTool("TypeAnnotation");
-            }
-          });
+          if (optionsEditor != null) {
+            final ErrorsConfigurable configurable = optionsEditor.find(ProjectInspectionToolsConfigurable.class);
+            optionsEditor.select(configurable).doWhenDone(new Runnable() {
+              public void run() {
+                assert configurable != null;
+                configurable.selectInspectionTool("TypeAnnotation");
+              }
+            });
+          }
         }
       }
     });
+
     myLinkContainer.setLayout(new BorderLayout());
     myLinkContainer.add(link);
 
