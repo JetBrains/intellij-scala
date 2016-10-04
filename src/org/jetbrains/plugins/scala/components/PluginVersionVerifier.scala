@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package components
 
-import javax.swing.SwingUtilities
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.plugins._
@@ -11,6 +10,7 @@ import com.intellij.openapi.application.{Application, ApplicationManager}
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.ExtensionPointName
+import org.jetbrains.plugins.scala.extensions.invokeLater
 
 /**
  * @author Alefas
@@ -144,14 +144,12 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
       }
       ScalaPluginUpdater.askUpdatePluginBranch()
     }
-    SwingUtilities.invokeLater(new Runnable {
-      def run() {
-        ScalaPluginUpdater.upgradeRepo()
-        checkVersion()
-        ScalaPluginUpdater.postCheckIdeaCompatibility()
-        ScalaPluginUpdater.setupReporter()
-      }
-    })
+    invokeLater {
+      ScalaPluginUpdater.upgradeRepo()
+      checkVersion()
+      ScalaPluginUpdater.postCheckIdeaCompatibility()
+      ScalaPluginUpdater.setupReporter()
+    }
   }
 
   def disposeComponent() {}

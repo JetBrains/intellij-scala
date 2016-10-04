@@ -543,7 +543,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       }
       if (info == null) return;
 
-      SwingUtilities.invokeLater(new Runnable() {
+      ApplicationManager.getApplication().invokeLater(new Runnable() {
         @Override
         public void run() {
           if (myDisposed || myEditor.isDisposed() || !myEditor.getComponent().isShowing()) return;
