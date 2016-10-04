@@ -29,27 +29,39 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
   Component.discoverIn(Set(getArtifact), files).find {
       component => component.artifact.prefix == myArtifact.prefix
     }.flatMap(_.version)
-
-  override def acceptsFrom(from: Library): Boolean = {
-    val ioFiles = from.getFiles(OrderRootType.CLASSES).map {
+  
+  protected def extractVersion(lib: Library): Option[Version] = {
+    val ioFiles = lib.getFiles(OrderRootType.CLASSES).map {
       file => new File(file.getPath.replace('/', File.separatorChar).replace(".jar!", ".jar")) //todo better way?
     }
 
-    extractVersion(ioFiles.toSeq).exists {
-      version => versionFrom.contains(version) || (
-        isRangeVersion && (versionFrom.head <= version) && (versionTo.head > version))
-    }
+    extractVersion(ioFiles)
   }
-
-  override def acceptsTo(to: LibraryData): Boolean = {
-    val ioFiles = to.getPaths(LibraryPathType.BINARY).asScala.map {
+  
+  protected def extractVersion(lib: LibraryData): Option[Version] = {
+    val ioFiles = lib.getPaths(LibraryPathType.BINARY).asScala.map {
       path => new File(path)
     }
-
-    extractVersion(ioFiles.toSeq).exists {
-      version => versionTo.contains(version) || (
-        isRangeVersion && (versionTo.head >= version) && (versionFrom.head < version))
+    
+    extractVersion(ioFiles.toSeq)
+  }
+  
+  protected def isVersionMoreSpecific(lessSpecific: Version, moreSpecific: Version, strict: Boolean = false): Boolean = {
+    if (lessSpecific == moreSpecific) return !strict
+    lessSpecific.digitsIterator.zip(moreSpecific.digitsIterator).foreach {
+      case (a, b) => if (a != b) return false
     }
+    true
+  } 
+
+  override def acceptsFrom(from: Library): Boolean = extractVersion(from).exists {
+    version => versionFrom.contains(version) || (
+      isRangeVersion && (versionFrom.head <= version) && (versionTo.head > version))
+  }
+
+  override def acceptsTo(to: LibraryData): Boolean = extractVersion(to).exists {
+    version => versionTo.contains(version) || (
+      isRangeVersion && (versionTo.head >= version) && (versionFrom.head < version))
   }
 
   override def precede(otherOne: ScalaLibraryMigrationHandler): Boolean = otherOne match {
