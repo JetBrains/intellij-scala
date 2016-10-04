@@ -298,10 +298,6 @@ object MethodResolveProcessor {
       }
     }
 
-    if (element.isInstanceOf[ScReferencePattern]) {
-      "stop here"
-    }
-
     val result = element match {
       //objects
       case _: ScObject if argumentClauses.nonEmpty =>
@@ -525,13 +521,18 @@ object MethodResolveProcessor {
         val cands = processor.candidatesS.map(rr => r.copy(innerResolveResult = Some(rr)))
         if (cands.isEmpty) HashSet(r) else cands
       }
+
+      def substitutor: ScSubstitutor = {
+        r.substitutor
+      }
+
       r.element match {
         case f: ScFunction if f.hasParameterClause => HashSet(r)
         case b: ScTypedDefinition if argumentClauses.nonEmpty =>
-          val tp = r.substitutor.subst(b.getType(TypingContext.empty).getOrElse(return HashSet.empty))
+          val tp = substitutor.subst(b.getType(TypingContext.empty).getOrElse(return HashSet.empty))
           applyMethodsFor(tp)
         case b: PsiField => // See SCL-3055
-          val tp = r.substitutor.subst(b.getType.toScType())
+          val tp = substitutor.subst(b.getType.toScType())
           applyMethodsFor(tp)
         case _ => HashSet(r)
       }
