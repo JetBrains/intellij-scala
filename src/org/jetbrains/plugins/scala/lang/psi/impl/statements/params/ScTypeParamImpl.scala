@@ -43,7 +43,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   def getOffsetInFile: Int = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].getPositionInFile
+      return stub.asInstanceOf[ScTypeParamStub].positionInFile
     }
     getTextRange.getStartOffset
   }
@@ -51,7 +51,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   def getContainingFileName: String = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].getContainingFileName
+      return stub.asInstanceOf[ScTypeParamStub].containingFileName
     }
     val containingFile = getContainingFile
     if (containingFile == null) return "NoFile"
@@ -91,7 +91,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   def typeParameterText: String = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].typeParameterText
+      return stub.asInstanceOf[ScTypeParamStub].text
     }
     getText
   }
@@ -107,28 +107,28 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   override def viewTypeElement: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getViewTypeElement
+      stub.asInstanceOf[ScTypeParamStub].viewBoundsTypeElements
     } else super.viewTypeElement
   }
 
   override def contextBoundTypeElement: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getContextBoundTypeElement
+      stub.asInstanceOf[ScTypeParamStub].contextBoundsTypeElements
     } else super.contextBoundTypeElement
   }
 
   override def lowerTypeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getLowerTypeElement
+      stub.asInstanceOf[ScTypeParamStub].lowerBoundTypeElement
     } else super.lowerTypeElement
   }
 
   override def upperTypeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getUpperTypeElement
+      stub.asInstanceOf[ScTypeParamStub].upperBoundTypeElement
     } else super.upperTypeElement
   }
 
