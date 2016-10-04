@@ -6,49 +6,23 @@ package statements
 
 import javax.swing.Icon
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kVAL
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
  */
-
-trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder
-              with ScAnnotationsHolder with ScCommentOwner {
-  self =>
-  def valKeyword: PsiElement = findChildrenByType(ScalaTokenTypes.kVAL).apply(0)
-
-  def declaredElements: Seq[ScTypedDefinition]
-
-  def declaredNames: Seq[String] = declaredElements.map(_.name)
+trait ScValue extends ScValueOrVariable {
+  override protected def keywordElementType: IElementType = kVAL
 
   def hasExplicitType: Boolean = typeElement.isDefined
 
-  def typeElement: Option[ScTypeElement]
-
-  def declaredType: Option[ScType] = typeElement flatMap (_.getType(TypingContext.empty) match {
-    case Success(t, _) => Some(t)
-    case _ => None
-  })
-
-  def getType(ctx: TypingContext): TypeResult[ScType]
-
-
-  override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean): Boolean = m match {
-    case other: ScValue =>
-      for (elem <- self.declaredElements) {
-        if (other.declaredElements.exists(_.name == elem.name))
-          return true
-      }
-      false
+  override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
+    case other: ScValue => super.isSimilarMemberForNavigation(other, isStrict)
     case _ => false
   }
 
@@ -63,6 +37,4 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
     }
     null
   }
-
-  def getValToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAL)
 }

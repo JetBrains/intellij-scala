@@ -11,7 +11,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.NullableFunction
@@ -28,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTr
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
 
-import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 
 
@@ -36,7 +35,6 @@ import scala.collection.{Seq, mutable}
  * User: Alexander Podkhalyuzin
  * Date: 31.10.2008
  */
-
 class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colorsManager: EditorColorsManager)
         extends LineMarkerProvider with ScalaSeparatorProvider {
 
@@ -98,7 +96,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           if (signatures.nonEmpty) {
             return marker(method.nameId, icon, typez)
           }
-        case (x@(_: ScValue | _: ScVariable), _: ScTemplateBody)
+        case (x: ScValueOrVariable, _: ScTemplateBody)
           if containsNamedElement(x.asInstanceOf[ScDeclaredElementsHolder]) =>
           val signatures = new ArrayBuffer[Signature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
@@ -106,11 +104,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.nonEmpty) {
-            val token = x match {
-              case v: ScValue => v.getValToken
-              case v: ScVariable => v.getVarToken
-            }
-            return marker(token, icon, typez)
+            return marker(x.keywordToken, icon, typez)
           }
         case (x: ScObject, _: ScTemplateBody) if x.nameId == element =>
           val signatures = ScalaPsiUtil.superValsSignatures(x, withSelfType = true)
