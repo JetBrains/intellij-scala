@@ -14,8 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.VARIABLE_
   * User: Alexander Podkhalyuzin
   * Date: 18.10.2008
   */
-
-abstract class ScVariableElementType(debugName: String)
+abstract class ScVariableElementType[V <: ScVariable](debugName: String)
   extends ScValueOrVariableElementType[ScVariableStub, ScVariable](debugName) {
   override protected val key = VARIABLE_NAME_KEY
 

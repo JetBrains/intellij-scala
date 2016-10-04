@@ -17,8 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.ANNOTATED
   * User: Alexander Podkhalyuzin
   * Date: 22.06.2009
   */
-class ScAnnotationElementType[Func <: ScAnnotation]
-  extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
+class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   override def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeOptionName(stub.name)
     dataStream.writeOptionName(stub.typeText)

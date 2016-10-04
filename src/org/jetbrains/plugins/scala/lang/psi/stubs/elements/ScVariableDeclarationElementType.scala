@@ -12,8 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScVariableDeclaratio
   * User: Alexander Podkhalyuzin
   * Date: 18.10.2008
   */
-
-class ScVariableDeclarationElementType extends ScVariableElementType("variable declaration") {
+class ScVariableDeclarationElementType extends ScVariableElementType[ScVariableDeclaration]("variable declaration") {
   override def createElement(node: ASTNode): ScVariableDeclaration = new ScVariableDeclarationImpl(node)
 
   override def createPsi(stub: ScVariableStub): ScVariableDeclaration = new ScVariableDeclarationImpl(stub)
