@@ -564,7 +564,7 @@ package object extensions {
 
   def invokeAndWait[T](body: => Unit) {
     preservingControlFlow {
-      SwingUtilities.invokeAndWait(new Runnable {
+      ApplicationManager.getApplication.invokeAndWait(new Runnable {
         def run() {
           body
         }

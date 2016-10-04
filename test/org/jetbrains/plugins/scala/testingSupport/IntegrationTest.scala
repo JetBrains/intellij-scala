@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.util.ThrowableRunnable
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.TestItemRepresentation
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
@@ -161,11 +162,8 @@ trait IntegrationTest {
     val semaphore = new Semaphore
     semaphore.down()
 
-    SwingUtilities.invokeLater(new Runnable() {
-      override def run(): Unit = {
-        semaphore.up()
-      }
-    })
+
+    invokeLater(semaphore.up())
 
     semaphore.waitFor()
 
