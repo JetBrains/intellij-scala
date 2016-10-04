@@ -6,7 +6,7 @@ package elements
 
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueDeclaration
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScValueDeclarationImpl
 
 /**
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScValueDeclarationIm
   * Date: 17.10.2008
   */
 
-class ScValueDeclarationElementType extends ScValueElementType[ScValue]("value declaration") {
+class ScValueDeclarationElementType extends ScValueElementType("value declaration") {
   override def createElement(node: ASTNode): ScValueDeclaration = new ScValueDeclarationImpl(node)
 
   override def createPsi(stub: ScValueStub): ScValueDeclaration = new ScValueDeclarationImpl(stub)
