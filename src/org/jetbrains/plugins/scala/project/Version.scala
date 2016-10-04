@@ -5,7 +5,9 @@ package project
  * @author Pavel Fatin
  */
 case class Version(number: String) extends AnyVal with Comparable[Version] {
-  def digits: Stream[Int] = Version.IntegerPattern.findAllIn(number).map(_.toInt).toStream
+  def digitsIterator: Iterator[Int] = Version.IntegerPattern.findAllIn(number).map(_.toInt)
+  
+  def digits: Stream[Int] = digitsIterator.toStream
 
   def compareTo(other: Version): Int = (digits, other.digits).zipped.collectFirst {
     case (a, b) if a != b => a.compareTo(b)
