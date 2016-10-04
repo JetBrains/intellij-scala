@@ -91,36 +91,24 @@ package object elements {
   }
 
   implicit class StubBaseExt(val stubBase: StubBase[_ <: PsiElement]) extends AnyVal {
-    def updateReference[E <: PsiElement](reference: SofterReference[E])
-                                        (elementConstructor: (PsiElement, PsiElement) => E): SofterReference[E] =
-      updateReferenceWithFilter(reference, elementConstructor) { r =>
-        Option(r.get).exists(hasSameContext)
-      }
 
     def updateOptionalReference[E <: PsiElement](reference: SofterReference[Option[E]])
                                                 (elementConstructor: (PsiElement, PsiElement) => Option[E]): SofterReference[Option[E]] =
-      updateReferenceWithFilter(reference, elementConstructor) {
-        _.get match {
-          case null => false
-          case None => true
-          case Some(element) => hasSameContext(element)
-        }
-      }
+      updateReferenceWithFilter(reference, elementConstructor)(_.toSeq)
 
-    def updateSeqReference[E <: PsiElement](reference: SofterReference[Seq[E]])
-                                           (elementConstructor: (PsiElement, PsiElement) => Seq[E]): SofterReference[Seq[E]] =
-      updateReferenceWithFilter(reference, elementConstructor) {
+    def updateReference[E <: PsiElement](reference: SofterReference[Seq[E]])
+                                        (elementConstructor: (PsiElement, PsiElement) => Seq[E]): SofterReference[Seq[E]] =
+      updateReferenceWithFilter(reference, elementConstructor)
+
+    private def updateReferenceWithFilter[E <: PsiElement, T](reference: SofterReference[T],
+                                                              elementConstructor: (PsiElement, PsiElement) => T)
+                                                             (implicit evidence: T => Seq[E]): SofterReference[T] =
+      Option(reference).filter {
         _.get match {
           case null => false
+          case Seq() => true
           case seq => seq.forall(hasSameContext)
         }
-      }
-
-    private def updateReferenceWithFilter[T](reference: SofterReference[T],
-                                             elementConstructor: (PsiElement, PsiElement) => T)
-                                            (filter: SofterReference[T] => Boolean): SofterReference[T] =
-      Option(reference).filter {
-        filter
       }.getOrElse {
         new SofterReference(elementConstructor(psi, null))
       }
