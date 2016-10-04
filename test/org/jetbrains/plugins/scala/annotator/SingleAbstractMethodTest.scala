@@ -368,7 +368,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
         Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) ::
         Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) ::
         Error("c", typeMismatch()) :: Error("c", doesNotConform()) ::
-        Error("()", doesNotTakeParameters()) ::
+        Error("()", doesNotTakeParameters()) :: Error("c", cannotResolveReference()) ::
         Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) ::
         Error("e", typeMismatch()) :: Error("e", doesNotConform()) ::
         Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) ::
