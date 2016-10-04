@@ -4,12 +4,12 @@ import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 
 /**
   * @author adkozlov
   */
-trait ScValueOrVariableStub[V <: ScMember] extends StubElement[V] with ScMemberOrLocal {
+trait ScValueOrVariableStub[V <: ScValueOrVariable] extends StubElement[V] with ScMemberOrLocal {
   def isDeclaration: Boolean
 
   def names: Array[String]

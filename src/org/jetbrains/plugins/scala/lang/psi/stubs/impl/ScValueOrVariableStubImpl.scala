@@ -7,7 +7,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScIdList, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueOrVariableStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StringRefArrayExt, StubBaseExt}
@@ -15,14 +15,14 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
 /**
   * @author adkozlov
   */
-class ScValueOrVariableStubImpl[V <: ScMember](parent: StubElement[_ <: PsiElement],
-                                               elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                               val isDeclaration: Boolean,
-                                               private val namesRefs: Array[StringRef],
-                                               private val typeTextRef: Option[StringRef],
-                                               private val bodyTextRef: Option[StringRef],
-                                               private val containerTextRef: Option[StringRef],
-                                               val isLocal: Boolean)
+class ScValueOrVariableStubImpl[V <: ScValueOrVariable](parent: StubElement[_ <: PsiElement],
+                                                        elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                                        val isDeclaration: Boolean,
+                                                        private val namesRefs: Array[StringRef],
+                                                        private val typeTextRef: Option[StringRef],
+                                                        private val bodyTextRef: Option[StringRef],
+                                                        private val containerTextRef: Option[StringRef],
+                                                        val isLocal: Boolean)
   extends StubBase[V](parent, elementType) with ScValueOrVariableStub[V] {
 
   private var typeElementReference: SofterReference[Option[ScTypeElement]] = null

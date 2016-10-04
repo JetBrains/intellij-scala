@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.psi.stubs.{IndexSink, StubIndexKey, StubOutputStream}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDeclaration, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueOrVariableStub
 
 /**
   * @author adkozlov
   */
-abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[T], T <: ScMember](debugName: String)
+abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[T], T <: ScValueOrVariable](debugName: String)
   extends ScStubElementType[S, T](debugName) {
   protected val key: StubIndexKey[String, T]
 
@@ -24,12 +24,21 @@ abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[T], T <: 
   override def indexStub(stub: S, sink: IndexSink): Unit =
     this.indexStub(stub.names, sink, key)
 
+  protected def isDeclaration(valueOrVariable: ScValueOrVariable): Boolean =
+    valueOrVariable.isInstanceOf[ScVariableDeclaration]
 
-  protected def isDeclaration(member: ScMember) =
-    member.isInstanceOf[ScVariableDeclaration]
+  protected def typeText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
+    valueOrVariable.typeElement.map {
+      _.getText
+    }.asReference
 
-  protected def bodyText(member: ScMember) =
-    Option(member).collect {
+  protected def names(valueOrVariable: ScValueOrVariable): Array[StringRef] =
+    valueOrVariable.declaredElements.map {
+      _.name
+    }.toArray.asReferences
+
+  protected def bodyText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
+    Option(valueOrVariable).collect {
       case definition: ScVariableDefinition => definition
     }.flatMap {
       _.expr
@@ -37,14 +46,14 @@ abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[T], T <: 
       _.getText
     }.asReference
 
-  protected def containerText(member: ScMember) =
-    Option(member).collect {
+  protected def containerText(valueOrVariable: ScValueOrVariable): Option[StringRef] =
+    Option(valueOrVariable).collect {
       case declaration: ScVariableDeclaration => declaration.getIdList
       case definition: ScVariableDefinition => definition.pList
     }.map {
       _.getText
     }.asReference
 
-  protected def isLocal(member: ScMember) =
-    member.containingClass == null
+  protected def isLocal(valueOrVariable: ScValueOrVariable): Boolean =
+    valueOrVariable.containingClass == null
 }
