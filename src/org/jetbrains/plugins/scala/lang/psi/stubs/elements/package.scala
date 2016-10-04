@@ -74,7 +74,7 @@ package object elements {
     }
   }
 
-  implicit class SerializerExt[S <: StubElement[T], T <: PsiElement](val serializer: IStubElementType[S, T] with DefaultStubSerializer[S]) extends AnyVal {
+  implicit class SerializerExt[S <: StubElement[T], T <: PsiElement](val serializer: ScStubElementType[S, T]) extends AnyVal {
     def indexStub(names: Array[String], sink: IndexSink, key: StubIndexKey[String, _ <: T]): Unit =
       names.filter {
         _ != null

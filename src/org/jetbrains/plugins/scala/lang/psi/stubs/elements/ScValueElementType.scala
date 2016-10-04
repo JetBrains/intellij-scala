@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.VALUE_NAM
   * User: Alexander Podkhalyuzin
   * Date: 17.10.2008
   */
-abstract class ScValueElementType(debugName: String)
+abstract class ScValueElementType[V <: ScValue](debugName: String)
   extends ScValueOrVariableElementType[ScValueStub, ScValue](debugName) {
   override protected val key = VALUE_NAME_KEY
 

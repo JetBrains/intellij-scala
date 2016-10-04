@@ -8,9 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueOrVariableStub
 /**
   * @author adkozlov
   */
-abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[T], T <: ScValueOrVariable](debugName: String)
-  extends ScStubElementType[S, T](debugName) {
-  protected val key: StubIndexKey[String, T]
+abstract class ScValueOrVariableElementType[S <: ScValueOrVariableStub[V], V <: ScValueOrVariable](debugName: String)
+  extends ScStubElementType[S, V](debugName) {
+  protected val key: StubIndexKey[String, V]
 
   override def serialize(stub: S, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isDeclaration)
