@@ -5,8 +5,8 @@ package stubs
 package elements
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDeclaration, ScVariableDefinition}
+import com.intellij.psi.stubs._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScVariableStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.VARIABLE_NAME_KEY
 
@@ -15,16 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.VARIABLE_
   * Date: 18.10.2008
   */
 
-abstract class ScVariableElementType[Variable <: ScVariable](debugName: String)
-  extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
-  override def serialize(stub: ScVariableStub, dataStream: StubOutputStream): Unit = {
-    dataStream.writeBoolean(stub.isDeclaration)
-    dataStream.writeNames(stub.names)
-    dataStream.writeOptionName(stub.typeText)
-    dataStream.writeOptionName(stub.bodyText)
-    dataStream.writeOptionName(stub.bindingsContainerText)
-    dataStream.writeBoolean(stub.isLocal)
-  }
+abstract class ScVariableElementType(debugName: String)
+  extends ScValueOrVariableElementType[ScVariableStub, ScVariable](debugName) {
+  override protected val key = VARIABLE_NAME_KEY
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScVariableStub =
     new ScVariableStubImpl(parentStub, this,
@@ -43,30 +36,13 @@ abstract class ScVariableElementType[Variable <: ScVariable](debugName: String)
     val typeText = variable.typeElement.map {
       _.getText
     }
-    val bodyText = Option(variable).collect {
-      case definition: ScVariableDefinition => definition
-    }.flatMap {
-      _.expr
-    }.map {
-      _.getText
-    }
-
-    val containerText = Option(variable).collect {
-      case declaration: ScVariableDeclaration => declaration.getIdList
-      case definition: ScVariableDefinition => definition.pList
-    }.map {
-      _.getText
-    }
 
     new ScVariableStubImpl(parentStub, this,
-      isDeclaration = variable.isInstanceOf[ScVariableDeclaration],
+      isDeclaration = isDeclaration(variable),
       namesRefs = names.asReferences,
       typeTextRef = typeText.asReference,
-      bodyTextRef = bodyText.asReference,
-      containerTextRef = containerText.asReference,
-      variable.containingClass == null)
+      bodyTextRef = bodyText(variable),
+      containerTextRef = containerText(variable),
+      isLocal = isLocal(variable))
   }
-
-  override def indexStub(stub: ScVariableStub, sink: IndexSink): Unit =
-    this.indexStub(stub.names, sink, VARIABLE_NAME_KEY)
 }

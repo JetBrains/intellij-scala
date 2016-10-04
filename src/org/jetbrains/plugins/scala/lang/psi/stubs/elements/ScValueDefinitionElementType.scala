@@ -5,7 +5,7 @@ package stubs
 package elements
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScPatternDefinitionImpl
 
 /**
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScPatternDefinitionI
   * Date: 17.10.2008
   */
 
-class ScValueDefinitionElementType extends ScValueElementType[ScValue]("value definition") {
+class ScValueDefinitionElementType extends ScValueElementType("value definition") {
   override def createElement(node: ASTNode): ScPatternDefinition = new ScPatternDefinitionImpl(node)
 
   override def createPsi(stub: ScValueStub): ScPatternDefinition = new ScPatternDefinitionImpl(stub)
