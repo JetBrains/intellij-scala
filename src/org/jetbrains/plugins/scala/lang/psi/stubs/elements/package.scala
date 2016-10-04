@@ -107,6 +107,15 @@ package object elements {
         }
       }
 
+    def updateSeqReference[E <: PsiElement](reference: SofterReference[Seq[E]])
+                                           (elementConstructor: (PsiElement, PsiElement) => Seq[E]): SofterReference[Seq[E]] =
+      updateReferenceWithFilter(reference, elementConstructor) {
+        _.get match {
+          case null => false
+          case seq => seq.forall(hasSameContext)
+        }
+      }
+
     private def updateReferenceWithFilter[T](reference: SofterReference[T],
                                              elementConstructor: (PsiElement, PsiElement) => T)
                                             (filter: SofterReference[T] => Boolean): SofterReference[T] =
