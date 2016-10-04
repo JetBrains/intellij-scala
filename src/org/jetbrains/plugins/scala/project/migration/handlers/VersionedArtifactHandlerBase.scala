@@ -25,7 +25,7 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
   private val isRangeVersion = versionFrom.size == 1 && versionTo.size == 1 && continuousVersion
 
   
-  private def extractVersion(files: Seq[File]): Option[Version] =
+  protected def extractVersion(files: Seq[File]): Option[Version] =
   Component.discoverIn(Set(getArtifact), files).find {
       component => component.artifact.prefix == myArtifact.prefix
     }.flatMap(_.version)
