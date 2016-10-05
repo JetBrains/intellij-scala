@@ -41,22 +41,4 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
     case null => true
     case _ => false
   }
-
-  /**
-   * @return returns every time the same result, even after modification
-   *         so it's reaonable to use it only for Predef and scala classes
-   */
-  def getHardParameterlessSignatures: TypeDefinitionMembers.ParameterlessNodes.Map
-
-  /**
-   * @return returns every time the same result, even after modification
-   *         so it's reaonable to use it only for Predef and scala classes
-   */
-  def getHardTypes: TypeDefinitionMembers.TypeNodes.Map
-
-  /**
-   * @return returns every time the same result, even after modification
-   *         so it's reaonable to use it only for Predef and scala classes
-   */
-  def getHardSignatures: TypeDefinitionMembers.SignatureNodes.Map
 }
