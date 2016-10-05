@@ -22,7 +22,8 @@ object SerializationUtil {
     val manifest = ManifestHandler(ioFile)
 
     allAttributes.flatMap {
-      attribute => manifest.getArbitraryAttribute(attribute.name).map(v => (attribute, v))
+      attribute =>
+        manifest.getArbitraryAttribute(attribute.name).toSeq.flatMap(v => attribute parse v).map(a => (attribute, a))
     }
   }
   
