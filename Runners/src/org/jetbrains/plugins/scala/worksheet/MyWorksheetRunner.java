@@ -19,7 +19,7 @@ public class MyWorksheetRunner {
       Class cl = ClassLoader.getSystemClassLoader().loadClass(className); //It's in default package, so name == fqn
       Object methodArgs = new String[] {};
       for (Method method : cl.getDeclaredMethods()) {
-        if ("main".equals(method.getName())) method.invoke(null, methodArgs);
+        if ("main".equals(method.getName())) method.invoke(null, java.lang.System.out);
       }
       
     } catch (InvocationTargetException e) {
