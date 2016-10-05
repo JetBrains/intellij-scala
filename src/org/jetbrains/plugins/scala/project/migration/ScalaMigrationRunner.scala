@@ -24,11 +24,7 @@ class ScalaMigrationRunner {
     def catchRun(migrate: MigrationApiService => Option[MigrationReport]) {
       Try(migrate(projectStructure)) match {
         case Success(report) => report.foreach(projectStructure.showReport)
-        case Failure(exception) =>
-          val failureReport = MigrationReport.createSingleMessageReport(MigrationReport.Error, exception.getMessage +
-            "\n" + exception.getStackTrace.take(ImportedLibrariesService.STACKTRACE_FROM_REPORT_CUT_SIZE).mkString("\n"))
-
-          projectStructure showReport failureReport
+        case Failure(exception) => ImportedLibrariesService.showExceptionWarning(projectStructure, exception)
       }
     }
 
