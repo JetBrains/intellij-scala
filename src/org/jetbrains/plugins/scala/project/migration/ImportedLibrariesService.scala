@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsPr
 import com.intellij.openapi.externalSystem.service.project.manage.AbstractProjectDataService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LibraryOrderEntry
+import org.jetbrains.plugins.scala.codeInspection.bundled.{BundledInspectionBase, BundledInspectionStoreComponent}
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.project.migration.handlers.{ArtifactHandlerComponent, ScalaLibraryMigrationHandler, VersionedArtifactHandlerBase}
@@ -24,22 +25,23 @@ import scala.util.{Failure, Success, Try}
   * Date: 25.07.16.
   */
 class ImportedLibrariesService extends AbstractProjectDataService[LibraryDependencyData, LibraryOrderEntry] {
-  private def isEnabled = true
-  
   override def getTargetDataKey: Key[LibraryDependencyData] = ProjectKeys.LIBRARY_DEPENDENCY
 
   override def importData(toImport: util.Collection[DataNode[LibraryDependencyData]], 
                           projectData: ProjectData, project: Project, 
                           modelsProvider: IdeModifiableModelsProvider): Unit = {
-    if (!isEnabled) return 
+    if (!ImportedLibrariesService.isEnabled) return 
+    
+    import ImportedLibrariesService.{loadClassFromJar, showWarning}
     
     val it = toImport.iterator()
     val service = getMigrationApi(project)
 
+    val inspectionStoreComponent = BundledInspectionStoreComponent getInstance project
+    inspectionStoreComponent.clearLoaded()
+
     val handlerComponent = ArtifactHandlerComponent.getInstance(project)
     val foundMigrators = mutable.HashSet[ScalaLibraryMigrator]()
-    
-    def warning(txt: String) = service.showReport(MigrationReport.createSingleMessageReport(MigrationReport.Warning, txt))
     
     def processFoundToHandlers(toHandlers: Iterable[ScalaLibraryMigrationHandler], target: LibraryData) {
       modelsProvider.getAllLibraries foreach { //todo performance ?   
@@ -79,22 +81,12 @@ class ImportedLibrariesService extends AbstractProjectDataService[LibraryDepende
         if (bundledFound.nonEmpty) {
           bundledFound foreach {
             case (ManifestAttributes.MigratorFqnAttribute, fqn) =>
-              val containingFile = new File(pathFound)
-              val myClassLoader = new URLClassLoader(Array(containingFile.toURI.toURL), classOf[VersionedArtifactHandlerBase].getClassLoader)
-              
-              Try(myClassLoader loadClass fqn) flatMap (
-                cz => Try(cz.newInstance().asInstanceOf[ScalaLibraryMigrationHandler])
-              ) match {
-                case Success(handler) =>
-                  processFoundToHandlers(Seq(handler), target)
-                case Failure(ex: ClassNotFoundException) =>
-                  warning(s"Migrator $fqn in ${containingFile.getName} declared but cannot be found")
-                case Failure(ex: ClassCastException) =>
-                  warning(s"Migrator $fqn in ${containingFile.getName} found but cannot be casted to the proper type")
-                case _ => //ignore that
-              }
-            case (ManifestAttributes.InspectionPackageAttribute, fqn) => //todo save
-            case (a, v) => warning(s"Unknown attribute: ${a.name} : $v")
+              val loaded = loadClassFromJar(service, pathFound, Seq(fqn), a => a.asInstanceOf[ScalaLibraryMigrationHandler])
+              if (loaded.nonEmpty) processFoundToHandlers(loaded, target)
+            case (ManifestAttributes.InspectionPackageAttribute, fqn) =>
+              val loaded = loadClassFromJar(service, pathFound, Seq(fqn), a => a.asInstanceOf[BundledInspectionBase])
+              if (loaded.nonEmpty) loaded.foreach(l => inspectionStoreComponent.addLoadedInspection(pathFound, fqn, l))
+            case (a, v) => showWarning(service, s"Unknown attribute: ${a.name} : $v")
           }
         }
       }
@@ -116,12 +108,16 @@ class ImportedLibrariesService extends AbstractProjectDataService[LibraryDepende
         case "close" =>
         case _ => 
       })
+    
+    inspectionStoreComponent.completeLoading()
   }
   
   private def getMigrationApi(project: Project): MigrationApiService = MigrationApiImpl.getApiInstance(project)
 }
 
 object ImportedLibrariesService {
+  def isEnabled = false
+  
   val STACKTRACE_FROM_REPORT_CUT_SIZE = 8
   
   val MIGRATORS_FOUND_MESSAGE =
@@ -134,4 +130,40 @@ object ImportedLibrariesService {
       |</body>
       |</html>
     """.stripMargin
+
+  def showWarning(service: MigrationApiService, txt: String) = 
+    service.showReport(MigrationReport.createSingleMessageReport(MigrationReport.Warning, txt))
+  
+  def showExceptionWarning(service: MigrationApiService, ex: Throwable) = showWarning(service, ex.getMessage +
+    "\n" + ex.getStackTrace.take(STACKTRACE_FROM_REPORT_CUT_SIZE).mkString("\n"))
+  
+  
+  def loadClassFromJar[T](service: MigrationApiService, filePath: String, fqns: Iterable[String], 
+                          converter: Any => T): Iterable[T] = {
+    val file = new File(filePath)
+    if (!file.exists()) return Seq.empty
+
+    val myClassLoader = new URLClassLoader(Array(file.toURI.toURL), classOf[VersionedArtifactHandlerBase].getClassLoader)
+    
+    fqns.flatMap{
+      fqn => Try(myClassLoader.loadClass(fqn)) flatMap (
+          cs => Try(cs.newInstance())
+        ) flatMap (ins => Try(converter(ins))) match {
+        case Success(v) => 
+          Some(v)
+        case Failure(_: ClassNotFoundException) =>
+          showWarning(service, s"Cannot find class $fqn declared in ${file.getName}")
+          None
+        case Failure(_: ClassCastException) => 
+          showWarning(service, s"Cannot cast to the proper type class $fqn declared in ${file.getName}")
+          None
+        case Failure(e: InstantiationException) => 
+          showWarning(service, s"Cannot instantiate class $fqn declared in ${file.getName}")
+          None
+        case Failure(e: Throwable) =>
+          showExceptionWarning(service, e)
+          None
+      }
+    }
+  }
 }
