@@ -79,5 +79,5 @@ class SbtAnnotator extends Annotator {
 }
 
 object SbtAnnotator {
-  val AllowedTypes = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+  val AllowedTypes = List("sbt.internals.DslEntry", "Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
 }
