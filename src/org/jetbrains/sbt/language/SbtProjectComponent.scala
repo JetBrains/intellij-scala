@@ -8,7 +8,7 @@ import com.intellij.CommonBundle
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.notification.impl.NotificationsConfigurationImpl
 import com.intellij.notification.{Notification, NotificationDisplayType, NotificationListener}
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.module.ModuleType
@@ -103,13 +103,15 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
     notificationData.setBalloonGroup(SBT_MAVEN_NOTIFICATION_GROUP)
     notificationData.setListener(
       "#open", new NotificationListener.Adapter {
-        protected def
-        hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
+        protected def hyperlinkActivated(notification: Notification, e: HyperlinkEvent) {
           val ui = ProjectStructureConfigurable.getInstance(project)
           val editor = new SingleConfigurableEditor(project, ui)
           val module = ui.getModulesConfig.getModules.find(ModuleType.get(_).isInstanceOf[SbtModuleType])
           ui.select(module.get.getName, "SBT", false)
-          editor.show()
+          //Project Structure should be shown in a transaction
+          TransactionGuard.getInstance().submitTransactionAndWait(new Runnable {
+            def run(): Unit = editor.show()
+          })
         }
       })
     notificationData.setListener(
