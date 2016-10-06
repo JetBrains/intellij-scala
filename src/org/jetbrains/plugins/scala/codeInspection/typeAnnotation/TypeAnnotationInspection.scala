@@ -85,7 +85,7 @@ class TypeAnnotationInspection extends AbstractInspection {
 
   private class LearnWhyQuickFix extends LocalQuickFixBase("Learn Why...") {
     def applyFix(project: Project, problemDescriptor: ProblemDescriptor) {
-      DesktopUtils.browse("http://blog.jetbrains.com/scala/2016/09/07/beyond-code-style/")
+      DesktopUtils.browse("http://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
     }
   }
 
