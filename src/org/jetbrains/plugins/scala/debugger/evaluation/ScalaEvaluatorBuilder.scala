@@ -72,10 +72,8 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
-  val contextClass =  {
-    if (position == null) null
-    else getContextClass(position.getElementAt, strict = false)
-  }
+  val contextClass: PsiElement =
+    Option(position).map(pos => getContextClass(pos.getElementAt, strict = false)).orNull
 
   def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 

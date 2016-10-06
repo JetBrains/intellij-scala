@@ -176,7 +176,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val firstPsi = range.firstPsi.retrieve()
     val lastPsi = range.lastPsi.retrieve()
 
-    if (Option(firstPsi).exists(!_.isValid) || Option(lastPsi).exists(!_.isValid)) {
+    def notValid(psi: PsiElement) = psi == null || !psi.isValid
+
+    if (notValid(firstPsi) || notValid(lastPsi)) {
       throw new IllegalStateException("Couldn't update imports: import range was invalidated after initial analysis")
     }
 
@@ -230,7 +232,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
       else firstPsiNode
 
-    val anchor = lastPsi.getNextSibling.getNode
+    val anchor = Option(lastPsi.getNextSibling).map(_.getNode).orNull
 
     withDisabledPostprocessFormatting(file.getProject) {
       parentNode.removeRange(firstNodeToRemove, anchor)

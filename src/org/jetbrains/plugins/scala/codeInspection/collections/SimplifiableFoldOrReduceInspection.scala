@@ -53,7 +53,7 @@ class ReduceSimplificationType(inspection: OperationOnCollectionInspection,
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.reduce`(binaryOperation(`opName`)) if implicitParameterExistsFor(methodName, qual) =>
+      case qual`.reduce`(binaryOperation(`opName`)) if qual != null && implicitParameterExistsFor(methodName, qual) =>
         val simpl = replace(expr).withText(invocationText(qual, methodName)).highlightFrom(qual)
         Some(simpl)
       case _ => None
