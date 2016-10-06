@@ -33,7 +33,7 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType],
     }
   }
 
-  def startInWriteAction(): Boolean = true
+  override def startInWriteAction(): Boolean = true
 
 }
 

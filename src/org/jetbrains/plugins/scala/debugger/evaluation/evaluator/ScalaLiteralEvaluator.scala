@@ -27,7 +27,7 @@ class ScalaLiteralEvaluator(value: AnyRef, tp: ScType) extends Evaluator {
     }
   }
 
-  def getModifier: Modifier = null
+  override def getModifier: Modifier = null
 }
 
 object ScalaLiteralEvaluator {

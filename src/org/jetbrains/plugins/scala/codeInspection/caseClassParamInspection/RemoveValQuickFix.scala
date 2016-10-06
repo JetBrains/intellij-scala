@@ -33,7 +33,7 @@ class RemoveValFromEnumeratorIntentionAction(enum: ScEnumerator) extends Intenti
     enum.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
   }
 
-  def startInWriteAction() = true
+  override def startInWriteAction() = true
 
   def getFamilyName: String = "Remove 'val' from enumerator"
 }
@@ -48,7 +48,7 @@ class RemoveValFromGeneratorIntentionAction(enum: ScGenerator) extends Intention
     enum.findChildrenByType(ScalaTokenTypes.kVAL).foreach(_.delete())
   }
 
-  def startInWriteAction() = true
+  override def startInWriteAction() = true
 
   def getFamilyName: String = "Remove 'val' from generator"
 }

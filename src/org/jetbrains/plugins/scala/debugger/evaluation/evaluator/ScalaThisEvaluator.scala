@@ -34,7 +34,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
     null
   }
 
-  def getModifier: Modifier = null
+  override def getModifier: Modifier = null
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     lazy val frameProxy: StackFrameProxyImpl = context.getFrameProxy

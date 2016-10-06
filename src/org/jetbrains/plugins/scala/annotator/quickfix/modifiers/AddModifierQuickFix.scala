@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 class AddModifierQuickFix(method: ScModifierListOwner, modifier: String) extends IntentionAction {
   def getText: String = ScalaBundle.message("add.modifier.fix", modifier)
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = method.isValid && method.getManager.isInProject(file)
 

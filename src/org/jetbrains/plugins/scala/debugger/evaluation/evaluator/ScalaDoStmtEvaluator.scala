@@ -27,5 +27,5 @@ class ScalaDoStmtEvaluator(cond: Evaluator, expr: Evaluator) extends Evaluator {
     context.getDebugProcess.getVirtualMachineProxy.mirrorOfVoid()
   }
 
-  def getModifier: Modifier = null
+  override def getModifier: Modifier = null
 }

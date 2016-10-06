@@ -18,7 +18,7 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
 
   def getFamilyName: String = "Change Type"
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = typeElement.isValid && typeElement.getManager.isInProject(file)
 

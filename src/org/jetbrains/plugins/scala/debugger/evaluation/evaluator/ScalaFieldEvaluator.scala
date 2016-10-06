@@ -121,7 +121,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
     }
   }
 
-  def getModifier: Modifier = {
+  override def getModifier: Modifier = {
     var modifier: Modifier = null
     if (myEvaluatedField != null &&
       (myEvaluatedQualifier.isInstanceOf[ClassType] ||

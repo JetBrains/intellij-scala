@@ -36,7 +36,7 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     }
   }
 
-  def getModifier: Modifier = {
+  override def getModifier: Modifier = {
     var modifier: Modifier = null
     if (myEvaluatedArrayReference != null) {
       modifier = new Modifier {

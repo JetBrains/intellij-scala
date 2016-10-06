@@ -146,7 +146,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     else mixed
   }
 
-  def startInWriteAction(): Boolean = true
+  override def startInWriteAction(): Boolean = true
 
   class ScalaAddImportAction(editor: Editor, classes: Array[TypeToImport], ref: ScReferenceElement) extends QuestionAction {
     def addImportOrReference(clazz: TypeToImport) {

@@ -14,5 +14,5 @@ class ScalaBlockExpressionEvaluator(statements: Seq[Evaluator]) extends Evaluato
     statements.foldLeft(void)((_, stmt) => stmt.evaluate(context))
   }
 
-  def getModifier: Modifier = null
+  override def getModifier: Modifier = null
 }

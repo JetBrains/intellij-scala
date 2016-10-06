@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 object ReportHighlightingErrorQuickFix extends IntentionAction {
   def getText: String = ScalaBundle.message("report.highlighting.error.fix")
 
-  def startInWriteAction: Boolean = false
+  override def startInWriteAction: Boolean = false
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (file.isInstanceOf[ScalaCodeFragment]) return false

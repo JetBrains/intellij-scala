@@ -37,5 +37,5 @@ class ScalaEqEvaluator(left: Evaluator, right: Evaluator) extends Evaluator {
     }
   }
 
-  def getModifier: Modifier = null
+  override def getModifier: Modifier = null
 }

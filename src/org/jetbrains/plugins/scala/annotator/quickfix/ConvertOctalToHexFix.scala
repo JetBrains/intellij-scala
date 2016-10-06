@@ -17,7 +17,7 @@ class ConvertOctalToHexFix(literal: ScLiteral) extends IntentionAction {
 
   def getFamilyName: String = "Change ScLiteral"
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = literal.isValid && literal.getManager.isInProject(file)
 

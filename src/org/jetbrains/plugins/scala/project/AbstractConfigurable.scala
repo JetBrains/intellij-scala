@@ -11,5 +11,5 @@ abstract class AbstractConfigurable(name: String) extends Configurable with Conf
 
   def getHelpTopic = null
 
-  def disposeUIResources() {}
+  override def disposeUIResources() {}
 }

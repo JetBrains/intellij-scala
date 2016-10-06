@@ -39,5 +39,5 @@ class ScalaIfEvaluator(condition: Evaluator, ifBranch: Evaluator, elseBranch: Op
     value
   }
 
-  def getModifier: Modifier = modifier
+  override def getModifier: Modifier = modifier
 }

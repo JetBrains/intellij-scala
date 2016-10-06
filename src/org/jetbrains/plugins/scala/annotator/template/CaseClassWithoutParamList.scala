@@ -46,7 +46,7 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
 
   def getFamilyName: String = getText
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = c.isValid && c.getManager.isInProject(file)
 
@@ -61,7 +61,7 @@ class ConvertToObjectFix(c: ScClass) extends IntentionAction {
 
   def getFamilyName: String = getText
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = c.isValid && c.getManager.isInProject(file)
 

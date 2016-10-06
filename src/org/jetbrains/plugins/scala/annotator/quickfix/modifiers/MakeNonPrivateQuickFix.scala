@@ -28,6 +28,6 @@ class MakeNonPrivateQuickFix(member: ScModifierListOwner, toProtected: Boolean) 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     member.isValid && member.getContainingFile == file && member.getManager.isInProject(file)
 
-  def startInWriteAction(): Boolean = true
+  override def startInWriteAction(): Boolean = true
 
 }

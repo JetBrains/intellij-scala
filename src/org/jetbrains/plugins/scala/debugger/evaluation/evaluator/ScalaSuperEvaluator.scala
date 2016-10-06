@@ -14,5 +14,5 @@ class ScalaSuperEvaluator(iterations: Int = 0) extends ScalaThisEvaluator(iterat
 class ScalaSuperDelegate(delegate: Evaluator) extends Evaluator with ScSuperEvaluator {
   def evaluate(context: EvaluationContextImpl): AnyRef = delegate.evaluate(context)
 
-  def getModifier: Modifier = delegate.getModifier
+  override def getModifier: Modifier = delegate.getModifier
 }

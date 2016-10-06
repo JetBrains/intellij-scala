@@ -43,7 +43,7 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     }
   }
 
-  def startInWriteAction = false
+  override def startInWriteAction = false
 
   protected def createEntity(block: ScExtendsBlock, text: String): PsiElement = {
     if (block.templateBody.isEmpty)

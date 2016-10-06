@@ -393,9 +393,9 @@ object ScalaPsiManager {
 
   private def subscribeToRootsChange(project: Project) = {
     project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-      def beforeRootsChange(event: ModuleRootEvent) {}
+      override def beforeRootsChange(event: ModuleRootEvent) {}
 
-      def rootsChanged(event: ModuleRootEvent) {
+      override def rootsChanged(event: ModuleRootEvent) {
         val manager = ScalaPsiManager.instance(project)
         manager.clearOnChange()
         manager.clearOnOutOfCodeBlockChange()

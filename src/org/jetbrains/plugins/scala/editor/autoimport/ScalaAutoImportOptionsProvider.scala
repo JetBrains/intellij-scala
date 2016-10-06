@@ -37,5 +37,5 @@ class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
     form.setOptimizeImports(ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY)
   }
 
-  def disposeUIResources() {}
+  override def disposeUIResources() {}
 }

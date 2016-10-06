@@ -16,7 +16,7 @@ class HoconProjectSettingsConfigurable(project: Project) extends Configurable {
 
   def createComponent(): JComponent = panel.getMainComponent
 
-  def disposeUIResources(): Unit = {
+  override def disposeUIResources(): Unit = {
     panel = null
   }
 

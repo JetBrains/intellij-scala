@@ -26,7 +26,7 @@ import scala.collection.JavaConversions._
 class ScalaOptimizeImportsFix extends IntentionAction with HighPriorityAction {
   def getText: String = QuickFixBundle.message("optimize.imports.fix")
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     file.getManager.isInProject(file) && (file.isInstanceOf[ScalaFile] || ScalaLanguageDerivative.hasDerivativeOnFile(file))
@@ -47,7 +47,7 @@ class ScalaOptimizeImportsFix extends IntentionAction with HighPriorityAction {
 class ScalaEnableOptimizeImportsOnTheFlyFix extends IntentionAction {
   def getText: String = QuickFixBundle.message("enable.optimize.imports.on.the.fly")
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     !ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY
@@ -71,7 +71,7 @@ class ScalaEnableOptimizeImportsOnTheFlyFix extends IntentionAction {
 class MarkImportAsAlwaysUsed(importText: String) extends IntentionAction with LowPriorityAction {
   def getText: String = "Mark import as always used in this project"
 
-  def startInWriteAction: Boolean = true
+  override def startInWriteAction: Boolean = true
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     importText.contains(".") && !ScalaCodeStyleSettings.getInstance(project).isAlwaysUsedImport(importText)

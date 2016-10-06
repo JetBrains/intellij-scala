@@ -36,5 +36,5 @@ case class ScalaDuplexEvaluator(first: Evaluator, second: Evaluator) extends Eva
     result
   }
 
-  def getModifier: Modifier = myModifier
+  override def getModifier: Modifier = myModifier
 }

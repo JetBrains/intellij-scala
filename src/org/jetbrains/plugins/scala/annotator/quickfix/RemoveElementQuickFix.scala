@@ -21,5 +21,5 @@ class RemoveElementQuickFix(element: PsiElement, description: String) extends In
     element.delete()
   }
 
-  def startInWriteAction() = true
+  override def startInWriteAction() = true
 }
