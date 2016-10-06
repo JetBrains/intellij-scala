@@ -16,7 +16,7 @@ import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.util.ExceptionUtil
-import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, TextPart}
+import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, Part, TextPart}
 import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
@@ -24,6 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
+import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -62,8 +64,11 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       val resultNode = new MainConstruction
       val (topElements, dropElements) = ConverterUtil.getTopElements(file, startOffsets, endOffsets)
       val data = getRefs
-      for (part <- topElements) {
-        part match {
+
+      // scalac fails here with cryptic error messages if this is replaced with a foreach
+      @tailrec
+      def process(elems: Seq[Part]): Unit = elems match {
+        case x :: xs => x match {
           case TextPart(s) =>
             resultNode.addChild(LiteralExpression(s))
           case ElementPart(comment: PsiComment) =>
@@ -72,8 +77,12 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           case ElementPart(element) =>
             val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements)
             resultNode.addChild(result)
-        }
+          }
+          process(xs)
+        case _ =>
       }
+
+      process(topElements)
 
       val visitor = new PrintWithComments
       visitor.visit(resultNode)
