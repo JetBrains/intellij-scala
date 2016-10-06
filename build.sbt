@@ -98,6 +98,7 @@ lazy val nailgunRunners =
 
 lazy val scalap =
   newProject("scalap", file("scalap"))
+    .settings(scalaVersion := Versions.scala211Version)
     .settings(commonTestSettings(packagedPluginDir):_*)
     .settings(libraryDependencies ++= DependencyGroups.scalap)
 
@@ -190,10 +191,10 @@ lazy val sbtLaunchTestDownloader =
 //  )
 //}
 
-lazy val jmhBenchmarks =
-  newProject("jmhBenchmarks")
-    .dependsOn(scalaCommunity % "test->test")
-    .enablePlugins(JmhPlugin)
+//lazy val jmhBenchmarks =
+//  newProject("jmhBenchmarks")
+//    .dependsOn(scalaCommunity % "test->test")
+//    .enablePlugins(JmhPlugin)
 
 // Testing keys and settings
 

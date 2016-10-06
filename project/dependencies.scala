@@ -2,7 +2,7 @@ import sbt._
 
 
 object Versions {
-  val scalaVersion = "2.12.0-M4"
+  val scalaVersion = "2.12.0-RC1"
   val scala211Version = "2.11.6"
   val sbtVersion = "0.13.11"
   val ideaVersion = "163.4396.1"
@@ -28,7 +28,7 @@ object Dependencies {
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
-  val sbtStructureCore = "org.jetbrains" %% "sbt-structure-core" % s"$sbtStructureVersion-2-ga8075f0"
+  val sbtStructureCore = "org.jetbrains" %% "sbt-structure-core" % s"$sbtStructureVersion"
   val evoInflector = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched = "org.scalatest" % "scalatest-finders-patched" % "0.9.8"
 
