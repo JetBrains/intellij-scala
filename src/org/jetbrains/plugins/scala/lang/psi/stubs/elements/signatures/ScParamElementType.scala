@@ -7,7 +7,7 @@ package signatures
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
-import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
+import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
 
@@ -17,55 +17,55 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
   */
 abstract class ScParamElementType[Param <: ScParameter](debugName: String)
   extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
+
   override def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeName(stub.getTypeText)
+    dataStream.writeOptionName(stub.typeText)
     dataStream.writeBoolean(stub.isStable)
-    dataStream.writeBoolean(stub.isDefaultParam)
+    dataStream.writeBoolean(stub.isDefaultParameter)
     dataStream.writeBoolean(stub.isRepeated)
     dataStream.writeBoolean(stub.isVal)
     dataStream.writeBoolean(stub.isVar)
     dataStream.writeBoolean(stub.isCallByNameParameter)
-    stub.getDefaultExprText match {
-      case None =>
-        dataStream.writeBoolean(false)
-      case Some(str) =>
-        dataStream.writeBoolean(true)
-        dataStream.writeName(str)
-    }
-    stub.deprecatedName match {
-      case None => dataStream.writeBoolean(false)
-      case Some(name) =>
-        dataStream.writeBoolean(true)
-        dataStream.writeName(name)
-    }
+    dataStream.writeOptionName(stub.defaultExprText)
+    dataStream.writeOptionName(stub.deprecatedName)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
-    val name = dataStream.readName
-    val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    val typeText = dataStream.readName
-    val stable = dataStream.readBoolean
-    val default = dataStream.readBoolean
-    val repeated = dataStream.readBoolean
-    val isVal = dataStream.readBoolean
-    val isVar = dataStream.readBoolean
-    val isCallByName = dataStream.readBoolean()
-    val defaultExpr = if (dataStream.readBoolean()) Some(dataStream.readName().toString) else None
-    val deprecatedName = if (dataStream.readBoolean()) Some(dataStream.readName().toString) else None
-    new ScParameterStubImpl(parent, this, name, typeText, stable, default, repeated, isVal, isVar, isCallByName,
-      defaultExpr, deprecatedName)
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParameterStub =
+    new ScParameterStubImpl(parentStub, this,
+      nameRef = dataStream.readName,
+      typeTextRef = dataStream.readOptionName,
+      isStable = dataStream.readBoolean,
+      isDefaultParameter = dataStream.readBoolean,
+      isRepeated = dataStream.readBoolean,
+      isVal = dataStream.readBoolean,
+      isVar = dataStream.readBoolean,
+      isCallByNameParameter = dataStream.readBoolean,
+      defaultExprTextRef = dataStream.readOptionName,
+      deprecatedNameRef = dataStream.readOptionName)
 
-  override def createStub(psi: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
-    val (isVal, isVar) = psi match {
-      case c: ScClassParameter => (c.isVal, c.isVar)
+  override def createStub(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
+    val typeText = parameter.typeElement.map {
+      _.getText
+    }
+    val (isVal, isVar) = parameter match {
+      case parameter: ScClassParameter => (parameter.isVal, parameter.isVar)
       case _ => (false, false)
     }
-    val isCallByName = psi.isCallByNameParameter
-    val defaultExprText = psi.getActualDefaultExpression.map(_.getText)
-    val deprecatedName = psi.deprecatedName
-    new ScParameterStubImpl(parentStub, this, psi.name, psi.typeElement.text, psi.isStable, psi.baseDefaultParam,
-      psi.isRepeatedParameter, isVal, isVar, isCallByName, defaultExprText, deprecatedName)
+    val defaultExprText = parameter.getActualDefaultExpression.map {
+      _.getText
+    }
+
+    new ScParameterStubImpl(parentStub, this,
+      nameRef = StringRef.fromString(parameter.name),
+      typeTextRef = typeText.asReference,
+      isStable = parameter.isStable,
+      isDefaultParameter = parameter.baseDefaultParam,
+      isRepeated = parameter.isRepeatedParameter,
+      isVal = isVal,
+      isVar = isVar,
+      isCallByNameParameter = parameter.isCallByNameParameter,
+      defaultExprTextRef = defaultExprText.asReference,
+      deprecatedNameRef = parameter.deprecatedName.asReference)
   }
 }

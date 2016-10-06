@@ -7,9 +7,8 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -60,11 +59,12 @@ class SbtAnnotator extends Annotator {
         }
       }
 
-    private def findTypeByText(exp: ScExpression, text: String): Option[ScType] =
-      Option(ScalaPsiElementFactory.createTypeFromText(text, exp.getContext, exp))
-
     private def isTypeAllowed(expression: ScExpression, expressionType: ScType): Boolean =
-      SbtAnnotator.AllowedTypes.exists(typeStr => findTypeByText(expression, typeStr) exists (t => expressionType conforms t))
+      SbtAnnotator.AllowedTypes.flatMap {
+        createTypeFromText(_, expression.getContext, expression)
+      }.exists {
+        expressionType.conforms(_)
+      }
 
     private def annotateMissingBlankLines(): Unit =
       sbtFileElements.sliding(3).foreach {

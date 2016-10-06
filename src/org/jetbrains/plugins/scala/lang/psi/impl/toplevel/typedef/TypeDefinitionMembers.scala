@@ -501,31 +501,14 @@ object TypeDefinitionMembers {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardParameterlessSignatures
-        }
-      case _ =>
-    }
-
     inner()
   }
 
   def getTypes(clazz: PsiClass)
               (implicit typeSystem: TypeSystem = clazz.typeSystem): TMap = {
+
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): TMap =TypeNodes.build(clazz)
-
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardTypes
-        }
-      case _ =>
-    }
 
     inner()
   }
@@ -535,14 +518,6 @@ object TypeDefinitionMembers {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardSignatures
-        }
-      case _ =>
-    }
     val ans = buildNodesClass()
     place.foreach {
       case _: ScInterpolatedPrefixReference =>

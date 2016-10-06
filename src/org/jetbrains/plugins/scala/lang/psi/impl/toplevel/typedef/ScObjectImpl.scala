@@ -238,7 +238,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   }
 
   override def getTextRange: TextRange = {
-    if (isSyntheticObject) null
+    if (isSyntheticObject) getNavigationElement.getTextRange
     else super.getTextRange
   }
 
@@ -252,23 +252,5 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
       case _ => ScalaTokenSets
     }
     ScalaPsiUtil.getCompanionModule(this)
-  }
-
-  private val hardParameterlessSignatures: mutable.WeakHashMap[Project, TypeDefinitionMembers.ParameterlessNodes.Map] =
-    new mutable.WeakHashMap[Project, TypeDefinitionMembers.ParameterlessNodes.Map]
-  def getHardParameterlessSignatures: TypeDefinitionMembers.ParameterlessNodes.Map = {
-    hardParameterlessSignatures.getOrElseUpdate(getProject, TypeDefinitionMembers.ParameterlessNodes.build(this))
-  }
-
-  private val hardTypes: mutable.WeakHashMap[Project, TypeDefinitionMembers.TypeNodes.Map] =
-    new mutable.WeakHashMap[Project, TypeDefinitionMembers.TypeNodes.Map]
-  def getHardTypes: TypeDefinitionMembers.TypeNodes.Map = {
-    hardTypes.getOrElseUpdate(getProject, TypeDefinitionMembers.TypeNodes.build(this))
-  }
-
-  private val hardSignatures: mutable.WeakHashMap[Project, TypeDefinitionMembers.SignatureNodes.Map] =
-    new mutable.WeakHashMap[Project, TypeDefinitionMembers.SignatureNodes.Map]
-  def getHardSignatures: TypeDefinitionMembers.SignatureNodes.Map = {
-    hardSignatures.getOrElseUpdate(getProject, TypeDefinitionMembers.SignatureNodes.build(this))
   }
 }
