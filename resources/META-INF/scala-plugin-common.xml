@@ -386,7 +386,6 @@
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
 
@@ -1315,7 +1314,7 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
         </component>
-      <component>
+        <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
         </component>
         <component>
@@ -1353,6 +1352,9 @@
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scaladev.IdeaSourcesAttach</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
         </component>
     </project-components>
 

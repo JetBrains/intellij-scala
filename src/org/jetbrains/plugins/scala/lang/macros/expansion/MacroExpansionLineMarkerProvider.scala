@@ -27,6 +27,10 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
   private type Markers = util.Collection[_ >: Marker]
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
+    val e = ReflectExpansionsCollector.getInstance(element.getProject).getExpansion(element)
+    if (e.isDefined) {
+      ""
+    }
     processElement(element).foreach(result.add)
   }
 
@@ -74,7 +78,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
     val res = expansions.map { case (current, saved) =>
       newMarker(current, AllIcons.General.ExpandAllHover, "Undo Macro Expansion") { _ =>
         inWriteAction {
-          val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(saved, PsiManager.getInstance(current.getProject))
+          val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(saved)(PsiManager.getInstance(current.getProject))
           current.replace(newPsi)
           saved
         }

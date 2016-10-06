@@ -53,7 +53,7 @@ object QuasiquoteInferUtil {
     val parser = new ScalametaParser(Input.String(patternText), qqdialect)
     try {
       val parsed: m.Stat = parser.parseQuasiquoteStat()
-      ScalaPsiElementFactory.createTypeElementFromText(s"scala.meta.${parsed.productPrefix}", PsiManager.getInstance(pat.getProject)).getType()
+      ScalaPsiElementFactory.createTypeElementFromText(s"scala.meta.${parsed.productPrefix}")(PsiManager.getInstance(pat.getProject)).getType()
     } catch {
       case e: ParseException => Failure(e.getMessage, None)
     }

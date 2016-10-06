@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, Scala
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionConversionData, ExtensionConversionHelper, ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
@@ -1170,7 +1170,7 @@ object ScalaPsiUtil {
   def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[ScObject] = {
     val expansionText = ah.getExpansionText
     if (expansionText.nonEmpty) {
-      val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansionText, ah.getManager)
+      val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansionText)(ah.getManager)
       if (blockImpl != null) {
         val maybeScObject: Option[ScObject] = blockImpl.firstChild.get.children.findByType(classOf[ScObject])
         maybeScObject

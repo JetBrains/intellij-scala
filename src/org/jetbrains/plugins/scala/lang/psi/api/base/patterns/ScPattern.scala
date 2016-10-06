@@ -143,6 +143,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       } else rightWay
     }
 
+//    implicit val psiManager: PsiManager = PsiManager.getInstance(getProject)
     bind match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isQuasiquote(fun) =>
         val tpe = getContext.getContext match {
@@ -151,17 +152,17 @@ trait ScPattern extends ScalaPsiElement with Typeable {
               .findChildrenByType(ScalaTokenTypes.tINTERPOLATED_STRING)
               .map(_.getText)
             if (argIndex < parts.length && parts(argIndex).endsWith("..."))
-              ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", PsiManager.getInstance(getProject))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]")
             if (argIndex < parts.length && parts(argIndex).endsWith(".."))
-              ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", PsiManager.getInstance(getProject))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]")
             else
-              ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", PsiManager.getInstance(getProject))
+              ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree")
         }
         tpe.getType().toOption
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && QuasiquoteInferUtil.isMetaQQ(fun) =>
         val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(getParent.getParent.asInstanceOf[ScInterpolationPatternImpl])
         val clazz = patterns(argIndex)
-        val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz, PsiManager.getInstance(getProject))
+        val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz)
         tpe.getType().toOption
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.count(!_.isImplicitParameter) == 1 =>

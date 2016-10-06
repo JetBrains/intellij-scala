@@ -119,7 +119,7 @@ class MacroExpandAction extends AnAction {
   }
 
   def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
-    val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body, PsiManager.getInstance(e.getProject))
+    val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body)(PsiManager.getInstance(e.getProject))
     val element = call.getParent.addAfter(blockImpl, call)
     element match {
       case ScBlock(x, _*) => x.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, call.getText)
@@ -285,7 +285,8 @@ object MacroExpandAction {
     place.getParent.getParent match {
       case holder: ScAnnotationsHolder =>
         val body = expansion.body
-        val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body, PsiManager.getInstance(place.getProject))
+        implicit val manager = PsiManager.getInstance(place.getProject)
+        val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body)
         reformatCode(newPsi)
         newPsi.firstChild match {
           case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
