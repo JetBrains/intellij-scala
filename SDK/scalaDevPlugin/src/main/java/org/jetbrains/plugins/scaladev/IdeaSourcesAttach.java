@@ -8,7 +8,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.ui.configuration.PathUIUtils;
+import com.intellij.openapi.roots.ui.configuration.LibraryJavaSourceRootDetector;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -69,7 +69,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
                 setTitle("Scanning for Sources Archive");
-                final Collection<VirtualFile> roots = PathUIUtils.JAVA_SOURCE_ROOT_DETECTOR.detectRoots(zip, indicator);
+                final Collection<VirtualFile> roots = new LibraryJavaSourceRootDetector().detectRoots(zip, indicator);
                 setTitle("Attaching Source Roots");
                 for (LibraryOrderEntry lib : libs) {
                     final Library library = lib.getLibrary();

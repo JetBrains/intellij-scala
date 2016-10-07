@@ -16,7 +16,7 @@ import com.intellij.openapi.roots.libraries.ui.OrderRoot;
 import com.intellij.openapi.roots.libraries.ui.RootDetector;
 import com.intellij.openapi.roots.libraries.ui.impl.LibraryRootsDetectorImpl;
 import com.intellij.openapi.roots.libraries.ui.impl.RootDetectionUtil;
-import com.intellij.openapi.roots.ui.configuration.PathUIUtils;
+import com.intellij.openapi.roots.ui.configuration.LibraryJavaSourceRootDetector;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListSeparator;
 import com.intellij.openapi.ui.popup.PopupStep;
@@ -190,7 +190,7 @@ public class AttachSourcesUtil {
    */
   public static VirtualFile[] scanAndSelectDetectedJavaSourceRoots(Component parentComponent, final VirtualFile[] rootCandidates) {
     final List<RootDetector> rootDetectors = new ArrayList<RootDetector>();
-    rootDetectors.add(PathUIUtils.JAVA_SOURCE_ROOT_DETECTOR);
+    rootDetectors.add(new LibraryJavaSourceRootDetector());
     rootDetectors.add(new FileTypeBasedRootFilter(OrderRootType.SOURCES, false, ScalaFileType.SCALA_FILE_TYPE, "source"));
     final List<OrderRoot> orderRoots = RootDetectionUtil.detectRoots(Arrays.asList(rootCandidates), parentComponent, null,
         new LibraryRootsDetectorImpl(rootDetectors),
