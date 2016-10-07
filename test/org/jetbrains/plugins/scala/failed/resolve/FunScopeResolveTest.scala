@@ -25,9 +25,9 @@ class FunScopeResolveTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
     val annotator = new ScopeAnnotator {}
-    val mock = new AnnotatorHolderMock
-
-    val templateBody = code.parse.depthFirst.find(_.isInstanceOf[ScTemplateBody]).get.asInstanceOf[ScTemplateBody]
+    val file = code.parse
+    val mock = new AnnotatorHolderMock(file)
+    val templateBody = file.depthFirst.find(_.isInstanceOf[ScTemplateBody]).get.asInstanceOf[ScTemplateBody]
 
     annotator.annotateScope(templateBody, mock)
     mock.annotations

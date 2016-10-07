@@ -173,10 +173,11 @@ class AssignmentAnnotatorTest extends SimpleTestCase {
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val assignment = (Header + code).parse.depthFirst.findByType(classOf[ScAssignStmt]).get
+    val file = (Header + code).parse
+    val assignment = file.depthFirst.findByType(classOf[ScAssignStmt]).get
     
     val annotator = new AssignmentAnnotator() {}
-    val mock = new AnnotatorHolderMock
+    val mock = new AnnotatorHolderMock(file)
     
     annotator.annotateAssignment(assignment, mock, advancedHighlighting = true)
     mock.annotations

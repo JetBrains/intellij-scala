@@ -115,10 +115,10 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ConstructorAnnotator {}
-    val mock = new AnnotatorHolderMock
-
     val file: ScalaFile = (Header + code).parse
-    
+
+    val mock = new AnnotatorHolderMock(file)
+
     val seq = file.depthFirst.findByType(classOf[ScClass])
     Compatibility.seqClass = seq
 

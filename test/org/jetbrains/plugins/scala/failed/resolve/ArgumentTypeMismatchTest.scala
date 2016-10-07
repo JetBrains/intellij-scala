@@ -64,9 +64,10 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala") code: String) = {
     val annotator = new ApplicationAnnotator {}
-    val mock = new AnnotatorHolderMock
+    val file = code.parse
+    val mock = new AnnotatorHolderMock(file)
 
-    code.parse.depthFirst.filter(elem => elem.isInstanceOf[ScReferenceExpression]).foreach {
+    file.depthFirst.filter(elem => elem.isInstanceOf[ScReferenceExpression]).foreach {
       case ref: ScReferenceExpression => annotator.annotateReference(ref, mock)
     }
     mock.annotations
