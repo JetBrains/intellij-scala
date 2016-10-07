@@ -863,7 +863,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ => return
       }
 
-      val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession).getOrElse(new AnnotationSession(l.getContainingFile))) {
+      val fakeAnnotator = new AnnotationHolderImpl(new AnnotationSession(expr.getContainingFile)) {
         override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
           createErrorAnnotation(elt.getTextRange, message)
 

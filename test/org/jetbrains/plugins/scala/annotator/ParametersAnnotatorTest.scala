@@ -81,9 +81,10 @@ class ParametersAnnotatorTest extends SimpleTestCase {
    
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ParametersAnnotator() {}
-    val mock = new AnnotatorHolderMock
+    val file = (Header + code).parse
 
-    val owner = (Header + code).parse.depthFirst.filterByType(classOf[ScParameterOwner]).collectFirst {
+    val mock = new AnnotatorHolderMock(file)
+    val owner = file.depthFirst.filterByType(classOf[ScParameterOwner]).collectFirst {
       case named: ScNamedElement if !Set("A", "B", "C").contains(named.name) => named
     }.get
 
