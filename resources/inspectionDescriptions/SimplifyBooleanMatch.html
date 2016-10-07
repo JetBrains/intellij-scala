@@ -1,0 +1,28 @@
+<html>
+<body>
+Suggests to replace trivial pattern match on a boolean expression with a conditional statement.
+
+<p>
+
+Before:
+<pre>
+    bool match {
+      case true => ???
+      case false => ???
+    }
+</pre>
+
+<br>
+
+After:
+<pre>
+    if (bool) {
+      ???
+    } else {
+      ???
+    }
+</pre>
+</p>
+
+</body>
+</html>
