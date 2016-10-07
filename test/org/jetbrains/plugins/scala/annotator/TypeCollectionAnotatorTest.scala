@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.jetbrains.plugins.scala.base.{TestScalaProjectSettings, ScalaLightPlatformCodeInsightTestCaseAdapter}
+import com.intellij.lang.annotation.AnnotationHolder
+import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, TestScalaProjectSettings}
 import org.jetbrains.plugins.scala.highlighter.AnnotatorHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -24,18 +25,20 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
       setCollectionTypeHighlightingLevel(ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_ALL)
   }
 
-  private def annotate(text: String, holder: AnnotatorHolderMock) {
+  private def annotate(text: String): AnnotatorHolderMock = {
     configureFromFileTextAdapter("dummy.scala", text.replace("\r", ""))
+
+    val holder = new AnnotatorHolderMock(getFileAdapter)
 
     getFileAdapter.asInstanceOf[ScalaFile].breadthFirst.foreach {
       case refElement: ScReferenceElement => AnnotatorHighlighter.highlightReferenceElement(refElement, holder)
       case _ =>
     }
+    holder
   }
 
   private def testCanAnnotate(text: String, highlightedText: String,  highlightingMessage: String) {
-    val holder = new AnnotatorHolderMock
-    annotate(text, holder)
+    val holder = annotate(text)
 
     assert(holder.annotations.exists {
       case Info(`highlightedText`, `highlightingMessage`) => true
@@ -44,8 +47,8 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
   }
 
   private def testCannotAnnotate(text: String,  textCantHighlight: (String, String)) {
-    val holder = new AnnotatorHolderMock
-    annotate(text, holder)
+
+    val holder = annotate(text)
 
     assert(!holder.annotations.exists {
       case Info(`textCantHighlight`._1, `textCantHighlight`._2) => true

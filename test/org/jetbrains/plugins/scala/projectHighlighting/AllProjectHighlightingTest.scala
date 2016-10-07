@@ -87,7 +87,9 @@ trait AllProjectHighlightingTest {
     val size: Int = files.size()
 
     for ((file, index) <- files.zipWithIndex) {
-      val mock = new AnnotatorHolderMock {
+      val psiFile = fileManager.findFile(file)
+
+      val mock = new AnnotatorHolderMock(psiFile){
         override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
           reporter.reportError(file, range, message)
           super.createErrorAnnotation(range, message)
@@ -104,8 +106,6 @@ trait AllProjectHighlightingTest {
         reporter.updateProgress(percent)
       }
 
-      val psi = fileManager.findFile(file)
-
       val visitor = new ScalaRecursiveElementVisitor {
         override def visitElement(element: ScalaPsiElement) {
           try {
@@ -119,7 +119,7 @@ trait AllProjectHighlightingTest {
           super.visitElement(element)
         }
       }
-      psi.accept(visitor)
+      psiFile.accept(visitor)
     }
 
     reporter.reportResults()

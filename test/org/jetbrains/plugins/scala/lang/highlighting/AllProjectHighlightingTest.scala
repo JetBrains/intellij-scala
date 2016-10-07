@@ -107,7 +107,15 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
     val size: Int = files.size()
 
     for ((file, index) <- files.zipWithIndex) {
-      val mock = new AnnotatorHolderMock {
+
+      if ((index + 1) * 100 >= (percent + 1) * size) {
+        while ((index + 1) * 100 >= (percent + 1) * size) percent += 1
+        println(s"Analyzing... $percent%")
+      }
+
+      val psi = fileManager.findFile(file)
+
+      val mock = new AnnotatorHolderMock(psi) {
         override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
           errorCount += 1
           println(s"Error in ${file.getName}. Range: $range. Message: $message.")
@@ -120,14 +128,6 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
           super.createErrorAnnotation(elt, message)
         }
       }
-
-      if ((index + 1) * 100 >= (percent + 1) * size) {
-        while ((index + 1) * 100 >= (percent + 1) * size) percent += 1
-        println(s"Analyzing... $percent%")
-      }
-
-      val psi = fileManager.findFile(file)
-
 
       val visitor = new ScalaRecursiveElementVisitor {
         override def visitElement(element: ScalaPsiElement) {

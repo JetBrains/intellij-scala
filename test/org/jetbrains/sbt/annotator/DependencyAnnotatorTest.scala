@@ -59,7 +59,7 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
 
   private def doTest(messages: Seq[Message]) {
     val element = loadTestFile()
-    val mock = new AnnotatorHolderMock
+    val mock = new AnnotatorHolderMock(element)
     val annotator = new SbtDependencyAnnotator
 
     val visitor = new ScalaRecursiveElementVisitor {
