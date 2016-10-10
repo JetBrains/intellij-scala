@@ -17,9 +17,9 @@ import org.jetbrains.sbt.language.{SbtFileImpl, SbtFileType}
  */
 abstract class AnnotatorTestBase extends PlatformTestCase {
 
-  def testdataPath  = TestUtils.getTestDataPath + "/annotator/Sbt/"
+  def testdataPath: String = TestUtils.getTestDataPath + "/annotator/Sbt/"
 
-  def loadTestFile() = {
+  def loadTestFile(): SbtFileImpl = {
     val fileName = getTestName(false) + ".sbt"
     val filePath = testdataPath + fileName
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
