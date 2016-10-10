@@ -32,7 +32,7 @@ class ScTypeParamClauseImpl private (stub: StubElement[ScTypeParamClause], nodeT
   def getTextByStub: String = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamClauseStub].getTypeParamClauseText
+      return stub.asInstanceOf[ScTypeParamClauseStub].typeParameterClauseText
     }
     getText
   }
