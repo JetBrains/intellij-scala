@@ -266,7 +266,10 @@ object MethodResolveProcessor {
         case _ =>
       }
 
-      expectedOption().map(_.removeAbstracts) match {
+      expectedOption().map {
+        case a: ScAbstractType => a.simplifyType
+        case f => f
+      } match {
         case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
         case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(fun) =>
           ScalaPsiUtil.toSAMType(tp, fun.getResolveScope, fun.scalaLanguageLevelOrDefault) match {
@@ -307,8 +310,22 @@ object MethodResolveProcessor {
 
     val result = element match {
       //objects
-      case _: ScObject if argumentClauses.nonEmpty =>
-        problems += new DoesNotTakeParameters
+      case obj: ScObject =>
+        if (argumentClauses.isEmpty) {
+          expectedOption().map(_.removeAbstracts) match {
+            case Some(FunctionType(retType, params)) =>
+              problems += ExpectedTypeMismatch
+            case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(obj) =>
+              ScalaPsiUtil.toSAMType(tp, obj.getResolveScope, obj.scalaLanguageLevelOrDefault) match {
+                case Some(FunctionType(retType, params)) =>
+                  problems += ExpectedTypeMismatch
+                case _ =>
+              }
+            case _ =>
+          }
+        } else {
+          problems += new DoesNotTakeParameters
+        }
         ConformanceExtResult(problems)
       case _: PsiClass =>
         ConformanceExtResult(problems)
