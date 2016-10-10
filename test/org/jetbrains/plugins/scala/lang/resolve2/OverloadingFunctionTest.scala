@@ -9,7 +9,7 @@ class OverloadingFunctionTest extends ResolveTestBase {
     super.folderPath + "overloading/functions/"
   }
 
-  def testFunction1(): Unit = doTest()`
+  def testFunction1(): Unit = doTest()
   def testFunction2(): Unit = doTest()
   def testFunction3(): Unit = doTest()
   def testFunction4(): Unit = doTest()
