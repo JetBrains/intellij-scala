@@ -368,7 +368,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
         Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) ::
         Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) ::
         Error("c", typeMismatch()) :: Error("c", doesNotConform()) ::
-        Error("()", doesNotTakeParameters()) ::
+        Error("()", doesNotTakeParameters()) :: Error("c", cannotResolveReference()) ::
         Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) ::
         Error("e", typeMismatch()) :: Error("e", doesNotConform()) ::
         Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) ::
@@ -511,11 +511,10 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
     }
 
     val annotator = new ScalaAnnotator() {}
-    val mock = new AnnotatorHolderMock
+    val file: ScalaFile = parseText(scalaCode)
+    val mock = new AnnotatorHolderMock(file)
 
-    val parse: ScalaFile = parseText(scalaCode)
-
-    parse.depthFirst.foreach(annotator.annotate(_, mock))
+    file.depthFirst.foreach(annotator.annotate(_, mock))
 
     mock.errorAnnotations.filter {
       case Error(_, null) => false

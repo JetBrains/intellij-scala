@@ -26,10 +26,10 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   import org.jetbrains.plugins.scala.extensions._
 
   protected def collectMessages(fileText: String) = {
-    val mock = new AnnotatorHolderMock
     myFixture.configureByText("dummy.scala", fileText)
     val file = myFixture.getFile
-    
+    val mock = new AnnotatorHolderMock(file)
+
     assertEquals(Nil, file.depthFirst.filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
 
     assertEquals(Nil, file.depthFirst.filterByType(classOf[PsiReference])

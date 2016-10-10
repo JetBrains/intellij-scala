@@ -1,15 +1,13 @@
 class Handler {
-  def handle[A] = new Handle[A]
+  def handle[A] : Handle[A] = null
 
   class Handle[A] {
-    def apply[B](callback: A => B) = callback.apply(_)
+    def apply[B](callback: A => B): (A) => B = null
   }
 
-  def handle2[A, B](callback: A => B) = callback.apply(_)
+  def handle2[A, B](callback: A => B): (A) => B = null
 
-  def testNok = /*resolved: true*/ handle[Int] {i => (i + 1).toString}
-
-  def testOk = /*resolved: true*/handle2 {i: Int => (i + 1).toString}
+  def testNok = /*resolved: true*/ handle[Int] { i => (i + 1).toString}
 }
 
 

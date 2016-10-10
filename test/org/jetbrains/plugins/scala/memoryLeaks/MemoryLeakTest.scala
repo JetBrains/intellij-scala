@@ -136,7 +136,7 @@ class MemoryLeakTest extends PlatformTestCase {
   }
 
   private def annotateFile(psiFile: PsiFile): Unit = {
-    new ScalaAnnotator().annotate(psiFile, new AnnotatorHolderMock)
+    new ScalaAnnotator().annotate(psiFile, new AnnotatorHolderMock(psiFile))
   }
 
   def checkLeak[T](root: AnyRef, clazz: Class[T], isLeak: T => Boolean): Unit = {

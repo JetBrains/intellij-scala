@@ -63,9 +63,10 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
   }
 
   private def annotate(): Seq[Message] = {
-    val mock = new AnnotatorHolderMock
+    val file = loadTestFile()
+    val mock = new AnnotatorHolderMock(file)
     val annotator = new SbtAnnotator
-    annotator.annotate(loadTestFile(), mock)
+    annotator.annotate(file, mock)
     mock.annotations
   }
 

@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiFile}
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
-class AnnotatorHolderMock extends AnnotationHolder {
+class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
   private val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
     0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")
   
@@ -63,7 +63,7 @@ class AnnotatorHolderMock extends AnnotationHolder {
     FakeAnnotation
   }
 
-  def getCurrentAnnotationSession: AnnotationSession = null
+  def getCurrentAnnotationSession: AnnotationSession = new AnnotationSession(file)
 
   def createWeakWarningAnnotation(p1: TextRange, p2: String): Annotation = FakeAnnotation
 
