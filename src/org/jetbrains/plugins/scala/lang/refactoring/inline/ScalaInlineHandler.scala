@@ -83,9 +83,17 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => return null
         }
       case funDef: ScFunctionDefinition if funDef.parameters.isEmpty =>
-        funDef.body.orNull.getText
+        funDef.body.map {
+          _.getText
+        }.getOrElse {
+          return null
+        }
       case typeAlias: ScTypeAliasDefinition =>
-        typeAlias.aliasedTypeElement.getText
+        typeAlias.aliasedTypeElement.map {
+          _.getText
+        }.getOrElse {
+          return null
+        }
       case _ => return null
     }
     new InlineHandler.Inliner {
@@ -174,7 +182,9 @@ class ScalaInlineHandler extends InlineHandler {
     }
 
     def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean = {
-      typeAlias.aliasedTypeElement.depthFirst.forall {
+      typeAlias.aliasedTypeElement.toSeq.flatMap {
+        _.depthFirst
+      }.forall {
         case t: ScTypeElement =>
           t.calcType match {
             case _: TypeParameterType => false

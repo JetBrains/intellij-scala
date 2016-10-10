@@ -73,11 +73,15 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         case mVar: ScVariableMember =>
           (mVar.name, mVar.scType.presentableText)
         case ta: ScAliasMember =>
-          val aliasType = ta.getElement match {
-            case tad: ScTypeAliasDefinition =>
-              tad.aliasedTypeElement.calcType.presentableText
-            case _ => ""
-          }
+          val aliasType = Option(ta.getElement).collect {
+            case definition: ScTypeAliasDefinition => definition
+          }.flatMap {
+            _.aliasedTypeElement
+          }.map {
+            _.calcType
+          }.map {
+            _.presentableText
+          }.getOrElse("")
           (ta.name, aliasType)
       }
 
