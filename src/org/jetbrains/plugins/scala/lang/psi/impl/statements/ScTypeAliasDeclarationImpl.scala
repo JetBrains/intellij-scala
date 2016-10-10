@@ -15,6 +15,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -61,33 +62,23 @@ class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeTy
   }
 
   override def upperTypeElement: Option[ScTypeElement] = {
-    import org.jetbrains.plugins.scala.extensions._
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeAliasStub].getUpperBoundTypeElement.toOption
+      return stub.asInstanceOf[ScTypeAliasStub].upperBoundTypeElement
     }
-    val tUpper = findLastChildByType[PsiElement](ScalaTokenTypes.tUPPER_BOUND)
-    if (tUpper != null) {
-      PsiTreeUtil.getNextSiblingOfType(tUpper, classOf[ScTypeElement]) match {
-        case null => None
-        case te => Some(te)
-      }
-    } else None
+    Option(findLastChildByType[PsiElement](tUPPER_BOUND)).map {
+      PsiTreeUtil.getNextSiblingOfType(_, classOf[ScTypeElement])
+    }
   }
 
   override def lowerTypeElement: Option[ScTypeElement] = {
-    import org.jetbrains.plugins.scala.extensions._
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeAliasStub].getLowerBoundTypeElement.toOption
+      return stub.asInstanceOf[ScTypeAliasStub].lowerBoundTypeElement
     }
-    val tLower = findLastChildByType[PsiElement](ScalaTokenTypes.tLOWER_BOUND)
-    if (tLower != null) {
-      PsiTreeUtil.getNextSiblingOfType(tLower, classOf[ScTypeElement]) match {
-        case null => None
-        case te => Some(te)
-      }
-    } else None
+    Option(findLastChildByType[PsiElement](tLOWER_BOUND)).map {
+      PsiTreeUtil.getNextSiblingOfType(_, classOf[ScTypeElement])
+    }
   }
 
 
