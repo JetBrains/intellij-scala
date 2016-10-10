@@ -28,15 +28,7 @@ import scala.collection.JavaConverters._
  * @since 7/23/15.
  */
 
-class SbtAnnotatorTest extends AnnotatorTestBase with MockSbt {
-
-  def test_0_12_4(): Unit = runTest("0.12.4", Expectations.sbt012)
-
-  def test_0_13_1(): Unit = runTest("0.13.1", Expectations.sbt013)
-
-  def test_0_13_7(): Unit = runTest("0.13.7", Expectations.sbt0137)
-
-  def testNullVersion(): Unit = runTest(null, Expectations.sbt0137)
+abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -58,7 +50,7 @@ class SbtAnnotatorTest extends AnnotatorTestBase with MockSbt {
   override def getTestProjectJdk: Sdk =
     JavaSdk.getInstance().createJdk("java sdk", TestUtils.getDefaultJdk, false)
 
-  private def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
+  protected def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)
     val actualMessages = annotate().asJava
     UsefulTestCase.assertSameElements(actualMessages, expectedMessages:_*)
@@ -104,20 +96,54 @@ class SbtAnnotatorTest extends AnnotatorTestBase with MockSbt {
   }
 }
 
+class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase {
+  override def sbtVersion: String = "0.12.4"
+  def test_0_12_4(): Unit = runTest(sbtVersion, Expectations.sbt012)
+}
+
+class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase {
+  override def sbtVersion: String = "0.13.1"
+  def test_0_13_1(): Unit = runTest(sbtVersion, Expectations.sbt0131)
+}
+class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase {
+  override def sbtVersion: String = "0.13.7"
+  def test_0_13_7(): Unit = runTest(sbtVersion, Expectations.sbt0137)
+}
+
+class SbtAnnotatorTest_nullVersion extends SbtAnnotatorTestBase {
+  override def sbtVersion: String = null
+  def test_nullVersion(): Unit = runTest(sbtVersion, Expectations.sbt0137)
+}
+
+/**
+  * Expected error messages for specific sbt versions. Newer versions usually allow more syntactic constructs in the sbt files
+  */
 object Expectations {
-  val sbt0137 = Seq(
-    Error("object Bar", SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions")),
-    Error("null", SbtBundle("sbt.annotation.expectedExpressionType")),
-    Error("???", SbtBundle("sbt.annotation.expectedExpressionType")),
-    Error("organization", SbtBundle("sbt.annotation.expressionMustConform", "SettingKey[String]")),
-    Error("\"some string\"", SbtBundle("sbt.annotation.expressionMustConform", "String"))
+
+  val sbtAll: Seq[Error] = Seq(
+    Error("object Bar", SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )
 
-  val sbt013 = sbt0137 :+
-    Error("version := \"SNAPSHOT\"", SbtBundle("sbt.annotation.blankLineRequired", "0.13.1"))
+  val sbt0137: Seq[Error] = sbtAll ++ Seq(
+    Error("organization", SbtBundle("sbt.annotation.expressionMustConformSbt0136", "SettingKey[String]")),
+    Error(""""some string"""", SbtBundle("sbt.annotation.expressionMustConformSbt0136", "String")),
+    Error("null", SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136")),
+    Error("???", SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136"))
+  )
 
-  val sbt012 = sbt0137 ++ Seq(
-    Error("version := \"SNAPSHOT\"", SbtBundle("sbt.annotation.blankLineRequired", "0.12.4")),
+  val sbt013_1to5: Seq[Error] = sbtAll ++ Seq(
+    Error("organization", SbtBundle("sbt.annotation.expressionMustConform", "SettingKey[String]")),
+    Error(""""some string"""", SbtBundle("sbt.annotation.expressionMustConform", "String")),
+    Error("null", SbtBundle("sbt.annotation.expectedExpressionType")),
+    Error("???", SbtBundle("sbt.annotation.expectedExpressionType"))
+  )
+
+  val sbt0131: Seq[Error] = sbt013_1to5 ++ Seq(
+    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", "0.13.1"))
+  )
+
+  val sbt012: Seq[Error] = sbt013_1to5 ++ Seq(
+    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", "0.12.4")),
     Error("lazy val foo = project.in(file(\"foo\")).enablePlugins(sbt.plugins.JvmPlugin)",
       SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )

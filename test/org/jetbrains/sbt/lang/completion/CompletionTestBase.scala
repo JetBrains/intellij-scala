@@ -19,6 +19,8 @@ import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 
 abstract class CompletionTestBase extends completion.CompletionTestBase with MockSbt {
 
+  override val sbtVersion = Sbt.LatestVersion
+
   override def folderPath  = super.folderPath + "Sbt/"
   override def testFileExt = ".sbt"
 
