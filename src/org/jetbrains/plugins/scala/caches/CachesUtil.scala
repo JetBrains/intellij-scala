@@ -260,7 +260,7 @@ object CachesUtil {
     @tailrec
     def calc(element: PsiElement): ModificationTracker = {
       Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner() => owner.getModificationTracker
+        case Some(owner) if owner.isValidModificationTrackerOwner => owner.getModificationTracker
         case Some(owner) => calc(owner.getContext)
         case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
         case _ => ScalaPsiManager.instance(element.getProject).modificationTracker
@@ -274,7 +274,7 @@ object CachesUtil {
   def updateModificationCount(elem: PsiElement, incModCountOnTopLevel: Boolean = false): Unit = {
     Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner], classOf[ScalaCodeFragment])) match {
       case Some(_: ScalaCodeFragment) => //do not update on changes in dummy file
-      case Some(owner: ScModificationTrackerOwner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
+      case Some(owner: ScModificationTrackerOwner) if owner.isValidModificationTrackerOwner =>
         owner.incModificationCount()
       case Some(owner) => updateModificationCount(owner.getContext)
       case _ if incModCountOnTopLevel => ScalaPsiManager.instance(elem.getProject).incModificationCount()
