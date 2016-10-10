@@ -52,7 +52,6 @@ object Common {
     javaOptions in Test := Seq(
       "-Xms128m",
       "-Xmx4096m",
-      "-XX:MaxPermSize=350m",
       "-ea",
       s"-Didea.system.path=$testSystemDir",
       s"-Didea.config.path=$testConfigDir",
