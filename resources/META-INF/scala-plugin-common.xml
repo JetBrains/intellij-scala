@@ -375,6 +375,9 @@
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
+      
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"
+                        serviceInterface="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.api.macros.ScalaMacroEvaluator"/>
@@ -910,6 +913,9 @@
                         displayName="Annotator Based Error Inspection" groupPath="Scala" groupName="Internal" isInternal="true"
                         shortName="AnnotatorBasedErrorInspection" level="ERROR"
                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection" 
+                         displayName="Scala bundled inspections runner" groupPath="Scala" groupName="General" 
+                         shortName="ScalaBundledInsRunner" enabledByDefault="false" language="Scala"/>
 
         <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"
@@ -1322,6 +1328,15 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionStoreComponent</implementation-class>
         </component>
     </project-components>
 

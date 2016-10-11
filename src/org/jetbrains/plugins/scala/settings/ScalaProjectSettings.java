@@ -67,6 +67,12 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean BREADCRUMBS_VAL_DEF_ENABLED = false;
   private boolean BREADCRUMBS_IF_DO_WHILE_ENABLED = false;
   
+  //MIGRATORS AND BUNDLED INSPECTIONS
+  private boolean BUNDLED_MIGRATORS_SEARCH_ENABLED = false;
+  private boolean BUNDLED_INSPECTIONS_SEARCH_ENABLED = false;
+  private Set<String> BUNDLED_INSPECTION_IDS_DISABLED = new HashSet<String>();
+  private Map<String, ArrayList<String>> BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
+  
   
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -349,6 +355,41 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public boolean isBreadcrumbsIfDoWhileEnabled() {
     return BREADCRUMBS_IF_DO_WHILE_ENABLED;
+  }
+  
+  public boolean isBundledMigratorsSearchEnabled() {
+    return BUNDLED_MIGRATORS_SEARCH_ENABLED;
+  }
+  
+  public boolean isBundledInspectionsSearchEnabled() {
+    return BUNDLED_INSPECTIONS_SEARCH_ENABLED;
+  }
+  
+  public Set<String> getBundledInspectionIdsDisabled() {
+    return BUNDLED_INSPECTION_IDS_DISABLED;
+  }
+  
+  public Map<String, ArrayList<String>> getBundledLibJarsPathsToInspections() {
+    return BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS;
+  }
+  
+  public void setBundledMigratorsSearchEnabled(boolean enabled) {
+    BUNDLED_MIGRATORS_SEARCH_ENABLED = enabled;
+  }
+  
+  public void setBundledInspectionsSearchEnabled(boolean enabled) {
+    BUNDLED_INSPECTIONS_SEARCH_ENABLED = enabled;
+  }
+  
+  public void setBundledInspectionsIdsDisabled(Set<String> disabled) {
+    BUNDLED_INSPECTION_IDS_DISABLED = disabled;
+  }
+  
+  public void setBundledLibJarsPathsToInspections(Map<String, ? extends List<String>> pathToInspections) {
+    BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS = new HashMap<String, ArrayList<String>>();
+    for (Map.Entry<String, ? extends List<String>> entry : pathToInspections.entrySet()) {
+      BUNDLED_LIB_JAR_PATHS_TO_INSPECTIONS.put(entry.getKey(), new ArrayList<String>(entry.getValue()));
+    }
   }
   
   public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }
