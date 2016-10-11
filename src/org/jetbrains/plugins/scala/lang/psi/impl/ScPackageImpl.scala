@@ -138,6 +138,12 @@ object ScPackageImpl {
     ScPackageImpl(ScalaPsiManager.instance(project).getCachedPackage(pName).orNull)
   }
 
+  def ofPackageObject(o: ScObject): PsiPackage = {
+    assert(o.isPackageObject)
+    val qualName = o.qualifiedName.stripSuffix(".`package`")
+    findPackage(o.getProject, qualName)
+  }
+
   class DoNotProcessPackageObjectException extends ControlThrowable
 
   def isPackageObjectProcessing: Boolean = {
