@@ -9,12 +9,14 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.*;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.table.JBTable;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsUiTableModel;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
@@ -27,12 +29,14 @@ import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -74,6 +78,9 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox customScalatestSyntaxHighlightingCheckbox;
   private JPanel librariesPanel;
   private JCheckBox enableScalaPluginExtensionsCheckBox;
+  private JCheckBox migratorsEnabledCheckBox;
+  private JCheckBox jarBundledInspectionsEnabledCheckBox;
+  private JBTable disabledInspectionsTable;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
   private JBList librariesList;
@@ -86,8 +93,8 @@ public class ScalaProjectSettingsPanel {
 
 
     InjectorPersistentCache jarCache = (myProject != null && !myProject.isDefault())
-            ? LibraryInjectorLoader$.MODULE$.getInstance(myProject).getJarCache()
-            : LibraryInjectorLoader$.MODULE$.verifyAndLoadCache();
+        ? LibraryInjectorLoader$.MODULE$.getInstance(myProject).getJarCache()
+        : LibraryInjectorLoader$.MODULE$.verifyAndLoadCache();
     librariesList = new JBList(new JarCacheModel(jarCache));
     librariesList.setCellRenderer(new JarCacheRenderer());
 
@@ -195,6 +202,12 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
     scalaProjectSettings.setEnableLibraryExtensions(enableScalaPluginExtensionsCheckBox.isSelected());
 
+    scalaProjectSettings.setBundledMigratorsSearchEnabled(migratorsEnabledCheckBox.isSelected());
+    scalaProjectSettings.setBundledInspectionsSearchEnabled(jarBundledInspectionsEnabledCheckBox.isSelected());
+    scalaProjectSettings.setBundledInspectionsIdsDisabled(
+        ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()
+    );
+
     if (myProject != null && myProject.isDefault())
       ((JarCacheModel) librariesList.getModel()).commit();
 
@@ -228,26 +241,26 @@ public class ScalaProjectSettingsPanel {
     if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
     if (!scalaProjectSettings.getBasePackages().equals(
-            getBasePackages())) return true;
+        getBasePackages())) return true;
     if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
-            scalaTestDefaultSuperClass.getText())) return true;
+        scalaTestDefaultSuperClass.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
-            showImplicitConversionsInCheckBox.isSelected()) return true;
+        showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
-            showArgumentsToByNameParametersCheckBox.isSelected()) return true;
+        showArgumentsToByNameParametersCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isCustomScalatestSyntaxHighlighting() !=
-            customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
+        customScalatestSyntaxHighlightingCheckbox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeBlockExpressions() !=
-            includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
+        includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeLiterals() !=
-            includeLiteralsCheckBox.isSelected()) return true;
+        includeLiteralsCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-            (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
+        (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
-            (Integer) outputSpinner.getValue()) return true;
+        (Integer) outputSpinner.getValue()) return true;
     if (scalaProjectSettings.isInProcessMode() !=
-            runWorksheetInTheCheckBox.isSelected()) return true;
+        runWorksheetInTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
       return true;
@@ -255,13 +268,13 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.isSearchAllSymbols() !=
-            searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+        searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
-            enableConversionOnCopyCheckBox.isSelected()) return true;
+        enableConversionOnCopyCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isDontShowConversionDialog() !=
-            donTShowDialogCheckBox.isSelected()) return true;
+        donTShowDialogCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-            treatDocCommentAsBlockComment.isSelected()) return true;
+        treatDocCommentAsBlockComment.isSelected()) return true;
 
     if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -279,7 +292,7 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-            collectionHighlightingChooser.getSelectedIndex()) return true;
+        collectionHighlightingChooser.getSelectedIndex()) return true;
 
     if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
@@ -289,6 +302,15 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (((JarCacheModel) librariesList.getModel()).modified())
+      return true;
+
+    if (scalaProjectSettings.isBundledMigratorsSearchEnabled() != migratorsEnabledCheckBox.isSelected())
+      return true;
+    if (scalaProjectSettings.isBundledInspectionsSearchEnabled() != jarBundledInspectionsEnabledCheckBox.isSelected())
+      return true;
+
+    if (!scalaProjectSettings.getBundledInspectionIdsDisabled().equals(
+        ((BundledInspectionsUiTableModel) disabledInspectionsTable.getModel()).getDisabledIdsWithPreservedOrder()))
       return true;
 
     return false;
@@ -341,6 +363,12 @@ public class ScalaProjectSettingsPanel {
     setWorksheetDelay(scalaProjectSettings.getAutoRunDelay());
 
     setValue(enableScalaPluginExtensionsCheckBox, scalaProjectSettings.isEnableLibraryExtensions());
+
+    setValue(migratorsEnabledCheckBox, scalaProjectSettings.isBundledMigratorsSearchEnabled());
+    setValue(jarBundledInspectionsEnabledCheckBox, scalaProjectSettings.isBundledInspectionsSearchEnabled());
+    disabledInspectionsTable.setModel(new BundledInspectionsUiTableModel(
+        scalaProjectSettings.getBundledLibJarsPathsToInspections(),
+        scalaProjectSettings.getBundledInspectionIdsDisabled(), myProject));
 
     injectionPrefixTable.loadSettings(scalaProjectSettings);
   }
@@ -563,6 +591,24 @@ public class ScalaProjectSettingsPanel {
     enableScalaPluginExtensionsCheckBox.setSelected(true);
     enableScalaPluginExtensionsCheckBox.setText("Enable Scala Plugin Extensions");
     panel8.add(enableScalaPluginExtensionsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JPanel panel9 = new JPanel();
+    panel9.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
+    tabbedPane1.addTab("Migrators", panel9);
+    migratorsEnabledCheckBox = new JCheckBox();
+    migratorsEnabledCheckBox.setText("Migrators enabled");
+    panel9.add(migratorsEnabledCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer8 = new Spacer();
+    panel9.add(spacer8, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    final Spacer spacer9 = new Spacer();
+    panel9.add(spacer9, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    jarBundledInspectionsEnabledCheckBox = new JCheckBox();
+    jarBundledInspectionsEnabledCheckBox.setText("Jar bundled inspections enabled");
+    panel9.add(jarBundledInspectionsEnabledCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JScrollPane scrollPane2 = new JScrollPane();
+    panel9.add(scrollPane2, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    disabledInspectionsTable = new JBTable();
+    disabledInspectionsTable.setGridColor(new Color(-16777216));
+    scrollPane2.setViewportView(disabledInspectionsTable);
   }
 
   /**
@@ -611,7 +657,7 @@ public class ScalaProjectSettingsPanel {
     protected JComponent createCenterPanel() {
       JComponent res = new JPanel();
       res.add(new JLabel("Changes in ScalaTest highlighting will be processed correctly only on freshly highlighted files." +
-              "For best experience please restart Intellij IDEA"));
+          "For best experience please restart Intellij IDEA"));
       return res;
     }
 

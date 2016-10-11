@@ -13,7 +13,7 @@ class BundledCompoundInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new MyInspectionVisitorWrapper(
-      BundledInspectionStoreComponent.getInstance(holder.getProject).getLoadedInspections.map(_.actionFor(holder))
+      BundledInspectionStoreComponent.getInstance(holder.getProject).getFilteredInspections.map(_.actionFor(holder))
     )
   }
 

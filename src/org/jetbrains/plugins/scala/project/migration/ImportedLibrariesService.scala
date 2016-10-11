@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.project.migration.handlers.{ArtifactHandlerComponent, ScalaLibraryMigrationHandler, VersionedArtifactHandlerBase}
 import org.jetbrains.plugins.scala.project.migration.store.ManifestAttributes.ManifestAttribute
 import org.jetbrains.plugins.scala.project.migration.store.{ManifestAttributes, SerializationUtil}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
@@ -25,12 +26,14 @@ import scala.util.{Failure, Success, Try}
   * Date: 25.07.16.
   */
 class ImportedLibrariesService extends AbstractProjectDataService[LibraryDependencyData, LibraryOrderEntry] {
+  private def isEnabled(project: Project) = ScalaProjectSettings.getInstance(project).isBundledMigratorsSearchEnabled
+  
   override def getTargetDataKey: Key[LibraryDependencyData] = ProjectKeys.LIBRARY_DEPENDENCY
 
   override def importData(toImport: util.Collection[DataNode[LibraryDependencyData]], 
                           projectData: ProjectData, project: Project, 
                           modelsProvider: IdeModifiableModelsProvider): Unit = {
-    if (!ImportedLibrariesService.isEnabled) return 
+    if (!isEnabled(project)) return 
     
     import ImportedLibrariesService.{loadClassFromJar, showWarning}
     
@@ -116,8 +119,6 @@ class ImportedLibrariesService extends AbstractProjectDataService[LibraryDepende
 }
 
 object ImportedLibrariesService {
-  def isEnabled = false
-  
   val STACKTRACE_FROM_REPORT_CUT_SIZE = 8
   
   val MIGRATORS_FOUND_MESSAGE =
