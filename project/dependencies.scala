@@ -148,7 +148,8 @@ object DependencyGroups {
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
-    val vs = Seq("0.12.4","0.13.1","0.13.5","0.13.7","0.13.12")
+    val latest = "0.13.12" // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
+    val vs = Seq("0.13.1", "0.13.5", "0.13.7", latest)
     vs.flatMap { v =>
       Seq(
         "org.scala-sbt" % "collections" % v,
