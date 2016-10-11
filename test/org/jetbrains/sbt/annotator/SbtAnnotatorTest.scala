@@ -110,8 +110,8 @@ class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase {
   def test_0_13_7(): Unit = runTest(sbtVersion, Expectations.sbt0137)
 }
 
-class SbtAnnotatorTest_nullVersion extends SbtAnnotatorTestBase {
-  override def sbtVersion: String = null
+class SbtAnnotatorTest_latest extends SbtAnnotatorTestBase {
+  override def sbtVersion: String = Sbt.LatestVersion
   def test_nullVersion(): Unit = runTest(sbtVersion, Expectations.sbt0137)
 }
 
