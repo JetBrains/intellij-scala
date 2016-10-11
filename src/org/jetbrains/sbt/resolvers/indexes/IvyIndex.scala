@@ -27,22 +27,45 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
   private val groupArtifactToVersionMap = createPersistentMap(indexDir / Paths.GROUP_ARTIFACT_TO_VERSION_FILE)
   private var (_, _, innerTimestamp, _) = loadProps()
 
+  private def checkStorage(): Unit = {
+    if (artifactToGroupMap.isCorrupted ||
+        groupToArtifactMap.isCorrupted ||
+        groupArtifactToVersionMap.isCorrupted)
+      deleteIndex()
+  }
+
+  private def withStorageCheck[T](f: => Set[T]): Set[T] = {
+    try     { f }
+    catch   { case _: Exception => Set.empty }
+    finally { checkStorage() }
+  }
+
   override def searchGroup(artifactId: String)(implicit project: Project): Set[String] = {
-    if (artifactId.isEmpty)
-      Option(groupToArtifactMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
-    else
-      Option(artifactToGroupMap.get(artifactId)).getOrElse(Set.empty)
+    withStorageCheck {
+      if (artifactId.isEmpty)
+        Option(groupToArtifactMap.getAllKeysWithExistingMapping) map {
+          _.toSet
+        } getOrElse Set.empty
+      else
+        Option(artifactToGroupMap.get(artifactId)).getOrElse(Set.empty)
+    }
   }
 
   override def searchArtifact(groupId: String)(implicit project: Project): Set[String] = {
-    if (groupId.isEmpty)
-      Option(artifactToGroupMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
-    else
-      Option(groupToArtifactMap.get(groupId)).getOrElse(Set.empty)
+    withStorageCheck {
+      if (groupId.isEmpty)
+        Option(artifactToGroupMap.getAllKeysWithExistingMapping) map {
+          _.toSet
+        } getOrElse Set.empty
+      else
+        Option(groupToArtifactMap.get(groupId)).getOrElse(Set.empty)
+    }
   }
 
   override def searchVersion(groupId: String, artifactId: String)(implicit project: Project): Set[String] = {
-    Option(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(groupId, artifactId))).getOrElse(Set.empty)
+    withStorageCheck {
+      Option(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(groupId, artifactId))).getOrElse(Set.empty)
+    }
   }
   override def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: Project): Unit = {
     val agMap  = mutable.HashMap.empty[String, mutable.Set[String]]

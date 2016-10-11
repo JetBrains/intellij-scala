@@ -56,7 +56,7 @@ object ResolverIndex {
     try {
       new IvyIndex(root, name)
     } catch {
-      case _: PersistentEnumeratorBase.CorruptedException | _: IOException | _: IndexVersionMismatch=>
+      case _: Throwable =>  // workaround for severe persistent storage corruption
         cleanUpCorruptedIndex(getIndexDirectory(root))
         new IvyIndex(root, name)
     }

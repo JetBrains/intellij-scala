@@ -93,16 +93,20 @@ private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Projec
 
   override def getColumnName(columnIndex: Int): String = columns(columnIndex)
 
-  def getValueAt(rowIndex: Int, columnIndex: Int): String = columnIndex match {
-    case 0 => resolvers(rowIndex).name
-    case 1 => resolvers(rowIndex).root
-    case 2 =>
-      val ts: Long = resolvers(rowIndex).getIndex.getUpdateTimeStamp(project)
-      if (ts == ResolverIndex.NO_TIMESTAMP)
-        SbtBundle("sbt.settings.resolvers.neverUpdated")
-      else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
-        SbtBundle("sbt.settings.resolvers.mavenUnavaliable")
-      else
-        DateFormatUtil.formatDate(ts)
+  def getValueAt(rowIndex: Int, columnIndex: Int): String = try {
+    columnIndex match {
+      case 0 => resolvers(rowIndex).name
+      case 1 => resolvers(rowIndex).root
+      case 2 =>
+        val ts: Long = resolvers(rowIndex).getIndex.getUpdateTimeStamp(project)
+        if (ts == ResolverIndex.NO_TIMESTAMP)
+          SbtBundle("sbt.settings.resolvers.neverUpdated")
+        else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
+          SbtBundle("sbt.settings.resolvers.mavenUnavaliable")
+        else
+          DateFormatUtil.formatDate(ts)
+    }
+  } catch {
+    case _: IndexOutOfBoundsException => "???"
   }
 }
