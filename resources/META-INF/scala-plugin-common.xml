@@ -375,6 +375,9 @@
 
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
+      
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"
+                        serviceInterface="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
 
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.api.macros.ScalaMacroEvaluator"/>
