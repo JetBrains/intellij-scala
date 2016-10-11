@@ -227,19 +227,22 @@ object DependencyGroups {
     "org.scala-lang" % "scala-compiler" % "2.12.0-M5"
   )
 
-  val mockSbtDownloader = {
-    val v = "0.13.5"
-    Seq(
-      "org.scala-sbt" % "collections" % v,
-      "org.scala-sbt" % "interface" % v,
-      "org.scala-sbt" % "io" % v,
-      "org.scala-sbt" % "ivy" % v,
-      "org.scala-sbt" % "logging" % v,
-      "org.scala-sbt" % "main" % v,
-      "org.scala-sbt" % "main-settings" % v,
-      "org.scala-sbt" % "process" % v,
-      "org.scala-sbt" % "sbt" % v
-    )
+  // required jars for MockSbt - it adds different versions to test module classpath
+  val mockSbtDownloader: Seq[ModuleID] = {
+    val vs = Seq("0.12.4","0.13.1","0.13.5","0.13.7","0.13.12")
+    vs.flatMap { v =>
+      Seq(
+        "org.scala-sbt" % "collections" % v,
+        "org.scala-sbt" % "interface" % v,
+        "org.scala-sbt" % "io" % v,
+        "org.scala-sbt" % "ivy" % v,
+        "org.scala-sbt" % "logging" % v,
+        "org.scala-sbt" % "main" % v,
+        "org.scala-sbt" % "main-settings" % v,
+        "org.scala-sbt" % "process" % v,
+        "org.scala-sbt" % "sbt" % v
+      )
+    }
   }
 
   val sbtRuntime = Seq(
