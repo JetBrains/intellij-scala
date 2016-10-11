@@ -58,15 +58,15 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
       val manager = ScalaPsiManager.instance(getProject)
 
       val moduleScope = module.getModuleScope
-      val moduleWithLibrariesScope = module.getModuleWithLibrariesScope
+      val moduleWithDependenciesAndLibrariesScope = module.getModuleWithDependenciesAndLibrariesScope(false)
 
-      Sbt.DefinitionHolderClasses.flatMap(manager.getCachedClasses(moduleWithLibrariesScope, _))
+      Sbt.DefinitionHolderClasses.flatMap(manager.getCachedClasses(moduleWithDependenciesAndLibrariesScope, _))
               .flatMap(ClassInheritorsSearch.search(_, moduleScope, true).findAll.asScala)
     }
   }
 
   override def getFileResolveScope: GlobalSearchScope =
-    projectDefinitionModule.fold(super.getFileResolveScope)(_.getModuleWithLibrariesScope)
+    projectDefinitionModule.fold(super.getFileResolveScope)(_.getModuleWithDependenciesAndLibrariesScope(false))
 
   private def projectDefinitionModule: Option[Module] = fileModule.flatMap { module =>
     Option(ModuleManager.getInstance(getProject).findModuleByName(module.getName + Sbt.BuildModuleSuffix))
