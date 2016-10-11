@@ -4,57 +4,38 @@ package psi
 package stubs
 package impl
 
-
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createConstructorTypeElementFromText, createTypeElementFromText}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StringRefArrayExt, StubBaseExt}
 
 /**
- * User: Alexander Podkhalyuzin
- */
+  * User: Alexander Podkhalyuzin
+  */
+class ScTemplateParentsStubImpl[P <: ScTemplateParents](parent: StubElement[_ <: PsiElement],
+                                                        elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                                        private val parentTypeTextRefs: Array[StringRef],
+                                                        private val constructorRef: Option[StringRef])
+  extends StubBase[P](parent, elementType) with ScTemplateParentsStub[P] {
+  private var parentTypesElementReferences: SofterReference[Seq[ScTypeElement]] = null
 
-class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-  extends StubBase[ScTemplateParents](parent, elemType) with ScTemplateParentsStub {
-  private var typesString: Seq[StringRef] = Seq.empty
-  private var types: SofterReference[Seq[ScTypeElement]] = null
-  private var constructor: Option[StringRef] = None
+  def parentTypesTexts: Array[String] = parentTypeTextRefs.asStrings
 
-  def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          constructor: Option[StringRef],
-          typesString: Seq[StringRef]) = {
-    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.typesString = typesString
-    this.constructor = constructor
-  }
-
-  def getTemplateParentsTypesTexts: Seq[String] = typesString.map(StringRef.toString)
-
-  def getConstructor: Option[String] = constructor.map(StringRef.toString)
-
-  def getTemplateParentsTypes: Seq[ScType] =
-    getTemplateParentsTypeElements.map(_.getType(TypingContext.empty).getOrAny)
-
-  def getTemplateParentsTypeElements: Seq[ScTypeElement] = {
-    if (types != null) {
-      val typeElements = types.get
-      if (typeElements != null && typeElements.forall { elem =>
-        val context = elem.getContext
-        context.eq(getPsi) || (context.getContext != null && context.getContext.eq(getPsi))
-      }) return typeElements
+  def parentTypeElements: Seq[ScTypeElement] = {
+    parentTypesElementReferences = this.updateReference(parentTypesElementReferences) {
+      case (context, child) =>
+        constructorText.toSeq.map {
+          createConstructorTypeElementFromText(_, context, child)
+        } ++ parentTypesTexts.map {
+          createTypeElementFromText(_, context, child)
+        }
     }
-    val res: Seq[ScTypeElement] =
-      constructor.map(s =>
-        ScalaPsiElementFactory.createConstructorTypeElementFromText(StringRef.toString(s), getPsi, null)).toSeq ++
-        getTemplateParentsTypesTexts.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
-    types = new SofterReference(res)
-    res
+    parentTypesElementReferences.get
   }
+
+  def constructorText: Option[String] = constructorRef.asString
 }
