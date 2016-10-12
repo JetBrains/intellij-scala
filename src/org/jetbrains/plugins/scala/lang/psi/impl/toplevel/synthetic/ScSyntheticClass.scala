@@ -56,8 +56,6 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
 
-  def getPsiElementId: Long = -1
-
   def getOffsetInFile: Int = 0
 
   def getContainingFileName: String = "NoFile"

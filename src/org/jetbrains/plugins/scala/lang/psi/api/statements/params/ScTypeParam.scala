@@ -29,8 +29,6 @@ trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiType
 
   def typeParameterText: String
 
-  def getPsiElementId: Long
-
   def isHigherKindedTypeParameter: Boolean
 }
 
