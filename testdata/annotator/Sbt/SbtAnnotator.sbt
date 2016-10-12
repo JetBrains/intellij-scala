@@ -1,3 +1,5 @@
+object Bar
+
 organization
 
 "some string"
@@ -5,9 +7,9 @@ organization
 name := "someName"
 version := "SNAPSHOT"
 
-lazy val foo = project.in(file("foo")).enablePlugins(sbt.plugins.JvmPlugin)
+enablePlugins(sbt.plugins.JvmPlugin)
 
-object Bar
+lazy val foo = project.in(file("foo")).enablePlugins(sbt.plugins.JvmPlugin)
 
 null
 

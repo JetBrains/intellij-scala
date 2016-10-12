@@ -30,7 +30,9 @@ object SdkUtils {
       case Android(version) =>
         findAndroidJdkByVersion(version)
       case JdkByVersion(version) =>
-        findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getVersionString.contains(version) }
+        findMostRecentJdk { sdk: projectRoots.Sdk =>
+          Option(sdk.getVersionString).exists(s => s.contains(version))
+        }
       case JdkByName(version) =>
         findMostRecentJdk { sdk: projectRoots.Sdk => sdk.getName.contains(version) }
       case JdkByHome(homeFile) =>
@@ -89,9 +91,11 @@ object SdkUtils {
 
     val matchingSdks = for {
       sdk <- allAndroidSdks
-      platformVersion <- Option(AndroidPlatform.getInstance(sdk)).map(_.getApiLevel.toString)
+      platform <- Option(AndroidPlatform.getInstance(sdk))
+      platformVersion = platform.getApiLevel.toString
       if isGEQAsInt(platformVersion, version)
     } yield sdk
+
     matchingSdks.headOption
   }
 

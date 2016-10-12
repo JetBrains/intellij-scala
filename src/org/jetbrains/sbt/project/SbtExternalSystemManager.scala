@@ -120,10 +120,13 @@ object SbtExternalSystemManager {
       projectJdkName
         .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
         .map { sdk =>
-          if (sdk.getSdkType == jdkType)
-            new File(jdkType.getVMExecutablePath(sdk))
-          else
-          throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
+          sdk.getSdkType match {
+            case sdkType: JavaSdkType =>
+              new File(sdkType.getVMExecutablePath(sdk))
+            case _ =>
+              // ugh
+              throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
+          }
         }
     }
     .orElse {
