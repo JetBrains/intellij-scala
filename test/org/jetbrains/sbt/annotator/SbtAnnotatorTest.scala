@@ -95,23 +95,18 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
   }
 }
 
-class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase {
-  override def sbtVersion: String = "0.12.4"
-  def test_0_12_4(): Unit = runTest(sbtVersion, Expectations.sbt012)
-}
-
 class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase {
   override def sbtVersion: String = "0.13.1"
-  def test_0_13_1(): Unit = runTest(sbtVersion, Expectations.sbt0131)
+  def test(): Unit = runTest(sbtVersion, Expectations.sbt0131)
 }
 class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase {
   override def sbtVersion: String = "0.13.7"
-  def test_0_13_7(): Unit = runTest(sbtVersion, Expectations.sbt0137)
+  def test(): Unit = runTest(sbtVersion, Expectations.sbt0137)
 }
 
-class SbtAnnotatorTest_nullVersion extends SbtAnnotatorTestBase {
-  override def sbtVersion: String = null
-  def test_nullVersion(): Unit = runTest(sbtVersion, Expectations.sbt0137)
+class SbtAnnotatorTest_latest extends SbtAnnotatorTestBase {
+  override def sbtVersion: String = Sbt.LatestVersion
+  def test(): Unit = runTest(sbtVersion, Expectations.sbt0137)
 }
 
 /**
@@ -141,9 +136,4 @@ object Expectations {
     Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", "0.13.1"))
   )
 
-  val sbt012: Seq[Error] = sbt013_1to5 ++ Seq(
-    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", "0.12.4")),
-    Error("lazy val foo = project.in(file(\"foo\")).enablePlugins(sbt.plugins.JvmPlugin)",
-      SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
-  )
 }

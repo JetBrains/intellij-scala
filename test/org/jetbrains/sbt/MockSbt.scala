@@ -23,8 +23,6 @@ trait MockSbt {
 
   def addSbtAsModuleDependency(module: Module): Unit = {
 
-    val sbtLibVersion = Option(sbtVersion).getOrElse(Sbt.LatestVersion)
-
     val sbtLibraries = Seq("collections", "interface", "io", "ivy", "logging", "main", "main-settings", "process", "sbt")
       .map(n => new File(TestUtils.getIvyCachePath + s"/org.scala-sbt/$n/jars/$n-$sbtVersion.jar"))
     val scalaLibrary = ScalaSdkVersion._2_10

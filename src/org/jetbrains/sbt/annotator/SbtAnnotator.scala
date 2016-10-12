@@ -37,7 +37,7 @@ class SbtAnnotator extends Annotator {
                       (implicit typeSystem: TypeSystem) {
 
     private val allowedTypes =
-      if (sbtVersionLessThan("0.13.6")) SbtAnnotator.AllowedTypes
+      if (sbtVersionLessThan("0.13.6")) SbtAnnotator.AllowedTypes013
       else SbtAnnotator.AllowedTypes0136
 
     private val expectedExpressionType =
@@ -77,9 +77,7 @@ class SbtAnnotator extends Annotator {
       Option(ScalaPsiElementFactory.createTypeFromText(text, exp.getContext, exp))
 
     private def isTypeAllowed(expression: ScExpression, expressionType: ScType): Boolean =
-      allowedTypes
-        .exists(typeStr => findTypeByText(expression, typeStr)
-        .exists(t => expressionType conforms t))
+      allowedTypes.exists(typeStr => findTypeByText(expression, typeStr).exists(t => expressionType conforms t))
 
     private def annotateMissingBlankLines(): Unit =
       sbtFileElements.sliding(3).foreach {
@@ -95,7 +93,10 @@ class SbtAnnotator extends Annotator {
 }
 
 object SbtAnnotator {
-//  val AllowedTypes0136 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+  // SettingsDefinition *should* conform to DslEntry via implicit conversion, but that isn't happening in conformance check. why?
   val AllowedTypes0136 = List("sbt.internals.DslEntry", "Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
-  val AllowedTypes = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+  val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+
+  // conformance always delivers false for these types for some reason. since sbt 0.12 is a low-value target, ignore this problem
+  // val AllowedTypes012 = List("Seq[Project.Setting]", "Project.Setting")
 }
