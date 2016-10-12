@@ -186,7 +186,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override final def getQualifiedName: String = {
     val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].javaQualName
+    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].javaQualifiedName
     else javaQualName()
   }
 
@@ -207,7 +207,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override def qualifiedName: String = {
     val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].qualName
+    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].getQualifiedName
     else qualName()
   }
 
