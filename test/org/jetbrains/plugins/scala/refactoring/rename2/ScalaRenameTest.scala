@@ -357,4 +357,121 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
     myFixture.checkResult(resultText)
   }
+
+  def testSameNameObjectsApply(): Unit = {
+    val fileText =
+      """
+        |trait HasApply {
+        |  def apply(str:String) = ""
+        |
+        |  def unapply(s: String): Option[String] = Some(s)
+        |}
+        |
+        |class CustomerContact1 {
+        |  object circus extends HasApply
+        |}
+        |
+        |
+        |object CustomerContact2 {
+        |  object c<caret>ircus extends HasApply
+        |}
+        |
+        |object FindUsagesBug {
+        |  def main(args: Array[String]): Unit = {
+        |    CustomerContact2.circus("hello")
+        |
+        |    val CustomerContact2.circus(s) = "hello"
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("newName")
+
+    val resultText =
+      """
+        |trait HasApply {
+        |  def apply(str:String) = ""
+        |
+        |  def unapply(s: String): Option[String] = Some(s)
+        |}
+        |
+        |class CustomerContact1 {
+        |  object circus extends HasApply
+        |}
+        |
+        |
+        |object CustomerContact2 {
+        |  object newName extends HasApply
+        |}
+        |
+        |object FindUsagesBug {
+        |  def main(args: Array[String]): Unit = {
+        |    CustomerContact2.newName("hello")
+        |
+        |    val CustomerContact2.newName(s) = "hello"
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    myFixture.checkResult(resultText)
+  }
+
+  def testSameNameObjectsApply2(): Unit = {
+    val fileText =
+      """
+        |trait HasApply {
+        |  def apply(str:String) = ""
+        |
+        |  def unapply(s: String): Option[String] = Some(s)
+        |}
+        |
+        |class CustomerContact1 {
+        |  object c<caret>ircus extends HasApply
+        |}
+        |
+        |
+        |object CustomerContact2 {
+        |  object circus extends HasApply
+        |}
+        |
+        |object FindUsagesBug {
+        |  def main(args: Array[String]): Unit = {
+        |    CustomerContact2.circus("hello")
+        |
+        |    val CustomerContact2.circus(s) = "hello"
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("newName")
+
+    val resultText =
+      """
+        |trait HasApply {
+        |  def apply(str:String) = ""
+        |
+        |  def unapply(s: String): Option[String] = Some(s)
+        |}
+        |
+        |class CustomerContact1 {
+        |  object newName extends HasApply
+        |}
+        |
+        |
+        |object CustomerContact2 {
+        |  object circus extends HasApply
+        |}
+        |
+        |object FindUsagesBug {
+        |  def main(args: Array[String]): Unit = {
+        |    CustomerContact2.circus("hello")
+        |
+        |    val CustomerContact2.circus(s) = "hello"
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    myFixture.checkResult(resultText)
+  }
+
 }
