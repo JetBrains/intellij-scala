@@ -32,6 +32,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     def selectionStart = editor.getSelectionModel.getSelectionStart
     def selectionEnd = editor.getSelectionModel.getSelectionEnd
 
+    ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+
     val selectedElement: Option[PsiElement] = {
       val typeElem = ScalaRefactoringUtil.getTypeElement(project, editor, file, selectionStart, selectionEnd)
       val expr = ScalaRefactoringUtil.getExpression(project, editor, file, selectionStart, selectionEnd).map(_._1)
@@ -83,14 +85,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       } else {
         ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, typeElement.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
           typeElement =>
-            ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
             invokeTypeElement(project, editor, file, typeElement)
         }
       }
     } else {
       val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
       ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, INTRODUCE_VARIABLE_REFACTORING_NAME, canBeIntroduced) {
-        ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
         invokeExpression(project, editor, file, selectionStart, selectionEnd)
       }
     }
