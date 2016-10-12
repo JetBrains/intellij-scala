@@ -25,20 +25,23 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
 /**
- * @author Alexander Podkhalyuzin
- * Date: 28.02.2008
- */
-class ScReferencePatternImpl private (stub: StubElement[ScReferencePattern], nodeType: IElementType, node: ASTNode)
+  * @author Alexander Podkhalyuzin
+  *         Date: 28.02.2008
+  */
+class ScReferencePatternImpl private(stub: StubElement[ScReferencePattern], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScReferencePattern with ContributedReferenceHost {
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScReferencePatternStub) =
+    this(stub, ScalaElementTypes.REFERENCE_PATTERN, null)
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
       case _ => super.accept(visitor)
     }
   }
-
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScReferencePatternStub) = {this(stub, ScalaElementTypes.REFERENCE_PATTERN, null)}
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 
