@@ -10,9 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 /**
 * @author ilyas, Alexander Podkhalyuzin
 */
-
 trait ScSelfTypeElement extends ScNamedElement with ScTypedDefinition {
   def typeElement: Option[ScTypeElement]
 
-  def getClassNames: Array[String]
+  def classNames: Array[String]
 }
