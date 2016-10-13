@@ -14,6 +14,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.project.notification.source.AttachSourcesUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,8 +45,8 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
         }
     }
 
-    public void attachIdeaSources() {
-        if (!myProject.getName().toLowerCase().contains("scala")) return;
+    void attachIdeaSources() {
+        if (!ApplicationManager.getApplication().isInternal()) return;
         final Set<LibraryOrderEntry> libs = getLibsWithoutSourceRoots();
         LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
         if (libs.isEmpty()) return;
@@ -77,7 +78,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
                         ApplicationManager.getApplication().invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                appendSources(library, roots);
+                                AttachSourcesUtil.appendSources(library, (VirtualFile[]) roots.toArray());
                             }
                         });
                     }
@@ -87,7 +88,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
         }.queue();
     }
 
-    public Set<LibraryOrderEntry> getLibsWithoutSourceRoots() {
+    Set<LibraryOrderEntry> getLibsWithoutSourceRoots() {
         return needsAttaching(getIntellijJars());
     }
 
@@ -135,19 +136,6 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
 
         }
         return res[0];
-    }
-
-    private void appendSources(final Library library, final Collection<VirtualFile> files) {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-            @Override
-            public void run() {
-                Library.ModifiableModel model = library.getModifiableModel();
-                for (VirtualFile virtualFile : files) {
-                    model.addRoot(virtualFile, OrderRootType.SOURCES);
-                }
-                model.commit();
-            }
-        });
     }
 
     private VirtualFile findCurrentSDKDir(LibraryOrderEntry anyLib) {
