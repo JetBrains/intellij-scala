@@ -90,10 +90,6 @@ lazy val scalap =
     .settings(commonTestSettings(packagedPluginDir):_*)
     .settings(libraryDependencies ++= DependencyGroups.scalap)
 
-lazy val scalaDevPlugin =
-  newProject("scalaDevPlugin", file("SDK/scalaDevPlugin"))
-  .settings(unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value)
-
 lazy val macroAnnotations =
   newProject("macroAnnotations", file("macroAnnotations"))
   .settings(Seq(
@@ -299,9 +295,6 @@ lazy val pluginCompressorCommunity =
     }
   )
 
-TaskKey[Unit]("buildDevPlugin") := {
-  (packageBin in (scalaDevPlugin, Compile)).value
-}
 
 updateIdea <<= (ideaBaseDirectory, ideaBuild.in(ThisBuild), streams).map {
   (baseDir, build, streams) =>
