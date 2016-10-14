@@ -19,6 +19,9 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  * @author Pavel Fatin
  */
 class SbtAnnotator extends Annotator {
+
+  import SbtAnnotator._
+
   def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
     case file: SbtFileImpl =>
       val project = file.getProject
@@ -36,9 +39,9 @@ class SbtAnnotator extends Annotator {
                       (implicit typeSystem: TypeSystem) {
 
     private val allowedTypes: List[String] =
-      if (sbtVersionLessThan("0.13.0")) SbtAnnotator.AllowedTypes012
-      else if (sbtVersionLessThan("0.13.6")) SbtAnnotator.AllowedTypes013
-      else SbtAnnotator.AllowedTypes0136
+      if (sbtVersionLessThan("0.13.0")) AllowedTypes012
+      else if (sbtVersionLessThan("0.13.6")) AllowedTypes013
+      else AllowedTypes0136
 
     private val expectedExpressionType: String =
       if (sbtVersionLessThan("0.13.6")) SbtBundle("sbt.annotation.expectedExpressionType")
@@ -69,19 +72,11 @@ class SbtAnnotator extends Annotator {
         message <-
           if (expressionType.equiv(Nothing) || expressionType.equiv(Null))
             Option(expectedExpressionType)
-          else if (!isTypeAllowed(expression, expressionType))
+          else if (!isTypeAllowed(expression, expressionType, allowedTypes))
             Option(expressionMustConform(expressionType))
           else None
       } {
         holder.createErrorAnnotation(expression, message)
-      }
-
-    private def isTypeAllowed(expression: ScExpression, expressionType: ScType): Boolean =
-      allowedTypes.flatMap { typeName =>
-        createTypeFromText(typeName, expression.getContext, expression)
-      }.exists { expectedType =>
-        lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
-        expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
       }
 
     private def annotateMissingBlankLines(): Unit =
@@ -101,4 +96,12 @@ object SbtAnnotator {
   val AllowedTypes012 = List("Seq[Project.Setting[_]]", "Project.Setting[_]")
   val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
   val AllowedTypes0136 = List("sbt.internals.DslEntry")
+
+  def isTypeAllowed(expression: ScExpression, expressionType: ScType, allowedTypes: Seq[String])(implicit typeSystem: TypeSystem): Boolean =
+    allowedTypes.flatMap { typeName =>
+      createTypeFromText(typeName, expression.getContext, expression)
+    }.exists { expectedType =>
+      lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
+      expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
+    }
 }
