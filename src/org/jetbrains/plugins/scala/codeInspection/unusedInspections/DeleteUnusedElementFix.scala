@@ -28,10 +28,10 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
           case pList: ScPatternList if pList.patterns == Seq(ref) =>
             val context: PsiElement = pList.getContext
             context.getContext.deleteChildRange(context, context)
-          case pList: ScPatternList if pList.allPatternsSimple && pList.patterns.startsWith(Seq(ref)) =>
+          case pList: ScPatternList if pList.simplePatterns && pList.patterns.startsWith(Seq(ref)) =>
             val end = ref.nextSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getNextSiblingNotWhitespace.getPrevSibling
             pList.deleteChildRange(ref, end)
-          case pList: ScPatternList if pList.allPatternsSimple =>
+          case pList: ScPatternList if pList.simplePatterns =>
             val start = ref.prevSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getPrevSiblingNotWhitespace.getNextSibling
             pList.deleteChildRange(start, ref)
           case _ =>

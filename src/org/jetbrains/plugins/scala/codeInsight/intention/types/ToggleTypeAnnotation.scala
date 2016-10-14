@@ -57,7 +57,7 @@ object ToggleTypeAnnotation {
 
     for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
          if value.expr.forall(!_.isAncestorOf(element))
-         if value.pList.allPatternsSimple
+         if value.pList.simplePatterns
          bindings = value.bindings
          if bindings.size == 1
          binding <- bindings} {
@@ -72,7 +72,7 @@ object ToggleTypeAnnotation {
 
     for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
          if variable.expr.forall(!_.isAncestorOf(element))
-         if variable.pList.allPatternsSimple
+         if variable.pList.simplePatterns
          bindings = variable.bindings
          if bindings.size == 1
          binding <- bindings} {

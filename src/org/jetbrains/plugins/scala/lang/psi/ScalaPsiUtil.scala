@@ -1532,7 +1532,7 @@ object ScalaPsiUtil {
       case element: ScReferenceElement => element.getReference.toOption
               .flatMap(_.resolve().asOptionOf[ScBindingPattern])
               .flatMap(_.getParent.asOptionOf[ScPatternList])
-              .filter(_.allPatternsSimple)
+        .filter(_.simplePatterns)
               .flatMap(_.getParent.asOptionOf[ScPatternDefinition])
               .flatMap(_.expr.flatMap(_.asOptionOf[PsiLiteral]))
               .flatMap(stringValueOf)
