@@ -23,14 +23,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 07.03.2008
+  */
 
-class ScPrimaryConstructorImpl private (stub: StubElement[ScPrimaryConstructor], nodeType: IElementType, node: ASTNode)
+class ScPrimaryConstructorImpl private(stub: StubElement[ScPrimaryConstructor], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPrimaryConstructor {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScPrimaryConstructorStub) = {this(stub, ScalaElementTypes.PRIMARY_CONSTRUCTOR, null)}
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScPrimaryConstructorStub) =
+    this(stub, ScalaElementTypes.PRIMARY_CONSTRUCTOR, null)
 
   override def getIcon(flags: Int): Icon = Icons.FUNCTION
 

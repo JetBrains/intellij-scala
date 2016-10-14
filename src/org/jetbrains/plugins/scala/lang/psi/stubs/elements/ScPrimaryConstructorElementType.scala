@@ -15,12 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPrimaryConstructorStubI
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-class ScPrimaryConstructorElementType[Func <: ScPrimaryConstructor]
-  extends ScStubElementType[ScPrimaryConstructorStub, ScPrimaryConstructor]("primary constructor") {
+class ScPrimaryConstructorElementType extends ScStubElementType[ScPrimaryConstructorStub, ScPrimaryConstructor]("primary constructor") {
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
     new ScPrimaryConstructorStubImpl(parentStub, this)
 
-  override def createStub(psi: ScPrimaryConstructor, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
+  override def createStub(constructor: ScPrimaryConstructor, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
     new ScPrimaryConstructorStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScPrimaryConstructor = new ScPrimaryConstructorImpl(node)
