@@ -93,10 +93,8 @@ class SbtAnnotator extends Annotator {
 }
 
 object SbtAnnotator {
+  val AllowedTypes012 = List("Seq[Project.Setting[_]]", "Project.Setting[_]")
+  val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
   // SettingsDefinition *should* conform to DslEntry via implicit conversion, but that isn't happening in conformance check. why?
   val AllowedTypes0136 = List("sbt.internals.DslEntry", "Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
-  val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
-
-  // conformance always delivers false for these types for some reason. since sbt 0.12 is a low-value target, ignore this problem
-  // val AllowedTypes012 = List("Seq[Project.Setting]", "Project.Setting")
 }
