@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.extensions
 
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
 /**
@@ -9,7 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
  */
 object LazyVal {
   def unapply(pd: ScPatternDefinition): Option[ScPatternDefinition] = {
-    if (pd.hasModifierProperty("lazy")) Some(pd)
+    if (isLazyValInner(pd) || isLazyValInner(pd.getNavigationElement)) Some(pd)
     else None
+  }
+
+  private def isLazyValInner(e: PsiElement) = e match {
+    case pd: ScPatternDefinition => pd.hasModifierProperty("lazy")
+    case _ => false
   }
 }
