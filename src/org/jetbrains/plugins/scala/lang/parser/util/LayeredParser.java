@@ -34,7 +34,7 @@ public abstract class LayeredParser implements PsiParser {
 
   @NotNull
   @Override
-  public ASTNode parse(@NotNull IElementType root, @NotNull PsiBuilder builder) {
+  public ASTNode parse(IElementType root, @NotNull PsiBuilder builder) {
     LayeredParserPsiBuilder delegateBuilder = new LayeredParserPsiBuilder(builder);
     if (isDebug) delegateBuilder.setDebugMode(true);
     
@@ -497,7 +497,7 @@ public abstract class LayeredParser implements PsiParser {
         return filteredTokens.get(filteredTokenNumber);
       }
 
-      final int rawNumber = validNumbersLookUp.get(validNumberFloor) + (originalNumber - validNumberFloor);
+      final int rawNumber = validNumbersLookUp.get(validNumberFloor) + originalNumber - 1;
       return rawNumber > originalTokens.size() ? originalTokens.size() : rawNumber;
     }
 
