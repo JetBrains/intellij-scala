@@ -15,8 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParameterStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 19.10.2008
   */
-abstract class ScParamElementType[Param <: ScParameter](debugName: String)
-  extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
+abstract class ScParamElementType[P <: ScParameter](debugName: String) extends ScStubElementType[ScParameterStub, ScParameter](debugName) {
 
   override def serialize(stub: ScParameterStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)

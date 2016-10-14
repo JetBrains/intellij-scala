@@ -18,19 +18,18 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
   * User: Alexander Podkhalyuzin
   * Date: 19.10.2008
   */
-
-class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                   elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                   private val nameRef: StringRef,
-                                                   private val typeTextRef: Option[StringRef],
-                                                   val isStable: Boolean,
-                                                   val isDefaultParameter: Boolean,
-                                                   val isRepeated: Boolean,
-                                                   val isVal: Boolean,
-                                                   val isVar: Boolean,
-                                                   val isCallByNameParameter: Boolean,
-                                                   private val defaultExprTextRef: Option[StringRef],
-                                                   private val deprecatedNameRef: Option[StringRef])
+class ScParameterStubImpl(parent: StubElement[_ <: PsiElement],
+                          elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                          private val nameRef: StringRef,
+                          private val typeTextRef: Option[StringRef],
+                          val isStable: Boolean,
+                          val isDefaultParameter: Boolean,
+                          val isRepeated: Boolean,
+                          val isVal: Boolean,
+                          val isVar: Boolean,
+                          val isCallByNameParameter: Boolean,
+                          private val defaultExprTextRef: Option[StringRef],
+                          private val deprecatedNameRef: Option[StringRef])
   extends StubBase[ScParameter](parent, elementType) with ScParameterStub {
 
   private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
@@ -39,10 +38,6 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
   override def getName: String = StringRef.toString(nameRef)
 
   override def typeText: Option[String] = typeTextRef.asString
-
-  override def defaultExprText: Option[String] = defaultExprTextRef.asString
-
-  override def deprecatedName: Option[String] = deprecatedNameRef.asString
 
   def typeElement: Option[ScTypeElement] = {
     typeElementReference = this.updateOptionalReference(typeElementReference) {
@@ -54,6 +49,8 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     typeElementReference.get
   }
 
+  override def defaultExprText: Option[String] = defaultExprTextRef.asString
+
   def defaultExpr: Option[ScExpression] = {
     defaultExpressionReference = this.updateOptionalReference(defaultExpressionReference) {
       case (context, child) =>
@@ -63,4 +60,6 @@ class ScParameterStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi
     }
     defaultExpressionReference.get
   }
+
+  override def deprecatedName: Option[String] = deprecatedNameRef.asString
 }
