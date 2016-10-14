@@ -52,6 +52,7 @@ trait Flags {
 
   def isModuleVar = hasFlag(0x40000000) // for variables: is the variable caching a module value
   def isSyntheticMethod = hasFlag(0x40000000) // for methods: synthetic method, but without SYNTHETIC flag
+  def hasDefault = hasFlag(0x02000000)
   def isMonomorphic = hasFlag(0x40000000) // for type symbols: does not have type parameters
   def isLazy = hasFlag(0x80000000L) // symbol is a lazy val. can't have MUTABLE unless transformed by typer
 

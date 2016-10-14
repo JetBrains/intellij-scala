@@ -13,12 +13,49 @@ package scalasig
 
 import scala.language.postfixOps
 import scala.language.implicitConversions
-
 import ClassFileParser._
 import scala.reflect.internal.pickling.ByteCodecs
 
 object ScalaSigParser {
   import Main.{ BYTES_VALUE, SCALA_LONG_SIG_ANNOTATION, SCALA_SIG, SCALA_SIG_ANNOTATION }
+  def scalaSigFromAnnotation(classFile: ClassFile): Option[ScalaSig] = {
+    import classFile._
+
+    def getBytes(bytesElem: AnnotationElement): Array[Byte] = bytesElem.elementValue match {
+      case ConstValueIndex(index) => bytesForIndex(index)
+      case ArrayValue(signatureParts) => mergedLongSignatureBytes(signatureParts)
+    }
+
+    def mergedLongSignatureBytes(signatureParts: Seq[ElementValue]): Array[Byte] = signatureParts.flatMap {
+      case ConstValueIndex(index) => bytesForIndex(index)
+    }(collection.breakOut)
+
+    def bytesForIndex(index: Int) = constantWrapped(index).asInstanceOf[StringBytesPair].bytes
+
+    classFile.annotation(SCALA_SIG_ANNOTATION)
+      .orElse(classFile.annotation(SCALA_LONG_SIG_ANNOTATION)).map {
+      case Annotation(_, elements) =>
+        val bytesElem = elements.find(elem => constant(elem.elementNameIndex) == BYTES_VALUE).get
+        val bytes = getBytes(bytesElem)
+        val length = ByteCodecs.decode(bytes)
+
+        ScalaSigAttributeParsers.parse(ByteCode(bytes.take(length)))
+    }
+  }
+
+  def scalaSigFromAttribute(classFile: ClassFile): Option[ScalaSig] =
+    classFile.attribute(SCALA_SIG).map(_.byteCode).map(ScalaSigAttributeParsers.parse)
+
+  def parse(classFile: ClassFile): Option[ScalaSig] = {
+    val scalaSig  = scalaSigFromAttribute(classFile)
+
+    scalaSig match {
+      // No entries in ScalaSig attribute implies that the signature is stored in the annotation
+      case Some(ScalaSig(_, _, entries)) if entries.length == 0 =>
+        scalaSigFromAnnotation(classFile)
+      case x => x
+    }
+  }
 
   def getScalaSig(clazz : Class[_]) : Option[ByteCode] = {
     val byteCode = ByteCode.forClass(clazz)
@@ -223,7 +260,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
 
   //for now, support only constants and arrays of constants
   lazy val annotArgArray  = 44 -~ (oneOf(constantRef, constAnnotArgRef)*).map(_.toArray)
-  lazy val constAnnotArgRef = oneOf(constantRef, refTo(annotArgArray))
+  lazy val constAnnotArgRef: scala.tools.scalap.scalax.rules.Rule[ScalaSig#Entry, ScalaSig#Entry, Any, String] = oneOf(constantRef, refTo(annotArgArray))
   lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constAnnotArgRef?) ~ (nameRef ~ constAnnotArgRef*) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
   lazy val children = 41 -~ (nat*) ^^ Children //sym_Ref {sym_Ref}
   lazy val annotInfo = 43 -~ (nat*) ^^ AnnotInfo // attarg_Ref {constant_Ref attarg_Ref}

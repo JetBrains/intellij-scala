@@ -30,6 +30,7 @@ case object HideInstancePrivate extends Verbosity
 
 class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   import stream._
+  import _tf._
 
   def this(stream: PrintStream, printPrivates: Boolean) = this(stream: PrintStream, if (printPrivates) ShowAll else HideClassPrivate)
 

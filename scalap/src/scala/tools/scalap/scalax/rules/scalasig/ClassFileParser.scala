@@ -110,7 +110,7 @@ trait ByteCodeReader extends RulesWithState {
 }
 
 object ClassFileParser extends ByteCodeReader {
-  def parse(byteCode: ByteCode) = expect(classFile)(byteCode)
+  def parse(byteCode: ByteCode): ClassFile = expect(classFile)(byteCode)
   def parseAnnotations(byteCode: ByteCode) = expect(annotations)(byteCode)
 
   val magicNumber = (u4 filter (_ == 0xCAFEBABE)) | error("Not a valid class file")
@@ -151,7 +151,7 @@ object ClassFileParser extends ByteCodeReader {
     case 18 => invokeDynamic
   }
 
-  val constantPool = (u2 ^^ ConstantPool) >> repeatUntil(constantPoolEntry)(_.isFull)
+//  val constantPool = (u2 ^^ ConstantPool) >> repeatUntil(constantPoolEntry)(_.isFull)
 
   val interfaces = u2 >> u2.times
 
