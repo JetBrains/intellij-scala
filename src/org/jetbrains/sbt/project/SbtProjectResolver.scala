@@ -107,29 +107,20 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode
   }
 
-  /** Heuristically choose a project jdk based on information from sbt settings and IDE.
+  /** Choose a project jdk based on information from sbt settings and IDE.
     * More specific settings from sbt are preferred over IDE settings, on the assumption that the sbt project definition
     * is what is more likely to be under source control.
     */
   private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]) = {
     // TODO put some of this logic elsewhere in resolving process?
-    val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
-    val scalacOptions = project.scala.map(_.options).getOrElse(Seq.empty)
     val androidSdk = project.android.map(android => Android(android.targetVersion))
     val jdkHomeInSbtProject = project.java.flatMap(_.home).map(JdkByHome)
-    val jdkFromScalacOptions = scalacOptions.find(_.contains("-target:jvm-")).map(_.substring(12)).map(JdkByVersion)
-    val jdkFromJavacOptions = {
-      val i = javacOptions.indexOf("-target")
-      if (i >= 0) Option(javacOptions(i+1)) else None
-    }.map(JdkByVersion)
 
     // default either from project structure or initial import settings
     val default = defaultJdk.map(JdkByName)
 
     androidSdk
       .orElse(jdkHomeInSbtProject)
-      .orElse(jdkFromScalacOptions)
-      .orElse(jdkFromJavacOptions)
       .orElse(default)
   }
 
