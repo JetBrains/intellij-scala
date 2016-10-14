@@ -1,0 +1,4 @@
+package scala.tools.scalap
+class LazyValBug() extends scala.AnyRef {
+  lazy val lzy : scala.Int = { /* compiled code */ }
+}
