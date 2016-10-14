@@ -86,10 +86,10 @@ class ScReferencePatternImpl private(stub: StubElement[ScReferencePattern], node
       case pList: ScPatternList if pList.patterns == Seq(this) =>
         val context: PsiElement = pList.getContext
         context.getContext.deleteChildRange(context, context)
-      case pList: ScPatternList if pList.allPatternsSimple && pList.patterns.startsWith(Seq(this)) =>
+      case pList: ScPatternList if pList.simplePatterns && pList.patterns.startsWith(Seq(this)) =>
         val end = this.nextSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getNextSiblingNotWhitespace.getPrevSibling
         pList.deleteChildRange(this, end)
-      case pList: ScPatternList if pList.allPatternsSimple =>
+      case pList: ScPatternList if pList.simplePatterns =>
         val start = this.prevSiblings.find(_.getNode.getElementType == ScalaTokenTypes.tCOMMA).get.getPrevSiblingNotWhitespace.getNextSibling
         pList.deleteChildRange(start, this)
       case _ =>
