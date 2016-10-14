@@ -13,7 +13,7 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
-import org.jetbrains.plugins.scala.annotator._
+import org.jetbrains.plugins.scala.annotator.{Error, _}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -56,7 +56,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
     UsefulTestCase.assertSameElements(actualMessages, expectedMessages:_*)
   }
 
-  private def setSbtVersion(sbtVersion: String): Unit = {
+  protected def setSbtVersion(sbtVersion: String): Unit = {
     val projectSettings = SbtSystemSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath)
     assert(projectSettings != null)
     projectSettings.setSbtVersion(sbtVersion)
@@ -96,10 +96,17 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
   }
 }
 
+
+class SbtAnnotatorTest_0_12_4 extends SbtAnnotatorTestBase {
+  override def sbtVersion: String = "0.12.4"
+  def test(): Unit = runTest(sbtVersion, Expectations.sbt012)
+}
+
 class SbtAnnotatorTest_0_13_1 extends SbtAnnotatorTestBase {
   override def sbtVersion: String = "0.13.1"
-  def test(): Unit = runTest(sbtVersion, Expectations.sbt0131)
+  def test(): Unit = runTest(sbtVersion, Expectations.sbt012_013(sbtVersion))
 }
+
 class SbtAnnotatorTest_0_13_7 extends SbtAnnotatorTestBase {
   override def sbtVersion: String = "0.13.7"
   def test(): Unit = runTest(sbtVersion, Expectations.sbt0137)
@@ -126,15 +133,16 @@ object Expectations {
     Error("???", SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136"))
   )
 
-  val sbt013_1to5: Seq[Error] = sbtAll ++ Seq(
+  def sbt012_013(sbtVersion:String): Seq[Error] = sbtAll ++ Seq(
     Error("organization", SbtBundle("sbt.annotation.expressionMustConform", "SettingKey[String]")),
     Error(""""some string"""", SbtBundle("sbt.annotation.expressionMustConform", "String")),
     Error("null", SbtBundle("sbt.annotation.expectedExpressionType")),
-    Error("???", SbtBundle("sbt.annotation.expectedExpressionType"))
+    Error("???", SbtBundle("sbt.annotation.expectedExpressionType")),
+    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", sbtVersion))
   )
 
-  val sbt0131: Seq[Error] = sbt013_1to5 ++ Seq(
-    Error("""version := "SNAPSHOT"""", SbtBundle("sbt.annotation.blankLineRequired", "0.13.1"))
+  def sbt012: Seq[Error] = sbt012_013("0.12.4") ++ Seq(
+    Error("""lazy val foo = project.in(file("foo")).enablePlugins(sbt.plugins.JvmPlugin)""",
+      SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
   )
-
 }
