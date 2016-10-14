@@ -98,7 +98,7 @@ lazy val nailgunRunners =
 
 lazy val scalap =
   newProject("scalap", file("scalap"))
-    .settings(scalaVersion := Versions.scala211Version)
+//    .settings(scalaVersion := Versions.scala211Version)
     .settings(commonTestSettings(packagedPluginDir):_*)
     .settings(libraryDependencies ++= DependencyGroups.scalap)
 
