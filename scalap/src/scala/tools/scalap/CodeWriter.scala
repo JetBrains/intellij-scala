@@ -1,40 +1,41 @@
 /*     ___ ____ ___   __   ___   ___
 **    / _// __// _ | / /  / _ | / _ \    Scala classfile decoder
-**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2010, LAMP/EPFL
+**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2013, LAMP/EPFL
 ** /____/\___/_/ |_/____/_/ |_/_/        http://scala-lang.org/
 **
 */
 
 
-package scala.tools.scalap
+package scala
+package tools.scalap
 
 import java.io._
 
 
 class CodeWriter(writer: Writer) {
 
-  private val nl = compat.Platform.EOL
+  private val nl = scala.compat.Platform.EOL
   private var step = "  "
   private var level = 0
   private var align = false
   private var space = false
   private var line = false
 
-  def getWriter: Writer = writer
+  def getWriter = writer
 
-  def getIndentLevel: Int = level
+  def getIndentLevel = level
 
   def setIndentLevel(level: Int): CodeWriter = {
     this.level = level
     this
   }
 
-  def getIndentWidth: Int = if (step == null) -1 else step.length()
+  def getIndentWidth = if (step == null) -1 else step.length()
 
-  def setIndentWidth(width: Int): CodeWriter = 
+  def setIndentWidth(width: Int): CodeWriter =
     setIndentString(List.fill(width)(' ').mkString)
 
-  def getIndentString: String = step;
+  def getIndentString = step
 
   def setIndentString(step: String): CodeWriter = {
     this.step = step
@@ -58,7 +59,7 @@ class CodeWriter(writer: Writer) {
       try {
         writer.write(nl)
       } catch {
-        case _: Throwable => sys.error("IO error")
+        case e: Exception => sys.error("IO error")
       }
       line = align
       align = true
@@ -73,7 +74,7 @@ class CodeWriter(writer: Writer) {
     this
   }
 
-  def * : Unit = {}
+  def *() = {}
 
   def println: CodeWriter = newline
 
@@ -97,9 +98,9 @@ class CodeWriter(writer: Writer) {
 
   def print(value: Boolean): CodeWriter = print(String.valueOf(value))
 
-  def print(value: Byte): CodeWriter = print(String.valueOf(value))
+  def print(value: Byte): CodeWriter = print(String.valueOf(value.toInt))
 
-  def print(value: Short): CodeWriter = print(String.valueOf(value))
+  def print(value: Short): CodeWriter = print(String.valueOf(value.toInt))
 
   def print(value: Char): CodeWriter = print(String.valueOf(value))
 
@@ -127,7 +128,7 @@ class CodeWriter(writer: Writer) {
     line = false
     this
   } catch {
-    case _: Throwable => sys.error("IO error")
+    case e: Exception => sys.error("IO error")
   }
 
   override def toString(): String = writer.toString()

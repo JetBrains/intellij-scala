@@ -1,6 +1,6 @@
 /*     ___ ____ ___   __   ___   ___
 **    / _// __// _ | / /  / _ | / _ \    Scala classfile decoder
-**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2010, LAMP/EPFL
+**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2013, LAMP/EPFL
 ** /____/\___/_/ |_/____/_/ |_/_/        http://scala-lang.org/
 **
 */
@@ -9,7 +9,7 @@
 package scala.tools.scalap
 
 import java.io._
-
+import scala.reflect.NameTransformer
 
 class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer) {
 
@@ -17,37 +17,36 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
 
   def flagsToStr(clazz: Boolean, flags: Int): String = {
     val buffer = new StringBuffer()
-    var x: StringBuffer = buffer
     if (((flags & 0x0007) == 0) &&
       ((flags & 0x0002) != 0))
-      x = buffer.append("private ")
+      buffer.append("private ")
     if ((flags & 0x0004) != 0)
-      x = buffer.append("protected ")
+      buffer.append("protected ")
     if ((flags & 0x0010) != 0)
-      x = buffer.append("final ")
+      buffer.append("final ")
     if ((flags & 0x0400) != 0)
-      x = if (clazz) buffer.append("abstract ")
+      if (clazz) buffer.append("abstract ")
           else buffer.append("/*deferred*/ ")
     buffer.toString()
   }
 
   def nameToClass(str: String): String = {
-    val res = Names.decode(str.replace('/', '.'))
+    val res = NameTransformer.decode(str.replace('/', '.'))
     if (res == "java.lang.Object") "scala.Any" else res
   }
 
-  def nameToClass0(str: String): String = {
-    val res = Names.decode(str.replace('/', '.'))
+  def nameToClass0(str: String) = {
+    val res = NameTransformer.decode(str.replace('/', '.'))
     if (res == "java.lang.Object") "scala.AnyRef" else res
   }
 
-  def nameToSimpleClass(str: String): String =
-    Names.decode(str.substring(str.lastIndexOf('/') + 1))
+  def nameToSimpleClass(str: String) =
+    NameTransformer.decode(str.substring(str.lastIndexOf('/') + 1))
 
-  def nameToPackage(str: String): String = {
+  def nameToPackage(str: String) = {
     val inx = str.lastIndexOf('/')
     val name = if (inx == -1) str else str.substring(0, inx).replace('/', '.')
-    Names.decode(name)
+    NameTransformer.decode(name)
   }
 
   def sigToType(str: String): String =
@@ -93,7 +92,7 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
 
   def getName(n: Int): String = {
     import cf.pool._
-    
+
     cf.pool(n) match {
       case UTF8(str) => str
       case StringConst(m) => getName(m)
@@ -110,51 +109,30 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
 
   def getType(n: Int): String = sigToType(getName(n))
 
-  def isStatic(flags: Int): Boolean = (flags & 0x0008) != 0
+  def isStatic(flags: Int) = (flags & 0x0008) != 0
 
-  def isInterface(flags: Int): Boolean = (flags & 0x0200) != 0
+  def isInterface(flags: Int) = (flags & 0x0200) != 0
 
-  def isConstr(name: String): Boolean = (name == "<init>")
+  def isConstr(name: String) = (name == "<init>")
 
   def printField(flags: Int, name: Int, tpe: Int, attribs: List[cf.Attribute]) {
     print(flagsToStr(false, flags))
     if ((flags & 0x0010) != 0)
-      print("val " + Names.decode(getName(name)))
+      print("val " + NameTransformer.decode(getName(name)))
     else
-      print("final var " + Names.decode(getName(name)))
+      print("final var " + NameTransformer.decode(getName(name)))
     print(": " + getType(tpe) + ";").newline
   }
 
   def printMethod(flags: Int, name: Int, tpe: Int, attribs: List[cf.Attribute]) {
     if (getName(name) == "<init>")
     print(flagsToStr(false, flags))
-    attribs find {
-      case cf.Attribute(name, _) => getName(name) == "JacoMeta"
-    } match {
-      case Some(cf.Attribute(_, data)) =>
-        val mp = new MetaParser(getName(
-          ((data(0) & 0xff) << 8) + (data(1) & 0xff)).trim())
-        mp.parse match {
-          case None =>
-            if (getName(name) == "<init>") {
-              print("def this" + getType(tpe) + ";").newline
-            } else {
-              print("def " + Names.decode(getName(name)))
-              print(getType(tpe) + ";").newline
-            }
-          case Some(str) =>
-            if (getName(name) == "<init>")
-              print("def this" + str + ";").newline
-            else
-              print("def " + Names.decode(getName(name)) + str + ";").newline
-        }
-      case None =>
-        if (getName(name) == "<init>") {
-          print("def this" + getType(tpe) + ";").newline
-        } else {
-          print("def " + Names.decode(getName(name)))
-          print(getType(tpe) + ";").newline
-      }
+    if (getName(name) == "<init>") {
+      print("def this" + getType(tpe) + ";").newline
+    }
+    else {
+      print("def " + NameTransformer.decode(getName(name)))
+      print(getType(tpe) + ";").newline
     }
     attribs find {
       case cf.Attribute(name, _) => getName(name) == "Exceptions"
@@ -172,7 +150,7 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
     }
   }
 
-  def printClassHeader {
+  def printClassHeader() {
     if (isInterface(cf.flags)) {
       print("trait " + getSimpleClassName(cf.classname))
     } else {
@@ -185,8 +163,8 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
     }
   }
 
-  def printClass {
-    val pck = getPackage(cf.classname);
+  def printClass() {
+    val pck = getPackage(cf.classname)
     if (pck.length() > 0)
       println("package " + pck + ";")
     print(flagsToStr(true, cf.flags))
@@ -197,14 +175,14 @@ class JavaWriter(classfile: Classfile, writer: Writer) extends CodeWriter(writer
         printClassHeader;
       case Some(cf.Attribute(_, data)) =>
         val mp = new MetaParser(getName(
-          ((data(0) & 0xff) << 8) + (data(1) & 0xff)).trim());
+          ((data(0) & 0xff) << 8) + (data(1) & 0xff)).trim())
         mp.parse match {
           case None => printClassHeader;
           case Some(str) =>
             if (isInterface(cf.flags))
-              print("trait " + getSimpleClassName(cf.classname) + str);
+              print("trait " + getSimpleClassName(cf.classname) + str)
             else
-              print("class " + getSimpleClassName(cf.classname) + str);
+              print("class " + getSimpleClassName(cf.classname) + str)
         }
     }
     var statics: List[cf.Member] = Nil

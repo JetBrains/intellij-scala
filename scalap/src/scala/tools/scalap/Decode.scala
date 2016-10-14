@@ -1,6 +1,6 @@
 /*     ___ ____ ___   __   ___   ___
 **    / _// __// _ | / /  / _ | / _ \  Scala classfile decoder
-**  __\ \/ /__/ __ |/ /__/ __ |/ ___/  (c) 2003-2010, LAMP/EPFL
+**  __\ \/ /__/ __ |/ /__/ __ |/ ___/  (c) 2003-2013, LAMP/EPFL
 ** /____/\___/_/ |_/____/_/ |_/_/      http://scala-lang.org/
 **
 */
@@ -9,13 +9,13 @@
 
 package scala.tools.scalap
 
-import scala.language.postfixOps
-import scala.reflect.internal.pickling.ByteCodecs
+import scala.tools.scalap.scalax.rules.scalasig._
 import scala.reflect.internal.util.ScalaClassLoader
 import scala.reflect.internal.util.ScalaClassLoader.appLoader
-import scala.tools.scalap.Main.{BYTES_VALUE, SCALA_SIG_ANNOTATION}
-import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ConstValueIndex}
-import scala.tools.scalap.scalax.rules.scalasig._
+import scala.reflect.internal.pickling.ByteCodecs
+
+import ClassFileParser.{ ConstValueIndex, Annotation }
+import Main.{ SCALA_SIG_ANNOTATION, BYTES_VALUE }
 
 /** Temporary decoder.  This would be better off in the scala.tools.nsc
  *  but right now the compiler won't acknowledge scala.tools.scalap
@@ -27,7 +27,7 @@ object Decode {
     case PolyType(typeRef, _)   => getAliasSymbol(typeRef)
     case _                      => NoSymbol
   }
-  
+
   /** Return the classfile bytes representing the scala sig classfile attribute.
    *  This has been obsoleted by the switch to annotations.
    */
@@ -36,24 +36,24 @@ object Decode {
     val bytes = classLoader.classBytes(name)
     val reader = new ByteArrayReader(bytes)
     val cf = new Classfile(reader)
-    cf.scalaSigAttribute map (_.data) 
+    cf.scalaSigAttribute map (_.data)
   }
-  
+
   /** Return the bytes representing the annotation
    */
   def scalaSigAnnotationBytes(name: String): Option[Array[Byte]] = scalaSigAnnotationBytes(name, appLoader)
-  def scalaSigAnnotationBytes(name: String, classLoader: ScalaClassLoader): Option[Array[Byte]] = {  
+  def scalaSigAnnotationBytes(name: String, classLoader: ScalaClassLoader): Option[Array[Byte]] = {
     val bytes     = classLoader.classBytes(name)
     val byteCode  = ByteCode(bytes)
     val classFile = ClassFileParser.parse(byteCode)
     import classFile._
-        
+
     classFile annotation SCALA_SIG_ANNOTATION map { case Annotation(_, els) =>
-      val bytesElem = els find (x => constant(x.elementNameIndex) == BYTES_VALUE) get
+      val bytesElem = els find (x => constant(x.elementNameIndex) == BYTES_VALUE) orNull
       val _bytes    = bytesElem.elementValue match { case ConstValueIndex(x) => constantWrapped(x) }
       val bytes     = _bytes.asInstanceOf[StringBytesPair].bytes
       val length    = ByteCodecs.decode(bytes)
-      
+
       bytes take length
     }
   }
@@ -65,7 +65,7 @@ object Decode {
       case -1   => (path, "")
       case x    => (path take x, path drop (x + 1))
     }
-    
+
     for {
       clazz <- appLoader.tryToLoadClass[AnyRef](outer)
       ssig <- ScalaSigParser.parse(clazz)
@@ -80,11 +80,11 @@ object Decode {
             val xs = x.children filter (child => child.isCaseAccessor && (child.name endsWith " "))
             xs.toList map (_.name dropRight 1)
         }
-      
-      (ssig.symbols collect f).flatten toList
+
+      (ssig.symbols collect f).flatten.toList
     }
   }
-  
+
   /** Returns a map of Alias -> Type for the given package.
    */
   private[scala] def typeAliases(pkg: String) = {
@@ -97,5 +97,5 @@ object Decode {
       Map(typeAliases map (x => (x.name, getAliasSymbol(x.infoType).path)): _*)
     }
   }
-}  
+}
 

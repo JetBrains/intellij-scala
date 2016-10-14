@@ -1,6 +1,6 @@
 /*     ___ ____ ___   __   ___   ___
 **    / _// __// _ | / /  / _ | / _ \    Scala classfile decoder
-**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2010, LAMP/EPFL
+**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2013, LAMP/EPFL
 ** /____/\___/_/ |_/____/_/ |_/_/        http://scala-lang.org/
 **
 */
@@ -26,7 +26,7 @@ object Classfiles {
   final val CONSTANT_METHODREF = 10
   final val CONSTANT_INTFMETHODREF = 11
   final val CONSTANT_NAMEANDTYPE = 12
-  
+
   final val constantTagToString = Map(
     CONSTANT_UTF8 -> "UTF8",
     CONSTANT_UNICODE -> "Unicode",

@@ -1,12 +1,13 @@
 /*     ___ ____ ___   __   ___   ___
 **    / _// __// _ | / /  / _ | / _ \    Scala classfile decoder
-**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2010, LAMP/EPFL
+**  __\ \/ /__/ __ |/ /__/ __ |/ ___/    (c) 2003-2013, LAMP/EPFL
 ** /____/\___/_/ |_/____/_/ |_/_/        http://scala-lang.org/
 **
 */
 
 
-package scala.tools.scalap
+package scala
+package tools.scalap
 
 import java.util._
 
@@ -26,7 +27,7 @@ class MetaParser(meta: String) {
     token
   }
 
-  protected def parseType: Unit = {
+  protected def parseType(): Unit = {
     if (token startsWith "?")
       res.append(token.substring(1))
     else
@@ -60,10 +61,10 @@ class MetaParser(meta: String) {
         else
           None
       } catch {
-        case _: Throwable => None
+        case _: Exception => None
       }
     } else
-      None;
+      None
 
   protected def parseMetaClass: String = {
     nextToken
@@ -99,7 +100,7 @@ class MetaParser(meta: String) {
         parseType
       } while (token == "with")
     }
-    res.toString();
+    res.toString()
   }
 
   protected def parseMetaMethod: String = {
@@ -112,10 +113,10 @@ class MetaParser(meta: String) {
         var loop = true
         res.append("[")
         while (loop) {
-          res.append(token.substring(1));
-          nextToken;
+          res.append(token.substring(1))
+          nextToken
           if (token == "<") {
-            nextToken;
+            nextToken
             res.append(" <: ")
             parseType
           }
@@ -132,16 +133,16 @@ class MetaParser(meta: String) {
     if (token == "(") {
       do {
         if (token == ",") {
-          nextToken;
+          nextToken
           if (token != ")")
             res.append(", ")
         } else {
-          nextToken;
+          nextToken
           res.append("(")
         }
         if (token != ")") {
           if (token == "def") {
-            nextToken;
+            nextToken
             res.append("def ")
           }
           parseType

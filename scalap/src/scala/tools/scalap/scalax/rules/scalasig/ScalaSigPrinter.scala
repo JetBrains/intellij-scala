@@ -1,6 +1,6 @@
 /*     ___ ____ ___   __   ___   ___
 **    / _// __// _ | / /  / _ | / _ \  Scala classfile decoder
-**  __\ \/ /__/ __ |/ /__/ __ |/ ___/  (c) 2003-2010, LAMP/EPFL
+**  __\ \/ /__/ __ |/ /__/ __ |/ ___/  (c) 2003-2013, LAMP/EPFL
 ** /____/\___/_/ |_/____/_/ |_/_/      http://scala-lang.org/
 **
 */
@@ -11,7 +11,7 @@ package scalax
 package rules
 package scalasig
 
-import java.io.{ByteArrayOutputStream, PrintStream}
+import java.io.{PrintStream, ByteArrayOutputStream}
 import java.util.regex.Pattern
 
 import org.apache.commons.lang.StringEscapeUtils
@@ -20,6 +20,8 @@ import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 import scala.reflect.NameTransformer
 import scala.tools.scalap.scalax.util.StringUtil
+import scala.reflect.NameTransformer
+import java.lang.String
 
 sealed abstract class Verbosity
 case object ShowAll extends Verbosity
@@ -65,12 +67,13 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
 
   def printSymbol(symbol: Symbol) {printSymbol(0, symbol)}
 
-  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit): Unit = s match {
-    case t: SymbolInfoSymbol =>
+  def printSymbolAttributes(s: Symbol, onNewLine: Boolean, indent: => Unit) = s match {
+    case t: SymbolInfoSymbol => {
       for (a <- t.attributes) {
         indent; print(toString(a))
         if (onNewLine) print("\n") else print(" ")
       }
+    }
     case _ =>
   }
 
@@ -115,7 +118,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
           // todo: we need to find why such strange type is here
           indent()
           printTypeSymbol(level, t)
-        case _ =>
+        case s =>
       }
     }
   }
