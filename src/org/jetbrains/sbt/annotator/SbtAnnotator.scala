@@ -64,20 +64,24 @@ class SbtAnnotator extends Annotator {
     }
 
     private def annotateTypeMismatch(expression: ScExpression) =
-      expression.getType(TypingContext.empty).foreach { expressionType =>
-        if (expressionType.equiv(Nothing) || expressionType.equiv(Null)) {
-          holder.createErrorAnnotation(expression, expectedExpressionType)
-        } else {
-          if (!isTypeAllowed(expression, expressionType))
-            holder.createErrorAnnotation(expression, expressionMustConform(expressionType))
-        }
+      for {
+        expressionType <- expression.getType(TypingContext.empty).toOption
+        message <-
+          if (expressionType.equiv(Nothing) || expressionType.equiv(Null))
+            Option(expectedExpressionType)
+          else if (!isTypeAllowed(expression, expressionType))
+            Option(expressionMustConform(expressionType))
+          else None
+      } {
+        holder.createErrorAnnotation(expression, message)
       }
 
     private def isTypeAllowed(expression: ScExpression, expressionType: ScType): Boolean =
       allowedTypes.flatMap { typeName =>
         createTypeFromText(typeName, expression.getContext, expression)
-      }.exists { scType =>
-        expressionType.conforms(scType)
+      }.exists { expectedType =>
+        lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
+        expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
       }
 
     private def annotateMissingBlankLines(): Unit =
@@ -96,5 +100,5 @@ class SbtAnnotator extends Annotator {
 object SbtAnnotator {
   val AllowedTypes012 = List("Seq[Project.Setting[_]]", "Project.Setting[_]")
   val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
-  val AllowedTypes0136 = List("sbt.internals.DslEntry", "Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+  val AllowedTypes0136 = List("sbt.internals.DslEntry")
 }
