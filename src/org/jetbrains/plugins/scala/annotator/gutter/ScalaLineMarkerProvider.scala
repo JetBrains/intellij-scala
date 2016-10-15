@@ -11,6 +11,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{GutterIconRenderer, SeparatorPlacement}
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.util.NullableFunction
@@ -182,7 +183,7 @@ private object GutterUtil {
 
     val inheritor = ClassInheritorsSearch.search(clazz, false).findFirst
     if (inheritor != null) {
-      val range = clazz.getTextRange
+      val range = clazz.nameId.getTextRange
       val icon = clazz match {
         case _: ScTrait => IMPLEMENTED_INTERFACE_MARKER_RENDERER
         case _ => SUBCLASSED_CLASS_MARKER_RENDERER
@@ -197,7 +198,7 @@ private object GutterUtil {
   def collectOverridingMembers(members: ArrayBuffer[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) {
     for (member <- members if !member.isInstanceOf[PsiMethod] || !member.asInstanceOf[PsiMethod].isConstructor) {
       ProgressManager.checkCanceled()
-      val range = member.getTextRange
+      val range = new TextRange(member.getTextOffset, member.getTextOffset)
       val members = member match {
         case d: ScDeclaredElementsHolder => d.declaredElements.toArray
         case td: ScTypeDefinition => Array[PsiNamedElement](td)
