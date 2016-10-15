@@ -7,7 +7,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -107,9 +106,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                 implicitFunction = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(obj),
                 isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference,
                 unresolvedTypeParameters = unresolvedTypeParameters)
-          }.filter {
-            case r => !accessibility || r.isAccessible
-          }
+          }.filter { r => !accessibility || r.isAccessible }
           if (seq.nonEmpty) addResults(seq)
           else addResult(new ScalaResolveResult(named, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
@@ -192,13 +189,21 @@ object MethodResolveProcessor {
     val element = realResolveResult.element
     val s = realResolveResult.substitutor
 
-    val elementForUndefining = element match {
-      case m: PsiMethod if m.isConstructor && !selfConstructorResolve => realResolveResult.getActualElement
-      case _ => element //do not
+    def calcSubstitutor: ScSubstitutor = {
+      val elementsForUndefining = element match {
+        case f: ScMethodLike if f.isConstructor && !selfConstructorResolve => Seq(realResolveResult.getActualElement)
+        case m: PsiMethod if m.isConstructor =>
+          Seq(realResolveResult.getActualElement, element).distinct
+        case _ => Seq(element) //do not
+      }
+
+      elementsForUndefining.foldLeft(ScSubstitutor.empty) { case (subst, elementForUndefining) =>
+        subst.followed(undefinedSubstitutor(elementForUndefining, s, selfConstructorResolve, typeArgElements))
+      }.followed(InferUtil.undefineSubstitutor(prevTypeInfo))
     }
 
-    val substitutor: ScSubstitutor =
-      undefinedSubstitutor(elementForUndefining, s, selfConstructorResolve, typeArgElements).followed(InferUtil.undefineSubstitutor(prevTypeInfo))
+    val substitutor: ScSubstitutor = calcSubstitutor
+
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -313,11 +318,11 @@ object MethodResolveProcessor {
       case obj: ScObject =>
         if (argumentClauses.isEmpty) {
           expectedOption().map(_.removeAbstracts) match {
-            case Some(FunctionType(retType, params)) =>
+            case Some(FunctionType(_, params)) =>
               problems += ExpectedTypeMismatch
             case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(obj) =>
               ScalaPsiUtil.toSAMType(tp, obj.getResolveScope, obj.scalaLanguageLevelOrDefault) match {
-                case Some(FunctionType(retType, params)) =>
+                case Some(FunctionType(_, params)) =>
                   problems += ExpectedTypeMismatch
                 case _ =>
               }
@@ -398,7 +403,7 @@ object MethodResolveProcessor {
             problems ++= tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp)))
           }
           addExpectedTypeProblems()
-          new ConformanceExtResult(problems)
+          ConformanceExtResult(problems)
         } else {
           val args = argumentClauses.headOption.toList
           val result =
@@ -435,7 +440,7 @@ object MethodResolveProcessor {
             }
             hasRecursiveTypeParameters
           }
-          for (TypeParameter(typeParams, lowerType, upperType, tParam) <- typeParameters) {
+          for (TypeParameter(_, lowerType, upperType, tParam) <- typeParameters) {
             if (lowerType.v != Nothing) {
               val substedLower = s.subst(unSubst.subst(lowerType.v))
               if (!hasRecursiveTypeParameters(substedLower)) {
@@ -463,22 +468,9 @@ object MethodResolveProcessor {
                           (implicit typeSystem: TypeSystem = element.typeSystem): ScSubstitutor = {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
-    //todo: it's always None, if you have constructor => actual element is class of type alias
-    val constructorTypeParameters = element match {
-      case ml: ScMethodLike => ml.getClassTypeParameters
-      case _ => None
-    }
-
-    val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = (constructorTypeParameters, element) match {
-      case (Some(typeParameterClause), _) =>
-        Some(typeParameterClause.typeParameters)
-      //todo: this case is impossible case for reasons mentioned above
-      case (_, method: PsiMethod) if method.isConstructor => // Java constructors
-        Some(method.containingClass.getTypeParameters)
-      case (None, t: ScTypeParametersOwner) =>
-        Some(t.typeParameters)
-      case (None, p: PsiTypeParameterListOwner) =>
-        Some(p.getTypeParameters)
+    val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
+      case t: ScTypeParametersOwner => Some(t.typeParameters)
+      case p: PsiTypeParameterListOwner => Some(p.getTypeParameters)
       case _ => None
     }
     maybeTypeParameters match {
@@ -501,8 +493,7 @@ object MethodResolveProcessor {
 
     //We want to leave only fields and properties from inherited classes, this is important, because
     //field in base class is shadowed by private field from inherited class
-    val input: Set[ScalaResolveResult] = _input.filter {
-      case r: ScalaResolveResult =>
+    val input: Set[ScalaResolveResult] = _input.filter { r =>
         r.element match {
           case f: ScFunction if f.hasParameterClause => true
           case b: ScTypedDefinition =>
@@ -511,8 +502,7 @@ object MethodResolveProcessor {
                 val clazz1: ScTemplateDefinition = m.containingClass
                 if (clazz1 == null) true
                 else {
-                  _input.forall {
-                    case r2: ScalaResolveResult =>
+                  _input.forall { r2 =>
                       r2.element match {
                         case f: ScFunction if f.hasParameterClause => true
                         case b2: ScTypedDefinition =>
@@ -603,8 +593,8 @@ object MethodResolveProcessor {
 
     val onlyValues = mapped.forall { r =>
       r.element match {
-        case f: ScFunction => false
-        case t: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
+        case _: ScFunction => false
+        case _: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
         case _ => false
       }
     }
