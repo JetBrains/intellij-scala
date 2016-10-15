@@ -938,5 +938,22 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testJavaGenericConstructor(): Unit = {
+    val java =
+      """
+        |public class A {
+        |  public <T> A( T t) {}
+        |  public A(String s) {}
+        |}
+      """.stripMargin
+    val scala =
+      """
+        |class U {
+        |  new A(false)
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
 }
 
