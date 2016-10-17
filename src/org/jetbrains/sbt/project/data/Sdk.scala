@@ -44,7 +44,7 @@ object SdkUtils {
 
   def findMostRecentJdk(condition: projectRoots.Sdk => Boolean): Option[projectRoots.Sdk] = {
     val jdkCondition = { sdk: projectRoots.Sdk => sdk.getSdkType == JavaSdk.getInstance }
-    val combinedCondition = { sdk: projectRoots.Sdk => condition(sdk) && jdkCondition(sdk) }
+    val combinedCondition = { sdk: projectRoots.Sdk => sdk != null && condition(sdk) && jdkCondition(sdk) }
     Option(inReadAction(ProjectJdkTable.getInstance().findMostRecentSdk(combinedCondition)))
   }
 
