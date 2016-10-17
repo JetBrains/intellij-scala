@@ -11,6 +11,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
+import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, ResolveResultEx}
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -25,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -40,10 +43,11 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def getVariants: Array[Object] = {
-    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
+    allVariantsCached.flatMap {
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
+
+        val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
         val qualifier = res.fromType.getOrElse(Nothing)
         LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
       case r => Seq(r.getElement)
@@ -51,7 +55,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def getResolveResultVariants: Array[ScalaResolveResult] = {
-    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
+    allVariantsCached.flatMap {
       case res: ScalaResolveResult => Seq(res)
       case _ => Seq.empty
     }
@@ -171,7 +175,6 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
                   case ta => holder.addImportForPath(ta.qualifiedName)
                 }
                 //todo: so what to return? probable PIEAE after such code invocation
-                this
               } else {
                 //qualifier reference in import expression
                 qname match {
@@ -234,7 +237,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     }
   }
 
-  private def reportWrongKind(c: TypeToImport, suitableKinds: Set[_root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.Value]): Nothing = {
+  private def reportWrongKind(c: TypeToImport, suitableKinds: Set[ResolveTargets.Value]): Nothing = {
     val contextText = if (getContext != null)
       if (getContext.getContext != null)
         if (getContext.getContext.getContext != null)
@@ -249,7 +252,15 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = allVariantsCached.collect {
+    case rr @ ResolveResultEx(named: PsiNamedElement) if named.name == refName => rr
+  }
+
+  @CachedMappedWithRecursionGuard(this, Array.empty, CachesUtil.enclosingModificationOwner(this))
+  private def allVariantsCached: Array[ResolveResult] = {
+    val refThis = ScStableCodeReferenceElementImpl.this
+    doResolve(refThis, new CompletionProcessor(getKinds(incomplete = true), refThis))
+  }
 
   override def delete() {
     getContext match {

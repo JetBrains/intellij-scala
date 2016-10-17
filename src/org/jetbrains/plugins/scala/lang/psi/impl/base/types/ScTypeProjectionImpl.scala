@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -20,13 +21,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
-  protected def innerType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, _)) =>
         val te: TypeResult[ScType] = typeElement.getType(ctx)
@@ -40,16 +42,16 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     }
   }
 
-  def getKinds(incomplete: Boolean, completion: Boolean): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = StdKinds.stableClass
+  def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = StdKinds.stableClass
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =
     ResolveCache.getInstance(getProject).resolveWithCaching(this, MyResolver, true, incomplete)
 
   def getVariants: Array[Object] = {
-    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
+    allVariantsCached.flatMap {
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
+        val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
         val qualifier = res.fromType.getOrElse(Nothing)
         LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
       case r => Seq(r.getElement)
@@ -81,7 +83,14 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     res
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = allVariantsCached.collect {
+    case rr @ ResolveResultEx(named: PsiNamedElement) if named.name == refName => rr
+  }
+
+  @CachedMappedWithRecursionGuard(this, Array.empty, CachesUtil.enclosingModificationOwner(this))
+  private def allVariantsCached: Array[ResolveResult] = {
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), ScTypeProjectionImpl.this))
+  }
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitTypeProjection(this)
