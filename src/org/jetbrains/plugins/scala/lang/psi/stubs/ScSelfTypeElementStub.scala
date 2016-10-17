@@ -3,9 +3,8 @@ package lang
 package psi
 package stubs
 
-
 import com.intellij.psi.stubs.NamedStub
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -13,7 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
  */
 
 trait ScSelfTypeElementStub extends NamedStub[ScSelfTypeElement]{
-  def getTypeElementText: String
+  def typeElementText: Option[String]
 
-  def getClassNames: Array[String]
+  def typeElement: Option[ScTypeElement]
+
+  def classNames: Array[String]
 }

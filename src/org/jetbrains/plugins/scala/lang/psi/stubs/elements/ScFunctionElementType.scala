@@ -10,8 +10,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.METHOD_NAME_KEY
 
 /**
   * User: Alexander Podkhalyuzin
@@ -77,10 +76,9 @@ abstract class ScFunctionElementType[Func <: ScFunction](debugName: String)
   }
 
   override def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {
-    val name = ScalaNamesUtil.cleanFqn(stub.getName)
-    if (name != null) {
-      sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)
+    this.indexStub(Array(stub.getName), sink, METHOD_NAME_KEY)
+    if (stub.isImplicit) {
+      this.indexImplicit(sink)
     }
-    if (stub.isImplicit) sink.occurrence(ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }
 }

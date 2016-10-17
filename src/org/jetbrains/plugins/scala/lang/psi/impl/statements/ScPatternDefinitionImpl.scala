@@ -60,7 +60,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition
   def expr: Option[ScExpression] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScValueStub].getBodyExpr.orElse(Option(findChildByClassScala(classOf[ScExpression])))
+      return stub.asInstanceOf[ScValueStub].bodyExpression.orElse(Option(findChildByClassScala(classOf[ScExpression])))
     }
     Option(findChildByClassScala(classOf[ScExpression]))
   }
@@ -68,7 +68,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition
   def typeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScValueStub].getTypeElement
+      stub.asInstanceOf[ScValueStub].typeElement
     }
     else findChild(classOf[ScTypeElement])
   }

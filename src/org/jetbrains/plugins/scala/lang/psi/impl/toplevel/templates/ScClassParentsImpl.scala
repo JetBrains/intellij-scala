@@ -13,37 +13,38 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
-class ScClassParentsImpl private (stub: StubElement[ScTemplateParents], nodeType: IElementType, node: ASTNode)
+  * @author Alexander Podkhalyuzin
+  */
+class ScClassParentsImpl private(stub: StubElement[ScClassParents], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScClassParents {
-  def this(node: ASTNode) = {this(null, null, node)}
+  def this(node: ASTNode) =
+    this(null, null, node)
 
-  def this(stub: ScTemplateParentsStub) = {this(stub, ScalaElementTypes.CLASS_PARENTS, null)}
+  def this(stub: ScTemplateParentsStub[ScClassParents]) =
+    this(stub, ScalaElementTypes.CLASS_PARENTS, null)
 
   override def toString: String = "ClassParents"
 
   def superTypes: Seq[ScType] = {
     val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes ++ syntheticTypeElements.map(_.getType(TypingContext.empty).getOrAny)
+    val elements = if (stub != null) {
+      stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements ++ syntheticTypeElements
+    } else allTypeElements
+
+    elements.map {
+      _.getType().getOrAny
     }
-    allTypeElements.map(_.getType(TypingContext.empty).getOrAny)
   }
 
   def typeElements: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypeElements
+      return stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements
     }
-    (constructor match {
-      case Some(x) => Array[ScTypeElement](x.typeElement)
-      case None => Array[ScTypeElement]()
-    }) ++ findChildrenByClassScala(classOf[ScTypeElement])
+    constructor.toSeq.map {
+      _.typeElement
+    } ++ findChildrenByClassScala(classOf[ScTypeElement])
   }
 }

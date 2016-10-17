@@ -12,14 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.ANNOTATED_MEMBER_KEY
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.cleanFqn
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 22.06.2009
   */
-class ScAnnotationElementType[Func <: ScAnnotation]
-  extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
+class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   override def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeOptionName(stub.name)
     dataStream.writeOptionName(stub.typeText)
@@ -56,13 +54,8 @@ class ScAnnotationElementType[Func <: ScAnnotation]
       typeTextRef = maybeTypeText.asReference)
   }
 
-  override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = stub.name.map {
-    cleanFqn
-  }.filter {
-    _.nonEmpty
-  }.foreach {
-    sink.occurrence(ANNOTATED_MEMBER_KEY, _)
-  }
+  override def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit =
+    this.indexStub(stub.name.toArray, sink, ANNOTATED_MEMBER_KEY)
 
   override def createElement(node: ASTNode): ScAnnotation = new ScAnnotationImpl(node)
 

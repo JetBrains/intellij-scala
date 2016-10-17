@@ -53,8 +53,18 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
 
       if (RunWorksheetAction.isScratchWorksheet(Option(file), project)) {
         addSplitter()
-        addChild(panel, createSelectClassPathList(Option(RunWorksheetAction.getModuleFor(PsiManager getInstance project findFile file).getName), file))
-        addChild(panel, new JLabel("Use class path of module:  "))
+        
+        val psiPsiFound = PsiManager getInstance project findFile file
+        
+        if (psiPsiFound != null) { 
+          // this could happen if there is no suitable scala modules in the project, 
+          // but we created scratch file and we have scala plugin installed
+          Option(RunWorksheetAction.getModuleFor(psiPsiFound)) foreach {
+            cpModule =>
+              addChild(panel, createSelectClassPathList(Option(cpModule.getName), file))
+              addChild(panel, new JLabel("Use class path of module:  "))
+          }
+        }
       }
 
       addSplitter()
@@ -81,7 +91,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
     modulesBox.setToolTipText("Using class path of the module...")
 
     defaultModule foreach {
-      case nn =>
+      nn =>
         val foundModule: Module = ModuleManager getInstance project findModuleByName nn
         if (foundModule != null) modulesBox setSelectedModule foundModule
     }

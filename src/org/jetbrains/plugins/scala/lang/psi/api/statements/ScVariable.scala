@@ -6,43 +6,21 @@ package statements
 
 import javax.swing.Icon
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kVAR
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 
 /**
  * @author Alexander Podkhalyuzin
  */
+trait ScVariable extends ScValueOrVariable {
+  override protected def keywordElementType: IElementType = kVAR
 
-trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner with ScDeclaredElementsHolder
-                  with ScAnnotationsHolder with ScCommentOwner {
-  self =>
-  def varKeyword: PsiElement = findChildrenByType(ScalaTokenTypes.kVAR).apply(0)
-
-  def declaredElements: Seq[ScTypedDefinition]
-
-  def declaredNames: Seq[String] = declaredElements.map(_.name)
-
-  def typeElement: Option[ScTypeElement]
-
-  def declaredType: Option[ScType] = typeElement map (_.getType(TypingContext.empty).getOrAny)
-
-  def getType(ctx: TypingContext): TypeResult[ScType]
-
-  override protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean): Boolean = m match {
-    case other: ScVariable =>
-      for (elem <- self.declaredElements) {
-        if (other.declaredElements.exists(_.name == elem.name))
-          return true
-      }
-      false
+  override protected def isSimilarMemberForNavigation(member: ScMember, isStrict: Boolean): Boolean = member match {
+    case other: ScVariable => super.isSimilarMemberForNavigation(other, isStrict)
     case _ => false
   }
   override def getIcon(flags: Int): Icon = {
@@ -56,6 +34,4 @@ trait ScVariable extends ScBlockStatement with ScMember with ScDocCommentOwner w
     }
     null
   }
-
-  def getVarToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kVAR)
 }

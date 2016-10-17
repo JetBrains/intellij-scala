@@ -11,8 +11,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY
 
 /**
   * @author ilyas
@@ -35,11 +34,8 @@ class ScExtendsBlockElementType
   override def createStub(psi: ScExtendsBlock, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub =
     new ScExtendsBlockStubImpl(parentStub, this, psi.directSupersNames.toArray)
 
-  override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit = {
-    for (name <- stub.getBaseClasses) {
-      sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
-    }
-  }
+  override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit =
+    this.indexStub(stub.getBaseClasses, sink, SUPER_CLASS_NAME_KEY)
 
   override def createElement(node: ASTNode): ScExtendsBlock = new ScExtendsBlockImpl(node)
 

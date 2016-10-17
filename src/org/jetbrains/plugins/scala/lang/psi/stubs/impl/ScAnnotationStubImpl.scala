@@ -23,15 +23,18 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
                                                     private val typeTextRef: Option[StringRef])
   extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub {
 
-  private var typeElementReference: SofterReference[ScTypeElement] = null
+  private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
 
   def name: Option[String] = nameRef.asString
 
   def typeText: Option[String] = typeTextRef.asString
 
-  def typeElement: ScTypeElement = {
-    typeElementReference = this.updateReference(typeElementReference) {
-      createTypeElementFromText(typeText.getOrElse(""), _, _)
+  def typeElement: Option[ScTypeElement] = {
+    typeElementReference = this.updateOptionalReference(typeElementReference) {
+      case (context, child) =>
+        typeText.map {
+          createTypeElementFromText(_, context, child)
+        }
     }
     typeElementReference.get
   }

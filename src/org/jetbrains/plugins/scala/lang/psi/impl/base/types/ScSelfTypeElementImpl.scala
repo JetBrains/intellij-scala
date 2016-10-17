@@ -20,14 +20,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingCont
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
-class ScSelfTypeElementImpl private (stub: StubElement[ScSelfTypeElement], nodeType: IElementType, node: ASTNode)
+  * @author Alexander Podkhalyuzin
+  */
+class ScSelfTypeElementImpl private(stub: StubElement[ScSelfTypeElement], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScSelfTypeElement {
-  def this(node: ASTNode) = {this(null, null, node)}
+  def this(node: ASTNode) =
+    this(null, null, node)
 
-  def this(stub: ScSelfTypeElementStub) = {this(stub, ScalaElementTypes.SELF_TYPE, null)}
+  def this(stub: ScSelfTypeElementStub) =
+    this(stub, ScalaElementTypes.SELF_TYPE, null)
 
   override def toString: String = "SelfType: " + name
 
@@ -50,20 +51,18 @@ class ScSelfTypeElementImpl private (stub: StubElement[ScSelfTypeElement], nodeT
   def typeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScSelfTypeElementStub].getTypeElementText match {
-        case "" => None
-        case text => Some(ScalaPsiElementFactory.createTypeElementFromText(text, this, this))
-      }
+      return stub.asInstanceOf[ScSelfTypeElementStub].typeElement
     }
     findChild(classOf[ScTypeElement])
   }
 
-  def getClassNames: Array[String] = {
+  def classNames: Array[String] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScSelfTypeElementStub].getClassNames
+      return stub.asInstanceOf[ScSelfTypeElementStub].classNames
     }
     val names = new ArrayBuffer[String]()
+
     def fillNames(typeElement: ScTypeElement) {
       typeElement match {
         case s: ScSimpleTypeElement => s.reference match {
@@ -76,6 +75,7 @@ class ScSelfTypeElementImpl private (stub: StubElement[ScSelfTypeElement], nodeT
         case _ => //do nothing
       }
     }
+
     typeElement.foreach(fillNames)
     names.toArray
   }

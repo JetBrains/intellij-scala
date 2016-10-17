@@ -370,20 +370,20 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createValFromVarDefinition(varDef: ScVariableDefinition)
-                                (implicit manager: PsiManager): ScValue = {
-    val startOffset = varDef.varKeyword.getStartOffsetInParent
-    val varText = varDef.getText
-    val text = varText.substring(0, startOffset) + "val" + varText.substring(startOffset + 3)
-    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScValue]
-  }
+  def createValFromVarDefinition(variable: ScVariable)
+                                (implicit manager: PsiManager): ScValue =
+    createValueOrVariable(variable, "val").asInstanceOf[ScValue]
 
-  def createVarFromValDeclaration(valDef: ScValue)
-                                 (implicit manager: PsiManager): ScVariable = {
-    val startOffset = valDef.valKeyword.getStartOffsetInParent
-    val valText = valDef.getText
-    val text = valText.substring(0, startOffset) + "var" + valText.substring(startOffset + 3)
-    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScVariable]
+  def createVarFromValDeclaration(value: ScValue)
+                                 (implicit manager: PsiManager): ScVariable =
+    createValueOrVariable(value, "var").asInstanceOf[ScVariable]
+
+  private def createValueOrVariable(valOrVar: ScValueOrVariable, keyword: String)
+                                   (implicit manager: PsiManager): ScValueOrVariable = {
+    val startOffset = valOrVar.keywordToken.getStartOffsetInParent
+    val elementText = valOrVar.getText
+    val text = elementText.substring(0, startOffset) + keyword + elementText.substring(startOffset + 3)
+    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScValueOrVariable]
   }
 
   def createEnumerator(name: String, expr: ScExpression, typeName: String)

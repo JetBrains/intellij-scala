@@ -206,7 +206,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     }
     
     def check(tag: ScXmlStartTag) {
-      if (Option(tag.getClosingTag).map(_.getTagName != tag.getTagName).getOrElse(true)) 
+      if (Option(tag.getClosingTag).forall(_.getTagName != tag.getTagName)) 
         doInsert(tag)
     }
     
@@ -260,7 +260,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
     import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
-    if (offset < 3 || text.length < offset) return null
+    if (offset < 3 || text.length <= offset) return null
     
     text.charAt(offset) match {
       case ' '|'\n'|'\t'|'\r'|''' =>
@@ -272,7 +272,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (wiki1LTagMatch.contains(text.substring(offset - 1, offset))) {
       completeScalaDocWikiSyntax(text.substring(offset - 1, offset))
     } else if (wiki2LTagMatch.contains(text.substring(offset - 2, offset))) {
-      completeScalaDocWikiSyntax(wiki2LTagMatch.get(text.substring(offset - 2, offset)).get)
+      completeScalaDocWikiSyntax(wiki2LTagMatch(text.substring(offset - 2, offset)))
     } else if (text.substring(offset - 3, offset) == "{{{") {
       completeScalaDocWikiSyntax("}}}")
     } else {

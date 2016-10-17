@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubBase, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs._
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.IMPLICITS_KEY
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
 /**
   * @author adkozlov
@@ -15,12 +17,26 @@ package object elements {
       val isDefined = dataStream.readBoolean
       if (isDefined) Some(dataStream.readName) else None
     }
+
+    def readNames: Array[StringRef] = {
+      val length = dataStream.readInt
+      (0 until length).map { _ =>
+        dataStream.readName
+      }.toArray
+    }
   }
 
   implicit class StubOutputStreamExt(val dataStream: StubOutputStream) extends AnyVal {
     def writeOptionName(maybeName: Option[String]): Unit = {
       dataStream.writeBoolean(maybeName.isDefined)
       maybeName.foreach {
+        dataStream.writeName
+      }
+    }
+
+    def writeNames(names: Array[String]): Unit = {
+      dataStream.writeInt(names.length)
+      names.foreach {
         dataStream.writeName
       }
     }
@@ -42,28 +58,57 @@ package object elements {
     }
   }
 
-  implicit class StubBaseExt(val stubBase: StubBase[_ <: PsiElement]) extends AnyVal {
-    def updateReference[E <: PsiElement](reference: SofterReference[E])
-                                        (elementConstructor: (PsiElement, PsiElement) => E): SofterReference[E] =
-      updateReferenceWithFilter(reference, elementConstructor) { r =>
-        Option(r.get).exists(hasSameContext)
+  implicit class StringRefArrayExt(val stringRefs: Array[StringRef]) extends AnyVal {
+    def asStrings: Array[String] = stringRefs.map {
+      StringRef.toString
+    }.filter {
+      _.nonEmpty
+    }
+  }
+
+  implicit class StringArrayExt(val strings: Array[String]) extends AnyVal {
+    def asReferences: Array[StringRef] = strings.filter {
+      _.nonEmpty
+    }.map {
+      StringRef.fromString
+    }
+  }
+
+  implicit class SerializerExt[S <: StubElement[T], T <: PsiElement](val serializer: ScStubElementType[S, T]) extends AnyVal {
+    def indexStub(names: Array[String], sink: IndexSink, key: StubIndexKey[String, _ <: T]): Unit =
+      names.filter {
+        _ != null
+      }.map {
+        cleanFqn
+      }.filter {
+        _.nonEmpty
+      }.foreach {
+        sink.occurrence(key, _)
       }
+
+    def indexImplicit(sink: IndexSink): Unit =
+      sink.occurrence(IMPLICITS_KEY, "implicit")
+  }
+
+  implicit class StubBaseExt(val stubBase: StubBase[_ <: PsiElement]) extends AnyVal {
 
     def updateOptionalReference[E <: PsiElement](reference: SofterReference[Option[E]])
                                                 (elementConstructor: (PsiElement, PsiElement) => Option[E]): SofterReference[Option[E]] =
-      updateReferenceWithFilter(reference, elementConstructor) {
+      updateReferenceWithFilter(reference, elementConstructor)(_.toSeq)
+
+    def updateReference[E <: PsiElement](reference: SofterReference[Seq[E]])
+                                        (elementConstructor: (PsiElement, PsiElement) => Seq[E]): SofterReference[Seq[E]] =
+      updateReferenceWithFilter(reference, elementConstructor)
+
+    private def updateReferenceWithFilter[E <: PsiElement, T](reference: SofterReference[T],
+                                                              elementConstructor: (PsiElement, PsiElement) => T)
+                                                             (implicit evidence: T => Seq[E]): SofterReference[T] =
+      Option(reference).filter {
         _.get match {
           case null => false
-          case None => true
-          case Some(element) => hasSameContext(element)
+          case Seq() => true
+          case seq => seq.forall(hasSameContext)
         }
-      }
-
-    private def updateReferenceWithFilter[T](reference: SofterReference[T],
-                                             elementConstructor: (PsiElement, PsiElement) => T)
-                                            (filter: SofterReference[T] => Boolean): SofterReference[T] =
-      Option(reference).filter {
-        filter
       }.getOrElse {
         new SofterReference(elementConstructor(psi, null))
       }

@@ -146,23 +146,29 @@ object DependencyGroups {
     "org.scala-lang" % "scala-compiler" % "2.12.0-M5"
   )
 
+
+  def sbt012Libs(v: String) = Seq(
+    "org.scala-sbt" % "collections" % v,
+    "org.scala-sbt" % "interface" % v,
+    "org.scala-sbt" % "io" % v,
+    "org.scala-sbt" % "ivy" % v,
+    "org.scala-sbt" % "logging" % v,
+    "org.scala-sbt" % "main" % v,
+    "org.scala-sbt" % "process" % v,
+    "org.scala-sbt" % "sbt" % v
+  )
+
+  def sbt013Libs(v: String) = sbt012Libs(v) ++ Seq(
+    "org.scala-sbt" % "main-settings" % v
+  )
+
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
     val latest = "0.13.12" // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
-    val vs = Seq("0.13.1", "0.13.5", "0.13.7", latest)
-    vs.flatMap { v =>
-      Seq(
-        "org.scala-sbt" % "collections" % v,
-        "org.scala-sbt" % "interface" % v,
-        "org.scala-sbt" % "io" % v,
-        "org.scala-sbt" % "ivy" % v,
-        "org.scala-sbt" % "logging" % v,
-        "org.scala-sbt" % "main" % v,
-        "org.scala-sbt" % "main-settings" % v,
-        "org.scala-sbt" % "process" % v,
-        "org.scala-sbt" % "sbt" % v
-      )
-    }
+    val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", latest)
+    val vs012 = Seq("0.12.4")
+
+    vs013.flatMap(sbt013Libs) ++ vs012.flatMap(sbt012Libs)
   }
 
   val sbtRuntime = Seq(
