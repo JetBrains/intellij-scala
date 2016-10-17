@@ -34,7 +34,7 @@ public abstract class LayeredParser implements PsiParser {
 
   @NotNull
   @Override
-  public ASTNode parse(IElementType root, @NotNull PsiBuilder builder) {
+  public ASTNode parse(IElementType root, @NotNull PsiBuilder builder) { //WARNING: DON'T ADD NotNull ANNOTATION TO 'root' PARAMETER
     LayeredParserPsiBuilder delegateBuilder = new LayeredParserPsiBuilder(builder);
     if (isDebug) delegateBuilder.setDebugMode(true);
     
@@ -86,7 +86,7 @@ public abstract class LayeredParser implements PsiParser {
   private class LayeredParserPsiBuilder extends PsiBuilderAdapter {
     private final List<BufferedTokenInfo> originalTokens;
     private final BufferedTokenInfo fakeEndToken;
-    private final TreeMap<Integer, Integer> validNumbersLookUp;
+//    private final TreeMap<Integer, Integer> validNumbersLookUp;
     private final BitSet usedTokens = new BitSet();
     private final IElementType defaultWhitespaceToken;
 
@@ -125,15 +125,15 @@ public abstract class LayeredParser implements PsiParser {
       delegate.setWhitespaceSkippedCallback(new WhitespaceSkippedCallback() {
         @Override
         public void onSkip(IElementType type, int start, int end) {
-          int count = validTokensCountRef.get() + 1;
-          validNumbersLookUp.put(originalTokens.size(), count);
-          validTokensCountRef.set(count);
+//          int count = validTokensCountRef.get() + 1;
+//          validNumbersLookUp.put(originalTokens.size(), count);
+//          validTokensCountRef.set(count);
           originalTokens.add(new BufferedTokenInfo(type, true, start, end));
         }
       });
 
       originalTokens = new ArrayList<BufferedTokenInfo>(approxLength);
-      validNumbersLookUp = new TreeMap<Integer, Integer>();
+//      validNumbersLookUp = new TreeMap<Integer, Integer>();
 
       Marker rollbackMarker = delegate.mark();
       while (!delegate.eof()) {
@@ -491,14 +491,7 @@ public abstract class LayeredParser implements PsiParser {
       if (filteredTokenNumber >= filteredTokens.size()) return originalTokens.size();
 
       final int originalNumber = filteredTokens.get(filteredTokenNumber);
-      final Integer validNumberFloor = validNumbersLookUp.floorKey(originalNumber);
-
-      if (validNumberFloor == null || validNumberFloor >= originalTokens.size()) {
-        return filteredTokens.get(filteredTokenNumber);
-      }
-
-      final int rawNumber = validNumbersLookUp.get(validNumberFloor) + originalNumber - 1;
-      return rawNumber > originalTokens.size() ? originalTokens.size() : rawNumber;
+      return originalNumber > originalTokens.size() ? originalTokens.size() : originalNumber;
     }
 
     private BufferedTokenInfo getValidTokenInfo(int filteredTokenNumber) {
