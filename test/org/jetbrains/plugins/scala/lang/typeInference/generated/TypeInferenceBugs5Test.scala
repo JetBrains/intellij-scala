@@ -952,4 +952,6 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       """.stripMargin
     doTest(code)
   }
+
+  def testEarlyDefRecursion(): Unit = doTest()
 }
