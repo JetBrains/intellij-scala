@@ -862,4 +862,18 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       """.stripMargin
     doTest(code)
   }
+
+  def testSCL7474(): Unit = doTest(
+    """
+      | object Repro {
+      |
+      |   import scala.collection.generic.IsTraversableLike
+      |
+      |   def head[A](a: A)(implicit itl: IsTraversableLike[A]): itl.A = itl.conversion(a).head
+      |
+      |   val one: Int = /*start*/head(Vector(1, 2, 3))/*end*/
+      | }
+      |
+      | //Int""".stripMargin
+  )
 }
