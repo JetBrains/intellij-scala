@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeVisitor, ValueType}
+ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -121,6 +121,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
+      case (ParameterizedType(Nothing, _), Nothing) => (true, uSubst)
+      case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => (true, uSubst)
       case (ParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
         if (falseUndef) return (false, uSubst)
         val subst = new ScSubstitutor(Map(tpt.arguments.zip(args).map {
@@ -149,6 +151,14 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
+      case (ParameterizedType(UndefinedType(_, _), _), ParameterizedType(_, _)) =>
+        val t = Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        (true, t._2)
+      case (ParameterizedType(_, _), ParameterizedType(UndefinedType(_, _), _)) =>
+        val t = Conformance.processHigherKindedTypeParams(r.asInstanceOf[ParameterizedType], this, undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        (true, t._2)
       case (ParameterizedType(_, _), ParameterizedType(designator1, typeArgs1)) =>
         var t = designator.equiv(designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)

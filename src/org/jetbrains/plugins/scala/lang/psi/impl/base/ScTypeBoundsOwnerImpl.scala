@@ -14,9 +14,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingCont
 
 trait ScTypeBoundsOwnerImpl extends ScTypeBoundsOwner {
   //todo[CYCLIC]
-  def lowerBound: TypeResult[ScType] = wrapWith(lowerTypeElement, Nothing) flatMap ( _.getType(TypingContext.empty) )
+  def lowerBound: TypeResult[ScType] = wrapWith(lowerTypeElement, Nothing) flatMap ( _.getType(TypingContext.empty) map (extractBound(_, isLower = true)) )
 
-  def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any) flatMap ( _.getType(TypingContext.empty) )
+  def upperBound: TypeResult[ScType] = wrapWith(upperTypeElement, Any) flatMap ( _.getType(TypingContext.empty) map (extractBound(_, isLower = false)) )
+
+  protected def extractBound(in: ScType, isLower: Boolean): ScType = in
 
   override def viewBound: Seq[ScType] = viewTypeElement.flatMap(_.getType(TypingContext.empty).toOption)
 

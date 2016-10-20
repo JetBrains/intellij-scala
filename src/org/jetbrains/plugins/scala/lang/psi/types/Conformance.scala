@@ -108,38 +108,6 @@ object Conformance extends api.Conformance {
     val args1Iterator = args1.iterator
     val args2Iterator = args2.iterator
 
-
-
-    def processHigherKindedTypeParams(undefType: ScParameterizedType, defType: ScParameterizedType, rightUndefined: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-      extractParams(defType.designator) match {
-        case Some(params) =>
-          val undef = undefType.designator.asInstanceOf[UndefinedType]
-//          addParam(undef.parameterType, ScParameterizedType(defType.designator, undef.parameterType.arguments))
-          val (defArgs, undefArgs) = if (rightUndefined) (args1, args2) else (args2, args1)
-          val y = addParam(undef.parameterType, defType.designator, undefinedSubst, defArgs, undefArgs)
-          if (!y._1) {
-            (false, undefinedSubst)
-          } else {
-            undefinedSubst = y._2
-            val (l, r) = if (rightUndefined) (defType, undefType) else (undefType, defType)
-            val args1Iterator = l.typeArguments.iterator
-            val args2Iterator = r.typeArguments.iterator
-            var sub = undefinedSubst
-            while (params.hasNext && args1Iterator.hasNext && args2Iterator.hasNext) {
-              val arg1 = args1Iterator.next()
-              val arg2 = args2Iterator.next()
-              val t = arg1.equiv(arg2, sub, falseUndef = false)
-              if (!t._1) return (false, undefinedSubst)
-              sub = t._2
-            }
-            (true, sub)
-//            checkParameterizedType(params, l.typeArguments, r.typeArguments, undefinedSubst, visited, checkWeak)
-            //should check equality, not conformance for type arguments here!!
-          }
-        case _ => (false, undefinedSubst)
-      }
-    }
-
     while (parametersIterator.hasNext && args1Iterator.hasNext && args2Iterator.hasNext) {
       val tp = parametersIterator.next()
       val argsPair = (args1Iterator.next(), args2Iterator.next())
@@ -163,14 +131,6 @@ object Conformance extends api.Conformance {
               val y = addParam(parameterType, lt, undefinedSubst, args1, args2)
               if (!y._1) return (false, undefinedSubst)
               undefinedSubst = y._2
-            case (lpType: ScParameterizedType, rt: ScParameterizedType) if lpType.designator.isInstanceOf[UndefinedType] =>
-              val y = processHigherKindedTypeParams(lpType, rt, rightUndefined = false)
-              if (!y._1) return (false, undefinedSubst)
-              else undefinedSubst = y._2
-            case (lt: ScParameterizedType, rpType: ScParameterizedType) if rpType.designator.isInstanceOf[UndefinedType] =>
-              val y = processHigherKindedTypeParams(rpType, lt, rightUndefined = true)
-              if (!y._1) return (false, undefinedSubst)
-              else undefinedSubst = y._2
             case (ScAbstractType(tpt, lower, upper), r) =>
               val (right, alternateRight) =
                 if (tpt.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
@@ -952,105 +912,6 @@ object Conformance extends api.Conformance {
         case _ =>
       }
 
-      r match {
-        case p2: ScParameterizedType =>
-          val des1 = p.designator
-          val des2 = p2.designator
-          val args1 = p.typeArguments
-          val args2 = p2.typeArguments
-          (des1, des2) match {
-            case (_: UndefinedType, UndefinedType(parameterType, _)) =>
-              val TypeParameterType(arguments, _, _, _) = parameterType
-              var anotherType = ScParameterizedType(des1, arguments)
-              var args1replace = args1
-              if (args1.length != args2.length) {
-                l.extractClassType() match {
-                  case Some((clazz, classSubst)) =>
-                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
-                    if (!t._1) {
-                      result = (false, undefinedSubst)
-                      return
-                    }
-                    t._2 match {
-                      case ParameterizedType(newDes, newArgs) =>
-                        args1replace = newArgs
-                        anotherType = ScParameterizedType(newDes, arguments)
-                      case _ =>
-                        result = (false, undefinedSubst)
-                        return
-                    }
-                  case _ =>
-                    result = (false, undefinedSubst)
-                    return
-                }
-              }
-              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
-              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1replace, args2,
-                undefinedSubst, visited, checkWeak)
-              return
-            case (UndefinedType(parameterType, _), _) =>
-              val TypeParameterType(arguments, _, _, _) = parameterType
-              var anotherType: ScType = ScParameterizedType(des2, arguments)
-              var args2replace = args2
-              if (args1.length != args2.length) {
-                r.extractClassType() match {
-                  case Some((clazz, classSubst)) =>
-                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args1.length)
-                    if (!t._1) {
-                      result = (false, undefinedSubst)
-                      return
-                    }
-                    t._2 match {
-                      case ParameterizedType(newDes, newArgs) =>
-                        args2replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
-                      case _ =>
-                        result = (false, undefinedSubst)
-                        return
-                    }
-                  case _ =>
-                    result = (false, undefinedSubst)
-                    return
-                }
-              }
-              undefinedSubst = undefinedSubst.addLower(parameterType.nameAndId, anotherType)
-              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1, args2replace,
-                undefinedSubst, visited, checkWeak)
-              return
-            case (_, UndefinedType(parameterType, _)) =>
-              val TypeParameterType(arguments, _, _, _) = parameterType
-              var anotherType = ScParameterizedType(des1, arguments)
-              var args1replace = args1
-              if (args1.length != args2.length) {
-                l.extractClassType() match {
-                  case Some((clazz, classSubst)) =>
-                    val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
-                    if (!t._1) {
-                      result = (false, undefinedSubst)
-                      return
-                    }
-                    t._2 match {
-                      case ParameterizedType(newDes, newArgs) =>
-                        args1replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
-                      case _ =>
-                        result = (false, undefinedSubst)
-                        return
-                    }
-                  case _ =>
-                    result = (false, undefinedSubst)
-                    return
-                }
-              }
-              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
-              result = checkParameterizedType(arguments.map(_.psiTypeParameter).iterator, args1, args1replace,
-                undefinedSubst, visited, checkWeak)
-              return
-            case _ =>
-          }
-        case _ =>
-      }
-
       rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
       r.visitType(rightVisitor)
       if (result != null) return
@@ -1144,6 +1005,36 @@ object Conformance extends api.Conformance {
                 result = (false, undefinedSubst)
                 return
               }
+            case (_: UndefinedType, UndefinedType(parameterType, _)) =>
+              (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
+                case Some((aArgs, aType)) =>
+                  undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, aType)
+                  result = checkParameterizedType(parameterType.arguments.map(_.psiTypeParameter).iterator, aArgs,
+                    args2, undefinedSubst, visited, checkWeak)
+                case _ =>
+                  result = (false, undefinedSubst)
+              }
+              return
+            case (UndefinedType(parameterType, _), _) =>
+              (if (args1.length != args2.length) findDiffLengthArgs(r, args1.length) else Some((args2, des2))) match {
+                case Some((aArgs, aType)) =>
+                  undefinedSubst = undefinedSubst.addLower(parameterType.nameAndId, aType)
+                  result = checkParameterizedType(parameterType.arguments.map(_.psiTypeParameter).iterator, args1,
+                    aArgs, undefinedSubst, visited, checkWeak)
+                case _ =>
+                  result = (false, undefinedSubst)
+              }
+              return
+            case (_, UndefinedType(parameterType, _)) =>
+              (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
+                case Some((aArgs, aType)) =>
+                  undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, aType)
+                  result = checkParameterizedType(parameterType.arguments.map(_.psiTypeParameter).iterator, aArgs,
+                    args2, undefinedSubst, visited, checkWeak)
+                case _ =>
+                  result = (false, undefinedSubst)
+              }
+              return
             case _ if des1 equiv des2 =>
               if (args1.length != args2.length) {
                 result = (false, undefinedSubst)
@@ -1155,7 +1046,7 @@ object Conformance extends api.Conformance {
               val subst = new ScSubstitutor(Map(t.arguments.zip(p.typeArguments).map {
                 case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
               }: _*), Map.empty, None)
-              result = conformsInner(l, subst.subst(t.upperType.v), visited, undefinedSubst, checkWeak)
+              result = conformsInner(des1, subst.subst(t.upperType.v), visited, undefinedSubst, checkWeak)
               return
             case (proj1: ScProjectionType, proj2: ScProjectionType)
               if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement) =>
@@ -1655,32 +1546,64 @@ object Conformance extends api.Conformance {
                     defArgs: Seq[ScType], undefArgs: Seq[ScType], variance: Int = 1,
                     addUpper: Boolean = false, addLower: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     if (!addUpper && !addLower) return (false, undefinedSubst)
-    val TypeParameterType(arguments, _, _, _) = parameterType
-//    var args1replace = args1
-    //TODO should I actually change args and propagate the change upwards?
-    val anotherType = if (arguments.nonEmpty) {
-      if (defArgs.length != undefArgs.length) bound.extractClassType() match {
-        case Some((clazz, classSubst)) =>
-          val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, undefArgs.length)
-          if (!t._1) {
-            return (false, undefinedSubst)
-          }
-          t._2 match {
-            case ParameterizedType(newDes, newArgs) =>
-//              args1replace = newArgs
-              ScParameterizedType(newDes, arguments)
-            case _ =>
-              return (false, undefinedSubst)
-          }
-        case _ =>
-          return (false, undefinedSubst)
-      } else ScParameterizedType(bound, arguments)
-    } else {
-      bound
-    }
     var res = undefinedSubst
-    if (addUpper) res = res.addUpper(parameterType.nameAndId, anotherType, variance = variance)
-    if (addLower) res = res.addLower(parameterType.nameAndId, anotherType, variance = variance)
+    if (addUpper) res = res.addUpper(parameterType.nameAndId, bound, variance = variance)
+    if (addLower) res = res.addLower(parameterType.nameAndId, bound, variance = variance)
     (true, res)
   }
+
+  def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, undefinedSubst: ScUndefinedSubstitutor,
+                                    falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+    extractParams(defType.designator) match {
+      case Some(params) =>
+        val undef = undefType.designator.asInstanceOf[UndefinedType]
+        var defArgsReplace = defType.typeArguments
+        val bound = if (params.nonEmpty) {
+          if (defType.typeArguments.length != undefType.typeArguments.length)
+          {
+            findDiffLengthArgs(defType, undefType.typeArguments.length) match {
+              case Some((newArgs, newDes)) =>
+                defArgsReplace = newArgs
+                newDes
+              case _ => return (false, undefinedSubst)
+            }
+          } else defType.designator
+        } else {
+          defType.designator
+        }
+        val y = undef.equiv(bound, undefinedSubst, falseUndef)
+        if (!y._1) {
+          (false, undefinedSubst)
+        } else {
+          val undefArgIterator = undefType.typeArguments.iterator
+          val defIterator = defArgsReplace.iterator
+          var sub = y._2
+          while (params.hasNext && undefArgIterator.hasNext && defIterator.hasNext) {
+            val arg1 = undefArgIterator.next()
+            val arg2 = defIterator.next()
+            val t = arg1.equiv(arg2, sub, falseUndef = false)
+            if (!t._1) return (false, undefinedSubst)
+            sub = t._2
+          }
+          (true, sub)
+        }
+      case _ => (false, undefinedSubst)
+    }
+  }
+
+  def findDiffLengthArgs(eType: ScType, argLength: Int): Option[(Seq[ScType], ScType)] =
+    eType.extractClassType() match {
+      case Some((clazz, classSubst)) =>
+        val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, argLength)
+        if (!t._1) {
+          None
+        } else t._2 match {
+          case ParameterizedType(newDes, newArgs) =>
+            Some(newArgs, newDes)
+          case _ =>
+            None
+        }
+      case _ =>
+        None
+    }
 }

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -24,9 +25,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
-import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
+import scala.annotation.tailrec
 
 /**
 * @author Alexander Podkhalyuzin
@@ -35,8 +39,37 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTypeParamStub) = {this(stub, ScalaElementTypes.TYPE_PARAM, null)}
+  def this(node: ASTNode) = {
+    this(null, null, node)
+  }
+
+  def this(stub: ScTypeParamStub) = {
+    this(stub, ScalaElementTypes.TYPE_PARAM, null)
+  }
+
+  @tailrec
+  final override protected def extractBound(in: ScType, isLower: Boolean): ScType = {
+    nameId.nextSibling match {
+      case Some(pClause: ScTypeParamClause) =>
+        val tParams = pClause.getChildren.toSeq
+        in match {
+          case ParameterizedType(des, params) =>
+            if (params.length == tParams.length && params.forall(_.isInstanceOf[TypeParameterType]) &&
+              params.map(_.asInstanceOf[TypeParameterType].psiTypeParameter) == tParams) {
+              des
+            } else {
+              //here we should actually construct existential type for partial application
+              in
+            }
+          case t => t.isAliasType match {
+            case Some(AliasType(_: ScTypeAliasDefinition, Success(lower, _), _)) if isLower => extractBound(lower, isLower)
+            case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper, _))) if !isLower => extractBound(upper, isLower)
+            case None => t
+          }
+        }
+      case _ => in
+    }
+  }
 
   override def toString: String = "TypeParameter: " + name
 
