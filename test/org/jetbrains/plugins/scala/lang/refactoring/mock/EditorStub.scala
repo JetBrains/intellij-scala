@@ -114,5 +114,7 @@ class EditorStub extends Editor {
     override def addListener(listener: Listener, disposable: Disposable): Unit = {}
 
     override def getInlineElementsInRange(i: Int, i1: Int): util.List[Inlay] = util.Arrays.asList()
+
+    override def getElementAt(point: Point): Inlay = null
   }
 }

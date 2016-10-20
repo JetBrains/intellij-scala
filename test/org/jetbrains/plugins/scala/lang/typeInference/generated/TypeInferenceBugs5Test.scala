@@ -876,6 +876,10 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testTupleAnonymous(): Unit = doTest()
 
+  def testTupleExpectedType(): Unit = doTest()
+
+  def testTupleExpectedType2(): Unit = doTest()
+
   def test10471A(): Unit = {
     val code =
       """
@@ -952,4 +956,6 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       """.stripMargin
     doTest(code)
   }
+
+  def testEarlyDefRecursion(): Unit = doTest()
 }
