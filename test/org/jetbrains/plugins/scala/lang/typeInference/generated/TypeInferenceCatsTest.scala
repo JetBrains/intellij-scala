@@ -13,5 +13,10 @@ class TypeInferenceCatsTest extends TypeInferenceTestBase {
   def testSCL10006() = doTest()
 
   //TODO temporarilty disabled until I find a way to fix highlighting for good
-  //def testSCL10237() = doTest()
+  def testSCL10237() = doTest()
+
+  //TODO temporarilty disabled until I find a way to fix highlighting for good
+  def testSCL10237_1() = doTest()
+
+  def testSCL10237_2() = doTest()
 }

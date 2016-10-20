@@ -16,4 +16,8 @@ class TypeInferenceHigherKindsTest extends TypeInferenceTestBase {
   def testhk04() {doTest()}
 
   def testhk05() {doTest()}
+
+  def testSCL10857_1() {doTest()}
+
+  def testSCL10857_2() {doTest()}
 }

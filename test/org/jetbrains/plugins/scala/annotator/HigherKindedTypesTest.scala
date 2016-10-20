@@ -17,14 +17,14 @@ class HigherKindedTypesTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  def hello(p: P) = 123
          |}
          |
-        |trait Component[-P, CT[-p] <: CtorType[p]] {
+         |trait Component[-P, CT[-p] <: CtorType[p]] {
          |  val ctor: CT[P]
          |}
          |
-        |implicit def toCtorOps[P >: Int <: AnyVal, CT[-p] <: CtorType[p]](base: Component[P, CT]) =
+         |implicit def toCtorOps[P >: Int <: AnyVal, CT[-p] <: CtorType[p]](base: Component[P, CT]) =
          |  base.ctor
          |
-        |val example: Component[Int, Hello] = ???
+         |val example: Component[Int, Hello] = ???
          |example.ctor.hello(123)
          |val left: Int = example.${START}hello${END}(123)
       """.stripMargin, "Cannot resolve symbol hello")
