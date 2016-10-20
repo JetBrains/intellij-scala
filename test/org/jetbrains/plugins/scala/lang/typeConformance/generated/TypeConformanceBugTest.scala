@@ -53,4 +53,8 @@ class TypeConformanceBugTest extends TypeConformanceTestBase {
        |}
        |//true""".stripMargin
   }
+
+  def testSCL8980_1() {doTest()}
+
+  def testSCL8980_2() {doTest()}
 }
