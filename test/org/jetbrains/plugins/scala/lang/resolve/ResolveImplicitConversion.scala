@@ -26,4 +26,6 @@ class ResolveImplicitConversion extends ScalaResolveTestCase {
   def testScl7974(): Unit = doTest()
 
   def testSCL10670(): Unit = doTest()
+
+  def testSCL10549(): Unit = doTest()
 }

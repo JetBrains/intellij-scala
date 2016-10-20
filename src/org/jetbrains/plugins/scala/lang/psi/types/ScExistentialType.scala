@@ -79,6 +79,7 @@ case class ScExistentialType(quantified: ScType,
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+    if (r.equiv(Nothing)) return quantified.equiv(Nothing, uSubst)
     var undefinedSubst = uSubst
     val simplified = unpackedType match {
       case ex: ScExistentialType => ex.simplify()
