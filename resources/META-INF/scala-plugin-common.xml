@@ -1271,6 +1271,9 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
         </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.util.UIFreezingGuard</implementation-class>
+        </component>
     </application-components>
 
     <project-components>
