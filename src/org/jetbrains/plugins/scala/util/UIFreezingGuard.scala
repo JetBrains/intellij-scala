@@ -46,16 +46,20 @@ object UIFreezingGuard {
 
   //used in macro!
   def withResponsibleUI[T](body: => T): T = {
-    if (ApplicationManager.getApplication.isDispatchThread && !progress.isEnabled) {
+    val app = ApplicationManager.getApplication
+    val progressManager = ProgressManager.getInstance()
+
+    if (app.isDispatchThread && !app.isWriteAccessAllowed &&
+      !progressManager.hasProgressIndicator && !ourProgress.isEnabled) {
 
       if (hasPendingUserInput) throw pceInstance
 
       val start = System.currentTimeMillis()
       try {
-        progress.isEnabled = true
-        ProgressManager.getInstance().runProcess(body, progress)
+        ourProgress.isEnabled = true
+        progressManager.runProcess(body, ourProgress)
       } finally {
-        progress.isEnabled = false
+        ourProgress.isEnabled = false
         dumpThreads(System.currentTimeMillis() - start)
       }
     }
@@ -69,7 +73,7 @@ object UIFreezingGuard {
     }
   }
 
-  private def progress = ApplicationManager.getApplication.getComponent(classOf[UIFreezingGuard]).progress
+  private def ourProgress = ApplicationManager.getApplication.getComponent(classOf[UIFreezingGuard]).progress
 
   private def hasPendingUserInput: Boolean = {
     val queue = IdeEventQueue.getInstance()
