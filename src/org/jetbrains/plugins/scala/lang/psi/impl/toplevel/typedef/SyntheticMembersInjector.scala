@@ -184,9 +184,8 @@ object SyntheticMembersInjector {
       member.syntheticContainingClass = Some(source)
       if (!member.hasModifierProperty("override")) buffer += member
     } catch {
-      case p: ProcessCanceledException => throw p
       case e: Throwable =>
-        LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
+        logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
     buffer
   }

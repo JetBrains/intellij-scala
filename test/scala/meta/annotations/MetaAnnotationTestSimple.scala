@@ -1,5 +1,7 @@
 package scala.meta.annotations
 
+import java.io.File
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
@@ -53,7 +55,9 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
     }
     val profile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
     val settings = profile.getSettings
-    settings.plugins :+= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-SNAPSHOT.jar"
+    val paradisePath= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-SNAPSHOT.jar"
+    assert(new File(paradisePath).exists(), "paradise plugin not found")
+    settings.plugins :+= paradisePath
     profile.setSettings(settings)
     extensions.inWriteAction {
       val modifiableRootModel = ModuleRootManager.getInstance(myModule).getModifiableModel

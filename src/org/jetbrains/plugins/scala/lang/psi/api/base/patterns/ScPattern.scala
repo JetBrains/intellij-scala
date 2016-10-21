@@ -251,7 +251,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
         val types = params.map(_.getType(TypingContext.empty).getOrAny).map(undefSubst.subst)
         val args = if (types.nonEmpty && params.last.isVarArgs) {
           val lastType = types.last
-          val tp = createTypeFromText(s"scala.collection.Seq[${lastType.canonicalText}]", cl, cl)
+          val tp = ScalaPsiElementFactory.createTypeFromText(s"scala.collection.Seq[${lastType.canonicalText}]", cl, cl)
           types.dropRight(1) ++ tp
         } else types
         if (argIndex < args.length) Some(args(argIndex))
