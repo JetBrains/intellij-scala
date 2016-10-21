@@ -9,8 +9,11 @@ import com.intellij.diagnostic.PerformanceWatcher
 import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
-import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressManager}
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProcessCanceledException, ProgressManager}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.UIFreezingGuard._
+
+import scala.util.control.NoStackTrace
 
 /**
   * @author Nikolay.Tropin
@@ -37,13 +40,6 @@ class UIFreezingGuard extends ApplicationComponent {
   override def disposeComponent(): Unit = {}
 
   override def getComponentName: String = "UI freezing guard"
-
-  private def hasPendingUserInput: Boolean = {
-    val queue = IdeEventQueue.getInstance()
-    val userEventIds = Seq(Event.KEY_ACTION, Event.KEY_PRESS, MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_WHEEL)
-
-    userEventIds.exists(queue.peekEvent(_) != null)
-  }
 }
 
 object UIFreezingGuard {
@@ -51,6 +47,9 @@ object UIFreezingGuard {
   //used in macro!
   def withResponsibleUI[T](body: => T): T = {
     if (ApplicationManager.getApplication.isDispatchThread && !progress.isEnabled) {
+
+      if (hasPendingUserInput) throw pceInstance
+
       val start = System.currentTimeMillis()
       try {
         progress.isEnabled = true
@@ -59,7 +58,8 @@ object UIFreezingGuard {
         progress.isEnabled = false
         dumpThreads(System.currentTimeMillis() - start)
       }
-    } else body
+    }
+    else body
   }
 
   private def dumpThreads(ms: Long): Unit = {
@@ -70,4 +70,13 @@ object UIFreezingGuard {
   }
 
   private def progress = ApplicationManager.getApplication.getComponent(classOf[UIFreezingGuard]).progress
+
+  private def hasPendingUserInput: Boolean = {
+    val queue = IdeEventQueue.getInstance()
+    val userEventIds = Seq(Event.KEY_ACTION, Event.KEY_PRESS, MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_WHEEL)
+
+    userEventIds.exists(queue.peekEvent(_) != null)
+  }
+
+  private val pceInstance = new ProcessCanceledException() with NoStackTrace
 }
