@@ -148,7 +148,7 @@ object Cached {
             q"val currModCount = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
         }
         val updatedRhs = q"""
-          def $cachedFunName(): $retTp = {
+          def $cachedFunName(): $retTp = _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI {
             $actualCalculation
           }
           ..$currModCount

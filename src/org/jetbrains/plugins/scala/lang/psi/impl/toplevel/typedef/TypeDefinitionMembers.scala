@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI
 
 import scala.reflect.NameTransformer
 
@@ -485,10 +486,12 @@ object TypeDefinitionMembers {
     }
 
     def forAllSignatureNodes(c: PsiClass)(action: Node => Unit): Unit = {
-      for {
-        signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
-        (_, node) <- signature
-      } action(node)
+      withResponsibleUI {
+        for {
+          signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
+          (_, node) <- signature
+        } action(node)
+      }
     }
   }
 

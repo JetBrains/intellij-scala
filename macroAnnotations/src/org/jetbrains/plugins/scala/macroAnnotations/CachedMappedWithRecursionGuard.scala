@@ -123,7 +123,7 @@ object CachedMappedWithRecursionGuard {
                       val $dataName: $dataTypeName = data
                       ..$parameterDefinitions
 
-                      $actualCalculation
+                      _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
                     }
                     catch {
                       case _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(`e`, `data`, k, set) if k == key =>
@@ -132,7 +132,7 @@ object CachedMappedWithRecursionGuard {
                           val $dataName: $dataTypeName = data
                           ..$parameterDefinitions
 
-                          $actualCalculation
+                          _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
                         } finally set.foreach(_.setProbablyRecursive(false))
                       case t@_root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(ee, innerData, k, set) if k == key =>
                         val fun = _root_.com.intellij.psi.util.PsiTreeUtil.getContextOfType(e, true, classOf[_root_.org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction])
