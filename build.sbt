@@ -50,7 +50,7 @@ lazy val scalaCommunity: Project =
       "properties"
     ),
     ideaInternalPluginsJars <<= ideaInternalPluginsJars.map { classpath =>
-      classpath.filterNot(_.data.getName.contains("lucene-core"))
+      classpath.filterNot(cp => cp.data.getName.contains("lucene-core") || cp.data.getName.contains("junit-jupiter-api"))
     },
     aggregate.in(updateIdea) := false,
     test in Test <<= test.in(Test).dependsOn(setUpTestEnvironment),
