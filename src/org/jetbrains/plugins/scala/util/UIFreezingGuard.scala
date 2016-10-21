@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.util
 import java.awt.Event
 import java.awt.event.MouseEvent
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.concurrency.JobScheduler
 import com.intellij.diagnostic.PerformanceWatcher
@@ -21,8 +22,18 @@ import scala.util.control.NoStackTrace
 class UIFreezingGuard extends ApplicationComponent {
 
   private object progress extends EmptyProgressIndicator {
-    //should be used from EDT only
-    var isEnabled = false
+    private val counter = new AtomicLong()
+    
+    def timestamp: Long = counter.get()
+
+    override def start(): Unit = {
+      counter.incrementAndGet()
+      super.start()
+    }
+
+    def cancel(l: Long): Unit = {
+      if (timestamp == l) super.cancel()
+    }
   }
 
   private val periodMs = 10
@@ -32,8 +43,9 @@ class UIFreezingGuard extends ApplicationComponent {
   }
 
   private def cancelOnUserInput(): Unit = {
-    if (progress.isEnabled && hasPendingUserInput) {
-      progress.cancel()
+    val timestamp = progress.timestamp
+    if (progress.isRunning && hasPendingUserInput) {
+      progress.cancel(timestamp)
     }
   }
 
@@ -50,16 +62,14 @@ object UIFreezingGuard {
     val progressManager = ProgressManager.getInstance()
 
     if (app.isDispatchThread && !app.isWriteAccessAllowed &&
-      !progressManager.hasProgressIndicator && !ourProgress.isEnabled) {
+      !progressManager.hasProgressIndicator && !ourProgress.isRunning) {
 
       if (hasPendingUserInput) throw pceInstance
 
       val start = System.currentTimeMillis()
       try {
-        ourProgress.isEnabled = true
         progressManager.runProcess(body, ourProgress)
       } finally {
-        ourProgress.isEnabled = false
         dumpThreads(System.currentTimeMillis() - start)
       }
     }
