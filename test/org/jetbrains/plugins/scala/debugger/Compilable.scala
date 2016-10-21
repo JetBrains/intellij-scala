@@ -159,14 +159,5 @@ trait Compilable {
     applicationEx.doNotSave(setting)
   }
 
-  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
-    addIvyCacheLibraryToModule(getMainModule, libraryName, libraryPath, jarNames:_*)
-  }
 
-  protected def addIvyCacheLibraryToModule(module: Module, libraryName: String, libraryPath: String, jarNames: String*) = {
-    val libsPath = TestUtils.getIvyCachePath
-    val pathExtended = s"$libsPath/$libraryPath/"
-    VfsRootAccess.allowRootAccess(pathExtended)
-    PsiTestUtil.addLibrary(module, libraryName, pathExtended, jarNames: _*)
-  }
 }

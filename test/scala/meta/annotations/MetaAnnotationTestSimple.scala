@@ -8,39 +8,25 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
-import org.jetbrains.plugins.scala.base.{DisposableScalaLibraryLoader, ScalaLightCodeInsightFixtureTestAdapter}
+import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{Compilable, DebuggerTestUtil}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.junit.Assert
 
-class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compilable {
+import scala.meta.ScalametaUtils
+
+class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compilable with ScalametaUtils {
 
   override def getCompileableProject: Project = myFixture.getProject
   override def getMainModule: Module = myModule
   override def getRootDisposable: Disposable = getTestRootDisposable
   override def getTestName: String = getTestName(false)
 
-  val metaVersion = "0.23.0"
-
-  protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11_8
-
   override def setUp(): Unit = {
     super.setUp()
     setUpCompler()
-  }
-
-
-  def getMetaLibraries: Seq[(String, String, String)] = {
-    val scala = scalaSdkVersion.getMajor
-    def getLibEntry(component: String) = {
-      (s"scalameta-$component", s"org.scalameta/${component}_$scala/jars", s"${component}_$scala-$metaVersion.jar")
-    }
-    Seq("common", "dialects", "inline",
-      "inputs", "parsers", "quasiquotes", "scalameta",
-      "tokenizers", "tokens", "transversers", "trees").map(getLibEntry)
   }
 
   def compileMetaSource(source: String) = {
@@ -50,9 +36,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
     val metaModule = PsiTestUtil.addModule(myFixture.getProject, JavaModuleType.getModuleType, "meta", root)
     val loader = new DisposableScalaLibraryLoader(getProject, metaModule, null, true, Some(DebuggerTestUtil.findJdk8()))
     loader.loadScala(scalaSdkVersion)
-    for ((name, folder, jarFile) <- getMetaLibraries) {
-      addIvyCacheLibraryToModule(metaModule, name, folder, jarFile)
-    }
+    addAllMetaLibraries(metaModule)
     val profile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
     val settings = profile.getSettings
     val paradisePath= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-SNAPSHOT.jar"
