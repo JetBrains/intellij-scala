@@ -14,6 +14,7 @@ import scala.meta.inputs.Input
 import scala.meta.internal.parsers.ScalametaParser
 import scala.meta.parsers.Parsed._
 import scala.meta.parsers.{ParseException, Parsed}
+import scala.util.Try
 
 /**
   * @author Mikhail Mutcianko
@@ -32,39 +33,53 @@ object QuasiquoteInferUtil {
 
   def isMetaQQ(fun: ScFunction): Boolean = {
     val fqnO = Option(fun.containingClass).map(_.qualifiedName)
-    fqnO.contains("scala.meta.quasiquotes.Api.XtensionQuasiquoteTerm.q")
+    fqnO.exists(_.startsWith("scala.meta.quasiquotes.Api.XtensionQuasiquote"))
   }
 
   def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): m.Tree = {
     val parser = new ScalametaParser(Input.String(text), dialect)
     prefix match {
-      case "q" => parser.parseQuasiquoteStat()
-      case "t" => parser.parseType()
+      case "q"      => Try(parser.parseQuasiquoteCtor()).getOrElse(parser.parseQuasiquoteStat())
+      case "t"      => parser.parseType()
+      case "arg"    => parser.parseTermArg()
+      case "param"  => parser.parseTermParam()
+      case "targ"   => parser.parseTypeArg()
+      case "tparam" => parser.parseTypeParam()
+      case "p"      => Try(parser.parseCase()).getOrElse(parser.parseQuasiquotePat())
+      case "parg"   => parser.parseQuasiquotePatArg()
+      case "pt"     => parser.parseQuasiquotePatType()
+      case "ctor"   => parser.parseQuasiquoteCtor()
+      case "mod"    => parser.parseQuasiquoteMod()
+      case "template"   => parser.parseQuasiquoteTemplate()
+      case "enumerator" => parser.parseEnumerator()
+      case "importer"   => parser.parseImporter()
+      case "importee"   => parser.parseImportee()
+      case "source"     => parser.parseSource()
+      case _ => throw ParseException(null, s"Unexpected QQ prefix - $prefix")
     }
   }
 
   def getMetaQQExprType(pat: ScInterpolatedStringLiteral): TypeResult[ScType] = {
     val patternText = escapeQQ(pat)
-
     val qqdialect = if (pat.isMultiLineString)
       m.Dialect.forName("QuasiquoteTerm(Scala211, Multi)")
     else
       m.Dialect.forName("QuasiquoteTerm(Scala211, Single)")
-    val parser = new ScalametaParser(Input.String(patternText), qqdialect)
     try {
-      val parsed: m.Stat = parser.parseQuasiquoteStat()
+      val prefix = pat.reference.map(_.refName).getOrElse(throw new ParseException(null, s"Failed to get QQ ref in ${pat.getText}"))
+      val parsed = parseQQExpr(prefix, patternText, qqdialect)
       ScalaPsiElementFactory.createTypeElementFromText(s"scala.meta.${parsed.productPrefix}")(PsiManager.getInstance(pat.getProject)).getType()
     } catch {
-      case e: ParseException => Failure(e.getMessage, None)
+      case e: ParseException => Failure(e.getMessage, Some(pat))
+      case e: Exception => Failure(e.getMessage, Some(pat))
     }
   }
 
   def escapeQQ(pat: ScInterpolatedStringLiteral): String = {
-    val c = pat.getFirstChild
     if (pat.isMultiLineString) {
-      pat.getText.replaceAll("^q\"\"\"", "").replaceAll("\"\"\"$", "").trim
+      pat.getText.replaceAll("^[a-z]+\"\"\"", "").replaceAll("\"\"\"$", "").trim
     } else {
-      pat.getText.replaceAll("^q\"", "").replaceAll("\"$", "").trim
+      pat.getText.replaceAll("^[a-z]+\"", "").replaceAll("\"$", "").trim
     }
   }
 
