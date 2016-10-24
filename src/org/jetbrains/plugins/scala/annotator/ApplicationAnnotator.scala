@@ -74,8 +74,10 @@ trait ApplicationAnnotator {
 
                 r.problems.foreach {
                   case DoesNotTakeParameters() =>
-                    holder.createErrorAnnotation(call.argsElement, f.name + " does not take parameters")
-                    addCreateFromUsagesQuickFixes(reference, holder)
+                    if (!call.isApplyOrUpdateCall) {
+                      holder.createErrorAnnotation(call.argsElement, f.name + " does not take parameters")
+                      addCreateFromUsagesQuickFixes(reference, holder)
+                    }
                   case ExcessArgument(argument) if inSameFile(argument, holder) =>
                     holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
                     addCreateFromUsagesQuickFixes(reference, holder)
@@ -172,11 +174,13 @@ trait ApplicationAnnotator {
     //todo: duplicate
     problems.foreach {
       case DoesNotTakeParameters() =>
-        val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
-        (call, call.getInvokedExpr) match {
-          case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
-            annotation.registerFix(new CreateApplyQuickFix(td, c))
-          case _ =>
+        if (!call.isApplyOrUpdateCall) {
+          val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+          (call, call.getInvokedExpr) match {
+            case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
+              annotation.registerFix(new CreateApplyQuickFix(td, c))
+            case _ =>
+          }
         }
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")

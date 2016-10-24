@@ -26,4 +26,25 @@ class ApplyTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
     checkTextHasNoErrors(code)
   }
+
+  def testApplyFromImplicitConversion(): Unit = {
+    val code =
+      """
+        |object Holder {
+        |  class A
+        |  class B
+        |
+        |  def f: A = ???
+        |
+        |  class AExt {
+        |    def apply(b: B): B = ???
+        |  }
+        |  implicit def aExt: A => AExt = ???
+        |
+        |  f(new B)
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
+
 }
