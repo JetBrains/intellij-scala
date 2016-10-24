@@ -148,8 +148,9 @@ object Cached {
             q"val currModCount = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
         }
         val updatedRhs = q"""
-          def $cachedFunName(): $retTp = _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI {
-            $actualCalculation
+          def $cachedFunName(): $retTp = {
+            if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
+            else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
           }
           ..$currModCount
           def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
