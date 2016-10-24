@@ -20,12 +20,13 @@ class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
     }
   }
  
-  /*def testDoesNotTakeParameters {
+  def testDoesNotTakeParameters() {
     assertMatches(messages("def f {}; f(Unit, null)")) {
-      case Error("(Unit, null)", "f does not take parameters") :: Nil =>
+      case Error("(Unit, null)", "f does not take parameters") ::
+        Error("f", "Cannot resolve reference f with such signature"):: Nil =>
     }    
-  }*/
-  
+  }
+
   def testMissedParametersClause() {
     assertMatches(messages("def f(a: Any, b: Any) {}; f")) {
       case Error("f", "Missing arguments for method f(Any, Any)") ::
