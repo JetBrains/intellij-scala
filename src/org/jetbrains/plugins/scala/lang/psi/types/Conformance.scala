@@ -20,12 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import _root_.scala.collection.immutable.HashSet
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, immutable, mutable}
 
@@ -408,6 +409,35 @@ object Conformance extends api.Conformance {
               val projected1 = proj1.projected
               val projected2 = proj2.projected
               result = conformsInner(projected1, projected2, visited, undefinedSubst)
+            case param: ScParameterizedType if param.designator.isInstanceOf[ScProjectionType] =>
+              //TODO this looks overcomplicated. Improve the code.
+              val projDes = param.designator.asInstanceOf[ScProjectionType]
+              def cutProj(p: ScType, acc: List[ScProjectionType]): ScType = {
+                if (acc.isEmpty) p else acc.foldLeft(p){
+                  case (proj, oldProj) => ScProjectionType(proj, oldProj.element, oldProj.superReference)
+                }
+              }
+              @tailrec
+              def findProjectionBase(proj: ScProjectionType, acc: List[ScProjectionType] = List()): Unit = {
+                val t = proj.projected.equiv(projDes.projected, undefinedSubst)
+                if (t._1) {
+                  undefinedSubst = t._2
+                  (projDes.actualElement, proj.actualElement) match {
+                    case (desT: Typeable, projT: Typeable) =>
+                      desT.getType(TypingContext.empty).filter(_.isInstanceOf[ScParameterizedType]).
+                        map(_.asInstanceOf[ScParameterizedType]).flatMap(dt => projT.getType(TypingContext.empty).
+                        map(c => conformsInner(ScParameterizedType(dt.designator, param.typeArguments),
+                          cutProj(c, acc), visited, undefinedSubst))).map(t => if (t._1) result = t)
+                    case _ =>
+                  }
+                } else {
+                  proj.projected match {
+                    case p: ScProjectionType => findProjectionBase(p, proj :: acc)
+                    case _ =>
+                  }
+                }
+              }
+              findProjectionBase(proj2)
             case _ =>
               proj2.actualElement match {
                 case syntheticClass: ScSyntheticClass =>
