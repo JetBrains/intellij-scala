@@ -6,6 +6,7 @@ import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 
 /**
   * @author Alefas
@@ -16,7 +17,8 @@ class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
     file.getFileType != ScalaFileType.SCALA_FILE_TYPE ||
       !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) ||
       (file.getViewProvider.getFileType == ScratchFileType.INSTANCE) ||
-      (file.getVirtualFile != null && file.getVirtualFile.getExtension == "sc")
+      (file.getVirtualFile != null && file.getVirtualFile.getExtension == "sc") ||
+      ScalaConsoleInfo.isConsole(file)
   }
 
   override def shouldProcessInBatch(file: PsiFile): Boolean = {
