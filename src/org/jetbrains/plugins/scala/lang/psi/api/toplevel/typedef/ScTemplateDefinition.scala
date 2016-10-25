@@ -8,7 +8,6 @@ package typedef
 import java.util
 
 import com.intellij.execution.junit.JUnitUtil
-import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.pom.java.LanguageLevel
@@ -22,6 +21,7 @@ import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -384,32 +384,39 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   }
 
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
-    extendsBlock.templateBody match {
-      case Some(body) =>
-        val before = anchor match {
-          case Some(a) => a.getNode
-          case None =>
-            val last = body.getNode.getLastChildNode
-            if (ScalaPsiUtil.isLineTerminator(last.getTreePrev.getPsi)) {
-              last.getTreePrev
-            } else {
-              last
-            }
+    implicit val manager = member.getManager
+    extendsBlock.templateBody.map {
+      _.getNode
+    }.map { node =>
+      val beforeNode = anchor.map {
+        _.getNode
+      }.getOrElse {
+        val last = node.getLastChildNode
+        last.getTreePrev match {
+          case result if isLineTerminator(result.getPsi) => result
+          case _ => last
         }
-        if (ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(createNewLineNode(), before)
-        body.getNode.addChild(member.getNode, before)
-        if (!ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(createNewLineNode(), before)
-        else
-          body.getNode.replaceChild(before, createNewLineNode())
-      case None =>
-        val eBlockNode: ASTNode = extendsBlock.getNode
-        eBlockNode.addChild(createWhitespace.getNode)
-        eBlockNode.addChild(createBodyFromMember(member.getText).getNode)
-        return members(0)
+      }
+
+      val before = beforeNode.getPsi
+      if (isLineTerminator(before))
+        node.addChild(createNewLineNode(), beforeNode)
+      node.addChild(member.getNode, beforeNode)
+
+      val newLineNode = createNewLineNode()
+      if (isLineTerminator(before)) {
+        node.replaceChild(beforeNode, newLineNode)
+      } else {
+        node.addChild(newLineNode, beforeNode)
+      }
+
+      member
+    }.getOrElse {
+      val node = extendsBlock.getNode
+      node.addChild(createWhitespace.getNode)
+      node.addChild(createBodyFromMember(member.getText).getNode)
+      members.head
     }
-    member
   }
 
   def deleteMember(member: ScMember) {
