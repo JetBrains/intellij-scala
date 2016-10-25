@@ -377,7 +377,7 @@ object InferUtil {
                   hasRecursiveTypeParameters
                 }
                 val nameAndId = tp.nameAndId
-                subst.lMap.get(nameAndId) match {
+                subst.getLowerBound(nameAndId) match {
                   case Some(_addLower) =>
                     val substedLowerType = unSubst.subst(lower)
                     val addLower =
@@ -390,7 +390,7 @@ object InferUtil {
                   case None =>
                     lower = unSubst.subst(lower)
                 }
-                subst.rMap.get(nameAndId) match {
+                subst.getUpperBound(nameAndId) match {
                   case Some(_addUpper) =>
                     val substedUpperType = unSubst.subst(upper)
                     val addUpper =
