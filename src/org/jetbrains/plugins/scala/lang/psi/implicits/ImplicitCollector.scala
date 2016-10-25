@@ -231,7 +231,9 @@ class ImplicitCollector(private var place: PsiElement,
           if (isAccessible(member)) addResultForElement()
         case _: ScBindingPattern | _: ScFieldId =>
           val member = ScalaPsiUtil.getContextOfType(element, true, classOf[ScValue], classOf[ScVariable]) match {
-            case m: ScMember if m.hasModifierProperty("implicit") => m
+            case m: ScMember if m.hasModifierProperty("implicit") =>
+              placeCalculated = true
+              m
             case _ => return true
           }
           if (isAccessible(member)) addResultForElement()
