@@ -86,7 +86,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 (tp.nameAndId, Any)): _*), Map.empty, None)
               expectedType match {
                 case Some(tp) =>
-                  val conformance = clazzType.conforms(tp, new ScUndefinedSubstitutor())
+                  val conformance = clazzType.conforms(tp, ScUndefinedSubstitutor())
                   if (conformance._1) {
                     conformance._2.getSubstitutor match {
                       case Some(subst) => subst followed emptySubst
@@ -114,7 +114,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 val funType = undefSubst.subst(result.get)
                 expectedType match {
                   case Some(tp) =>
-                    val conformance = funType.conforms(tp, new ScUndefinedSubstitutor())
+                    val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
                     if (conformance._1) {
                       conformance._2.getSubstitutor match {
                         case Some(newSubst) => newSubst followed substitutor followed emptySubst

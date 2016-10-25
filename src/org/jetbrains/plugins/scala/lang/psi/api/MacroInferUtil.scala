@@ -106,7 +106,7 @@ object MacroInferUtil {
       UndefinedType(TypeParameterType(typeParameter))
     }.flatMap { undefinedType =>
       maybeExpectedType.flatMap {
-        _.conforms(ScParameterizedType(ScDesignatorType(clazz), Seq(undefinedType)), new ScUndefinedSubstitutor()) match {
+        _.conforms(ScParameterizedType(ScDesignatorType(clazz), Seq(undefinedType)), ScUndefinedSubstitutor()) match {
           case (true, substitutor) =>
             substitutor.getSubstitutor.map {
               _.subst(undefinedType)

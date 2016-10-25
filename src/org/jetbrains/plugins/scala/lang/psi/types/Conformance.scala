@@ -36,7 +36,7 @@ object Conformance extends api.Conformance {
   override protected def computable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
     new Computable[(Boolean, ScUndefinedSubstitutor)] {
       override def compute(): (Boolean, ScUndefinedSubstitutor) = {
-        val substitutor = new ScUndefinedSubstitutor()
+        val substitutor = ScUndefinedSubstitutor()
         val leftVisitor = new LeftConformanceVisitor(left, right, visited, substitutor, checkWeak)
         left.visitType(leftVisitor)
         if (leftVisitor.getResult != null) return leftVisitor.getResult
@@ -364,21 +364,29 @@ object Conformance extends api.Conformance {
 
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
-        val comps = c.components
-        def traverse(check: (ScType, ScUndefinedSubstitutor) => (Boolean, ScUndefinedSubstitutor)): Boolean = {
+        var comps = c.components.toList
+        var results = List[ScUndefinedSubstitutor]()
+        def traverse(check: (ScType, ScUndefinedSubstitutor) => (Boolean, ScUndefinedSubstitutor)) = {
           val iterator = comps.iterator
           while (iterator.hasNext) {
             val comp = iterator.next()
             val t = check(comp, undefinedSubst)
             if (t._1) {
-              result = (true, t._2)
-              return true
+              results = t._2 :: results
+              comps = comps.filter(_ == comp)
             }
           }
-          false
         }
-        if (traverse(Equivalence.equivInner(l, _, _))) return
-        if (traverse(conformsInner(l, _, HashSet.empty, _))) return
+        traverse(Equivalence.equivInner(l, _, _))
+        traverse(conformsInner(l, _, HashSet.empty, _))
+
+        if (results.length == 1) {
+          result = (true, results.head)
+          return
+        } else if (results.length > 1) {
+          result = (true, ScUndefinedSubstitutor.multi(results.reverse))
+          return
+        }
 
         result = l.isAliasType match {
           case Some(AliasType(_: ScTypeAliasDefinition, Success(comp: ScCompoundType, _), _)) =>
@@ -1198,9 +1206,7 @@ object Conformance extends api.Conformance {
                 case (id: (String, Long), _: HashSet[ScType]) =>
                   !tptsMap.values.exists(_.nameAndId == id)
               }
-              val newUndefSubst = new ScUndefinedSubstitutor(
-                unSubst.upperMap.filter(filterFunction), unSubst.lowerMap.filter(filterFunction),
-                unSubst.upperAdditionalMap.filter(filterFunction), unSubst.lowerAdditionalMap.filter(filterFunction))
+              val newUndefSubst = unSubst.filter(filterFunction)
               undefinedSubst += newUndefSubst
               result = (true, undefinedSubst)
             }
