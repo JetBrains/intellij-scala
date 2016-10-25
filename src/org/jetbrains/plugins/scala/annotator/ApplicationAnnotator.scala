@@ -71,15 +71,18 @@ trait ApplicationAnnotator {
                     "Unspecified value parameters: " + missed.mkString(", "))
                   addCreateFromUsagesQuickFixes(reference, holder)
                 }
+                val (problems, fun) = call.applyOrUpdateElement match {
+                  case Some(rr) =>
+                    (rr.problems, rr.element)
+                  case _ => (r.problems, f)
+                }
 
-                r.problems.foreach {
+                problems.foreach {
                   case DoesNotTakeParameters() =>
-                    if (!call.isApplyOrUpdateCall) {
-                      holder.createErrorAnnotation(call.argsElement, f.name + " does not take parameters")
-                      addCreateFromUsagesQuickFixes(reference, holder)
-                    }
+                    holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters")
+                    addCreateFromUsagesQuickFixes(reference, holder)
                   case ExcessArgument(argument) if inSameFile(argument, holder) =>
-                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
+                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
                     for (t <- expression.getType(TypingContext.empty)) {
@@ -164,7 +167,7 @@ trait ApplicationAnnotator {
       case _ => //unhandled case (only ref expressions was checked)
     }
 
-    val problems = call.applicationProblems
+    val problems = call.applyOrUpdateElement.map(_.problems).getOrElse(call.applicationProblems)
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
 
     if(missed.nonEmpty)
@@ -174,13 +177,11 @@ trait ApplicationAnnotator {
     //todo: duplicate
     problems.foreach {
       case DoesNotTakeParameters() =>
-        if (!call.isApplyOrUpdateCall) {
-          val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
-          (call, call.getInvokedExpr) match {
-            case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
-              annotation.registerFix(new CreateApplyQuickFix(td, c))
-            case _ =>
-          }
+        val annotation = holder.createErrorAnnotation(call.argsElement, "Application does not take parameters")
+        (call, call.getInvokedExpr) match {
+          case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
+            annotation.registerFix(new CreateApplyQuickFix(td, c))
+          case _ =>
         }
       case ExcessArgument(argument) =>
         holder.createErrorAnnotation(argument, "Too many arguments")
