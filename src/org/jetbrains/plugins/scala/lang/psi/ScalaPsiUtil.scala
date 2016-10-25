@@ -284,7 +284,7 @@ object ScalaPsiUtil {
           case _ =>
             funType match {
               case Some(ft) =>
-                val conformance = tp.conforms(ft, new ScUndefinedSubstitutor())
+                val conformance = tp.conforms(ft, ScUndefinedSubstitutor())
                 if (conformance._1) {
                   conformance._2.getSubstitutor match {
                     case Some(subst) => Some(subst.subst(ft).removeUndefines())

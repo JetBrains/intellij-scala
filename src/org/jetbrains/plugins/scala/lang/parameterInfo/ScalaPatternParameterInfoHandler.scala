@@ -229,7 +229,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           val funType = undefSubst.subst(result.get)
                           constr.expectedType match {
                             case Some(tp) =>
-                              val conformance = funType.conforms(tp, new ScUndefinedSubstitutor())
+                              val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
                               if (conformance._1) {
                                 conformance._2.getSubstitutor match {
                                   case Some(newSubst) => newSubst.followed(substitutor)

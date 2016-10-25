@@ -508,7 +508,7 @@ class ImplicitCollector(place: PsiElement,
         val coreTypeForTp = coreType(tp)
 
         def equivOrDominates(tp: ScType, found: ScType): Boolean =
-          found.equiv(tp, new ScUndefinedSubstitutor(), falseUndef = false)._1 || dominates(tp, found)
+          found.equiv(tp, ScUndefinedSubstitutor(), falseUndef = false)._1 || dominates(tp, found)
 
         val checkAdd: (ScType, Seq[ScType]) => Boolean = (tp, searches) => !searches.exists(equivOrDominates(tp, _))
 

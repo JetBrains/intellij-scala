@@ -464,52 +464,81 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
   }
 }
 
-class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-                             val lowerMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-                             val upperAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-                             val lowerAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty)
-                            (implicit val typeSystem: TypeSystem) {
+sealed trait ScUndefinedSubstitutor {
+
+  type Name = (String, Long)
+
+  def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor
+  def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor
+  def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor]
+  def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
+  def filter(fun: (((String, Long), HashSet[ScType])) => Boolean): ScUndefinedSubstitutor
+  def addSubst(added: ScUndefinedSubstitutor): ScUndefinedSubstitutor
+  def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
+  def isEmpty: Boolean
+  def names: Set[Name]
+  def getLowerBound(nameAndId: Name): Option[ScType]
+  def getUpperBound(nameAndId: Name): Option[ScType]
+}
+
+object ScUndefinedSubstitutor {
+  def apply(upperMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
+            lowerMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
+            upperAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
+            lowerAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty)
+           (implicit typeSystem: TypeSystem): ScUndefinedSubstitutor =
+    new ScUndefinedSubstitutorImpl(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)(typeSystem)
+
+  def multi(subs: Seq[ScUndefinedSubstitutor]) = new ScMultiUndefinedSubstitutor(subs)
+}
+
+class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
+                             private val lowerMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
+                             private val upperAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
+                             private val lowerAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty)
+                            (implicit val typeSystem: TypeSystem) extends ScUndefinedSubstitutor {
 
   def copy(upperMap: Map[(String, Long), HashSet[ScType]] = upperMap,
            lowerMap: Map[(String, Long), HashSet[ScType]] = lowerMap,
            upperAdditionalMap: Map[(String, Long), HashSet[ScType]] = upperAdditionalMap,
            lowerAdditionalMap: Map[(String, Long), HashSet[ScType]] = lowerAdditionalMap): ScUndefinedSubstitutor = {
-    new ScUndefinedSubstitutor(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)
+    new ScUndefinedSubstitutorImpl(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)
   }
-
-  type Name = (String, Long)
 
   def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty && upperAdditionalMap.isEmpty && lowerAdditionalMap.isEmpty
 
   //todo: this is can be rewritten in more fast way
-  def addSubst(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = {
-    var res: ScUndefinedSubstitutor = this
-    for ((name, seq) <- subst.upperMap) {
-      for (upper <- seq) {
-        res = res.addUpper(name, upper, variance = 0)
-      }
-    }
-    for ((name, seq) <- subst.lowerMap) {
-      for (lower <- seq) {
-        res = res.addLower(name, lower, variance = 0)
-      }
-    }
+  def addSubst(added: ScUndefinedSubstitutor): ScUndefinedSubstitutor = {
+    added match {
+      case subst: ScUndefinedSubstitutorImpl =>
+        var res: ScUndefinedSubstitutor = this
+        for ((name, seq) <- subst.upperMap) {
+          for (upper <- seq) {
+            res = res.addUpper(name, upper, variance = 0)
+          }
+        }
+        for ((name, seq) <- subst.lowerMap) {
+          for (lower <- seq) {
+            res = res.addLower(name, lower, variance = 0)
+          }
+        }
 
-    for ((name, seq) <- subst.upperAdditionalMap) {
-      for (upper <- seq) {
-        res = res.addUpper(name, upper, additional = true, variance = 0)
-      }
-    }
-    for ((name, seq) <- subst.lowerAdditionalMap) {
-      for (lower <- seq) {
-        res = res.addLower(name, lower, additional = true, variance = 0)
-      }
-    }
+        for ((name, seq) <- subst.upperAdditionalMap) {
+          for (upper <- seq) {
+            res = res.addUpper(name, upper, additional = true, variance = 0)
+          }
+        }
+        for ((name, seq) <- subst.lowerAdditionalMap) {
+          for (lower <- seq) {
+            res = res.addLower(name, lower, additional = true, variance = 0)
+          }
+        }
 
-    res
+        res
+      case subst: ScMultiUndefinedSubstitutor =>
+        subst.addSubst(this)
+    }
   }
-
-  def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
 
   def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor = {
     var index = 0
@@ -582,8 +611,6 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] 
         else copy(upperMap = uMap + ((name, HashSet(upper))))
     }
   }
-
-  def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
 
   private var additionalNamesInner: Set[Name] = _
 
@@ -775,4 +802,41 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, Long), HashSet[ScType]] 
     val subst = new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None)
     Some(subst)
   }
+
+  def filter(fun: (((String, Long), HashSet[ScType])) => Boolean): ScUndefinedSubstitutor = {
+    new ScUndefinedSubstitutorImpl(
+      upperMap.filter(fun), lowerMap.filter(fun),
+      upperAdditionalMap.filter(fun), lowerAdditionalMap.filter(fun))
+  }
+
+  override def getLowerBound(nameAndId: (String, Long)): Option[ScType] = lMap.get(nameAndId)
+
+  override def getUpperBound(nameAndId: (String, Long)): Option[ScType] = rMap.get(nameAndId)
+}
+
+class ScMultiUndefinedSubstitutor(val subs: Seq[ScUndefinedSubstitutor]) extends ScUndefinedSubstitutor {
+  def copy(subs: Seq[ScUndefinedSubstitutor]) = new ScMultiUndefinedSubstitutor(subs)
+
+  override def addLower(name: (String, Long), _lower: ScType, additional: Boolean, variance: Int): ScUndefinedSubstitutor =
+    copy(subs.map(_.addLower(name, _lower, additional, variance)))
+
+  override def addUpper(name: (String, Long), _upper: ScType, additional: Boolean, variance: Int): ScUndefinedSubstitutor =
+    copy(subs.map(_.addUpper(name, _upper, additional, variance)))
+
+  override def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] =
+    subs.map(_.getSubstitutor(notNonable)).find(_.isDefined).getOrElse(None)
+
+  override def filter(fun: (((String, Long), HashSet[ScType])) => Boolean): ScUndefinedSubstitutor =
+    copy(subs.map(_.filter(fun)))
+
+  override def addSubst(added: ScUndefinedSubstitutor): ScUndefinedSubstitutor = copy(subs.map(_.addSubst(added)))
+
+  override def isEmpty: Boolean = subs.forall(_.isEmpty)
+
+  override def names: Set[(String, Long)] = if (subs.isEmpty) Set.empty else subs.tail.map(_.names).
+    foldLeft(subs.head.names){case (a, b) => a.intersect(b)}
+
+  override def getLowerBound(nameAndId: (String, Long)): Option[ScType] = subs.headOption.flatMap(_.getLowerBound(nameAndId))
+
+  override def getUpperBound(nameAndId: (String, Long)): Option[ScType] = subs.headOption.flatMap(_.getUpperBound(nameAndId))
 }
