@@ -24,7 +24,7 @@ object SbtResolver {
     new SbtIvyResolver("Local cache", localCachePath getOrElse defaultPath)
   }
 
-  val DELIMITER = "|"
+  private val DELIMITER = "|"
   def fromString(str: String): Option[SbtResolver] = {
     str.split(Pattern.quote(DELIMITER), 3).toSeq match {
       case Seq(root, "maven", name) => Some(new SbtMavenResolver(name, root))

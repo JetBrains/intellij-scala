@@ -419,4 +419,5 @@ object SbtProjectResolver {
     def onTaskOutput(message: String, stdOut: Boolean): Unit =
       listener.onTaskOutput(taskId, message, stdOut)
   }
+
 }

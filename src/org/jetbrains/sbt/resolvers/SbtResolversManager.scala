@@ -19,9 +19,7 @@ class SbtResolversManager(val project: Project) extends ProjectComponent {
 
   override def getComponentName: String = "SbtResolversManager"
 
-  def search(groupId: String = "", artifactId: String = "", version: String = ""): Seq[String] = ???
-
-  def updateWithProgress(resolvers: Seq[SbtResolver]) = {
+  def updateWithProgress(resolvers: Seq[SbtResolver]): Unit = {
     implicit val p = project
     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating indexes") {
       override def run(indicator: ProgressIndicator): Unit = {
