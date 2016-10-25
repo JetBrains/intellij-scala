@@ -71,13 +71,18 @@ trait ApplicationAnnotator {
                     "Unspecified value parameters: " + missed.mkString(", "))
                   addCreateFromUsagesQuickFixes(reference, holder)
                 }
+                val (problems, fun) = call.applyOrUpdateElement match {
+                  case Some(rr) =>
+                    (rr.problems, rr.element)
+                  case _ => (r.problems, f)
+                }
 
-                r.problems.foreach {
+                problems.foreach {
                   case DoesNotTakeParameters() =>
-                    holder.createErrorAnnotation(call.argsElement, f.name + " does not take parameters")
+                    holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters")
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case ExcessArgument(argument) if inSameFile(argument, holder) =>
-                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
+                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
                     for (t <- expression.getType(TypingContext.empty)) {
@@ -162,7 +167,7 @@ trait ApplicationAnnotator {
       case _ => //unhandled case (only ref expressions was checked)
     }
 
-    val problems = call.applicationProblems
+    val problems = call.applyOrUpdateElement.map(_.problems).getOrElse(call.applicationProblems)
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
 
     if(missed.nonEmpty)

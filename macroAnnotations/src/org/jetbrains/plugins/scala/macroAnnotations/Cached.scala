@@ -149,7 +149,8 @@ object Cached {
         }
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = {
-            $actualCalculation
+            if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
+            else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
           }
           ..$currModCount
           def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
