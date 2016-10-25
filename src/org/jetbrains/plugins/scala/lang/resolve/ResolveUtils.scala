@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldI
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
@@ -246,7 +246,7 @@ object ResolveUtils {
                 val placePackageName = placeEnclosing match {
                   case _: ScalaFile => ""
                   case obj: ScObject => obj.qualifiedName
-                  case pack: ScPackaging => pack.fqn
+                  case pack: ScPackaging => pack.fullPackageName
                 }
                 packageContains(packageName, placePackageName)
               }
@@ -264,7 +264,7 @@ object ResolveUtils {
             }
             else {
               /*
-              ScalaRefernce.pdf:
+              ScalaReference.pdf:
                 Such members can be accessed only from within the directly enclosing
                 template and its companion module or companion class
               */
@@ -277,19 +277,17 @@ object ResolveUtils {
                 case file: ScalaFile if file.isScriptFile() =>
                   PsiTreeUtil.isContextAncestor(file, place, false)
                 case _ =>
-                  val packageName = enclosing match {
-                    case _: ScalaFile => ""
-                    case packaging: ScPackaging => packaging.getPackageName
-                    case _ => ""
+                  ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile]) match {
+                    case null => false // not Scala
+                    case placeEnclosing =>
+                      def packaging(element: PsiElement) = Option(element).collect {
+                        case packaging: ScPackaging => packaging
+                      }.map {
+                        _.packageName
+                      }.getOrElse("")
+
+                      packageContains(packaging(enclosing), packaging(placeEnclosing))
                   }
-                  val placeEnclosing: PsiElement = ScalaPsiUtil.
-                          getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
-                  if (placeEnclosing == null) return false //not Scala
-                  val placePackageName = placeEnclosing match {
-                    case _: ScalaFile => ""
-                    case pack: ScPackaging => pack.getPackageName
-                  }
-                  packageContains(packageName, placePackageName)
               }
             }
           } else if (am.isProtected) { //todo: it's wrong if reference after not appropriate class type
@@ -310,7 +308,7 @@ object ResolveUtils {
                 val placePackageName = placeEnclosing match {
                   case _: ScalaFile => ""
                   case obj: ScObject => obj.qualifiedName
-                  case pack: ScPackaging => pack.fqn
+                  case pack: ScPackaging => pack.fullPackageName
                 }
                 if (packageContains(packageName, placePackageName)) return Some(true)
                 None

@@ -6,9 +6,9 @@ import java.util
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}

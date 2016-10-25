@@ -7,8 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.source.PsiFileWithStubSupport
 import com.intellij.psi.{PsiClass, PsiClassOwnerEx, PsiImportHolder}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 
 /**
  * @author ilyas
