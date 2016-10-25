@@ -61,8 +61,6 @@ object ScalaLanguageConsoleBuilder {
         override def value(t: LanguageConsoleView): Boolean = true
       })
 
-    ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
-    
     consoleView.setPrompt(null)
     consoleView
   }
