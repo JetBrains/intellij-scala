@@ -32,12 +32,12 @@ class ScalaConsoleExecuteAction extends AnAction {
 
   def actionPerformed(e: AnActionEvent) {
     val editor = e.getData(CommonDataKeys.EDITOR)
-    if (editor == null) {
-      return
-    }
+    if (editor == null) return
+    
     val console = ScalaConsoleInfo.getConsole(editor)
     val processHandler = ScalaConsoleInfo.getProcessHandler(editor)
     val model = ScalaConsoleInfo.getController(editor)
+    
     if (editor != null && console != null && processHandler != null && model != null) {
       val document = console.getEditorDocument
       val text = document.getText
