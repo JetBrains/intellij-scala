@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /**
 * @author Alexander Podkhalyuzin

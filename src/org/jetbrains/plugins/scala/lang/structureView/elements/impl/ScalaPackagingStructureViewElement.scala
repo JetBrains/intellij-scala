@@ -6,7 +6,7 @@ package impl
 
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl._
 
 import _root_.scala.collection.mutable._

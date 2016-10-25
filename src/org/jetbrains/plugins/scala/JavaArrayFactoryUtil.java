@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents;

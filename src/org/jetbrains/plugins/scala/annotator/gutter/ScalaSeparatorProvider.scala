@@ -4,8 +4,8 @@ package annotator.gutter
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScIfStmt, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
 /**
@@ -44,15 +44,15 @@ trait ScalaSeparatorProvider {
   def groupOf(element: PsiElement): Option[Int] = {
     element match {
       case _: ScValue |
-              _: ScVariable |
-              _: ScTypeAlias |
-              _: ScFunction |
-              _: ScImportStmt |
-              _: ScPackageContainer |
-              _: ScClass |
-              _: ScObject |
-              _: ScTrait |
-              _: ScBlock => Some(DefaultGroup)
+           _: ScVariable |
+           _: ScTypeAlias |
+           _: ScFunction |
+           _: ScImportStmt |
+           _: ScPackaging |
+           _: ScClass |
+           _: ScObject |
+           _: ScTrait |
+           _: ScBlock => Some(DefaultGroup)
       case it: ScNewTemplateDefinition if it.extendsBlock != null => Some(DefaultGroup)
       case _ => None
     }

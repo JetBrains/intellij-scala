@@ -32,12 +32,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
@@ -1517,9 +1516,9 @@ object ScalaPsiUtil {
   }
 
   def isScope(element: PsiElement): Boolean = element match {
-    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
-            _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
-            _: ScEarlyDefinitions | _: ScRefinement => true
+    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
+         _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
+         _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
   }
