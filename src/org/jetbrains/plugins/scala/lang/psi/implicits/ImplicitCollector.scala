@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
@@ -45,6 +45,9 @@ object ImplicitCollector {
 
   def cache(project: Project): ConcurrentMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]] =
     ScalaPsiManager.instance(project).implicitCollectorCache
+
+  def typeParametersOwnersCache(project: Project): ConcurrentMap[ScType, Set[ScTypeParametersOwner]] =
+    ScalaPsiManager.instance(project).typeParametersOwnersCache
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map(_.tryExtractDesignatorSingleton)
@@ -529,16 +532,29 @@ class ImplicitCollector(place: PsiElement,
     }
 
     private def hasTypeParamsInType(fun: ScFunction, funType: ScType): Boolean = {
-      val typeParameters = fun.typeParameters.map(_.name)
-      var hasTypeParametersInType = false
-      funType.recursiveUpdate {
-        case tp@TypeParameterType(_, _, _, _) if typeParameters.contains(tp.name) =>
-          hasTypeParametersInType = true
-          (true, tp)
-        case tp: ScType if hasTypeParametersInType => (true, tp)
-        case tp: ScType => (false, tp)
+      def collectOwners: Set[ScTypeParametersOwner] = {
+        var result = Set[ScTypeParametersOwner]()
+        funType.recursiveUpdate {
+          case TypeParameterType(_, _, _, psiTP) =>
+            psiTP.getOwner match {
+              case f: ScFunction => result += f
+              case _ =>
+            }
+            (false, tp)
+          case _ => (false, tp)
+        }
+        result
       }
-      hasTypeParametersInType
+
+      val cache = ImplicitCollector.typeParametersOwnersCache(project)
+      cache.get(funType) match {
+        case null =>
+          val owners = collectOwners
+          cache.putIfAbsent(funType, owners)
+          owners.contains(fun)
+        case seq => seq.contains(fun)
+      }
+
     }
 
     private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean, noReturnType: Boolean): Option[ScType] = {
