@@ -39,8 +39,8 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
     addAllMetaLibraries(metaModule)
     val profile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
     val settings = profile.getSettings
-    val paradisePath= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-SNAPSHOT.jar"
-    assert(new File(paradisePath).exists(), "paradise plugin not found")
+    val paradisePath= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-M4.jar"
+    assert(new File(paradisePath).exists(), "Can't compile testdata - paradise plugin not found")
     settings.plugins :+= paradisePath
     profile.setSettings(settings)
     extensions.inWriteAction {
@@ -84,7 +84,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
         |Foo.<caret>
       """.stripMargin)
     val result = myFixture.completeBasic()
-    Assert.assertTrue(result.exists(_.getLookupString == "myNewCoolMethod"))
+    Assert.assertTrue("", result.exists(_.getLookupString == "myNewCoolMethod"))
   }
 
 }
