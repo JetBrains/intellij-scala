@@ -92,19 +92,21 @@ object QuasiquoteInferUtil {
       }
     }
 
-    val patternText = escapeQQ(pat)
-
-    val qqdialect = if (pat.isMultiLineString)
-      m.Dialect.forName("QuasiquotePat(Scala211, Multi)")
-    else
-      m.Dialect.forName("QuasiquotePat(Scala211, Single)")
-    val parsed: Parsed[m.Stat] = qqdialect(patternText).parse[m.Stat]
-    parsed match {
-      case Success(term) =>
-        val parts = collectQQParts(term)
-        val classes = parts.map(_.pt)
-        classes.map(classToScTypeString)
-      case Error(pos, message, details) =>
+    try {
+      val prefix = pat.ref.refName
+      val patternText = escapeQQ(pat)
+      val qqDialect = if (pat.isMultiLineString)
+        m.Dialect.forName("QuasiquotePat(Scala211, Multi)")
+      else
+        m.Dialect.forName("QuasiquotePat(Scala211, Single)")
+      val parsed = parseQQExpr(prefix, patternText, qqDialect)
+      val parts = collectQQParts(parsed)
+      val classes = parts.map(_.pt)
+      classes.map(classToScTypeString)
+    } catch {
+      case ParseException(pos, message) =>
+        Seq.empty  // TODO: report more meaningful error on parse failure
+      case _: Exception =>
         Seq.empty
     }
   }
