@@ -112,9 +112,9 @@ object QuasiquoteInferUtil {
   def escapeQQ(pat: ScInterpolationPatternImpl): String = {
     val c = pat.getFirstChild
     if (pat.isMultiLineString) {
-      pat.getText.replaceAll("^q\"\"\"", "").replaceAll("\"\"\"$", "").trim
+      pat.getText.replaceAll("^[a-z]+\"\"\"", "").replaceAll("\"\"\"$", "").trim
     } else {
-      pat.getText.replaceAll("^q\"", "").replaceAll("\"$", "").trim
+      pat.getText.replaceAll("^[a-z]+\"", "").replaceAll("\"$", "").trim
     }
   }
 
