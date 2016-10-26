@@ -297,7 +297,7 @@ object InferUtil {
       case ScalaResolveResult(param: ScParameter, subst) => subst.subst(param.getType(TypingContext.empty).get)
       case ScalaResolveResult(patt: ScBindingPattern, subst) => subst.subst(patt.getType(TypingContext.empty).get)
       case ScalaResolveResult(f: ScFieldId, subst) => subst.subst(f.getType(TypingContext.empty).get)
-      case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.getTypeNoImplicits.get)
+      case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.functionTypeNoImplicits().get)
     }
   }
 

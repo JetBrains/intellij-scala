@@ -75,7 +75,6 @@ object ImplicitCollector {
                            extensionPredicate: Option[Candidate => Option[Candidate]],
                            previousRecursionState: Option[RecursionMap])
 
-  var useOldImplicitCollector = false
 }
 
 /**
@@ -580,11 +579,11 @@ class ImplicitCollector(place: PsiElement,
 
       def checkFunctionByTypeInner(noReturnType: Boolean): Option[Candidate] = {
         val ft =
-          if (noReturnType) fun.getTypeNoImplicits(Success(Nothing, Some(getPlace)))
-          else fun.getTypeNoImplicits
+          if (noReturnType) fun.functionTypeNoImplicits(Some(Nothing))
+          else fun.functionTypeNoImplicits()
 
         ft match {
-          case Success(_funType: ScType, _) =>
+          case Some(_funType: ScType) =>
             val funType = MacroInferUtil.checkMacro(fun, Some(tp), place) getOrElse _funType
 
             val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {
