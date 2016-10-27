@@ -943,6 +943,10 @@
                          displayName="Redundant New on Case Class" groupPath="Scala" groupName="Syntactic Simplification"
                          shortName="RedundantNewCaseClass"
                          id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.RedundantDefaultArgumentInspection"
+                         displayName="Argument duplicates corresponding parameter default value" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="RedundantDefaultArgument" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--Syntactic clarification inspections (including syntactic desugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection"
@@ -953,11 +957,11 @@
                          displayName="Concealed &quot;apply&quot; call" groupPath="Scala" groupName="Syntactic Clarification"
                          shortName="ConcealedApplyCall" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection"
-              displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic Clarification"
-              shortName="ConvertNullInitializerToUnderscore" level="WARNING"
-              enabledByDefault="true" language="Scala"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection"
+                displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic Clarification"
+                shortName="ConvertNullInitializerToUnderscore" level="WARNING"
+                enabledByDefault="true" language="Scala"/>
 
         <!--Method signature inspections-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"
