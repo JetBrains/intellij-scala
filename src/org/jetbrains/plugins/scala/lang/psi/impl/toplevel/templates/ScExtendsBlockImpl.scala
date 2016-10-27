@@ -5,7 +5,6 @@ package impl
 package toplevel
 package templates
 
-
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubElement
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, api, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
@@ -32,61 +32,51 @@ import scala.collection.Seq
 import scala.collection.mutable.ListBuffer
 
 /**
- * @author AlexanderPodkhalyuzin
- * Date: 20.02.2008
- */
-class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: IElementType, node: ASTNode)
+  * @author AlexanderPodkhalyuzin
+  *         Date: 20.02.2008
+  */
+class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScExtendsBlock {
-  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScExtendsBlockStub) = {this(stub, ScalaElementTypes.EXTENDS_BLOCK, null)}
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScExtendsBlockStub) = this(stub, ScalaElementTypes.EXTENDS_BLOCK, null)
 
   override def toString: String = "ExtendsBlock"
 
   def templateBody: Option[ScTemplateBody] = {
-    def childStubTemplate(stub:StubElement[ScExtendsBlock]):Option[ScTemplateBody] = {
-      Option(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)) match {
-        case Some(template) => Some(template.getPsi)
-        case _ => None
+    Option(getStub).flatMap { stub =>
+      Option(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)).map {
+        _.getPsi
       }
-    }
-
-    def lastChildTemplateBody: Option[ScTemplateBody] = {
-      getLastChild match {
-        case childTemplateBody: ScTemplateBody => Some(childTemplateBody)
-        case _ => None
+    }.orElse {
+      Option(getLastChild).collect {
+        case templateBody: ScTemplateBody => templateBody
       }
-    }
-
-    Option(getStub) match {
-      case Some(stub) => childStubTemplate(stub)
-      case _ => lastChildTemplateBody
     }
   }
 
-  def empty = getNode.getFirstChildNode == null
+  def empty: Boolean = getNode.getFirstChildNode == null
 
-  def selfType = {
-    val res = wrap(selfTypeElement) flatMap {
-      ste => wrap(ste.typeElement) flatMap {
-        te => te.getType(TypingContext.empty)
-      }
-    } match {
-      case Success(t, _) => Some(t)
-      case _ => None
+  def selfType: Option[ScType] =
+    selfTypeElement.flatMap {
+      _.typeElement
+    }.flatMap {
+      _.getType().toOption
     }
-    res
-  }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def superTypes: List[ScType] = {
     val buffer = new ListBuffer[ScType]
+
     def addType(t: ScType) {
       t match {
         case ScCompoundType(comps, _, _) => comps.foreach(addType)
         case _ => buffer += t
       }
     }
+
     templateParents match {
       case Some(parents: ScTemplateParents) => parents.superTypes.foreach(addType)
       case _ => syntheticTypeElements.map(_.getType(TypingContext.empty).getOrAny).foreach(addType)
@@ -172,16 +162,11 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     if (so != null) ScDesignatorType(so) else null
   }
 
-  def isAnonymousClass: Boolean = {
+  def isAnonymousClass: Boolean =
     getParent match {
-      case _: ScNewTemplateDefinition =>
-      case _ => return false
+      case _: ScNewTemplateDefinition => templateBody.isDefined
+      case _ => false
     }
-    templateBody match {
-      case Some(_) => true
-      case None => false
-    }
-  }
 
   @Cached(false, ModCount.getBlockModificationCount, this)
   def syntheticTypeElements: Seq[ScTypeElement] = {
@@ -195,9 +180,11 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def supers: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
+
     def addClass(t: PsiClass) {
       buffer += t
     }
+
     templateParents match {
       case Some(parents: ScTemplateParents) => parents.supers foreach { t => addClass(t) }
       case _ => ScTemplateParents.extractSupers(syntheticTypeElements, getProject) foreach { t => addClass(t) }
@@ -231,12 +218,12 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
         if (javaObjectClass != null)
           buffer += javaObjectClass
     }
-    buffer.toSeq
+    buffer
   }
 
   def directSupersNames: Seq[String] = {
     @tailrec
-    def process(te: ScTypeElement, acc:Vector[String]): Vector[String] = {
+    def process(te: ScTypeElement, acc: Vector[String]): Vector[String] = {
       te match {
         case simpleType: ScSimpleTypeElement =>
           simpleType.reference match {
@@ -259,56 +246,52 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
       }
     }
 
-    def default(res:Seq[String]): Seq[String] =
-      res ++ Seq[String]("Object", "ScalaObject")
+    def default(res: Seq[String]): Seq[String] =
+      res ++ Seq("Object", "ScalaObject")
 
-    def productSerializable(res:Seq[String])(underCaseClass:Boolean): Seq[String] =
-      if (underCaseClass)
-        res ++ Seq[String]("Product", "Serializable")
-      else res
+    def productSerializable(res: Seq[String])(underCaseClass: Boolean): Seq[String] =
+      res ++ (if (underCaseClass) Seq("Product", "Serializable") else Seq.empty)
 
     def search = productSerializable _ compose default
 
     templateParents match {
       case None => Seq.empty
       case Some(parents) =>
-        val parentElements:Seq[ScTypeElement] = parents.allTypeElements.toIndexedSeq
-        val results:Seq[String] = parentElements flatMap( process(_, Vector[String]()) )
+        val parentElements: Seq[ScTypeElement] = parents.allTypeElements.toIndexedSeq
+        val results: Seq[String] = parentElements flatMap (process(_, Vector[String]()))
         search(results)(isUnderCaseClass).toBuffer
     }
   }
 
-  def members = {
-    val bodyMembers: Seq[ScMember] = templateBody match {
-      case None => Seq.empty
-      case Some(body: ScTemplateBody) => body.members
+  def members: Seq[ScMember] = {
+    templateBodies.flatMap {
+      _.members
+    } ++ earlyDefinitions.toSeq.flatMap {
+      _.members
     }
-    val earlyMembers = earlyDefinitions match {
-      case None => Seq.empty
-      case Some(earlyDefs) => earlyDefs.members
-    }
-
-    bodyMembers ++ earlyMembers
   }
 
-  def typeDefinitions = templateBody match {
-    case None => Seq.empty
-    case Some(body) => body.typeDefinitions
-  }
+  def typeDefinitions: Seq[ScTypeDefinition] =
+    templateBodies.flatMap {
+      _.typeDefinitions
+    }
 
   def nameId = null
 
-  def aliases = templateBody match {
-    case None => Seq.empty
-    case Some(body) => body.aliases
-  }
+  def aliases: Seq[ScTypeAlias] =
+    templateBodies.flatMap {
+      _.aliases
+    }
 
-  def functions = templateBody match {
-    case None => Seq.empty
-    case Some(body) => body.functions
-  }
+  def functions: Seq[ScFunction] =
+    templateBodies.flatMap {
+      _.functions
+    }
 
-  def selfTypeElement = templateBody flatMap {body => body.selfTypeElement}
+  def selfTypeElement: Option[ScSelfTypeElement] =
+    templateBody.flatMap {
+      _.selfTypeElement
+    }
 
   def templateParents: Option[ScTemplateParents] = {
     val stub = getStub
@@ -346,4 +329,6 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     case td: ScTypeDefinition if td.isCase => true
     case _ => false
   }
+
+  private def templateBodies = templateBody.toSeq
 }
