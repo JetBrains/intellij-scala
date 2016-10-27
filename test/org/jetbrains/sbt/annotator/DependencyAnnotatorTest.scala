@@ -19,27 +19,27 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
 
   val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
 
-  def testDoNotAnnotateIndexedDep() =
+  def testDoNotAnnotateIndexedDep(): Unit =
     doTest(Seq.empty)
 
-  def testDoNotAnnotateIndexedDepWithDynamicVersion() =
+  def testDoNotAnnotateIndexedDepWithDynamicVersion(): Unit =
     doTest(Seq.empty)
 
-  def testAnnotateUnresolvedDep() = {
+  def testAnnotateUnresolvedDep(): Unit = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
     doTest(Seq(Error("\"org.jetbrains\"", msg),
       Error("\"unknown-lib\"", msg),
       Error("\"0.0.0\"", msg)))
   }
 
-  def testAnnotateUnresolvedDepWithDynamicVersion() = {
+  def testAnnotateUnresolvedDepWithDynamicVersion(): Unit = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
     doTest(Seq(Error("\"org.jetbrains\"", msg),
       Error("\"unknown-lib\"", msg),
       Error("\"latest.release\"", msg)))
   }
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
 
 
@@ -50,10 +50,10 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
         SbtModule.setResolversTo(module, resolvers + testResolver)
       }
     }
-    testResolver.getIndex.doUpdate()(getProject)
+    testResolver.getIndex(myProject).doUpdate()(getProject)
   }
 
-  override def tearDown() = {
+  override def tearDown(): Unit = {
     super.tearDown()
   }
 
