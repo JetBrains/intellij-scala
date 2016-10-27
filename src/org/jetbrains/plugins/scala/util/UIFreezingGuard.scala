@@ -77,7 +77,10 @@ object UIFreezingGuard {
   }
 
   //used in macro to reduce number of `withResponsibleUI` calls in the stacktrace
-  def isAlreadyGuarded: Boolean = ApplicationManager.getApplication.isDispatchThread && ourProgress.isRunning
+  def isAlreadyGuarded: Boolean = {
+    val edt = ApplicationManager.getApplication.isDispatchThread
+    edt && ourProgress.isRunning || !edt
+  }
 
   private def dumpThreads(ms: Long): Unit = {
     val threshold = 1000
