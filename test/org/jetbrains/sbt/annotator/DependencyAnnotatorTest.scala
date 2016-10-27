@@ -3,7 +3,7 @@ package annotator
 
 import _root_.junit.framework.Assert._
 import com.intellij.openapi.module.ModuleManager
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message}
+import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -27,16 +27,16 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
 
   def testAnnotateUnresolvedDep(): Unit = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
-    doTest(Seq(Error("\"org.jetbrains\"", msg),
-      Error("\"unknown-lib\"", msg),
-      Error("\"0.0.0\"", msg)))
+    doTest(Seq(Warning("\"org.jetbrains\"", msg),
+      Warning("\"unknown-lib\"", msg),
+      Warning("\"0.0.0\"", msg)))
   }
 
   def testAnnotateUnresolvedDepWithDynamicVersion(): Unit = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
-    doTest(Seq(Error("\"org.jetbrains\"", msg),
-      Error("\"unknown-lib\"", msg),
-      Error("\"latest.release\"", msg)))
+    doTest(Seq(Warning("\"org.jetbrains\"", msg),
+      Warning("\"unknown-lib\"", msg),
+      Warning("\"latest.release\"", msg)))
   }
 
   override def setUp(): Unit = {
