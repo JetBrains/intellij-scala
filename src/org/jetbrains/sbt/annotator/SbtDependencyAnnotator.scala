@@ -2,14 +2,15 @@ package org.jetbrains.sbt
 package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
+import com.intellij.openapi.module.{ModuleManager, ModuleType}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.util.NotificationUtil
-import org.jetbrains.sbt.annotator.quickfix.SbtRefreshProjectQuickFix
+import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
+import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.{ResolverException, SbtResolverUtils}
 
 /**
@@ -34,7 +35,12 @@ class SbtDependencyAnnotator extends Annotator {
 
     implicit val p = element.getProject
 
-    if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
+
+    lazy val module = ScalaPsiUtil.getModule(element)
+    lazy val sbtModule = ModuleManager.getInstance(p).getModules.find(_.getName == s"${module.getName}-build")
+
+    if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name &&
+        !ModuleType.get(module).isInstanceOf[SbtModuleType]) return
 
     def findDependencyOrAnnotate(info: ArtifactInfo): Unit = {
       val resolversToUse = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(element)))
@@ -48,8 +54,12 @@ class SbtDependencyAnnotator extends Annotator {
           indexes.exists(_.searchVersion(info.group, info.artifact).contains(info.version))
       }
       if (!isInRepo) {
-        val annotation = holder.createErrorAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
-//        annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
+        val annotation = holder.createWeakWarningAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
+        if (ModuleType.get(module).isInstanceOf[SbtModuleType]) {
+          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(module))
+        } else if (sbtModule.isDefined) {
+          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(sbtModule.get))
+        }
         annotation.registerFix(new SbtRefreshProjectQuickFix)
       }
     }
