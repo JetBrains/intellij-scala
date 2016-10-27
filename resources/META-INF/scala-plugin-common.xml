@@ -1028,6 +1028,10 @@
                          displayName="Method declaration has no explicit return type" groupPath="Scala" groupName="Method signature"
                          shortName="DeclarationHasNoExplicitType" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.RedundantDefaultArgumentInspection"
+                         displayName="Argument duplicates corresponding parameter default value" groupPath="Scala" groupName="Method signature"
+                         shortName="RedundantDefaultArgumentInspection" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--Scalastyle inspection-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
