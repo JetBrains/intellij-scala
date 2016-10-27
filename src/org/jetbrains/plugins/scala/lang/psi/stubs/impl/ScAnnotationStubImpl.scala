@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
   * User: Alexander Podkhalyuzin
   * Date: 22.06.2009
   */
-class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                    elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                    private val nameRef: Option[StringRef],
-                                                    private val typeTextRef: Option[StringRef])
+class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
+                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                           private val nameRef: Option[StringRef],
+                           private val typeTextRef: Option[StringRef])
   extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub {
 
   private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
