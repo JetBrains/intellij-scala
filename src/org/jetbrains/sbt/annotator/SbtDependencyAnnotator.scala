@@ -13,6 +13,8 @@ import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdat
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.{ResolverException, SbtResolverUtils}
 
+import scala.util.Try
+
 /**
  * @author Nikolay Obedin
  * @since 8/4/14.
@@ -36,11 +38,11 @@ class SbtDependencyAnnotator extends Annotator {
     implicit val p = element.getProject
 
 
-    lazy val module = ScalaPsiUtil.getModule(element)
-    lazy val sbtModule = ModuleManager.getInstance(p).getModules.find(_.getName == s"${module.getName}-build")
+    lazy val module = Try(ScalaPsiUtil.getModule(element)).toOption
+    lazy val sbtModule = module.flatMap(m=>ModuleManager.getInstance(p).getModules.find(_.getName == s"${m.getName}-build"))
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name &&
-        !ModuleType.get(module).isInstanceOf[SbtModuleType]) return
+        module.exists(m => !ModuleType.get(m).isInstanceOf[SbtModuleType])) return
 
     def findDependencyOrAnnotate(info: ArtifactInfo): Unit = {
       val resolversToUse = SbtResolverUtils.getProjectResolversForFile(Option(ScalaPsiUtil.fileContext(element)))
@@ -55,8 +57,9 @@ class SbtDependencyAnnotator extends Annotator {
       }
       if (!isInRepo) {
         val annotation = holder.createWeakWarningAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
-        if (ModuleType.get(module).isInstanceOf[SbtModuleType]) {
-          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(module))
+
+        if (module.exists(ModuleType.get(_).isInstanceOf[SbtModuleType])) {
+          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(module.get))
         } else if (sbtModule.isDefined) {
           annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(sbtModule.get))
         }

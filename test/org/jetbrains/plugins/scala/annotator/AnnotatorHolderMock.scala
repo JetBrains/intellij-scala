@@ -12,15 +12,15 @@ import com.intellij.psi.{PsiElement, PsiFile}
 class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
   private val FakeAnnotation = new com.intellij.lang.annotation.Annotation(
     0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")
-  
+
   def annotations = myAnnotations.reverse
   def errorAnnotations = annotations.filter {
     case error: Error => true
     case _ => false
   }
-  
+
   private var myAnnotations = List[Message]()
-  
+
   def createInfoAnnotation(range: TextRange, message: String) = FakeAnnotation
 
   def createInfoAnnotation(node: ASTNode, message: String) = {
@@ -46,7 +46,7 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
 
   def createWarningAnnotation(node: ASTNode, message: String) = FakeAnnotation
 
-  def createWarningAnnotation(elt: PsiElement, message: String) = { 
+  def createWarningAnnotation(elt: PsiElement, message: String) = {
     myAnnotations ::= Warning(elt.getText, message)
     FakeAnnotation
   }
@@ -58,7 +58,7 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
 
   def createErrorAnnotation(node: ASTNode, message: String) = FakeAnnotation
 
-  def createErrorAnnotation(elt: PsiElement, message: String) = { 
+  def createErrorAnnotation(elt: PsiElement, message: String) = {
     myAnnotations ::= Error(elt.getText, message)
     FakeAnnotation
   }
@@ -69,9 +69,12 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
 
   def createWeakWarningAnnotation(p1: ASTNode, p2: String): Annotation = FakeAnnotation
 
-  def createWeakWarningAnnotation(p1: PsiElement, p2: String): Annotation = FakeAnnotation
+  def createWeakWarningAnnotation(p1: PsiElement, p2: String): Annotation = {
+    myAnnotations ::= Warning(p1.getText, p2)
+    FakeAnnotation
+  }
 
   def isBatchMode: Boolean = false
 
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Annotation = FakeAnnotation
-} 
+}
