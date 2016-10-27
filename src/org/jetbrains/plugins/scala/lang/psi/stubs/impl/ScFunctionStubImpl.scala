@@ -11,98 +11,53 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createTypeElementFromText}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StringRefArrayExt, StubBaseExt}
 
 /**
- *  User: Alexander Podkhalyuzin
- *  Date: 14.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 14.10.2008
+  */
+class ScFunctionStubImpl(parent: StubElement[_ <: PsiElement],
+                         elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                         private val nameRef: StringRef,
+                         val isDeclaration: Boolean,
+                         private val annotationsRefs: Array[StringRef],
+                         private val returnTypeTextRef: Option[StringRef],
+                         private val bodyTextRef: Option[StringRef],
+                         val hasAssign: Boolean,
+                         val isImplicit: Boolean,
+                         val isLocal: Boolean)
+  extends StubBase[ScFunction](parent, elementType) with ScFunctionStub {
 
-class ScFunctionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-  extends StubBase[ScFunction](parent, elemType) with ScFunctionStub {
-  private var name: StringRef = _
-  private var declaration: Boolean = false
-  private var annotations: Array[StringRef] = Array[StringRef]()
-  private var typeText: StringRef = _
-  private var bodyText: StringRef = _
-  private var myReturnTypeElement: SofterReference[Option[ScTypeElement]] = null
-  private var myBodyExpression: SofterReference[Option[ScExpression]] = null
-  private var assign: Boolean = false
-  private var _implicit: Boolean = false
-  private var local: Boolean = false
+  private var returnTypeElementReference: SofterReference[Option[ScTypeElement]] = null
+  private var bodyTextElementReference: SofterReference[Option[ScExpression]] = null
 
-  def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String, isDeclaration: Boolean, annotations: Array[String], typeText: String, bodyText: String,
-          assign: Boolean, isImplicit: Boolean, isLocal: Boolean) = {
-    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = StringRef.fromString(name)
-    this.declaration = isDeclaration
-    this.annotations = annotations.map(StringRef.fromString)
-    this.typeText = StringRef.fromString(typeText)
-    this.bodyText = StringRef.fromString(bodyText)
-    this.assign = assign
-    _implicit = isImplicit
-    local = isLocal
-  }
+  def getName: String = StringRef.toString(nameRef)
 
-  def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: StringRef, isDeclaration: Boolean, annotations: Array[StringRef], typeText: StringRef, bodyText: StringRef,
-          assign: Boolean, isImplicit: Boolean, isLocal: Boolean) = {
-    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = name
-    this.declaration = isDeclaration
-    this.annotations = annotations
-    this.typeText = typeText
-    this.bodyText = bodyText
-    this.assign = assign
-    _implicit = isImplicit
-    local = isLocal
-  }
+  def annotations: Array[String] = annotationsRefs.asStrings
 
-  def isLocal: Boolean = local
+  def returnTypeText: Option[String] = returnTypeTextRef.asString
 
-  def getName: String = StringRef.toString(name)
-
-  def isDeclaration: Boolean = declaration
-
-  def getAnnotations: Array[String] = annotations.map(StringRef.toString)
-
-  def getReturnTypeElement: Option[ScTypeElement] = {
-    if (myReturnTypeElement != null) {
-      val returnTypeElement = myReturnTypeElement.get
-      if (returnTypeElement != null && (returnTypeElement.isEmpty || (returnTypeElement.get.getContext eq getPsi))) {
-        return returnTypeElement
-      }
+  def returnTypeElement: Option[ScTypeElement] = {
+    returnTypeElementReference = this.updateOptionalReference(returnTypeElementReference) {
+      case (context, child) =>
+        returnTypeText.map {
+          createTypeElementFromText(_, context, child)
+        }
     }
-    val res: Option[ScTypeElement] =
-      if (getReturnTypeText != "") {
-        Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi, null))
-      } else None
-    myReturnTypeElement = new SofterReference[Option[ScTypeElement]](res)
-    res
+    returnTypeElementReference.get
   }
 
-  def getBodyExpression: Option[ScExpression] = {
-    if (myBodyExpression != null) {
-      val body = myBodyExpression.get
-      if (body != null && (body.isEmpty || (body.get.getContext eq getPsi))) return body
+  def bodyText: Option[String] = bodyTextRef.asString
+
+  def bodyExpression: Option[ScExpression] = {
+    bodyTextElementReference = this.updateOptionalReference(bodyTextElementReference) {
+      case (context, child) =>
+        bodyText.map {
+          createExpressionWithContextFromText(_, context, child)
+        }
     }
-    val res: Option[ScExpression] =
-      if (getBodyText != "") {
-        Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, null))
-      } else None
-    myBodyExpression = new SofterReference[Option[ScExpression]](res)
-    res
+    bodyTextElementReference.get
   }
-
-  def getBodyText: String = StringRef.toString(bodyText)
-
-  def getReturnTypeText: String = StringRef.toString(typeText)
-
-  def hasAssign: Boolean = assign
-
-  def isImplicit: Boolean = _implicit
 }

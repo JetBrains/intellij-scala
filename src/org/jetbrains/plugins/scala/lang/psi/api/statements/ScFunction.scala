@@ -245,7 +245,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
         if (stub != null) {
-          return stub.asInstanceOf[ScFunctionStub].getReturnTypeElement
+          return stub.asInstanceOf[ScFunctionStub].returnTypeElement
         }
       case _ =>
     }
