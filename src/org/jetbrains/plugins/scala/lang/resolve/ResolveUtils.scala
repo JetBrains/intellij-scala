@@ -200,6 +200,11 @@ object ResolveUtils {
         case Some(am: ScAccessModifier) =>
           if (am.isPrivate) {
             if (am.access == ScAccessModifier.Type.THIS_PRIVATE) {
+              val containingClass = scMember.containingClass
+              if (containingClass == null) return true
+
+              if (scMember.hasModifierProperty("implicit"))
+                return PsiTreeUtil.isContextAncestor(containingClass, place, false)
               /*
               ScalaRefernce.pdf:
                 A member M marked with this modifier can be accessed only from
@@ -209,28 +214,20 @@ object ResolveUtils {
                 case ref: ScReferenceElement =>
                   ref.qualifier match {
                     case None =>
-                      val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
-                      if (enclosing == null) return true
-                      return PsiTreeUtil.isContextAncestor(enclosing, place, false)
+                      return PsiTreeUtil.isContextAncestor(containingClass, place, false)
                     case Some(t: ScThisReference) =>
-                      val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
-                      if (enclosing == null) return true
-                      t.refTemplate match {
-                        case Some(t) => return t == enclosing
-                        case _ => return PsiTreeUtil.isContextAncestor(enclosing, place, false)
+                      return t.refTemplate match {
+                        case Some(templ) => templ == containingClass
+                        case _ => PsiTreeUtil.isContextAncestor(containingClass, place, false)
                       }
                     case Some(ref: ScReferenceElement) =>
-                      val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
-                      if (enclosing == null) return false
                       val resolve = ref.resolve()
-                      if (enclosing.extendsBlock.selfTypeElement == Some(resolve)) return true
+                      if (containingClass.extendsBlock.selfTypeElement.contains(resolve)) return true
                       else return false
                     case _ => return false
                   }
                 case _ =>
-                  val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
-                  if (enclosing == null) return true
-                  return PsiTreeUtil.isContextAncestor(enclosing, place, false)
+                  return PsiTreeUtil.isContextAncestor(containingClass, place, false)
               }
             }
             val ref = am.getReference
