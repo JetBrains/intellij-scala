@@ -20,15 +20,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class IdeaSourcesAttach extends AbstractProjectComponent {
+    private static final Pattern PATTERN = Pattern.compile("^sources\\.(zip|jar)$");
+
     protected IdeaSourcesAttach(Project project) {
         super(project);
     }
 
-    private Logger LOG = Logger.getInstance(this.getClass());
+    private final Logger LOG = Logger.getInstance(this.getClass());
 
-    public final static String NAME = "IdeaSourcesAttach";
+    public static final String NAME = "IdeaSourcesAttach";
 
     @NotNull
     @Override
@@ -78,7 +81,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
                         ApplicationManager.getApplication().invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                AttachSourcesUtil.appendSources(library, (VirtualFile[]) roots.toArray());
+                                AttachSourcesUtil.appendSources(library, roots.toArray(new VirtualFile[roots.size()]));
                             }
                         });
                     }
@@ -107,11 +110,11 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
         return new HashSet<LibraryOrderEntry>(libs);
     }
 
-    private Set<LibraryOrderEntry> needsAttaching(Set<LibraryOrderEntry> libs) {
-        Set<LibraryOrderEntry> res = new HashSet<LibraryOrderEntry>();
+    private Set<LibraryOrderEntry> needsAttaching(final Set<LibraryOrderEntry> libs) {
+        final Set<LibraryOrderEntry> res = new HashSet<LibraryOrderEntry>();
         for (LibraryOrderEntry lib : libs) {
             Library library = lib.getLibrary();
-            if (library != null && library.getUrls(OrderRootType.SOURCES).length == 0)
+            if ((library != null) && (library.getUrls(OrderRootType.SOURCES).length == 0))
                 res.add(lib);
         }
         return res;
@@ -125,7 +128,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
                         @NotNull
                         @Override
                         public Result visitFileEx(@NotNull VirtualFile file) {
-                            if (file.getName().matches("^sources\\.(zip|jar)$")) {
+                            if (PATTERN.matcher(file.getName()).matches()) {
                                 res[0] = VirtualFileManager.getInstance().findFileByUrl("jar://" + file.getCanonicalPath() + "!/");
                                 throw new RuntimeException();
                             }
