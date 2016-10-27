@@ -61,14 +61,16 @@ object UIFreezingGuard {
     val app = ApplicationManager.getApplication
     val progressManager = ProgressManager.getInstance()
 
-    if (app.isDispatchThread && !app.isWriteAccessAllowed &&
-      !progressManager.hasProgressIndicator && !ourProgress.isRunning) {
+    if (!isAlreadyGuarded) {
 
       if (hasPendingUserInput) throw pceInstance
 
       val start = System.currentTimeMillis()
       try {
-        progressManager.runProcess(body, ourProgress)
+        if (!app.isWriteAccessAllowed && !progressManager.hasProgressIndicator)
+          progressManager.runProcess(body, ourProgress)
+        else
+          body
       } finally {
         dumpThreads(System.currentTimeMillis() - start)
       }
