@@ -24,8 +24,6 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.indexes.IvyIndex
 import org.jetbrains.sbt.resolvers.{SbtMavenRepositoryProvider, SbtResolverUtils}
 
-import scala.collection.mutable
-
 /**
  * @author Pavel Fatin
  */
@@ -80,7 +78,7 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
       // if maven support is disabled, only check local ivy index(es)
       case e:NoClassDefFoundError if e.getMessage.contains("MavenProjectIndicesManager") =>
         val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project).toSet
-          .filter(i => i.getIndex.isInstanceOf[IvyIndex] && i.getIndex.getUpdateTimeStamp(project) == -1)
+          .filter(i => i.getIndex(project).isInstanceOf[IvyIndex] && i.getIndex(project).getUpdateTimeStamp(project) == -1)
         if (outdatedIvyIndexes.isEmpty) return
 
         val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"

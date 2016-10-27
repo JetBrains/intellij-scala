@@ -11,11 +11,11 @@ class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
 
 
   override def getRemoteRepositories(project: Project): util.Set[MavenRemoteRepository] = {
-    val result = repositories(project).toSet
+    val result = repositories(project)
     result.asJava
   }
 
-  def repositories(project: Project): Seq[MavenRemoteRepository] = {
+  def repositories(project: Project): Set[MavenRemoteRepository] = {
     SbtResolverUtils.getProjectResolvers(project).collect {
       case r:SbtMavenResolver =>
         new MavenRemoteRepository(r.name, null, MavenIndex.normalizePathOrUrl(r.root), null, null, null)
