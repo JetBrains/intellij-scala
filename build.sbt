@@ -49,12 +49,13 @@ lazy val scalaCommunity: Project =
       "junit",
       "properties"
     ),
-    ideaInternalPluginsJars <<= ideaInternalPluginsJars.map { classpath =>
-      classpath.filterNot(cp => cp.data.getName.contains("lucene-core") || cp.data.getName.contains("junit-jupiter-api"))
-    },
+    ideaInternalPluginsJars :=
+      ideaInternalPluginsJars.value
+        .filterNot(cp => cp.data.getName.contains("lucene-core") || cp.data.getName.contains("junit-jupiter-api"))
+    ,
     aggregate.in(updateIdea) := false,
-    test in Test <<= test.in(Test).dependsOn(setUpTestEnvironment),
-    testOnly in Test <<= testOnly.in(Test).dependsOn(setUpTestEnvironment)
+    test in Test := test.in(Test).dependsOn(setUpTestEnvironment).value,
+    testOnly in Test := testOnly.in(Test).dependsOn(setUpTestEnvironment).evaluated
   )
 
 lazy val jpsPlugin  =
@@ -156,7 +157,7 @@ lazy val testDownloader =
     dependencyOverrides ++= Set(
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     ),
-    update <<= update.dependsOn(update.in(sbtLaunchTestDownloader))
+    update := update.dependsOn(update.in(sbtLaunchTestDownloader)).value
   )
 
 lazy val sbtLaunchTestDownloader =
@@ -227,12 +228,12 @@ lazy val pluginPackagerCommunity =
   newProject("pluginPackagerCommunity")
   .settings(
     artifactPath := packagedPluginDir.value,
-    dependencyClasspath <<= (
-      dependencyClasspath in (scalaCommunity, Compile),
-      dependencyClasspath in (jpsPlugin, Compile),
-      dependencyClasspath in (runners, Compile),
-      dependencyClasspath in (sbtRuntimeDependencies, Compile)
-    ).map { (a,b,c,d) => a ++ b ++ c ++ d },
+    dependencyClasspath :=
+      dependencyClasspath.in(scalaCommunity, Compile).value ++
+      dependencyClasspath.in(jpsPlugin, Compile).value ++
+      dependencyClasspath.in(runners, Compile).value ++
+      dependencyClasspath.in(sbtRuntimeDependencies, Compile).value,
+
     mappings := {
       import Packaging.PackageEntry._
       val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
@@ -304,15 +305,17 @@ lazy val pluginCompressorCommunity =
   )
 
 
-updateIdea <<= (ideaBaseDirectory, ideaBuild.in(ThisBuild), streams).map {
-  (baseDir, build, streams) =>
-    try {
-      updateIdeaTask(baseDir, build, Seq.empty, streams)
-    } catch {
-      case e : sbt.TranslatedException if e.getCause.isInstanceOf[java.io.FileNotFoundException] =>
-        val newBuild = build.split('.').init.mkString(".") + "-EAP-CANDIDATE-SNAPSHOT"
-        streams.log.warn(s"Failed to download IDEA $build, trying $newBuild")
-        IO.deleteIfEmpty(Set(baseDir))
-        updateIdeaTask(baseDir, newBuild, Seq.empty, streams)
-    }
+updateIdea := {
+  val baseDir = ideaBaseDirectory.value
+  val build = ideaBuild.in(ThisBuild).value
+
+  try {
+    updateIdeaTask(baseDir, build, Seq.empty, streams.value)
+  } catch {
+    case e : sbt.TranslatedException if e.getCause.isInstanceOf[java.io.FileNotFoundException] =>
+      val newBuild = build.split('.').init.mkString(".") + "-EAP-CANDIDATE-SNAPSHOT"
+      streams.value.log.warn(s"Failed to download IDEA $build, trying $newBuild")
+      IO.deleteIfEmpty(Set(baseDir))
+      updateIdeaTask(baseDir, newBuild, Seq.empty, streams.value)
   }
+}
