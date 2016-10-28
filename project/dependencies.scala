@@ -93,7 +93,7 @@ object DependencyGroups {
   val sbtLaunchTestDownloader: Seq[ModuleID] =
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
-        "0.13.9", "0.13.11", "0.13.12")
+        "0.13.9", "0.13.11", "0.13.12", "0.13.13")
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
@@ -158,13 +158,13 @@ object DependencyGroups {
     "org.scala-sbt" % "sbt" % v
   )
 
-  def sbt013Libs(v: String) = sbt012Libs(v) ++ Seq(
+  def sbt013Libs(v: String): Seq[ModuleID] = sbt012Libs(v) ++ Seq(
     "org.scala-sbt" % "main-settings" % v
   )
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
-    val latest = "0.13.12" // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
+    val latest = "0.13.13" // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
     val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", latest)
     val vs012 = Seq("0.12.4")
 

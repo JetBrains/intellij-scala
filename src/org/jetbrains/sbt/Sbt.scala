@@ -48,7 +48,7 @@ object Sbt {
   // this should be in sync with sbt.BuildUtil.baseImports
   val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._", "dsl._")
 
-  val LatestVersion = "0.13.12"
+  val LatestVersion = "0.13.13"
 
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 
