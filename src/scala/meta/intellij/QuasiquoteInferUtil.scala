@@ -37,11 +37,10 @@ object QuasiquoteInferUtil {
   }
 
   def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): Parsed[m.Tree] = {
-//    val parser = new ScalametaParser(Input.String(text), dialect)
     val p = dialect(text)
     prefix match {
-//      case "q"      => p.parse[m.Ctor].orElse(p.parse[m.Stat])
-      case "q"      => p.parse[m.Stat].orElse(p.parse[m.Term.Block])
+      // FIXME: this seems wrong - reference q parser only parses Stat or Ctor, however this way many qqs couldn't be parsed
+      case "q"      => p.parse[m.Stat].orElse(p.parse[m.Source])
       case "t"      => p.parse[m.Type]
       case "p"      => p.parse[m.Case].orElse(p.parse[m.Pat])
       case "pt"     => p.parse[m.Pat.Type]
