@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScMacroDefinitionImpl
 
 /**
- * User: Jason Zaugg
- */
-class ScMacroDefinitionElementType extends ScFunctionElementType[ScMacroDefinition]("macro definition") {
+  * User: Jason Zaugg
+  */
+class ScMacroDefinitionElementType extends ScFunctionElementType("macro definition") {
   override def createElement(node: ASTNode): ScMacroDefinition = new ScMacroDefinitionImpl(node)
 
   override def createPsi(stub: ScFunctionStub): ScMacroDefinition = new ScMacroDefinitionImpl(stub)

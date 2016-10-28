@@ -11,9 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
@@ -28,7 +27,7 @@ object ScalaElementPresentation {
 
   def getFilePresentableText(file: ScalaFile): String = file.name
 
-  def getPackagingPresentableText(packaging: ScPackaging): String = packaging.getPackageName
+  def getPackagingPresentableText(packaging: ScPackaging): String = packaging.packageName
 
   def getTypeDefinitionPresentableText(typeDefinition: ScTypeDefinition): String =
     if (typeDefinition.nameId != null) typeDefinition.nameId.getText else "unnamed"

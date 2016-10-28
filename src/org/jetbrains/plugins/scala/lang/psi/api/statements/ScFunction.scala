@@ -245,7 +245,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
         if (stub != null) {
-          return stub.asInstanceOf[ScFunctionStub].getReturnTypeElement
+          return stub.asInstanceOf[ScFunctionStub].returnTypeElement
         }
       case _ =>
     }
@@ -632,21 +632,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  //Why not to use default value? It's not working in Scala...
-  def getTypeNoImplicits: TypeResult[ScType] = getTypeNoImplicits(returnType)
-
-  def getTypeNoImplicits(rt: TypeResult[ScType]): TypeResult[ScType] = {
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  def functionTypeNoImplicits(retType: Option[ScType] = returnType.toOption): Option[ScType] = {
     collectReverseParamTypesNoImplicits match {
       case Some(params) =>
         val project = getProject
         val resolveScope = getResolveScope
-        rt.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
-      case None => Failure("no params", Some(this))
+        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
+      case None => None
     }
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
-  def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
+  private def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
     var i = paramClauses.clauses.length - 1
     val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty
     while (i >= 0) {

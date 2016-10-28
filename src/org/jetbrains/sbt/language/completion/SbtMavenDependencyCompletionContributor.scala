@@ -5,8 +5,6 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.patterns.PlatformPatterns._
 import com.intellij.patterns.StandardPatterns._
 import com.intellij.util.ProcessingContext
-import org.jetbrains.idea.maven.indices.MavenArtifactSearcher
-import org.jetbrains.idea.maven.model.MavenArtifactInfo
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
@@ -78,14 +76,14 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       def completeGroup(artifactId: String) = {
         for (resolver <- resolvers) {
-          resolver.getIndex.searchGroup(artifactId).foreach(i=>addResult(i))
+          resolver.getIndex(p).searchGroup(artifactId).foreach(i=>addResult(i))
         }
         results.stopHere()
       }
 
       def completeArtifact(groupId: String, stripVersion: Boolean) = {
         for (resolver <- resolvers) {
-          resolver.getIndex.searchArtifact(groupId).foreach { i =>
+          resolver.getIndex(p).searchArtifact(groupId).foreach { i =>
             if (stripVersion)
               addResult(i.replaceAll("_\\d\\.\\d+.*$", ""))
             else
@@ -97,7 +95,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       def completeVersion(groupId: String, artifactId: String) = {
         for (resolver <- resolvers) {
-          resolver.getIndex.searchVersion(groupId, artifactId).foreach(i=>addResult(i))
+          resolver.getIndex(p).searchVersion(groupId, artifactId).foreach(i=>addResult(i))
         }
         results.stopHere()
       }

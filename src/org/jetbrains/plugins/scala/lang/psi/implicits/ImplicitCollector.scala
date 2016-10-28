@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
@@ -43,8 +43,11 @@ object ImplicitCollector {
 
   type Candidate = (ScalaResolveResult, ScSubstitutor)
 
-  def cache(project: Project): ConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]] =
+  def cache(project: Project): ConcurrentMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]] =
     ScalaPsiManager.instance(project).implicitCollectorCache
+
+  def typeParametersOwnersCache(project: Project): ConcurrentMap[ScType, Set[ScTypeParametersOwner]] =
+    ScalaPsiManager.instance(project).typeParametersOwnersCache
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map(_.tryExtractDesignatorSingleton)
@@ -72,7 +75,6 @@ object ImplicitCollector {
                            extensionPredicate: Option[Candidate => Option[Candidate]],
                            previousRecursionState: Option[RecursionMap])
 
-  var useOldImplicitCollector = false
 }
 
 /**
@@ -82,7 +84,7 @@ object ImplicitCollector {
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitCollector(private var place: PsiElement,
+class ImplicitCollector(place: PsiElement,
                         tp: ScType,
                         expandedTp: ScType,
                         coreElement: Option[ScNamedElement],
@@ -95,8 +97,6 @@ class ImplicitCollector(private var place: PsiElement,
        state.searchImplicitsRecursively, state.extensionPredicate, state.previousRecursionState)
   }
 
-  private val searchStart = place
-
   lazy val collectorState: ImplicitState = ImplicitState(place, tp, expandedTp, coreElement, isImplicitConversion,
     searchImplicitsRecursively, extensionPredicate, Some(ScalaRecursionManager.recursionMap.get()))
 
@@ -104,13 +104,9 @@ class ImplicitCollector(private var place: PsiElement,
   private implicit val typeSystem = project.typeSystem
 
   private val clazz: Option[PsiClass] = tp.extractClass(project)
-  private val possibleScalaFunction: Option[Int] = clazz.flatMap(possibleFunctionN)
+  private lazy val possibleScalaFunction: Option[Int] = clazz.flatMap(possibleFunctionN)
 
-  val mostSpecificUtil: MostSpecificUtil = MostSpecificUtil(place, 1)
-
-  private var placeCalculated = false
-
-  def isExtensionConversion = extensionPredicate.isDefined
+  private def isExtensionConversion: Boolean = extensionPredicate.isDefined
 
   def collect(fullInfo: Boolean = false): Seq[ScalaResolveResult] = {
     def calc(): Seq[ScalaResolveResult] = {
@@ -119,9 +115,14 @@ class ImplicitCollector(private var place: PsiElement,
         case _ =>
       }
       val implicitCollectorCache = ImplicitCollector.cache(project)
-      var result = implicitCollectorCache.get((place, tp))
+
+      val implicitSearchScope = ImplicitSearchScope.forElement(place)
+
+      var result = implicitCollectorCache.get((implicitSearchScope, tp))
       if (result != null && !fullInfo) return result
+
       ProgressManager.checkCanceled()
+
       var processor = new ImplicitParametersProcessor(withoutPrecedence = false, fullInfo)
       var placeForTreeWalkUp = place
       var lastParent: PsiElement = null
@@ -134,17 +135,6 @@ class ImplicitCollector(private var place: PsiElement,
           case _ => if (!processor.changedLevel) stop = true
         }
         if (!stop) {
-          if (!placeCalculated) {
-            place = placeForTreeWalkUp
-            place match {
-              case _: ScTemplateParents => placeCalculated = true
-              case m: ScModifierListOwner if m.hasModifierProperty("implicit") =>
-                placeCalculated = true //we need to check that, otherwise we will be outside
-              case _ =>
-            }
-            if (!isExtensionConversion) result = implicitCollectorCache.get((place, tp))
-            if (result != null && !fullInfo) return result
-          }
           lastParent = placeForTreeWalkUp
           placeForTreeWalkUp = placeForTreeWalkUp.getContext
         }
@@ -162,9 +152,8 @@ class ImplicitCollector(private var place: PsiElement,
       }
 
       val secondCandidates = processor.candidatesS.toSeq
-      result =
-        if (secondCandidates.isEmpty) candidates else secondCandidates
-      if (!isExtensionConversion && !fullInfo) implicitCollectorCache.put((place, tp), result)
+      result = if (secondCandidates.isEmpty) candidates else secondCandidates
+      if (!isExtensionConversion && !fullInfo) implicitCollectorCache.put((implicitSearchScope, tp), result)
       result
     }
 
@@ -196,7 +185,7 @@ class ImplicitCollector(private var place: PsiElement,
     extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
     protected def getPlace: PsiElement = place
 
-    private val applyExtensionPredicate: Candidate => Option[Candidate] = cand => {
+    private def applyExtensionPredicate(cand: Candidate): Option[Candidate] = {
       if (extensionPredicate.isEmpty) Some(cand)
       else {
         val (c, s) = cand
@@ -220,14 +209,12 @@ class ImplicitCollector(private var place: PsiElement,
 
       element match {
         case p: ScParameter if p.isImplicitParameter =>
-          placeCalculated = true
           p match {
             case c: ScClassParameter if !isAccessible(c) => return true
             case _ =>
           }
           addResultForElement()
         case member: ScMember if member.hasModifierProperty("implicit") =>
-          placeCalculated = true
           if (isAccessible(member)) addResultForElement()
         case _: ScBindingPattern | _: ScFieldId =>
           val member = ScalaPsiUtil.getContextOfType(element, true, classOf[ScValue], classOf[ScVariable]) match {
@@ -250,8 +237,8 @@ class ImplicitCollector(private var place: PsiElement,
     }
 
     private def lowerInFileWithoutType(c: ScalaResolveResult) = {
-      def lowerInFile(e: PsiElement) = e.containingFile == searchStart.containingFile &&
-        ScalaPsiUtil.isInvalidContextOrder(searchStart, e, e.containingFile)
+      def lowerInFile(e: PsiElement) = e.containingFile == place.containingFile &&
+        ScalaPsiUtil.isInvalidContextOrder(place, e, e.containingFile)
 
       c.getElement match {
         case fun: ScFunction if fun.returnTypeElement.isEmpty => lowerInFile(fun)
@@ -283,6 +270,7 @@ class ImplicitCollector(private var place: PsiElement,
     }
 
     override def candidatesS: Set[ScalaResolveResult] = {
+      val mostSpecificUtil: MostSpecificUtil = MostSpecificUtil(place, 1)
 
       def checkCompatible(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean = false): Option[Candidate] = {
         ProgressManager.checkCanceled()
@@ -324,7 +312,7 @@ class ImplicitCollector(private var place: PsiElement,
             case Some(c) =>
               filteredCandidates = filteredCandidates - c
               val compatible = checkCompatible(c, withLocalTypeInference)
-              val afterExtensionPredicate = compatible.flatMap(applyExtensionPredicate(_))
+              val afterExtensionPredicate = compatible.flatMap(applyExtensionPredicate)
               afterExtensionPredicate.foreach { case (r, s) =>
                 if (!r.problems.contains(WrongTypeParameterInferred)) {
                   val notMoreSpecific = mostSpecificUtil.notMoreSpecificThan(r)
@@ -344,7 +332,7 @@ class ImplicitCollector(private var place: PsiElement,
         val allCandidates =
           candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = false)) ++
             candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = true))
-        val afterExtensionPredicate = allCandidates.flatMap(applyExtensionPredicate(_))
+        val afterExtensionPredicate = allCandidates.flatMap(applyExtensionPredicate)
         afterExtensionPredicate.map(_._1)
       }
 
@@ -543,16 +531,29 @@ class ImplicitCollector(private var place: PsiElement,
     }
 
     private def hasTypeParamsInType(fun: ScFunction, funType: ScType): Boolean = {
-      val typeParameters = fun.typeParameters.map(_.name)
-      var hasTypeParametersInType = false
-      funType.recursiveUpdate {
-        case tp@TypeParameterType(_, _, _, _) if typeParameters.contains(tp.name) =>
-          hasTypeParametersInType = true
-          (true, tp)
-        case tp: ScType if hasTypeParametersInType => (true, tp)
-        case tp: ScType => (false, tp)
+      def collectOwners: Set[ScTypeParametersOwner] = {
+        var result = Set[ScTypeParametersOwner]()
+        funType.recursiveUpdate {
+          case TypeParameterType(_, _, _, psiTP) =>
+            psiTP.getOwner match {
+              case f: ScFunction => result += f
+              case _ =>
+            }
+            (false, tp)
+          case _ => (false, tp)
+        }
+        result
       }
-      hasTypeParametersInType
+
+      val cache = ImplicitCollector.typeParametersOwnersCache(project)
+      cache.get(funType) match {
+        case null =>
+          val owners = collectOwners
+          cache.putIfAbsent(funType, owners)
+          owners.contains(fun)
+        case seq => seq.contains(fun)
+      }
+
     }
 
     private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean, noReturnType: Boolean): Option[ScType] = {
@@ -578,11 +579,11 @@ class ImplicitCollector(private var place: PsiElement,
 
       def checkFunctionByTypeInner(noReturnType: Boolean): Option[Candidate] = {
         val ft =
-          if (noReturnType) fun.getTypeNoImplicits(Success(Nothing, Some(getPlace)))
-          else fun.getTypeNoImplicits
+          if (noReturnType) fun.functionTypeNoImplicits(Some(Nothing))
+          else fun.functionTypeNoImplicits()
 
         ft match {
-          case Success(_funType: ScType, _) =>
+          case Some(_funType: ScType) =>
             val funType = MacroInferUtil.checkMacro(fun, Some(tp), place) getOrElse _funType
 
             val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {

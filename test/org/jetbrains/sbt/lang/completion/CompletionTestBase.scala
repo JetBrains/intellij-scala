@@ -21,7 +21,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
 
   override val sbtVersion = Sbt.LatestVersion
 
-  override def folderPath  = super.folderPath + "Sbt/"
+  override def folderPath: String = super.folderPath + "Sbt/"
   override def testFileExt = ".sbt"
 
 
@@ -30,7 +30,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
    * Instead of using original file copy its contents into
    * mock file prepending implicit SBT imports
    */
-  override def loadFile = {
+  override def loadFile: (String, LightVirtualFile) = {
     val fileName = getTestName(false) + testFileExt
     val filePath = folderPath + fileName
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -43,7 +43,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
     (fileName, mockFile)
   }
 
-  override def loadAndSetFileText(filePath: String, file: VirtualFile) = {
+  override def loadAndSetFileText(filePath: String, file: VirtualFile): String = {
     val fileText = new String(file.contentsToByteArray())
     configureFromFileTextAdapter (filePath, fileText)
     fileText

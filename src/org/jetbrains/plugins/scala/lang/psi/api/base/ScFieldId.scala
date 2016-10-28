@@ -11,19 +11,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import scala.annotation.tailrec
 
 /**
-* @author ilyas
-*/
-
+  * @author ilyas
+  */
 //wrapper over an identifier for variable declarations 'var v : T' 
-trait ScFieldId extends ScTypedDefinition {
-}
+trait ScFieldId extends ScTypedDefinition
 
 object ScFieldId {
   @tailrec
   def getCompoundCopy(rt: ScType, f: ScFieldId): ScFieldId = {
     f match {
       case light: ScLightFieldId => getCompoundCopy(rt, light.f)
-      case definition: ScFieldId  => new ScLightFieldId(rt, definition)
+      case definition: ScFieldId => new ScLightFieldId(rt, definition)
     }
   }
 }

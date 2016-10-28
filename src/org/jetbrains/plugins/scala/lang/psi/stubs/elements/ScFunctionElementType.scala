@@ -7,7 +7,6 @@ package elements
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.extensions.MaybePsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.METHOD_NAME_KEY
@@ -16,63 +15,71 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.METHOD_NA
   * User: Alexander Podkhalyuzin
   * Date: 14.10.2008
   */
-abstract class ScFunctionElementType[Func <: ScFunction](debugName: String)
-  extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
+abstract class ScFunctionElementType(debugName: String) extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
+
   override def serialize(stub: ScFunctionStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
-    val annotations = stub.getAnnotations
-    dataStream.writeInt(annotations.length)
-    for (annotation <- annotations) {
-      dataStream.writeName(annotation)
-    }
-    dataStream.writeName(stub.getReturnTypeText)
-    dataStream.writeName(stub.getBodyText)
+    dataStream.writeNames(stub.annotations)
+    dataStream.writeOptionName(stub.returnTypeText)
+    dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.hasAssign)
     dataStream.writeBoolean(stub.isImplicit)
     dataStream.writeBoolean(stub.isLocal)
   }
 
-  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
-    val name = dataStream.readName
-    val isDecl = dataStream.readBoolean
-    val length = dataStream.readInt
-    val annotations = new Array[StringRef](length)
-    for (i <- 0 until length) {
-      annotations(i) = dataStream.readName
-    }
-    val parent = parentStub.asInstanceOf[StubElement[PsiElement]]
-    val returnTypeText = dataStream.readName
-    val bodyText = dataStream.readName
-    val assign = dataStream.readBoolean
-    val isImplicit = dataStream.readBoolean()
-    val isLocal = dataStream.readBoolean()
-    new ScFunctionStubImpl(parent, this, name, isDecl, annotations, returnTypeText, bodyText, assign, isImplicit, isLocal)
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub =
+    new ScFunctionStubImpl(parentStub, this,
+      nameRef = dataStream.readName,
+      isDeclaration = dataStream.readBoolean,
+      annotationsRefs = dataStream.readNames,
+      returnTypeTextRef = dataStream.readOptionName,
+      bodyTextRef = dataStream.readOptionName,
+      hasAssign = dataStream.readBoolean,
+      isImplicit = dataStream.readBoolean,
+      isLocal = dataStream.readBoolean)
 
-  override def createStub(psi: ScFunction, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
-    val returnTypeText = psi.returnTypeElement.text
-    val bodyText =
-      if (returnTypeText != "") ""
-      else psi match {
-        case fDef: ScFunctionDefinition => fDef.body.text
-        case _ => ""
-      }
-
-    val assign = psi match {
-      case fDef: ScFunctionDefinition => fDef.hasAssign
-      case _ => false
+  override def createStub(function: ScFunction, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
+    val maybeFunction = Option(function)
+    val returnTypeText = maybeFunction.flatMap {
+      _.returnTypeElement
+    }.map {
+      _.getText
     }
 
-    val annotationNames = psi.annotations map {
+    val maybeDefinition = maybeFunction.collect {
+      case definition: ScFunctionDefinition => definition
+    }
+
+    val bodyText = returnTypeText match {
+      case Some(_) => None
+      case None =>
+        maybeDefinition.flatMap {
+          _.body
+        }.map {
+          _.getText
+        }
+    }
+
+    val hasAssign = maybeDefinition.exists {
+      _.hasAssign
+    }
+
+    val annotations = function.annotations.map {
       _.annotationExpr.constr.typeElement.getText
-    } map { text =>
+    }.map { text =>
       text.substring(text.lastIndexOf('.') + 1)
-    }
+    }.toArray
 
-    val isImplicit = psi.hasModifierProperty("implicit")
-    new ScFunctionStubImpl(parentStub, this, psi.name, psi.isInstanceOf[ScFunctionDeclaration],
-      annotationNames.toArray, returnTypeText, bodyText, assign, isImplicit, psi.containingClass == null)
+    new ScFunctionStubImpl(parentStub, this,
+      nameRef = StringRef.fromString(function.name),
+      isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
+      annotationsRefs = annotations.asReferences,
+      returnTypeTextRef = returnTypeText.asReference,
+      bodyTextRef = bodyText.asReference,
+      hasAssign = hasAssign,
+      isImplicit = function.hasModifierProperty("implicit"),
+      isLocal = function.containingClass == null)
   }
 
   override def indexStub(stub: ScFunctionStub, sink: IndexSink): Unit = {

@@ -12,10 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScPatternDefinition, ScTypeAlias, ScValueDeclaration}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
 
 import scala.collection.mutable
 
@@ -95,7 +94,7 @@ private[annotator] object ModifierChecker {
                 case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] || e.getParent.isInstanceOf[ScEarlyDefinitions] =>
                   val redundant = (e.containingClass, e) match {
                     case (_: ScObject, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
-                            valMember.pList.allPatternsSimple => false // SCL-899
+                      valMember.pList.simplePatterns => false // SCL-899
                     case (cls, _) if cls.hasFinalModifier => true
                     case _ => false
                   }

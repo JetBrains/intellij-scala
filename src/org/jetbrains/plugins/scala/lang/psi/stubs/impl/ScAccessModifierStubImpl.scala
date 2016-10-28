@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-class ScAccessModifierStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                        elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                                        val isProtected: Boolean,
-                                                        val isPrivate: Boolean,
-                                                        val isThis: Boolean,
-                                                        private val idTextRef: Option[StringRef])
+class ScAccessModifierStubImpl(parent: StubElement[_ <: PsiElement],
+                               elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                               val isProtected: Boolean,
+                               val isPrivate: Boolean,
+                               val isThis: Boolean,
+                               private val idTextRef: Option[StringRef])
   extends StubBase[ScAccessModifier](parent, elementType) with ScAccessModifierStub {
 
   def idText: Option[String] = idTextRef.asString

@@ -14,7 +14,7 @@
             <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.resolvers.SbtResolversManager</implementation-class>
+            <implementation-class>org.jetbrains.sbt.resolvers.SbtIndexesManager</implementation-class>
         </component>
     </project-components>
 
