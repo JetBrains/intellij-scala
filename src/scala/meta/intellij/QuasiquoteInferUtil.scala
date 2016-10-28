@@ -1,20 +1,15 @@
 package scala.meta.intellij
 
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
-import scala.meta.inputs.Input
-import scala.meta.internal.parsers.ScalametaParser
-import scala.meta.parsers.Parsed._
 import scala.meta.parsers.{ParseException, Parsed}
-import scala.util.Try
 
 /**
   * @author Mikhail Mutcianko
@@ -78,14 +73,6 @@ object QuasiquoteInferUtil {
     }
   }
 
-  def escapeQQ(pat: ScInterpolatedStringLiteral): String = {
-    if (pat.isMultiLineString) {
-      pat.getText.replaceAll("^[a-z]+\"\"\"", "").replaceAll("\"\"\"$", "").trim
-    } else {
-      pat.getText.replaceAll("^[a-z]+\"", "").replaceAll("\"$", "").trim
-    }
-  }
-
   def getMetaQQPatternTypes(pat: ScInterpolationPatternImpl): Seq[String] = {
 
     def collectQQParts(t: scala.meta.Tree): Seq[m.internal.ast.Quasi] = {
@@ -95,23 +82,23 @@ object QuasiquoteInferUtil {
       }
     }
 
-      val prefix = pat.ref.refName
-      val patternText = escapeQQ(pat)
-      val qqDialect = if (pat.isMultiLineString)
-        m.Dialect.forName("QuasiquotePat(Scala211, Multi)")
-      else
-        m.Dialect.forName("QuasiquotePat(Scala211, Single)")
-      parseQQExpr(prefix, patternText, qqDialect) match {
-        case Parsed.Success(qqparts)   =>
-          val parts = collectQQParts(qqparts)
-          val classes = parts.map(_.pt)
-          classes.map(classToScTypeString)
-        case Parsed.Error(_, cause, exc)  =>
-          Seq.empty
-      }
+    val prefix = pat.ref.refName
+    val patternText = escapeQQ(pat)
+    val qqDialect = if (pat.isMultiLineString)
+      m.Dialect.forName("QuasiquotePat(Scala211, Multi)")
+    else
+      m.Dialect.forName("QuasiquotePat(Scala211, Single)")
+    parseQQExpr(prefix, patternText, qqDialect) match {
+      case Parsed.Success(qqparts) =>
+        val parts = collectQQParts(qqparts)
+        val classes = parts.map(_.pt)
+        classes.map(classToScTypeString)
+      case Parsed.Error(_, cause, exc) =>
+        Seq.empty
+    }
   }
 
-  def escapeQQ(pat: ScInterpolationPatternImpl): String = {
+  def escapeQQ(pat: ScInterpolated): String = {
     if (pat.isMultiLineString) {
       pat.getText.replaceAll("^[a-z]+\"\"\"", "").replaceAll("\"\"\"$", "").trim
     } else {

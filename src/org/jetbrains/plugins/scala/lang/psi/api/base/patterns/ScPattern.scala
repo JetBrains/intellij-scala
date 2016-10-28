@@ -161,9 +161,11 @@ trait ScPattern extends ScalaPsiElement with Typeable {
         tpe.getType().toOption
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && QuasiquoteInferUtil.isMetaQQ(fun) =>
         val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(getParent.getParent.asInstanceOf[ScInterpolationPatternImpl])
-        val clazz = patterns(argIndex)
-        val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz)
-        tpe.getType().toOption
+        if (argIndex <= patterns.size) {
+          val clazz = patterns(argIndex)
+          val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz)
+          tpe.getType().toOption
+        } else { None }
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.count(!_.isImplicitParameter) == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
