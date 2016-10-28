@@ -38,7 +38,7 @@ class SbtDependencyAnnotator extends Annotator {
     implicit val p = element.getProject
 
 
-    lazy val module = Try(ScalaPsiUtil.getModule(element)).toOption
+    lazy val module = Option(ScalaPsiUtil.getModule(element))
     lazy val sbtModule = module.flatMap(m=>ModuleManager.getInstance(p).getModules.find(_.getName == s"${m.getName}-build"))
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name &&
