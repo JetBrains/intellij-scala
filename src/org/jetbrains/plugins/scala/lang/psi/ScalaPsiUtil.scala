@@ -595,7 +595,9 @@ object ScalaPsiUtil {
 
   def getModule(element: PsiElement): Module = {
     val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-    index.getModuleForFile(element.getContainingFile.getVirtualFile)
+    if (element.getContainingFile.getVirtualFile != null)
+      index.getModuleForFile(element.getContainingFile.getVirtualFile)
+    else null
   }
 
   def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
