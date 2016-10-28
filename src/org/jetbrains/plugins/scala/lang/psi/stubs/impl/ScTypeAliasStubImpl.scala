@@ -5,7 +5,7 @@ package stubs
 package impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -19,19 +19,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
   */
 class ScTypeAliasStubImpl(parent: StubElement[_ <: PsiElement],
                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                          private val nameRef: StringRef,
+                          nameRef: StringRef,
                           private val typeElementTextRef: Option[StringRef],
                           private val lowerTypeElementTextRef: Option[StringRef],
                           private val upperTypeElementTextRef: Option[StringRef],
                           val isLocal: Boolean,
                           val isDeclaration: Boolean,
                           val isStableQualifier: Boolean)
-  extends StubBase[ScTypeAlias](parent, elementType) with ScTypeAliasStub {
+  extends ScNamedStubBase[ScTypeAlias](parent, elementType, nameRef) with ScTypeAliasStub {
   private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
   private var lowerTypeElementReference: SofterReference[Option[ScTypeElement]] = null
   private var upperTypeElementReference: SofterReference[Option[ScTypeElement]] = null
-
-  def getName: String = StringRef.toString(nameRef)
 
   def typeElementText: Option[String] = typeElementTextRef.asString
 
