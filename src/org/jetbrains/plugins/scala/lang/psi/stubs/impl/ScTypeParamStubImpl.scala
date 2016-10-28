@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
   */
 class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                          private val nameRef: StringRef,
+                          nameRef: StringRef,
                           private val textRef: StringRef,
                           private val lowerBoundTextRef: Option[StringRef],
                           private val upperBoundTextRef: Option[StringRef],
@@ -30,13 +30,11 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
                           val isContravariant: Boolean,
                           private val containingFileNameRef: StringRef,
                           val positionInFile: Int)
-  extends StubBase[ScTypeParam](parent, elementType) with ScTypeParamStub {
+  extends ScNamedStubBase[ScTypeParam](parent, elementType, nameRef) with ScTypeParamStub {
   private var upperElementReference: SofterReference[Option[ScTypeElement]] = null
   private var lowerElementReference: SofterReference[Option[ScTypeElement]] = null
   private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = null
   private var contextElementsReferences: SofterReference[Seq[ScTypeElement]] = null
-
-  def getName: String = StringRef.toString(nameRef)
 
   override def text: String = StringRef.toString(textRef)
 

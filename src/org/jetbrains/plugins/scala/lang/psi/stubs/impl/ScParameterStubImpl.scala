@@ -5,7 +5,7 @@ package stubs
 package impl
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
   */
 class ScParameterStubImpl(parent: StubElement[_ <: PsiElement],
                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                          private val nameRef: StringRef,
+                          nameRef: StringRef,
                           private val typeTextRef: Option[StringRef],
                           val isStable: Boolean,
                           val isDefaultParameter: Boolean,
@@ -30,12 +30,10 @@ class ScParameterStubImpl(parent: StubElement[_ <: PsiElement],
                           val isCallByNameParameter: Boolean,
                           private val defaultExprTextRef: Option[StringRef],
                           private val deprecatedNameRef: Option[StringRef])
-  extends StubBase[ScParameter](parent, elementType) with ScParameterStub {
+  extends ScNamedStubBase[ScParameter](parent, elementType, nameRef) with ScParameterStub {
 
   private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
   private var defaultExpressionReference: SofterReference[Option[ScExpression]] = null
-
-  override def getName: String = StringRef.toString(nameRef)
 
   override def typeText: Option[String] = typeTextRef.asString
 

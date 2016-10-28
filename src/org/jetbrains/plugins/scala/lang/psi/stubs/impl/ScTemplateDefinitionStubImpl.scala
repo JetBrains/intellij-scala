@@ -6,7 +6,7 @@ package impl
 
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
   */
 class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
                                    elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                   private val nameRef: StringRef,
+                                   nameRef: StringRef,
                                    private val qualifiedNameRef: StringRef,
                                    private val javaQualifiedNameRef: StringRef,
                                    val isPackageObject: Boolean,
@@ -29,9 +29,7 @@ class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
                                    private val additionalJavaNamesRefs: Array[StringRef],
                                    val isLocal: Boolean,
                                    val isVisibleInJava: Boolean)
-  extends StubBase[ScTemplateDefinition](parent, elementType) with ScTemplateDefinitionStub {
-
-  override def getName: String = StringRef.toString(nameRef)
+  extends ScNamedStubBase[ScTemplateDefinition](parent, elementType, nameRef) with ScTemplateDefinitionStub {
 
   override def getQualifiedName: String = StringRef.toString(qualifiedNameRef)
 
