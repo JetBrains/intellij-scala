@@ -49,7 +49,7 @@ object QuasiquoteInferUtil {
       case "source"     => p.parse[m.Source]
       case "template"   => p.parse[m.Template]
       case "importer"   => p.parse[m.Importer]
-      case "importee"   => p.parse[m.Importer]
+      case "importee"   => p.parse[m.Importee]
       case "enumerator" => p.parse[m.Enumerator]
       case _ => Parsed.Error(null, s"Unknown Quasiquote kind - $prefix", null)
     }
