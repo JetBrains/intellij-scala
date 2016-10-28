@@ -168,22 +168,6 @@ lazy val sbtLaunchTestDownloader =
     libraryDependencies ++= DependencyGroups.sbtLaunchTestDownloader
   )
 
-//lazy val yourkitProbes = {
-//  val yourkitPath = System.getenv("YOURKIT_PATH")
-//  val moduleDir = file("SDK/yourkitProbes")
-//  val optionalSrcDir = moduleDir / "src"
-//  newProject("yourkitProbes", moduleDir).settings(
-//    unmanagedJars in Compile ++= {
-//      if (yourkitPath != null) Seq(file(yourkitPath) / "lib" / "yjp.jar")
-//      else Nil
-//    },
-//    ideExcludedDirectories := {
-//      if (yourkitPath == null) Seq(optionalSrcDir)
-//      else Nil
-//    }
-//  )
-//}
-
 lazy val jmhBenchmarks =
   newProject("jmhBenchmarks")
     .dependsOn(scalaCommunity % "test->test")
