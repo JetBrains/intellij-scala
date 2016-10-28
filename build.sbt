@@ -1,6 +1,6 @@
 import Common._
 import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
-import sbt.Keys.{`package` => pack}
+import sbt.Keys.{`package` => pack, _}
 
 // Global build settings
 
@@ -73,12 +73,20 @@ lazy val compilerSettings =
 
 lazy val scalaRunner =
   newProject("scalaRunner", file("ScalaRunner"))
-  .settings(libraryDependencies ++= DependencyGroups.scalaRunner)
+  .settings(
+    libraryDependencies ++= DependencyGroups.scalaRunner,
+    // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
+    ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
+  )
 
 lazy val runners =
   newProject("runners", file("Runners"))
   .dependsOn(scalaRunner)
-  .settings(libraryDependencies ++= DependencyGroups.runners)
+  .settings(
+    libraryDependencies ++= DependencyGroups.runners,
+    // WORKAROUND fixes build error in sbt 0.13.12+ analogously to https://github.com/scala/scala/pull/5386/
+    ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
+  )
 
 lazy val nailgunRunners =
   newProject("nailgunRunners", file("NailgunRunners"))
