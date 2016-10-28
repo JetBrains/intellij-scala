@@ -132,20 +132,17 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                   val additionalUSubst = newSubst.subst(retTp).conforms(expected, ScUndefinedSubstitutor())._2
                   (uSubst + additionalUSubst).getSubstitutor match {
                     case Some(innerSubst) =>
-                      result += ImplicitResolveResult(innerSubst.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                        implicitDepSusbt, isFromCompanion, Seq.empty)
+                      result += ImplicitResolveResult(innerSubst.subst(retTp), r, implicitDepSusbt, isFromCompanion)
                     case None =>
-                      result += ImplicitResolveResult(substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                        implicitDepSusbt, isFromCompanion, Seq.empty)
+                      result += ImplicitResolveResult(substitutor.subst(retTp), r, implicitDepSusbt, isFromCompanion)
                   }
                 case None =>
-                  result += ImplicitResolveResult(substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                    implicitDepSusbt, isFromCompanion, Seq.empty)
+                  result += ImplicitResolveResult(substitutor.subst(retTp), r, implicitDepSusbt, isFromCompanion)
               }
             case _ =>
           }
         case _ =>
-          result += ImplicitResolveResult(retTp, r.element, r.importsUsed, r.substitutor, implicitDepSusbt, isFromCompanion, Seq.empty)
+          result += ImplicitResolveResult(retTp, r, implicitDepSusbt, isFromCompanion)
       }
     }
 
@@ -521,5 +518,13 @@ object ScImplicitlyConvertible {
     }
 
     def getTypeWithDependentSubstitutor: ScType = implicitDependentSubst.subst(tp)
+  }
+
+  object ImplicitResolveResult {
+    def apply(tp: ScType, srr: ScalaResolveResult, implicitDependentSubst: ScSubstitutor = ScSubstitutor.empty, isFromCompanion: Boolean = false,
+              unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty): ImplicitResolveResult = {
+
+      ImplicitResolveResult(tp, srr.element, srr.importsUsed, srr.substitutor, implicitDependentSubst, isFromCompanion, unresolvedTypeParameters)
+    }
   }
 }

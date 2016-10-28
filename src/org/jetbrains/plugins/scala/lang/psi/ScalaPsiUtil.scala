@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionConversionData, ExtensionConversionHelper, ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -53,8 +53,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
@@ -262,133 +263,52 @@ object ScalaPsiUtil {
     }
   }
 
-  def findImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
+  def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
                              noImplicitsForArgs: Boolean)
                             (implicit typeSystem: TypeSystem): Option[ImplicitResolveResult] = {
-    lazy val funType = Option(
-      ScalaPsiManager.instance(e.getProject).getCachedClass(
-        "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-      )
-    ) collect {
-      case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl),
-        cl.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
-    } flatMap {
-      case p: ScParameterizedType => Some(p)
-      case _ => None
+
+    val exprType = ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
+      case None => return None
+      case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
+      case Some(x) => x
+    }
+    val args = processor match {
+      case _ if !noImplicitsForArgs => Seq.empty
+      case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
+        _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
+      ))
+      case _ => Seq.empty
     }
 
-    def specialExtractParameterType(rr: ScalaResolveResult): (Option[ScType], Seq[TypeParameter]) = {
-      def inner(tp: ScType) = {
-        tp match {
-          case f@FunctionType(_, _) => Some(f)
-          case _ =>
-            funType match {
-              case Some(ft) =>
-                val conformance = tp.conforms(ft, ScUndefinedSubstitutor())
-                if (conformance._1) {
-                  conformance._2.getSubstitutor match {
-                    case Some(subst) => Some(subst.subst(ft).removeUndefines())
-                    case _ => None
-                  }
-                } else None
-              case _ => None
-            }
-        }
-      }
-      val typeParams = rr.unresolvedTypeParameters match {
-        case Some(tParams) if tParams.nonEmpty => tParams
-        case _ => Seq.empty
-      }
-      (inner(InferUtil.extractImplicitParameterType(rr)), typeParams)
+    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
+      val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
+      new ImplicitCollector(
+        baseExpr,
+        FunctionType(Any, Seq(exprType))(baseExpr.getProject, baseExpr.getResolveScope),
+        FunctionType(exprType, args)(baseExpr.getProject, baseExpr.getResolveScope),
+        coreElement = None,
+        isImplicitConversion = true,
+        extensionData = Some(data)).collect()
     }
 
-    //TODO! remove this after find a way to improve implicits according to compiler.
-    val isHardCoded = refName == "+" &&
-      e.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
-    val kinds = processor.kinds
-    var implicitMap: Seq[ScalaResolveResult] = Seq.empty
-    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
-      def args = processor match {
-        case _ if !noImplicitsForArgs => Seq.empty
-        case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
-          _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
-        ))
-        case _ => Seq.empty
-      }
-      val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
-      if (exprType.equiv(Nothing)) return //do not proceed with nothing type, due to performance problems.
-      val convertible = new ImplicitCollector(e,
-        FunctionType(Any, Seq(exprType))(e.getProject, e.getResolveScope),
-        FunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true,
-          extensionPredicate = Some { case (rr, subst) => {
-            ProgressManager.checkCanceled()
-            specialExtractParameterType(rr) match {
-              case (Some(FunctionType(tp, _)), _) =>
-                if (!isHardCoded || !tp.isInstanceOf[ValType]) {
-                  val newProc = new ResolveProcessor(kinds, ref, refName)
-                  newProc.processType(tp, e, ResolveState.initial)
-                  val res = newProc.candidatesS.nonEmpty
-                  if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
-                    val mrp = processor.asInstanceOf[MethodResolveProcessor]
-                    val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
-                      rr.element match {
-                        case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(TypeParameter(_))
-                        case _ => Seq.empty
-                      }, kinds,
-                      mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
-                    newProc.processType(tp, e, ResolveState.initial)
-                    val candidates = newProc.candidatesS.filter(_.isApplicable())
-                    if (candidates.nonEmpty) {
-                      rr.element match {
-                        case fun: ScFunction if fun.hasTypeParameters =>
-                          val newRR = candidates.iterator.next()
-                          newRR.resultUndef match {
-                            case Some(undef) =>
-                              undef.getSubstitutor match {
-                                case Some(uSubst) =>
-                                  Some(rr.copy(subst = newRR.substitutor.followed(uSubst),
-                                    implicitParameterType = rr.implicitParameterType.map(uSubst.subst)),
-                                    subst.followed(uSubst))
-                                case _ => Some(rr, subst)
-                              }
-                            case _ => Some(rr, subst)
-                          }
-                        case _ => Some(rr, subst)
-                      }
-                    } else None
-                  } else if (res) Some(rr, subst)
-                  else None
-                } else None
-              case _ => None
-            }
-          }
-          })
-      implicitMap = convertible.collect()
-    }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
-    checkImplicits(secondPart = false, noApplicability = false)
-    if (implicitMap.size > 1) {
-      val oldMap = implicitMap
-      checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
-      if (implicitMap.isEmpty) implicitMap = oldMap
-    } else if (implicitMap.isEmpty) {
-      checkImplicits(secondPart = true, noApplicability = false)
-      if (implicitMap.size > 1) {
-        val oldMap = implicitMap
-        checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
-        if (implicitMap.isEmpty) implicitMap = oldMap
-      } else if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    val foundImplicits = checkImplicits() match {
+      case seq if seq.size > 1 => checkImplicits(withoutImplicitsForArgs = true)
+      case Seq() => checkImplicits(noApplicability = true)
+      case seq => seq
     }
-    if (implicitMap.length == 1) {
-      val rr = implicitMap.head
-      specialExtractParameterType(rr) match {
-        case (Some(FunctionType(tp, _)), typeParams) =>
-          Some(ImplicitResolveResult(tp, rr.getElement, rr.importsUsed, rr.substitutor, ScSubstitutor.empty, isFromCompanion = false, //todo: from companion parameter
-            unresolvedTypeParameters = typeParams))
-        case _ => None
-      }
-    } else None
+
+    foundImplicits match {
+      case Seq(rr) =>
+        ExtensionConversionHelper.specialExtractParameterType(rr) match {
+          case (Some(FunctionType(tp, _)), typeParams) =>
+            Some(ImplicitResolveResult(tp, rr, ScSubstitutor.empty, //todo: from companion parameter
+              unresolvedTypeParameters = typeParams))
+          case _ => None
+        }
+      case _ => None
+    }
   }
 
   def isLocalOrPrivate(elem: PsiElement): Boolean = {

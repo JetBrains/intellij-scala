@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -40,8 +41,6 @@ import scala.collection.Set
 import scala.collection.immutable.HashSet
 
 object ImplicitCollector {
-
-  type Candidate = (ScalaResolveResult, ScSubstitutor)
 
   def cache(project: Project): ConcurrentMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]] =
     ScalaPsiManager.instance(project).implicitCollectorCache
@@ -72,7 +71,7 @@ object ImplicitCollector {
                            coreElement: Option[ScNamedElement],
                            isImplicitConversion: Boolean,
                            searchImplicitsRecursively: Int,
-                           extensionPredicate: Option[Candidate => Option[Candidate]],
+                           extensionPredicate: Option[ExtensionConversionData],
                            previousRecursionState: Option[RecursionMap])
 
 }
@@ -90,7 +89,7 @@ class ImplicitCollector(place: PsiElement,
                         coreElement: Option[ScNamedElement],
                         isImplicitConversion: Boolean,
                         searchImplicitsRecursively: Int = 0,
-                        extensionPredicate: Option[Candidate => Option[Candidate]] = None,
+                        extensionData: Option[ExtensionConversionData] = None,
                         previousRecursionState: Option[RecursionMap] = None) {
   def this(state: ImplicitState) {
     this(state.place, state.tp, state.expandedTp, state.coreElement, state.isImplicitConversion,
@@ -98,7 +97,7 @@ class ImplicitCollector(place: PsiElement,
   }
 
   lazy val collectorState: ImplicitState = ImplicitState(place, tp, expandedTp, coreElement, isImplicitConversion,
-    searchImplicitsRecursively, extensionPredicate, Some(ScalaRecursionManager.recursionMap.get()))
+    searchImplicitsRecursively, extensionData, Some(ScalaRecursionManager.recursionMap.get()))
 
   private val project = place.getProject
   private implicit val typeSystem = project.typeSystem
@@ -106,7 +105,7 @@ class ImplicitCollector(place: PsiElement,
   private val clazz: Option[PsiClass] = tp.extractClass(project)
   private lazy val possibleScalaFunction: Option[Int] = clazz.flatMap(possibleFunctionN)
 
-  private def isExtensionConversion: Boolean = extensionPredicate.isDefined
+  private def isExtensionConversion: Boolean = extensionData.isDefined
 
   def collect(fullInfo: Boolean = false): Seq[ScalaResolveResult] = {
     def calc(): Seq[ScalaResolveResult] = {
@@ -186,12 +185,13 @@ class ImplicitCollector(place: PsiElement,
     protected def getPlace: PsiElement = place
 
     private def applyExtensionPredicate(cand: Candidate): Option[Candidate] = {
-      if (extensionPredicate.isEmpty) Some(cand)
-      else {
-        val (c, s) = cand
-        extensionPredicate.get.apply((c, s)).orElse {
-          reportWrong(c, s, CantFindExtensionMethodResult)
-        }
+      extensionData match {
+        case None => Some(cand)
+        case Some(data) =>
+          extensionConversionCheck(data, cand).orElse {
+            val (c, s) = cand
+            reportWrong(c, s, CantFindExtensionMethodResult)
+          }
       }
     }
 
@@ -428,10 +428,11 @@ class ImplicitCollector(place: PsiElement,
       }
 
       def wrongExtensionConversion(nonValueType: ScType): Option[Candidate] = {
-        extensionPredicate.flatMap { predicate =>
+        extensionData.flatMap { data =>
           inferValueType(nonValueType) match {
             case (FunctionType(rt, _), _) =>
-              if (predicate(c.copy(implicitParameterType = Some(rt)), subst).isEmpty)
+              val newCandidate = (c.copy(implicitParameterType = Some(rt)), subst)
+              if (extensionConversionCheck(data, newCandidate).isEmpty)
                 wrongTypeParam(CantFindExtensionMethodResult)
               else None
             //this is not a function, when we still need to pass implicit?..
