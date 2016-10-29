@@ -157,7 +157,7 @@ object InferUtil {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
       val implicitState = ImplicitState(place, paramType, paramType, coreElement, isImplicitConversion = false,
-          searchImplicitsRecursively, None, Some(ScalaRecursionManager.recursionMap.get()))
+          searchImplicitsRecursively, None, fullInfo = false, Some(ScalaRecursionManager.recursionMap.get()))
       val collector = new ImplicitCollector(implicitState)
       val results = collector.collect()
       if (results.length == 1) {
