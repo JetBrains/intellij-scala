@@ -45,6 +45,8 @@ trait PsiElementExtTrait extends Any {
 
   def contexts: Iterator[PsiElement] = new ContextsIterator(repr)
 
+  def withContexts: Iterator[PsiElement] = new ContextsIterator(repr, strict = false)
+
   def getPrevSiblingNotWhitespace: PsiElement = {
     var prev: PsiElement = repr.getPrevSibling
     while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
