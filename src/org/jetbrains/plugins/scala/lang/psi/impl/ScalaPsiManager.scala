@@ -25,26 +25,25 @@ import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManag
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitSearchScope
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, SyntheticClassProducer}
+import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.collection.{Seq, Set, mutable}
+import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(val project: Project) {
 
@@ -55,11 +54,7 @@ class ScalaPsiManager(val project: Project) {
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
     ContainerUtil.createConcurrentWeakMap[(ScType, GlobalSearchScope), Seq[ScType]]()
 
-  val implicitCollectorCache: ConcurrentMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]] =
-    ContainerUtil.newConcurrentMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]]()
-
-  val typeParametersOwnersCache: ConcurrentMap[ScType, Set[ScTypeParametersOwner]] =
-    ContainerUtil.newConcurrentMap[ScType, Set[ScTypeParametersOwner]]
+  val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
@@ -269,7 +264,6 @@ class ScalaPsiManager(val project: Project) {
     ScParameterizedType.cache.clear()
     collectImplicitObjectsCache.clear()
     implicitCollectorCache.clear()
-    typeParametersOwnersCache.clear()
   }
 
   private def clearOnChange(): Unit = {

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.psi.implicits
 
-import java.util.concurrent.ConcurrentMap
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -19,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
@@ -41,11 +39,7 @@ import scala.collection.Set
 
 object ImplicitCollector {
 
-  def cache(project: Project): ConcurrentMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]] =
-    ScalaPsiManager.instance(project).implicitCollectorCache
-
-  def typeParametersOwnersCache(project: Project): ConcurrentMap[ScType, Set[ScTypeParametersOwner]] =
-    ScalaPsiManager.instance(project).typeParametersOwnersCache
+  def cache(project: Project): ImplicitCollectorCache = ScalaPsiManager.instance(project).implicitCollectorCache
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map(_.tryExtractDesignatorSingleton)
@@ -122,9 +116,10 @@ class ImplicitCollector(place: PsiElement,
       if (fullInfo) collectFullInfo(visibleNamesCandidates() ++ fromTypeCandidates())
       else {
         val implicitCollectorCache = ImplicitCollector.cache(project)
-        val implicitSearchScope = ImplicitSearchScope.forElement(place)
-        val cached = implicitCollectorCache.get((implicitSearchScope, tp))
-        if (cached != null && !fullInfo) return cached
+        implicitCollectorCache.get(place, tp) match {
+          case Some(cached) if !fullInfo => return cached
+          case _ =>
+        }
 
         val firstCandidates = compatible(visibleNamesCandidates())
         val result =
@@ -134,7 +129,7 @@ class ImplicitCollector(place: PsiElement,
             if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
           }
 
-        if (!isExtensionConversion) implicitCollectorCache.put((implicitSearchScope, tp), result)
+        if (!isExtensionConversion) implicitCollectorCache.put(place, tp, result)
 
         result
       }
@@ -533,29 +528,8 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private def hasTypeParamsInType(fun: ScFunction, funType: ScType): Boolean = {
-    def collectOwners: Set[ScTypeParametersOwner] = {
-      var result = Set[ScTypeParametersOwner]()
-      funType.recursiveUpdate {
-        case TypeParameterType(_, _, _, psiTP) =>
-          psiTP.getOwner match {
-            case f: ScFunction => result += f
-            case _ =>
-          }
-          (false, tp)
-        case _ => (false, tp)
-      }
-      result
-    }
-
-    val cache = ImplicitCollector.typeParametersOwnersCache(project)
-    cache.get(funType) match {
-      case null =>
-        val owners = collectOwners
-        cache.putIfAbsent(funType, owners)
-        owners.contains(fun)
-      case seq => seq.contains(fun)
-    }
-
+    val cache = ImplicitCollector.cache(project)
+    cache.typeParametersOwners(funType).contains(fun)
   }
 
   private def substedFunType(fun: ScFunction, funType: ScType, subst: ScSubstitutor, withLocalTypeInference: Boolean, noReturnType: Boolean): Option[ScType] = {
