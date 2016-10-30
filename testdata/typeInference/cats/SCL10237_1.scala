@@ -6,4 +6,4 @@ class TestCats {
   val w = Map(2 -> "bar")
   /*start*/q |@| w/*end*/
 }
-//CartesianBuilder[List]#CartesianBuilder2[Int, Int]
+//CartesianBuilder[Unapply.Aux2Right[Cartesian, Map[Int, String], Map, Int, String]#M]#CartesianBuilder2[Unapply.Aux2Right[Cartesian, Map[Int, String], Map, Int, String]#A, String]
