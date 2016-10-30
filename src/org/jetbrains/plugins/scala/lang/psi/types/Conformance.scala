@@ -950,79 +950,6 @@ object Conformance extends api.Conformance {
         case _ =>
       }
 
-      rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
-      r.visitType(rightVisitor)
-      if (result != null) return
-
-      r match {
-        case _: JavaArrayType =>
-          val args = p.typeArguments
-          val des = p.designator
-          if (args.length == 1 && (des.extractClass() match {
-            case Some(q) => q.qualifiedName == "scala.Array"
-            case _ => false
-          })) {
-            val arg = r.asInstanceOf[JavaArrayType].argument
-            val argsPair = (arg, args.head)
-            argsPair match {
-              case (ScAbstractType(tpt, lower, upper), r) =>
-                val right =
-                  if (tpt.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
-                    ScParameterizedType(r, tpt.arguments)
-                  else r
-                if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
-                  if (!t._1) {
-                    result = (false, undefinedSubst)
-                    return
-                  }
-                  undefinedSubst = t._2
-                }
-                if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(right, lower, visited, undefinedSubst, checkWeak)
-                  if (!t._1) {
-                    result = (false, undefinedSubst)
-                    return
-                  }
-                  undefinedSubst = t._2
-                }
-              case (l, ScAbstractType(tpt, lower, upper)) =>
-                val left =
-                  if (tpt.arguments.nonEmpty && !l.isInstanceOf[ScParameterizedType])
-                    ScParameterizedType(l, tpt.arguments)
-                  else l
-                if (!upper.equiv(Any)) {
-                  val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
-                  if (!t._1) {
-                    result = (false, undefinedSubst)
-                    return
-                  }
-                  undefinedSubst = t._2
-                }
-                if (!lower.equiv(Nothing)) {
-                  val t = conformsInner(left, lower, visited, undefinedSubst, checkWeak)
-                  if (!t._1) {
-                    result = (false, undefinedSubst)
-                    return
-                  }
-                  undefinedSubst = t._2
-                }
-              case (UndefinedType(parameterType, _), rt) => addBounds(parameterType, rt)
-              case (lt, UndefinedType(parameterType, _)) => addBounds(parameterType, lt)
-              case _ =>
-                val t = argsPair._1.equiv(argsPair._2, undefinedSubst, falseUndef = false)
-                if (!t._1) {
-                  result = (false, undefinedSubst)
-                  return
-                }
-                undefinedSubst = t._2
-            }
-            result = (true, undefinedSubst)
-            return
-          }
-        case _ =>
-      }
-
       r match {
         case p2: ScParameterizedType =>
           val des1 = p.designator
@@ -1109,6 +1036,79 @@ object Conformance extends api.Conformance {
                 undefinedSubst, visited, checkWeak)
               return
             case _ =>
+          }
+        case _ =>
+      }
+
+      rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
+      r.visitType(rightVisitor)
+      if (result != null) return
+
+      r match {
+        case _: JavaArrayType =>
+          val args = p.typeArguments
+          val des = p.designator
+          if (args.length == 1 && (des.extractClass() match {
+            case Some(q) => q.qualifiedName == "scala.Array"
+            case _ => false
+          })) {
+            val arg = r.asInstanceOf[JavaArrayType].argument
+            val argsPair = (arg, args.head)
+            argsPair match {
+              case (ScAbstractType(tpt, lower, upper), r) =>
+                val right =
+                  if (tpt.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
+                    ScParameterizedType(r, tpt.arguments)
+                  else r
+                if (!upper.equiv(Any)) {
+                  val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
+                  if (!t._1) {
+                    result = (false, undefinedSubst)
+                    return
+                  }
+                  undefinedSubst = t._2
+                }
+                if (!lower.equiv(Nothing)) {
+                  val t = conformsInner(right, lower, visited, undefinedSubst, checkWeak)
+                  if (!t._1) {
+                    result = (false, undefinedSubst)
+                    return
+                  }
+                  undefinedSubst = t._2
+                }
+              case (l, ScAbstractType(tpt, lower, upper)) =>
+                val left =
+                  if (tpt.arguments.nonEmpty && !l.isInstanceOf[ScParameterizedType])
+                    ScParameterizedType(l, tpt.arguments)
+                  else l
+                if (!upper.equiv(Any)) {
+                  val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
+                  if (!t._1) {
+                    result = (false, undefinedSubst)
+                    return
+                  }
+                  undefinedSubst = t._2
+                }
+                if (!lower.equiv(Nothing)) {
+                  val t = conformsInner(left, lower, visited, undefinedSubst, checkWeak)
+                  if (!t._1) {
+                    result = (false, undefinedSubst)
+                    return
+                  }
+                  undefinedSubst = t._2
+                }
+              case (UndefinedType(parameterType, _), rt) => addBounds(parameterType, rt)
+              case (lt, UndefinedType(parameterType, _)) => addBounds(parameterType, lt)
+              case _ =>
+                val t = argsPair._1.equiv(argsPair._2, undefinedSubst, falseUndef = false)
+                if (!t._1) {
+                  result = (false, undefinedSubst)
+                  return
+                }
+                undefinedSubst = t._2
+            }
+            result = (true, undefinedSubst)
+            return
           }
         case _ =>
       }
