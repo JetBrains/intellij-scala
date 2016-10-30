@@ -55,7 +55,7 @@ trait Equivalence extends TypeSystemOwner {
       return (false, ScUndefinedSubstitutor())
     }
 
-    val result = guard.doPreventingRecursion(key, false, computable(left, right, substitutor, falseUndef))
+    val result = guard.doPreventingRecursion(key, false, computable(left, right, ScUndefinedSubstitutor(), falseUndef))
     if (result == null) return (false, ScUndefinedSubstitutor())
     if (!nowEval) {
       try {
