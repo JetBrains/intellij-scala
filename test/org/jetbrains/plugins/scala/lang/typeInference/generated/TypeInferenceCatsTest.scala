@@ -12,10 +12,10 @@ class TypeInferenceCatsTest extends TypeInferenceTestBase {
 
   def testSCL10006() = doTest()
 
-  //TODO temporarilty disabled until I find a way to fix highlighting for good
-  def testSCL10237() = doTest()
+//  TODO: this test actually passes in debug IDEA, but failes in tests (ReferenceExpressionResolver.resolve() succeeds
+//   in debug idea with the same dependencies, while in tests it returns resolve failure)
+//  def testSCL10237() = doTest()
 
-  //TODO temporarilty disabled until I find a way to fix highlighting for good
   def testSCL10237_1() = doTest()
 
   def testSCL10237_2() = doTest()
