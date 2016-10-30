@@ -1,7 +1,7 @@
 class TestCats {
-  import cats.data.Xor
   import cats.syntax.all._
   import cats.std.all._
+  import cats.data.Validated
 
   def valida(a: Int): Validated[List[String], Int] = {
     if (a > 0) Validated.valid(a)
