@@ -230,8 +230,8 @@ class MacroExpandAction extends AnAction {
       options += MacroExpandAction.MACRO_DEBUG_OPTION
       state.additionalCompilerOptions = options.toArray
       module.scalaCompilerSettings.loadState(state)
-      NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.PROJECT_VIEW)
-        .createNotification(
+
+      windowGroup.createNotification(
           """Macro debugging options have been enabled for current module
             |Please recompile the file to gather macro expansions""".stripMargin, NotificationType.INFORMATION)
         .notify(e.getProject)
@@ -268,15 +268,20 @@ object MacroExpandAction {
   val EXPANDED_KEY = new Key[String]("MACRO_EXPANDED_KEY")
 
   private val LOG = Logger.getInstance(getClass)
+  val windowGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.PROJECT_VIEW)
+  val messageGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.MESSAGES_WINDOW)
 
   def expandMetaAnnotation(annot: ScAnnotation) = {
     val result = ExpansionUtil.runMetaAnnotation(annot)
     result match {
-      case Some(tree) =>
+      case Left(tree) =>
         inWriteCommandAction(annot.getProject) {
           expandAnnotation(annot, MacroExpansion(null, tree.toString))
         }
-      case None =>
+      case Right(errorMsg) =>
+        messageGroup.createNotification(
+          s"Macro expansion failed: $errorMsg", NotificationType.ERROR
+        ).notify(annot.getProject)
     }
   }
 

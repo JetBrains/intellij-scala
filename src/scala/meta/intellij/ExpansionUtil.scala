@@ -1,6 +1,7 @@
 package scala.meta.intellij
 
 import java.io.File
+import java.lang.reflect.InvocationTargetException
 import java.net.URL
 
 import com.intellij.openapi.compiler.CompilerPaths
@@ -47,10 +48,10 @@ object ExpansionUtil {
   }
 
 
-  def runMetaAnnotation(annot: ScAnnotation): Option[Tree] = {
+  def runMetaAnnotation(annot: ScAnnotation): Either[Tree, String] = {
 
     @CachedInsidePsiElement(annot, ModCount.getModificationCount)
-    def runMetaAnnotationsImpl: Option[Tree] = {
+    def runMetaAnnotationsImpl: Either[Tree, String] = {
 
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
@@ -64,20 +65,21 @@ object ExpansionUtil {
       annotee.annotations.find(_.getQualifiedName == annot.getQualifiedName).foreach(_.delete())
       val converted = converter.ideaToMeta(annotee)
       val clazz = getCompiledMetaAnnotClass(annot)
-      clazz.flatMap { outer =>
-        val ctor = outer.getDeclaredConstructors.head
-        ctor.setAccessible(true)
-        val inst = ctor.newInstance()
-        val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
-        meth.setAccessible(true)
-        try {
-          val result = meth.invoke(inst, null, converted.asInstanceOf[AnyRef])
-          Some(result.asInstanceOf[Tree])
-        } catch {
-          case e: Exception =>
-            LOG.error(e)
-            None
-        }
+      clazz match {
+        case Some(outer) =>
+          val ctor = outer.getDeclaredConstructors.head
+          ctor.setAccessible(true)
+          val inst = ctor.newInstance()
+          val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
+          meth.setAccessible(true)
+          try {
+            val result = meth.invoke(inst, null, converted.asInstanceOf[AnyRef])
+            Left(result.asInstanceOf[Tree])
+          } catch {
+            case e: InvocationTargetException => Right(e.getTargetException.toString)
+            case e: Exception => Right(e.getMessage)
+          }
+        case None => Right("Meta annotation class could not be found")
       }
     }
 

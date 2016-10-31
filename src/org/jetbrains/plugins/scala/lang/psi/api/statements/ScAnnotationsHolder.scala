@@ -117,8 +117,8 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     metaAnnotation match {
       case Some(annotation) =>
         val result = ExpansionUtil.runMetaAnnotation(annotation) match {
-          case Some(tree) => tree.toString
-          case None       => ""
+          case Left(tree)             => tree.toString
+          case Right(errorMsg)        => ""
         }
         result
       case None => ""
