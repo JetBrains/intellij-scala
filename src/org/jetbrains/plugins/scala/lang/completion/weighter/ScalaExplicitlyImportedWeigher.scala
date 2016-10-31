@@ -62,7 +62,8 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
             }
         } else if (expr.selectorSet.isDefined) {
           for (selector <- expr.selectors) {
-            for (resolve <- selector.reference.multiResolve(false)) {
+            for (element <- selector.reference;
+                 resolve <- element.multiResolve(false)) {
               resolve match {
                 case ScalaResolveResult(clazz: PsiClass, _) =>
                   if (qual == clazz.qualifiedName) return Some(3)

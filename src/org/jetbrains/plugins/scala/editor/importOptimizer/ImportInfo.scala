@@ -145,21 +145,24 @@ object ImportInfo {
       val importUsed: ImportSelectorUsed = ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
-        val refName: String = selector.reference.refName
-        if (selector.isAliasedImport) {
-          val importedName: String = selector.importedName
-          if (importedName == "_") {
-            hiddenNames += refName
-          } else if (importedName == refName) {
-            singleNames += refName
-            addAllNames(selector.reference, refName)
+        for (reference <- selector.reference;
+             refName = reference.refName) {
+          if (selector.isAliasedImport) {
+            for (importedName <- selector.importedName) {
+              if (importedName == "_") {
+                hiddenNames += refName
+              } else if (importedName == refName) {
+                singleNames += refName
+                addAllNames(reference, refName)
+              } else {
+                renames += ((refName, importedName))
+                addAllNames(reference, importedName)
+              }
+            }
           } else {
-            renames += ((refName, importedName))
-            addAllNames(selector.reference, importedName)
+            singleNames += refName
+            addAllNames(reference, refName)
           }
-        } else {
-          singleNames += refName
-          addAllNames(selector.reference, refName)
         }
       }
     }

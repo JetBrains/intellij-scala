@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -53,9 +53,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
@@ -1675,23 +1674,18 @@ object ScalaPsiUtil {
   }
 
   def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = Option(holder) map {
+    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = Option(holder).toSeq.flatMap {
       _.getImportStatements
-    } map {
-      _ flatMap {
-        _.importExprs
-      } flatMap {
-        _.selectors
-      } filter {
-        _.importedName != "_"
-      } filter {
-        _.reference != null
-      } map { selector =>
-        (selector.reference.asInstanceOf[ScReferenceElement], selector.importedName)
-      } filter {
-        case (reference, name) => reference.refName != name
-      } toSet
-    } getOrElse Set.empty
+    }.flatMap {
+      _.importExprs
+    }.flatMap {
+      _.selectors
+    }.flatMap { selector =>
+      selector.reference.zip(selector.importedName).headOption
+    }.filter {
+      case (_, "_") => false
+      case (reference, name) => reference.refName != name
+    }.toSet
 
     if (position != null && position.getLanguage.getID != "Scala")
       return Set.empty
