@@ -10,7 +10,38 @@ import scala.meta._
 
 class MetaContextTest extends TreeConverterTestBaseWithLibrary {
 
+  def extractClass(t: Tree): Defn.Class = {
+    t match {
+      case c@Defn.Class(_, name, _, _, Template(_, _, _, Some(stats))) =>
+        stats.last match {
+          case cl: Defn.Class => cl
+        }
+    }
+  }
+
+  def doTest: Unit = {
+    import scala.meta._
+    implicit val sc:scala.meta.semantic.Context = semanticContext
+    val text =
+      """
+        | class A {
+        | class Foo[T] { def foo(a: Int) = a }
+        | class Bar extends Foo[Int]
+        | }
+      """.stripMargin
+
+    val bar = extractClass(convert(text))
+//    val foo = bar.tpe.supertypes.head
+//    val members = foo.members
+//    val denot = foo.show[Semantics]
+    ""
+  }
+
+  // FIXME: disabled until semantics engine is implemented
   def testSimple() {
+
+    return
+
     import scala.meta._
     implicit val c = semanticContext
     val body =
@@ -46,34 +77,9 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
     }
   }
 
-  def extractClass(t: Tree): Defn.Class = {
-    t match {
-      case c@Defn.Class(_, name, _, _, Template(_, _, _, Some(stats))) =>
-        stats.last match {
-          case cl: Defn.Class => cl
-        }
-    }
-  }
-
+  // FIXME: disabled until semantics engine is implemented
   def testParents1() {
+    return
     doTest
-  }
-
-  def doTest: Unit = {
-    import scala.meta._
-    implicit val sc:scala.meta.semantic.Context = semanticContext
-    val text =
-      """
-        | class A {
-        | class Foo[T] { def foo(a: Int) = a }
-        | class Bar extends Foo[Int]
-        | }
-      """.stripMargin
-
-    val bar = extractClass(convert(text))
-//    val foo = bar.tpe.supertypes.head
-//    val members = foo.members
-//    val denot = foo.show[Semantics]
-    ""
   }
 }
