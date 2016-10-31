@@ -1590,22 +1590,31 @@ object Conformance extends api.Conformance {
 
   def processHigherKindedTypeParams(undefType: ParameterizedType, defType: ParameterizedType, undefinedSubst: ScUndefinedSubstitutor,
                                     falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    extractParams(defType.designator) match {
+    val defTypeExpanded = defType.isAliasType.map(_.lower).map {
+      case Success(p: ScParameterizedType, _) => p
+      case _ => defType
+    }.getOrElse(defType)
+    extractParams(defTypeExpanded.designator) match {
       case Some(params) =>
         val undef = undefType.designator.asInstanceOf[UndefinedType]
-        var defArgsReplace = defType.typeArguments
+        var defArgsReplace = defTypeExpanded.typeArguments
         val bound = if (params.nonEmpty) {
-          if (defType.typeArguments.length != undefType.typeArguments.length)
+          if (defTypeExpanded.typeArguments.length != undefType.typeArguments.length)
           {
-            findDiffLengthArgs(defType, undefType.typeArguments.length) match {
-              case Some((newArgs, newDes)) =>
-                defArgsReplace = newArgs
-                newDes
-              case _ => return (false, undefinedSubst)
+            if (defType.typeArguments.length != undefType.typeArguments.length) {
+              findDiffLengthArgs(defType, undefType.typeArguments.length) match {
+                case Some((newArgs, newDes)) =>
+                  defArgsReplace = newArgs
+                  newDes
+                case _ => return (false, undefinedSubst)
+              }
+            } else {
+              defArgsReplace =defType.typeArguments
+              defType.designator
             }
-          } else defType.designator
+          } else defTypeExpanded.designator
         } else {
-          defType.designator
+          defTypeExpanded.designator
         }
         val y = undef.equiv(bound, undefinedSubst, falseUndef)
         if (!y._1) {
