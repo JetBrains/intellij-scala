@@ -405,12 +405,19 @@ trait TreeAdapter {
 
   def imports(t: p.toplevel.imports.ScImportExpr):m.Importer = {
     def selector(sel: p.toplevel.imports.ScImportSelector): m.Importee = {
-      if (sel.isAliasedImport && sel.importedName == "_")
-        m.Importee.Unimport(ind(sel.reference))
+      val importedName = sel.importedName.getOrElse {
+        throw new AbortException("Imported name is null")
+      }
+      val reference = sel.reference.getOrElse {
+        throw new AbortException("Reference is null")
+      }
+
+      if (sel.isAliasedImport && importedName == "_")
+        m.Importee.Unimport(ind(reference))
       else if (sel.isAliasedImport)
-        m.Importee.Rename(m.Name.Indeterminate(sel.reference.qualName), m.Name.Indeterminate(sel.importedName))
+        m.Importee.Rename(m.Name.Indeterminate(reference.qualName), m.Name.Indeterminate(importedName))
       else
-        m.Importee.Name(m.Name.Indeterminate(sel.importedName))
+        m.Importee.Name(m.Name.Indeterminate(importedName))
     }
     if (t.selectors.nonEmpty)
       m.Importer(getQualifier(t.qualifier), Seq(t.selectors.map(selector): _*) ++ (if (t.isSingleWildcard) Seq(m.Importee.Wildcard()) else Seq.empty))

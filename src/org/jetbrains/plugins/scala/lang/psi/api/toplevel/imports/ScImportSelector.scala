@@ -7,17 +7,16 @@ package imports
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 20.02.2008
-*/
-
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 20.02.2008
+  */
 trait ScImportSelector extends ScalaPsiElement {
-  def importedName : String
+  def importedName: Option[String]
 
-  def reference : ScStableCodeReferenceElement
+  def reference: Option[ScStableCodeReferenceElement]
 
-  def deleteSelector()
+  def deleteSelector(): Unit
 
   def isAliasedImport: Boolean
 }

@@ -16,7 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 trait ScImportSelectorStub extends StubElement[ScImportSelector] {
   def isAliasedImport: Boolean
 
-  def reference: ScStableCodeReferenceElement
+  def referenceText: Option[String]
 
-  def importedName: String
+  def reference: Option[ScStableCodeReferenceElement]
+
+  def importedName: Option[String]
 }
