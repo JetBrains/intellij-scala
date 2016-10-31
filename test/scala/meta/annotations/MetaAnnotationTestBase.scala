@@ -1,7 +1,5 @@
 package scala.meta.annotations
 
-import java.io.File
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
@@ -10,14 +8,12 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{Compilable, DebuggerTestUtil}
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.junit.Assert
 
 import scala.meta.ScalametaUtils
 
-class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compilable with ScalametaUtils {
+class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with Compilable with ScalametaUtils {
 
   override def getCompileableProject: Project = myFixture.getProject
   override def getMainModule: Module = myModule
@@ -54,33 +50,6 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
     } finally {
       shutdownCompiler()
     }
-  }
-
-  def testBasic(): Unit = {
-    val mynewcoolmethod = "myNewCoolMethod"
-    compileMetaSource(
-      """
-        |import scala.meta._
-        |
-        |class main extends scala.annotation.StaticAnnotation {
-        |  inline def apply(defn: Any): Any = meta {
-        |    val q"object $name { ..$stats }" = defn
-        |    val main = q"def """ + mynewcoolmethod + """(args: Array[String]): Unit = { ..$stats }"
-        |    q"object $name { $main }"
-        |  }
-        |}
-      """.stripMargin
-    )
-    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE,
-      s"""
-        |@main
-        |object Foo {
-        |  println("bar")
-        |}
-        |Foo.<caret>
-      """.stripMargin)
-    val result = myFixture.completeBasic()
-    Assert.assertTrue(s"Method '$mynewcoolmethod' hasn't been injected", result.exists(_.getLookupString == mynewcoolmethod))
   }
 
 }
