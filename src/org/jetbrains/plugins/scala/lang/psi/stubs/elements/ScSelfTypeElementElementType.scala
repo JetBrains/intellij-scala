@@ -21,14 +21,14 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
 
   override def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeOptionName(stub.typeElementText)
+    dataStream.writeOptionName(stub.typeText)
     dataStream.writeNames(stub.classNames)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
     new ScSelfTypeElementStubImpl(parentStub, this,
       nameRef = dataStream.readName,
-      typeElementTextRef = dataStream.readOptionName,
+      typeTextRef = dataStream.readOptionName,
       typeNamesRefs = dataStream.readNames)
 
   override def createStub(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
@@ -38,7 +38,7 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
 
     new ScSelfTypeElementStubImpl(parentStub, this,
       nameRef = StringRef.fromString(typeElement.name),
-      typeElementTextRef = typeElementText.asReference,
+      typeTextRef = typeElementText.asReference,
       typeNamesRefs = typeElement.classNames.asReferences)
   }
 

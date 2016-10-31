@@ -19,9 +19,9 @@ trait ScFunctionStub extends NamedStub[ScFunction] with ScMemberOrLocal {
 
   def annotations: Array[String]
 
-  def returnTypeText: Option[String]
+  def typeText: Option[String]
 
-  def returnTypeElement: Option[ScTypeElement]
+  def typeElement: Option[ScTypeElement]
 
   def hasAssign: Boolean
 

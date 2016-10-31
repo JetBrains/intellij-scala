@@ -21,7 +21,7 @@ abstract class ScFunctionElementType(debugName: String) extends ScStubElementTyp
     dataStream.writeName(stub.getName)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeNames(stub.annotations)
-    dataStream.writeOptionName(stub.returnTypeText)
+    dataStream.writeOptionName(stub.typeText)
     dataStream.writeOptionName(stub.bodyText)
     dataStream.writeBoolean(stub.hasAssign)
     dataStream.writeBoolean(stub.isImplicit)
@@ -33,7 +33,7 @@ abstract class ScFunctionElementType(debugName: String) extends ScStubElementTyp
       nameRef = dataStream.readName,
       isDeclaration = dataStream.readBoolean,
       annotationsRefs = dataStream.readNames,
-      returnTypeTextRef = dataStream.readOptionName,
+      typeTextRef = dataStream.readOptionName,
       bodyTextRef = dataStream.readOptionName,
       hasAssign = dataStream.readBoolean,
       isImplicit = dataStream.readBoolean,
@@ -75,7 +75,7 @@ abstract class ScFunctionElementType(debugName: String) extends ScStubElementTyp
       nameRef = StringRef.fromString(function.name),
       isDeclaration = function.isInstanceOf[ScFunctionDeclaration],
       annotationsRefs = annotations.asReferences,
-      returnTypeTextRef = returnTypeText.asReference,
+      typeTextRef = returnTypeText.asReference,
       bodyTextRef = bodyText.asReference,
       hasAssign = hasAssign,
       isImplicit = function.hasModifierProperty("implicit"),

@@ -30,9 +30,9 @@ trait ScParameterStub extends NamedStub[ScParameter] {
 
   def isCallByNameParameter: Boolean
 
-  def defaultExprText: Option[String]
+  def bodyText: Option[String]
 
-  def defaultExpr: Option[ScExpression]
+  def bodyExpression: Option[ScExpression]
 
   def deprecatedName: Option[String]
 }

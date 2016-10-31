@@ -26,7 +26,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
     dataStream.writeBoolean(stub.isVal)
     dataStream.writeBoolean(stub.isVar)
     dataStream.writeBoolean(stub.isCallByNameParameter)
-    dataStream.writeOptionName(stub.defaultExprText)
+    dataStream.writeOptionName(stub.bodyText)
     dataStream.writeOptionName(stub.deprecatedName)
   }
 
@@ -40,7 +40,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       isVal = dataStream.readBoolean,
       isVar = dataStream.readBoolean,
       isCallByNameParameter = dataStream.readBoolean,
-      defaultExprTextRef = dataStream.readOptionName,
+      bodyTextRef = dataStream.readOptionName,
       deprecatedNameRef = dataStream.readOptionName)
 
   override def createStub(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
@@ -64,7 +64,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       isVal = isVal,
       isVar = isVar,
       isCallByNameParameter = parameter.isCallByNameParameter,
-      defaultExprTextRef = defaultExprText.asReference,
+      bodyTextRef = defaultExprText.asReference,
       deprecatedNameRef = parameter.deprecatedName.asReference)
   }
 }
