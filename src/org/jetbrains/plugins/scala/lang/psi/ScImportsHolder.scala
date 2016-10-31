@@ -87,7 +87,7 @@ trait ScImportsHolder extends ScalaPsiElement {
             if (/*!imp.singleWildcard && */imp.selectorSet.isEmpty) {
               res += ImportExprUsed(imp)
             }
-            else if (imp.singleWildcard) {
+            else if (imp.isSingleWildcard) {
               res += ImportWildcardSelectorUsed(imp)
             }
             for (selector <- imp.selectors) {

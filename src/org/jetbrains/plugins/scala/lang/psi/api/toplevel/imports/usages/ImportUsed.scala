@@ -37,7 +37,7 @@ object ImportUsed {
 case class ImportExprUsed(expr: ScImportExpr) extends ImportUsed(expr) {
   override def qualName: Option[String] = {
     if (expr.qualifier == null) None
-    else if (expr.singleWildcard) Some(expr.qualifier.qualName + "._")
+    else if (expr.isSingleWildcard) Some(expr.qualifier.qualName + "._")
     else expr.reference.map(ref => expr.qualifier.qualName + "." + ref.refName)
   }
 

@@ -164,7 +164,7 @@ object ImportInfo {
       }
     }
 
-    if (imp.selectorSet.isEmpty && !imp.singleWildcard) {
+    if (imp.selectorSet.isEmpty && !imp.isSingleWildcard) {
       val importUsed: ImportExprUsed = ImportExprUsed(imp)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
@@ -175,7 +175,7 @@ object ImportInfo {
           case None => //something is not valid
         }
       }
-    } else if (imp.singleWildcard) {
+    } else if (imp.isSingleWildcard) {
       val importUsed =
         if (imp.selectorSet.isEmpty) ImportExprUsed(imp)
         else ImportWildcardSelectorUsed(imp)

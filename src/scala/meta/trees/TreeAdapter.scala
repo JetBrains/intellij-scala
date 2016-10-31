@@ -2,14 +2,11 @@ package scala.meta.trees
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -17,9 +14,8 @@ import scala.language.postfixOps
 //import scala.meta.internal.ast.Term
 //import scala.meta.internal.ast.Term.Param
 import scala.meta.internal.{semantic => h}
-import scala.{meta=>m}
 import scala.meta.trees.error._
-import scala.{Seq => _}
+import scala.{meta => m, Seq => _}
 
 trait TreeAdapter {
   self: TreeConverter =>
@@ -417,8 +413,8 @@ trait TreeAdapter {
         m.Importee.Name(m.Name.Indeterminate(sel.importedName))
     }
     if (t.selectors.nonEmpty)
-      m.Importer(getQualifier(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Importee.Wildcard()) else Seq.empty))
-    else if (t.singleWildcard)
+      m.Importer(getQualifier(t.qualifier), Seq(t.selectors.map(selector): _*) ++ (if (t.isSingleWildcard) Seq(m.Importee.Wildcard()) else Seq.empty))
+    else if (t.isSingleWildcard)
       m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Wildcard()))
     else
       m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.getNames.head))))

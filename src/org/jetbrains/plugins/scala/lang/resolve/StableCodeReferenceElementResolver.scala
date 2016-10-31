@@ -14,7 +14,7 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
                                           allConstructorResults: Boolean, noConstructorResolve: Boolean)
         extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean): Array[ResolveResult] = {
-    import ref.typeSystem
+    implicit val typeSystem = ref.typeSystem
     val kinds = getKindsFor(ref)
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr = ref.getConstructor.get
@@ -26,9 +26,9 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
       new ConstructorResolveProcessor(ref, ref.refName, effectiveArgs, typeArgs, kinds, shapeResolve, allConstructorResults)
     } else ref.getContext match {
       //last ref may import many elements with the same name
-      case e: ScImportExpr if e.selectorSet.isEmpty && !e.singleWildcard =>
+      case e: ScImportExpr if e.selectorSet.isEmpty && !e.isSingleWildcard =>
         new CollectAllForImportProcessor(kinds, ref, reference.refName)
-      case e: ScImportExpr if e.singleWildcard => new ResolveProcessor(kinds, ref, reference.refName)
+      case e: ScImportExpr if e.isSingleWildcard => new ResolveProcessor(kinds, ref, reference.refName)
       case _: ScImportSelector => new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case constr: ScInterpolationPattern =>
         new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)

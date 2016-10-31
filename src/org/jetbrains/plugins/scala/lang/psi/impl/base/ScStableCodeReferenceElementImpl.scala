@@ -99,7 +99,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       case _: ScStableCodeReferenceElement => stableQualRef
       case e: ScImportExpr => if (e.selectorSet.isDefined
               //import Class._ is not allowed
-        || qualifier.isEmpty || e.singleWildcard) stableQualRef
+        || qualifier.isEmpty || e.isSingleWildcard) stableQualRef
       else stableImportSelector
       case ste: ScSimpleTypeElement =>
         if (incomplete) noPackagesClassCompletion // todo use the settings to include packages
@@ -167,7 +167,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
               return importExpr.reference.get //todo: what we should return exactly?
               //              }
             } else if (importExpr != null) {
-              if (importExpr == getParent && !importExpr.singleWildcard && importExpr.selectorSet.isEmpty) {
+              if (importExpr == getParent && !importExpr.isSingleWildcard && importExpr.selectorSet.isEmpty) {
                 val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
                 importExpr.deleteExpr()
                 c match {

@@ -67,7 +67,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         }
         val nameHint = processor.getHint(NameHint.KEY)
         val name = if (nameHint == null) "" else nameHint.getName(state)
-        if (name != "" && !importExpr.singleWildcard) {
+        if (name != "" && !importExpr.isSingleWildcard) {
           val decodedName = ScalaNamesUtil.clean(name)
           importExpr.selectorSet match {
             case Some(set) => set.selectors.exists(selector => ScalaNamesUtil.clean(selector.reference.refName) == decodedName)
@@ -82,7 +82,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         }
         val exprQual: ScStableCodeReferenceElement = importExpr.selectorSet match {
           case Some(_) => ref
-          case None if importExpr.singleWildcard => ref
+          case None if importExpr.isSingleWildcard => ref
           case None => ref.qualifier.getOrElse(return true)
         }
 
@@ -200,7 +200,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
               refType.foreach { tp =>
                 newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
               }
-              if (importExpr.singleWildcard) {
+              if (importExpr.isSingleWildcard) {
                 if (!checkWildcardImports) return true
                 (elem, processor) match {
                   case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>

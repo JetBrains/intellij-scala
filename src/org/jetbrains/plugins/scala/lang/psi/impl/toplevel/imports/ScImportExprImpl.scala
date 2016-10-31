@@ -37,7 +37,7 @@ class ScImportExprImpl private (stub: StubElement[ScImportExpr], nodeType: IElem
 
   override def toString: String = "ImportExpression"
 
-  def singleWildcard: Boolean = {
+  def isSingleWildcard: Boolean = {
     val stub = getStub
     if (stub != null) {
       return stub.asInstanceOf[ScImportExprStub].isSingleWildcard
@@ -67,7 +67,7 @@ class ScImportExprImpl private (stub: StubElement[ScImportExpr], nodeType: IElem
   def qualifier: ScStableCodeReferenceElement = {
     if (reference.isEmpty)
       throw new IncorrectOperationException()
-    else if (!singleWildcard && selectorSet.isEmpty)
+    else if (!isSingleWildcard && selectorSet.isEmpty)
       reference.flatMap(_.qualifier).orNull
     else
       reference.get
