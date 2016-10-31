@@ -35,6 +35,6 @@ object NoReturnTypeForImplicitDefInspection {
 
 class AddReturnTypeQuickFix(td: ScTypedDefinition) extends AbstractFixOnPsiElement("Add explicit return type", td) {
   override def doApplyFix(project: Project): Unit = {
-    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement)(project.typeSystem)
+    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement.getFirstChild)(project.typeSystem)
   }
 }
