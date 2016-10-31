@@ -15,17 +15,18 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorsStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 20.06.2009
   */
-class ScImportSelectorsElementType[Func <: ScImportSelectors]
-  extends ScStubElementType[ScImportSelectorsStub, ScImportSelectors]("import selectors") {
+class ScImportSelectorsElementType extends ScStubElementType[ScImportSelectorsStub, ScImportSelectors]("import selectors") {
   override def serialize(stub: ScImportSelectorsStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.hasWildcard)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorsStub =
-    new ScImportSelectorsStubImpl(parentStub, this, dataStream.readBoolean)
+    new ScImportSelectorsStubImpl(parentStub, this,
+      hasWildcard = dataStream.readBoolean)
 
-  override def createStub(psi: ScImportSelectors, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorsStub =
-    new ScImportSelectorsStubImpl(parentStub, this, psi.hasWildcard)
+  override def createStub(selectors: ScImportSelectors, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorsStub =
+    new ScImportSelectorsStubImpl(parentStub, this,
+      hasWildcard = selectors.hasWildcard)
 
   override def createElement(node: ASTNode): ScImportSelectors = new ScImportSelectorsImpl(node)
 
