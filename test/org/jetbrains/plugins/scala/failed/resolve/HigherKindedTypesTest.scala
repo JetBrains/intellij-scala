@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala.failed.resolve
 
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.junit.experimental.categories.Category
 
 /**
   * Created by Roman.Shein on 02.09.2016.
   */
+@Category(Array(classOf[PerfCycleTests]))
 class HigherKindedTypesTest extends ScalaLightCodeInsightFixtureTestAdapter {
   val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
   val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
@@ -26,7 +29,7 @@ class HigherKindedTypesTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |
          |val example: Component[Int, Hello] = ???
          |example.ctor.hello(123)
-         |val left: Int = example.${START}hello${END}(123)
+         |val left: Int = example.hello(123)
       """.stripMargin, "Cannot resolve symbol hello")
   }
 }
