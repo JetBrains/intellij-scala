@@ -20,6 +20,7 @@ class HighlightingPerformanceTest extends ScalaFixtureTestCase {
       new Runnable {
         def run() {
           try {
+            getFixture.allowTreeAccessForAllFiles()
             myFixture.testHighlighting(false, false, false, file.getVirtualFile)
           }
           catch {
