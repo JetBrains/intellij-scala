@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import java.io.{File, IOException}
+import java.net.BindException
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
@@ -247,10 +248,7 @@ object CompileServerLauncher {
   }
 
   def findFreePort: Int = {
-    val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
-    if (NetUtils.canConnectToSocket("localhost", port))
-      NetUtils.findAvailableSocketPort()
-    else port
+    NetUtils.tryToFindAvailableSocketPort(ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT)
   }
 
   private def projectHome(project: Project): Option[File] = {

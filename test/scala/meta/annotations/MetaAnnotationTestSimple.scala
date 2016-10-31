@@ -37,12 +37,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
     val loader = new DisposableScalaLibraryLoader(getProject, metaModule, null, true, Some(DebuggerTestUtil.findJdk8()))
     loader.loadScala(scalaSdkVersion)
     addAllMetaLibraries(metaModule)
-    val profile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
-    val settings = profile.getSettings
-    val paradisePath= s"${TestUtils.getIvyCachePath}/org.scalamacros/paradise_2.11.8/jars/paradise_2.11.8-3.0.0-M4.jar"
-    assert(new File(paradisePath).exists(), "Can't compile testdata - paradise plugin not found")
-    settings.plugins :+= paradisePath
-    profile.setSettings(settings)
+    enableParadisePlugin(myFixture.getProject)
     extensions.inWriteAction {
       val modifiableRootModel = ModuleRootManager.getInstance(myModule).getModifiableModel
       modifiableRootModel.addModuleOrderEntry(metaModule)
@@ -62,14 +57,15 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
   }
 
   def testBasic(): Unit = {
+    val mynewcoolmethod = "myNewCoolMethod"
     compileMetaSource(
       """
         |import scala.meta._
         |
         |class main extends scala.annotation.StaticAnnotation {
-        |  inline def apply()(defn: Any) = meta {
+        |  inline def apply(defn: Any): Any = meta {
         |    val q"object $name { ..$stats }" = defn
-        |    val main = q"def myNewCoolMethod(args: Array[String]): Unit = { ..$stats }"
+        |    val main = q"def """ + mynewcoolmethod + """(args: Array[String]): Unit = { ..$stats }"
         |    q"object $name { $main }"
         |  }
         |}
@@ -84,7 +80,7 @@ class MetaAnnotationTestSimple extends JavaCodeInsightFixtureTestCase with Compi
         |Foo.<caret>
       """.stripMargin)
     val result = myFixture.completeBasic()
-    Assert.assertTrue("", result.exists(_.getLookupString == "myNewCoolMethod"))
+    Assert.assertTrue(s"Method '$mynewcoolmethod' hasn't been injected", result.exists(_.getLookupString == mynewcoolmethod))
   }
 
 }

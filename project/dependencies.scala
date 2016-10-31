@@ -128,7 +128,7 @@ object DependencyGroups {
     "com.typesafe.slick" %% "slick" % "3.1.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
     "org.typelevel" %% "cats" % "0.4.0",
-    "org.scalamacros" % "paradise_2.11.8" % "3.0.0-M4" exclude("org.scalameta", "scalameta_2.11")
+    "org.scalameta" % "paradise_2.11.8" % "3.0.0-M5" exclude("org.scalameta", "scalameta_2.11")
   )
 
   val testScalaLibraryDownloader = Seq(

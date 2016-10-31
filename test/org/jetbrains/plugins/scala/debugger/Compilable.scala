@@ -14,7 +14,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore, VirtualFile}
-import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
+import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil, UsefulTestCase}
+import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
@@ -46,9 +47,7 @@ trait Compilable {
       }
     })
     CompilerTestUtil.enableExternalCompiler()
-
     addRoots()
-//    DebuggerTestUtil.setCompileServerSettings()
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
 
@@ -58,7 +57,6 @@ trait Compilable {
   }
 
   protected def addRoots() {
-
     inWriteAction {
       val srcRoot = getOrCreateChildDir("src")
       PsiTestUtil.addSourceRoot(getMainModule, srcRoot, false)
@@ -85,18 +83,13 @@ trait Compilable {
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
-    UIUtil.invokeAndWaitIfNeeded(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
-        try {
-          CompilerTestUtil.saveApplicationSettings()
-//          val ioFile: File = VfsUtilCore.virtualToIoFile(getMainModule.getModuleFile)
-          saveProject()
-//          assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
-          CompilerManager.getInstance(getCompileableProject).rebuild(callback)
-        }
-        catch {
-          case e: Exception => throw new RuntimeException(e)
-        }
+        CompilerTestUtil.saveApplicationSettings()
+        val ioFile: File = VfsUtilCore.virtualToIoFile(getMainModule.getModuleFile)
+        saveProject()
+        assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
+        CompilerManager.getInstance(getCompileableProject).rebuild(callback)
       }
     })
     val maxCompileTime = 6000
@@ -107,7 +100,7 @@ trait Compilable {
       }
       i += 1
     }
-    Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}.test$getTestName", i < maxCompileTime)
+    Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}", i < maxCompileTime)
     if (callback.hasError) {
       deleteProjectAtTearDown = true
       callback.throwException()
