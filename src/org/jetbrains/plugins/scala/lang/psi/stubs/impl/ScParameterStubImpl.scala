@@ -6,13 +6,9 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createTypeElementFromText}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StubBaseExt}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
 
 /**
   * User: Alexander Podkhalyuzin
@@ -21,43 +17,17 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
 class ScParameterStubImpl(parent: StubElement[_ <: PsiElement],
                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                           nameRef: StringRef,
-                          private val typeTextRef: Option[StringRef],
+                          protected[impl] val typeTextRef: Option[StringRef],
                           val isStable: Boolean,
                           val isDefaultParameter: Boolean,
                           val isRepeated: Boolean,
                           val isVal: Boolean,
                           val isVar: Boolean,
                           val isCallByNameParameter: Boolean,
-                          private val defaultExprTextRef: Option[StringRef],
+                          protected[impl] val bodyTextRef: Option[StringRef],
                           private val deprecatedNameRef: Option[StringRef])
-  extends ScNamedStubBase[ScParameter](parent, elementType, nameRef) with ScParameterStub {
-
-  private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
-  private var defaultExpressionReference: SofterReference[Option[ScExpression]] = null
-
-  override def typeText: Option[String] = typeTextRef.asString
-
-  def typeElement: Option[ScTypeElement] = {
-    typeElementReference = this.updateOptionalReference(typeElementReference) {
-      case (context, child) =>
-        typeText.map {
-          createTypeElementFromText(_, context, child)
-        }
-    }
-    typeElementReference.get
-  }
-
-  override def defaultExprText: Option[String] = defaultExprTextRef.asString
-
-  def defaultExpr: Option[ScExpression] = {
-    defaultExpressionReference = this.updateOptionalReference(defaultExpressionReference) {
-      case (context, child) =>
-        defaultExprText.map {
-          createExpressionWithContextFromText(_, context, child)
-        }
-    }
-    defaultExpressionReference.get
-  }
+  extends ScNamedStubBase[ScParameter](parent, elementType, nameRef) with ScParameterStub
+    with ScTypeElementOwnerStub[ScParameter] with ScExpressionOwnerStub[ScParameter] {
 
   override def deprecatedName: Option[String] = deprecatedNameRef.asString
 }

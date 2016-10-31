@@ -148,7 +148,7 @@ class ScParameterImpl protected (stub: StubElement[ScParameter], nodeType: IElem
   def getActualDefaultExpression: Option[ScExpression] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].defaultExpr
+      return stub.asInstanceOf[ScParameterStub].bodyExpression
     }
     findChild(classOf[ScExpression])
   }

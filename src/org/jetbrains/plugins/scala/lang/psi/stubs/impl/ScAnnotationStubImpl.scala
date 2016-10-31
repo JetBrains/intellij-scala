@@ -6,12 +6,9 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
-import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StubBaseExt}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.MaybeStringRefExt
 
 /**
   * User: Alexander Podkhalyuzin
@@ -20,22 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, S
 class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
                            elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                            private val nameRef: Option[StringRef],
-                           private val typeTextRef: Option[StringRef])
-  extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub {
-
-  private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
+                           protected[impl] val typeTextRef: Option[StringRef])
+  extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub with ScTypeElementOwnerStub[ScAnnotation] {
 
   def name: Option[String] = nameRef.asString
-
-  def typeText: Option[String] = typeTextRef.asString
-
-  def typeElement: Option[ScTypeElement] = {
-    typeElementReference = this.updateOptionalReference(typeElementReference) {
-      case (context, child) =>
-        typeText.map {
-          createTypeElementFromText(_, context, child)
-        }
-    }
-    typeElementReference.get
-  }
 }

@@ -3,23 +3,15 @@ package lang
 package psi
 package stubs
 
-import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScBoundsOwnerStub
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-trait ScTypeParamStub extends NamedStub[ScTypeParam] {
-  def upperBoundText: Option[String]
-
-  def upperBoundTypeElement: Option[ScTypeElement]
-
-  def lowerBoundText: Option[String]
-
-  def lowerBoundTypeElement: Option[ScTypeElement]
-
+trait ScTypeParamStub extends ScBoundsOwnerStub[ScTypeParam] {
   def viewBoundsTexts: Array[String]
 
   def viewBoundsTypeElements: Seq[ScTypeElement]
