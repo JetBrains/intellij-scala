@@ -8,23 +8,14 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+
 /**
- * User: Alexander Podkhalyuzin
- * Date: 18.06.2009
- */
-
-class ScImportStmtStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-  extends StubBase[ScImportStmt](parent, elemType) with ScImportStmtStub {
-  private var importText: StringRef = _
-
-  def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          importText: String) {
-    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.importText = StringRef.fromString(importText)
-  }
-
-
-  def getImportText: String = StringRef.toString(importText)
+  * User: Alexander Podkhalyuzin
+  * Date: 18.06.2009
+  */
+class ScImportStmtStubImpl(parent: StubElement[_ <: PsiElement],
+                           elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                           private val importTextRef: StringRef)
+  extends StubBase[ScImportStmt](parent, elementType) with ScImportStmtStub {
+  def importText: String = StringRef.toString(importTextRef)
 }
