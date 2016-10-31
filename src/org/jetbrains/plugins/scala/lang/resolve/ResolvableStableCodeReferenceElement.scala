@@ -150,7 +150,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         importHolder.getImportStatements.takeWhile(_ != importStmt).foreach {
           case stmt: ScImportStmt =>
             stmt.importExprs.foreach {
-              case expr: ScImportExpr if expr.singleWildcard => expr.reference match {
+              case expr: ScImportExpr if expr.isSingleWildcard => expr.reference match {
                 case Some(reference) => reference.resolve()
                 case None => expr.qualifier.resolve()
               }

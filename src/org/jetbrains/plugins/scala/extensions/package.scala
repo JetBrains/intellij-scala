@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala
 import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.{Callable, Future}
-import javax.swing.SwingUtilities
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.{ApplicationManager, Result}
@@ -224,12 +223,6 @@ package object extensions {
         case _ => false
       }
     }
-  }
-
-  implicit class MaybePsiElementExt(val maybePsiElement: Option[PsiElement]) extends AnyVal {
-    def text: String = maybePsiElement map {
-      _.getText
-    } getOrElse ""
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {

@@ -48,7 +48,7 @@ class ScImportSelectorImpl private (stub: StubElement[ScImportSelector], nodeTyp
 
   def deleteSelector() {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-    if (expr.selectors.length + expr.singleWildcard.toInt == 1) {
+    if (expr.selectors.length + expr.isSingleWildcard.toInt == 1) {
       expr.deleteExpr()
     }
     val forward: Boolean = expr.selectors.head == this

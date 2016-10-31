@@ -18,7 +18,7 @@ class RemoveBracesForSingleImportQuickFix(importExpr: ScImportExpr)
     val iExpr = getElement
     if (!iExpr.isValid) return
 
-    val name = if (iExpr.singleWildcard) "_" else iExpr.getNames(0)
+    val name = if (iExpr.isSingleWildcard) "_" else iExpr.getNames(0)
     val text = s"${iExpr.qualifier.getText}.$name"
 
     inWriteAction {

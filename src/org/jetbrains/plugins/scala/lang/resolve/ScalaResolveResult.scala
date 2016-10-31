@@ -236,7 +236,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
             case _ => IMPORT
           }
         case ImportExprUsed(expr) =>
-          if (expr.singleWildcard) {
+          if (expr.isSingleWildcard) {
             getActualElement match {
               case _: PsiPackage => WILDCARD_IMPORT_PACKAGE
               case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
