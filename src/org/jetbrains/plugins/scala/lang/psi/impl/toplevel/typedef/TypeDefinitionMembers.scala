@@ -670,8 +670,9 @@ object TypeDefinitionMembers {
     if (expansion.nonEmpty) {
       val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion)(clazz.getManager)
       if (blockImpl != null) {
-        val td: Option[PsiClass] = blockImpl.firstChild.get.children.findByType(classOf[PsiClass])
-        td match {
+        val fromSingle = blockImpl.children.findByType(classOf[PsiClass])
+        lazy val fromBlock: Option[PsiClass] = blockImpl.firstChild.get.children.findByType(classOf[PsiClass])
+        fromSingle.orElse(fromBlock) match {
           case Some(c) =>
             if(!processDeclarations(c, processor, state, lastParent, place)) return false
             ScalaPsiUtil.getCompanionModule(c).foreach { co =>
