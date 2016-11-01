@@ -8,12 +8,11 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{Compilable, DebuggerTestUtil}
-import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
-import org.junit.Assert
+import org.jetbrains.plugins.scala.extensions
 
 import scala.meta.ScalametaUtils
 
-class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with Compilable with ScalametaUtils {
+abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with Compilable with ScalametaUtils {
 
   override def getCompileableProject: Project = myFixture.getProject
   override def getMainModule: Module = myModule
