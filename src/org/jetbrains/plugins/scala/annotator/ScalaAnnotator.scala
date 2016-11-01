@@ -98,6 +98,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         }
       }
 
+      override def visitAnnotTypeElement(annot: ScAnnotTypeElement) = {
+        super.visitAnnotTypeElement(annot)
+      }
+
       override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
         val tp = parameterized.typeElement.getTypeNoConstructor(TypingContext.empty)
         tp match {
@@ -192,6 +196,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitAnnotation(annotation: ScAnnotation) {
         checkAnnotationType(annotation, holder)
+        checkMetaAnnotation(annotation, holder)
         PrivateBeanProperty.annotate(annotation, holder)
         super.visitAnnotation(annotation)
       }
@@ -424,6 +429,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case _ =>
     }
     //todo: super[ControlFlowInspections].annotate(element, holder)
+  }
+
+  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder) = {
+    if (annotation.isMetaAnnotation) {
+      val result = annotation.parent.flatMap(_.parent) match {
+        case Some(ah: ScAnnotationsHolder) => ah.getExpansionText
+        case _ => Right("")
+      }
+      result match {
+        case Left(errorMsg) =>
+          holder.createErrorAnnotation(annotation, s"Meta expansion failed: $errorMsg")
+        case _ =>
+      }
+    }
   }
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
