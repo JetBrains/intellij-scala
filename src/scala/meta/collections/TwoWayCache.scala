@@ -8,8 +8,8 @@ import scala.collection.mutable
   */
 
 class TwoWayCache[T, U] {
-  private lazy val t2u = mutable.Map[T, U]()
-  private lazy val u2t = mutable.Map[U, T]()
+  private lazy val t2u = mutable.WeakHashMap[T, U]()
+  private lazy val u2t = mutable.WeakHashMap[U, T]()
 
   def apply(t: T)(implicit ev: OverloadHack1) = t2u(t)
   def get(t: T)(implicit ev: OverloadHack1) = t2u.get(t)
