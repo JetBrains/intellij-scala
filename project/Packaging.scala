@@ -11,6 +11,7 @@ object Packaging {
     final case class Artifact(source: File, destination: String) extends PackageEntry
     final case class MergedArtifact(sources: Seq[File], destination: String) extends PackageEntry
     final case class Library(source: ModuleID, destination: String) extends PackageEntry
+    final case class AllOrganisation(org: String, destination: String) extends PackageEntry
   }
 
   def packagePlugin(mappings: Seq[(File, String)], destination: File): Unit = {
@@ -51,18 +52,22 @@ object Packaging {
     (tmpFile, path)
   }
 
-  private def convertEntry(entry: PackageEntry, resolvedLibraries: Map[ModuleID, File]): (File, String) =
+  private def convertEntry(entry: PackageEntry, resolvedLibraries: Map[ModuleID, File]): (File, String) = {
+    resolvedLibraries.keys.toList.sortBy(_.organization).foreach(println)
     entry match {
       case Directory(source, destination) =>
         source -> destination
       case Artifact(source, destination) =>
         source -> destination
       case MergedArtifact(srcs, destination) =>
-        mergeIntoTemporaryJar(srcs:_*) -> destination
+        mergeIntoTemporaryJar(srcs: _*) -> destination
       case Library(libraryId, destination) =>
         val libKey = libraryId.organization % libraryId.name % libraryId.revision
         resolvedLibraries(libKey) -> destination
+      case AllOrganisation(org, destination) =>
+        mergeIntoTemporaryJar(resolvedLibraries.filter(_._1.organization == org).values.toSeq: _*) -> destination
     }
+  }
 
   private def mergeIntoTemporaryJar(filesToMerge: File*): File =
     IO.withTemporaryDirectory { tmp =>
