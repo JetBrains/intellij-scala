@@ -13,13 +13,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.language.implicitConversions
@@ -66,14 +66,16 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
       }
     }
 
-    def inDeclaredType(te: ScTypeElement): Option[UsageType] = {
+    def forType(te: ScTypeElement): Option[UsageType] = {
       te.getParent match {
         case f: ScFunction if f.returnTypeElement.contains(te) => Some(CLASS_METHOD_RETURN_TYPE)
         case v: ScValue if v.typeElement.contains(te) => Some(if (v.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION)
         case v: ScVariable if v.typeElement.contains(te) => Some(if (v.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION)
         case cp: ScClassParameter if cp.isEffectiveVal && cp.typeElement.contains(te) => Some(CLASS_FIELD_DECLARATION)
         case ts: ScTypedStmt if ts.typeElement.contains(te) => Some(typedStatement)
-        case s: ScSelfTypeElement => Some(selfType)
+        case _: ScSelfTypeElement => Some(selfType)
+        case _: ScTypeAliasDeclaration | _: ScTypeParam => Some(typeBound)
+        case _: ScTypeAliasDefinition => Some(typeAlias)
         case _ => None
       }
     }
@@ -96,21 +98,21 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
         case _: ScImportExpr => Some(CLASS_IMPORT)
         case ta: ScTypeArgs => Some(typeArgsUsageType(ta))
         case tp: ScTemplateParents => templateParentsUsageType(tp)
-        case param: ScParameter if isAncestor(param) =>
-          Some(CLASS_METHOD_PARAMETER_DECLARATION)
+        case param: ScParameter if isAncestor(param) => Some(CLASS_METHOD_PARAMETER_DECLARATION)
         case p: ScPattern => forPattern(p)
-        case te: ScTypeElement => inDeclaredType(te)
+        case te: ScTypeElement => forType(te)
+        case _: ScInterpolatedStringPartReference => Some(prefixInterpolatedString)
         case ref: ScReferenceExpression => refExprUsage(ref)
         case a: ScAnnotationExpr if isSomeAncestor(a.constr.reference) => Some(ANNOTATION)
         case t: ScThisReference if isSomeAncestor(t.reference) => Some(thisReference)
         case s: ScSuperReference if isSomeAncestor(s.reference) => Some(DELEGATE_TO_SUPER)
         case _: ScAccessModifier => Some(accessModifier)
         case p: ScPackaging if isSomeAncestor(p.reference) => Some(packageClause)
-        case MethodValue(_) => Some(functionExpression)
         case assign: ScAssignStmt if isAncestor(assign.getLExpression) =>
           if (assign.isNamedParameter) Some(namedParameter)
           else Some(WRITE)
-        case _: ScInterpolatedPrefixReference => Some(prefixInterpolatedString)
+        case MethodValue(_) => Some(functionExpression)
+        case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => Some(READ)
         case _ => None
       }
     }
@@ -156,4 +158,6 @@ object ScalaUsageTypeProvider {
   val prefixInterpolatedString: UsageType = "Interpolated string prefix"
   val parameterInPattern: UsageType = "Parameter in pattern"
   val selfType: UsageType = "Self type"
+  val typeBound: UsageType = "Type bound"
+  val typeAlias: UsageType = "Type alias"
 }
