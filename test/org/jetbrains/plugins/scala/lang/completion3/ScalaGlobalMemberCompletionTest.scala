@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -269,5 +270,40 @@ class Test {
     }
     val expected = Set("D1.zeeGlobalDefInherited", "D1.zeeGlobalValInherited", "D1.zeeGlobalDef", "D1.zeeGlobalVal", "D2.zeeGlobalDefInherited", "D2.zeeGlobalValInherited")
     Assert.assertEquals(expected, lookups.toSet)
+  }
+
+  def testJavaConverters() {
+    val fileText =
+      """
+        |val ja = new java.util.ArrayList[Int]
+        |ja.asSc<caret>
+      """.stripMargin.trim
+    configureFromFileTextAdapter("javaConverters.scala", fileText)
+    val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 2)
+
+    val resultText =
+      """
+        |import scala.collection.JavaConverters.asScalaBufferConverter
+        |
+        |val ja = new java.util.ArrayList[Int]
+        |ja.asScala<caret>
+      """.stripMargin.trim
+
+    val result2Text =
+      """
+        |import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+        |
+        |val ja = new java.util.ArrayList[Int]
+        |ja.asScala<caret>
+      """.stripMargin.trim
+
+    if (activeLookup != null)
+      completeLookupItem(activeLookup.find(le => le.getLookupString == "asScala").get)
+    try {
+      checkResultByText(result2Text)
+    } catch {
+      case _: FileComparisonFailure =>
+        checkResultByText(resultText)
+    }
   }
 }

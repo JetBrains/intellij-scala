@@ -140,9 +140,19 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ref: ScReferenceElement => ref.isValid && !ref.isReferenceTo(elem)
       case _ => false
     }
-    ScalaNamesUtil.qualifiedName(elem) match {
-      case Some(qual) if needImport => addImportForPath(qual, ref)
-      case _ =>
+    if (needImport) {
+      cClass match {
+        case Some(clazz) =>
+          val qualName = clazz.qualifiedName
+          if (qualName != null) {
+            addImportForPath(qualName + "." + elem.name, ref)
+          }
+        case _ =>
+          val qualName = ScalaNamesUtil.qualifiedName(elem).orNull
+          if (qualName != null) {
+            addImportForPath(qualName, ref)
+          }
+      }
     }
   }
 
