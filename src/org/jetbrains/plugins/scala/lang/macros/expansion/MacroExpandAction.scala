@@ -274,11 +274,11 @@ object MacroExpandAction {
   def expandMetaAnnotation(annot: ScAnnotation) = {
     val result = ExpansionUtil.runMetaAnnotation(annot)
     result match {
-      case Left(tree) =>
+      case Right(tree) =>
         inWriteCommandAction(annot.getProject) {
           expandAnnotation(annot, MacroExpansion(null, tree.toString))
         }
-      case Right(errorMsg) =>
+      case Left(errorMsg) =>
         messageGroup.createNotification(
           s"Macro expansion failed: $errorMsg", NotificationType.ERROR
         ).notify(annot.getProject)

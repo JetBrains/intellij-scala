@@ -112,16 +112,11 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
-  def getExpansionText: String = {
+  def getExpansionText: Either[String, String] = {
     val metaAnnotation = annotations.find(_.isMetaAnnotation)
     metaAnnotation match {
-      case Some(annotation) =>
-        val result = ExpansionUtil.runMetaAnnotation(annotation) match {
-          case Left(tree)             => tree.toString
-          case Right(errorMsg)        => ""
-        }
-        result
-      case None => ""
+      case Some(annot) => ExpansionUtil.runMetaAnnotation(annot).right.map(_.toString())
+      case None        => Right("")
     }
   }
 

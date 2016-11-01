@@ -48,10 +48,10 @@ object ExpansionUtil {
   }
 
 
-  def runMetaAnnotation(annot: ScAnnotation): Either[Tree, String] = {
+  def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
 
     @CachedInsidePsiElement(annot, ModCount.getModificationCount)
-    def runMetaAnnotationsImpl: Either[Tree, String] = {
+    def runMetaAnnotationsImpl: Either[String, Tree] = {
 
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
@@ -74,12 +74,12 @@ object ExpansionUtil {
           meth.setAccessible(true)
           try {
             val result = meth.invoke(inst, null, converted.asInstanceOf[AnyRef])
-            Left(result.asInstanceOf[Tree])
+            Right(result.asInstanceOf[Tree])
           } catch {
-            case e: InvocationTargetException => Right(e.getTargetException.toString)
-            case e: Exception => Right(e.getMessage)
+            case e: InvocationTargetException => Left(e.getTargetException.toString)
+            case e: Exception => Left(e.getMessage)
           }
-        case None => Right("Meta annotation class could not be found")
+        case None => Left("Meta annotation class could not be found")
       }
     }
 
