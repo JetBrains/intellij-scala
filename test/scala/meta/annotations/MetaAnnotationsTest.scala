@@ -12,14 +12,14 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
   def testAddMethodToObject(): Unit = {
     val mynewcoolmethod = "myNewCoolMethod"
     compileMetaSource(
-      """
+      s"""
         |import scala.meta._
         |
         |class main extends scala.annotation.StaticAnnotation {
         |  inline def apply(defn: Any): Any = meta {
-        |    val q"object $name { ..$stats }" = defn
-        |    val main = q"def""" + mynewcoolmethod + """(args: Array[String]): Unit = { ..$stats }"
-        |    q"object $name { $main }"
+        |    val q"object $$name { ..$$stats }" = defn
+        |    val main = q"def $mynewcoolmethod (args: Array[String]): Unit = { ..$$stats }"
+        |    q"object $$name { $$main }"
         |  }
         |}
       """.stripMargin

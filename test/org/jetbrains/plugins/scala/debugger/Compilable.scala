@@ -12,15 +12,13 @@ import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification,
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore, VirtualFile}
-import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil, UsefulTestCase}
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
@@ -86,9 +84,9 @@ trait Compilable {
     EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
         CompilerTestUtil.saveApplicationSettings()
-        val ioFile: File = VfsUtilCore.virtualToIoFile(getMainModule.getModuleFile)
+//        val ioFile: File = VfsUtilCore.virtualToIoFile(getMainModule.getModuleFile)
         saveProject()
-        assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
+//        assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
         CompilerManager.getInstance(getCompileableProject).rebuild(callback)
       }
     })

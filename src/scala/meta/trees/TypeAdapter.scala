@@ -84,7 +84,7 @@ trait TypeAdapter {
         case t: typedef.ScTemplateDefinition =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
-        case t: packaging.ScPackaging =>
+        case t: ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
         case t: ScConstructor => ???
 //          m.Type.Method(toParams(Seq(t.arguments:_*)), toType(t.newTemplate.get.getType(TypingContext.empty))).setTypechecked
