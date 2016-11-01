@@ -34,48 +34,11 @@ object QuasiquoteInferUtil {
     fqnO.exists(_.startsWith("scala.meta.quasiquotes.Api.XtensionQuasiquote"))
   }
 
-  def extractQQFromParts(ref: ScReferenceExpression): String = {
-
-    ref.qualifier match {
-      case Some(mc: ScMethodCallImpl) => mc.argumentExpressions.zipWithIndex.foldLeft("") {
-        case (a,(expr, i)) => s"$a $$__meta$i${expr.text}"
-      }
-      case _ => ""
-    }
-  }
-
-
-  def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): Parsed[m.Tree] = {
-    val p = dialect(text)
-    prefix match {
-      // FIXME: this seems wrong - reference q parser only parses Stat or Ctor, however this way many qqs couldn't be parsed
-      case "q"      => p.parse[m.Stat].orElse(p.parse[m.Source])
-      case "t"      => p.parse[m.Type]
-      case "p"      => p.parse[m.Case].orElse(p.parse[m.Pat])
-      case "pt"     => p.parse[m.Pat.Type]
-      case "arg"    => p.parse[m.Term.Arg]
-      case "mod"    => p.parse[m.Mod]
-      case "targ"   => p.parse[m.Type.Arg]
-      case "parg"   => p.parse[m.Pat.Arg]
-      case "ctor"   => p.parse[m.Ctor.Call]
-      case "param"  => p.parse[m.Term.Param]
-      case "tparam" => p.parse[m.Type.Param]
-      case "source"     => p.parse[m.Source]
-      case "template"   => p.parse[m.Template]
-      case "importer"   => p.parse[m.Importer]
-      case "importee"   => p.parse[m.Importee]
-      case "enumerator" => p.parse[m.Enumerator]
-      case _ => Parsed.Error(null, s"Unknown Quasiquote kind - $prefix", null)
-    }
-  }
-
-  def getMetaQQExpectedTypes(stringContextApplicationRef: ScReferenceExpression): Seq[Parameter] = {
+ def getMetaQQExpectedTypes(stringContextApplicationRef: ScReferenceExpression): Seq[Parameter] = {
     val joined = stringContextApplicationRef.qualifier match {
       case Some(mc: ScMethodCallImpl) => mc.argumentExpressions.zipWithIndex.foldLeft("") {
-        case (a, (expr, i)) if i > 0 =>
-          s"$a $$__meta$i${expr.text.replaceAll("^\"\"\"", "").replaceAll("\"\"\"$", "")}"
-        case (_, (expr, i)) if i == 0 =>
-          expr.text.replaceAll("^\"\"\"", "").replaceAll("\"\"\"$", "")
+        case (a, (expr, i)) if i  > 0 => s"$a$$__meta$i${unquoteString(expr.text)}"
+        case (_, (expr, i)) if i == 0 => unquoteString(expr.text)
       }
       case _ => ""
     }
@@ -119,16 +82,7 @@ object QuasiquoteInferUtil {
     }
   }
 
-  private def collectQQParts(t: scala.meta.Tree): Seq[m.internal.ast.Quasi] = {
-    t.children.flatMap {
-      case qq: m.internal.ast.Quasi => Some(qq)
-      case other => collectQQParts(other)
-    }
-  }
-
   def getMetaQQPatternTypes(pat: ScInterpolationPatternImpl): Seq[String] = {
-
-
     val prefix = pat.ref.refName
     val patternText = escapeQQ(pat)
     val qqDialect = if (pat.isMultiLineString)
@@ -145,12 +99,52 @@ object QuasiquoteInferUtil {
     }
   }
 
-  def escapeQQ(pat: ScInterpolated): String = {
+  private def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): Parsed[m.Tree] = {
+    val p = dialect(text)
+    prefix match {
+      // FIXME: this seems wrong - reference q parser only parses Stat or Ctor, however this way many qqs couldn't be parsed
+      case "q"          => p.parse[m.Stat].orElse(p.parse[m.Source])
+      case "t"          => p.parse[m.Type]
+      case "p"          => p.parse[m.Case].orElse(p.parse[m.Pat])
+      case "pt"         => p.parse[m.Pat.Type]
+      case "arg"        => p.parse[m.Term.Arg]
+      case "mod"        => p.parse[m.Mod]
+      case "targ"       => p.parse[m.Type.Arg]
+      case "parg"       => p.parse[m.Pat.Arg]
+      case "ctor"       => p.parse[m.Ctor.Call]
+      case "param"      => p.parse[m.Term.Param]
+      case "tparam"     => p.parse[m.Type.Param]
+      case "source"     => p.parse[m.Source]
+      case "template"   => p.parse[m.Template]
+      case "importer"   => p.parse[m.Importer]
+      case "importee"   => p.parse[m.Importee]
+      case "enumerator" => p.parse[m.Enumerator]
+      case _ => Parsed.Error(null, s"Unknown Quasiquote kind - $prefix", null)
+    }
+  }
+
+  // max(rank) for filtering out nested quasi types(we only need top level parts for conformance checks)
+  private def collectQQParts(t: scala.meta.Tree, maxParentRank: Int = -1): Seq[m.internal.ast.Quasi] = {
+    import m.internal.ast.Quasi
+    t match {
+      case tt: Quasi if tt.rank > maxParentRank => Seq(tt) ++ tt.children.flatMap(c=>collectQQParts(c, tt.rank))
+      case _ => t.children.flatMap(c=>collectQQParts(c, maxParentRank))
+    }
+  }
+
+  private def escapeQQ(pat: ScInterpolated): String = {
     if (pat.isMultiLineString) {
       pat.getText.replaceAll("^[a-z]+\"\"\"", "").replaceAll("\"\"\"$", "").trim
     } else {
       pat.getText.replaceAll("^[a-z]+\"", "").replaceAll("\"$", "").trim
     }
+  }
+
+  private def unquoteString(str: String): String = {
+    if (str.startsWith("\"\"\""))
+      str.replaceAll("^\"\"\"", "").replaceAll("\"\"\"$", "")
+    else
+      str.replaceAll("^\"", "").replaceAll("\"$", "")
   }
 
   private def classToScTypeString(c: Class[_]): String = {
