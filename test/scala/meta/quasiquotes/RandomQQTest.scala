@@ -6,8 +6,7 @@ package scala.meta.quasiquotes
   */
 class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
 
-  // FIXME: doesn't pass with current parsers implementation
-  def SKIPtestPatVarTermApply() = doTest(
+  def testPatVarTermApply() = doTest(
     s"""
        |${START}p"Foo"$END
        |//Pat.Var.Term
@@ -28,16 +27,14 @@ class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
      """.stripMargin
   )
 
-  // FIXME: doesn't pass with current parsers implementation
-  def SKIPtestPatTypeVarApply() = doTest(
+  def testPatTypeVarApply() = doTest(
     s"""
        |${START}pt"foo"$END
        |//Pat.Var.Type
      """.stripMargin
   )
 
-  // FIXME: doesn't pass with current parsers implementation
-  def SKIPtestPatTypeWildcardApply() = doTest(
+  def testPatTypeWildcardApply() = doTest(
     s"""
        |${START}pt"_"$END
        |//Pat.Type.Wildcard

@@ -18,7 +18,7 @@ import scala.meta.parsers.{ParseException, Parsed}
   * @author Mikhail Mutcianko
   * @since 11.09.16
   */
-object QuasiquoteInferUtil {
+object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
 
   import scala.{meta => m}
 

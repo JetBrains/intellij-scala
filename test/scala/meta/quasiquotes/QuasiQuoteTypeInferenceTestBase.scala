@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 import scala.meta.ScalametaUtils
 
-class QuasiQuoteTypeInferenceTestBase extends TypeInferenceTestBase with ScalametaUtils {
+abstract class QuasiQuoteTypeInferenceTestBase extends TypeInferenceTestBase with ScalametaUtils {
 
   override protected def setUp() = {
     super.setUp()
