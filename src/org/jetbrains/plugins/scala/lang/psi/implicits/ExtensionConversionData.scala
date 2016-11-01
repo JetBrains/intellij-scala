@@ -45,7 +45,7 @@ object ExtensionConversionHelper {
       case _ =>
         funType match {
           case Some(ft) =>
-            implicitParameterType.conforms(ft, new ScUndefinedSubstitutor()) match {
+            implicitParameterType.conforms(ft, ScUndefinedSubstitutor()) match {
               case (true, undefSubst) =>
                 undefSubst.getSubstitutor.map(_.subst(ft).removeUndefines())
               case _ => None
