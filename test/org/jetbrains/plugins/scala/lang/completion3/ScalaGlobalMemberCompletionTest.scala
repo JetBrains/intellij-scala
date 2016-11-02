@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.rt.execution.junit.FileComparisonFailure
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -286,7 +285,7 @@ class Test {
         |import scala.collection.JavaConverters.asScalaBufferConverter
         |
         |val ja = new java.util.ArrayList[Int]
-        |ja.asScala<caret>
+        |ja.asScala
       """.stripMargin.trim
 
     val result2Text =
@@ -294,16 +293,17 @@ class Test {
         |import scala.collection.JavaConverters.collectionAsScalaIterableConverter
         |
         |val ja = new java.util.ArrayList[Int]
-        |ja.asScala<caret>
+        |ja.asScala
       """.stripMargin.trim
 
     if (activeLookup != null)
       completeLookupItem(activeLookup.find(le => le.getLookupString == "asScala").get)
-    try {
-      checkResultByText(result2Text)
-    } catch {
-      case _: FileComparisonFailure =>
-        checkResultByText(resultText)
+    val resultFileText = getFileAdapter.getText
+    resultFileText.trim match {
+      case `resultText` =>
+      case `result2Text` =>
+      case _ =>
+        Assert.assertEquals(resultFileText, resultText)
     }
   }
 }
