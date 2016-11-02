@@ -11,9 +11,11 @@ import com.intellij.icons.AllIcons
 import com.intellij.navigation.GotoRelatedItem
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.Function
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -27,11 +29,9 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
   private type Markers = util.Collection[_ >: Marker]
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
-    val e = ReflectExpansionsCollector.getInstance(element.getProject).getExpansion(element)
-    if (e.isDefined) {
-      ""
-    }
-    processElement(element).foreach(result.add)
+    if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER ) return
+    val p = element.getParent
+    processElement(p).foreach(result.add)
   }
 
   private def processElement(element: PsiElement): Option[Marker] = {
@@ -49,9 +49,13 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
   }
 
   private def isUpToDate(annot: ScAnnotation, clazz: Class[_]): Boolean = {
-    val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath)
-    val sourceFile = new File(annot.getContainingFile.getVirtualFile.getPath)
-    classFile.lastModified() >= sourceFile.lastModified()
+    try {
+      val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath)
+      val sourceFile = new File(annot.constructor.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
+      classFile.exists() && classFile.lastModified() >= sourceFile.lastModified()
+    } catch {
+      case _:Exception => false
+    }
   }
 
   private def createExpandLineMarker(holder: ScAnnotationsHolder, annot: ScAnnotation): Marker = {
@@ -63,7 +67,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
   private def createNotCompiledLineMarker(holder: ScAnnotationsHolder, annot: ScAnnotation): Marker = {
     import org.jetbrains.plugins.scala.project._
     newMarker(holder, AllIcons.General.Help, "Metaprogram is out of date. Click here to compile.") { elt =>
-      CompilerManager.getInstance(elt.getProject).compile(annot.constructor.reference.get.resolve().module.get,
+      CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
         new CompileStatusNotification {
           override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) = {
             DaemonCodeAnalyzer.getInstance(elt.getProject).restart(elt.getContainingFile)
@@ -88,7 +92,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
   }
 
   private def newMarker[T](elem: PsiElement, icon: Icon, caption: String)(fun: PsiElement => T): Marker = {
-    new RelatedItemLineMarkerInfo[PsiElement](elem, elem.getTextRange, icon, Pass.LINE_MARKERS,
+    new RelatedItemLineMarkerInfo[PsiElement](elem, new TextRange(elem.getTextRange.getStartOffset, elem.getTextRange.getStartOffset), icon, Pass.LINE_MARKERS,
       new Function[PsiElement, String] {
         def fun(param: PsiElement): String = caption
       },
