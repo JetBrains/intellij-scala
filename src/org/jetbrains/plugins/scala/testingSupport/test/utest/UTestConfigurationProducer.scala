@@ -82,7 +82,7 @@ class UTestConfigurationProducer extends {
     Some((testClass, settings))
   }
 
-  override def suitePaths = List("utest.framework.TestSuite", "utest.TestSuite")
+  override def suitePaths: List[String] = UTestUtil.suitePaths
 
   /**
     * Provides name of a test suite (i.e. single test defined as a val is uTest TestSuite) from a an 'apply' method call
