@@ -31,7 +31,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
   }
 
   def isMetaQQ(fun: ScFunction): Boolean = {
-    val fqnO = Option(fun.containingClass).map(_.qualifiedName)
+    val fqnO = Option(fun.containingClass).flatMap(x=>Option(x.qualifiedName))
     fqnO.exists(_.startsWith("scala.meta.quasiquotes.Api.XtensionQuasiquote"))
   }
 
