@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -322,7 +322,7 @@ object ScalaCompletionUtil {
     @tailrec
     def inner(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
+      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner =>
         if (owner.containingFile.contains(parameters.getOriginalFile)) {
           val dummyId = getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile)
           val relativeOffset = parameters.getOffset - owner.getTextRange.getStartOffset

@@ -69,7 +69,7 @@ object ScalaAfterNewCompletionUtil {
     val iterator = expectedTypes.iterator
     while (iterator.hasNext) {
       val typez = iterator.next()
-      val conformance = predefinedType.conforms(typez, new ScUndefinedSubstitutor())
+      val conformance = predefinedType.conforms(typez, ScUndefinedSubstitutor())
       if (conformance._1) {
         conformance._2.getSubstitutor match {
           case Some(subst) =>
@@ -210,7 +210,7 @@ object ScalaAfterNewCompletionUtil {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(TypeParameterType(_)))
               }
               else ScDesignatorType(clazz)
-            val conformance = predefinedType.conforms(typez, new ScUndefinedSubstitutor())
+            val conformance = predefinedType.conforms(typez, ScUndefinedSubstitutor())
             if (!conformance._1) return true
             conformance._2.getSubstitutor match {
               case Some(undefSubst) =>

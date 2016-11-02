@@ -31,10 +31,11 @@ class NoReturnTypeForImplicitDefInspection extends AbstractInspection(id, descri
 object NoReturnTypeForImplicitDefInspection {
   val id = "NoReturnTypeImplicitDef"
   val description = "No return type for implicit function"
+  val hint = "Add explicit return type"
 }
 
-class AddReturnTypeQuickFix(td: ScTypedDefinition) extends AbstractFixOnPsiElement("Add explicit return type", td) {
+class AddReturnTypeQuickFix(td: ScTypedDefinition) extends AbstractFixOnPsiElement(hint, td) {
   override def doApplyFix(project: Project): Unit = {
-    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement)(project.typeSystem)
+    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement.getFirstChild)(project.typeSystem)
   }
 }

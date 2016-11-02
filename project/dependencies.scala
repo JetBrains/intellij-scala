@@ -3,8 +3,8 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.11.6"
-  val sbtVersion = "0.13.11"
-  val ideaVersion = "163.6110.12"
+  val sbtVersion = "0.13.13"
+  val ideaVersion = "163.6957.12"
   val sbtStructureVersion = "6.0.2"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
@@ -38,6 +38,7 @@ object Dependencies {
   val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
+  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "1.2.0" withSources()
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val compilerInterfaceSources: ModuleID = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
@@ -65,6 +66,7 @@ object DependencyGroups {
     scalaLibrary,
     scalaReflect,
     scalaXml,
+    scalaMetaCore,
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
@@ -93,7 +95,7 @@ object DependencyGroups {
   val sbtLaunchTestDownloader: Seq[ModuleID] =
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
-        "0.13.9", "0.13.11", "0.13.12")
+        "0.13.9", "0.13.11", "0.13.12", "0.13.13")
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
@@ -125,7 +127,8 @@ object DependencyGroups {
     "io.spray" %% "spray-routing" % "1.3.1",
     "com.typesafe.slick" %% "slick" % "3.1.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
-    "org.typelevel" %% "cats" % "0.4.0"
+    "org.typelevel" %% "cats" % "0.4.0",
+    "org.scalameta" % "paradise_2.11.8" % "3.0.0-M5" exclude("org.scalameta", "scalameta_2.11")
   )
 
   val testScalaLibraryDownloader = Seq(
@@ -146,22 +149,29 @@ object DependencyGroups {
     "org.scala-lang" % "scala-compiler" % "2.12.0-M5"
   )
 
+
+  def sbt012Libs(v: String) = Seq(
+    "org.scala-sbt" % "collections" % v,
+    "org.scala-sbt" % "interface" % v,
+    "org.scala-sbt" % "io" % v,
+    "org.scala-sbt" % "ivy" % v,
+    "org.scala-sbt" % "logging" % v,
+    "org.scala-sbt" % "main" % v,
+    "org.scala-sbt" % "process" % v,
+    "org.scala-sbt" % "sbt" % v
+  )
+
+  def sbt013Libs(v: String): Seq[ModuleID] = sbt012Libs(v) ++ Seq(
+    "org.scala-sbt" % "main-settings" % v
+  )
+
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
-    val vs = Seq("0.13.1","0.13.5","0.13.7","0.13.12")
-    vs.flatMap { v =>
-      Seq(
-        "org.scala-sbt" % "collections" % v,
-        "org.scala-sbt" % "interface" % v,
-        "org.scala-sbt" % "io" % v,
-        "org.scala-sbt" % "ivy" % v,
-        "org.scala-sbt" % "logging" % v,
-        "org.scala-sbt" % "main" % v,
-        "org.scala-sbt" % "main-settings" % v,
-        "org.scala-sbt" % "process" % v,
-        "org.scala-sbt" % "sbt" % v
-      )
-    }
+    val latest = "0.13.13" // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
+    val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", latest)
+    val vs012 = Seq("0.12.4")
+
+    vs013.flatMap(sbt013Libs) ++ vs012.flatMap(sbt012Libs)
   }
 
   val sbtRuntime = Seq(

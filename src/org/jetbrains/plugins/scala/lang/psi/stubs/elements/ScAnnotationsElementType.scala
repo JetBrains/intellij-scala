@@ -6,7 +6,7 @@ package elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationsImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationsStubImpl
@@ -15,10 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationsStubImpl
   * User: Alexander Podkhalyuzin
   * Date: 22.06.2009
   */
-class ScAnnotationsElementType[Func <: ScAnnotations]
-  extends ScStubElementType[ScAnnotationsStub, ScAnnotations]("annotations") {
-  override def serialize(stub: ScAnnotationsStub, dataStream: StubOutputStream): Unit = {}
-
+class ScAnnotationsElementType extends ScStubElementType[ScAnnotationsStub, ScAnnotations]("annotations") {
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationsStub =
     new ScAnnotationsStubImpl(parentStub, this)
 

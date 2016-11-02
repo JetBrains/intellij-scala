@@ -184,7 +184,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
-              type1.conforms(type2, new ScUndefinedSubstitutor()) //todo: with implcits?
+              type1.conforms(type2, ScUndefinedSubstitutor()) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
             //in this case it's logical that method without parameters must win...
             case (Left(_), Right(_)) if !r1.implicitCase => return false

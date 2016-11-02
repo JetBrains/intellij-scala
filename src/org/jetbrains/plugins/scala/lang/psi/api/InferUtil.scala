@@ -5,11 +5,11 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.macros.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -157,7 +157,7 @@ object InferUtil {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
       val implicitState = ImplicitState(place, paramType, paramType, coreElement, isImplicitConversion = false,
-          searchImplicitsRecursively, None, Some(ScalaRecursionManager.recursionMap.get()))
+          searchImplicitsRecursively, None, fullInfo = false, Some(ScalaRecursionManager.recursionMap.get()))
       val collector = new ImplicitCollector(implicitState)
       val results = collector.collect()
       if (results.length == 1) {
@@ -297,7 +297,7 @@ object InferUtil {
       case ScalaResolveResult(param: ScParameter, subst) => subst.subst(param.getType(TypingContext.empty).get)
       case ScalaResolveResult(patt: ScBindingPattern, subst) => subst.subst(patt.getType(TypingContext.empty).get)
       case ScalaResolveResult(f: ScFieldId, subst) => subst.subst(f.getType(TypingContext.empty).get)
-      case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.getTypeNoImplicits.get)
+      case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.functionTypeNoImplicits().get)
     }
   }
 
@@ -377,7 +377,7 @@ object InferUtil {
                   hasRecursiveTypeParameters
                 }
                 val nameAndId = tp.nameAndId
-                subst.lMap.get(nameAndId) match {
+                subst.getLowerBound(nameAndId) match {
                   case Some(_addLower) =>
                     val substedLowerType = unSubst.subst(lower)
                     val addLower =
@@ -390,7 +390,7 @@ object InferUtil {
                   case None =>
                     lower = unSubst.subst(lower)
                 }
-                subst.rMap.get(nameAndId) match {
+                subst.getUpperBound(nameAndId) match {
                   case Some(_addUpper) =>
                     val substedUpperType = unSubst.subst(upper)
                     val addUpper =

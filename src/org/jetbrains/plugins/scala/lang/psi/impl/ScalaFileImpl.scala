@@ -31,10 +31,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -323,7 +322,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       val packs: Seq[ScPackaging] = x.packagings
       if (packs.length > 1) return null
       else if (packs.isEmpty) return if (res.length == 0) res else res.substring(1)
-      res += "." + packs.head.getPackageName
+      res += "." + packs.head.packageName
       x = packs.head
     }
     null //impossible line
@@ -334,12 +333,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
     def inner(p: ScPackaging, prefix: String): String = {
       val subs = p.packagings
-      if (subs.nonEmpty && !subs.head.isExplicit) inner(subs.head, prefix + "." + subs.head.getPackageName)
+      if (subs.nonEmpty && !subs.head.isExplicit) inner(subs.head, prefix + "." + subs.head.packageName)
       else prefix
     }
 
     if (ps.length > 0 && !ps(0).isExplicit) {
-      val prefix = ps(0).getPackageName
+      val prefix = ps(0).packageName
       inner(ps(0), prefix)
     } else ""
   }
@@ -502,7 +501,7 @@ object ScalaFileImpl {
   }
 
   def pathIn(root: PsiElement): List[List[String]] =
-    packagingsIn(root).map(packaging => toVector(packaging.getPackageName))
+    packagingsIn(root).map(packaging => toVector(packaging.packageName))
 
   private def packagingsIn(root: PsiElement): List[ScPackaging] = {
     root.children.findByType(classOf[ScPackaging]) match {

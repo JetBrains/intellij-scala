@@ -79,14 +79,15 @@ case class ScExistentialType(quantified: ScType,
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+    if (r.equiv(Nothing)) return quantified.equiv(Nothing, uSubst)
     var undefinedSubst = uSubst
     val simplified = unpackedType match {
       case ex: ScExistentialType => ex.simplify()
       case u => u
     }
     if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
-    quantified match {
-      case ParameterizedType(ScAbstractType(parameterType, lowerBound, upperBound), args) if !falseUndef =>
+    (quantified, r) match {
+      case (ParameterizedType(ScAbstractType(parameterType, lowerBound, upperBound), args), _) if !falseUndef =>
         val subst = new ScSubstitutor(Map(parameterType.arguments.zip(args).map {
           case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
         }: _*), Map.empty, None)
@@ -104,18 +105,39 @@ case class ScExistentialType(quantified: ScType,
             case l => ScExistentialType(ScParameterizedType(l, args), wildcards)
           }
         return lower.conforms(r, conformance._2)
-      case ParameterizedType(UndefinedType(parameterType, _), args) if !falseUndef =>
-        val nameAndId = parameterType.nameAndId
+      case (ParameterizedType(UndefinedType(parameterType, _), args), _) if !falseUndef =>
         r match {
-          case ParameterizedType(des, _) =>
-            undefinedSubst = undefinedSubst.addLower(nameAndId, des)
-              .addUpper(nameAndId, des)
+          case ParameterizedType(des, defArgs) =>
+            val y = Conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
+            if (!y._1) return (false, undefinedSubst)
+            undefinedSubst = y._2
             return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
-          case ScExistentialType(ParameterizedType(des, _), _) =>
-            undefinedSubst = undefinedSubst.addLower(nameAndId, des)
-              .addUpper(nameAndId, des)
+          case ScExistentialType(ParameterizedType(des, defArgs), _) =>
+            val y = Conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
+            if (!y._1) return (false, undefinedSubst)
+            undefinedSubst = y._2
             return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
           case _ => return (false, undefinedSubst) //looks like something is wrong
+        }
+      case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
+        val res = pType.equivInner(rType, undefinedSubst, falseUndef)
+        if (!res._1) return res
+        Conformance.extractParams(rType) match {
+          case Some(iter) =>
+            val myMap = Map(args zip iter.toList filter {case (arg, _) => wildcards.contains(arg)} filter {
+              case (arg: ScExistentialArgument, rParam: ScTypeParam) =>
+                rParam.isCovariant || rParam.isContravariant
+              case _ => false
+            } map {
+              case (arg: ScExistentialArgument, rParam: ScTypeParam) if rParam.isCovariant =>
+                ((arg.name, -1L), arg.upper)
+              case (arg: ScExistentialArgument, rParam: ScTypeParam) if rParam.isContravariant =>
+                ((arg.name, -1L), arg.lower)
+              //TODO: here we should check variantness for rArg and substitute args with lower/upper bound according to variantness
+            } :_*)
+            val subst = new ScSubstitutor(myMap, Map.empty, None)
+            return subst.subst(quantified).equiv(r, undefinedSubst, falseUndef)
+          case _ =>
         }
       case _ =>
     }

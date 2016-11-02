@@ -23,8 +23,8 @@ class ChainedPackageInspection extends LocalInspectionTool {
       scalaFile.getPackagings.headOption.flatMap { firstPackaging =>
         val basePackages = ScalaProjectSettings.getInstance(file.getProject).getBasePackages.asScala
 
-        basePackages.find(basePackage => firstPackaging.getPackageName != basePackage
-                && firstPackaging.getPackageName.startsWith(basePackage)).flatMap { basePackage =>
+        basePackages.find(basePackage => firstPackaging.packageName != basePackage
+          && firstPackaging.packageName.startsWith(basePackage)).flatMap { basePackage =>
 
           firstPackaging.reference.map(_.getTextRange).map { range =>
             manager.createProblemDescriptor(file, range, "Package declaration could use chained package clauses",

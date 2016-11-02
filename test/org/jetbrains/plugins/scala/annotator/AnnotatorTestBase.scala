@@ -19,8 +19,8 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement](annotator: AnnotatorPart[
 
   protected def messages(@Language(value = "Scala", prefix = Prefix, suffix = Suffix) code: String): List[Message] = {
     val s: String = Prefix + code + Suffix
-    val mock = new AnnotatorHolderMock
     val file: ScalaFile = s.parse
+    val mock = new AnnotatorHolderMock(file)
 
     assertEquals(Nil, file.depthFirst.filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
 

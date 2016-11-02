@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.caches
 
 import com.intellij.openapi.util.RecursionManager
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.collection.immutable.HashMap
 
@@ -13,13 +14,12 @@ object ScalaRecursionManager {
   val resolveReferenceRecursionGuard = RecursionManager.createGuard("resolve.reference.recursion")
 
   val IMPLICIT_PARAM_TYPES_KEY = "implicit.param.types.key"
-  val CYCLIC_HELPER_KEY = "cyclic.helper.key"
 
-  type RecursionMap = Map[(PsiElement, String), List[Object]]
+  type RecursionMap = Map[(PsiElement, String), List[ScType]]
   val recursionMap: ThreadLocal[RecursionMap] =
     new ThreadLocal[RecursionMap] {
       override def initialValue(): RecursionMap =
-        new HashMap[(PsiElement, String), List[Object]]
+        new HashMap[(PsiElement, String), List[ScType]]
     }
 
   def usingPreviousRecursionMap[T](m: RecursionMap)(body: => T): T = {
@@ -32,19 +32,19 @@ object ScalaRecursionManager {
     }
   }
 
-  private def getSearches[Dom <: PsiElement](element: Dom, key: String): List[Object] = {
+  private def getSearches[Dom <: PsiElement, Recursive <: AnyRef](element: Dom, key: String): List[Recursive] = {
     recursionMap.get().get((element, key)) match {
-      case Some(buffer: List[Object]) => buffer
+      case Some(buffer: List[Recursive]) => buffer
       case _ => List.empty
     }
   }
 
-  private def addLast[Dom <: PsiElement](element: Dom, key: String, obj: Object) {
+  private def addLast[Dom <: PsiElement](element: Dom, key: String, tp: ScType) {
     recursionMap.get().get((element, key)) match {
       case Some(list) =>
-        recursionMap.set(recursionMap.get().updated((element, key), obj :: list))
+        recursionMap.set(recursionMap.get().updated((element, key), tp :: list))
       case _ =>
-        recursionMap.set(recursionMap.get() + ((element, key) -> List(obj)))
+        recursionMap.set(recursionMap.get() + ((element, key) -> List(tp)))
     }
   }
 
@@ -67,10 +67,10 @@ object ScalaRecursionManager {
    * @param compute computations body
    * @param key to store information about recursion stack
    */
-  def doComputations[Dom <: PsiElement, Result](element: Dom, checkAdd: (Object, Seq[Object]) => Boolean,
-                                                addElement: Object,
+  def doComputations[Dom <: PsiElement, Result](element: Dom, checkAdd: (ScType, Seq[ScType]) => Boolean,
+                                                addElement: ScType,
                                                 compute: => Result, key: String): Option[Result] = {
-    val searches: List[Object] = getSearches(element, key)
+    val searches: List[ScType] = getSearches(element, key)
     if (checkAdd(addElement, searches)) {
       try {
         addLast(element, key, addElement)
@@ -84,27 +84,4 @@ object ScalaRecursionManager {
     }
     else None
   }
-
-  def doComputationsForTwoElements[Dom <: PsiElement, Result](element1: Dom, element2: Dom,
-                                                              checkAdd: (Object, Seq[Object]) => Boolean,
-                                                              addElement1: Object, addElement2: Object,
-                                                              compute: => Result, key: String): Option[Result] = {
-    val searches1: List[Object] = getSearches(element1, key)
-    val searches2: List[Object] = getSearches(element2, key)
-    if (checkAdd(addElement1, searches1) && checkAdd(addElement2, searches2)) {
-      try {
-        addLast(element1, key, addElement1)
-        addLast(element2, key, addElement2)
-
-        //computations
-        Some(compute)
-      }
-      finally {
-        removeLast(element2, key)
-        removeLast(element1, key)
-      }
-    }
-    else None
-  }
-
 }

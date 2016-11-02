@@ -506,11 +506,10 @@ class ScopeAnnotatorTest extends SimpleTestCase {
   }
   
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val psi = (Header + code).parse
+    val file = (Header + code).parse
     val annotator = new ScopeAnnotator() {}
-    val mock = new AnnotatorHolderMock
-
-    psi.depthFirst.foreach {
+    val mock = new AnnotatorHolderMock(file)
+    file.depthFirst.foreach {
       annotator.annotateScope(_, mock)  
     }
     

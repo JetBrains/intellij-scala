@@ -14,13 +14,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
  */
 
 trait ScParameterStub extends NamedStub[ScParameter] {
-  def getTypeElement: Option[ScTypeElement]
+  def typeText: Option[String]
 
-  def getTypeText: String
+  def typeElement: Option[ScTypeElement]
 
   def isStable: Boolean
 
-  def isDefaultParam: Boolean
+  def isDefaultParameter: Boolean
 
   def isRepeated: Boolean
 
@@ -30,9 +30,9 @@ trait ScParameterStub extends NamedStub[ScParameter] {
 
   def isCallByNameParameter: Boolean
 
-  def getDefaultExprText: Option[String]
+  def defaultExprText: Option[String]
 
-  def getDefaultExpr: Option[ScExpression]
+  def defaultExpr: Option[ScExpression]
 
   def deprecatedName: Option[String]
 }

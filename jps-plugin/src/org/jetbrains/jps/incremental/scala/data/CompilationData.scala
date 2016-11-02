@@ -38,7 +38,7 @@ object CompilationData {
       case Some(message) => return Left(message)
       case None =>
     }
-    val output = target.getOutputDir
+    val output = target.getOutputDir.getCanonicalFile
     checkOrCreate(output)
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, true).asScala.toSeq
@@ -63,7 +63,9 @@ object CompilationData {
 
       val outputGroups = createOutputGroups(chunk)
 
-      CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
+      val canonicalSources = sources.map(_.getCanonicalFile)
+
+      CompilationData(canonicalSources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
         order, cacheFile, relevantOutputToCacheMap, outputGroups, Some(compilerSettings.getSbtIncrementalOptions))
     }
   }
@@ -131,7 +133,7 @@ object CompilationData {
       val paths = context.getProjectDescriptor.dataManager.getDataPaths
 
       for ((target, output) <- targetToOutput.toMap)
-      yield (output, new File(paths.getTargetDataRoot(target), "cache.dat"))
+      yield (output, new File(paths.getTargetDataRoot(target).getCanonicalFile, "cache.dat"))
     }
   }
 
@@ -139,8 +141,8 @@ object CompilationData {
     for {
       target <- chunk.getTargets.asScala.toSeq
       module = target.getModule
-      output = target.getOutputDir
-      sourceRoot <- module.getSourceRoots.asScala.map(_.getFile)
+      output = target.getOutputDir.getCanonicalFile
+      sourceRoot <- module.getSourceRoots.asScala.map(_.getFile.getCanonicalFile)
       if sourceRoot.exists
     } yield (sourceRoot, output)
   }

@@ -190,8 +190,8 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
     val keywordToChange = named match {
       case _: ScFunction | _: ScClass => None
-      case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) if pd.isSimple => Some(pd.valKeyword)
-      case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) if vd.isSimple => Some(vd.varKeyword)
+      case ScalaPsiUtil.inNameContext(pd: ScPatternDefinition) if pd.isSimple => Some(pd.keywordToken)
+      case ScalaPsiUtil.inNameContext(vd: ScVariableDefinition) if vd.isSimple => Some(vd.keywordToken)
       case _ => return
     }
     keywordToChange.foreach { kw =>

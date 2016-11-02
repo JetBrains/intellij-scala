@@ -5,6 +5,8 @@ package impl
 package toplevel
 package typedef
 
+import java.io.IOException
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
@@ -12,7 +14,9 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -25,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI
 
 import scala.reflect.NameTransformer
 
@@ -485,10 +490,12 @@ object TypeDefinitionMembers {
     }
 
     def forAllSignatureNodes(c: PsiClass)(action: Node => Unit): Unit = {
-      for {
-        signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
-        (_, node) <- signature
-      } action(node)
+      withResponsibleUI {
+        for {
+          signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
+          (_, node) <- signature
+        } action(node)
+      }
     }
   }
 
@@ -501,31 +508,14 @@ object TypeDefinitionMembers {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardParameterlessSignatures
-        }
-      case _ =>
-    }
-
     inner()
   }
 
   def getTypes(clazz: PsiClass)
               (implicit typeSystem: TypeSystem = clazz.typeSystem): TMap = {
+
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): TMap =TypeNodes.build(clazz)
-
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardTypes
-        }
-      case _ =>
-    }
 
     inner()
   }
@@ -535,14 +525,6 @@ object TypeDefinitionMembers {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardSignatures
-        }
-      case _ =>
-    }
     val ans = buildNodesClass()
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
@@ -679,6 +661,29 @@ object TypeDefinitionMembers {
     }
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
+
+    val expansion = clazz match {
+      case ah: ScAnnotationsHolder => ah.getExpansionText
+      case _ => Left("")
+    }
+
+    expansion match {
+      case Right(expansionText) if expansionText.nonEmpty =>
+        val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansionText)(clazz.getManager)
+        if (blockImpl != null) {
+          val fromSingle = blockImpl.children.findByType(classOf[PsiClass])
+          lazy val fromBlock: Option[PsiClass] = blockImpl.firstChild.get.children.findByType(classOf[PsiClass])
+          fromSingle.orElse(fromBlock) match {
+            case Some(c) =>
+              if(!processDeclarations(c, processor, state, lastParent, place)) return false
+              ScalaPsiUtil.getCompanionModule(c).foreach { co =>
+                if(!processDeclarations(co, processor, state, lastParent, place)) return false
+              }
+            case None =>
+          }
+        }
+      case _ =>
+    }
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),
       () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,

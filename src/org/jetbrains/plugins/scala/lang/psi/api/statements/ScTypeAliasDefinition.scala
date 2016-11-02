@@ -23,20 +23,23 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, Mod
 trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 
-  def aliasedTypeElement: ScTypeElement = {
+  def aliasedTypeElement: Option[ScTypeElement] = {
     val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeAliasStub].getTypeElement
+      return stub.asInstanceOf[ScTypeAliasStub].typeElement
     }
-
-    findChildByClassScala(classOf[ScTypeElement])
+    Option(findChildByClassScala(classOf[ScTypeElement]))
   }
 
   def aliasedType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
     if (ctx.visited.contains(this)) {
-      new Failure(ScalaBundle.message("circular.dependency.detected", name), Some(this)) {override def isCyclic = true}
+      new Failure(ScalaBundle.message("circular.dependency.detected", name), Some(this)) {
+        override def isCyclic = true
+      }
     } else {
-      aliasedTypeElement.getType(ctx(this))
+      aliasedTypeElement.map {
+        _.getType(ctx(this))
+      }.getOrElse(Failure("No alias type", Some(this)))
     }
   }
 

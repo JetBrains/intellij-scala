@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
@@ -54,6 +54,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var isInStableCodeReference: Boolean = false
   var usedImportStaticQuickfix: Boolean = false
   var elementToImport: PsiNamedElement = null
+  var objectOfElementToImport: Option[ScObject] = None
   var someSmartCompletion: Boolean = false
   var typeParametersProblem: Boolean = false
   var typeParameters: Seq[ScType] = Seq.empty
@@ -318,7 +319,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                           case member: PsiMember =>
                             val containingClass = member.containingClass
                             if (containingClass != null && containingClass.qualifiedName != null) {
-                              ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null)
+                              ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null, objectOfElementToImport)
                             }
                           case _ =>
                         }

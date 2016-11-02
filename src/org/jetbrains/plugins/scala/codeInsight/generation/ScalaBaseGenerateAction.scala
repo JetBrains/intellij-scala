@@ -20,7 +20,6 @@ abstract class ScalaBaseGenerateAction(val handler: CodeInsightActionHandler)
 
   override protected def isValidForFile(project: Project, editor: Editor, file: PsiFile): Boolean = {
     lazy val classOk = {
-      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
       val targetClass: PsiClass = getTargetClass(editor, file)
       targetClass != null && isValidForClass(targetClass)
     }

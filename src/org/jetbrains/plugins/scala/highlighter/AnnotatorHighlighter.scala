@@ -260,6 +260,9 @@ object AnnotatorHighlighter {
       case x: ScGenerator => visitGenerator(x, holder)
       case x: ScEnumerator => visitEnumerator(x, holder)
       case x: ScTypeAlias => visitTypeAlias(x, holder)
+      case _ if element.getNode.getElementType == ScalaTokenTypes.kINLINE =>
+        val annotation = holder.createInfoAnnotation(element, null)
+        annotation.setTextAttributes(DefaultHighlighter.KEYWORD)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         getParentByStub(element) match {
           case _: ScNameValuePair =>

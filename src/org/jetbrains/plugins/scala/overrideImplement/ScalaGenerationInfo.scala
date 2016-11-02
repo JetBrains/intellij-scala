@@ -92,7 +92,10 @@ object ScalaGenerationInfo {
     val member = CodeStyleManager.getInstance(element.getProject).reformat(element)
     //Setting selection
     val body: PsiElement = member match {
-      case ta: ScTypeAliasDefinition => ta.aliasedTypeElement
+      case ta: ScTypeAliasDefinition => ta.aliasedTypeElement match {
+        case Some(x) => x
+        case None => return
+      }
       case ScPatternDefinition.expr(expr) => expr
       case ScVariableDefinition.expr(expr) => expr
       case method: ScFunctionDefinition => method.body match {

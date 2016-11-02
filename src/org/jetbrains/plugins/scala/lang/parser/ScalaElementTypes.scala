@@ -11,7 +11,6 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
@@ -50,13 +49,13 @@ object ScalaElementTypes extends ElementTypes {
   val IMPORT_SELECTORS = new ScImportSelectorsElementType
   val IMPORT_EXPR = new ScImportExprElementType
   val IMPORT_STMT = new ScImportStmtElementType
-  val VALUE_DECLARATION: ScValueElementType[_ <: ScValue] = new ScValueDeclarationElementType
-  val VARIABLE_DECLARATION: ScVariableElementType[_ <: ScVariable] = new ScVariableDeclarationElementType
-  val FUNCTION_DECLARATION: ScFunctionElementType[_ <: ScFunction] = new ScFunctionDeclarationElementType
+  val VALUE_DECLARATION = new ScValueDeclarationElementType
+  val VARIABLE_DECLARATION = new ScVariableDeclarationElementType
+  val FUNCTION_DECLARATION = new ScFunctionDeclarationElementType
   val TYPE_DECLARATION = new ScTypeAliasDeclarationElementType
-  val PATTERN_DEFINITION: ScValueElementType[_ <: ScValue] = new ScValueDefinitionElementType
+  val PATTERN_DEFINITION = new ScValueDefinitionElementType
   val PATTERN_LIST = new ScPatternListElementType
-  val VARIABLE_DEFINITION: ScVariableElementType[_ <: ScVariable] = new ScVariableDefinitionElementType
+  val VARIABLE_DEFINITION = new ScVariableDefinitionElementType
   val TYPE_DEFINITION = new ScTypeAliasDefinitionElementType
   val EARLY_DEFINITIONS = new ScEarlyDefinitionsElementType
   val FUNCTION_DEFINITION = new ScFunctionDefinitionElementType

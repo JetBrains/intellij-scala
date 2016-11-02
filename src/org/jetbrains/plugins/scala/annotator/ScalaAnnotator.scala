@@ -8,7 +8,7 @@ import com.intellij.lang.annotation._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -36,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
@@ -95,6 +96,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case _ =>
           }
         }
+      }
+
+      override def visitAnnotTypeElement(annot: ScAnnotTypeElement) = {
+        super.visitAnnotTypeElement(annot)
       }
 
       override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
@@ -191,6 +196,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
       override def visitAnnotation(annotation: ScAnnotation) {
         checkAnnotationType(annotation, holder)
+        checkMetaAnnotation(annotation, holder)
         PrivateBeanProperty.annotate(annotation, holder)
         super.visitAnnotation(annotation)
       }
@@ -423,6 +429,20 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case _ =>
     }
     //todo: super[ControlFlowInspections].annotate(element, holder)
+  }
+
+  private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder) = {
+    if (annotation.isMetaAnnotation) {
+      val result = annotation.parent.flatMap(_.parent) match {
+        case Some(ah: ScAnnotationsHolder) => ah.getExpansionText
+        case _ => Right("")
+      }
+      result match {
+        case Left(errorMsg) =>
+          holder.createErrorAnnotation(annotation, s"Meta expansion failed: $errorMsg")
+        case _ =>
+      }
+    }
   }
 
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
@@ -668,8 +688,29 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case r: ScalaResolveResult if r.isForwardReference =>
           ScalaPsiUtil.nameContext(r.getActualElement) match {
             case v: ScValue if !v.hasModifierProperty("lazy") => showError()
-            case _: ScVariable | _: ScObject => showError()
-            case _ => //todo: check forward references for functions, classes, lazy values
+            case _: ScVariable => showError()
+            case nameContext =>
+              //if it has not lazy val or var between reference and statement then it's forward reference
+              val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
+              if (context != null) {
+                val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
+                  override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
+                }) match {
+                  case s: ScalaPsiElement => s.getDeepSameElementInContext
+                  case elem => elem
+                }).getPrevSibling
+
+                def check(neighbour: PsiElement): Boolean = {
+                  if (neighbour == null ||
+                    neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
+                  neighbour match {
+                    case v: ScValue if !v.hasModifierProperty("lazy") => true
+                    case _: ScVariable => true
+                    case _ => check(neighbour.getPrevSibling)
+                  }
+                }
+                if (check(neighbour)) showError()
+              }
           }
         case _ =>
       }
@@ -683,7 +724,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     checkAccessForReference(resolve, refElement, holder)
-    checkForwardReference(resolve, refElement, holder)
 
     if (resolve.length == 1) {
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
@@ -729,7 +769,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         } else false
       }
 
-      refElement.getParent match {
+      parent match {
         case _: ScImportSelector if resolve.length > 0 => return
         case mc: ScMethodCall =>
           val messageKey = "cannot.resolve.apply.method"
@@ -802,6 +842,10 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     if (refElement.isInstanceOf[ScDocResolvableCodeReference] && resolve.length > 0 || refElement.isSoft) return
     if (isAdvancedHighlightingEnabled(refElement) && resolve.length != 1) {
+      if (resolve.count(_.isInstanceOf[ScalaResolveResult]) == 1) {
+        return
+      }
+
       refElement.getParent match {
         case _: ScImportSelector | _: ScImportExpr if resolve.length > 0 => return
         case _ =>
@@ -812,10 +856,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
     }
-  }
-
-  private def checkForwardReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
-    //todo: add check if it's legal to use forward reference
   }
 
   private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
@@ -862,7 +902,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case _ => return
       }
 
-      val fakeAnnotator = new AnnotationHolderImpl(Option(holder.getCurrentAnnotationSession).getOrElse(new AnnotationSession(l.getContainingFile))) {
+      val fakeAnnotator = new AnnotationHolderImpl(new AnnotationSession(expr.getContainingFile)) {
         override def createErrorAnnotation(elt: PsiElement, message: String): Annotation =
           createErrorAnnotation(elt.getTextRange, message)
 
@@ -1352,11 +1392,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val error = "Integer number is out of range for type Int"
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        val bigIntType = ScalaPsiElementFactory.createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
-        val conformsToTypeList = List(api.Long, bigIntType)
-        val shouldRegisterFix = if (isNegative)
-          parent.asInstanceOf[ScPrefixExpr].expectedType().forall(x => conformsToTypeList.exists(_.weakConforms(x)))
-        else literal.expectedType().forall(x => conformsToTypeList.exists(_.weakConforms(x)))
+
+        val conformsToTypeList = Seq(api.Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
+        val shouldRegisterFix = (if (isNegative) parent.asInstanceOf[ScPrefixExpr] else literal).expectedType().forall { x =>
+          conformsToTypeList.exists(_.weakConforms(x))
+        }
 
         if (shouldRegisterFix) {
           val addLtoLongFix: AddLToLongLiteralFix = new AddLToLongLiteralFix(literal)

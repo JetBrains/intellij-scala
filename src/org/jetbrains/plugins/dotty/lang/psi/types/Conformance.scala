@@ -11,7 +11,7 @@ object Conformance extends api.Conformance {
   override implicit lazy val typeSystem = DottyTypeSystem
 
   override protected def computable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) = new Computable[(Boolean, ScUndefinedSubstitutor)] {
-    override def compute(): (Boolean, ScUndefinedSubstitutor) = (false, new ScUndefinedSubstitutor())
+    override def compute(): (Boolean, ScUndefinedSubstitutor) = (false, ScUndefinedSubstitutor())
   }
 
   private def isSubType(left: ScType, right: ScType) = right match {

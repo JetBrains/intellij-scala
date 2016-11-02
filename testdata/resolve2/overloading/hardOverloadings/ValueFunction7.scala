@@ -7,6 +7,6 @@ object Test {
 
   val a = new A
   implicit def c2fun = (c: C) => (x: String) => ""
-  a./* applicable: false */foo("")
+  a./* resolved: false */foo("")
   a./* line: 5 */foo(3)
 }

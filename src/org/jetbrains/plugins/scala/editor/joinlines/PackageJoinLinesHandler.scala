@@ -5,7 +5,7 @@ package joinlines
 import com.intellij.codeInsight.editorActions.{JoinLinesHandlerDelegate, JoinRawLinesHandlerDelegate}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /** `package a\npackageb` => `package a.b` */
 class PackageJoinLinesHandler extends JoinRawLinesHandlerDelegate {
@@ -16,7 +16,7 @@ class PackageJoinLinesHandler extends JoinRawLinesHandlerDelegate {
     if (elementAtNextLineStart == null || elementAtStartLineEnd == null) return JoinLinesHandlerDelegate.CANNOT_JOIN
     (elementAtStartLineEnd.getParent, elementAtNextLineStart.getParent) match {
       case (p0: ScPackaging, p1: ScPackaging) if p1.getParent == p0 =>
-        p0.getPackageName
+        p0.packageName
         document.replaceString(start, end + "package ".length(), ".")
         end
       case _ => JoinLinesHandlerDelegate.CANNOT_JOIN

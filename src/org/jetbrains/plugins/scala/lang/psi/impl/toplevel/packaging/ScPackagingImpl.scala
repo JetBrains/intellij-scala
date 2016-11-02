@@ -17,77 +17,71 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.PACKAGING
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * @author Alexander Podkhalyuzin, Pavel Fatin
- * Date: 20.02.2008
- */
-
-class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: IElementType, node: ASTNode)
+  * @author Alexander Podkhalyuzin, Pavel Fatin
+  *         Date: 20.02.2008
+  */
+class ScPackagingImpl private(stub: StubElement[ScPackaging], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
-  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScPackageContainerStub) = {this(stub, ScalaElementTypes.PACKAGING, null)}
+  def this(node: ASTNode) =
+    this(null, null, node)
 
-  def fullPackageName: String = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
+  def this(stub: ScPackagingStub) =
+    this(stub, PACKAGING, null)
 
   override def toString = "ScPackaging"
 
-  def reference: Option[ScStableCodeReferenceElement] = {
-    val firstChild = getFirstChild
-    if (firstChild == null) return None
-    var next = firstChild.getNextSibling
-    if (next == null) return None
-    next = next.getNextSibling
-    if (next == null) return None
-    next match {
-      case ref: ScStableCodeReferenceElement => Some(ref)
-      case _ => findChild(classOf[ScStableCodeReferenceElement])
+  def reference: Option[ScStableCodeReferenceElement] =
+    Option(getFirstChild).flatMap { node =>
+      Option(node.getNextSibling)
+    }.flatMap { node =>
+      Option(node.getNextSibling)
+    }.collect {
+      case reference: ScStableCodeReferenceElement => reference
+    }.orElse {
+      findChild(classOf[ScStableCodeReferenceElement])
     }
-  }
 
-  def getPackageName: String = ownNamePart
+  def isExplicit: Boolean =
+    Option(getStub).collect {
+      case packaging: ScPackagingStub => packaging.isExplicit
+    }.getOrElse {
+      findChildByType(ScalaTokenTypes.tLBRACE) != null
+    }
 
-  def isExplicit: Boolean = {
+  def packageName: String =
+    Option(getStub).collect {
+      case packaging: ScPackagingStub => packaging
+    }.map {
+      _.packageName
+    }.orElse {
+      reference.map(_.qualName)
+    }.getOrElse("")
+
+  def parentPackageName: String = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScPackageContainerStub].isExplicit
+      return stub.asInstanceOf[ScPackagingStub].parentPackageName
     }
-    findChildByType[PsiElement](ScalaTokenTypes.tLBRACE) != null
-  }
 
-  def ownNamePart: String = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScPackageContainerStub].ownNamePart
-    }
-    reference match {case Some(r) => r.qualName case None => ""}
-  }
-
-  def prefix: String = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScPackageContainerStub].prefix
-    }
     def parentPackageName(e: PsiElement): String = e.getParent match {
-      case p: ScPackaging =>
-        val _packName = parentPackageName(p)
-        if (_packName.length > 0) _packName + "." + p.getPackageName else p.getPackageName
-      case _: ScalaFileImpl => "" //f.getPackageName
-      case null => ""
+      case p: ScPackaging => ScPackaging.fullPackageName(parentPackageName(p), p.packageName)
+      case _: ScalaFileImpl | null => ""
       case parent => parentPackageName(parent)
     }
+
     parentPackageName(this)
   }
 
@@ -105,45 +99,47 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
         }
         curr = curr.getNextSibling
       }
-      buffer.toSeq
+      buffer
       //findChildrenByClass[ScTypeDefinition](classOf[ScTypeDefinition])
     }
   }
 
   def declaredElements: Seq[ScPackageImpl] = {
-    val _prefix = prefix
-    val packageName = getPackageName
-    val topRefName = if (packageName.indexOf(".") != -1) {
-      packageName.substring(0, packageName.indexOf("."))
-    } else packageName
-    val top = if (_prefix.length > 0) _prefix + "." + topRefName else topRefName
-    val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(top))
-    if (p == null) Seq.empty else Seq(p)
+    val topRefName = packageName.indexOf(".") match {
+      case -1 => packageName
+      case index => packageName.substring(0, index)
+    }
+
+    val top = ScPackaging.fullPackageName(parentPackageName, topRefName)
+    Option(JavaPsiFacade.getInstance(getProject).findPackage(top)).map {
+      ScPackageImpl(_)
+    }.toSeq
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
 
     //If stub is not null, then we are not trying to resolve packaging reference.
     if (getStub != null || !reference.contains(lastParent)) {
-      val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
       ProgressManager.checkCanceled()
-      val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))
-      if (p != null && !p.processDeclarations(processor, state, lastParent, place)) {
-        return false
+
+      Option(JavaPsiFacade.getInstance(getProject).findPackage(fullPackageName)).map {
+        ScPackageImpl(_)
+      }.foreach { p =>
+        if (!p.processDeclarations(processor, state, lastParent, place)) {
+          return false
+        }
       }
 
-      findPackageObject(place.getResolveScope) match {
-        case Some(po) =>
-          var newState = state
-          po.getType(TypingContext.empty).foreach {
-            case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
-          }
-          if (!po.processDeclarations(processor, newState, lastParent, place)) return false
-        case _ =>
+      findPackageObject(place.getResolveScope).foreach { definition =>
+        var newState = state
+        definition.getType().foreach { tp =>
+          newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+        }
+        if (!definition.processDeclarations(processor, newState, lastParent, place)) return false
       }
     }
 
@@ -157,17 +153,18 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
 
     true
   }
-  
+
   def findPackageObject(scope: GlobalSearchScope): Option[ScTypeDefinition] = {
     Option(ScalaShortNamesCacheManager.getInstance(getProject).getPackageObjectByName(fullPackageName, scope))
   }
-
 
   def getBodyText: String = {
     if (isExplicit) {
       val startOffset = findChildByType[PsiElement](ScalaTokenTypes.tLBRACE).getTextRange.getEndOffset - getTextRange.getStartOffset
       val text = getText
-      val endOffset = if (text.apply(text.length - 1) == '}') {text.length - 1} else text.length
+      val endOffset = if (text.apply(text.length - 1) == '}') {
+        text.length - 1
+      } else text.length
       text.substring(startOffset, endOffset)
     } else {
       val text = getText
@@ -176,7 +173,7 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
       if (ref == null) ref = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE)
       if (ref == null) return getText
       val startOffset = ref.getTextRange.getEndOffset + 1 -
-              getTextRange.getStartOffset
+        getTextRange.getStartOffset
       if (startOffset >= endOffset) "" else text.substring(startOffset, endOffset)
     }
   }

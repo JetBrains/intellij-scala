@@ -6,6 +6,7 @@ import java.awt.Color
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
+import com.intellij.codeInsight.hint.{ParameterInfoController, ShowParameterInfoHandler}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
@@ -370,6 +371,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     def invocationCount: Int
     def callGeneric: Option[ScGenericCall] = None
     def callReference: Option[ScReferenceExpression]
+    def arguments: Seq[ScExpression]
   }
 
   object Invocation {
@@ -381,6 +383,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       override def invocationCount: Int = args.invocationCount
 
       override def callReference: Option[ScReferenceExpression] = args.callReference
+
+      override def arguments: Seq[ScExpression] = args.exprs
     }
     private trait InfixInvocation extends Invocation {
       override def invocationCount: Int = 1
@@ -393,12 +397,18 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
     private class InfixExpressionInvocation(expr: ScExpression) extends InfixInvocation {
       override def element: PsiElement = expr
+
+      override def arguments: Seq[ScExpression] = Seq(expr)
     }
     private class InfixTupleInvocation(tuple: ScTuple) extends InfixInvocation {
       override def element: PsiElement = tuple
+
+      override def arguments: Seq[ScExpression] = tuple.exprs
     }
     private class InfixUnitInvocation(u: ScUnitExpr) extends InfixInvocation {
       override def element: PsiElement = u
+
+      override def arguments: Seq[ScExpression] = Seq(u)
     }
 
     def getInvocation(elem: PsiElement): Option[Invocation] = {
@@ -419,6 +429,196 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
   }
 
+
+  def elementsForParameterInfo(args: Invocation): Seq[Object] = {
+    implicit val typeSystem = args.element.getProject.typeSystem
+    args.parent match {
+      case call: MethodInvocation =>
+        val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
+        def collectResult() {
+          val canBeUpdate = call.getParent match {
+            case assignStmt: ScAssignStmt if call == assignStmt.getLExpression => true
+            case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true
+            case _ => false
+          }
+          val count = args.invocationCount
+          val gen = args.callGeneric.getOrElse(null: ScGenericCall)
+          def collectSubstitutor(element: PsiElement): ScSubstitutor = {
+            if (gen == null) return ScSubstitutor.empty
+            val tp: Array[(String, Long)] = element match {
+              case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.nameAndId).toArray
+              case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.nameAndId)
+              case _ => return ScSubstitutor.empty
+            }
+            val typeArgs: Seq[ScTypeElement] = gen.arguments
+            val map = new collection.mutable.HashMap[(String, Long), ScType]
+            for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
+              map += ((tp(i), typeArgs(i).calcType))
+            }
+            new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
+          }
+          def collectForType(typez: ScType): Unit = {
+            def process(functionName: String): Unit = {
+              val i = if (functionName == "update") -1 else 0
+              val processor = new CompletionProcessor(StdKinds.refExprQualRef, call, true, Some(functionName))
+              processor.processType(typez, call)
+              val variants: Array[ScalaResolveResult] = processor.candidates
+              for {
+                variant <- variants
+                if !variant.getElement.isInstanceOf[PsiMember] ||
+                  ResolveUtils.isAccessible(variant.getElement.asInstanceOf[PsiMember], call)
+              } {
+                variant match {
+                  case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
+                    val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
+                    res += ((signature, i))
+                    ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
+                      res ++= enhancer.enhance(signature, args.arguments).map((_, i))
+                    }
+                  case _ =>
+                }
+              }
+            }
+
+            process("apply")
+            if (canBeUpdate) process("update")
+          }
+          args.callReference match {
+            case Some(ref: ScReferenceExpression) =>
+              if (count > 1) {
+                //todo: missed case with last implicit call
+                ref.bind() match {
+                  case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
+                    effectiveParameterClauses.length >= count =>
+                    res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
+                  case _ =>
+                    for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
+                    {collectForType(typez)}
+                }
+              } else {
+                val variants: Array[ResolveResult] = {
+                  val sameName = ref.getSameNameVariants
+                  if (sameName.isEmpty) ref.multiResolve(false)
+                  else sameName
+                }
+                for {
+                  variant <- variants
+                  if !variant.getElement.isInstanceOf[PsiMember] ||
+                    ResolveUtils.isAccessible(variant.getElement.asInstanceOf[PsiMember], ref)
+                } {
+                  variant match {
+                    //todo: Synthetic function
+                    case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
+                      val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
+                      res += ((signature, 0))
+                      ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
+                        res ++= enhancer.enhance(signature, args.arguments).map(sign => (sign, 0))
+                      }
+                    case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
+                      val typez = subst.subst(typed.getType(TypingContext.empty).getOrNothing) //todo: implicit conversions
+                      collectForType(typez)
+                    case _ =>
+                  }
+                }
+              }
+            case None =>
+              call match {
+                case call: ScMethodCall =>
+                  for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) { //todo: implicit conversions
+                    collectForType(typez)
+                  }
+              }
+          }
+        }
+        collectResult()
+        res
+      case constr: ScConstructor =>
+        val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
+        val typeElement = constr.typeElement
+        val i = constr.arguments.indexOf(args.element)
+        typeElement.calcType.extractClassType(constr.getProject) match {
+          case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
+            clazz match {
+              case clazz: ScClass =>
+                clazz.constructor match {
+                  case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
+                    typeElement match {
+                      case gen: ScParameterizedTypeElement =>
+                        val tp = clazz.typeParameters.map(_.nameAndId)
+                        val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
+                        val map = new collection.mutable.HashMap[(String, Long), ScType]
+                        for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
+                          map += ((tp(i), typeArgs(i).calcType))
+                        }
+                        val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
+                        res += ((constr, substitutor.followed(subst), i))
+                      case _ => res += ((constr, subst, i))
+                    }
+                  case Some(_) if i == 0 => res += ""
+                  case None => res += ""
+                  case _ =>
+                }
+                for (constr <- clazz.functions if !constr.isInstanceOf[ScPrimaryConstructor] &&
+                  constr.isConstructor && ((constr.clauses match {
+                  case Some(x) => x.clauses.length
+                  case None => 1
+                }) > i))
+                  res += ((new PhysicalSignature(constr, subst), i))
+              case clazz: PsiClass if clazz.isAnnotationType =>
+                val resulting: (AnnotationParameters, Int) =
+                  (AnnotationParameters(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => (meth.name,
+                    meth.getReturnType.toScType(),
+                    meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue))), i)
+                res += resulting
+              case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
+                for (constructor <- clazz.getConstructors) {
+                  typeElement match {
+                    case gen: ScParameterizedTypeElement =>
+                      val tp = clazz.getTypeParameters.map(_.nameAndId)
+                      val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
+                      val map = new collection.mutable.HashMap[(String, Long), ScType]
+                      for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
+                        map += ((tp(i), typeArgs(i).calcType))
+                      }
+                      val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
+                      res += ((new PhysicalSignature(constructor, substitutor.followed(subst)), i))
+                    case _ => res += ((new PhysicalSignature(constructor, subst), i))
+                  }
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+        res
+      case self: ScSelfInvocation =>
+        val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
+        val i = self.arguments.indexOf(args.element)
+        val clazz = PsiTreeUtil.getParentOfType(self, classOf[ScClass], true)
+        clazz match {
+          case clazz: ScClass =>
+            clazz.constructor match {
+              case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
+                res += ((constr, ScSubstitutor.empty, i))
+              case Some(_) if i == 0 => res += ""
+              case None => res += ""
+              case _ =>
+            }
+            for {
+              constr <- clazz.functions
+              if !constr.isInstanceOf[ScPrimaryConstructor] &&
+                constr.isConstructor &&
+                constr.clauses.map(_.clauses.length).getOrElse(1) > i
+            } {
+              if (!PsiTreeUtil.isAncestor(constr, self, true) &&
+                constr.getTextRange.getStartOffset < self.getTextRange.getStartOffset) {
+                res += ((new PhysicalSignature(constr, ScSubstitutor.empty), i))
+              }
+            }
+          case _ =>
+        }
+        res
+    }
+  }
 
   /**
    * Returns context's argument psi and fill context items
@@ -446,184 +646,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     implicit val typeSystem = file.getProject.typeSystem
     context match {
       case context: CreateParameterInfoContext =>
-        args.parent match {
-          case call: MethodInvocation =>
-            val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
-            def collectResult() {
-              val canBeUpdate = call.getParent match {
-                case assignStmt: ScAssignStmt if call == assignStmt.getLExpression => true
-                case notExpr if !notExpr.isInstanceOf[ScExpression] || notExpr.isInstanceOf[ScBlockExpr] => true
-                case _ => false
-              }
-              val count = args.invocationCount
-              val gen = args.callGeneric.getOrElse(null: ScGenericCall)
-              def collectSubstitutor(element: PsiElement): ScSubstitutor = {
-                if (gen == null) return ScSubstitutor.empty
-                val tp: Array[(String, Long)] = element match {
-                  case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.nameAndId).toArray
-                  case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.nameAndId)
-                  case _ => return ScSubstitutor.empty
-                }
-                val typeArgs: Seq[ScTypeElement] = gen.arguments
-                val map = new collection.mutable.HashMap[(String, Long), ScType]
-                for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
-                  map += ((tp(i), typeArgs(i).calcType))
-                }
-                new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
-              }
-              def collectForType(typez: ScType): Unit = {
-                def process(functionName: String): Unit = {
-                  val i = if (functionName == "update") -1 else 0
-                  val processor = new CompletionProcessor(StdKinds.refExprQualRef, call, true, Some(functionName))
-                  processor.processType(typez, call)
-                  val variants: Array[ScalaResolveResult] = processor.candidates
-                  for {
-                    variant <- variants
-                    if !variant.getElement.isInstanceOf[PsiMember] ||
-                      ResolveUtils.isAccessible(variant.getElement.asInstanceOf[PsiMember], call)
-                  } {
-                    variant match {
-                      case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
-                        res += ((new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), i))
-                      case _ =>
-                    }
-                  }
-                }
-
-                process("apply")
-                if (canBeUpdate) process("update")
-              }
-              args.callReference match {
-                case Some(ref: ScReferenceExpression) =>
-                  if (count > 1) {
-                    //todo: missed case with last implicit call
-                    ref.bind() match {
-                      case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
-                              effectiveParameterClauses.length >= count =>
-                        res += ((new PhysicalSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
-                      case _ =>
-                        for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) //todo: implicit conversions
-                          {collectForType(typez)}
-                    }
-                  } else {
-                    val variants: Array[ResolveResult] = {
-                      val sameName = ref.getSameNameVariants
-                      if (sameName.isEmpty) ref.multiResolve(false)
-                      else sameName
-                    }
-                    for {
-                      variant <- variants
-                      if !variant.getElement.isInstanceOf[PsiMember] ||
-                          ResolveUtils.isAccessible(variant.getElement.asInstanceOf[PsiMember], ref)
-                    } {
-                      variant match {
-                        //todo: Synthetic function
-                        case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
-                          res += ((new PhysicalSignature(method, subst.followed(collectSubstitutor(method))), 0))
-                        case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
-                          val typez = subst.subst(typed.getType(TypingContext.empty).getOrNothing) //todo: implicit conversions
-                          collectForType(typez)
-                        case _ =>
-                      }
-                    }
-                  }
-                case None =>
-                  call match {
-                    case call: ScMethodCall =>
-                      for (typez <- call.getEffectiveInvokedExpr.getType(TypingContext.empty)) { //todo: implicit conversions
-                        collectForType(typez)
-                      }
-                  }
-              }
-            }
-            collectResult()
-            context.setItemsToShow(res.toArray)
-          case constr: ScConstructor =>
-            val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
-            val typeElement = constr.typeElement
-            val i = constr.arguments.indexOf(args.element)
-            typeElement.calcType.extractClassType(file.getProject) match {
-              case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
-                clazz match {
-                  case clazz: ScClass =>
-                    clazz.constructor match {
-                      case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
-                        typeElement match {
-                          case gen: ScParameterizedTypeElement =>
-                            val tp = clazz.typeParameters.map(_.nameAndId)
-                            val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                            val map = new collection.mutable.HashMap[(String, Long), ScType]
-                            for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
-                              map += ((tp(i), typeArgs(i).calcType))
-                            }
-                            val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
-                            res += ((constr, substitutor.followed(subst), i))
-                          case _ => res += ((constr, subst, i))
-                        }
-                      case Some(_) if i == 0 => res += ""
-                      case None => res += ""
-                      case _ =>
-                    }
-                    for (constr <- clazz.functions if !constr.isInstanceOf[ScPrimaryConstructor] &&
-                            constr.isConstructor && ((constr.clauses match {
-                        case Some(x) => x.clauses.length
-                        case None => 1
-                      }) > i))
-                      res += ((new PhysicalSignature(constr, subst), i))
-                  case clazz: PsiClass if clazz.isAnnotationType =>
-                    val resulting: (AnnotationParameters, Int) =
-                      (AnnotationParameters(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => (meth.name,
-                        meth.getReturnType.toScType(),
-                        meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue))), i)
-                    res += resulting
-                  case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
-                    for (constructor <- clazz.getConstructors) {
-                      typeElement match {
-                        case gen: ScParameterizedTypeElement =>
-                          val tp = clazz.getTypeParameters.map(_.nameAndId)
-                          val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
-                          val map = new collection.mutable.HashMap[(String, Long), ScType]
-                          for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
-                            map += ((tp(i), typeArgs(i).calcType))
-                          }
-                          val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
-                          res += ((new PhysicalSignature(constructor, substitutor.followed(subst)), i))
-                        case _ => res += ((new PhysicalSignature(constructor, subst), i))
-                      }
-                    }
-                  case _ =>
-                }
-              case _ =>
-            }
-            context.setItemsToShow(res.toArray)
-          case self: ScSelfInvocation =>
-            val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
-            val i = self.arguments.indexOf(args.element)
-            val clazz = PsiTreeUtil.getParentOfType(self, classOf[ScClass], true)
-            clazz match {
-              case clazz: ScClass =>
-                clazz.constructor match {
-                  case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
-                    res += ((constr, ScSubstitutor.empty, i))
-                  case Some(_) if i == 0 => res += ""
-                  case None => res += ""
-                  case _ =>
-                }
-                for {
-                  constr <- clazz.functions
-                  if !constr.isInstanceOf[ScPrimaryConstructor] &&
-                    constr.isConstructor &&
-                    constr.clauses.map(_.clauses.length).getOrElse(1) > i
-                } {
-                  if (!PsiTreeUtil.isAncestor(constr, self, true) &&
-                    constr.getTextRange.getStartOffset < self.getTextRange.getStartOffset) {
-                    res += ((new PhysicalSignature(constr, ScSubstitutor.empty), i))
-                  }
-                }
-              case _ =>
-            }
-            context.setItemsToShow(res.toArray)
-        }
+        context.setItemsToShow(elementsForParameterInfo(args).toArray)
       case context: UpdateParameterInfoContext =>
         var el = element
         while (el.getParent != args.element) el = el.getParent
@@ -631,6 +654,12 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         for (expr <- getActualParameters(args.element) if expr != el) index += 1
         context.setCurrentParameter(index)
         context.setHighlightedParameter(el)
+
+        if (!(context.getObjectsToView sameElements elementsForParameterInfo(args))) {
+          context.removeHint()
+
+          ShowParameterInfoHandler.invoke(context.getProject, context.getEditor, context.getFile, context.getOffset, null, false)
+        }
       case _ =>
     }
     args.element

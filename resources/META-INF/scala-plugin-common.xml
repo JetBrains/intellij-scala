@@ -15,9 +15,12 @@
         <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
         <extensionPoint name="syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"/>
         <extensionPoint name="scalaTestDefaultWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider"/>
+        <extensionPoint name="parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer"/>
+        <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
+        <!--<syntheticMemberInjector implementation="scala.meta.MetaAnnotationInjector"/>-->
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MonocleInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjection"/>
@@ -105,6 +108,7 @@
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitLinesProcessor"/>
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
+        <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scaladev.ExternalSystemRefreshListener"/>
 
       <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
@@ -166,7 +170,7 @@
         <methodImplementor implementation="org.jetbrains.plugins.scala.overrideImplement.ScalaMethodImplementor"/>
         <lookup.charFilter implementation="org.jetbrains.plugins.scala.lang.completion.ScalaCharFilter"/>
         <lang.findUsagesProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.findUsages.ScalaFindUsagesProvider"/>
-        <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider"/>
+        <usageTypeProvider implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaUsageTypeProvider" order="first"/>
         <importFilteringRule implementation="org.jetbrains.plugins.scala.lang.findUsages.ScalaImportFilteringRule"/>
         <codeStyleSettingsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettingsProvider"/>
         <internalFileTemplate name="Scala Class"/>
@@ -181,7 +185,7 @@
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <classInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaLocalInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpansionProvider"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpansionLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <declarationRangeHandler order="first" key="org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction"
                                  implementationClass="org.jetbrains.plugins.scala.codeInsight.hint.ScFunctionDeclarationRangeHandler"/>
@@ -225,6 +229,7 @@
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala" />
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ScalaTestRunLineMarkerProvider" language="Scala"/>
 
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
@@ -376,8 +381,11 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.lang.scaladoc.generate.ScaladocSettings"/>
 
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"
+                        serviceInterface="org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionsPersistentState"/>
+
         <projectService serviceImplementation="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.psi.api.macros.ScalaMacroEvaluator"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator"/>
         <projectConfigurable id="Scala Compiler" displayName="Scala Compiler" parentId="project.propCompiler"
                              instance="org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfigurable" />
 
@@ -520,6 +528,11 @@
             <category>Scala</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention</className>
         </intentionAction>
+
+      <intentionAction>
+        <category>Scala</category>
+        <className>org.jetbrains.plugins.scala.codeInsight.intention.CreateCompanionObjectIntention</className>
+      </intentionAction>
 
         <intentionAction>
             <category>Scala/For Comprehension</category>
@@ -842,6 +855,10 @@
                          displayName="Simplify boolean expression" groupPath="Scala" groupName="General"
                          shortName="SimplifyBoolean" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanMatchInspection"
+                         displayName="Trivial match can be simplified" groupPath="Scala" groupName="General"
+                         shortName="SimplifyBooleanMatch" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection"
                          displayName="Unnecessary parentheses" groupPath="Scala" groupName="General"
                          shortName="ScalaUnnecessaryParentheses" level="WARNING"
@@ -901,6 +918,9 @@
                         displayName="Annotator Based Error Inspection" groupPath="Scala" groupName="Internal" isInternal="true"
                         shortName="AnnotatorBasedErrorInspection" level="ERROR"
                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection"
+                         displayName="Scala bundled inspections runner" groupPath="Scala" groupName="General"
+                         shortName="ScalaBundledInsRunner" enabledByDefault="false" language="Scala"/>
 
         <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"
@@ -927,8 +947,12 @@
                          displayName="Redundant New on Case Class" groupPath="Scala" groupName="Syntactic Simplification"
                          shortName="RedundantNewCaseClass"
                          id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.RedundantDefaultArgumentInspection"
+                         displayName="Argument duplicates corresponding parameter default value" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="RedundantDefaultArgument" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
-        <!--Syntacitc clarification inspections (including syntactic desugaring), see SCL-10327-->
+        <!--Syntactic clarification inspections (including syntactic desugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection"
                          displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic Clarification"
                          shortName="AutoTupling" level="WARNING"
@@ -937,11 +961,11 @@
                          displayName="Concealed &quot;apply&quot; call" groupPath="Scala" groupName="Syntactic Clarification"
                          shortName="ConcealedApplyCall" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-      <localInspection
-              implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection"
-              displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic Clarification"
-              shortName="ConvertNullInitializerToUnderscore" level="WARNING"
-              enabledByDefault="true" language="Scala"/>
+        <localInspection
+                implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection"
+                displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic Clarification"
+                shortName="ConvertNullInitializerToUnderscore" level="WARNING"
+                enabledByDefault="true" language="Scala"/>
 
         <!--Method signature inspections-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"
@@ -1255,6 +1279,9 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerLauncher</implementation-class>
         </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.util.UIFreezingGuard</implementation-class>
+        </component>
     </application-components>
 
     <project-components>
@@ -1287,7 +1314,7 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.CompileServerManager</implementation-class>
         </component>
-      <component>
+        <component>
           <implementation-class>org.jetbrains.plugins.scala.compiler.ServerMediator</implementation-class>
         </component>
         <component>
@@ -1313,6 +1340,21 @@
         </component>
         <component>
             <implementation-class>org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionStoreComponent</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scaladev.IdeaSourcesAttach</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
         </component>
     </project-components>
 

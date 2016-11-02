@@ -34,6 +34,22 @@ object Equivalence extends api.Equivalence {
         case _ =>
       }
 
+      (left, right) match {
+        case (UndefinedType(_, _), _) if right.isAliasType.isDefined =>
+          val t = left.equivInner(right, substitutor, falseUndef)
+          if (t._1) return (true, t._2)
+        case (_, UndefinedType(_, _)) if left.isAliasType.isDefined =>
+          val t = left.equivInner(right, substitutor, falseUndef)
+          if (t._1) return (true, t._2)
+        case (ParameterizedType(UndefinedType(_, _), _), _) if right.isAliasType.isDefined =>
+          val t = left.equivInner(right, substitutor, falseUndef)
+          if (t._1) return (true, t._2)
+        case (_, ParameterizedType(UndefinedType(_, _), _)) if left.isAliasType.isDefined =>
+          val t = right.equivInner(left, substitutor, falseUndef)
+          if (t._1) return (true, t._2)
+        case _ =>
+      }
+
       right.isAliasType match {
         case Some(AliasType(_: ScTypeAliasDefinition, Success(right, _), _)) => return equivInner(left, right, substitutor, falseUndef)
         case _ =>

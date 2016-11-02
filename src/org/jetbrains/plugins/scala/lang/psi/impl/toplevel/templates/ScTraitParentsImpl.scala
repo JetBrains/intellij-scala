@@ -13,34 +13,37 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:22:37
-*/
-class ScTraitParentsImpl private (stub: StubElement[ScTemplateParents], nodeType: IElementType, node: ASTNode)
+  * @author Alexander Podkhalyuzin
+  *         Date: 22.02.2008
+  *         Time: 9:22:37
+  */
+class ScTraitParentsImpl private(stub: StubElement[ScTraitParents], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTraitParents {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTemplateParentsStub) = {this(stub, ScalaElementTypes.TRAIT_PARENTS, null)}
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScTemplateParentsStub[ScTraitParents]) =
+    this(stub, ScalaElementTypes.TRAIT_PARENTS, null)
 
   override def toString: String = "TraitParents"
 
   def superTypes: Seq[ScType] = {
     val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypes ++
-        syntheticTypeElements.map(_.getType(TypingContext.empty).getOrAny)
+    val elements = if (stub != null) {
+      stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements ++ syntheticTypeElements
+    } else allTypeElements
+
+    elements.map {
+      _.getType().getOrAny
     }
-    allTypeElements.map(_.getType(TypingContext.empty).getOrAny)
   }
 
   def typeElements: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub].getTemplateParentsTypeElements
+      return stub.asInstanceOf[ScTemplateParentsStub[ScTraitParents]].parentTypeElements
     }
     findChildrenByClassScala(classOf[ScTypeElement])
   }

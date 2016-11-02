@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -140,9 +140,19 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ref: ScReferenceElement => ref.isValid && !ref.isReferenceTo(elem)
       case _ => false
     }
-    ScalaNamesUtil.qualifiedName(elem) match {
-      case Some(qual) if needImport => addImportForPath(qual, ref)
-      case _ =>
+    if (needImport) {
+      cClass match {
+        case Some(clazz) =>
+          val qualName = clazz.qualifiedName
+          if (qualName != null) {
+            addImportForPath(qualName + "." + elem.name, ref)
+          }
+        case _ =>
+          val qualName = ScalaNamesUtil.qualifiedName(elem).orNull
+          if (qualName != null) {
+            addImportForPath(qualName, ref)
+          }
+      }
     }
   }
 

@@ -60,13 +60,6 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
    */
   protected def addOtherLibraries()
 
-  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
-    val libsPath = TestUtils.getIvyCachePath
-    val pathExtended = s"$libsPath/$libraryPath/"
-    VfsRootAccess.allowRootAccess(pathExtended)
-    PsiTestUtil.addLibrary(myModule, libraryName, pathExtended, jarNames: _*)
-  }
-
   override def setUpModule(): Unit = {
     if (needMake) super.setUpModule()
     else myModule = loadModule(getImlFile.getAbsolutePath)

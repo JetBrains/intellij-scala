@@ -21,14 +21,13 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -176,7 +175,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val firstPsi = range.firstPsi.retrieve()
     val lastPsi = range.lastPsi.retrieve()
 
-    if (Option(firstPsi).exists(!_.isValid) || Option(lastPsi).exists(!_.isValid)) {
+    def notValid(psi: PsiElement) = psi == null || !psi.isValid
+
+    if (notValid(firstPsi) || notValid(lastPsi)) {
       throw new IllegalStateException("Couldn't update imports: import range was invalidated after initial analysis")
     }
 
@@ -230,7 +231,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
       else firstPsiNode
 
-    val anchor = lastPsi.getNextSibling.getNode
+    val anchor = Option(lastPsi.getNextSibling).map(_.getNode).orNull
 
     withDisabledPostprocessFormatting(file.getProject) {
       parentNode.removeRange(firstNodeToRemove, anchor)

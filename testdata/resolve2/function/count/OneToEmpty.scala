@@ -1,3 +1,3 @@
 def f = {}
 
-println(/* applicable: true */ f(1))
+println(/* applicable: false */ f(1))

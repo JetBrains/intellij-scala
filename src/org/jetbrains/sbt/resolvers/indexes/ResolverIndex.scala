@@ -1,15 +1,11 @@
 package org.jetbrains.sbt.resolvers.indexes
 
-import java.io.{File, IOException}
+import java.io.File
 
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.io.PersistentEnumeratorBase
-import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt._
-import org.jetbrains.sbt.resolvers.{IndexVersionMismatch, ResolverException}
 
 /**
   * @author Mikhail Mutcianko
@@ -25,10 +21,12 @@ trait ResolverIndex {
 }
 
 object ResolverIndex {
-  val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
+  val DEFAULT_INDEXES_DIR: File = new File(PathManager.getSystemPath) / "sbt" / "indexes"
   val CURRENT_INDEX_VERSION = "2"
-  val NO_TIMESTAMP = -1
-  val MAVEN_UNAVALIABLE = -2
+  val NO_TIMESTAMP: Int = -1
+  val MAVEN_UNAVALIABLE: Int = -2
+  def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
+
   protected val indexesDir: File = {
     if (ApplicationManager.getApplication.isUnitTestMode)
       Option(System.getProperty("ivy.test.indexes.dir"))
@@ -36,7 +34,6 @@ object ResolverIndex {
         .getOrElse(DEFAULT_INDEXES_DIR)
     else DEFAULT_INDEXES_DIR
   }
-  def getIndexDirectory(root: String) = new File(indexesDir, root.shaDigest)
 
   object Paths {
     val PROPERTIES_FILE = "index.properties"
@@ -51,30 +48,6 @@ object ResolverIndex {
     val UPDATE_TIMESTAMP = "update-timestamp"
     val KIND = "kind"
   }
-
-  def createOrLoadIvy(name: String, root: String): IvyIndex = {
-    try {
-      new IvyIndex(root, name)
-    } catch {
-      case _: Throwable =>  // workaround for severe persistent storage corruption
-        cleanUpCorruptedIndex(getIndexDirectory(root))
-        new IvyIndex(root, name)
-    }
-  }
-
-  def cleanUpCorruptedIndex(indexDir: File): Unit = {
-    try {
-      FileUtil.delete(indexDir)
-      notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedAndRemoved", indexDir.getAbsolutePath))
-    } catch {
-      case _ : Throwable =>
-        notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
-    }
-  }
-
-  def notifyWarning(message: String): Unit =
-    NotificationUtil.showMessage(null, message, title = "Resolver Indexer")
-
 
 }
 

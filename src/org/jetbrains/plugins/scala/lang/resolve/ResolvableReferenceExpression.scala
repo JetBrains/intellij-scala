@@ -185,7 +185,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             funCollectNamedCompletions(fun.paramClauses, assign, processor, subst, exprs, invocationCount)
           }
         case ScalaResolveResult(_: FakePsiMethod, _: ScSubstitutor) => //todo: ?
-        case ScalaResolveResult(method: PsiMethod, subst) => 
+        case ScalaResolveResult(method: PsiMethod, subst) =>
           assign.getContext match {
             case args: ScArgumentExprList =>
               args.getContext match {
@@ -196,7 +196,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                   }
                 case _ =>
               }
-            case _ => 
+            case _ =>
           }
         case _ =>
       }
@@ -532,7 +532,7 @@ object ResolvableReferenceExpression {
       case _ => tp
     }
   }
-  
+
   def getDynamicNameForMethodInvocation(call: MethodInvocation): String = {
     call.argumentExpressions.find {
       case a: ScAssignStmt =>

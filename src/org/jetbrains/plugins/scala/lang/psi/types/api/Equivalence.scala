@@ -28,7 +28,7 @@ trait Equivalence extends TypeSystemOwner {
     * @param falseUndef use false to consider undef type equals to any type
     */
   final def equivInner(left: ScType, right: ScType,
-                       substitutor: ScUndefinedSubstitutor = new ScUndefinedSubstitutor,
+                       substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
                        falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
@@ -52,11 +52,11 @@ trait Equivalence extends TypeSystemOwner {
     }
 
     if (guard.currentStack().contains(key)) {
-      return (false, new ScUndefinedSubstitutor())
+      return (false, ScUndefinedSubstitutor())
     }
 
-    val result = guard.doPreventingRecursion(key, false, computable(left, right, substitutor, falseUndef))
-    if (result == null) return (false, new ScUndefinedSubstitutor())
+    val result = guard.doPreventingRecursion(key, false, computable(left, right, ScUndefinedSubstitutor(), falseUndef))
+    if (result == null) return (false, ScUndefinedSubstitutor())
     if (!nowEval) {
       try {
         eval.set(true)

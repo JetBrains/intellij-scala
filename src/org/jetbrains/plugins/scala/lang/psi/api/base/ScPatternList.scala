@@ -18,7 +18,7 @@ trait ScPatternList extends ScalaPsiElement {
    * This method means that Pattern list has just reference patterns:
    * val x, y, z = 44
    */
-  def allPatternsSimple: Boolean
+  def simplePatterns: Boolean
 }
 
 object ScPatternList {

@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.ACCESS_MODIFIER
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 
@@ -48,6 +48,7 @@ class ScAccessModifierImpl private(stub: StubElement[ScAccessModifier], nodeType
     Option(getReference) map {
       _.resolve
     } collect {
+      case o: ScObject if o.isPackageObject => ScPackageImpl.ofPackageObject(o)
       case named: PsiNamedElement => named
     } getOrElse {
       getParentOfType(this, classOf[ScTypeDefinition], true)
@@ -134,7 +135,7 @@ class ScAccessModifierImpl private(stub: StubElement[ScAccessModifier], nodeType
           case null => null
           case td: ScTypeDefinition if td.name == name => td
           case _: ScalaFile => findPackage("")
-          case container: ScPackageContainer => findPackage(container.fqn)
+          case container: ScPackaging => findPackage(container.fullPackageName)
           case _ => find(e.getParent)
         }
         find(getParent)
@@ -154,7 +155,7 @@ class ScAccessModifierImpl private(stub: StubElement[ScAccessModifier], nodeType
             case null =>
             case td: ScTypeDefinition => buff += td; append(td.getParent)
             case _: ScalaFile => processPackages("")
-            case container: ScPackageContainer => processPackages(container.fqn)
+            case container: ScPackaging => processPackages(container.fullPackageName)
             case _ => append(e.getParent)
           }
         }

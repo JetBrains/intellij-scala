@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTr
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.types.Signature
 
-import _root_.scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 
 
@@ -36,7 +36,6 @@ import scala.collection.{Seq, mutable}
  * User: Alexander Podkhalyuzin
  * Date: 31.10.2008
  */
-
 class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colorsManager: EditorColorsManager)
         extends LineMarkerProvider with ScalaSeparatorProvider {
 
@@ -98,7 +97,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           if (signatures.nonEmpty) {
             return marker(method.nameId, icon, typez)
           }
-        case (x@(_: ScValue | _: ScVariable), _: ScTemplateBody)
+        case (x: ScValueOrVariable, _: ScTemplateBody)
           if containsNamedElement(x.asInstanceOf[ScDeclaredElementsHolder]) =>
           val signatures = new ArrayBuffer[Signature]
           val bindings = x match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
@@ -106,11 +105,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
           if (signatures.nonEmpty) {
-            val token = x match {
-              case v: ScValue => v.getValToken
-              case v: ScVariable => v.getVarToken
-            }
-            return marker(token, icon, typez)
+            return marker(x.keywordToken, icon, typez)
           }
         case (x: ScObject, _: ScTemplateBody) if x.nameId == element =>
           val signatures = ScalaPsiUtil.superValsSignatures(x, withSelfType = true)
@@ -188,7 +183,7 @@ private object GutterUtil {
 
     val inheritor = ClassInheritorsSearch.search(clazz, false).findFirst
     if (inheritor != null) {
-      val range = clazz.getTextRange
+      val range = clazz.nameId.getTextRange
       val icon = clazz match {
         case _: ScTrait => IMPLEMENTED_INTERFACE_MARKER_RENDERER
         case _ => SUBCLASSED_CLASS_MARKER_RENDERER
@@ -203,7 +198,7 @@ private object GutterUtil {
   def collectOverridingMembers(members: ArrayBuffer[PsiElement], result: util.Collection[LineMarkerInfo[_ <: PsiElement]]) {
     for (member <- members if !member.isInstanceOf[PsiMethod] || !member.asInstanceOf[PsiMethod].isConstructor) {
       ProgressManager.checkCanceled()
-      val range = member.getTextRange
+      val range = new TextRange(member.getTextOffset, member.getTextOffset)
       val members = member match {
         case d: ScDeclaredElementsHolder => d.declaredElements.toArray
         case td: ScTypeDefinition => Array[PsiNamedElement](td)

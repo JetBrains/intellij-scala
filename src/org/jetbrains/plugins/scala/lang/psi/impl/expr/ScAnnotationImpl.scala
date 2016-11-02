@@ -44,16 +44,18 @@ class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IEleme
   private def getClazz: Option[PsiClass] =
     typeElement.getType().getOrAny.extractClass()
 
-  def getQualifiedName: String = getClazz map {
+  def getQualifiedName: String = getClazz.map {
     _.qualifiedName
-  } orNull
+  }.orNull
 
   def typeElement: ScTypeElement = {
-    Option(getStub) collect {
+    Option(getStub).collect {
       case stub: ScAnnotationStub => stub
-    } map {
+    }.flatMap {
       _.typeElement
-    } getOrElse annotationExpr.constr.typeElement
+    }.getOrElse {
+      annotationExpr.constr.typeElement
+    }
   }
 
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {

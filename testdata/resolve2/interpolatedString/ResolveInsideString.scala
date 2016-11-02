@@ -9,7 +9,7 @@ object A {
   val c = s"""blah blah ${
     def foo: Int =  /*resolved: true*/ i
 
-     /*resolved: true*/ foo()
+     /*resolved: true, applicable: false*/ foo()
   }"""
 }
 

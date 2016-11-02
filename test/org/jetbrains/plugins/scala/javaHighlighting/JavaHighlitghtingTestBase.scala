@@ -42,7 +42,7 @@ abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase(scalaVersi
 
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
-    val mock = new AnnotatorHolderMock
+    val mock = new AnnotatorHolderMock(getFile)
     val annotator = new ScalaAnnotator
 
     getFile.depthFirst.foreach(annotator.annotate(_, mock))

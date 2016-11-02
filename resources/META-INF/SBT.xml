@@ -14,7 +14,7 @@
             <implementation-class>org.jetbrains.sbt.project.autoimport.SbtAutoImportComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.jetbrains.sbt.resolvers.SbtResolversManager</implementation-class>
+            <implementation-class>org.jetbrains.sbt.resolvers.SbtIndexesManager</implementation-class>
         </component>
     </project-components>
 
@@ -39,6 +39,8 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
+        <externalProjectDataService
+                implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
 
         <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSystemSettings"/>

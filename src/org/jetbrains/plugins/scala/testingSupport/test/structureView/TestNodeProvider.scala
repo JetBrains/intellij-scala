@@ -102,13 +102,13 @@ object TestNodeProvider {
     import ScalaTestUtil._
     import Specs2Util._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-    if (getFlatSpecBases.exists(isInheritor(clazz, _))) {
+    if (flatSpecBases.exists(isInheritor(clazz, _))) {
       extractFlatSpec(expr, project)
-    } else if (getFreeSpecBases.exists(isInheritor(clazz, _))) {
+    } else if (freeSpecBases.exists(isInheritor(clazz, _))) {
       extractFreeSpec(expr, project)
-    } else if (getWordSpecBases.exists(isInheritor(clazz, _))) {
+    } else if (wordSpecBases.exists(isInheritor(clazz, _))) {
       extractWordSpec(expr, project)
-    } else if (isInheritor(clazz, getUnitSpecBase)) {
+    } else if (isInheritor(clazz, unitSpecBase)) {
       extractUnitSpec(expr, project)
     } else None
   }
@@ -127,15 +127,15 @@ object TestNodeProvider {
   Option[TestStructureViewElement] = {
     import ScalaTestUtil._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-    if (getFunSuiteBases.exists(isInheritor(clazz, _))) {
+    if (funSuiteBases.exists(isInheritor(clazz, _))) {
       extractFunSuite(expr, project)
       //this should be a funSuite-like test
-    } else if (getFeatureSpecBases.exists(isInheritor(clazz, _))) {
+    } else if (featureSpecBases.exists(isInheritor(clazz, _))) {
       extractFeatureSpec(expr, project)
-    } else if (getFunSpecBasesPost2_0.exists(isInheritor(clazz, _)) || getFunSpecBasesPre2_0.exists(isInheritor
+    } else if (funSpecBasesPost2_0.exists(isInheritor(clazz, _)) || funSpecBasesPre2_0.exists(isInheritor
       (clazz, _))) {
       extractFunSpec(expr, project)
-    } else if (getPropSpecBases.exists(isInheritor(clazz, _))) {
+    } else if (propSpecBases.exists(isInheritor(clazz, _))) {
       extractPropSpec(expr, project)
     } else None
   }

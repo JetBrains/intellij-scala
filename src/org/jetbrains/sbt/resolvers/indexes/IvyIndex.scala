@@ -5,12 +5,12 @@ import java.util.Properties
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
-import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentEnumeratorBase, PersistentHashMap}
-import org.jetbrains.sbt.resolvers._
+import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 import org.jetbrains.sbt._
+import org.jetbrains.sbt.resolvers._
 
-import scala.collection.mutable
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 import scala.xml.XML
 
 /**
@@ -90,11 +90,9 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
     store()
   }
 
-  def stripVersion(artifact: String) = artifact.replaceAll("_\\d\\.\\d+.*$", "")
-
   override def getUpdateTimeStamp(implicit project: Project): Long = innerTimestamp
 
-  private def deleteIndex() = cleanUpCorruptedIndex(indexDir)
+  private def deleteIndex() = SbtIndexesManager.cleanUpCorruptedIndex(indexDir)
 
   private def store(): Unit = {
     ensureIndexDir()
@@ -177,7 +175,7 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
     private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
       if (!dir.isDirectory)
-        throw new InvalidRepository(dir.getAbsolutePath)
+        throw InvalidRepository(dir.getAbsolutePath)
       val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).toStream
       artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).flatMap(listArtifacts)
     }

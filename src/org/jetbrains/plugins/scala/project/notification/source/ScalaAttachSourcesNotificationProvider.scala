@@ -3,7 +3,6 @@ package project.notification.source
 
 import java.util
 import java.util._
-import javax.swing.SwingUtilities
 
 import com.intellij.codeEditor.JavaEditorFileSwapper
 import com.intellij.codeInsight.AttachSourcesProvider
@@ -19,6 +18,7 @@ import com.intellij.openapi.util.{ActionCallback, Comparing}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiClass, PsiFile, PsiJavaFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications, GuiUtils}
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -96,11 +96,7 @@ class ScalaAttachSourcesNotificationProvider(myProject: Project, notifications: 
           panel.setText(each.getBusyText)
           val onFinish: Runnable = new Runnable {
             def run() {
-              SwingUtilities.invokeLater(new Runnable {
-                def run() {
-                  panel.setText(ScalaBundle.message("library.sources.not.found"))
-                }
-              })
+              invokeLater(panel.setText(ScalaBundle.message("library.sources.not.found")))
             }
           }
           val callback: ActionCallback = each.perform(findOrderEntriesContainingFile(file))

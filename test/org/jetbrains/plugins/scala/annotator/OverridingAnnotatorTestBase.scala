@@ -1,5 +1,4 @@
 package org.jetbrains.plugins.scala.annotator
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -19,9 +18,9 @@ trait OverridingAnnotatorTestBase extends SimpleTestCase{
 
   def messages(code: String): List[Message] = {
     val annotator = new OverridingAnnotator() {}
-    val mock = new AnnotatorHolderMock
+    val file = (Header + code).parse
 
-    val element: PsiElement = (Header + code).parse
+    val mock = new AnnotatorHolderMock(file)
 
     val visitor = new ScalaRecursiveElementVisitor {
       override def visitFunction(fun: ScFunction): Unit = {
@@ -72,7 +71,7 @@ trait OverridingAnnotatorTestBase extends SimpleTestCase{
       }
     }
 
-    element.accept(visitor)
+    file.accept(visitor)
 
     mock.annotations
   }

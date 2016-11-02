@@ -4,7 +4,7 @@ package structureView
 package itemsPresentations
 package impl
 
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
 /**
  * @author Alexander Podkhalyuzin

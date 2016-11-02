@@ -9,18 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 /**
  * @author ilyas
  */
-
 trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with ScMemberOrLocal {
-
-  def qualName: String
-
-  def javaQualName: String
-
-  def sourceFileName: String
-
-  def getSourceFileName: String = sourceFileName
-
-  def getQualifiedName: String = qualName
+  def javaQualifiedName: String
 
   def isPackageObject: Boolean
 
@@ -31,12 +21,6 @@ trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with S
   def isImplicitObject: Boolean
 
   def isImplicitClass: Boolean
-
-  /**
-   * Only method names without values and variables.
-   * @return method names
-   */
-  def methodNames: Array[String]
 
   def additionalJavaNames: Array[String]
 
