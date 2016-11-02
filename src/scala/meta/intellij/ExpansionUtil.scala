@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 import scala.meta.Tree
-import scala.meta.trees.TreeConverter
+import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
 /**
@@ -63,23 +63,29 @@ object ExpansionUtil {
         .asInstanceOf[ScAnnotationsHolder]
 
       annotee.annotations.find(_.getQualifiedName == annot.getQualifiedName).foreach(_.delete())
-      val converted = converter.ideaToMeta(annotee)
-      val clazz = getCompiledMetaAnnotClass(annot)
-      clazz match {
-        case Some(outer) =>
-          val ctor = outer.getDeclaredConstructors.head
-          ctor.setAccessible(true)
-          val inst = ctor.newInstance()
-          val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
-          meth.setAccessible(true)
-          try {
-            val result = meth.invoke(inst, null, converted.asInstanceOf[AnyRef])
-            Right(result.asInstanceOf[Tree])
-          } catch {
-            case e: InvocationTargetException => Left(e.getTargetException.toString)
-            case e: Exception => Left(e.getMessage)
-          }
-        case None => Left("Meta annotation class could not be found")
+      try {
+        val converted = converter.ideaToMeta(annotee)
+        val clazz = getCompiledMetaAnnotClass(annot)
+        clazz match {
+          case Some(outer) =>
+            val ctor = outer.getDeclaredConstructors.head
+            ctor.setAccessible(true)
+            val inst = ctor.newInstance()
+            val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
+            meth.setAccessible(true)
+            try {
+              val result = meth.invoke(inst, null, converted.asInstanceOf[AnyRef])
+              Right(result.asInstanceOf[Tree])
+            } catch {
+              case e: InvocationTargetException => Left(e.getTargetException.toString)
+              case e: Exception => Left(e.getMessage)
+            }
+          case None => Left("Meta annotation class could not be found")
+        }
+      } catch {
+        case me: AbortException => Left(s"Tree conversion error: ${me.getMessage}")
+        case sm: ScalaMetaException => Left(s"Semantic error: ${sm.getMessage}")
+        case e: Exception => Left(s"")
       }
     }
 

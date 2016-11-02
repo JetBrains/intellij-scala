@@ -19,7 +19,8 @@ trait Utils {
   self: TreeConverter =>
 
   val LOG = Logger.getInstance(this.getClass)
-  
+
+  def ??? = throw new UnimplementedException("???")
 
   object std {
 
@@ -94,6 +95,7 @@ trait Utils {
 
   implicit class RichPSI(psi: PsiElement) {
     def ?! = throw new AbortException(psi, s"Unexpected psi(${psi.getClass}): ${psi.getText}")
+    def ??? = throw new UnimplementedException(psi)
     def isSingletonType = psi match {
       case _: PsiPackage => true
       case _: ScObject   => true

@@ -44,7 +44,7 @@ trait TreeAdapter {
       case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
 
       case t: PsiClass => toClass(t)
-      case t: PsiMethod => ???
+      case t: PsiMethod => t ???
 
       case other => other ?!
     }
@@ -73,7 +73,7 @@ trait TreeAdapter {
 
   // Java conversion - beware: we cannot convert java method bodies, so just return a lazy ???
   def toMethodDefn(t: PsiMethod): m.Defn.Def = {
-    ???
+    t ???
   }
 
   def toVarDefn(t: ScVariableDefinition): m.Defn.Var = {
@@ -141,7 +141,7 @@ trait TreeAdapter {
   // FIXME: we don't have explicit information on what ctor has been used, so just select first one
   def ctor(c: PsiClass): m.Ctor.Primary = {
 //    m.Ctor.Primary(Seq.empty, m.Ctor.Ref.Name(c.getName).withDenot())
-    ???
+    c ???
   }
 
   def caseClause(c: patterns.ScCaseClause): m.Case = {
@@ -312,19 +312,19 @@ trait TreeAdapter {
         }
         res
       case t: ScGenericCall =>
-        ???
+        t ???
       case t: ScConstrExpr =>
-        ???
+        t ???
       case t: ScInterpolatedStringLiteral =>
-        ???
+        t ???
       case t: ScParenthesisedExpr =>
-        ???
+        t ???
       case t: ScTypedStmt =>
-        ???
+        t ???
       case t: ScUnderscoreSection =>
-        ???
+        t ???
       case t: ScXmlExpr =>
-        ???
+        t ???
 
       case other: ScalaPsiElement => other ?!
     }

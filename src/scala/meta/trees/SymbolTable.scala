@@ -171,9 +171,9 @@ trait SymbolTable {
             clazz match {
               case sc: ScTemplateDefinition =>
 //                sc.findMethodBySignature()
-                ???
+                sc ???
               case pc: PsiClass =>
-                ???
+                pc ???
             }
           case (fqn, None) =>
             ScalaPsiManager.instance(getCurrentProject).getCachedClass(

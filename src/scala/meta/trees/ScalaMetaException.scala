@@ -7,6 +7,10 @@ import scala.meta.internal.{ast => m, semantic => h}
 class AbortException(reason: String) extends RuntimeException(reason) {
   def this(place: Any, mess: String) = this(mess + s"[$place]")
 }
+
+class UnimplementedException(what: Any) extends
+  AbortException(what, s"This code path is not implemented yet[${Thread.currentThread().getStackTrace.drop(3).head}]")
+
 class ScalaMetaException(message: String) extends Exception(message)
 
 class ScalaMetaResolveError(elem: PsiElement) extends ScalaMetaException(s"Cannot resolve ${elem.getClass} at ${elem.toString}")

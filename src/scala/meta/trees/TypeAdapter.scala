@@ -122,7 +122,7 @@ trait TypeAdapter {
           m.Type.Singleton(toTermName(t))//.setTypechecked
         case t: PsiClass =>
           m.Type.Name(t.getName)//.withAttrsFor(t)
-        case t: PsiMethod => ???
+        case t: PsiMethod => t ???
 //          m.Type.Method(Seq(t.getParameterList.getParameters
 //            .map(Compatibility.toParameter)
 //            .map(i=> convertParam(i.paramInCode.get))
@@ -249,8 +249,8 @@ trait TypeAdapter {
           psi match {
             case td: p.toplevel.typedef.ScTemplateDefinition =>
               td.getType(TypingContext.empty).get
-            case _ =>
-              ???
+            case other =>
+              other ???
           }
         case _ =>
           ???

@@ -48,7 +48,7 @@ trait Namer {
             case _: SyntheticException =>
               elem.getContext match {
                 case mc: ScSugarCallExpr => mkSyntheticMethodName(toType(mc.getBaseExpr.getType()), x.getElement.asInstanceOf[ScSyntheticFunction], mc)
-                case _ => ???
+                case other => other ???
               }
           }
           case None => throw new ScalaMetaResolveError(cr)
