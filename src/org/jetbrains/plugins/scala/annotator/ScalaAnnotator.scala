@@ -8,7 +8,7 @@ import com.intellij.lang.annotation._
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.openapi.util.{Condition, Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -669,8 +669,29 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case r: ScalaResolveResult if r.isForwardReference =>
           ScalaPsiUtil.nameContext(r.getActualElement) match {
             case v: ScValue if !v.hasModifierProperty("lazy") => showError()
-            case _: ScVariable | _: ScObject => showError()
-            case _ => //todo: check forward references for functions, classes, lazy values
+            case _: ScVariable => showError()
+            case nameContext =>
+              //if it has not lazy val or var between reference and statement then it's forward reference
+              val context = PsiTreeUtil.findCommonContext(refElement, nameContext)
+              if (context != null) {
+                val neighbour = (PsiTreeUtil.findFirstContext(nameContext, false, new Condition[PsiElement] {
+                  override def value(elem: PsiElement): Boolean = elem.getContext.eq(context)
+                }) match {
+                  case s: ScalaPsiElement => s.getDeepSameElementInContext
+                  case elem => elem
+                }).getPrevSibling
+
+                def check(neighbour: PsiElement): Boolean = {
+                  if (neighbour == null ||
+                    neighbour.getTextRange.getStartOffset <= refElement.getTextRange.getStartOffset) return false
+                  neighbour match {
+                    case v: ScValue if !v.hasModifierProperty("lazy") => true
+                    case _: ScVariable => true
+                    case _ => check(neighbour.getPrevSibling)
+                  }
+                }
+                if (check(neighbour)) showError()
+              }
           }
         case _ =>
       }
@@ -684,7 +705,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
 
     checkAccessForReference(resolve, refElement, holder)
-    checkForwardReference(resolve, refElement, holder)
 
     if (resolve.length == 1) {
       val resolveResult = resolve(0).asInstanceOf[ScalaResolveResult]
@@ -817,10 +837,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotation.registerFix(ReportHighlightingErrorQuickFix)
       registerCreateFromUsageFixesFor(refElement, annotation)
     }
-  }
-
-  private def checkForwardReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
-    //todo: add check if it's legal to use forward reference
   }
 
   private def checkAccessForReference(resolve: Array[ResolveResult], refElement: ScReferenceElement, holder: AnnotationHolder) {
