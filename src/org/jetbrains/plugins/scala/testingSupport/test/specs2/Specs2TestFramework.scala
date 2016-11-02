@@ -14,7 +14,7 @@ class Specs2TestFramework extends AbstractTestFramework {
 
   def getName: String = "Specs2"
 
-  def getMarkerClassFQName: String = "org.specs2.specification.DefaultFragmentsFormatting"
+  def getMarkerClassFQName: String = "org.specs2.mutable.Specification"
 
   def getMnemonic: Char = 'p'
 
@@ -32,4 +32,6 @@ class Specs2TestFramework extends AbstractTestFramework {
 
   override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] =
     Seq("\"-Yrangepos\"")
+
+  override def getSuitePaths: Seq[String] = Specs2Util.suitePaths
 }

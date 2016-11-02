@@ -35,4 +35,6 @@ class ScalaTestTestFramework extends AbstractTestFramework {
   override protected def getLibraryResolvers(scalaVersion: Option[String]): Seq[String] = Seq()
 
   override protected def getAdditionalBuildCommands(scalaVersion: Option[String]): Seq[String] = Seq()
+
+  override def getSuitePaths: Seq[String] = ScalaTestUtil.suitePaths
 }

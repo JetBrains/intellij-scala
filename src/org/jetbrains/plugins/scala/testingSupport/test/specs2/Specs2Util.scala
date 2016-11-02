@@ -5,7 +5,10 @@ package org.jetbrains.plugins.scala.testingSupport.test.specs2
  * @since 21.04.2015.
  */
 object Specs2Util {
-  def getAcceptanseSpecBase: String = "org.specs2.Specification"
+  val acceptanseSpecBase: String = "org.specs2.Specification"
 
-  def getUnitSpecBase: String = "org.specs2.mutable.Specification"
+  val unitSpecBase: String = "org.specs2.mutable.Specification"
+
+  val suitePaths: List[String] = List("org.specs2.specification.SpecificationStructure",
+    "org.specs2.specification.core.SpecificationStructure")
 }
