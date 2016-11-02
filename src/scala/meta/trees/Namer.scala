@@ -1,5 +1,6 @@
 package scala.meta.trees
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -27,41 +28,44 @@ trait Namer {
 
   class SyntheticException extends Throwable
 
-  def toTermName(elem: PsiElement, insertExpansions: Boolean = true): m.Term.Name = elem match {
+  def toTermName(elem: PsiElement, insertExpansions: Boolean = true): m.Term.Name = {
+    ProgressManager.checkCanceled()
+    elem match {
       // TODO: what to resolve apply/update methods to?
-    case sf: ScFunction if insertExpansions && (sf.name == "apply" || sf.name == "update" || sf.name == "unapply") =>
-      toTermName(sf.containingClass)
-    case sf: ScFunction =>
-      m.Term.Name(sf.name)
-    case ne: ScNamedElement =>
-      m.Term.Name(ne.name)
-    case cr: ScReferenceElement if dumbMode =>
-      m.Term.Name(cr.refName)
-    case cr: ResolvableReferenceElement  =>
-      cr.bind()  match {
-        case Some(x) => try {
-          toTermName(x.element)
-        } catch {
-          case _: SyntheticException =>
-            elem.getContext match {
-              case mc: ScSugarCallExpr => mkSyntheticMethodName(toType(mc.getBaseExpr.getType()), x.getElement.asInstanceOf[ScSyntheticFunction], mc)
-              case _ => ???
-            }
+      case sf: ScFunction if insertExpansions && (sf.name == "apply" || sf.name == "update" || sf.name == "unapply") =>
+        toTermName(sf.containingClass)
+      case sf: ScFunction =>
+        m.Term.Name(sf.name)
+      case ne: ScNamedElement =>
+        m.Term.Name(ne.name)
+      case cr: ScReferenceElement if dumbMode =>
+        m.Term.Name(cr.refName)
+      case cr: ResolvableReferenceElement  =>
+        cr.bind()  match {
+          case Some(x) => try {
+            toTermName(x.element)
+          } catch {
+            case _: SyntheticException =>
+              elem.getContext match {
+                case mc: ScSugarCallExpr => mkSyntheticMethodName(toType(mc.getBaseExpr.getType()), x.getElement.asInstanceOf[ScSyntheticFunction], mc)
+                case _ => ???
+              }
+          }
+          case None => throw new ScalaMetaResolveError(cr)
         }
-        case None => throw new ScalaMetaResolveError(cr)
-      }
-    case se: impl.toplevel.synthetic.SyntheticNamedElement =>
-      throw new SyntheticException
-//    case cs: ScConstructor =>
-//      toTermName(cs.reference.get)
-    // Java stuff starts here
-    case pp: PsiPackage =>
-      m.Term.Name(pp.getName)
-    case pc: PsiClass =>
-      m.Term.Name(pc.getName)
-    case pm: PsiMethod =>
-      m.Term.Name(pm.getName)
-    case other => other ?!
+      case se: impl.toplevel.synthetic.SyntheticNamedElement =>
+        throw new SyntheticException
+      //    case cs: ScConstructor =>
+      //      toTermName(cs.reference.get)
+      // Java stuff starts here
+      case pp: PsiPackage =>
+        m.Term.Name(pp.getName)
+      case pc: PsiClass =>
+        m.Term.Name(pc.getName)
+      case pm: PsiMethod =>
+        m.Term.Name(pm.getName)
+      case other => other ?!
+    }
   }
 
   def toTypeName(elem: PsiElement): m.Type.Name = elem match {

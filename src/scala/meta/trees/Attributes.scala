@@ -1,5 +1,6 @@
 package scala.meta.trees
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -48,6 +49,7 @@ trait Attributes {
 
     def mkDenot[P <: PsiElement](elem: Option[P]): h.Denotation = {
       def mprefix(elem: PsiElement, fqn: String = "") = Option(elem).map(cc => h.Prefix.Type(toType(cc))).getOrElse(fqnameToPrefix(fqn))
+      ProgressManager.checkCanceled()
       if (elem.isEmpty) h.Denotation.None
       else
         elem.get match {

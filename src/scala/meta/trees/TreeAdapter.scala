@@ -1,5 +1,6 @@
 package scala.meta.trees
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -24,6 +25,7 @@ trait TreeAdapter {
   self: TreeConverter =>
 
   def ideaToMeta(tree: PsiElement): m.Tree = {
+    ProgressManager.checkCanceled()
     tree match {
       case t: ScValueDeclaration => toVal(t)
       case t: ScVariableDeclaration => toVar(t)

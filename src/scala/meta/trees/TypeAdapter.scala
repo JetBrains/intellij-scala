@@ -1,5 +1,6 @@
 package scala.meta.trees
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -27,6 +28,7 @@ trait TypeAdapter {
   private val psiElementTypeChache = TwoWayCache[PsiElement, m.Type]()
 
   def toType(tp: ScTypeElement): m.Type = {
+    ProgressManager.checkCanceled()
     typeElementCache.getOrElseUpdate(tp, {
       tp match {
         case t: ScSimpleTypeElement if dumbMode =>
@@ -77,6 +79,7 @@ trait TypeAdapter {
   }
 
   def toType(elem: PsiElement): m.Type = {
+    ProgressManager.checkCanceled()
     psiElementTypeChache.getOrElseUpdate(elem, {
       elem match {
         case t: typedef.ScTemplateDefinition if dumbMode =>
@@ -131,6 +134,7 @@ trait TypeAdapter {
   }
 
   def toType(tp: ptype.ScType, pivot: PsiElement = null): m.Type = {
+    ProgressManager.checkCanceled()
     typeCache.getOrElseUpdate(tp, {
       tp.isAliasType match {
         case Some(AliasType(ta, lower, upper)) => return toTypeName(ta)

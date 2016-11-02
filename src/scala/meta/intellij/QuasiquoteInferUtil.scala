@@ -1,5 +1,6 @@
 package scala.meta.intellij
 
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiElementFactory, PsiManager}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -34,10 +35,11 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     fqnO.exists(_.startsWith("scala.meta.quasiquotes.Api.XtensionQuasiquote"))
   }
 
- def getMetaQQExpectedTypes(stringContextApplicationRef: ScReferenceExpression): Seq[Parameter] = {
+  def getMetaQQExpectedTypes(stringContextApplicationRef: ScReferenceExpression): Seq[Parameter] = {
+    ProgressManager.checkCanceled()
     val joined = stringContextApplicationRef.qualifier match {
       case Some(mc: ScMethodCallImpl) => mc.argumentExpressions.zipWithIndex.foldLeft("") {
-        case (a, (expr, i)) if i  > 0 => s"$a$$__meta$i${unquoteString(expr.text)}"
+        case (a, (expr, i)) if i > 0 => s"$a$$__meta$i${unquoteString(expr.text)}"
         case (_, (expr, i)) if i == 0 => unquoteString(expr.text)
       }
       case _ => ""
@@ -65,6 +67,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
   }
 
   def getMetaQQExprType(pat: ScInterpolatedStringLiteral): TypeResult[ScType] = {
+    ProgressManager.checkCanceled()
     val patternText = escapeQQ(pat)
     val qqdialect = if (pat.isMultiLineString)
       m.Dialect.forName("QuasiquoteTerm(Scala211, Multi)")
@@ -83,6 +86,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
   }
 
   def getMetaQQPatternTypes(pat: ScInterpolationPatternImpl): Seq[String] = {
+    ProgressManager.checkCanceled()
     val prefix = pat.ref.refName
     val patternText = escapeQQ(pat)
     val qqDialect = if (pat.isMultiLineString)

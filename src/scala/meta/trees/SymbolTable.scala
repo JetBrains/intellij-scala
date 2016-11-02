@@ -1,6 +1,7 @@
 package scala.meta.trees
 
 import com.intellij.debugger.engine.JVMNameUtil
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.impl.source.DummyHolder
@@ -87,6 +88,7 @@ trait SymbolTable {
   }
 
   def toSymbol(elem: PsiElement): h.Symbol = {
+    ProgressManager.checkCanceled()
     def convert = elem match {
       case _ if isLocal(elem) =>
         toLocalSymbol(elem)
