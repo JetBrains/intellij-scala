@@ -82,7 +82,7 @@ class ScalaLanguageConsole(project: Project, title: String)
   
   
   private def resetFileTo(text: String) {
-    scalaFile = ScalaPsiElementFactory.createScalaFileFromText(text + "\n1", project)
+    scalaFile = ScalaPsiElementFactory.createScalaFileFromText(text + ";\n1", project)
   }
 
   private def resetFileContext() {
