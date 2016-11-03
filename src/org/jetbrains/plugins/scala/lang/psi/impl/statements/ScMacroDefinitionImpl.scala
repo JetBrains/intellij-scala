@@ -9,6 +9,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -73,7 +74,7 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
 
   def body: Option[ScExpression] = {
     val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScFunctionStub].getBodyExpression else findChild(classOf[ScExpression])
+    if (stub != null) stub.asInstanceOf[ScFunctionStub].bodyExpression else findChild(classOf[ScExpression])
   }
 
   override def hasAssign: Boolean = true
@@ -98,4 +99,6 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
       case _ => super.accept(visitor)
     }
   }
+
+  override def expand(args: Seq[ScExpression]): ScalaPsiElement = this
 }

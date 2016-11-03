@@ -627,12 +627,12 @@ class ScalaTestConfigurationProducer extends {
 
     import ScalaTestUtil._
     val oldResult = (clazz,
-      (getFunSuiteBases.toStream.map(checkFunSuite).find(_.isDefined).getOrElse(None) ++
-              getFeatureSpecBases.toStream.map(checkFeatureSpec).find(_.isDefined).getOrElse(None) ++
-              getFreeSpecBases.toStream.map(checkFreeSpec).find(_.isDefined).getOrElse(None) ++
-              getJUnit3SuiteBases.toStream.map(checkJUnit3Suite).find(_.isDefined).getOrElse(None) ++
-              getJUnitSuiteBases.toStream.map(checkJUnitSuite).find(_.isDefined).getOrElse(None) ++
-              getPropSpecBases.toStream.map(checkPropSpec).find(_.isDefined).getOrElse(None) ++
+      (funSuiteBases.toStream.map(checkFunSuite).find(_.isDefined).getOrElse(None) ++
+              featureSpecBases.toStream.map(checkFeatureSpec).find(_.isDefined).getOrElse(None) ++
+              freeSpecBases.toStream.map(checkFreeSpec).find(_.isDefined).getOrElse(None) ++
+              JUnit3SuiteBases.toStream.map(checkJUnit3Suite).find(_.isDefined).getOrElse(None) ++
+              JUnitSuiteBases.toStream.map(checkJUnitSuite).find(_.isDefined).getOrElse(None) ++
+              propSpecBases.toStream.map(checkPropSpec).find(_.isDefined).getOrElse(None) ++
               /**
                 * //TODO: actually implement checkSpec for scalatest 2.0 Spec
                 * checkSpec("org.scalatest.Spec") ++
@@ -641,13 +641,13 @@ class ScalaTestConfigurationProducer extends {
                 * checkSpec("org.scalatest.fixture.SpecLike") ++
                 */
               //this is intended for scalatest versions < 2.0
-              getFunSpecBasesPre2_0.toStream.map(checkFunSpec).find(_.isDefined).getOrElse(None) ++
+              funSpecBasesPre2_0.toStream.map(checkFunSpec).find(_.isDefined).getOrElse(None) ++
               //this is intended for scalatest version 2.0
-              getFunSpecBasesPost2_0.toStream.map(checkFunSpec).find(_.isDefined).getOrElse(None) ++
+              funSpecBasesPost2_0.toStream.map(checkFunSpec).find(_.isDefined).getOrElse(None) ++
               //---
-              getTestNGSuiteBases.toStream.map(checkTestNGSuite).find(_.isDefined).getOrElse(None) ++
-              getFlatSpecBases.toStream.map(checkFlatSpec).find(_.isDefined).getOrElse(None) ++
-              getWordSpecBases.toStream.map(checkWordSpec).find(_.isDefined).getOrElse(None)).orNull)
+              testNGSuiteBases.toStream.map(checkTestNGSuite).find(_.isDefined).getOrElse(None) ++
+              flatSpecBases.toStream.map(checkFlatSpec).find(_.isDefined).getOrElse(None) ++
+              wordSpecBases.toStream.map(checkWordSpec).find(_.isDefined).getOrElse(None)).orNull)
 
     val astTransformer = new ScalaTestAstTransformer()
     val selection = astTransformer.testSelection(location)

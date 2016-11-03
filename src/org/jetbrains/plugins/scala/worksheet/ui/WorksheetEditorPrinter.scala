@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet.ui
 
 import java.awt.event.{ActionEvent, ActionListener, AdjustmentEvent, AdjustmentListener}
-import java.awt.{BorderLayout, Color, Dimension}
+import java.awt.{BorderLayout, Dimension}
 import java.util
 import javax.swing.{JComponent, JLayeredPane, Timer}
 
@@ -18,7 +18,6 @@ import com.intellij.openapi.editor.event.{CaretAdapter, CaretEvent}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.impl.{EditorImpl, FoldingModelImpl}
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Splitter
@@ -91,9 +90,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
         case Some((start, end)) =>
           if (!inited) {
             val first = init()
-            val diffBetweenFirst = first map {
-              case i => Math.min(i, start)
-            } getOrElse start
+            val diffBetweenFirst = first map (i => Math.min(i, start)) getOrElse start
 
 
             if (diffBetweenFirst > 0) prefix = StringUtil.repeat("\n", diffBetweenFirst)
@@ -162,7 +159,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
         f = checkFlag(s)
       }
 
-      if (s != null) Some(s.getTextRange.getStartOffset) else None
+      if (s != null) extensions.inReadAction(Some(s.getTextRange.getStartOffset)) else None
     } else None
   }
   
@@ -254,10 +251,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
                       ed, viewerDocument.getLineStartOffset(start + limit - 1), end,
                       offset, linesCount, group, limit
                     )
-                } foreach {
-                  case region =>
-                    viewerFolding addFoldRegion region
-                }
+                } foreach (region => viewerFolding addFoldRegion region)
 
                 WorksheetFoldGroup.save(file, group)
               }
@@ -282,27 +276,27 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
     commitDocument(document)
   }
 
-  private def incUpdate(text: String, document: Document) {//todo
-    val linesOld = viewerDocument.getLineCount
-    val total = totalCount
-
-    if (total >= linesOld || text.length >= viewerDocument.getTextLength) {
-      document setText text
-      commitDocument(document)
-    } else {
-      CommandProcessor.getInstance().executeCommand(project, new Runnable {
-        override def run() {
-          if (linesOld != viewerDocument.getLineCount) return
-          viewerDocument.deleteString(0, text.length)
-          viewerDocument.insertString(0, text)
-
-          for (i <- total until viewerDocument.getLineCount) getViewerEditor.getMarkupModel.addLineHighlighter(i, 0,
-            new TextAttributes(Color.gray, null, null, null, 0))
-          commitDocument(viewerDocument)
-        }
-      }, null, null)
-    }
-  }
+//  private def incUpdate(text: String, document: Document) {//todo
+//    val linesOld = viewerDocument.getLineCount
+//    val total = totalCount
+//
+//    if (total >= linesOld || text.length >= viewerDocument.getTextLength) {
+//      document setText text
+//      commitDocument(document)
+//    } else {
+//      CommandProcessor.getInstance().executeCommand(project, new Runnable {
+//        override def run() {
+//          if (linesOld != viewerDocument.getLineCount) return
+//          viewerDocument.deleteString(0, text.length)
+//          viewerDocument.insertString(0, text)
+//
+//          for (i <- total until viewerDocument.getLineCount) getViewerEditor.getMarkupModel.addLineHighlighter(i, 0,
+//            new TextAttributes(Color.gray, null, null, null, 0))
+//          commitDocument(viewerDocument)
+//        }
+//      }, null, null)
+//    }
+//  }
 
   object TimerListener extends ActionListener {
     override def actionPerformed(e: ActionEvent): Unit = midFlush()
@@ -337,7 +331,7 @@ object WorksheetEditorPrinter {
     }
 
     def createListener(recipient: Editor, don: Editor) = foldGroup map {
-      case group => new CaretAdapter {
+      group => new CaretAdapter {
         override def caretPositionChanged(e: CaretEvent) {
           if (!e.getEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return
           recipient.getCaretModel.moveToVisualPosition(
@@ -380,7 +374,7 @@ object WorksheetEditorPrinter {
             originalEditor.putUserData(DIFF_SYNC_SUPPORT, syncSupport)
 
             diffSplitter foreach {
-              case splitter =>
+              splitter =>
                 viewerImpl.getScrollPane.getVerticalScrollBar.addAdjustmentListener(new AdjustmentListener {
                   override def adjustmentValueChanged(e: AdjustmentEvent): Unit = splitter.redrawDiffs()
                 })
@@ -402,7 +396,7 @@ object WorksheetEditorPrinter {
   
   def loadWorksheetEvaluation(file: ScalaFile): Option[(String, Float)] = {
     val ratio = FileAttributeUtilCache.readAttribute(LAST_WORKSHEET_RUN_RATIO, file) map {
-      case rr =>
+      rr =>
         try {
           java.lang.Float.parseFloat(rr)
         } catch {

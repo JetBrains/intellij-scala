@@ -270,4 +270,40 @@ class Test {
     val expected = Set("D1.zeeGlobalDefInherited", "D1.zeeGlobalValInherited", "D1.zeeGlobalDef", "D1.zeeGlobalVal", "D2.zeeGlobalDefInherited", "D2.zeeGlobalValInherited")
     Assert.assertEquals(expected, lookups.toSet)
   }
+
+  def testJavaConverters() {
+    val fileText =
+      """
+        |val ja = new java.util.ArrayList[Int]
+        |ja.asSc<caret>
+      """.stripMargin.trim
+    configureFromFileTextAdapter("javaConverters.scala", fileText)
+    val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 2)
+
+    val resultText =
+      """
+        |import scala.collection.JavaConverters.asScalaBufferConverter
+        |
+        |val ja = new java.util.ArrayList[Int]
+        |ja.asScala
+      """.stripMargin.trim
+
+    val result2Text =
+      """
+        |import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+        |
+        |val ja = new java.util.ArrayList[Int]
+        |ja.asScala
+      """.stripMargin.trim
+
+    if (activeLookup != null)
+      completeLookupItem(activeLookup.find(le => le.getLookupString == "asScala").get)
+    val resultFileText = getFileAdapter.getText
+    resultFileText.trim match {
+      case `resultText` =>
+      case `result2Text` =>
+      case _ =>
+        Assert.assertEquals(resultFileText, resultText)
+    }
+  }
 }

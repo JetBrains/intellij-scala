@@ -15,17 +15,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 trait ScTypeAliasStub extends NamedStub[ScTypeAlias] with ScMemberOrLocal {
   def isDeclaration: Boolean
 
-  def getTypeElementText: String
+  def typeElementText: Option[String]
 
-  def getTypeElement: ScTypeElement
+  def typeElement: Option[ScTypeElement]
 
-  def getLowerBoundElementText: String
+  def lowerBoundElementText: Option[String]
 
-  def getLowerBoundTypeElement: ScTypeElement
+  def lowerBoundTypeElement: Option[ScTypeElement]
 
-  def getUpperBoundElementText: String
+  def upperBoundElementText: Option[String]
 
-  def getUpperBoundTypeElement: ScTypeElement
+  def upperBoundTypeElement: Option[ScTypeElement]
 
   def isStableQualifier: Boolean
 }

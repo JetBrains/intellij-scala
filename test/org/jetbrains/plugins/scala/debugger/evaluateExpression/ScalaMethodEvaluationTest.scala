@@ -222,7 +222,6 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("s.length", "3")
-      evalEquals("s.length()", "3")
     }
   }
 

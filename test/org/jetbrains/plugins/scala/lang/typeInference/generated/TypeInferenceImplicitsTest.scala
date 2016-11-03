@@ -26,4 +26,6 @@ class TypeInferenceImplicitsTest extends TypeInferenceTestBase {
   def testSpecialConversion() {doTest()}
 
   def testSCL7475() {doTest()}
+
+  def testSCL9877() {doTest()}
 }

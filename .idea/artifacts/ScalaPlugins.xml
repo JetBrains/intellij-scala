@@ -45,8 +45,21 @@
         <element id="archive" name="scalap.jar">
           <element id="module-output" name="scalap" />
         </element>
-        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.8:jar" />
         <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:6.0.2:jar" />
+        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.8:jar" />
+        <element id="archive" name="scalameta100.jar">
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/trees_2.11/jars/trees_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/tokenizers_2.11/jars/tokenizers_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/common_2.11/jars/common_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/dialects_2.11/jars/dialects_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/inline_2.11/jars/inline_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/inputs_2.11/jars/inputs_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/quasiquotes_2.11/jars/quasiquotes_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/scalameta_2.11/jars/scalameta_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/parsers_2.11/jars/parsers_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/tokens_2.11/jars/tokens_2.11-1.0.0.jar" path-in-jar="/" />
+          <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/transversers_2.11/jars/transversers_2.11-1.0.0.jar" path-in-jar="/" />
+        </element>
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.11:jar" />

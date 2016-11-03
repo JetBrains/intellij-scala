@@ -29,10 +29,9 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
@@ -44,7 +43,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.Seq
-import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
@@ -187,7 +185,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override final def getQualifiedName: String = {
     val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].javaQualName
+    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].javaQualifiedName
     else javaQualName()
   }
 
@@ -208,7 +206,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override def qualifiedName: String = {
     val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].qualName
+    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].getQualifiedName
     else qualName()
   }
 
@@ -252,7 +250,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
         val name = t.name
         k(s + transformName(encodeName, name) + sep)
       })
-      case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.getPackageName + "."))
+      case p: ScPackaging => _packageName(p, ".", (s) => k(s + p.packageName + "."))
       case _: ScalaFile => val pn = ""; k(if (pn.length > 0) pn + "." else "")
       case _: PsiFile | null => k("")
       case _: ScBlock => k("")
@@ -385,30 +383,20 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
   }
 
   override def getInnerClasses: Array[PsiClass] = {
-    def ownInnerClasses = members.filter(_.isInstanceOf[PsiClass]).map(_.asInstanceOf[PsiClass]).toArray
-
-    ScalaPsiUtil.getBaseCompanionModule(this) match {
-      case Some(o: ScObject) =>
-        val res: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
-        val innerClasses = ownInnerClasses
-        res ++= innerClasses
-        o.members.foreach {
-          case o: ScObject => o.fakeCompanionClass match {
-            case Some(clazz) =>
-              res += o
-              res += clazz
-            case None =>
-              res += o
-          }
-          case t: ScTrait =>
-            res += t
-            res += t.fakeCompanionClass
-          case c: ScClass => res += c
-          case _ =>
+    val inCompanionModule = ScalaPsiUtil.getBaseCompanionModule(this).toSeq.flatMap {
+      case o: ScObject =>
+        o.members.flatMap {
+          case o: ScObject => Seq(o) ++ o.fakeCompanionClass
+          case t: ScTrait => Seq(t, t.fakeCompanionClass)
+          case c: ScClass => Seq(c)
+          case _ => Seq.empty
         }
-        res.toArray
-      case _ => ownInnerClasses
+      case _ => Seq.empty
     }
+
+    (members.collect {
+      case c: PsiClass => c
+    } ++ inCompanionModule).toArray
   }
 
   override def getAllInnerClasses: Array[PsiClass] = {

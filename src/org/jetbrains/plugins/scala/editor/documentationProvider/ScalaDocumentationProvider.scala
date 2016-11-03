@@ -202,8 +202,10 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append("type <b>" + escapeHtml(typez.name) + "</b>")
         typez match {
           case definition: ScTypeAliasDefinition =>
-            buffer.append(" = " +
-              urlText(definition.aliasedTypeElement.getType(TypingContext.empty).getOrAny))
+            val `type` = definition.aliasedTypeElement.flatMap {
+              _.getType().toOption
+            }.getOrElse(Any)
+            buffer.append(s" = ${urlText(`type`)}")
           case _ =>
         }
         buffer.append("</PRE>")

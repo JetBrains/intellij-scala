@@ -13,7 +13,7 @@ import com.intellij.refactoring.move.moveClassesOrPackages._
 import com.intellij.refactoring.util.{CommonRefactoringUtil, TextOccurrencesUtil}
 import com.intellij.refactoring.{HelpID, JavaRefactoringSettings, MoveDestination}
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -106,12 +106,14 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
     }
   }
 
-  private def addMoveCompanionChb(@Nullable panel: JComponent, elements: Iterable[PsiElement]): JComponent = {
-    val companions = for {
-      elem <- elements.collect{case psiClass: PsiClass => psiClass}
-      companion <- ScalaPsiUtil.getBaseCompanionModule(elem)
-    } yield companion
-    if (companions.nonEmpty) {
+  private def addMoveCompanionChb(@Nullable panel: JComponent, elements: Array[PsiElement]): JComponent = {
+    val companionsExist = elements.collect {
+      case definition: ScTypeDefinition => definition
+    }.exists {
+      getBaseCompanionModule(_).isDefined
+    }
+
+    if (companionsExist) {
       val result = new JPanel(new BorderLayout())
       if (panel != null) result.add(panel, BorderLayout.NORTH)
       val chbMoveCompanion = new JCheckBox(ScalaBundle.message("move.with.companion"))

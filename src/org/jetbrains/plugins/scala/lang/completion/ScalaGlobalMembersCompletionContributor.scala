@@ -20,11 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
@@ -139,18 +141,52 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
 
     val convertible = new ScImplicitlyConvertible(ref)
     val proc = new convertible.CollectImplicitsProcessor(true)
+    val processedObjects: mutable.HashSet[String] = mutable.HashSet.empty
+    def processObject(o: ScObject): Unit = {
+      val qualifiedName = o.qualifiedName
+      if (!processedObjects(qualifiedName)) {
+        processedObjects.add(qualifiedName)
+        if (o.isStatic) o.getType(TypingContext.empty).foreach(proc.processType(_, ref))
+      }
+    }
+
+    val names =
+      Set("scala.collection.convert.DecorateAsJava",
+        "scala.collection.convert.DecorateAsScala",
+        "scala.collection.convert.WrapAsScala",
+        "scala.collection.convert.WrapAsJava"
+      )
+    def checkClass(clazz: PsiClass): Unit = {
+      if (clazz == null) return
+      if (!names(clazz.qualifiedName)) return
+      ClassInheritorsSearch.search(clazz, false).find(_.isInstanceOf[ScObject]).collect {
+        case o: ScObject => processObject(o)
+      }
+    }
     for (element <- collection) {
       element match {
         case v: ScValue =>
-          for (d <- v.declaredElements if isStatic(d)) {
-            proc.execute(d, ResolveState.initial())
+          v.containingClass match {
+            case o: ScObject =>
+              for (d <- v.declaredElements if isStatic(d)) {
+                proc.execute(d, ResolveState.initial())
+              }
+            case clazz => checkClass(clazz)
           }
-        case f: ScFunction if isStatic(f) =>
-          proc.execute(element, ResolveState.initial())
-        case c: ScClass if isStatic(c) =>
+        case f: ScFunction  =>
+          f.containingClass match {
+            case o: ScObject =>
+              if (isStatic(f)) proc.execute(element, ResolveState.initial())
+            case clazz => checkClass(clazz)
+          }
+        case c: ScClass =>
           c.getSyntheticImplicitMethod match {
             case Some(f: ScFunction) =>
-              proc.execute(f, ResolveState.initial())
+              c.containingClass match {
+                case o: ScObject =>
+                  if (isStatic(c)) proc.execute(f, ResolveState.initial())
+                case clazz => checkClass(clazz)
+              }
             case _ =>
           }
         case _ =>
@@ -176,7 +212,21 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
           val lookup: ScalaLookupItem = LookupElementManager.getLookupElement(elem, isClassName = true,
             isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).head
           lookup.usedImportStaticQuickfix = true
-          lookup.elementToImport = next.resolveResult.getElement
+          val element = next.resolveResult.getElement
+          lookup.elementToImport = element
+          ScalaPsiUtil.nameContext(element) match {
+            case memb: ScMember =>
+              val clazz = memb.containingClass
+              clazz match {
+                case _: ScClass | _: ScTrait =>
+                  next.resolveResult.substitutor.subst(ScThisType(clazz)).extractClass(element.getProject) match {
+                    case Some(obj: ScObject) => lookup.objectOfElementToImport = Some(obj)
+                    case _ =>
+                  }
+                case _ =>
+              }
+            case _ =>
+          }
           result.addElement(lookup)
         }
       }

@@ -22,11 +22,11 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 class ScalaDeprecationInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    def checkDeprecated(result: Option[ScalaResolveResult], elementToHighlight: PsiElement, name: String) {
-      val refElement = result.getOrElse(return).element
+    def checkDeprecated(result: ScalaResolveResult, elementToHighlight: PsiElement, name: String) {
+      val refElement = result.element
       refElement match {
-        case param: ScParameter if result.get.isNamedParameter &&
-          !ScalaNamesUtil.equivalent(param.name, name)=>
+        case param: ScParameter if result.isNamedParameter &&
+          !ScalaNamesUtil.equivalent(param.name, name) && param.deprecatedName.nonEmpty =>
           val description: String = s"Parameter name ${param.deprecatedName.get} is deprecated"
           holder.registerProblem(holder.getManager.createProblemDescriptor(elementToHighlight, description, true,
             ProblemHighlightType.LIKE_DEPRECATED, isOnTheFly))
@@ -63,7 +63,9 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
 
       override def visitReference(ref: ScReferenceElement) {
         if (!ref.isValid) return
-        checkDeprecated(ref.bind(), ref.nameId, ref.refName)
+        ref.bind().foreach {
+          checkDeprecated(_, ref.nameId, ref.refName)
+        }
       }
 
       override def visitReferenceExpression(ref: ScReferenceExpression) {

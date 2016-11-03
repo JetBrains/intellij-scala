@@ -197,7 +197,7 @@ private[expr] object ExpectedTypes {
         val index = exprs.indexOf(actExpr)
         if (index >= 0) {
           for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
-            tp match {
+            tp.removeAbstracts match {
               case TupleType(comps) if comps.length == exprs.length =>
                 buffer += ((comps(index), None))
               case _ =>
@@ -360,8 +360,9 @@ private[expr] object ExpectedTypes {
       expr match {
         case assign: ScAssignStmt =>
           if (isDynamicNamed) {
-            p match {
-              case (TupleType(comps), te) if comps.length == 2 =>
+            val (tp, te) = p
+            tp.removeAbstracts match {
+              case TupleType(comps) if comps.length == 2 =>
                 res += ((comps(1), te.map {
                   case t: ScTupleTypeElement if t.components.length == 2 => t.components(1)
                   case t => t
@@ -392,7 +393,7 @@ private[expr] object ExpectedTypes {
     tp match {
       case Success(ScMethodType(_, params, _), _) =>
         if (params.length == 1 && !params.head.isRepeated && exprs.length > 1) {
-          params.head.paramType match {
+          params.head.paramType.removeAbstracts match {
             case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
@@ -403,7 +404,7 @@ private[expr] object ExpectedTypes {
         val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.head.isRepeated && exprs.length > 1) {
-          newParams.head.paramType match {
+          newParams.head.paramType.removeAbstracts match {
             case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })

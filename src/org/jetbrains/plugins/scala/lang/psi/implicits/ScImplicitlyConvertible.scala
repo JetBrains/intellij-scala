@@ -129,23 +129,20 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
             case Some(substitutor) =>
               exp match {
                 case Some(expected) =>
-                  val additionalUSubst = newSubst.subst(retTp).conforms(expected, new ScUndefinedSubstitutor())._2
+                  val additionalUSubst = newSubst.subst(retTp).conforms(expected, ScUndefinedSubstitutor())._2
                   (uSubst + additionalUSubst).getSubstitutor match {
                     case Some(innerSubst) =>
-                      result += ImplicitResolveResult(innerSubst.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                        implicitDepSusbt, isFromCompanion, Seq.empty)
+                      result += ImplicitResolveResult(innerSubst.subst(retTp), r, implicitDepSusbt, isFromCompanion)
                     case None =>
-                      result += ImplicitResolveResult(substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                        implicitDepSusbt, isFromCompanion, Seq.empty)
+                      result += ImplicitResolveResult(substitutor.subst(retTp), r, implicitDepSusbt, isFromCompanion)
                   }
                 case None =>
-                  result += ImplicitResolveResult(substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                    implicitDepSusbt, isFromCompanion, Seq.empty)
+                  result += ImplicitResolveResult(substitutor.subst(retTp), r, implicitDepSusbt, isFromCompanion)
               }
             case _ =>
           }
         case _ =>
-          result += ImplicitResolveResult(retTp, r.element, r.importsUsed, r.substitutor, implicitDepSusbt, isFromCompanion, Seq.empty)
+          result += ImplicitResolveResult(retTp, r, implicitDepSusbt, isFromCompanion)
       }
     }
 
@@ -218,26 +215,26 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
           (subst.subst(params.head.getType(TypingContext.empty).getOrNothing),
            subst.subst(f.returnType.getOrNothing))
         case f: ScFunction =>
-          subst.subst(f.returnType.getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+          subst.subst(f.returnType.getOrElse(return default)).conforms(funType.getOrElse(return default), ScUndefinedSubstitutor())
             ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (api.Nothing, api.Nothing)
           }
         case b: ScBindingPattern =>
-          subst.subst(b.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+          subst.subst(b.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), ScUndefinedSubstitutor())
             ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (api.Nothing, api.Nothing)
           }
         case param: ScParameter =>
           // View Bounds and Context Bounds are processed as parameters.
-          subst.subst(param.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+          subst.subst(param.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), ScUndefinedSubstitutor())
             ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (api.Nothing, api.Nothing)
           }
         case obj: ScObject =>
-          subst.subst(obj.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+          subst.subst(obj.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), ScUndefinedSubstitutor())
             ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
             case _ => (api.Nothing, api.Nothing)
@@ -254,7 +251,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       } else {
         r.element match {
           case f: ScFunction if f.hasTypeParameters =>
-            var uSubst = typez.conforms(newSubst.subst(tp), new ScUndefinedSubstitutor())._2
+            var uSubst = typez.conforms(newSubst.subst(tp), ScUndefinedSubstitutor())._2
             uSubst.getSubstitutor(notNonable = false) match {
               case Some(unSubst) =>
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
@@ -521,5 +518,13 @@ object ScImplicitlyConvertible {
     }
 
     def getTypeWithDependentSubstitutor: ScType = implicitDependentSubst.subst(tp)
+  }
+
+  object ImplicitResolveResult {
+    def apply(tp: ScType, srr: ScalaResolveResult, implicitDependentSubst: ScSubstitutor = ScSubstitutor.empty, isFromCompanion: Boolean = false,
+              unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty): ImplicitResolveResult = {
+
+      ImplicitResolveResult(tp, srr.element, srr.importsUsed, srr.substitutor, implicitDependentSubst, isFromCompanion, unresolvedTypeParameters)
+    }
   }
 }

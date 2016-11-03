@@ -21,8 +21,7 @@ class Specs2RunConfiguration(override val project: Project,
 
   override def getAdditionalTestParams(testName: String): Seq[String] = Seq("-Dspecs2.ex=\"\\A" + testName + "\\Z\"")
 
-  override def suitePaths = List("org.specs2.specification.SpecificationStructure",
-    "org.specs2.specification.core.SpecificationStructure")
+  override def suitePaths = Specs2Util.suitePaths
 
   override def mainClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
 

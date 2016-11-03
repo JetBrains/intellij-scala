@@ -4,9 +4,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.Set
 import scala.collection.immutable.HashSet
@@ -155,6 +157,28 @@ class ScProjectionType private(val projected: ScType,
     import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
     def processType(kinds: Set[ResolveTargets.Value] = ValueSet(CLASS),
                     default: Boolean = !superReference): Option[(PsiNamedElement, ScSubstitutor)] = {
+      def elementClazz: Option[PsiClass] = element match {
+        case named: ScBindingPattern => Some(named.containingClass)
+        case member: ScMember => Some(member.containingClass)
+        case _ => None
+      }
+      projected match {
+        case ScDesignatorType(clazz: PsiClass)
+          if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
+          return Some(element, new ScSubstitutor(projected))
+        case p@ParameterizedType(ScDesignatorType(clazz: PsiClass), args)
+          if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
+          return Some(element, new ScSubstitutor(projected).followed(p.substitutor))
+        case p: ScProjectionType =>
+          p.actualElement match {
+            case clazz: PsiClass
+              if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
+              return Some(element, new ScSubstitutor(projected).followed(p.actualSubst))
+            case _ => //continue with processor :(
+          }
+        case _ => //continue with processor :(
+      }
+
       val processor = new ResolveProcessor(kinds, resolvePlace, element.name) {
         override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
           candidatesSet ++= results

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElemen
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -506,7 +506,7 @@ object TypeLambda {
                 case Some(ref) =>
                   (ref.holders, ref.types) match {
                     case (scala.Seq(), scala.Seq(tad: ScTypeAliasDefinitionImpl)) if tad.name == nameId.getText =>
-                      (tad.typeParametersClause, Option(tad.aliasedTypeElement)) match {
+                      (tad.typeParametersClause, tad.aliasedTypeElement) match {
                         case (Some(tpc), Some(ate)) =>
                           return Some((nameId.getText, tpc, ate))
                         case _ =>

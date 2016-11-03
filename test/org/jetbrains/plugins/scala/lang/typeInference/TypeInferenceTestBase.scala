@@ -21,9 +21,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 10.03.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 10.03.2009
+  */
 
 abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with TypeInferenceDoTest {
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
@@ -38,16 +38,15 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     }
   }
 
-  def configureFromFileText(fileName: String, fileText: String): ScalaFile = {
-    configureFromFileTextAdapter(fileName, fileText)
+  def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile = {
+    val text = fileText.getOrElse {
+      val filePath = folderPath + fileName
+      val ioFile: File = new File(filePath)
+      FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
+    }
+    configureFromFileTextAdapter(fileName, StringUtil.convertLineSeparators(text.trim))
     getFileAdapter.asInstanceOf[ScalaFile]
   }
 
-  protected def doTest() {
-    val filePath = folderPath + getTestName(false) + ".scala"
-    val ioFile: File = new File(filePath)
-    var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
-    fileText = StringUtil.convertLineSeparators(fileText)
-    doTest(fileText, ioFile.getName)
-  }
+  protected def doTest(): Unit = doTest(None, getTestName(false) + ".scala")
 }

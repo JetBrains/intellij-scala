@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 trait PatternDefinitionAnnotator {
   def annotatePatternDefinition(definition: ScPatternDefinition, holder: AnnotationHolder, highlightErrors: Boolean)
                                (implicit typeSystem: TypeSystem = definition.typeSystem) {
-    if (highlightErrors && definition.pList.allPatternsSimple) {
+    if (highlightErrors && definition.pList.simplePatterns) {
       for (expr <- definition.expr; element <- definition.children.findByType(classOf[ScSimpleTypeElement]))
         checkConformance(expr, element, holder)
     }

@@ -7,6 +7,7 @@ import java.util
 
 import com.intellij.lang.{ASTNode, PsiBuilderFactory}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
@@ -151,7 +152,7 @@ object ScalaPsiElementFactory {
 
   def createScalaFileFromText(text: String, project: Project): ScalaFile =
     PsiFileFactory.getInstance(project)
-      .createFileFromText(s"dummy.${ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension}", ScalaFileType.SCALA_FILE_TYPE, text)
+      .createFileFromText(s"dummy.${ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension}", ScalaFileType.SCALA_FILE_TYPE, convertLineSeparators(text))
       .asInstanceOf[ScalaFile]
 
   def createScalaFileFromText(text: String)
@@ -369,20 +370,20 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createValFromVarDefinition(varDef: ScVariableDefinition)
-                                (implicit manager: PsiManager): ScValue = {
-    val startOffset = varDef.varKeyword.getStartOffsetInParent
-    val varText = varDef.getText
-    val text = varText.substring(0, startOffset) + "val" + varText.substring(startOffset + 3)
-    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScValue]
-  }
+  def createValFromVarDefinition(variable: ScVariable)
+                                (implicit manager: PsiManager): ScValue =
+    createValueOrVariable(variable, "val").asInstanceOf[ScValue]
 
-  def createVarFromValDeclaration(valDef: ScValue)
-                                 (implicit manager: PsiManager): ScVariable = {
-    val startOffset = valDef.valKeyword.getStartOffsetInParent
-    val valText = valDef.getText
-    val text = valText.substring(0, startOffset) + "var" + valText.substring(startOffset + 3)
-    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScVariable]
+  def createVarFromValDeclaration(value: ScValue)
+                                 (implicit manager: PsiManager): ScVariable =
+    createValueOrVariable(value, "var").asInstanceOf[ScVariable]
+
+  private def createValueOrVariable(valOrVar: ScValueOrVariable, keyword: String)
+                                   (implicit manager: PsiManager): ScValueOrVariable = {
+    val startOffset = valOrVar.keywordToken.getStartOffsetInParent
+    val elementText = valOrVar.getText
+    val text = elementText.substring(0, startOffset) + keyword + elementText.substring(startOffset + 3)
+    createClassDefinitionFromText(text = text).members.head.asInstanceOf[ScValueOrVariable]
   }
 
   def createEnumerator(name: String, expr: ScExpression, typeName: String)
@@ -673,11 +674,11 @@ object ScalaPsiElementFactory {
     case _ => "null"
   }
 
-  def createTypeFromText(text: String, context: PsiElement, child: PsiElement): ScType = {
+  def createTypeFromText(text: String, context: PsiElement, child: PsiElement): Option[ScType] = {
     val typeElement = createTypeElementFromText(text, context, child)
     Option(typeElement).map {
       _.getType().getOrAny
-    }.orNull
+    }
   }
 
   def createMethodWithContext(text: String, context: PsiElement, child: PsiElement): ScFunction =
@@ -740,7 +741,7 @@ object ScalaPsiElementFactory {
     val holder = DummyHolderFactory.createHolder(manager, context).getTreeElement
 
     val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance
-      .createBuilder(project, holder, new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text.trim))
+      .createBuilder(project, holder, new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, convertLineSeparators(text.trim)))
 
     val marker = builder.mark()
     parse(builder)

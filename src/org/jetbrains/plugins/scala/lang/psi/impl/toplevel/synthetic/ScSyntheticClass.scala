@@ -56,8 +56,6 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
 
-  def getPsiElementId: Long = -1
-
   def getOffsetInFile: Int = 0
 
   def getContainingFileName: String = "NoFile"
@@ -76,6 +74,8 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
     findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
+
+  override def isHigherKindedTypeParameter: Boolean = false
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly

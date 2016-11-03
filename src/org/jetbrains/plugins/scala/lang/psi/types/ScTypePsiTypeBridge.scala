@@ -46,26 +46,28 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
 
             val substitutor = result.getSubstitutor
 
-            def mapper(tp: PsiTypeParameter, index: Int): ScType = if (classType.isRaw) {
-              val upper = (tp.getExtendsListTypes ++ tp.getImplementsListTypes).toSeq map {
-                _.toScType(visitedRawTypes + clazz)
+            def mapper(tp: PsiTypeParameter, index: Int): ScType = {
+              def upper = (tp.getExtendsListTypes ++ tp.getImplementsListTypes).toSeq map { jtp =>
+                substitutor.substitute(jtp).toScType(visitedRawTypes + clazz)
               } match {
                 case Seq() => None
                 case Seq(head) => Some(head)
                 case components => Some(ScCompoundType(components))
               }
 
-              createParameter(None, upper, index)
-            } else {
-              def convertTypeParameter(typeParameter: PsiType): ScType = typeParameter match {
-                case wildcardType: PsiWildcardType => createParameter(wildcardType, index)(visitedRawTypes, paramTopLevel = true)
-                case wildcardType: PsiCapturedWildcardType => convertTypeParameter(wildcardType.getWildcard)
-                case _ => typeParameter.toScType(visitedRawTypes)
-              }
+              if (classType.isRaw) {
+                createParameter(None, upper, index)
+              } else {
+                def convertTypeParameter(typeParameter: PsiType): ScType = typeParameter match {
+                  case wildcardType: PsiWildcardType => createParameter(wildcardType, index, upper)(visitedRawTypes, paramTopLevel = true)
+                  case wildcardType: PsiCapturedWildcardType => convertTypeParameter(wildcardType.getWildcard)
+                  case _ => typeParameter.toScType(visitedRawTypes)
+                }
 
-              Option(substitutor.substitute(tp))
-                .map(convertTypeParameter)
-                .getOrElse(TypeParameterType(tp, None))
+                Option(substitutor.substitute(tp))
+                  .map(convertTypeParameter)
+                  .getOrElse(TypeParameterType(tp, None))
+              }
             }
 
             val designator = constructTypeForClass(clazz)
@@ -89,10 +91,10 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     ScExistentialArgument(s"_$$${index + 1}", Nil,
       maybeLower.getOrElse(Nothing), maybeUpper.getOrElse(Any))
 
-  private def createParameter(wildcardType: PsiWildcardType, index: Int = 0)
+  private def createParameter(wildcardType: PsiWildcardType, index: Int = 0, maybeUpper: => Option[ScType] = None)
                              (implicit visitedRawTypes: HashSet[PsiClass],
                               paramTopLevel: Boolean): ScExistentialArgument =
-    createParameter(wildcardType.lower, wildcardType.upper, index)
+    createParameter(wildcardType.lower, wildcardType.upper.orElse(maybeUpper), index)
 
   private def constructTypeForClass(clazz: PsiClass, withTypeParameters: Boolean = false): ScType = clazz match {
     case wrapper: PsiClassWrapper => constructTypeForClass(wrapper.definition)

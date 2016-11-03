@@ -35,13 +35,13 @@ class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
         }
       case ScalaTokenTypes.kVAL =>
         PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition]) match {
-          case pattern@ScPatternDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
+          case pattern@ScPatternDefinition.expr(expr) if pattern.pList.simplePatterns && pattern.pList.patterns.length == 1 =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }
       case ScalaTokenTypes.kVAR =>
         PsiTreeUtil.getParentOfType(element, classOf[ScVariableDefinition]) match {
-          case pattern@ScVariableDefinition.expr(expr) if pattern.pList.allPatternsSimple && pattern.pList.patterns.length == 1 =>
+          case pattern@ScVariableDefinition.expr(expr) if pattern.pList.simplePatterns && pattern.pList.patterns.length == 1 =>
             return new ScalaHighlightExprResultHandler(expr, editor, file, element)
           case _ =>
         }

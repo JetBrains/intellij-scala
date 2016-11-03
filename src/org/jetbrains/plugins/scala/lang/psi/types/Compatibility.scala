@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGu
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set}
+import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
  * @author ven
@@ -73,7 +74,7 @@ object Compatibility {
                       UndefinedType(TypeParameterType(tp), 1))) match {
                       case funTp: ScParameterizedType =>
                         val secondArg = funTp.typeArguments(1)
-                        paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
+                        paramType.conforms(funTp, ScUndefinedSubstitutor())._2.getSubstitutor match {
                           case Some(subst) =>
                             val rt = subst.subst(secondArg)
                             if (rt.isInstanceOf[UndefinedType]) defaultResult
@@ -145,7 +146,7 @@ object Compatibility {
   }
 
   case class ConformanceExtResult(problems: Seq[ApplicabilityProblem],
-                                  undefSubst: ScUndefinedSubstitutor = new ScUndefinedSubstitutor,
+                                  undefSubst: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
                                   defaultParameterUsed: Boolean = false,
                                   matchedArgs: Seq[(Parameter, ScExpression)] = Seq(),
                                   matchedTypes: Seq[(Parameter, ScType)] = Seq())
@@ -177,7 +178,7 @@ object Compatibility {
                           checkWithImplicits: Boolean,
                           isShapesResolve: Boolean): ConformanceExtResult = {
     ProgressManager.checkCanceled()
-    var undefSubst = new ScUndefinedSubstitutor
+    var undefSubst = ScUndefinedSubstitutor()
 
     val clashedAssignments = clashedAssignmentsIn(exprs)
 
@@ -232,7 +233,7 @@ object Compatibility {
           if (!conforms) {
             List(TypeMismatch(expr.expr, paramType))
           } else {
-            undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
+            undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
             List.empty
           }
         }
@@ -261,7 +262,7 @@ object Compatibility {
               } else {
                 matched ::= (param, expr)
                 matchedTypes ::= (param, exprType)
-                undefSubst += exprType.conforms(tp, new ScUndefinedSubstitutor(), checkWeak = true)._2
+                undefSubst += exprType.conforms(tp, ScUndefinedSubstitutor(), checkWeak = true)._2
               }
             }
           } else {
@@ -312,7 +313,7 @@ object Compatibility {
                   } else {
                     matched ::= (param, expr)
                     matchedTypes ::= (param, exprType)
-                    undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
+                    undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
                   }
                 }
               case _ =>
@@ -344,7 +345,7 @@ object Compatibility {
           } else {
             matched ::= (parameters.last, exprs(k).expr)
             matchedTypes ::= (parameters.last, exprType)
-            undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
+            undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
           }
         }
         k = k + 1
@@ -368,7 +369,7 @@ object Compatibility {
             case Some(defaultTp) if defaultTp.conforms(paramType) =>
               defaultExpr.foreach(expr => matched ::= (param, expr))
               matchedTypes ::=(param, defaultTp)
-              undefSubst += defaultTp.conforms(paramType, new ScUndefinedSubstitutor())._2
+              undefSubst += defaultTp.conforms(paramType, ScUndefinedSubstitutor())._2
             case Some(defaultTp) =>
                 return ConformanceExtResult(Seq(DefaultTypeParameterMismatch(defaultTp, paramType)), undefSubst,
                   defaultParameterUsed = true, matched, matchedTypes)
@@ -402,7 +403,8 @@ object Compatibility {
                  argClauses: List[Seq[Expression]],
                  checkWithImplicits: Boolean,
                  scope: GlobalSearchScope,
-                 isShapesResolve: Boolean): ConformanceExtResult = {
+                 isShapesResolve: Boolean,
+                 ref: PsiElement = null): ConformanceExtResult = {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction =>
@@ -415,6 +417,11 @@ object Compatibility {
       case fun: ScFunction =>
         if(!fun.hasParameterClause && argClauses.nonEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
+
+        if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
+          val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(ref.asInstanceOf[ScReferenceExpression])
+          return checkConformanceExt(checkNames = false, params, exprs, checkWithImplicits, isShapesResolve)
+        }
 
         val parameters: Seq[ScParameter] = fun.effectiveParameterClauses.headOption.toList.flatMap(_.effectiveParameters)
 

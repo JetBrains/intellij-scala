@@ -14,9 +14,9 @@ class CompletionDependenciesTest extends CompletionTestBase {
 
   val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
-    testResolver.getIndex.doUpdate()(getProjectAdapter)
+    testResolver.getIndex(getProjectAdapter).doUpdate()(getProjectAdapter)
     val moduleManager = Option(ModuleManager.getInstance(getProjectAdapter))
     moduleManager.foreach { manager =>
       manager.getModules.toSeq.foreach { module =>
@@ -26,7 +26,7 @@ class CompletionDependenciesTest extends CompletionTestBase {
     }
   }
 
-  def testCompleteArtifact()  = doTest()
-  def testCompleteGroup()     = doTest()
-  def testCompleteVersion()   = doTest()
+  def testCompleteGroup(): Unit     = doTest()
+  def testCompleteVersion(): Unit   = doTest()
+  def testCompleteArtifact(): Unit  = doTest()
 }

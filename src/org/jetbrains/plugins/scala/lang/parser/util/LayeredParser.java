@@ -34,7 +34,7 @@ public abstract class LayeredParser implements PsiParser {
 
   @NotNull
   @Override
-  public ASTNode parse(IElementType root, PsiBuilder builder) {
+  public ASTNode parse(IElementType root, @NotNull PsiBuilder builder) { //WARNING: DON'T ADD NotNull ANNOTATION TO 'root' PARAMETER
     LayeredParserPsiBuilder delegateBuilder = new LayeredParserPsiBuilder(builder);
     if (isDebug) delegateBuilder.setDebugMode(true);
     
@@ -61,9 +61,9 @@ public abstract class LayeredParser implements PsiParser {
     mySubRootElements.addAll(elements);
   }
   
-  protected void clearSubRootElements() {
-    mySubRootElements.clear();
-  }
+//  protected void clearSubRootElements() {
+//    mySubRootElements.clear();
+//  }
   
   protected void setEofExtendedElements(IElementType... elements) {
     myEofExtendedElements = TokenSet.create(elements);
@@ -83,10 +83,10 @@ public abstract class LayeredParser implements PsiParser {
   }
 
 
-  class LayeredParserPsiBuilder extends PsiBuilderAdapter {
+  private class LayeredParserPsiBuilder extends PsiBuilderAdapter {
     private final List<BufferedTokenInfo> originalTokens;
     private final BufferedTokenInfo fakeEndToken;
-    private final TreeMap<Integer, Integer> validNumbersLookUp;
+//    private final TreeMap<Integer, Integer> validNumbersLookUp;
     private final BitSet usedTokens = new BitSet();
     private final IElementType defaultWhitespaceToken;
 
@@ -108,11 +108,11 @@ public abstract class LayeredParser implements PsiParser {
     private int backStepNumber;
 
 
-    public LayeredParserPsiBuilder(PsiBuilder delegate) {
+    LayeredParserPsiBuilder(PsiBuilder delegate) {
       this(delegate, TokenType.WHITE_SPACE);
     }
 
-    public LayeredParserPsiBuilder(PsiBuilder delegate, IElementType defaultWhitespaceToken) {
+    LayeredParserPsiBuilder(PsiBuilder delegate, IElementType defaultWhitespaceToken) {
       super(delegate);
       this.defaultWhitespaceToken = defaultWhitespaceToken;
       fakeEndToken = new BufferedTokenInfo(null, false, delegate.getOriginalText().length(), delegate.getOriginalText().length());
@@ -125,15 +125,15 @@ public abstract class LayeredParser implements PsiParser {
       delegate.setWhitespaceSkippedCallback(new WhitespaceSkippedCallback() {
         @Override
         public void onSkip(IElementType type, int start, int end) {
-          int count = validTokensCountRef.get() + 1;
-          validNumbersLookUp.put(originalTokens.size(), count);
-          validTokensCountRef.set(count);
+//          int count = validTokensCountRef.get() + 1;
+//          validNumbersLookUp.put(originalTokens.size(), count);
+//          validTokensCountRef.set(count);
           originalTokens.add(new BufferedTokenInfo(type, true, start, end));
         }
       });
 
       originalTokens = new ArrayList<BufferedTokenInfo>(approxLength);
-      validNumbersLookUp = new TreeMap<Integer, Integer>();
+//      validNumbersLookUp = new TreeMap<Integer, Integer>();
 
       Marker rollbackMarker = delegate.mark();
       while (!delegate.eof()) {
@@ -342,19 +342,19 @@ public abstract class LayeredParser implements PsiParser {
               myDelegate.rawTokenTypeStart(tokenNumber + 1)).toString();
     }
 
-    public boolean isReparseNeeded() {
+    boolean isReparseNeeded() {
       return stateFlushedNums != null && !stateFlushedNums.isEmpty() && currentTokenNumber < stateFlushedNums.getLast();
     }
 
-    public void subInit() {
+    void subInit() {
       if (!stateFlushedNums.isEmpty()) currentTokenNumber = stateFlushedNums.pollFirst();
     }
 
-    public ASTNode getDelegateTreeBuilt() {
+    ASTNode getDelegateTreeBuilt() {
       return myDelegate.getTreeBuilt();
     }
 
-    public void copyMarkersWithRoot(IElementType rootElementType) {
+    void copyMarkersWithRoot(IElementType rootElementType) {
       final PsiBuilder.Marker rootMarker = rootElementType != null ? myDelegate.mark() : null;
       final List<Pair<Marker, IElementType>> subRootMarkers = mySubRootElements.isEmpty() ?
               Collections.<Pair<Marker, IElementType>>emptyList() :
@@ -490,15 +490,8 @@ public abstract class LayeredParser implements PsiParser {
     private int getValidTokenNum(int filteredTokenNumber) {
       if (filteredTokenNumber >= filteredTokens.size()) return originalTokens.size();
 
-      int originalNumber = filteredTokens.get(filteredTokenNumber);
-      Integer validNumberFloor = validNumbersLookUp.floorKey(originalNumber);
-
-      if (validNumberFloor == null || validNumberFloor >= originalTokens.size()) {
-        return filteredTokens.get(filteredTokenNumber);
-      }
-
-      final int rawNumber = validNumbersLookUp.get(validNumberFloor) + (originalNumber - validNumberFloor);
-      return rawNumber > originalTokens.size() ? originalTokens.size() : rawNumber;
+      final int originalNumber = filteredTokens.get(filteredTokenNumber);
+      return originalNumber > originalTokens.size() ? originalTokens.size() : originalNumber;
     }
 
     private BufferedTokenInfo getValidTokenInfo(int filteredTokenNumber) {
@@ -770,7 +763,7 @@ public abstract class LayeredParser implements PsiParser {
 
       private StackTraceElement[] placeOfCreation;
 
-      protected FakeMarker() {
+      FakeMarker() {
         if (LayeredParserPsiBuilder.this.isDebugMode) {
           setPlace(new Exception().getStackTrace());
         }
@@ -822,19 +815,19 @@ public abstract class LayeredParser implements PsiParser {
         throw new UnsupportedOperationException();
       }
 
-      public FakeMarker getPrevMarker() {
+      FakeMarker getPrevMarker() {
         return prevMarker;
       }
 
-      public void setPrevMarker(FakeMarker prevMarker) {
+      void setPrevMarker(FakeMarker prevMarker) {
         this.prevMarker = prevMarker;
       }
 
-      public FakeMarker getNextMarker() {
+      FakeMarker getNextMarker() {
         return nextMarker;
       }
 
-      public void setNextMarker(FakeMarker nextMarker) {
+      void setNextMarker(FakeMarker nextMarker) {
         this.nextMarker = nextMarker;
       }
 
@@ -876,7 +869,7 @@ public abstract class LayeredParser implements PsiParser {
         return myStart;
       }
 
-      public int getMyTokenNum() {
+      int getMyTokenNum() {
         return myTokenNum;
       }
 
@@ -897,22 +890,22 @@ public abstract class LayeredParser implements PsiParser {
       }
 
       @Override
-      public void done(IElementType type) {
+      public void done(@NotNull IElementType type) {
         LayeredParserPsiBuilder.this.done(this, type, null);
       }
 
       @Override
-      public void collapse(IElementType type) {
+      public void collapse(@NotNull IElementType type) {
         LayeredParserPsiBuilder.this.collapse(this, type);
       }
 
       @Override
-      public void doneBefore(IElementType type, Marker before) {
+      public void doneBefore(@NotNull IElementType type, @NotNull Marker before) {
         LayeredParserPsiBuilder.this.doneOrErrorBefore(type, this, (FakeStartMarker) before, null);
       }
 
       @Override
-      public void doneBefore(IElementType type, Marker before, String errorMessage) {
+      public void doneBefore(@NotNull IElementType type, @NotNull Marker before, String errorMessage) {
         LayeredParserPsiBuilder.this.doneBefore(type, this, (FakeStartMarker) before, errorMessage);
       }
 
@@ -922,19 +915,19 @@ public abstract class LayeredParser implements PsiParser {
       }
 
       @Override
-      public void errorBefore(String message, Marker before) {
+      public void errorBefore(String message, @NotNull Marker before) {
         LayeredParserPsiBuilder.this.errorBefore(this, (FakeStartMarker) before, message);
       }
 
-      public Marker getDelegateMarker() {
+      Marker getDelegateMarker() {
         return delegateMarker;
       }
 
-      public void setDelegateMarker(Marker delegateMarker) {
+      void setDelegateMarker(Marker delegateMarker) {
         this.delegateMarker = delegateMarker;
       }
 
-      public Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder> getMyCustomEdgeTokenBinders() {
+      Pair<WhitespacesAndCommentsBinder, WhitespacesAndCommentsBinder> getMyCustomEdgeTokenBinders() {
         return myCustomEdgeTokenBinders;
       }
 
@@ -1002,7 +995,7 @@ public abstract class LayeredParser implements PsiParser {
                 " ; IElementType: " + getTokenType() + "]";
       }
 
-      public boolean checkOnDone() {
+      boolean checkOnDone() {
         if (getStartMarker().getDelegateMarker() == null) {
           logError("Attempt to .done marker" + toString() + " before .copyWithRoot");
           return false;
@@ -1081,17 +1074,17 @@ public abstract class LayeredParser implements PsiParser {
   
   public abstract class RegisteredInfo<E, T> {
     protected final E myParser;
-    protected final List<Class<? extends IElementType>> myRegisteredTokens;
-    protected final StateFlusher myStateFlusher;
-    protected final AstElementRemapper myElementRemapper;
-    protected final T myReferenceElement;
-    protected final TokenSet myIgnoredTokens;
+    final List<Class<? extends IElementType>> myRegisteredTokens;
+    final StateFlusher myStateFlusher;
+    private final AstElementRemapper myElementRemapper;
+    final T myReferenceElement;
+    final TokenSet myIgnoredTokens;
 
-    protected CustomTokenChooser myTokenChooser;
+    CustomTokenChooser myTokenChooser;
 
-    protected RegisteredInfo(@NotNull E myParser, @NotNull List<Class<? extends IElementType>> myRegisteredTokens, 
-                             @Nullable StateFlusher myStateFlusher, @Nullable T myReferenceElement, 
-                             @Nullable TokenSet myIgnoredTokens, @Nullable AstElementRemapper elementRemapper) {
+    RegisteredInfo(@NotNull E myParser, @NotNull List<Class<? extends IElementType>> myRegisteredTokens,
+                   @Nullable StateFlusher myStateFlusher, @Nullable T myReferenceElement,
+                   @Nullable TokenSet myIgnoredTokens, @Nullable AstElementRemapper elementRemapper) {
       this.myParser = myParser;
       this.myRegisteredTokens = myRegisteredTokens;
       this.myStateFlusher = myStateFlusher == null? new NullStateFlusher() : myStateFlusher;
@@ -1104,15 +1097,15 @@ public abstract class LayeredParser implements PsiParser {
       return myParser;
     }
 
-    public List<Class<? extends IElementType>> getMyRegisteredTokens() {
+    List<Class<? extends IElementType>> getMyRegisteredTokens() {
       return myRegisteredTokens;
     }
 
-    public StateFlusher getMyStateFlusher() {
+    StateFlusher getMyStateFlusher() {
       return myStateFlusher;
     }
     
-    public T getMyReferenceElement() {
+    T getMyReferenceElement() {
       return myReferenceElement;
     }
     
@@ -1120,7 +1113,7 @@ public abstract class LayeredParser implements PsiParser {
       return myIgnoredTokens.contains(elementType);
     }
     
-    public AstElementRemapper getMyElementRemapper() {
+    AstElementRemapper getMyElementRemapper() {
       return myElementRemapper;
     }
 
@@ -1129,15 +1122,15 @@ public abstract class LayeredParser implements PsiParser {
       return this;
     }
     
-    public boolean mustTakeForeignToken(IElementType tokenType) {
+    boolean mustTakeForeignToken(IElementType tokenType) {
       return myTokenChooser != null && myTokenChooser.shouldSelectForeignToken(tokenType);
     }
     
-    public boolean mustRejectOwnToken(IElementType tokenType) {
+    boolean mustRejectOwnToken(IElementType tokenType) {
       return myTokenChooser != null && myTokenChooser.shouldRejectOwnToken(tokenType);
     }
     
-    public void processNextTokenWithChooser(IElementType tokenType) {
+    void processNextTokenWithChooser(IElementType tokenType) {
       if (myTokenChooser != null) myTokenChooser.processToken(tokenType);
     }
 
@@ -1170,7 +1163,7 @@ public abstract class LayeredParser implements PsiParser {
     }
   }
   
-  public interface StateFlusher {
+  interface StateFlusher {
     boolean isFlushOnBuilderNeeded(IElementType currentTokenType);
   }
   
@@ -1232,7 +1225,7 @@ public abstract class LayeredParser implements PsiParser {
       return tokenStart;
     }
     
-    public void addForeignProductionMarker(LayeredParserPsiBuilder.FakeMarker productionMarker) {
+    void addForeignProductionMarker(LayeredParserPsiBuilder.FakeMarker productionMarker) {
       ensureProduction();
 //      if (foreignMarkerEdge < myProductionMarkerList.size()) {
 //        insertMarkerBefore(productionMarker, myProductionMarkerList.get(foreignMarkerEdge));
@@ -1240,12 +1233,12 @@ public abstract class LayeredParser implements PsiParser {
       myProductionMarkerList.add(foreignMarkerEdge++, productionMarker);
     }
     
-    public void addProductionMarker(LayeredParserPsiBuilder.FakeMarker productionMarker) {
+    void addProductionMarker(LayeredParserPsiBuilder.FakeMarker productionMarker) {
       ensureProduction();
       myProductionMarkerList.add(productionMarker);
     }
 
-    public void addProductionMarkerBefore(LayeredParserPsiBuilder.FakeMarker markerToAdd, LayeredParserPsiBuilder.FakeMarker before) {
+    void addProductionMarkerBefore(LayeredParserPsiBuilder.FakeMarker markerToAdd, LayeredParserPsiBuilder.FakeMarker before) {
       ensureProduction();
       int indx = myProductionMarkerList.lastIndexOf(before);
       
@@ -1259,19 +1252,19 @@ public abstract class LayeredParser implements PsiParser {
       myProductionMarkerList.add(indx, markerToAdd);
     }
 
-    public List<LayeredParserPsiBuilder.FakeMarker> getAllMarkers() {
+    List<LayeredParserPsiBuilder.FakeMarker> getAllMarkers() {
       return myProductionMarkerList;
     }
 
-    public LayeredParserPsiBuilder.FakeErrorMarker getMyErrorMarker() {
+    LayeredParserPsiBuilder.FakeErrorMarker getMyErrorMarker() {
       return myErrorMarker;
     }
 
-    public void setMyErrorMarker(LayeredParserPsiBuilder.FakeErrorMarker myErrorMarker) {
+    void setMyErrorMarker(LayeredParserPsiBuilder.FakeErrorMarker myErrorMarker) {
       this.myErrorMarker = myErrorMarker;
     }
     
-    public boolean hasMarkers() {
+    boolean hasMarkers() {
       if (getMyErrorMarker() != null) return true;
       if (getAllMarkers() == null) return false;
       

@@ -18,20 +18,13 @@ trait TypeInferenceDoTest {
   private val ExpectedPattern = """expected: (.*)""".r
   private val SimplifiedPattern = """simplified: (.*)""".r
 
-  def configureFromFileText(fileName: String, fileText: String): ScalaFile
+  def configureFromFileText(fileName: String, fileText: Option[String]): ScalaFile
 
-  protected def doTest(fileText: String, fileName: String = "dummy.scala") {
-    val cleanedText = fileText.trim().replace("\r", "")
-    val scalaFile: ScalaFile = configureFromFileText(fileName, cleanedText)
-    val offset = cleanedText.indexOf(START)
-    val startOffset = offset + START.length
-    assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
-    val endOffset = cleanedText.indexOf(END)
-    assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
+  protected def doTest(fileText: String): Unit = doTest(Some(fileText))
 
-    val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
-    val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
-    assert(expr != null, "Not specified expression in range to infer type.")
+  protected def doTest(fileText: Option[String], fileName: String = "dummy.scala"): Unit = {
+    val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
+    val expr: ScExpression = findExpression(scalaFile)
     val typez = expr.getType(TypingContext.empty) match {
       case Success(Unit, _) => expr.getTypeIgnoreBaseType(TypingContext.empty)
       case x => x
@@ -71,4 +64,17 @@ trait TypeInferenceDoTest {
     }
   }
 
+  def findExpression(scalaFile: ScalaFile): ScExpression = {
+    val fileText = scalaFile.getText
+    val offset = fileText.indexOf(START)
+    val startOffset = offset + START.length
+    assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
+    val endOffset = fileText.indexOf(END)
+    assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
+
+    val addOne = if (PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset), classOf[ScExpression]) != null) 0 else 1 //for xml tests
+    val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
+    assert(expr != null, "Not specified expression in range to infer type.")
+    expr
+  }
 }

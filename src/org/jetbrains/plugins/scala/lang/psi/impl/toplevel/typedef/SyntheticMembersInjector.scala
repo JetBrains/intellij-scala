@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbService, Project}
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.ControlThrowable
 
 /**
  * @author Mikhail.Mutcianko
@@ -62,6 +62,8 @@ class SyntheticMembersInjector {
     * @return sequence of strings, containing super types.
     */
   def injectSupers(source: ScTypeDefinition): Seq[String] = Seq.empty
+
+  def injectMembers(source: ScTypeDefinition): Seq[String] = Seq.empty
 }
 
 object SyntheticMembersInjector {
@@ -70,16 +72,18 @@ object SyntheticMembersInjector {
     val Class, Object, Trait = Value
   }
 
-  val LOG = Logger.getInstance(getClass)
-
   private val CLASS_NAME = "org.intellij.scala.syntheticMemberInjector"
+
   val EP_NAME: ExtensionPointName[SyntheticMembersInjector] = ExtensionPointName.create(CLASS_NAME)
-  val injectedExtensions = { proj: Project =>
+
+  private val LOG: Logger = Logger.getInstance(getClass)
+
+  private val injectedExtensions = { proj: Project =>
     try {
       LibraryInjectorLoader.getInstance(proj).getInjectorInstances(classOf[SyntheticMembersInjector])
     } catch {
       case e: Throwable =>
-        LOG.error("Failed to get dynamic injector",e)
+        logError("Failed to get dynamic injector", e)
         Seq.empty
     }
   }
@@ -100,7 +104,7 @@ object SyntheticMembersInjector {
       if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
     } catch {
       case e: Throwable =>
-        LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
+        logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
     buffer
   }
@@ -129,9 +133,8 @@ object SyntheticMembersInjector {
       updateSynthetic(td)
       buffer += td
     } catch {
-      case p: ProcessCanceledException => throw p
       case e: Throwable =>
-        LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
+        logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
     buffer
   }
@@ -153,9 +156,36 @@ object SyntheticMembersInjector {
       }
       buffer += ScalaPsiElementFactory.createTypeElementFromText(supers, context, source)
     } catch {
-      case p: ProcessCanceledException => throw p
       case e: Throwable =>
-        LOG.error(s"Error during parsing type element from injector: ${injector.getClass.getName}", e)
+        logError(s"Error during parsing type element from injector: ${injector.getClass.getName}", e)
+    }
+    buffer
+  }
+
+  private def logError(message: String, t: Throwable): Unit = {
+    t match {
+      case e @ (_: ControlFlowException | _: ControlThrowable) => throw e
+      case _ => LOG.error(message, t)
+    }
+  }
+
+  def injectMembers(source: ScTypeDefinition): Seq[ScMember] = {
+    val buffer = new ArrayBuffer[ScMember]()
+    for {
+      injector <- EP_NAME.getExtensions.toSet ++ injectedExtensions(source.getProject).toSet
+      template <- injector.injectMembers(source)
+    } try {
+      val context = source match {
+        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
+        case _ => source
+      }
+      val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
+      member.setSynthetic(context)
+      member.syntheticContainingClass = Some(source)
+      if (!member.hasModifierProperty("override")) buffer += member
+    } catch {
+      case e: Throwable =>
+        logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
     buffer
   }

@@ -7,7 +7,9 @@ import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
+import com.intellij.execution.testDiscovery.JavaAutoRunManager
 import com.intellij.execution.testframework.TestFrameworkRunningModel
+import com.intellij.execution.testframework.autotest.{AbstractAutoTestManager, ToggleAutoTestAction}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
@@ -545,7 +547,11 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             consoleView.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
           }
         })
-        res.setRestartActions(rerunFailedTestsAction)
+        res.setRestartActions(rerunFailedTestsAction, new ToggleAutoTestAction () {
+          override def isDelayApplicable: Boolean = false
+
+          override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
+        })
         res
       }
     }

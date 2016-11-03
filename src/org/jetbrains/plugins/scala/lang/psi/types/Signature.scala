@@ -113,7 +113,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
   }
 
   def paramTypesEquiv(other: Signature): Boolean = {
-    paramTypesEquivExtended(other, new ScUndefinedSubstitutor, falseUndef = true)._1
+    paramTypesEquivExtended(other, ScUndefinedSubstitutor(), falseUndef = true)._1
   }
 
 

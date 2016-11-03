@@ -9,130 +9,56 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
+class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
+                                   elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                   private val nameRef: StringRef,
+                                   private val qualifiedNameRef: StringRef,
+                                   private val javaQualifiedNameRef: StringRef,
+                                   val isPackageObject: Boolean,
+                                   val isScriptFileClass: Boolean,
+                                   private val sourceFileNameRef: StringRef,
+                                   val isDeprecated: Boolean,
+                                   val isImplicitObject: Boolean,
+                                   val isImplicitClass: Boolean,
+                                   private val javaNameRef: StringRef,
+                                   private val additionalJavaNamesRefs: Array[StringRef],
+                                   val isLocal: Boolean,
+                                   val isVisibleInJava: Boolean)
+  extends StubBase[ScTemplateDefinition](parent, elementType) with ScTemplateDefinitionStub {
 
-class ScTemplateDefinitionStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                        elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-  extends StubBase[ScTemplateDefinition](parent, elemType) with ScTemplateDefinitionStub {
+  override def getName: String = StringRef.toString(nameRef)
 
-  var myName: String = _
-  var myQualName: String = _
-  var myJavaQualName: String = _
-  var mySourceFileName: String = _
-  var myMethodNames: Array[String] = Array[String]()
-  var myJavaName: String = _
-  var myAdditionalJavaNames: Array[String] = Array.empty
-  private var _isScriptFileClass: Boolean = _
-  private var _isPackageObject: Boolean = _
-  private var _isDeprecated: Boolean = _
-  private var _isImplicitObject: Boolean = _
-  private var _isImplicitClass: Boolean = _
-  private var local: Boolean = false
-  private var visibleInJava: Boolean = false
+  override def getQualifiedName: String = StringRef.toString(qualifiedNameRef)
 
-  def this(parent: StubElement[ParentPsi],
-           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-           name: String,
-           qualName: String,
-           javaQualName: String,
-           sourceFileName: String,
-           methodNames: Array[String],
-           isPackageObject: Boolean,
-           isScriptFileClass: Boolean,
-           isDeprecated: Boolean,
-           isImplicitObject: Boolean,
-           isImplicitClass: Boolean,
-           javaName: String,
-           additionalJavaNames: Array[String],
-           isLocal: Boolean,
-           visibleInJava: Boolean) {
-    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    mySourceFileName = sourceFileName
-    myName = name
-    myQualName = qualName
-    myJavaQualName = javaQualName
-    myMethodNames = methodNames
-    myJavaName = javaName
-    myAdditionalJavaNames = additionalJavaNames
-    this._isPackageObject = isPackageObject
-    _isScriptFileClass = isScriptFileClass
-    _isDeprecated = isDeprecated
-    _isImplicitObject = isImplicitObject
-    _isImplicitClass = isImplicitClass
-    local = isLocal
-    this.visibleInJava = visibleInJava
-  }
+  override def javaQualifiedName: String = StringRef.toString(javaQualifiedNameRef)
 
-  def this(parent: StubElement[ParentPsi],
-           elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-           name: StringRef,
-           qualName: StringRef,
-           javaQualName: StringRef,
-           sourceFileName: StringRef,
-           methodNames: Array[StringRef],
-           isPackageObject: Boolean,
-           isScriptFileClass: Boolean,
-           isDeprecated: Boolean,
-           isImplicitObject: Boolean,
-           isImplicitClass: Boolean,
-           javaName: StringRef,
-           additionalJavaNames: Array[StringRef],
-           isLocal: Boolean,
-           visibleInJava: Boolean) {
-    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    mySourceFileName = StringRef.toString(sourceFileName)
-    myName = StringRef.toString(name)
-    myQualName = StringRef.toString(qualName)
-    myJavaQualName = StringRef.toString(javaQualName)
-    myMethodNames = methodNames.map(StringRef.toString(_))
-    myJavaName = StringRef.toString(javaName)
-    myAdditionalJavaNames = additionalJavaNames.map(StringRef.toString(_))
-    this._isPackageObject = isPackageObject
-    _isScriptFileClass = isScriptFileClass
-    _isDeprecated = isDeprecated
-    _isImplicitObject = isImplicitObject
-    _isImplicitClass = isImplicitClass
-    local = isLocal
-    this.visibleInJava = visibleInJava
-  }
+  override def getSourceFileName: String = StringRef.toString(sourceFileNameRef)
 
-  def isVisibleInJava: Boolean = visibleInJava
+  override def javaName: String = StringRef.toString(javaNameRef)
 
-  def isLocal: Boolean = local
-
-  def isPackageObject: Boolean = _isPackageObject
-
-  def sourceFileName: String = mySourceFileName
-
-  def qualName: String = myQualName
-
-  def javaQualName: String = myJavaQualName
-
-  def getName: String = myName
-
-  def methodNames: Array[String] = myMethodNames
-
-  def isScriptFileClass: Boolean = _isScriptFileClass
-
-  def isDeprecated: Boolean = _isDeprecated
-
-  def isImplicitObject: Boolean = _isImplicitObject
-
-  def isImplicitClass: Boolean = _isImplicitClass
+  override def additionalJavaNames: Array[String] = additionalJavaNamesRefs.asStrings
 
   //todo PsiClassStub methods
-  def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5
-  def isEnum: Boolean = false
-  def isInterface: Boolean = false
-  def isAnonymous: Boolean = false
-  def isAnonymousInQualifiedNew: Boolean = false
-  def isAnnotationType: Boolean = false
-  def hasDeprecatedAnnotation: Boolean = false
-  def isEnumConstantInitializer: Boolean = false
-  def getBaseClassReferenceText: String = null
-  def additionalJavaNames: Array[String] = myAdditionalJavaNames
-  def javaName: String = myJavaName
+  override def getLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_5
+
+  override def isEnum: Boolean = false
+
+  override def isInterface: Boolean = false
+
+  override def isAnonymous: Boolean = false
+
+  override def isAnonymousInQualifiedNew: Boolean = false
+
+  override def isAnnotationType: Boolean = false
+
+  override def hasDeprecatedAnnotation: Boolean = false
+
+  override def isEnumConstantInitializer: Boolean = false
+
+  override def getBaseClassReferenceText: String = null
 }

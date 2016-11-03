@@ -44,7 +44,7 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
         couldBeVal = couldBeVal && hasNoWriteUsages(elem, isOnTheFly)
       }
       if (couldBeVal) {
-        Seq(ProblemInfo(varDef.varKeyword, VarCouldBeValInspection.Annotation, Seq(new VarToValFix(varDef))))
+        Seq(ProblemInfo(varDef.keywordToken, VarCouldBeValInspection.Annotation, Seq(new VarToValFix(varDef))))
       } else Seq.empty
     case _ => Seq.empty
   }

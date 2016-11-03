@@ -9,10 +9,12 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
@@ -20,6 +22,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
@@ -56,6 +59,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
     }
 
+//  protected def addRoots() {
+
     inWriteAction {
       val srcRoot = getOrCreateChildDir("src")
       PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
@@ -69,6 +74,17 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       loadReflect, Some(getTestProjectJdk))
 
     scalaLibraryLoader.loadScala(scalaSdkVersion)
+  }
+
+  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
+    addIvyCacheLibraryToModule(myModule, libraryName, libraryPath, jarNames:_*)
+  }
+
+  protected def addIvyCacheLibraryToModule(module: Module, libraryName: String, libraryPath: String, jarNames: String*) = {
+    val libsPath = TestUtils.getIvyCachePath
+    val pathExtended = s"$libsPath/$libraryPath/"
+    VfsRootAccess.allowRootAccess(pathExtended)
+    PsiTestUtil.addLibrary(module, libraryName, pathExtended, jarNames: _*)
   }
 
   override protected def getTestProjectJdk: Sdk = {

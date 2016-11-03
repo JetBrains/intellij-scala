@@ -136,6 +136,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
       val contextClass = ScalaEvaluatorBuilderUtil.getContextClass(place, strict = false)
       val containingClass = ScalaEvaluatorBuilderUtil.getContextClass(named)
       if (contextClass == containingClass) return false
+      if (contextClass == null) return true
 
       val placesToSearch = ArrayBuffer[PsiElement]()
       contextClass.accept(new ScalaRecursiveElementVisitor() {

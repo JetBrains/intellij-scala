@@ -56,7 +56,10 @@ object CachedInsidePsiElement {
           if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()"
           else EmptyTree
         val updatedRhs = q"""
-          def $cachedFunName(): $retTp = $actualCalculation
+          def $cachedFunName(): $retTp = {
+            if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
+            else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
+          }
           ..$analyzeCachesEnterCacheArea
           $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItem))
           """

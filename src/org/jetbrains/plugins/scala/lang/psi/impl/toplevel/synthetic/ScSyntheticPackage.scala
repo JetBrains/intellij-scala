@@ -14,8 +14,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -82,8 +82,8 @@ object ScSyntheticPackage {
 
     import scala.collection.JavaConversions._
     val packages = StubIndex.getElements(
-      ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
-      cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackageContainer]).toSeq
+      ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackaging]],
+      cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackaging]).toSeq
 
     if (packages.isEmpty) {
       StubIndex.getElements(
@@ -110,7 +110,7 @@ object ScSyntheticPackage {
       }
     } else {
       val pkgs = packages.filter(pc => {
-        ScalaNamesUtil.cleanFqn(pc.fqn).startsWith(cleanName) && cleanName.startsWith(ScalaNamesUtil.cleanFqn(pc.prefix))
+        ScalaNamesUtil.cleanFqn(pc.fullPackageName).startsWith(cleanName) && cleanName.startsWith(ScalaNamesUtil.cleanFqn(pc.parentPackageName))
       })
 
       if (pkgs.isEmpty) null else {
@@ -130,7 +130,7 @@ object ScSyntheticPackage {
 
           def getClasses: Array[PsiClass] = {
             Array(pkgs.flatMap(p =>
-              if (ScalaNamesUtil.cleanFqn(p.fqn).length == cleanName.length)
+              if (ScalaNamesUtil.cleanFqn(p.fullPackageName).length == cleanName.length)
                 p.typeDefs.flatMap {
                   case td@(c: ScTypeDefinition) if c.fakeCompanionModule.isDefined =>
                     Seq(td, c.fakeCompanionModule.get)
@@ -156,12 +156,12 @@ object ScSyntheticPackage {
                 if (p != null) buff += p
               }
 
-              val fqn1 = p.fqn
+                val fqn1 = p.fullPackageName
               val tail = if (fqn1.length > fqn.length) fqn1.substring(fqn.length + 1) else ""
               if (tail.length == 0) {
                 p.packagings.foreach {
                   pack => {
-                    val own = pack.ownNamePart
+                    val own = pack.packageName
                     val i = own.indexOf(".")
                     addPackage(if (i > 0) own.substring(0, i) else own)
                   }

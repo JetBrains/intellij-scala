@@ -4,6 +4,7 @@ package annotator
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScForStatement, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -24,7 +25,7 @@ trait ScopeAnnotator {
   private val TypeParameters = """\[.*\]""".r
 
   def annotateScope(element: PsiElement, holder: AnnotationHolder) {
-    if (!element.isScope) return
+    if (!isScope(element)) return
     def checkScope(elements: PsiElement*) {
       val (types, terms, parameters, caseClasses, objects) = definitionsIn(elements : _*)
 
@@ -34,7 +35,7 @@ trait ScopeAnnotator {
         clashesOf(types ::: caseClasses) :::
         clashesOf(jointTerms ::: caseClasses)
 
-      val clashes = (complexClashes.distinct diff clashesOf(parameters))
+      val clashes = complexClashes.distinct diff clashesOf(parameters)
 
       clashes.foreach {
         e =>
@@ -74,7 +75,7 @@ trait ScopeAnnotator {
         }
 
         element.children.foreach {
-          _.depthFirst(!_.isScope).foreach {
+          _.depthFirst(!isScope(_)).foreach {
             case e: ScObject => objects ::= e
             case e: ScFunction => if(e.typeParameters.isEmpty) terms ::= e
             case e: ScTypedDefinition => terms ::= e

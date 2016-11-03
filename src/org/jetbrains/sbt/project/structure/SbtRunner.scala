@@ -11,6 +11,7 @@ import com.intellij.execution.process.OSProcessHandler
 import org.jetbrains.sbt.project.structure.SbtRunner._
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, XML}
 
 /**
@@ -27,23 +28,23 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     cancellationFlag.set(true)
 
   def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveJavadocs: Boolean, resolveSbtClassifiers: Boolean)
-          (listener: (String) => Unit): Either[Exception, Elem] = {
+          (listener: (String) => Unit): Try[Elem] = {
 
     val options = download.seq("download") ++
             resolveClassifiers.seq("resolveClassifiers") ++
             resolveJavadocs.seq("resolveJavadocs") ++
             resolveSbtClassifiers.seq("resolveSbtClassifiers")
 
-    checkLauncherPresence.fold(read0(directory, options.mkString(", "))(listener))(it => Left(new FileNotFoundException(it)))
+    checkLauncherPresence.fold(read0(directory, options.mkString(", "))(listener))(it => Failure(new FileNotFoundException(it)))
   }
 
-  private def read0(directory: File, options: String)(listener: (String) => Unit): Either[Exception, Elem] = {
+  private def read0(directory: File, options: String)(listener: (String) => Unit): Try[Elem] = {
     val sbtVersion = detectSbtVersion(directory, SbtLauncher)
     val majorSbtVersion = numbersOf(sbtVersion).take(2).mkString(".")
 
     if (compare(sbtVersion, SinceSbtVersion) < 0) {
       val message = s"SBT $SinceSbtVersion+ required. Please update the project definition"
-      Left(new UnsupportedOperationException(message))
+      Failure(new UnsupportedOperationException(message))
     } else {
       read1(directory, majorSbtVersion, options, listener)
     }
@@ -53,7 +54,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
-  private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit) = {
+  private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit): Try[Elem] = {
     val pluginFile = customStructureFile.getOrElse(LauncherDir / s"sbt-structure-$sbtVersion.jar")
 
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
@@ -75,7 +76,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         path(SbtLauncher)
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
-      try {
+      Try {
         val processBuilder = new ProcessBuilder(processCommands.asJava)
         processBuilder.directory(directory)
         environment.foreach { case (name, value) =>
@@ -87,13 +88,13 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
           writer.flush()
           val result = handle(process, listener)
           result.map { output =>
-            (structureFile.length > 0).either(
-              XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
-          }.getOrElse(Left(new ImportCancelledException))
+            if (structureFile.length > 0)
+              Success(XML.load(structureFile.toURI.toURL))
+            else
+              Failure(SbtException.fromSbtLog(output))
+          }.getOrElse(Failure(new ImportCancelledException))
         }
-      } catch {
-        case e: Exception => Left(e)
-      }
+      }.flatten
     }
   }
 

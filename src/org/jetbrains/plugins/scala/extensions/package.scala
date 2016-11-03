@@ -564,7 +564,7 @@ package object extensions {
 
   def invokeAndWait[T](body: => Unit) {
     preservingControlFlow {
-      SwingUtilities.invokeAndWait(new Runnable {
+      ApplicationManager.getApplication.invokeAndWait(new Runnable {
         def run() {
           body
         }
@@ -638,4 +638,8 @@ package object extensions {
   }
 
   val ChildOf = Parent
+
+  object ResolveResultEx {
+    def unapply(rr: ResolveResult): Option[PsiElement] = Option(rr.getElement)
+  }
 }

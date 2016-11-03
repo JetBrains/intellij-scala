@@ -82,7 +82,7 @@ class ScFunctionDefinitionImpl protected (stub: StubElement[ScFunction], nodeTyp
 
   def body: Option[ScExpression] = {
     val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScFunctionStub].getBodyExpression else findChild(classOf[ScExpression])
+    if (stub != null) stub.asInstanceOf[ScFunctionStub].bodyExpression else findChild(classOf[ScExpression])
   }
 
   override def hasAssign: Boolean = {

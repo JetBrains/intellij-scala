@@ -12,15 +12,15 @@ import org.jetbrains.sbt.project.module.SbtModule
  */
 object SbtResolverUtils {
 
-  def getProjectResolversForFile(fileOpt: Option[PsiFile]): Seq[SbtResolver] = fileOpt match {
+  def getProjectResolversForFile(fileOpt: Option[PsiFile]): Set[SbtResolver] = fileOpt match {
     case Some(file) => getProjectResolvers(file.getProject)
-    case _          => Seq.empty
+    case _          => Set.empty
   }
 
-  def getProjectResolvers(project: Project): Seq[SbtResolver] = {
+  def getProjectResolvers(project: Project): Set[SbtResolver] = {
     val moduleManager = ModuleManager.getInstance(project)
-    if (moduleManager == null) return Seq.empty
-    moduleManager.getModules.toSeq.flatMap(SbtModule.getResolversFrom)
+    if (moduleManager == null) return Set.empty
+    moduleManager.getModules.toSeq.flatMap(SbtModule.getResolversFrom).toSet
   }
 
   def joinGroupArtifact(group: String, artifact: String): String = group + ":" + artifact

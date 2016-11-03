@@ -15,7 +15,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
@@ -32,19 +32,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionConversionData, ExtensionConversionHelper, ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -54,8 +53,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
@@ -263,133 +263,52 @@ object ScalaPsiUtil {
     }
   }
 
-  def findImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
+  def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
                              noImplicitsForArgs: Boolean)
                             (implicit typeSystem: TypeSystem): Option[ImplicitResolveResult] = {
-    lazy val funType = Option(
-      ScalaPsiManager.instance(e.getProject).getCachedClass(
-        "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-      )
-    ) collect {
-      case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl),
-        cl.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
-    } flatMap {
-      case p: ScParameterizedType => Some(p)
-      case _ => None
+
+    val exprType = ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
+      case None => return None
+      case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
+      case Some(x) => x
+    }
+    val args = processor match {
+      case _ if !noImplicitsForArgs => Seq.empty
+      case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
+        _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
+      ))
+      case _ => Seq.empty
     }
 
-    def specialExtractParameterType(rr: ScalaResolveResult): (Option[ScType], Seq[TypeParameter]) = {
-      def inner(tp: ScType) = {
-        tp match {
-          case f@FunctionType(_, _) => Some(f)
-          case _ =>
-            funType match {
-              case Some(ft) =>
-                val conformance = tp.conforms(ft, new ScUndefinedSubstitutor())
-                if (conformance._1) {
-                  conformance._2.getSubstitutor match {
-                    case Some(subst) => Some(subst.subst(ft).removeUndefines())
-                    case _ => None
-                  }
-                } else None
-              case _ => None
-            }
-        }
-      }
-      val typeParams = rr.unresolvedTypeParameters match {
-        case Some(tParams) if tParams.nonEmpty => tParams
-        case _ => Seq.empty
-      }
-      (inner(InferUtil.extractImplicitParameterType(rr)), typeParams)
+    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
+      val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
+      new ImplicitCollector(
+        baseExpr,
+        FunctionType(Any, Seq(exprType))(baseExpr.getProject, baseExpr.getResolveScope),
+        FunctionType(exprType, args)(baseExpr.getProject, baseExpr.getResolveScope),
+        coreElement = None,
+        isImplicitConversion = true,
+        extensionData = Some(data)).collect()
     }
 
-    //TODO! remove this after find a way to improve implicits according to compiler.
-    val isHardCoded = refName == "+" &&
-      e.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
-    val kinds = processor.kinds
-    var implicitMap: Seq[ScalaResolveResult] = Seq.empty
-    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
-      def args = processor match {
-        case _ if !noImplicitsForArgs => Seq.empty
-        case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
-          _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
-        ))
-        case _ => Seq.empty
-      }
-      val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
-      if (exprType.equiv(Nothing)) return //do not proceed with nothing type, due to performance problems.
-      val convertible = new ImplicitCollector(e,
-        FunctionType(Any, Seq(exprType))(e.getProject, e.getResolveScope),
-        FunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true,
-          extensionPredicate = Some { case (rr, subst) => {
-            ProgressManager.checkCanceled()
-            specialExtractParameterType(rr) match {
-              case (Some(FunctionType(tp, _)), _) =>
-                if (!isHardCoded || !tp.isInstanceOf[ValType]) {
-                  val newProc = new ResolveProcessor(kinds, ref, refName)
-                  newProc.processType(tp, e, ResolveState.initial)
-                  val res = newProc.candidatesS.nonEmpty
-                  if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
-                    val mrp = processor.asInstanceOf[MethodResolveProcessor]
-                    val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
-                      rr.element match {
-                        case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(TypeParameter(_))
-                        case _ => Seq.empty
-                      }, kinds,
-                      mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
-                    newProc.processType(tp, e, ResolveState.initial)
-                    val candidates = newProc.candidatesS.filter(_.isApplicable())
-                    if (candidates.nonEmpty) {
-                      rr.element match {
-                        case fun: ScFunction if fun.hasTypeParameters =>
-                          val newRR = candidates.iterator.next()
-                          newRR.resultUndef match {
-                            case Some(undef) =>
-                              undef.getSubstitutor match {
-                                case Some(uSubst) =>
-                                  Some(rr.copy(subst = newRR.substitutor.followed(uSubst),
-                                    implicitParameterType = rr.implicitParameterType.map(uSubst.subst)),
-                                    subst.followed(uSubst))
-                                case _ => Some(rr, subst)
-                              }
-                            case _ => Some(rr, subst)
-                          }
-                        case _ => Some(rr, subst)
-                      }
-                    } else None
-                  } else if (res) Some(rr, subst)
-                  else None
-                } else None
-              case _ => None
-            }
-          }
-          })
-      implicitMap = convertible.collect()
-    }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
-    checkImplicits(secondPart = false, noApplicability = false)
-    if (implicitMap.size > 1) {
-      val oldMap = implicitMap
-      checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
-      if (implicitMap.isEmpty) implicitMap = oldMap
-    } else if (implicitMap.isEmpty) {
-      checkImplicits(secondPart = true, noApplicability = false)
-      if (implicitMap.size > 1) {
-        val oldMap = implicitMap
-        checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
-        if (implicitMap.isEmpty) implicitMap = oldMap
-      } else if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    val foundImplicits = checkImplicits() match {
+      case seq if seq.size > 1 => checkImplicits(withoutImplicitsForArgs = true)
+      case Seq() => checkImplicits(noApplicability = true)
+      case seq => seq
     }
-    if (implicitMap.length == 1) {
-      val rr = implicitMap.head
-      specialExtractParameterType(rr) match {
-        case (Some(FunctionType(tp, _)), typeParams) =>
-          Some(ImplicitResolveResult(tp, rr.getElement, rr.importsUsed, rr.substitutor, ScSubstitutor.empty, isFromCompanion = false, //todo: from companion parameter
-            unresolvedTypeParameters = typeParams))
-        case _ => None
-      }
-    } else None
+
+    foundImplicits match {
+      case Seq(rr) =>
+        ExtensionConversionHelper.specialExtractParameterType(rr) match {
+          case (Some(FunctionType(tp, _)), typeParams) =>
+            Some(ImplicitResolveResult(tp, rr, ScSubstitutor.empty, //todo: from companion parameter
+              unresolvedTypeParameters = typeParams))
+          case _ => None
+        }
+      case _ => None
+    }
   }
 
   def isLocalOrPrivate(elem: PsiElement): Boolean = {
@@ -595,7 +514,9 @@ object ScalaPsiUtil {
 
   def getModule(element: PsiElement): Module = {
     val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-    index.getModuleForFile(element.getContainingFile.getVirtualFile)
+    if (element.getContainingFile.getVirtualFile != null)
+      index.getModuleForFile(element.getContainingFile.getVirtualFile)
+    else null
   }
 
   def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
@@ -1237,73 +1158,61 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    getBaseCompanionModule(clazz) match {
-      case Some(td) => Some(td)
-      case _ =>
-        clazz match {
-          case x: ScTypeDefinition => x.fakeCompanionModule
-          case _ => None
-        }
+  def getCompanionModule(clazz: PsiClass)
+                        (implicit tokenSets: TokenSets = clazz.getProject.tokenSets): Option[ScTypeDefinition] = {
+    clazz match {
+      case definition: ScTypeDefinition =>
+        getBaseCompanionModule(definition).orElse(definition.fakeCompanionModule)
+      case _ => None
+    }
+  }
+
+  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[ScObject] = {
+    ah.getExpansionText match {
+      case Right(text) =>
+        if (text.nonEmpty) {
+          val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(text)(ah.getManager)
+          if (blockImpl != null) {
+            val maybeScObject: Option[ScObject] = blockImpl.firstChild.get.children.findByType(classOf[ScObject])
+            maybeScObject
+          } else None
+        } else None
+      case Left(_) => None
     }
   }
 
   //Performance critical method
-  def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    val (td, scope) = clazz match {
-      case t: ScTypeDefinition if t.getContext != null => (t, t.getContext)
-      case _ => return None
-    }
+  def getBaseCompanionModule(definition: ScTypeDefinition)
+                            (implicit tokenSets: TokenSets = definition.getProject.tokenSets): Option[ScTypeDefinition] = {
+    Option(definition.getContext).flatMap { scope =>
+      val tokenSet = tokenSets.typeDefinitions
 
-    val name: String = td.name
-    val tokenSet = ScalaTokenSets.typeDefinitions
-    val arrayOfElements: Array[PsiElement] = scope match {
-      case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-        stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl =>
-        val stub = file.getStub
-        if (stub != null) {
+      val arrayOfElements: Array[PsiElement] = scope match {
+        case stub: StubBasedPsiElement[_] if stub.getStub != null =>
+          stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+        case file: PsiFileImpl if file.getStub != null =>
           file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        } else scope.getChildren
-      case _ => scope.getChildren
-    }
-    td match {
-      case _: ScClass | _: ScTrait =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case obj: ScObject if obj.name == name => return Some(obj)
-            case _ =>
+        case context => context.getChildren
+      }
+
+      val name = definition.name
+      definition match {
+        case _: ScClass | _: ScTrait =>
+          arrayOfElements.collectFirst {
+            case o: ScObject if o.name == name => o
           }
-          i = i + 1
-        }
-        None
-      case _: ScObject =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case c: ScClass if c.name == name => return Some(c)
-            case t: ScTrait if t.name == name => return Some(t)
-            case _ =>
+        case _: ScObject =>
+          arrayOfElements.collectFirst {
+            case c: ScClass if c.name == name => c
+            case t: ScTrait if t.name == name => t
           }
-          i = i + 1
-        }
-        None
-      case _ => None
+        case _ => None
+      }
     }
   }
 
   object FakeCompanionClassOrCompanionClass {
     def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
-  }
-
-  def withCompanionSearchScope(clazz: PsiClass): SearchScope = {
-    getBaseCompanionModule(clazz) match {
-      case Some(companion) => new LocalSearchScope(clazz).union(new LocalSearchScope(companion))
-      case None => new LocalSearchScope(clazz)
-    }
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
@@ -1515,9 +1424,9 @@ object ScalaPsiUtil {
   }
 
   def isScope(element: PsiElement): Boolean = element match {
-    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
-            _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
-            _: ScEarlyDefinitions | _: ScRefinement => true
+    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
+         _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
+         _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
   }
@@ -1530,7 +1439,7 @@ object ScalaPsiUtil {
       case element: ScReferenceElement => element.getReference.toOption
               .flatMap(_.resolve().asOptionOf[ScBindingPattern])
               .flatMap(_.getParent.asOptionOf[ScPatternList])
-              .filter(_.allPatternsSimple)
+        .filter(_.simplePatterns)
               .flatMap(_.getParent.asOptionOf[ScPatternDefinition])
               .flatMap(_.expr.flatMap(_.asOptionOf[PsiLiteral]))
               .flatMap(stringValueOf)
@@ -1635,7 +1544,7 @@ object ScalaPsiUtil {
       return true
     }
 
-    e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
+    e.parentsInFile.takeWhile(!isScope(_)).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
   private def isCanonicalArg(expr: ScExpression) = expr match {

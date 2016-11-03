@@ -10,85 +10,62 @@ import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StubBaseExt}
 
 /**
- *  User: Alexander Podkhalyuzin
- *  Date: 18.10.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 18.10.2008
+  */
+class ScTypeAliasStubImpl(parent: StubElement[_ <: PsiElement],
+                          elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                          private val nameRef: StringRef,
+                          private val typeElementTextRef: Option[StringRef],
+                          private val lowerTypeElementTextRef: Option[StringRef],
+                          private val upperTypeElementTextRef: Option[StringRef],
+                          val isLocal: Boolean,
+                          val isDeclaration: Boolean,
+                          val isStableQualifier: Boolean)
+  extends StubBase[ScTypeAlias](parent, elementType) with ScTypeAliasStub {
+  private var typeElementReference: SofterReference[Option[ScTypeElement]] = null
+  private var lowerTypeElementReference: SofterReference[Option[ScTypeElement]] = null
+  private var upperTypeElementReference: SofterReference[Option[ScTypeElement]] = null
 
-class ScTypeAliasStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-  extends StubBase[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
-  private var name: StringRef = _
-  private var declaration: Boolean = false
-  private var typeElementText: StringRef = _
-  private var myTypeElement: SofterReference[ScTypeElement] = null
-  private var lowerTypeElementText: StringRef = _
-  private var myLowerTypeElement: SofterReference[ScTypeElement] = null
-  private var upperTypeElementText: StringRef = _
-  private var myUpperTypeElement: SofterReference[ScTypeElement] = null
-  private var local: Boolean = false
-  private var _stableQualifier: Boolean = false
+  def getName: String = StringRef.toString(nameRef)
 
-  def this(parent: StubElement[ParentPsi],
-          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: String, isDeclaration: Boolean, typeElementText: String, lowerTypeElementText: String,
-                  upperTypeElementText: String, isLocal: Boolean, stableQualifier: Boolean) = {
-    this(parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = StringRef.fromString(name)
-    this.declaration = isDeclaration
-    this.typeElementText = StringRef.fromString(typeElementText)
-    this.lowerTypeElementText = StringRef.fromString(lowerTypeElementText)
-    this.upperTypeElementText = StringRef.fromString(upperTypeElementText)
-    this._stableQualifier = stableQualifier
-    local = isLocal
-  }
+  def typeElementText: Option[String] = typeElementTextRef.asString
 
-  def isLocal: Boolean = local
-
-  def getName: String = StringRef.toString(name)
-
-  def isDeclaration: Boolean = declaration
-
-  def getTypeElement: ScTypeElement = {
-    if (myTypeElement != null) {
-      val typeElement = myTypeElement.get
-      if (typeElement != null && (typeElement.getContext eq getPsi)) return typeElement
+  def typeElement: Option[ScTypeElement] = {
+    typeElementReference = this.updateOptionalReference(typeElementReference) {
+      case (context, child) =>
+        typeElementText.map {
+          createTypeElementFromText(_, context, child)
+        }
     }
-    if (getTypeElementText == "") return null
-    val res: ScTypeElement = ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi, null)
-    myTypeElement = new SofterReference[ScTypeElement](res)
-    res
+    typeElementReference.get
   }
 
-  def getTypeElementText: String = typeElementText.toString
+  def lowerBoundElementText: Option[String] = lowerTypeElementTextRef.asString
 
-  def getUpperBoundTypeElement: ScTypeElement = {
-    if (myUpperTypeElement != null) {
-      val upperTypeElement = myUpperTypeElement.get
-      if (upperTypeElement != null && (upperTypeElement.getContext eq getPsi)) return upperTypeElement
+  def lowerBoundTypeElement: Option[ScTypeElement] = {
+    lowerTypeElementReference = this.updateOptionalReference(lowerTypeElementReference) {
+      case (context, child) =>
+        lowerBoundElementText.map {
+          createTypeElementFromText(_, context, child)
+        }
     }
-    if (getUpperBoundElementText == "") return null
-    val res: ScTypeElement = ScalaPsiElementFactory.createTypeElementFromText(getUpperBoundElementText, getPsi, null)
-    myUpperTypeElement = new SofterReference[ScTypeElement](res)
-    res
+    lowerTypeElementReference.get
   }
 
-  def getUpperBoundElementText: String = upperTypeElementText.toString
+  def upperBoundElementText: Option[String] = upperTypeElementTextRef.asString
 
-  def getLowerBoundTypeElement: ScTypeElement = {
-    if (myLowerTypeElement != null) {
-      val lowerTypeElement = myLowerTypeElement.get
-      if (lowerTypeElement != null && (lowerTypeElement.getContext eq getPsi)) return lowerTypeElement
+  def upperBoundTypeElement: Option[ScTypeElement] = {
+    upperTypeElementReference = this.updateOptionalReference(upperTypeElementReference) {
+      case (context, child) =>
+        upperBoundElementText.map {
+          createTypeElementFromText(_, context, child)
+        }
     }
-    if (getLowerBoundElementText == "") return null
-    val res: ScTypeElement = ScalaPsiElementFactory.createTypeElementFromText(getLowerBoundElementText, getPsi, null)
-    myLowerTypeElement = new SofterReference[ScTypeElement](res)
-    res
+    upperTypeElementReference.get
   }
-
-  def getLowerBoundElementText: String = lowerTypeElementText.toString
-
-  def isStableQualifier: Boolean = _stableQualifier
 }

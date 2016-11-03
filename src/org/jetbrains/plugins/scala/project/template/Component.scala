@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.Version
 /**
  * @author Pavel Fatin
  */
-sealed class Artifact(val prefix: String, resource: Option[String] = None) {
+sealed class Artifact(val prefix: String, val resource: Option[String] = None) {
   def title: String = prefix + "*.jar"
 
   def versionOf(file: File): Option[Version] = externalVersionOf(file).orElse(internalVersionOf(file))
@@ -90,8 +90,8 @@ object Kind {
 case class Component(artifact: Artifact, kind: Kind, version: Option[Version], file: File)
 
 object Component {
-  def discoverIn(files: Seq[File]): Seq[Component] = {
-    val patterns = (Artifact.values ++ DottyArtifact.values).flatMap { artifact =>
+  def discoverIn(artifacts: Set[Artifact], files: Seq[File]): Seq[Component] = {
+    val patterns = artifacts.flatMap { artifact =>
       Kind.values.map(kind => (kind.patternFor(artifact.prefix), artifact, kind))
     }
 
@@ -102,4 +102,6 @@ object Component {
       }
     }
   }
+  
+  def discoverIn(files: Seq[File]): Seq[Component] = discoverIn(Artifact.values ++ DottyArtifact.values, files)
 }

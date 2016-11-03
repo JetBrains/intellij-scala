@@ -3,9 +3,11 @@ package lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.base.{InterpolatedStringType, ScInterpolatedStringLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+
+import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
  * User: Dmitry Naydanov
@@ -22,6 +24,11 @@ class ScInterpolatedStringLiteralImpl(node: ASTNode) extends ScLiteralImpl(node)
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     getStringContextExpression match {
+      case Some(mc: ScMethodCall) => mc.getInvokedExpr match {
+        case expr: ScReferenceExpression if QuasiquoteInferUtil.isMetaQQ(expr) =>
+          QuasiquoteInferUtil.getMetaQQExprType(this)
+        case _ => mc.getNonValueType(ctx)
+      }
       case Some(expr) => expr.getNonValueType(ctx)
       case _ => Failure(s"Cannot find method ${getFirstChild.getText} of StringContext", Some(this))
     }

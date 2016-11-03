@@ -9,6 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -33,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, MethodResolveProcessor}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 
 /**
   * @author AlexanderPodkhalyuzin
@@ -137,7 +139,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult] = {
-    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, implicits)).filter(r => {
+    allVariantsCached(withImplicits = implicits).filter(r => {
       if (filterNotNamedVariants) {
         r match {
           case res: ScalaResolveResult => res.isNamedParameter
@@ -147,9 +149,17 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     })
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
+  @CachedMappedWithRecursionGuard(this, Array.empty, CachesUtil.enclosingModificationOwner(this))
+  private def allVariantsCached(withImplicits: Boolean): Array[ResolveResult] = {
+    val refThis = ScReferenceExpressionImpl.this
+    doResolve(refThis, new CompletionProcessor(getKinds(incomplete = true), refThis, collectImplicits = withImplicits))
+  }
 
-  def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
+  def getSameNameVariants: Array[ResolveResult] = allVariantsCached(withImplicits = true).collect {
+    case rr @ ResolveResultEx(named: PsiNamedElement) if named.name == refName => rr
+  }
+
+  def getKinds(incomplete: Boolean, completion: Boolean = false): ResolveTargets.ValueSet = {
     getContext match {
       case _ if completion => StdKinds.refExprQualRef // SC-3092
       case _: ScReferenceExpression => StdKinds.refExprQualRef

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 
 import scala.collection.Seq
@@ -100,10 +101,29 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     case _ => false
   }
 
+  def isCovariant = psiTypeParameter match {
+    case typeParam: ScTypeParam => typeParam.isCovariant
+    case _ => false
+  }
+
+  def isContravariant = psiTypeParameter match {
+    case typeParam: ScTypeParam => typeParam.isContravariant
+    case _ => false
+  }
+
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {
-      case that: TypeParameterType => that.psiTypeParameter eq psiTypeParameter
+      case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
+        (psiTypeParameter, that.psiTypeParameter) match {
+          case (myBound: ScTypeParam, thatBound: ScTypeParam) =>
+            //TODO this is a temporary hack, so ignore substitutor for now
+            myBound.lowerBound.exists(typeSystem.equivalence.equiv(_, thatBound.lowerBound.getOrNothing)) &&
+              myBound.upperBound.exists(typeSystem.equivalence.equiv(_, thatBound.upperBound.getOrNothing)) &&
+              (myBound.name == thatBound.name || thatBound.isHigherKindedTypeParameter || myBound.isHigherKindedTypeParameter)
+          case _ => false
+        }
+      }
       case _ => false
     }, substitutor)
 
