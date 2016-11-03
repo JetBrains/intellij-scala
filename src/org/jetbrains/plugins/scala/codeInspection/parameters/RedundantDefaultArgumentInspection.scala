@@ -38,6 +38,7 @@ class DeleteRedundantDefaultArgumentQuickFix(arg: ScExpression) extends Abstract
 object RedundantDefaultArgumentUtil {
   def isRedundantArgumentAt(arguments: Seq[ScExpression], index: Int, parameters: Seq[ScParameter]): Boolean = arguments(index) match {
     case expression: ScExpression if isAllArgumentsNamedAfterIndex(arguments, index) => expression match {
+      case _: ScInterpolatedStringLiteral => false
       case literal: ScLiteral => parameters.isDefinedAt(index) && hasDefaultValue(parameters(index), literal)
       case namedArg@ScAssignStmt(_, Some(value: ScLiteral)) if namedArg.isNamedParameter => namedArg.assignName match {
         case Some(argumentName: String) => parameters.exists(param => param.name == argumentName && hasDefaultValue(param, value))
