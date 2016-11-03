@@ -196,4 +196,11 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
       """.stripMargin
     checkHasNoErrors(text)
   }
+
+  def testInterpolatedStringArg(): Unit = {
+    checkHasNoErrors(
+      """def foo(s: String = "")
+        |foo(s"aa")
+      """.stripMargin)
+  }
 }
