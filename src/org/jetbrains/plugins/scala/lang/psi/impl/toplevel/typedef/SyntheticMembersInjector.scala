@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -80,7 +80,10 @@ object SyntheticMembersInjector {
 
   private val injectedExtensions = { proj: Project =>
     try {
-      LibraryInjectorLoader.getInstance(proj).getInjectorInstances(classOf[SyntheticMembersInjector])
+      val injectorLoader = LibraryInjectorLoader.getInstance(proj)
+      if (injectorLoader != null)
+        injectorLoader.getInjectorInstances(classOf[SyntheticMembersInjector])
+      else Seq.empty
     } catch {
       case e: Throwable =>
         logError("Failed to get dynamic injector", e)
