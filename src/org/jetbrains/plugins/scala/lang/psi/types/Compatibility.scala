@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGu
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set}
+import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
  * @author ven
@@ -402,7 +403,8 @@ object Compatibility {
                  argClauses: List[Seq[Expression]],
                  checkWithImplicits: Boolean,
                  scope: GlobalSearchScope,
-                 isShapesResolve: Boolean): ConformanceExtResult = {
+                 isShapesResolve: Boolean,
+                 ref: PsiElement = null): ConformanceExtResult = {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction =>
@@ -415,6 +417,11 @@ object Compatibility {
       case fun: ScFunction =>
         if(!fun.hasParameterClause && argClauses.nonEmpty)
           return ConformanceExtResult(Seq(new DoesNotTakeParameters))
+
+        if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
+          val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(ref.asInstanceOf[ScReferenceExpression])
+          return checkConformanceExt(checkNames = false, params, exprs, checkWithImplicits, isShapesResolve)
+        }
 
         val parameters: Seq[ScParameter] = fun.effectiveParameterClauses.headOption.toList.flatMap(_.effectiveParameters)
 

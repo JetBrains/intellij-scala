@@ -29,6 +29,10 @@ object ScSubstitutor {
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 
   private val followLimit = 800
+
+  var cacheSubstitutions = false
+
+  val cache: scala.collection.mutable.Map[(String, Long), ScType] = scala.collection.mutable.Map()
 }
 
 class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
@@ -142,6 +146,7 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
   }
 
   def subst(t: ScType): ScType = try {
+    if (ScSubstitutor.cacheSubstitutions) ScSubstitutor.cache ++= this.tvMap
     if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
   } catch {
     case s: StackOverflowError =>

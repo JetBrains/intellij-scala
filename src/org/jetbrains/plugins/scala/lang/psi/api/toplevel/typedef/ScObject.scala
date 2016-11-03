@@ -41,4 +41,8 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
     case null => true
     case _ => false
   }
+
+  override def isMetaAnnotatationImpl: Boolean = {
+    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty)
+  }
 }

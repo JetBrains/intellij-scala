@@ -56,6 +56,12 @@ trait Def {
       val modifierMarker = builder.mark
       if (isMod) {
         while (Modifier.parse(builder)) {}
+        while (builder.getTokenText == ScalaTokenTypes.kINLINE.toString) {
+//          val inlineMarker = builder.mark()
+          builder.remapCurrentToken(ScalaTokenTypes.kINLINE)
+          builder.advanceLexer()
+//          inlineMarker.done(ScalaTokenTypes.kINLINE)
+        }
       }
       else {
         while (builder.getTokenType == ScalaTokenTypes.kIMPLICIT || builder.getTokenType == ScalaTokenTypes.kLAZY) {

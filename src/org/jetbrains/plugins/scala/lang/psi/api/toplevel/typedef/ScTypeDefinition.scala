@@ -9,6 +9,7 @@ import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -24,12 +25,6 @@ import scala.collection.Seq
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScAnnotationsHolder with ScCommentOwner {
-  private var synthNavElement: Option[PsiElement] = None
-  var syntheticContainingClass: Option[ScTypeDefinition] = None
-  def setSynthetic(navElement: PsiElement) {
-    synthNavElement = Some(navElement)
-  }
-  def isSynthetic: Boolean = synthNavElement.nonEmpty
 
   def isCase: Boolean = false
 
@@ -71,6 +66,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   }
 
   override def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
+
+  override def syntheticMembersImpl: Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
 
   override protected def syntheticMethodsWithOverrideImpl: scala.Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = true)
 
@@ -143,5 +140,10 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
       }
     }
     objOption
+  }
+
+  def isMetaAnnotatationImpl: Boolean = {
+    this.members
+    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty)
   }
 }

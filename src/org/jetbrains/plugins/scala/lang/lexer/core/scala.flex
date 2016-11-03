@@ -482,6 +482,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 "with"                                  {   return process(kWITH); }
 "yield"                                 {   return process(kYIELD); }
 "macro"                                 {   return process(kMACRO); }
+//"inline"                                {   return process(kINLINE); }
 
 ///////////////////// Reserved shorthands //////////////////////////////////////////
 

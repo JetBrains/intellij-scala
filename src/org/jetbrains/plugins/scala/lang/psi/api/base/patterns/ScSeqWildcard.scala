@@ -9,6 +9,6 @@ package patterns
 * @author ilyas
 */
 
-trait ScSeqWildcard extends ScalaPsiElement {
+trait ScSeqWildcard extends ScalaPsiElement with ScPattern {
 
 }

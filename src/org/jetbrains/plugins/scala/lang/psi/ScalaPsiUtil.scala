@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, Scala
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionConversionData, ExtensionConversionHelper, ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
@@ -55,7 +55,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.macroAnnotations.Cached
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
@@ -1164,6 +1164,20 @@ object ScalaPsiUtil {
       case definition: ScTypeDefinition =>
         getBaseCompanionModule(definition).orElse(definition.fakeCompanionModule)
       case _ => None
+    }
+  }
+
+  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[ScObject] = {
+    ah.getExpansionText match {
+      case Right(text) =>
+        if (text.nonEmpty) {
+          val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(text)(ah.getManager)
+          if (blockImpl != null) {
+            val maybeScObject: Option[ScObject] = blockImpl.firstChild.get.children.findByType(classOf[ScObject])
+            maybeScObject
+          } else None
+        } else None
+      case Left(_) => None
     }
   }
 

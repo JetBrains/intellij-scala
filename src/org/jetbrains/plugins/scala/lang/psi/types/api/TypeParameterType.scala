@@ -101,6 +101,16 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     case _ => false
   }
 
+  def isCovariant = psiTypeParameter match {
+    case typeParam: ScTypeParam => typeParam.isCovariant
+    case _ => false
+  }
+
+  def isContravariant = psiTypeParameter match {
+    case typeParam: ScTypeParam => typeParam.isContravariant
+    case _ => false
+  }
+
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {

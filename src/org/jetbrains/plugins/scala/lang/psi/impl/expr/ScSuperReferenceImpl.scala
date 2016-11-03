@@ -74,7 +74,9 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (id == null) None else findSuper(id)
   }
 
-  override def getReference: PsiReference = {
+  def staticSuperName = Option(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)).map(_.getText).getOrElse("")
+
+  override def getReference = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
       def getElement: ScSuperReferenceImpl = ScSuperReferenceImpl.this

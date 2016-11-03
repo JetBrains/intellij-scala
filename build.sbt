@@ -1,12 +1,14 @@
 import Common._
 import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
-import sbt.Keys.{`package` => pack, _}
+import sbt.Keys.{`package` => pack}
 
 // Global build settings
 
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
   Resolver.typesafeIvyRepo("releases")
+
+resolvers in ThisBuild += Resolver.sonatypeRepo("snapshots")
 
 lazy val sdkDirectory = SettingKey[File]("sdk-directory", "Path to SDK directory where unmanagedJars and IDEA are located")
 
@@ -222,7 +224,7 @@ lazy val pluginPackagerCommunity =
       import Packaging.PackageEntry._
       val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
       val librariesToCopyAsIs = DependencyGroups.scalaCommunity.filterNot { lib =>
-        crossLibraries.contains(lib) || lib == Dependencies.scalaLibrary
+        crossLibraries.contains(lib) || lib == Dependencies.scalaLibrary || lib == Dependencies.scalaMetaCore
       }
       val jps = Seq(
         Artifact(pack.in(jpsPlugin, Compile).value,
@@ -261,6 +263,7 @@ lazy val pluginPackagerCommunity =
             pack.in(runners, Compile).value,
             pack.in(scalaRunner, Compile).value),
           "lib/scala-plugin-runners.jar"),
+        AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
         Library(Dependencies.scalaLibrary,
           "lib/scala-library.jar")
       ) ++
