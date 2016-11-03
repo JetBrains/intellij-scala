@@ -296,12 +296,21 @@ class Test {
         |ja.asScala
       """.stripMargin.trim
 
+    val result3Text =
+      """
+        |import scala.collection.JavaConverters.iterableAsScalaIterableConverter
+        |
+        |val ja = new java.util.ArrayList[Int]
+        |ja.asScala
+      """.stripMargin.trim
+
     if (activeLookup != null)
       completeLookupItem(activeLookup.find(le => le.getLookupString == "asScala").get)
     val resultFileText = getFileAdapter.getText
     resultFileText.trim match {
       case `resultText` =>
       case `result2Text` =>
+      case `result3Text` =>
       case _ =>
         Assert.assertEquals(resultFileText, resultText)
     }
