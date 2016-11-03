@@ -221,4 +221,15 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
        |new A(s.toUpperCase, i) { /* something*/ }
        |}""".stripMargin)
 
+  def testAnonymousClass(): Unit = checkTextHasNoErrors(
+    s"""case class X(a: Int) {
+       |  def f = a
+       |}
+       |
+       |new X(5) {
+       |  override def f = 2
+       |}
+     """.stripMargin
+  )
+
 }
