@@ -50,7 +50,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
   private def isUpToDate(annot: ScAnnotation, clazz: Class[_]): Boolean = {
     try {
-      val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath)
+      val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath, s"${clazz.getName.replaceAll("\\.", "/")}.class")
       val sourceFile = new File(annot.constructor.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
       classFile.exists() && classFile.lastModified() >= sourceFile.lastModified()
     } catch {
