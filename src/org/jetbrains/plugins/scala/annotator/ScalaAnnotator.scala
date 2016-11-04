@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.macros.expansion.RecompileAnnotationAction
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -54,6 +55,7 @@ import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
+import scala.meta.intellij.ExpansionUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -433,13 +435,17 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder) = {
     if (annotation.isMetaAnnotation) {
+      if (!ExpansionUtil.isUpToDate(annotation)) {
+        val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
+        warning.registerFix(new RecompileAnnotationAction(annotation))
+      }
       val result = annotation.parent.flatMap(_.parent) match {
         case Some(ah: ScAnnotationsHolder) => ah.getExpansionText
         case _ => Right("")
       }
       result match {
         case Left(errorMsg) =>
-          holder.createErrorAnnotation(annotation, s"Meta expansion failed: $errorMsg")
+          holder.createErrorAnnotation(annotation, ScalaBundle.message("scala.meta.expandfailed", errorMsg))
         case _ =>
       }
     }
@@ -875,7 +881,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val ref = l.findReferenceAt(0)
     val prefix = l.getFirstChild
     val injections = l.getInjections
-    
+
     ref match {
       case _: ScInterpolatedStringPartReference =>
       case _ => return
