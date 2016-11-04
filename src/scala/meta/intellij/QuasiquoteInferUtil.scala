@@ -1,13 +1,13 @@
 package scala.meta.intellij
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiElementFactory, PsiManager}
+import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScMethodCallImpl, ScReferenceExpressionImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
@@ -74,14 +74,19 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     else
       m.Dialect.forName("QuasiquoteTerm(Scala211, Single)")
     val prefix = pat.reference.map(_.refName).getOrElse(throw new ParseException(null, s"Failed to get QQ ref in ${pat.getText}"))
-    val parsed = parseQQExpr(prefix, patternText, qqdialect)
-    parsed match {
-      case Parsed.Success(qq) =>
-        ScalaPsiElementFactory
-          .createTypeElementFromText(s"scala.meta.${qq.productPrefix}")(PsiManager.getInstance(pat.getProject))
-          .getType()
-      case err@Parsed.Error(pos, message, exc) =>
-        Failure(message, Some(pat))
+    try {
+      val parsed = parseQQExpr(prefix, patternText, qqdialect)
+      parsed match {
+        case Parsed.Success(qq) =>
+          ScalaPsiElementFactory
+            .createTypeElementFromText(s"scala.meta.${qq.productPrefix}")(PsiManager.getInstance(pat.getProject))
+            .getType()
+        case Parsed.Error(_, message, _) =>
+          Failure(message, Some(pat))
+      }
+    } catch {
+      case _: ArrayIndexOutOfBoundsException =>  // workaround for meta parser failure on malformed quasiquotes
+        TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText("scala.meta.Tree", pat, null))
     }
   }
 
