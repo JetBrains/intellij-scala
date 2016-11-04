@@ -47,6 +47,18 @@ object ExpansionUtil {
     }
   }
 
+  def isUpToDate(annot: ScAnnotation): Boolean = getCompiledMetaAnnotClass(annot).exists(c => isUpToDate(annot, c))
+
+  def isUpToDate(annot: ScAnnotation, clazz: Class[_]): Boolean = {
+    try {
+      val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath, s"${clazz.getName.replaceAll("\\.", "/")}.class")
+      val sourceFile = new File(annot.constructor.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
+      classFile.exists() && classFile.lastModified() >= sourceFile.lastModified()
+    } catch {
+      case _:Exception => false
+    }
+  }
+
 
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
 
@@ -85,7 +97,7 @@ object ExpansionUtil {
       } catch {
         case me: AbortException => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException => Left(s"Semantic error: ${sm.getMessage}")
-        case e: Exception => Left(s"")
+        case _: Exception => Left(s"")
       }
     }
 
