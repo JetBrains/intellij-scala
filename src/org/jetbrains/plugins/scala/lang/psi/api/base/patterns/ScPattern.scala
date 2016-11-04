@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScPatternListImpl, ScStableCodeReferenceElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
@@ -160,12 +160,16 @@ trait ScPattern extends ScalaPsiElement with Typeable {
         }
         tpe.getType().toOption
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && QuasiquoteInferUtil.isMetaQQ(fun) =>
-        val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(getParent.getParent.asInstanceOf[ScInterpolationPatternImpl])
-        if (argIndex <= patterns.size) {
-          val clazz = patterns(argIndex)
-          val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz)
-          tpe.getType().toOption
-        } else { None }
+        try {
+          val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(getParent.getParent.asInstanceOf[ScInterpolationPatternImpl])
+          if (argIndex < patterns.size) {
+            val clazz = patterns(argIndex)
+            val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz)
+            tpe.getType().toOption
+          } else { None }
+        } catch {
+          case _: ArrayIndexOutOfBoundsException => None // workaround for meta parser failure on malformed quasiquotes
+        }
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.count(!_.isImplicitParameter) == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
