@@ -62,7 +62,7 @@ object ExpansionUtil {
         .copy()
         .asInstanceOf[ScAnnotationsHolder]
 
-      annotee.annotations.find(_.getQualifiedName == annot.getQualifiedName).foreach(_.delete())
+      annotee.annotations.find(_.getText == annot.getText).foreach(_.delete())
       try {
         val converted = converter.ideaToMeta(annotee)
         val clazz = getCompiledMetaAnnotClass(annot)
