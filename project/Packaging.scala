@@ -1,3 +1,5 @@
+import java.io.File
+
 import sbt.Keys._
 import sbt._
 
@@ -53,7 +55,6 @@ object Packaging {
   }
 
   private def convertEntry(entry: PackageEntry, resolvedLibraries: Map[ModuleID, File]): (File, String) = {
-    resolvedLibraries.keys.toList.sortBy(_.organization).foreach(println)
     entry match {
       case Directory(source, destination) =>
         source -> destination
@@ -72,7 +73,7 @@ object Packaging {
   private def mergeIntoTemporaryJar(filesToMerge: File*): File =
     IO.withTemporaryDirectory { tmp =>
       filesToMerge.foreach(IO.unzip(_, tmp))
-      val zipFile = IO.temporaryDirectory / "sbt-merge-result.jar"
+      val zipFile =  File.createTempFile("sbt-merge-result",".jar", IO.temporaryDirectory)
       zipFile.delete()
       IO.zip((tmp ***) pair (relativeTo(tmp), false), zipFile)
       zipFile
