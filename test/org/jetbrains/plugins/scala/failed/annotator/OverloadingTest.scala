@@ -64,18 +64,6 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     }
   }
 
-  def testSCL3878(): Unit = assert(
-    collectMessages(
-      """
-        |class Test {
-        |  def prop: Vector[Int] = Vector.empty[Int]  // def or val, doesn't matter
-        |  def prop(x: String) = ""
-        |  def test1 = List("1", "2", "3").map(prop)  // prop is red (Cannot resolve symbol prop)
-        |  def test2 = List(1, 2, 3).map(prop)       // this one is ok
-        |}
-      """.stripMargin).isEmpty
-  )
-
   def testSCL9908(): Unit = assert(
     collectMessages(
       """

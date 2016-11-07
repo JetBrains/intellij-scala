@@ -186,30 +186,6 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromJavaCode("", java, "Lambdas"))
   }
 
-  def testSCL10266(): Unit = {
-    val java =
-      """
-        |interface Mixin<T extends Mixin<T>> {}
-        |
-        |class AcceptMixin {
-        |    static void acceptMixin(Mixin mixin) {
-        |        System.out.println(mixin);
-        |    }
-        |}
-        |
-        |class FooWithMixin implements Mixin<FooWithMixin> {}
-      """.stripMargin
-
-    val scala =
-      """
-        |object ScalaTest extends App {
-        |  AcceptMixin.acceptMixin(new FooWithMixin());
-        |}
-      """.stripMargin
-
-    assertNothing(errorsFromScalaCode(scala, java))
-  }
-
   def testSCL10531(): Unit = {
     val java =
       """
