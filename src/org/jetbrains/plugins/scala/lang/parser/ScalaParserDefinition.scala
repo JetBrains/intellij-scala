@@ -33,7 +33,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
   }
 
   def getFileNodeType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
-    ScalaElementTypes.FILE
+     ScalaElementTypes.FILE
 
   def getCommentTokens: TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
 
