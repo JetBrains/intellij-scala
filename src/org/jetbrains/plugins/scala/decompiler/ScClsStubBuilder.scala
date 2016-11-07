@@ -60,6 +60,30 @@ object ScClsStubBuilder {
       case _ => false
     }
   }
+
+  private class Directory(directory: VirtualFile) {
+
+    def isInner(name: String): Boolean = {
+      if (name.endsWith("$") && contains(name, name.length - 1)) {
+        return false //let's handle it separately to avoid giving it for Java.
+      }
+      isInner(NameTransformer.decode(name), 0)
+    }
+
+    private def isInner(name: String, from: Int): Boolean = {
+      val index = name.indexOf('$', from)
+
+      val containsPart = index > 0 && contains(name, index)
+      index != -1 && (containsPart || isInner(name, index + 1))
+    }
+
+    private def contains(name: String, endIndex: Int): Boolean =
+      directory.getChildren.exists { child =>
+        child.getExtension == "class" &&
+          NameTransformer.decode(child.getNameWithoutExtension) != name.substring(0, endIndex)
+      }
+  }
+
 }
 
 class ScClsStubBuilder extends ClsStubBuilder {
@@ -100,40 +124,15 @@ class ScClsStubBuilder extends ClsStubBuilder {
     result
   }
 
-  private def isInnerClass(file: VirtualFile): Boolean = {
-    if (file.getExtension != "class") return false
-    val name: String = file.getNameWithoutExtension
-    val parent: VirtualFile = file.getParent
-    isInner(name, new ParentDirectory(parent))
-  }
-
-  private def isInner(name: String, directory: Directory): Boolean = {
-    if (name.endsWith("$") && directory.contains(name.dropRight(1))) {
-      return false //let's handle it separately to avoid giving it for Java.
+  private def isInnerClass(file: VirtualFile): Boolean =
+    file.getExtension match {
+      case "class" => false
+      case _ =>
+        import ScClsStubBuilder.Directory
+        Option(file.getParent).map {
+          new Directory(_)
+        }.exists {
+          _.isInner(file.getNameWithoutExtension)
+        }
     }
-    isInner(NameTransformer.decode(name), 0, directory)
-  }
-
-  @tailrec
-  private def isInner(name: String, from: Int, directory: Directory): Boolean = {
-    val index: Int = name.indexOf('$', from)
-    index != -1 && (containsPart(directory, name, index) || isInner(name, index + 1, directory))
-  }
-
-  private def containsPart(directory: Directory, name: String, endIndex: Int): Boolean = {
-    endIndex > 0 && directory.contains(name.substring(0, endIndex))
-  }
-
-  private trait Directory {
-    def contains(name: String): Boolean
-  }
-
-  private class ParentDirectory(dir: VirtualFile) extends Directory {
-    def contains(name: String): Boolean = {
-      if (dir == null) return false
-      !dir.getChildren.forall(child =>
-        child.getExtension != "class" || NameTransformer.decode(child.getNameWithoutExtension) == name
-      )
-    }
-  }
 }
