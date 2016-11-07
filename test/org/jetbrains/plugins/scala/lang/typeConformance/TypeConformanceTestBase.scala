@@ -30,18 +30,26 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
 
   def folderPath: String = baseRootPath() + "typeConformance/"
 
-  protected def doTest(fileName: String = getTestName(false) + ".scala") {
-    configureFromFile(fileName)
+  protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala") {
+    configureFromFileTextAdapter(fileName, fileText.trim)
+    doTestInner()
+  }
+
+  private def doTestInner() = {
     val (declaredType, rhsType) = declaredAndExpressionTypes()
     val res: Boolean = rhsType.conforms(declaredType)(getProjectAdapter.typeSystem)
 
     if (expectedResult != res)
       fail(
         s"""Conformance failure
-            |Expected result: $expectedResult
-            |declared type: ${declaredType.presentableText}
-            |rhs type:      ${rhsType.presentableText}""".stripMargin)
+           |Expected result: $expectedResult
+           |declared type:   ${declaredType.presentableText}
+           |rhs type:        ${rhsType.presentableText}""".stripMargin)
+  }
 
+  protected def doTest() {
+    configureFromFile()
+    doTestInner()
   }
 
   protected def configureFromFile(fileName: String = getTestName(false) + ".scala") = {
