@@ -34,7 +34,7 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
   def hasModifierProperty(name: String): Boolean = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScModifiersStub].getModifiers.contains(name)
+      return stub.asInstanceOf[ScModifiersStub].modifiers.contains(name)
     }
     name match {
       case "override" => has(ScalaTokenTypes.kOVERRIDE)
@@ -77,7 +77,7 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
     findChild(classOf[ScAccessModifier])
   }
 
-  def getModifiersStrings: Array[String] = ScModifierListImpl.AllModifiers.filter(hasModifierProperty)
+  def modifiers: Array[String] = ScModifierListImpl.AllModifiers.filter(hasModifierProperty)
 
   def hasExplicitModifiers: Boolean = {
     val stub = getStub
@@ -221,7 +221,7 @@ class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: I
       }
       case _ =>
         val stub = getStub
-        if (stub != null) stub.asInstanceOf[ScModifiersStub].getModifiers.contains(prop2String(prop))
+        if (stub != null) stub.asInstanceOf[ScModifiersStub].modifiers.contains(prop2String(prop))
         else findChildByType[PsiElement](prop) != null
     }
   }
