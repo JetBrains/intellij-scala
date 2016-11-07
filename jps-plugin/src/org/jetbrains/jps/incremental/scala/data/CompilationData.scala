@@ -49,8 +49,14 @@ object CompilationData {
 
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
-      val cacheFile = outputToCacheMap.getOrElse(output,
-        throw new RuntimeException("Unknown build target output directory: " + output))
+      val cacheFile = outputToCacheMap.getOrElse(output, {
+        val message =
+          s"""Unknown build target output directory: $output
+             |Current outputs:
+             |${outputToCacheMap.keys.mkString("\n")}
+           """.stripMargin
+        throw new RuntimeException(message)
+      })
 
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpath.contains(p._1))
 
@@ -127,7 +133,14 @@ object CompilationData {
   }
 
   private def createOutputToCacheMap(context: CompileContext): Either[String, Map[File, File]] = {
-    val targetToOutput = targetsIn(context).map(target => (target, target.getOutputDir))
+    val targetToOutput = targetsIn(context).map { target =>
+      val outputDir = target.getOutputDir
+
+      if (outputDir == null)
+        throw new RuntimeException("Output directory not specified for module " + target.getModule.getName)
+
+      (target, outputDir)
+    }
 
     outputClashesIn(targetToOutput).toLeft {
       val paths = context.getProjectDescriptor.dataManager.getDataPaths
