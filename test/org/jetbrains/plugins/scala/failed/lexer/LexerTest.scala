@@ -23,12 +23,6 @@ class LexerTest extends SimpleTestCase {
     )
   }
 
-  def testSCL6261(): Unit = {
-    lexer.start("⚕")
-    val tokenType = lexer.getTokenType
-    assert(tokenType == ScalaTokenTypes.tIDENTIFIER, s"Token has wrong type: $tokenType")
-  }
-
   protected def compare(text: String, tokens: Seq[String]): Boolean = {
     lexer.start(text)
     val buffer = scala.collection.mutable.ArrayBuffer[String]()

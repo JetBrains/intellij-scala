@@ -955,5 +955,52 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
       """.stripMargin
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testSCL7525() = {
+    val scala =
+      """
+        |package SCL7525
+        |object Test {
+        |  new Foo(new Foo.ArgsBar)
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |package SCL7525;
+        |public class Foo {
+        |    public Foo(Args a) { }
+        |    public static class Args<T extends Args<T>> { }
+        |    public static class ArgsBar extends Args<ArgsBar> { }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
+  def testSCL10266(): Unit = {
+    val java =
+      """
+        |interface Mixin<T extends Mixin<T>> {}
+        |
+        |class AcceptMixin {
+        |    static void acceptMixin(Mixin mixin) {
+        |        System.out.println(mixin);
+        |    }
+        |}
+        |
+        |class FooWithMixin implements Mixin<FooWithMixin> {}
+      """.stripMargin
+
+    val scala =
+      """
+        |object ScalaTest extends App {
+        |  AcceptMixin.acceptMixin(new FooWithMixin());
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
 }
 
