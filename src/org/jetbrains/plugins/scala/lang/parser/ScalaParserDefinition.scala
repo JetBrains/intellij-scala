@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import org.jetbrains.plugins.dotty.lang.parser.{DottyElementTypes, DottyParser, DottyPsiCreator}
+import org.jetbrains.plugins.dotty.lang.parser.{DottyParser, DottyPsiCreator}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -31,8 +31,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
     if (hasDotty) new DottyParser else new ScalaParser
   }
 
-  def getFileNodeType: IFileElementType =
-    (if (hasDotty) DottyElementTypes else ScalaElementTypes).file
+  def getFileNodeType: IFileElementType = ScalaElementTypes.FILE
 
   def getCommentTokens: TokenSet = ScalaTokenTypes.COMMENTS_TOKEN_SET
 

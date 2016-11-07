@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
 /**
   * @author ilyas
   */
-
 class ScStubFileElementType(val debugName: String = "file",
                             language: Language = ScalaLanguage.Instance)
   extends IStubFileElementType[ScFileStub](debugName, language) with DefaultStubSerializer[ScFileStub] {
@@ -31,25 +30,16 @@ class ScStubFileElementType(val debugName: String = "file",
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
-    deserializedStub(dataStream.readBoolean, dataStream.readBoolean,
-      dataStream.readName, dataStream.readName)
+    new FileStubImpl(isScript = dataStream.readBoolean,
+      isCompiled = dataStream.readBoolean,
+      packageName = StringRef.toString(dataStream.readName),
+      sourceName = StringRef.toString(dataStream.readName))
 
-  protected def deserializedStub(isScript: Boolean,
-                                 isCompiled: Boolean,
-                                 packageNameRef: StringRef,
-                                 sourceNameRef: StringRef): DeserializedStubImpl =
-    new DeserializedStubImpl(isScript, isCompiled,
-      packageNameRef, sourceNameRef)
-
-  protected class DeserializedStubImpl(val isScript: Boolean,
-                                       val isCompiled: Boolean,
-                                       packageNameRef: StringRef,
-                                       sourceNameRef: StringRef)
-    extends AbstractFileStub(null) {
-    override def packageName = StringRef.toString(packageNameRef)
-
-    override def sourceName = StringRef.toString(sourceNameRef)
-  }
+  private class FileStubImpl(val isScript: Boolean,
+                             val isCompiled: Boolean,
+                             val packageName: String,
+                             val sourceName: String)
+    extends AbstractFileStub(null)
 
 }
 

@@ -10,7 +10,6 @@ import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -42,7 +41,7 @@ trait ScToplevelElement extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null) {
-      stub.getChildrenByType[ScTypeDefinition](getProject.tokenSets.typeDefinitions, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+      stub.getChildrenByType[ScTypeDefinition](TokenSets.TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     } else findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq
   }
 

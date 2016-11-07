@@ -4,8 +4,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.dotty.lang.parser.DottyElementTypes
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.TRAIT_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
@@ -23,8 +23,7 @@ class DottyTraitImpl private(stub: StubElement[ScTemplateDefinition],
     this(null, null, node)
 
   def this(stub: ScTemplateDefinitionStub) =
-    this(stub, DottyElementTypes.traitDefinition, null)
-
+    this(stub, TRAIT_DEFINITION, null)
 
   override def getObjectClassOrTraitToken: PsiElement = super.getObjectClassOrTraitToken
 
