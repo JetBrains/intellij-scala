@@ -4,23 +4,24 @@ package decompiler
 import java.io.IOException
 
 import com.intellij.lang.LanguageParserDefinitions
-import com.intellij.openapi.project.{DefaultProjectFactory, Project, ProjectManager}
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
 import com.intellij.psi.compiled.ClsStubBuilder
 import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
-import com.intellij.psi.tree.IStubFileElementType
-import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.indexing.FileContent
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.decompile
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
 object ScClsStubBuilder {
   def canBeProcessed(file: VirtualFile): Boolean = {
     try {
@@ -64,28 +65,39 @@ object ScClsStubBuilder {
 class ScClsStubBuilder extends ClsStubBuilder {
   override def getStubVersion: Int = StubVersion.STUB_VERSION
 
-  override def buildFileStub(content: FileContent): PsiFileStub[ScalaFile] = {
-    if (isInnerClass(content.getFile)) null
-    else buildFileStub(content.getFile, content.getContent, ProjectManager.getInstance().getDefaultProject)
+  override def buildFileStub(content: FileContent): PsiFileStub[ScalaFile] =
+    content.getFile match {
+      case file if isInnerClass(file) => null
+      case file =>
+        implicit val manager = PsiManager.getInstance(content.getProject)
+        val scalaFile = createScalaFile(file, content.getContent)
+        createFileStub(scalaFile)
+    }
+
+  private def createFileStub(file: ScalaFile): PsiFileStub[ScalaFile] = {
+    val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaLanguage.INSTANCE)
+      .asInstanceOf[ScalaParserDefinition]
+    parserDefinition.hasDotty = file.getProject.hasDotty
+
+    val fileElementType = parserDefinition.getFileNodeType
+
+    val result = fileElementType.getBuilder.buildStubTree(file)
+      .asInstanceOf[PsiFileStubImpl[ScalaFile]]
+    result.clearPsi("Stub was built from decompiled file")
+    result
   }
 
-  private def buildFileStub(vFile: VirtualFile, bytes: Array[Byte], project: Project): PsiFileStub[ScalaFile] = {
-    val result = DecompilerUtil.decompile(vFile, bytes)
-    val source = result.sourceName
+  private def createScalaFile(virtualFile: VirtualFile, bytes: Array[Byte])
+                             (implicit manager: PsiManager): ScalaFile = {
+    val decompiled = decompile(virtualFile, bytes)
+    val result = createScalaFileFromText(decompiled.sourceText.replace("\r", ""))
 
-    val text = result.sourceText.replace("\r", "")
-    implicit val manager = PsiManager.getInstance(DefaultProjectFactory.getInstance().getDefaultProject)
-    val file = createScalaFileFromText(text)(manager)
+    val adjuster = result.asInstanceOf[CompiledFileAdjuster]
+    adjuster.setCompiled(c = true)
+    adjuster.setSourceFileName(decompiled.sourceName)
+    adjuster.setVirtualFile(virtualFile)
 
-    val adj = file.asInstanceOf[CompiledFileAdjuster]
-    adj.setCompiled(c = true)
-    adj.setSourceFileName(source)
-    adj.setVirtualFile(vFile)
-
-    val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaLanguage.INSTANCE).getFileNodeType
-    val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder.buildStubTree(file)
-    stub.asInstanceOf[PsiFileStubImpl[PsiFile]].clearPsi("Stub was built from decompiled file")
-    stub.asInstanceOf[PsiFileStub[ScalaFile]]
+    result
   }
 
   private def isInnerClass(file: VirtualFile): Boolean = {
