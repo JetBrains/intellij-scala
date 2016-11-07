@@ -47,4 +47,16 @@ class ApplicationNotTakeParamImplicit extends ScalaLightCodeInsightFixtureTestAd
         |class TabsDemoScreen extends Screen[TabsDemoScreen.TabsDemoScreenModel.type] {}
       """.stripMargin)
   }
+
+  def testSCL10902(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object Test extends App {
+        | class A { def apply[Z] = 42 }
+        | def create = new A
+        |
+        | create[String]
+        |}
+      """.stripMargin)
+  }
 }
