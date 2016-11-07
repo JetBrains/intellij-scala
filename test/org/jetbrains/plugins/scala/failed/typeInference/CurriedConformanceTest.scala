@@ -62,4 +62,19 @@ class CurriedConformanceTest extends TypeConformanceTestBase {
       """.stripMargin)
   }
 
+  def testSCL10906(): Unit = {
+    doTest(
+      s"""
+         |import scala.collection.TraversableLike
+         |import scala.collection.generic.CanBuildFrom
+         |
+         |class t2 {
+         |
+         |  def foo[A, Repr, That](options: TraversableLike[Option[A], Repr],default: Option[A] = Some("".asInstanceOf[A]))(implicit bf: CanBuildFrom[Repr, A, That]): That = ???
+         |
+         |  ${caretMarker}val ints: Seq[Int] = foo(Seq(Some(1), None))
+         |}
+         |//True
+      """.stripMargin)
+  }
 }
