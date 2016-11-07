@@ -1057,7 +1057,7 @@ object ScalaPsiUtil {
     val buffer = new StringBuilder("")
     modifiers match {
       case st: StubBasedPsiElement[_] if st.getStub != null =>
-        for (modifier <- st.getStub.asInstanceOf[ScModifiersStub].getModifiers) buffer.append(modifier + " ")
+        for (modifier <- st.getStub.asInstanceOf[ScModifiersStub].modifiers) buffer.append(modifier + " ")
       case _ =>
         for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
     }

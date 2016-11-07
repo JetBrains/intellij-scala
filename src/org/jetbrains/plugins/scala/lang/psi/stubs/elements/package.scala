@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
+import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
+import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.IMPLICITS_KEY
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
@@ -62,6 +64,9 @@ package object elements {
       StringRef.toString
     }.filter {
       _.nonEmpty
+    } match {
+      case Array() => EMPTY_STRING_ARRAY
+      case array => array
     }
   }
 
