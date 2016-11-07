@@ -5,9 +5,8 @@ package parser
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.project.Project
-import com.intellij.psi.stubs.PsiFileStub
-import com.intellij.psi.tree.{ICompositeElementType, IElementType, IErrorCounterReparseableElementType, IStubFileElementType}
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.{ICompositeElementType, IElementType, IErrorCounterReparseableElementType}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
@@ -78,7 +77,7 @@ object ScalaElementTypes {
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
 
   //Stub element types
-  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType
+  val FILE = new ScStubFileElementType
 
   val CLASS_DEFINITION = new ScClassDefinitionElementType
   val OBJECT_DEFINITION = new ScObjectDefinitionElementType
