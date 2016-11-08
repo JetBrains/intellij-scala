@@ -3,6 +3,7 @@ package lang.psi.api.expr
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
@@ -305,33 +306,24 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     Success(res, Some(this))
   }
 
-  def setApplicabilityProblemsVar(seq: Seq[ApplicabilityProblem]) {
-    val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(APPLICABILITY_PROBLEMS_VAR_KEY, (modCount, seq))
-  }
+  //used in Play
+  def setApplicabilityProblemsVar(seq: Seq[ApplicabilityProblem]): Unit = setUpdatableUserData(APPLICABILITY_PROBLEMS_VAR_KEY, seq)
 
-  private def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
-    val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))
-  }
+  private def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) = setUpdatableUserData(MATCHED_PARAMETERS_VAR_KEY, seq)
 
-  def setImportsUsed(set: collection.Set[ImportUsed]) {
-    val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(IMPORTS_USED_KEY, (modCount, set))
-  }
+  private def setImportsUsed(set: collection.Set[ImportUsed]) = setUpdatableUserData(IMPORTS_USED_KEY, set)
 
-  def setImplicitFunction(opt: Option[PsiNamedElement]) {
-    val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(IMPLICIT_FUNCTION_KEY, (modCount, opt))
-  }
+  private def setImplicitFunction(opt: Option[PsiNamedElement]) = setUpdatableUserData(IMPLICIT_FUNCTION_KEY, opt)
 
-  def setApplyOrUpdate(opt: Option[ScalaResolveResult]) {
-    val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(APPLY_OR_UPDATE_KEY, (modCount, opt))
+  private def setApplyOrUpdate(opt: Option[ScalaResolveResult]) = setUpdatableUserData(APPLY_OR_UPDATE_KEY, opt)
+
+  private def setUpdatableUserData[Res](key: Key[(Long, Res)], value: Res) = {
+    val modCount = CachesUtil.enclosingModificationOwner(this).getModificationCount
+    putUserData(key, (modCount, value))
   }
 
   private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: Res): Res = {
-    val modCount = getManager.getModificationTracker.getModificationCount
+    val modCount = CachesUtil.enclosingModificationOwner(this).getModificationCount
     getUserData(key) match {
       case (`modCount`, res) => res
       case _ =>
