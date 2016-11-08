@@ -17,5 +17,5 @@ object ScalaParameterInfoEnhancer {
   val EP_NAME: ExtensionPointName[ScalaParameterInfoEnhancer] =
     ExtensionPointName.create("org.intellij.scala.parameterInfoEnhancer")
 
-  def enchancers: Seq[ScalaParameterInfoEnhancer] = EP_NAME.getExtensions
+  def enhancers: Seq[ScalaParameterInfoEnhancer] = EP_NAME.getExtensions
 }

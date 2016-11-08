@@ -472,7 +472,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
                     val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
                     res += ((signature, i))
-                    ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
+                    ScalaParameterInfoEnhancer.enhancers.foreach { enhancer =>
                       res ++= enhancer.enhance(signature, args.arguments).map((_, i))
                     }
                   case _ =>
@@ -511,7 +511,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
                       val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
                       res += ((signature, 0))
-                      ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
+                      ScalaParameterInfoEnhancer.enhancers.foreach { enhancer =>
                         res ++= enhancer.enhance(signature, args.arguments).map(sign => (sign, 0))
                       }
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
