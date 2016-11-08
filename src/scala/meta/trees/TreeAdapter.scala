@@ -489,12 +489,14 @@ trait TreeAdapter {
       case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
       case None => Seq.empty
     }
+    val caseMod = if (t.hasModifierPropertyScala("case")) Seq(m.Mod.Case()) else Nil
+    val sealedMod = if (t.hasModifierPropertyScala("sealed")) Seq(m.Mod.Sealed()) else Nil
     val annotations: Seq[m.Mod.Annot] = t match {
       case ah: ScAnnotationsHolder => Seq(ah.annotations.filterNot(_.strip).map(toAnnot):_*)
       case _ => Seq.empty
     }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
-    annotations ++ overrideMod ++ common ++ classParam
+    annotations ++ sealedMod ++ caseMod ++ overrideMod ++ common ++ classParam
   }
 
   // Java conversion
