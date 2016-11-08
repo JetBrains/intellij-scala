@@ -95,9 +95,10 @@ object ExpansionUtil {
           case None => Left("Meta annotation class could not be found")
         }
       } catch {
-        case me: AbortException => Left(s"Tree conversion error: ${me.getMessage}")
+        case me: AbortException     => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException => Left(s"Semantic error: ${sm.getMessage}")
-        case _: Exception => Left(s"")
+        case so: StackOverflowError => Left(s"Stack overflow during expansion ${annotee.getText}")
+        case e: Exception           => Left(s"Unexpected error during expansion: ${e.getMessage}")
       }
     }
 

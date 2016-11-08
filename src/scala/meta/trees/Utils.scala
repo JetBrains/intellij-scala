@@ -2,14 +2,16 @@ package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScSugarCallExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScSugarCallExpr, ScTypedStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, api => p, types => ptype}
 
 import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
@@ -107,35 +109,60 @@ trait Utils {
     def withSubstitutionCaching[T](fun: TypeResult[ScType] => T):T = withSubstitutionCaching(TypingContext.empty, fun)
 
     def withSubstitutionCaching[T](context: TypingContext = TypingContext.empty, fun: TypeResult[ScType] => T):T = {
-      ScSubstitutor.cacheSubstitutions = true
-      val tp = expr.getType(context)
-      ScSubstitutor.cacheSubstitutions = false
-      val res = fun(tp)
-      ScSubstitutor.cache.clear()
-      res
+      if (dumbMode) {
+        expr match {
+          case ts: ScTypedStmt  => fun(TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.text, expr, null)))
+          case _                => fun(TypeResult.fromOption(None))
+        }
+      } else {
+        ScSubstitutor.cacheSubstitutions = true
+        val tp = expr.getType(context)
+        ScSubstitutor.cacheSubstitutions = false
+        val res = fun(tp)
+        ScSubstitutor.cache.clear()
+        res
+      }
     }
 
     def getTypeWithCachedSubst: ScType = getTypeWithCachedSubst(TypingContext.empty)
 
     def getTypeWithCachedSubst(context: TypingContext): ScType = {
-      val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
-      s.subst(expr.getType(context).get)
+      if (dumbMode) {
+        expr match {
+          case ts: ScTypedStmt  => ScalaPsiElementFactory.createTypeFromText(ts.text, expr, null).getOrElse(StdType.Any)
+          case _                => StdType.Any
+        }
+      } else {
+        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        s.subst(expr.getType(context).get)
+      }
     }
   }
 
   implicit class RichScFunctionDefinition(expr: ScFunctionDefinition) {
-    def getTypeWithCachedSubst = {
-      val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
-      s.subst(expr.getType().get)
+    def getTypeWithCachedSubst: ScType = {
+      if (dumbMode) {
+        expr.definedReturnType.getOrElse(StdType.Any)
+      } else {
+        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        s.subst(expr.getType().get)
+      }
     }
   }
 
   implicit class RichScTypedDefinition(expr: ScTypedDefinition) {
-    def getTypeWithCachedSubst = {
-      val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
-      expr.getType() match {
-        case Success(res, elem) => Success(s.subst(res), elem)
-        case other => other
+    def getTypeWithCachedSubst: TypeResult[ScType] = {
+      if (dumbMode) {
+        expr match {
+          case ts: ScTypedStmt => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.text, expr, null))
+          case _ => Success(StdType.Any, None)
+        }
+      } else {
+        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        expr.getType() match {
+          case Success(res, elem) => Success(s.subst(res), elem)
+          case other => other
+        }
       }
     }
   }
