@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,7 +34,9 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
   def typeElement: ScTypeElement
 
   def isMetaAnnotation: Boolean = {
-    import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+    // do not resolve anything while the stubs are building to avoid deadlocks
+    if (ScTemplateDefinitionElementType.isStubBuilding.get())
+      return false
     constructor.reference.exists {
       ref => ref.bind().exists {
         result => result.parentElement match {
