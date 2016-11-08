@@ -45,16 +45,12 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
             case Some(impl) => if (!processElement(impl, state)) return false
             case _ =>
           }
-          if(isOkCompanionModule)
-            ScalaPsiUtil.getMetaCompanionObject(c).foreach(m => processor.execute(m, state))
           true
         case t: ScTrait =>
           processor.execute(t, state)
           if (isOkForFakeCompanionModule(t)) {
             processor.execute(t.fakeCompanionModule.get, state)
           }
-          if(isOkCompanionModule)
-            ScalaPsiUtil.getMetaCompanionObject(t).foreach(m => processor.execute(m, state))
           true
         case named: ScNamedElement => processor.execute(named, state)
         case holder: ScDeclaredElementsHolder =>
