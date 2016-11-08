@@ -765,6 +765,24 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5728(): Unit = doTest()
 
+  def testSCL8705(): Unit = doTest(
+    """
+      |trait Ura[M[_]] { self =>
+      |  type S
+      |
+      |  def start : M[S]
+      |
+      |  def foo = new Ura[M] {
+      |    type S = (Ura.this.S, Int)
+      |
+      |    def start = /*start*/self.start/*end*/
+      |  }
+      |
+      |}
+      |//M[Ura.this.S]
+    """.stripMargin
+  )
+
   def testSCL8800(): Unit = doTest()
 
   def testSCL8933(): Unit = doTest()
