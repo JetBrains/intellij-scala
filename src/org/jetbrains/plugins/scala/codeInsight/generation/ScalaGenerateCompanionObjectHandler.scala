@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
  */
 class ScalaGenerateCompanionObjectHandler extends LanguageCodeInsightActionHandler {
   def isValidFor(editor: Editor, file: PsiFile): Boolean =
-    file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType &&
+    file != null && ScalaFileType.INSTANCE == file.getFileType &&
             GenerationUtil.classOrTraitAtCaret(editor, file).exists(canAddCompanionObject)
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {

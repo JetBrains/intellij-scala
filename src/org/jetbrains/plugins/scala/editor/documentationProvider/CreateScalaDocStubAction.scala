@@ -33,7 +33,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
 
     if(editor == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
-    if (file.getLanguage != ScalaFileType.SCALA_LANGUAGE) return
+    if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
     
     file findElementAt editor.getCaretModel.getOffset match {
       case id: PsiElement if id.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>

@@ -27,7 +27,7 @@ import scala.collection.mutable.HashSet
  * @author ilyas
  */
 abstract class ScSyntheticPackage(name: String, manager: PsiManager)
-        extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiPackage {
+  extends LightElement(manager, ScalaLanguage.INSTANCE) with PsiPackage {
 
   def handleQualifiedNameChange(newQualifiedName: String) {
   }

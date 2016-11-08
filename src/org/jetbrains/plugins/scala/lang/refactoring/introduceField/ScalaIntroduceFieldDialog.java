@@ -27,7 +27,9 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.EventListenerList;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -267,7 +269,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void setUpNameComboBox(String[] possibleNames) {
 
-    final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.SCALA_FILE_TYPE, myNameComboBox);
+      final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.INSTANCE, myNameComboBox);
 
     myNameComboBox.setEditor(comboEditor);
     myNameComboBox.setRenderer(new EditorComboBoxRenderer(comboEditor));

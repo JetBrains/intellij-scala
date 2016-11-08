@@ -60,7 +60,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     ScalaMethodDescriptor,
     ScalaParameterTableModelItem,
     ScalaParameterTableModel](project, method, false, method.fun) {
-  override def getFileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE
+  override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
 

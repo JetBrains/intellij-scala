@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 
 import java.awt.BorderLayout
 import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.{JComponent, JPanel, JCheckBox}
+import javax.swing.{JCheckBox, JComponent, JPanel}
 
 import com.intellij.application.options.codeStyle.OptionTreeWithPreviewPanel
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.ui.OnePixelDivider
-import com.intellij.psi.codeStyle.{LanguageCodeStyleSettingsProvider, CodeStyleSettings}
+import com.intellij.psi.codeStyle.{CodeStyleSettings, LanguageCodeStyleSettingsProvider}
 import com.intellij.ui.border.CustomLineBorder
-import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaFileType}
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /**
   * @author Roman.Shein
@@ -111,10 +111,10 @@ class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTre
       myAsteriskStyleCheckBox.isSelected != scalaSettings.USE_SCALADOC2_FORMATTING
   }
 
-  protected override def getFileType: FileType = ScalaFileType.SCALA_FILE_TYPE
+  protected override def getFileType: FileType = ScalaFileType.INSTANCE
 
   protected override def customizeSettings() {
-    val provider: LanguageCodeStyleSettingsProvider = LanguageCodeStyleSettingsProvider.forLanguage(ScalaLanguage.Instance)
+    val provider: LanguageCodeStyleSettingsProvider = LanguageCodeStyleSettingsProvider.forLanguage(ScalaLanguage.INSTANCE)
     if (provider != null) {
       provider.customizeSettings(this, getSettingsType)
     }

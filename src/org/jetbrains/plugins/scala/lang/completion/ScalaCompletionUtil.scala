@@ -160,24 +160,24 @@ object ScalaCompletionUtil {
     val text = removeDummy(classText + " " + additionText)
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
   }
 
   def checkElseWith(text: String, manager: PsiManager): Boolean = {
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
   }
 
   def checkDoWith(text: String, manager: PsiManager): Boolean = {
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
   }
 
@@ -186,8 +186,8 @@ object ScalaCompletionUtil {
     val text = removeDummy("class a { x:" + typeText + " " + additionText + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
     val value = !checkErrors(dummyFile)
     value
   }
@@ -197,8 +197,8 @@ object ScalaCompletionUtil {
     val text = removeDummy("class a { val x:" + typeText + " " + additionText + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
     val value = !checkErrors(dummyFile)
     value
   }
@@ -208,8 +208,8 @@ object ScalaCompletionUtil {
     val text = removeDummy("class a { " + typeText + " " + additionText + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
   }
 
@@ -228,8 +228,8 @@ object ScalaCompletionUtil {
     val text = removeDummy("class a { " + newsText + " " + additionText + "}")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
   }
 
@@ -240,8 +240,8 @@ object ScalaCompletionUtil {
     text = replaceDummy(text, " "+ additionText+ " ")
     val DUMMY = "dummy."
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
+        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
     !checkErrors(dummyFile)
   }
 

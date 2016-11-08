@@ -14,7 +14,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaCompilingExpressionEvaluator, ScalaCompilingEvaluator}
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingExpressionEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster
@@ -42,7 +42,7 @@ import scala.util.Try
 class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   override def isAvailable(sourcePosition: SourcePosition, evaluationContext: EvaluationContext): Boolean = {
     ScalaDebuggerSettings.getInstance().SHOW_VARIABLES_FROM_OUTER_SCOPES &&
-            sourcePosition.getFile.getLanguage == ScalaLanguage.Instance
+      sourcePosition.getFile.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
   override def collectVariables(sourcePosition: SourcePosition,
@@ -76,7 +76,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   }
 
   private def toTextWithImports(s: String) = {
-    val xExpr = new XExpressionImpl(s, ScalaLanguage.Instance, "")
+    val xExpr = new XExpressionImpl(s, ScalaLanguage.INSTANCE, "")
     TextWithImportsImpl.fromXExpression(xExpr)
   }
 

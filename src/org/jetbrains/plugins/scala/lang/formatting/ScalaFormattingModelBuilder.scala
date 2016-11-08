@@ -18,7 +18,7 @@ sealed class ScalaFormattingModelBuilder extends FormattingModelBuilder {
   def createModel(element: PsiElement, settings: CodeStyleSettings): FormattingModel = {
     val node: ASTNode = element.getNode
     assert(node != null)
-    val containingFile: PsiFile = element.getContainingFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE)
+    val containingFile: PsiFile = element.getContainingFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE)
     assert(containingFile != null, element.getContainingFile)
     val astNode: ASTNode = containingFile.getNode
     assert(astNode != null)

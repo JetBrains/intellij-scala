@@ -116,7 +116,7 @@ object ScalaRenameUtil {
           else {
             val needEncodedName: UsageInfo => Boolean = { u =>
               val ref = u.getReference.getElement
-              !ref.getLanguage.isInstanceOf[ScalaLanguage] //todo more concise condition?
+              !ref.getLanguage.isKindOf(ScalaLanguage.INSTANCE) //todo more concise condition?
             }
             val (usagesEncoded, usagesPlain) = usagez.partition(needEncodedName)
             Seq(UsagesWithName(encodedName, usagesEncoded), UsagesWithName(name, usagesPlain))

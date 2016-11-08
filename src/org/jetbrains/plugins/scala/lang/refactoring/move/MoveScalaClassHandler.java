@@ -50,7 +50,7 @@ public class MoveScalaClassHandler implements MoveClassHandler {
     final PsiFile file = clazz.getContainingFile();
     if (!(file instanceof ScalaFile)) return null;
     return ((ScalaFile)file).typeDefinitionsArray().length > 1
-        ? ((ScNamedElement) clazz).name() + "." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension()
+            ? ((ScNamedElement) clazz).name() + "." + ScalaFileType.INSTANCE.getDefaultExtension()
         : file.getName();
   }
 

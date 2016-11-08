@@ -56,7 +56,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     getSuitePaths.exists(path => ScalaPsiUtil.cachedDeepIsInheritor(parent, getCachedClass(path)))
   }
 
-  override def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
+  override def getLanguage: Language = ScalaLanguage.INSTANCE
 
   def generateObjectTests = false
 

@@ -170,7 +170,7 @@ class ScalaIntroduceParameterDialog(project: Project,
 
   override def createDefaultArgumentPanel(): JPanel = {
     val panel = new JPanel(new BorderLayout())
-    defaultForIntroducedTextField = new EditorTextField(introduceData.defaultArg, project, ScalaFileType.SCALA_FILE_TYPE)
+    defaultForIntroducedTextField = new EditorTextField(introduceData.defaultArg, project, ScalaFileType.INSTANCE)
     val label = new JLabel("Default value:")
     label.setLabelFor(defaultForIntroducedTextField)
     panel.add(label, BorderLayout.NORTH)

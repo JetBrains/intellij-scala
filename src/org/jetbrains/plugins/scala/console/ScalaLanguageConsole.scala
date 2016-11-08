@@ -5,7 +5,7 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -19,7 +19,7 @@ import scala.collection.mutable
   */
 
 class ScalaLanguageConsole(project: Project, title: String)
-  extends LanguageConsoleImpl(project, title, ScalaFileType.SCALA_LANGUAGE) {
+  extends LanguageConsoleImpl(project, title, ScalaLanguage.INSTANCE) {
   private val textBuffer = new StringBuilder
   private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1", project)
   

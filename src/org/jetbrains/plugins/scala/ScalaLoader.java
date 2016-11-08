@@ -57,7 +57,7 @@ public class ScalaLoader implements ApplicationComponent { //todo: to remove?
       public void projectOpened(Project project) {
 
         CompilerManager compilerManager = CompilerManager.getInstance(project);
-        compilerManager.addCompilableFileType(ScalaFileType.SCALA_FILE_TYPE);
+          compilerManager.addCompilableFileType(ScalaFileType.INSTANCE);
 
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
       }

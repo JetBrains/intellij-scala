@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
 import com.intellij.application.options.CodeStyleAbstractPanel;
-import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
@@ -94,7 +93,7 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
   @NotNull
   @Override
   protected FileType getFileType() {
-    return ScalaFileType.SCALA_FILE_TYPE;
+      return ScalaFileType.INSTANCE;
   }
 
   @Nullable

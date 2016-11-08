@@ -8,7 +8,6 @@ import com.intellij.testFramework.fixtures._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.junit.Assert
 
 import scala.reflect.{ClassTag, classTag}
 
@@ -36,7 +35,7 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
 
   def parseText(@Language("Scala") s: String): ScalaFile = {
     PsiFileFactory.getInstance(fixture.getProject)
-            .createFileFromText("foo" + ScalaFileType.DEFAULT_EXTENSION, ScalaFileType.SCALA_FILE_TYPE, s)
+      .createFileFromText("foo.scala", ScalaFileType.INSTANCE, s)
             .asInstanceOf[ScalaFile]
   }
 

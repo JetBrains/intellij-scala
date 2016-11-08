@@ -23,7 +23,7 @@ import com.intellij.lang.Language;
  *
  */
 public class ScalaLanguage extends Language {
-  public static Language Instance = new ScalaLanguage();
+  public static final Language INSTANCE = new ScalaLanguage();
 
   private ScalaLanguage() {
     super("Scala");

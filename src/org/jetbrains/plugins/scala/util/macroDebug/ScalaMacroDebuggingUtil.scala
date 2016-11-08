@@ -93,7 +93,7 @@ object ScalaMacroDebuggingUtil {
 
       val synFile = PsiFileFactory.getInstance(file.getManager.getProject).
               createFileFromText("expanded_" + file.getName,
-                ScalaFileType.SCALA_FILE_TYPE, linesRed.toString(), file.getModificationStamp, true).asInstanceOf[ScalaFile]
+                ScalaFileType.INSTANCE, linesRed.toString(), file.getModificationStamp, true).asInstanceOf[ScalaFile]
 
       SOURCE_CACHE += (canonicalPath -> synFile)
       PREIMAGE_CACHE += (synFile -> file)

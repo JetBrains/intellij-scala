@@ -159,7 +159,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   }
 
   private def withSpecialStyleIn(project: Project)(block: => Unit) {
-    val settings = CodeStyleSettingsManager.getSettings(project).getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+    val settings = CodeStyleSettingsManager.getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE)
 
     val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
     val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS

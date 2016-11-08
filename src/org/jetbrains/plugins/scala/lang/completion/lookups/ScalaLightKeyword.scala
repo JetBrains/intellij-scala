@@ -4,7 +4,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
  */
 
 class ScalaLightKeyword private (manager: PsiManager, text: String)
-  extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with ScalaPsiElement {
+  extends LightElement(manager, ScalaLanguage.INSTANCE) with ScalaPsiElement {
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
     findChildrenByClass[T](clazz)
 

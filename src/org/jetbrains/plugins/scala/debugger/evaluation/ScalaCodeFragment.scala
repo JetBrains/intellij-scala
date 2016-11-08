@@ -25,7 +25,7 @@ import scala.collection.mutable
 
 class ScalaCodeFragment(project: Project, text: String) extends {
   private var vFile = new LightVirtualFile("Dummy.scala",
-    ScalaFileType.SCALA_FILE_TYPE, text)
+    ScalaFileType.INSTANCE, text)
   private var provider = new SingleRootFileViewProvider(
     PsiManager.getInstance(project), vFile, true)
 } with ScalaFileImpl(provider) with JavaCodeFragment with ScDeclarationSequenceHolder {
@@ -126,7 +126,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     val clone = cloneImpl(calcTreeElement.clone.asInstanceOf[FileElement]).asInstanceOf[ScalaCodeFragment]
     clone.imports = this.imports
     clone.vFile = new LightVirtualFile("Dummy.scala",
-      ScalaFileType.SCALA_FILE_TYPE, getText)
+      ScalaFileType.INSTANCE, getText)
     clone.provider = provider.clone().asInstanceOf[SingleRootFileViewProvider]
     clone.provider.forceCachedPsi(clone)
     clone

@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager}
 import com.intellij.util.ui.EmptyIcon
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /**
  * @author Alefas
@@ -32,7 +32,8 @@ object ScalaKeywordLookupItem {
         case THIS | FALSE | TRUE | NULL | SUPER => // do nothing
         case _ =>
           def addSpace(addCompletionChar: Boolean = false) {
-            if (context.getFile.getViewProvider.getFileType != ScalaFileType.SCALA_FILE_TYPE) { // for play2 - we shouldn't add space in templates (like @if, @while etc)
+            if (context.getFile.getViewProvider.getFileType != ScalaFileType.INSTANCE) {
+              // for play2 - we shouldn't add space in templates (like @if, @while etc)
               val offset = context.getStartOffset
               val docStart = Math.max(0, context.getStartOffset - 1)
 
@@ -46,7 +47,8 @@ object ScalaKeywordLookupItem {
               document.insertString(offset, " ")
             editor.getCaretModel.moveToOffset(offset + 1)
           }
-          val settings = CodeStyleSettingsManager.getInstance(context.getProject).getCurrentSettings.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+
+          val settings = CodeStyleSettingsManager.getInstance(context.getProject).getCurrentSettings.getCommonSettings(ScalaLanguage.INSTANCE)
           context.getCompletionChar match {
             case '(' if parentheses.contains(keyword) =>
               val add = keyword match {

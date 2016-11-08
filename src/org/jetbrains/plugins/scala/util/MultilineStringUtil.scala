@@ -274,9 +274,9 @@ class MultilineStringSettings(project: Project) {
   private val scalaSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
 
   val defaultMarginChar = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).MARGIN_CHAR
-  val useTabs = settings.useTabCharacter(ScalaFileType.SCALA_FILE_TYPE)
-  val tabSize = settings.getTabSize(ScalaFileType.SCALA_FILE_TYPE)
-  val regularIndent = settings.getIndentOptions(ScalaFileType.SCALA_FILE_TYPE).INDENT_SIZE
+  val useTabs = settings.useTabCharacter(ScalaFileType.INSTANCE)
+  val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
+  val regularIndent = settings.getIndentOptions(ScalaFileType.INSTANCE).INDENT_SIZE
   val marginIndent = scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT
   val supportLevel = scalaSettings.MULTILINE_STRING_SUPORT
   val quotesOnNewLine = scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE

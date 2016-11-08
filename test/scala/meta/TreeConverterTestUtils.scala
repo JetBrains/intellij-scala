@@ -1,6 +1,6 @@
 package scala.meta
 
-import java.util.regex.{Matcher, Pattern}
+import java.util.regex.Pattern
 
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
-import scala.meta.internal.ast._
-import scala.meta._
 import scala.meta.semantic.IDEAContext
 
 trait TreeConverterTestUtils {
@@ -87,7 +85,7 @@ trait TreeConverterTestUtils {
         |}
       """.stripMargin
     else str
-    fixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+    fixture.configureByText(ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
 //    fixture.checkHighlighting()
   }
 }

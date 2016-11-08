@@ -11,7 +11,7 @@ public class ScalaDocElementType extends IElementType {
   private String debugName = null;
 
   public ScalaDocElementType(String debugName) {
-    super(debugName, ScalaFileType.SCALA_FILE_TYPE.getLanguage());
+      super(debugName, ScalaFileType.INSTANCE.getLanguage());
     this.debugName = debugName;
   }
 

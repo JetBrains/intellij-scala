@@ -18,5 +18,5 @@ class ScalaOverrideMethodsHandler extends LanguageCodeInsightActionHandler {
     ScalaOIUtil.invokeOverrideImplement(project, editor, file, isImplement = false)
   }
 
-  def isValidFor(editor: Editor, file: PsiFile): Boolean = file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType
+  def isValidFor(editor: Editor, file: PsiFile): Boolean = file != null && ScalaFileType.INSTANCE == file.getFileType
 }

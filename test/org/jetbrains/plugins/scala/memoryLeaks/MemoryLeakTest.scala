@@ -13,7 +13,6 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{DumbService, Project, ProjectManager}
 import com.intellij.openapi.startup.StartupManager
-import com.intellij.openapi.util.Computable
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.{LeakHunter, PlatformTestCase}
@@ -125,7 +124,7 @@ class MemoryLeakTest extends PlatformTestCase {
       .toIterator
       .flatMap(_.getTools.asScala)
       .map(_.getTool)
-      .filter(_.getLanguage == ScalaLanguage.Instance.getID)
+      .filter(_.getLanguage == ScalaLanguage.INSTANCE.getID)
       .collect {case local: LocalInspectionToolWrapper => local.getTool}
 
     val scalaFile = findScalaFile(project)

@@ -16,7 +16,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import com.intellij.testFramework.LightIdeaTestCase;
 import com.intellij.util.IncorrectOperationException;
-import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -60,7 +60,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   public TextRange myLineRange;
 
   public CommonCodeStyleSettings getCommonSettings() {
-    return getSettings().getCommonSettings(ScalaFileType.SCALA_LANGUAGE);
+      return getSettings().getCommonSettings(ScalaLanguage.INSTANCE);
   }
 
   public ScalaCodeStyleSettings getScalaSettings() {

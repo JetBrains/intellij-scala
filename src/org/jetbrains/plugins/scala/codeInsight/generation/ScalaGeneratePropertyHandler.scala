@@ -22,7 +22,8 @@ class ScalaGeneratePropertyHandler extends LanguageCodeInsightActionHandler {
         case _ => false
       }
     }
-    file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType && isOnVar
+
+    file != null && ScalaFileType.INSTANCE == file.getFileType && isOnVar
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
