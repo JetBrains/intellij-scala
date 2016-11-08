@@ -17,7 +17,10 @@ class BundledInspectionsUiTableModel(pathToInspections: util.Map[String, util.Ar
   private val rows = {
     val result = mutable.ArrayBuffer[(java.lang.Boolean, String, String, String)]()
 
-    val idsToNames = BundledInspectionStoreComponent.getInstance(project).getLoadedInspections.map(i => (i.getId, i.getName)).toMap
+    val idsToNames: Map[String, String] = Option(BundledInspectionStoreComponent.getInstance(project)) match {
+      case Some(sc) => sc.getLoadedInspections.map(i => (i.getId, i.getName)).toMap
+      case _ => Map.empty
+    }
     val it = pathToInspections.entrySet().iterator()
     
     while (it.hasNext) {
