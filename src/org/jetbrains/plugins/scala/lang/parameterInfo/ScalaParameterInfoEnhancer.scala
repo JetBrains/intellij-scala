@@ -18,4 +18,8 @@ object ScalaParameterInfoEnhancer {
     ExtensionPointName.create("org.intellij.scala.parameterInfoEnhancer")
 
   def enhancers: Seq[ScalaParameterInfoEnhancer] = EP_NAME.getExtensions
+
+  def enhance(signature: PhysicalSignature, arguments: Seq[ScExpression]): Seq[PhysicalSignature] = {
+    enhancers.flatMap(_.enhance(signature, arguments))
+  }
 }
