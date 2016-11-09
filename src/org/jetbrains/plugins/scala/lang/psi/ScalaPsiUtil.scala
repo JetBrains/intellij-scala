@@ -1166,17 +1166,12 @@ object ScalaPsiUtil {
     }
   }
 
-  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[ScObject] = {
-    ah.getExpansionText match {
-      case Right(text) =>
-        if (text.nonEmpty) {
-          val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(text)(ah.getManager)
-          if (blockImpl != null) {
-            val maybeScObject: Option[ScObject] = blockImpl.firstChild.get.children.findByType(classOf[ScObject])
-            maybeScObject
-          } else None
-        } else None
+  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
+    import scala.{meta => m}
+    ah.getMetaExpansion match {
       case Left(_) => None
+      case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
+      case Right(_) => None
     }
   }
 
