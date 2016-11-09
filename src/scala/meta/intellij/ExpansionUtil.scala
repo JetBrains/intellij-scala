@@ -65,13 +65,14 @@ object ExpansionUtil {
     @CachedInsidePsiElement(annot, ModCount.getModificationCount)
     def runMetaAnnotationsImpl: Either[String, Tree] = {
 
+      val copiedAnnot = annot.getContainingFile.copy().findElementAt(annot.getTextOffset).getParent
+
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
         override def dumbMode: Boolean = true
       }
 
-      val annotee: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(annot, classOf[ScAnnotationsHolder])
-        .copy()
+      val annotee: ScAnnotationsHolder = ScalaPsiUtil.getParentOfType(copiedAnnot, classOf[ScAnnotationsHolder])
         .asInstanceOf[ScAnnotationsHolder]
 
       annotee.annotations.find(_.getText == annot.getText).foreach(_.delete())

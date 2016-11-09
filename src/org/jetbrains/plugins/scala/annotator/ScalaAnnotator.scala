@@ -440,7 +440,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         warning.registerFix(new RecompileAnnotationAction(annotation))
       }
       val result = annotation.parent.flatMap(_.parent) match {
-        case Some(ah: ScAnnotationsHolder) => ah.getExpansionText
+        case Some(ah: ScAnnotationsHolder) => ah.getMetaExpansion
         case _ => Right("")
       }
       result match {
