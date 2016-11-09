@@ -30,33 +30,32 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER ) return
-    val p = element.getParent
-    processElement(p).foreach(result.add)
+    processElement(element).foreach(result.add)
   }
 
   private def processElement(element: PsiElement): Option[Marker] = {
-    element match {
+    element.getParent match {
       case holder: ScAnnotationsHolder =>
         val metaAnnot: Option[ScAnnotation] = holder.annotations.find(_.isMetaAnnotation)
         metaAnnot.map { annot =>
           ExpansionUtil.getCompiledMetaAnnotClass(annot) match {
-            case Some(clazz) if ExpansionUtil.isUpToDate(annot, clazz) => createExpandLineMarker(holder, annot)
-            case _                                                     => createNotCompiledLineMarker(holder, annot)
+            case Some(clazz) if ExpansionUtil.isUpToDate(annot, clazz) => createExpandLineMarker(annot.getFirstChild, annot)
+            case _                                                     => createNotCompiledLineMarker(annot.getFirstChild, annot)
           }
         }
       case _ => None
     }
   }
 
-  private def createExpandLineMarker(holder: ScAnnotationsHolder, annot: ScAnnotation): Marker = {
-    newMarker(holder, AllIcons.General.ExpandAllHover, ScalaBundle.message("scala.meta.expand")) { _=>
+  private def createExpandLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
+    newMarker(element, AllIcons.General.ExpandAllHover, ScalaBundle.message("scala.meta.expand")) { _=>
       MacroExpandAction.expandMetaAnnotation(annot)
     }
   }
 
-  private def createNotCompiledLineMarker(holder: ScAnnotationsHolder, annot: ScAnnotation): Marker = {
+  private def createNotCompiledLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
     import org.jetbrains.plugins.scala.project._
-    newMarker(holder, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
+    newMarker(element, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
       CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
         new CompileStatusNotification {
           override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) = {
