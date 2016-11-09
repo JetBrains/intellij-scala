@@ -14,7 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
+  private val manager: ScalaPsiManager = ScalaPsiManager.instance(project)
   def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
+    if (manager.isInJavaPsiFacade) return Array.empty
     val res = new ArrayBuffer[PsiClass]
 
     def iterateClasses(suffix: String)(fun: PsiClass => Unit) {
@@ -63,12 +65,13 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   }
 
   override def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
+    if (manager.isInJavaPsiFacade) return Array.empty
     val otherClassNames = getClassNames(psiPackage, scope)
     val result: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
     import scala.collection.JavaConversions._
     for (clazzName <- otherClassNames) {
       val qualName = psiPackage.getQualifiedName + "." + clazzName
-      result ++= ScalaPsiManager.instance(project).getCachedClasses(scope, qualName)
+      result ++= manager.getCachedClasses(scope, qualName)
       result ++= findClasses(qualName, scope)
     }
     result.toArray
