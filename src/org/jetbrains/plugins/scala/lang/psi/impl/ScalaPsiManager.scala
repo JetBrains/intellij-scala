@@ -48,6 +48,11 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(val project: Project) {
+  private val inJavaPsiFacade: ThreadLocal[Boolean] = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  }
+
+  def isInJavaPsiFacade: Boolean = inJavaPsiFacade.get
 
   private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
   private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
@@ -111,9 +116,14 @@ class ScalaPsiManager(val project: Project) {
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
     def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
-      val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
-      if (clazz == null || clazz.isInstanceOf[ScTemplateDefinition] || clazz.isInstanceOf[PsiClassWrapper]) None
-      else Option(clazz)
+      inJavaPsiFacade.set(true)
+      try {
+        val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
+        if (clazz == null || clazz.isInstanceOf[ScTemplateDefinition] || clazz.isInstanceOf[PsiClassWrapper]) None
+        else Option(clazz)
+      } finally {
+        inJavaPsiFacade.set(false)
+      }
     }
 
     val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
@@ -170,10 +180,16 @@ class ScalaPsiManager(val project: Project) {
   private def getClassesCached(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = getClassesImpl(pack, scope)
 
   private[this] def getClassesImpl(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
-    val classes =
-      JavaPsiFacade.getInstance(project).asInstanceOf[JavaPsiFacadeImpl].getClasses(pack, scope).filterNot(p =>
-        p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
-      )
+    val classes = {
+      inJavaPsiFacade.set(true)
+      try {
+        JavaPsiFacade.getInstance(project).asInstanceOf[JavaPsiFacadeImpl].getClasses(pack, scope).filterNot(p =>
+          p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
+        )
+      } finally {
+        inJavaPsiFacade.set(false)
+      }
+    }
     val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClasses(pack, scope)
     classes ++ scalaClasses
   }
@@ -181,13 +197,18 @@ class ScalaPsiManager(val project: Project) {
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
     def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
-      val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, new DelegatingGlobalSearchScope(scope) {
-        override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
-      }).filterNot { p =>
-        p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
-      }
+      inJavaPsiFacade.set(true)
+      try {
+        val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, new DelegatingGlobalSearchScope(scope) {
+          override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
+        }).filterNot { p =>
+          p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
+        }
 
-      ArrayUtil.mergeArrays(classes, SyntheticClassProducer.getAllClasses(fqn, scope))
+        ArrayUtil.mergeArrays(classes, SyntheticClassProducer.getAllClasses(fqn, scope))
+      } finally {
+        inJavaPsiFacade.set(false)
+      }
     }
     if (DumbService.getInstance(project).isDumb) return Array.empty
 
