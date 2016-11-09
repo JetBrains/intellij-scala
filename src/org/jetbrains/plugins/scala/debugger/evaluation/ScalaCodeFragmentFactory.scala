@@ -18,11 +18,11 @@ import com.intellij.xdebugger.impl.frame.XValueMarkers
 import com.intellij.xdebugger.impl.ui.tree.ValueMarkup
 import com.intellij.xdebugger.{XDebugSession, XDebuggerManager}
 import com.sun.jdi.{ObjectReference, Value}
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
+import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -85,13 +85,13 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def isContextAccepted(contextElement: PsiElement): Boolean = {
     if (contextElement.isInstanceOf[PsiCodeBlock]) {
       return contextElement.getContext != null && contextElement.getContext.getContext != null &&
-        contextElement.getContext.getContext.getLanguage == ScalaFileType.SCALA_LANGUAGE
+        contextElement.getContext.getContext.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     }
     if (contextElement == null) return false
-    contextElement.getLanguage == ScalaFileType.SCALA_LANGUAGE
+    contextElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
-  def getFileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE
+  def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
   def getEvaluatorBuilder: EvaluatorBuilder = ScalaEvaluatorBuilder
 

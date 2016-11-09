@@ -35,7 +35,7 @@ import scala.collection.{Seq, mutable}
 
 abstract class SyntheticNamedElement(name: String)
                                     (implicit val manager: PsiManager)
-  extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
+  extends LightElement(manager, ScalaLanguage.INSTANCE) with PsiNameIdentifierOwner {
   override def getName = name
   override def getText = ""
   def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
@@ -240,7 +240,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     all = new mutable.HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
-      "dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension, ScalaFileType.SCALA_FILE_TYPE, "")
+      "dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, "")
 
     val any = registerClass(Any, "Any")
     implicit val manager = any.manager
@@ -326,8 +326,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     syntheticObjects = new mutable.HashSet[ScObject]
     def registerObject(fileText: String) {
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-              createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-        ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
+        createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension,
+          ScalaFileType.INSTANCE, fileText).asInstanceOf[ScalaFile]
       val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
       syntheticObjects += obj
     }

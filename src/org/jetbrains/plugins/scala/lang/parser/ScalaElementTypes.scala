@@ -387,7 +387,7 @@ trait ElementTypes {
   }
 
   class ScCodeBlockElementType()
-    extends IErrorCounterReparseableElementType("block of expressions", ScalaFileType.SCALA_LANGUAGE)
+    extends IErrorCounterReparseableElementType("block of expressions", ScalaLanguage.INSTANCE)
       with ICompositeElementType {
 
     override def createNode(text: CharSequence): ASTNode = new ScBlockExprImpl(text)

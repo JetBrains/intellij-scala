@@ -45,17 +45,14 @@ class ScalaTestGenerator extends TestGenerator {
     }
   }
 
-  override def toString: String = ScalaFileType.SCALA_LANGUAGE.getDisplayName
+  override def toString: String = ScalaLanguage.INSTANCE.getDisplayName
 
   private def generateTestInternal(project: Project, d: CreateTestDialog): PsiFile = {
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-    val SCALA_EXTENSIOIN = "." + ScalaFileType.DEFAULT_EXTENSION
-    val file = NewScalaTypeDefinitionAction.createFromTemplate(d.getTargetDirectory, d.getClassName, d.getClassName +
-        SCALA_EXTENSIOIN,
-      d.getSelectedTestFrameworkDescriptor match {
-        case f: AbstractTestFramework if f.generateObjectTests => "Scala Object"
-        case _ => "Scala Class"
-      })
+    val file = NewScalaTypeDefinitionAction.createFromTemplate(d.getTargetDirectory, d.getClassName, d.getSelectedTestFrameworkDescriptor match {
+      case f: AbstractTestFramework if f.generateObjectTests => "Scala Object"
+      case _ => "Scala Class"
+    })
     val typeDefinition = file.depthFirst.filterByType(classOf[ScTypeDefinition]).next()
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
     val fqName = d.getSuperClassName

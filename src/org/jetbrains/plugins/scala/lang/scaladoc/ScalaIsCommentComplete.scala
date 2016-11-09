@@ -6,7 +6,7 @@ import com.intellij.lexer.Lexer
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiFile}
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 
 /**
   * @author Alexander Podkhalyuzin
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 
 class ScalaIsCommentComplete extends CommentCompleteHandler {
   def isApplicable(comment: PsiComment, commenter: CodeDocumentationAwareCommenter): Boolean = {
-    comment.getParent.getLanguage == ScalaFileType.SCALA_LANGUAGE
+    comment.getParent.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   }
 
   //same code in com.intellij.codeInsight.editorActions.EnterHandler

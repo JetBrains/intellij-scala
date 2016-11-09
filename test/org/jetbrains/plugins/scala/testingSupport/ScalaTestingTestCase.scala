@@ -21,7 +21,7 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiManager}
-import com.intellij.testFramework.{EdtTestUtil, UsefulTestCase}
+import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestBase, ScalaVersion_2_11}
@@ -104,7 +104,7 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
 
     EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       override def run(): Unit = {
-        val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
+        val psiFile = myManager.findViewProvider(file).getPsi(ScalaLanguage.INSTANCE)
         psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
           getLineStartOffset(lineNumber) + offset)
       }

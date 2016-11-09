@@ -72,7 +72,7 @@ object ScTypePresentation extends api.ScTypePresentation {
       }
       val typeTailForProjection = typeTail(checkIfStable(e) && needDotType)
       def isInnerStaticJavaClassForParent(clazz: PsiClass): Boolean = {
-        clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
+        !clazz.getLanguage.isKindOf(ScalaLanguage.INSTANCE) &&
           e.isInstanceOf[PsiModifierListOwner] &&
           e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static")
       }

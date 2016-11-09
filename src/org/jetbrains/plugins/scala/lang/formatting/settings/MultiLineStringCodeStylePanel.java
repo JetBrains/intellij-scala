@@ -87,7 +87,7 @@ public class MultiLineStringCodeStylePanel extends CodeStyleAbstractPanel {
   @NotNull
   @Override
   protected FileType getFileType() {
-    return ScalaFileType.SCALA_FILE_TYPE;
+      return ScalaFileType.INSTANCE;
   }
 
   @Override

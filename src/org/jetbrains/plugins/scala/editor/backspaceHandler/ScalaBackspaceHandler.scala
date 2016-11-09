@@ -7,9 +7,8 @@ import com.intellij.codeInsight.highlighting.BraceMatchingUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
@@ -109,7 +108,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       val iterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
 
       val fileType = file.getFileType
-      if (fileType != ScalaFileType.SCALA_FILE_TYPE) return None
+      if (fileType != ScalaFileType.INSTANCE) return None
       val txt = document.getImmutableCharSequence
       
       val tpe = iterator.getTokenType

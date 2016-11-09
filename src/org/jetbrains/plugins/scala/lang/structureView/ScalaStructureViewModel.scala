@@ -69,7 +69,7 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
   }
 
   override def getNodeProviders: util.Collection[NodeProvider[_ <: TreeElement]] = {
-    if (myRootElement.getFileType == ScalaFileType.SCALA_FILE_TYPE)
+    if (myRootElement.getFileType == ScalaFileType.INSTANCE)
       util.Arrays.asList(new ScalaInheritedMembersNodeProvider, new TestNodeProvider)
     else
       util.Arrays.asList(new ScalaInheritedMembersNodeProvider)

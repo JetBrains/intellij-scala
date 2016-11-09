@@ -16,7 +16,7 @@
 package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.psi.tree.IElementType;
-import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 
 /**
  * @author ilyas
@@ -32,7 +32,7 @@ public class ScalaElementType extends IElementType {
   }
 
   public ScalaElementType(String debugName, boolean leftBound) {
-    super(debugName, ScalaFileType.SCALA_LANGUAGE);
+      super(debugName, ScalaLanguage.INSTANCE);
     this.debugName = debugName;
     this.leftBound = leftBound;
   }

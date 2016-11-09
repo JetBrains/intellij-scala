@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
   * @@(Seq[PsiElement], separator = ", ") elements are inserted directly, separators are re-parsed
 */
 object ScalaCode {
-  private val FileName = "factory" + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension
+  private val FileName = "factory" + ScalaFileType.INSTANCE.getDefaultExtension
   private val Placeholder = "placeholder$0"
 
   // "unquote-splicing"
@@ -39,7 +39,7 @@ object ScalaCode {
 
   private def parse(s: String)(implicit project: Project): ScalaFile =
     PsiFileFactory.getInstance(project)
-      .createFileFromText(FileName, ScalaFileType.SCALA_FILE_TYPE, s).asInstanceOf[ScalaFile]
+      .createFileFromText(FileName, ScalaFileType.INSTANCE, s).asInstanceOf[ScalaFile]
 
   private def format(format: String, elements: Any*)(implicit project: Project): ScalaPsiElement = {
     val file = parse(format.replace("%e", Placeholder))

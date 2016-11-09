@@ -67,7 +67,7 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
 }
 
 object ScalaBreadcrumbsInfoProvider {
-  val SCALA_LANG = Array[Language](ScalaLanguage.Instance)
+  val SCALA_LANG = Array[Language](ScalaLanguage.INSTANCE)
   
   val MAX_TEXT_LENGTH = 150
   val MAX_STRING_LENGTH = 25

@@ -29,14 +29,10 @@ import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -151,7 +147,7 @@ public class ScalaProjectSettingsPanel {
 
   @NotNull
   protected FileType getFileType() {
-    return ScalaFileType.SCALA_FILE_TYPE;
+      return ScalaFileType.INSTANCE;
   }
 
   public void apply() throws ConfigurationException {

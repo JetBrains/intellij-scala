@@ -8,7 +8,6 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleSettings
-import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
 import com.intellij.psi.codeStyle.arrangement.`match`.{ArrangementSectionRule, StdArrangementEntryMatcher, StdArrangementMatchRule}
 import com.intellij.psi.codeStyle.arrangement.group.ArrangementGroupingRule
 import com.intellij.psi.codeStyle.arrangement.model.{ArrangementAtomMatchCondition, ArrangementCompositeMatchCondition, ArrangementMatchCondition}
@@ -18,6 +17,7 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier.
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
 import com.intellij.psi.codeStyle.arrangement.std._
+import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
 
 import scala.collection.JavaConversions._
 import scala.collection.{immutable, mutable}
@@ -68,7 +68,7 @@ class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with Arrangement
     if (previous == null) {
       -1
     } else {
-      val codeStyleSettings = settings.getCommonSettings(ScalaFileType.SCALA_LANGUAGE) //probably this will not work
+      val codeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE) //probably this will not work
 
       def getBlankLines(typeAround: ArrangementSettingsToken) =
         if (typeAround == VAL || typeAround == VAR || typeAround == TYPE) codeStyleSettings.BLANK_LINES_AROUND_FIELD

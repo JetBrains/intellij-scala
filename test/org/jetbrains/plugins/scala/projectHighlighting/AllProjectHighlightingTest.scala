@@ -7,9 +7,9 @@ import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
+import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
@@ -74,9 +74,9 @@ trait AllProjectHighlightingTest {
 
     val searchScope =
       new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(getProject),
-        ScalaFileType.SCALA_FILE_TYPE, JavaFileType.INSTANCE), getProject)
+        ScalaFileType.INSTANCE, JavaFileType.INSTANCE), getProject)
 
-    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.SCALA_FILE_TYPE, searchScope)
+    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
 
     LocalFileSystem.getInstance().refreshFiles(files)
 

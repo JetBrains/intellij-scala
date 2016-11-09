@@ -66,7 +66,7 @@ public abstract class ScalaUtils {
    */
   public static boolean isScalaFile(final VirtualFile file) {
     return (file != null) && !file.isDirectory() &&
-            ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension().equals(file.getExtension());
+            ScalaFileType.INSTANCE.getDefaultExtension().equals(file.getExtension());
   }
 
   /**

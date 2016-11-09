@@ -25,7 +25,7 @@ import scala.collection.JavaConverters._
 abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends SuppressByCommentFix(key, classOf[ScalaPsiElement]) {
   override def createSuppression(project: Project, element: PsiElement, container: PsiElement): Unit = {
     val text: String = SuppressionUtilCore.SUPPRESS_INSPECTIONS_TAG_NAME + " " + key.getID
-    val comment: PsiComment = SuppressionUtil.createComment(project, text, ScalaLanguage.Instance)
+    val comment: PsiComment = SuppressionUtil.createComment(project, text, ScalaLanguage.INSTANCE)
     val newLine = createNewLine()(element.getManager)
     container match {
       case owner: ScDocCommentOwner if owner.docComment.isDefined =>

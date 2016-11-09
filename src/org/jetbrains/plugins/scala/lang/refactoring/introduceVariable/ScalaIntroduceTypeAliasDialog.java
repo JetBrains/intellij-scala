@@ -117,7 +117,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private void setUpNameComboBox(String[] possibleNames) {
 
-        final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.SCALA_FILE_TYPE, myNameComboBox);
+        final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.INSTANCE, myNameComboBox);
 
         myNameComboBox.setEditor(comboEditor);
         myNameComboBox.setRenderer(new EditorComboBoxRenderer(comboEditor));

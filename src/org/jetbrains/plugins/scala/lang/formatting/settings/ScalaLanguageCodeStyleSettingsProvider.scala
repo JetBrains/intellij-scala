@@ -5,7 +5,7 @@ import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, CommonCodeStyleSettings, DisplayPriority, LanguageCodeStyleSettingsProvider}
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -24,7 +24,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     }
   }
 
-  def getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
+  def getLanguage: Language = ScalaLanguage.INSTANCE
 
   override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType) {
     def showCustomOption(fieldName: String, title: String, groupName: String, options: AnyRef*) {

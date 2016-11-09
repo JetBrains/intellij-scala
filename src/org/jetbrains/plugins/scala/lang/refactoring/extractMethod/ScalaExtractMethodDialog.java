@@ -89,7 +89,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myInput = input;
     myOutput = output;
     myLastMeaningful = lastMeaningful;
-    mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.SCALA_FILE_TYPE);
+      mySignaturePreview = new MethodSignatureComponent("", project, ScalaFileType.INSTANCE);
     mySignaturePreview.setMinimumSize(new Dimension(500, 70));
 
     setModal(true);

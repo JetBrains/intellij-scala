@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
-class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
+class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.INSTANCE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
                 with ScalaFile with FileDeclarationsHolder
                 with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {

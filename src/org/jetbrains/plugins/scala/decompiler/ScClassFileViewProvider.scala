@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
  * @author ilyas
  */
 class ScClassFileViewProvider(manager: PsiManager, file: VirtualFile, physical: Boolean, isScalaFile: Boolean)
-extends SingleRootFileViewProvider(manager, file, physical, ScalaFileType.SCALA_FILE_TYPE.getLanguage) {
+  extends SingleRootFileViewProvider(manager, file, physical, ScalaFileType.INSTANCE.getLanguage) {
 
   override def getContents: CharSequence =
     if (!isScalaFile) ""

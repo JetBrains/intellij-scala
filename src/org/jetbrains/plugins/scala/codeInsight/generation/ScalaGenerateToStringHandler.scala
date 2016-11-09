@@ -45,7 +45,7 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
       case Some(_: ScTrait) => true
       case _ => false
     }
-    file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType && isSuitableClass
+    file != null && ScalaFileType.INSTANCE == file.getFileType && isSuitableClass
   }
 
   override def startInWriteAction(): Boolean = true

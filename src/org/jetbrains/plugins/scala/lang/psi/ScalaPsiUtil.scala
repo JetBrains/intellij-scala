@@ -1033,7 +1033,7 @@ object ScalaPsiUtil {
   }
 
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
-    new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
+    new LightModifierList(manager, ScalaLanguage.INSTANCE)
 
   def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true)
                  (implicit typeSystem: TypeSystem = element.typeSystem) {
@@ -1687,7 +1687,7 @@ object ScalaPsiUtil {
       case (reference, name) => reference.refName != name
     }.toSet
 
-    if (position != null && position.getLanguage.getID != "Scala")
+    if (position != null && !position.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
       return Set.empty
 
     var parent = position.getParent

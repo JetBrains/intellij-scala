@@ -152,7 +152,7 @@ object ScalaPsiElementFactory {
 
   def createScalaFileFromText(text: String, project: Project): ScalaFile =
     PsiFileFactory.getInstance(project)
-      .createFileFromText(s"dummy.${ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension}", ScalaFileType.SCALA_FILE_TYPE, convertLineSeparators(text))
+      .createFileFromText(s"dummy.${ScalaFileType.INSTANCE.getDefaultExtension}", ScalaFileType.INSTANCE, convertLineSeparators(text))
       .asInstanceOf[ScalaFile]
 
   def createScalaFileFromText(text: String)
@@ -741,7 +741,7 @@ object ScalaPsiElementFactory {
     val holder = DummyHolderFactory.createHolder(manager, context).getTreeElement
 
     val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance
-      .createBuilder(project, holder, new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, convertLineSeparators(text.trim)))
+      .createBuilder(project, holder, new ScalaLexer, ScalaLanguage.INSTANCE, convertLineSeparators(text.trim)))
 
     val marker = builder.mark()
     parse(builder)

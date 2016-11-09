@@ -26,7 +26,7 @@ class ScalaSourcePositionProvider extends SourcePositionProvider {
     val contextElement = PositionUtil.getContextElement(context)
     if (contextElement == null) return null
 
-    val isScala = contextElement.getLanguage.isKindOf(ScalaLanguage.Instance)
+    val isScala = contextElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     if (!isScala) return null
 
     descriptor match {

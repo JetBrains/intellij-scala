@@ -63,7 +63,7 @@ case class ScalaChangeInfo(newVisibility: String,
 
   override val isGenerateDelegate: Boolean = false
 
-  override val getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
+  override val getLanguage: Language = ScalaLanguage.INSTANCE
 
   override val isReturnTypeChanged: Boolean = function match {
     case f: ScFunction => f.returnType.toOption.map(_.canonicalText) != Option(newType).map(_.canonicalText)

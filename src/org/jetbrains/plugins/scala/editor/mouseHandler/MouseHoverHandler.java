@@ -125,8 +125,8 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       if (editor.getProject() != null && editor.getProject() != myProject) return;
       PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editor.getDocument());
 
-      if (psiFile != null && psiFile.getViewProvider().getBaseLanguage() != ScalaLanguage.Instance) {
-        PsiFile scalaFile = psiFile.getViewProvider().getPsi(ScalaLanguage.Instance);
+        if (psiFile != null && psiFile.getViewProvider().getBaseLanguage() != ScalaLanguage.INSTANCE) {
+            PsiFile scalaFile = psiFile.getViewProvider().getPsi(ScalaLanguage.INSTANCE);
         if (scalaFile == null) return;
         psiFile = scalaFile;
       }

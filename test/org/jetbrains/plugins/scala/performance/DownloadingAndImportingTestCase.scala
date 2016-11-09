@@ -96,9 +96,9 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     val directoryScope = GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true)
     val searchScope =
       new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(directoryScope,
-        ScalaFileType.SCALA_FILE_TYPE, JavaFileType.INSTANCE), myProject)
+        ScalaFileType.INSTANCE, JavaFileType.INSTANCE), myProject)
 
-    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.SCALA_FILE_TYPE, searchScope)
+    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
     val file = files.filter(_.getName == filename).toList match {
       case vf :: Nil => vf
       case Nil => //is this a filepath?

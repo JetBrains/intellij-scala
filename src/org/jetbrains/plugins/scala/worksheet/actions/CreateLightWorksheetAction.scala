@@ -19,7 +19,7 @@ class CreateLightWorksheetAction extends AnAction {
     val text = StringUtil.notNullize(if (editor == null) null else editor.getSelectionModel.getSelectedText)
     
     val f: VirtualFile = ScratchRootType.getInstance.createScratchFile(
-      project, "scratch", ScalaFileType.SCALA_LANGUAGE, text, ScratchFileService.Option.create_new_always)
+      project, "scratch", ScalaLanguage.INSTANCE, text, ScratchFileService.Option.create_new_always)
     if (f != null) FileEditorManager.getInstance(project).openFile(f, true)
   }
 

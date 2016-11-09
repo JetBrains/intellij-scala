@@ -5,7 +5,7 @@ package formatting
 * @author ilyas
 */
 
-import _root_.java.util
+import java.util
 
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
@@ -683,9 +683,9 @@ object getDummyBlocks {
 
     lines foreach { line =>
       val trimmedLine = line.trim()
-      val linePrefixLength = if (settings useTabCharacter ScalaFileType.SCALA_FILE_TYPE) {
+      val linePrefixLength = if (settings useTabCharacter ScalaFileType.INSTANCE) {
         val tabsCount = line.prefixLength(_ == '\t')
-        tabsCount/* *settings.getTabSize(ScalaFileType.SCALA_FILE_TYPE)*/ + line.substring(tabsCount).prefixLength(_ == ' ')
+        tabsCount /* *settings.getTabSize(ScalaFileType.INSTANCE)*/ + line.substring(tabsCount).prefixLength(_ == ' ')
       } else {
         line.prefixLength(_ == ' ')
       }
@@ -809,7 +809,7 @@ object getDummyBlocks {
   }
 
   private def mustAlignment(node: ASTNode, s: CodeStyleSettings) = {
-    val mySettings = s.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+    val mySettings = s.getCommonSettings(ScalaLanguage.INSTANCE)
     val scalaSettings = s.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
       case _: ScXmlStartTag => true  //todo:

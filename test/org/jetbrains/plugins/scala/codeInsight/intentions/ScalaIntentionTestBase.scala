@@ -44,7 +44,7 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
 
 
   def intentionByFamilyName(text: String, familyName: String): Option[IntentionAction] = {
-    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, groom(text))
+    myFixture.configureByText(ScalaFileType.INSTANCE, groom(text))
     val intentions: util.List[IntentionAction] = myFixture.getAvailableIntentions
     intentions.find(action => action.getFamilyName == familyName)
   }

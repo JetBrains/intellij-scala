@@ -63,7 +63,7 @@ object ScalaMoveUtil {
         case (td: ScTypeDefinition, file: ScalaFile) =>
           val fileWithOldFileName = moveDestination.findFile(file.getName)
           val className = td.name
-          val fileWithClassName = moveDestination.findFile(className + "." + ScalaFileType.DEFAULT_EXTENSION)
+          val fileWithClassName = moveDestination.findFile(s"$className.${ScalaFileType.INSTANCE.getDefaultExtension}")
           // moving second of two classes which were in the same file to a different directory (IDEADEV-3089)
           if (moveDestination != file.getContainingDirectory && fileWithOldFileName != null && classCanBeAdded(file, aClass)) {
             newClass = fileWithOldFileName.add(td).asInstanceOf[PsiClass]

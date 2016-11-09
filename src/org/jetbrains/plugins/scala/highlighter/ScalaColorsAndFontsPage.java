@@ -9,7 +9,7 @@ import com.intellij.openapi.options.colors.ColorSettingsPage;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.icons.Icons;
 
 import javax.swing.*;
@@ -109,7 +109,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
 
   @NotNull
   public SyntaxHighlighter getHighlighter() {
-    return SyntaxHighlighterFactory.getSyntaxHighlighter(ScalaFileType.SCALA_LANGUAGE, null, null);
+      return SyntaxHighlighterFactory.getSyntaxHighlighter(ScalaLanguage.INSTANCE, null, null);
   }
 
   @NonNls
