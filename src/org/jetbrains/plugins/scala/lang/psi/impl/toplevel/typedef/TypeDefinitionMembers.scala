@@ -578,7 +578,7 @@ object TypeDefinitionMembers {
                            (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
 
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
-    def selfTypeSignaturesInner(implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
+    def selfTypeSignaturesInner(implicit typeSystem : TypeSystem = clazz.typeSystem): SMap = {
       clazz match {
         case td: ScTypeDefinition =>
           td.selfType match {
@@ -662,28 +662,6 @@ object TypeDefinitionMembers {
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
 
-    val expansion = clazz match {
-      case ah: ScAnnotationsHolder => ah.getExpansionText
-      case _ => Left("")
-    }
-
-    expansion match {
-      case Right(expansionText) if expansionText.nonEmpty =>
-        val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansionText)(clazz.getManager)
-        if (blockImpl != null) {
-          val fromSingle = blockImpl.children.findByType(classOf[PsiClass])
-          lazy val fromBlock: Option[PsiClass] = blockImpl.firstChild.get.children.findByType(classOf[PsiClass])
-          fromSingle.orElse(fromBlock) match {
-            case Some(c) =>
-              if(!processDeclarations(c, processor, state, lastParent, place)) return false
-              ScalaPsiUtil.getCompanionModule(c).foreach { co =>
-                if(!processDeclarations(co, processor, state, lastParent, place)) return false
-              }
-            case None =>
-          }
-        }
-      case _ =>
-    }
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),
       () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,
