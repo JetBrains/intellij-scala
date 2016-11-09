@@ -7,11 +7,15 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
   * @since 10.02.2015.
   */
 trait FunSuiteGenerator extends ScalaTestTestCase {
-  addSourceFile("FunSuiteTest.scala",
-    """
+
+  val funSuiteClassName = "FunSuiteTest"
+  val funSuiteFileName = funSuiteClassName + ".scala"
+
+  addSourceFile(funSuiteFileName,
+    s"""
       |import org.scalatest._
       |
-      |class FunSuiteTest extends FunSuite {
+      |class $funSuiteClassName extends FunSuite {
       |
       |  test("should not run other tests") {
       |    print(">>TEST: FAILED<<")
@@ -20,7 +24,11 @@ trait FunSuiteGenerator extends ScalaTestTestCase {
       |  test("should run single test") {
       |    print(">>TEST: OK<<")
       |  }
+      |
+      |  test("tagged", FunSuiteTag) {}
       |}
+      |
+      |object FunSuiteTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 }

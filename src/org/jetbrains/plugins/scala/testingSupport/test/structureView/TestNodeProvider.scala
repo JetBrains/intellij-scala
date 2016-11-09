@@ -48,7 +48,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
           if (!clazz.isValid) return children
           clazz.extendsBlock.templateBody match {
             case Some(body) =>
-              for (expr <- body.exprs) {
+              for (expr <- body.getChildren.filter(_.isInstanceOf[ScExpression])) {
                 (expr match {
                   case expr: ScMethodCall =>
                     TestNodeProvider.extractTestViewElement(expr, clazz, project)
