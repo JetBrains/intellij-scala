@@ -7,11 +7,14 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
   * @since 10.02.2015.
   */
 trait FreeSpecPathGenerator extends ScalaTestTestCase {
-  addSourceFile("FreeSpecPathTest.scala",
-    """
+  val freeSpecPathClassName = "FreeSpecPathTest"
+  val freeSpecPathFileName = freeSpecPathClassName + ".scala"
+
+  addSourceFile(freeSpecPathFileName,
+    s"""
       |import org.scalatest._
       |
-      |class FreeSpecPathTest extends path.FreeSpec {
+      |class $freeSpecPathClassName extends path.FreeSpec {
       |  "A FreeSpecTest" - {
       |    "should be able to run single test" in {
       |      print(">>TEST: OK<<")
