@@ -13,8 +13,8 @@ trait FeatureSpecScopeTest extends FeatureSpecGenerator {
 
   def testFeatureSpecScope() {
     val testNames = Seq("Feature: Feature 1 Scenario: Scenario A", "Feature: Feature 1 Scenario: Scenario B")
-    val aPath = List("[root]", "FeatureSpecTest", "Feature: Feature 1", "Scenario: Scenario A")
-    val bPath = List("[root]", "FeatureSpecTest", "Feature: Feature 1", "Scenario: Scenario B")
+    val aPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario A")
+    val bPath = List("[root]", featureSpecClassName, "Feature: Feature 1", "Scenario: Scenario B")
 
     runTestByLocation(3, 10, featureSpecFileName, checkConfigAndSettings(_, featureSpecClassName, testNames:_*),
       root => checkResultTreeHasExactNamedPath(root, aPath:_*) &&
