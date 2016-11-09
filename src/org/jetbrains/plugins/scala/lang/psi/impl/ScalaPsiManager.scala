@@ -9,13 +9,14 @@ import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.ProjectTopics
+import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.JavaPsiFacadeImpl
+import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiModificationTracker
@@ -287,9 +288,9 @@ class ScalaPsiManager(val project: Project) {
   private[impl] def projectOpened(): Unit = {
     import ScalaPsiManager._
 
-    subscribeToPsiModification(project)
     subscribeToRootsChange(project)
     registerLowMemoryWatcher(project)
+    PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
@@ -334,32 +335,48 @@ class ScalaPsiManager(val project: Project) {
     keys.toSeq
   }
 
-  PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
-
   object CacheInvalidator extends PsiTreeChangeAdapter {
-    override def childRemoved(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
+    @volatile
+    private var outOfCodeBlockModCount: Long = 0L
+
+    private def fromIdeaInternalFile(event: PsiTreeChangeEvent) = {
+      val virtFile = event.getFile match {
+        case null => event.getOldValue.asOptionOf[VirtualFile]
+        case file =>
+          val fileType = file.getFileType
+          if (fileType == ScalaFileType.SCALA_FILE_TYPE || fileType == JavaFileType.INSTANCE) None
+          else Option(file.getVirtualFile)
+      }
+      virtFile.exists(ProjectUtil.isProjectOrWorkspaceFile)
     }
 
-    override def childReplaced(event: PsiTreeChangeEvent): Unit = {
+    private def onPsiChange(event: PsiTreeChangeEvent): Unit = {
+      event match {
+        case impl: PsiTreeChangeEventImpl if impl.isGenericChange => return
+        case _ if fromIdeaInternalFile(event) => return
+        case _ =>
+      }
+
       CachesUtil.updateModificationCount(event.getParent)
+      clearOnChange()
+      val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
+      if (outOfCodeBlockModCount != count) {
+        outOfCodeBlockModCount = count
+        clearOnOutOfCodeBlockChange()
+      }
     }
 
-    override def childAdded(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
-    }
+    override def childRemoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
 
-    override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
-    }
+    override def childReplaced(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
 
-    override def childMoved(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getParent)
-    }
+    override def childAdded(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
 
-    override def propertyChanged(event: PsiTreeChangeEvent): Unit = {
-      CachesUtil.updateModificationCount(event.getElement)
-    }
+    override def childrenChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+
+    override def childMoved(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
+
+    override def propertyChanged(event: PsiTreeChangeEvent): Unit = onPsiChange(event)
   }
 
   val modificationTracker: ScalaPsiModificationTracker = new ScalaPsiModificationTracker(project)
@@ -388,23 +405,6 @@ object ScalaPsiManager {
   object ClassCategory extends Enumeration {
     type ClassCategory = Value
     val ALL, OBJECT, TYPE = Value
-  }
-
-  private def subscribeToPsiModification(project: Project) = {
-    project.getMessageBus.connect(project).subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener {
-      def modificationCountChanged() {
-        val manager = ScalaPsiManager.instance(project)
-        manager.clearOnChange()
-        val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
-        if (outOfCodeBlockModCount != count) {
-          outOfCodeBlockModCount = count
-          manager.clearOnOutOfCodeBlockChange()
-        }
-      }
-
-      @volatile
-      private var outOfCodeBlockModCount: Long = 0L
-    })
   }
 
   private def subscribeToRootsChange(project: Project) = {
