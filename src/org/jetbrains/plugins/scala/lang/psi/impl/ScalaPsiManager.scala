@@ -344,7 +344,7 @@ class ScalaPsiManager(val project: Project) {
         case null => event.getOldValue.asOptionOf[VirtualFile]
         case file =>
           val fileType = file.getFileType
-          if (fileType == ScalaFileType.SCALA_FILE_TYPE || fileType == JavaFileType.INSTANCE) None
+          if (fileType == ScalaFileType.INSTANCE || fileType == JavaFileType.INSTANCE) None
           else Option(file.getVirtualFile)
       }
       virtFile.exists(ProjectUtil.isProjectOrWorkspaceFile)
