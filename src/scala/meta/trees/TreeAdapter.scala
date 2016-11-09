@@ -247,8 +247,11 @@ trait TreeAdapter {
       case Some(ref) => getCtorRef(ref)
       case None => die(s"No reference for ctor ${c.getText}")
     }
-    if (c.arguments.isEmpty)
-      ctorRef
+    if (c.arguments.isEmpty) {
+      if (paradiseCompatibilityHacks) {
+        m.Term.Apply(ctorRef, Nil)
+      } else { ctorRef }
+    }
     else {
       val head = m.Term.Apply(ctorRef, Seq(c.arguments.head.exprs.map(callArgs): _*))
       c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)))
