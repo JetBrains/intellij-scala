@@ -538,8 +538,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
             case _ => res += i
           }
-        case ScInfixExpr(ScExpression.Type(api.Boolean), ElementText(op), right@ScExpression.Type(api.Boolean))
-          if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
+        case ScInfixExpr(left, ElementText(op), right)
+          if withBooleanInfix && (op == "&&" || op == "||") &&
+            left.getType(TypingContext.empty).exists(_ == api.Boolean) &&
+            right.getType(TypingContext.empty).exists(_ == api.Boolean) => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }
