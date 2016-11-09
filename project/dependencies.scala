@@ -28,7 +28,7 @@ object Dependencies {
   val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   val sbtStructureCore: ModuleID = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
-  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.8"
+  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.9"
 
 
   val luceneCore: ModuleID = "org.apache.lucene" % "lucene-core" % luceneVersion

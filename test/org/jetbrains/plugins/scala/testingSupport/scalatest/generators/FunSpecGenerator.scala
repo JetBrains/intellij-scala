@@ -31,7 +31,13 @@ trait FunSpecGenerator extends ScalaTestTestCase {
       |  }
       |
       |  describe("emptyScope") {}
+      |
+      |  describe("taggedScope") {
+      |    it ("is tagged", FunSpecTag) {}
+      |  }
       |}
+      |
+      |object FunSpecTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 }

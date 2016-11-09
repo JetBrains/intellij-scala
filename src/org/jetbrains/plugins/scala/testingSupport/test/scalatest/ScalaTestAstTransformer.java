@@ -61,6 +61,8 @@ public class ScalaTestAstTransformer {
         itWordFqns.add("org.scalatest.fixture.FunSpecLike.ItWord");
         itWordFqns.add("org.scalatest.fixture.WordSpecLike.ItWord");
         itWordFqns.add("org.scalatest.path.FunSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.FlatSpecLike.ItVerbStringTaggedAs");
+        itWordFqns.add("org.scalatest.fixture.FlatSpecLike.ItVerbStringTaggedAs");
     }
 
     public Class<?> loadClass(String className, Module module) throws MalformedURLException, ClassNotFoundException {
