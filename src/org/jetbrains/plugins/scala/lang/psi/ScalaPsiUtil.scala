@@ -1160,7 +1160,7 @@ object ScalaPsiUtil {
   def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
     clazz match {
       case definition: ScTypeDefinition =>
-        getBaseCompanionModule(definition).orElse(definition.fakeCompanionModule)
+        definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
       case _ => None
     }
   }
@@ -1181,31 +1181,7 @@ object ScalaPsiUtil {
 
   //Performance critical method
   def getBaseCompanionModule(definition: ScTypeDefinition): Option[ScTypeDefinition] = {
-    Option(definition.getContext).flatMap { scope =>
-      val tokenSet = TokenSets.TYPE_DEFINITIONS
-
-      val arrayOfElements: Array[PsiElement] = scope match {
-        case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-          stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        case file: PsiFileImpl if file.getStub != null =>
-          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        case context => context.getChildren
-      }
-
-      val name = definition.name
-      definition match {
-        case _: ScClass | _: ScTrait =>
-          arrayOfElements.collectFirst {
-            case o: ScObject if o.name == name => o
-          }
-        case _: ScObject =>
-          arrayOfElements.collectFirst {
-            case c: ScClass if c.name == name => c
-            case t: ScTrait if t.name == name => t
-          }
-        case _ => None
-      }
-    }
+    definition.baseCompanionModule
   }
 
   object FakeCompanionClassOrCompanionClass {
