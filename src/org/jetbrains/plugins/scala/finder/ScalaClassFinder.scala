@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import scala.collection.mutable.ArrayBuffer
 
 class ScalaClassFinder(project: Project) extends PsiElementFinder {
-  private val manager: ScalaPsiManager = ScalaPsiManager.instance(project)
+  private def manager: ScalaPsiManager = ScalaPsiManager.instance(project)
+
   def findClasses(qualifiedName: String, scope: GlobalSearchScope): Array[PsiClass] = {
     if (manager.isInJavaPsiFacade) return Array.empty
     val res = new ArrayBuffer[PsiClass]
@@ -61,7 +62,7 @@ class ScalaClassFinder(project: Project) extends PsiElementFinder {
   override def findPackage(qName: String): PsiPackage = null
 
   override def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): util.Set[String] = {
-    ScalaPsiManager.instance(project).getJavaPackageClassNames(psiPackage, scope)
+    manager.getJavaPackageClassNames(psiPackage, scope)
   }
 
   override def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
