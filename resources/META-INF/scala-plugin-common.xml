@@ -1344,9 +1344,6 @@
           <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionStoreComponent</implementation-class>
         </component>
         <component>
@@ -1359,13 +1356,7 @@
           <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
-        </component>
-        <component>
           <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionStoreComponent</implementation-class>
         </component>
     </project-components>
 
