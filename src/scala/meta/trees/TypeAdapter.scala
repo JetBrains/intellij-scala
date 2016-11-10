@@ -157,8 +157,12 @@ trait TypeAdapter {
             toSingletonType(t.element)
           else
             toTypeName(t.element)
+        case t: ptype.ScCompoundType if t.components.size < 2 =>
+          unreachable("Number of parts in compound type must be >= 2")
         case t: ptype.ScCompoundType =>
-          m.Type.Compound(Seq(t.components.map(toType(_)):_*), Seq.empty)
+          t.components
+            .dropRight(1)
+            .foldLeft(toType(t.components.last))((mtp, stp) => m.Type.With(toType(stp), mtp))
         case t: ptype.ScExistentialType =>
           val wcards = t.wildcards.map {wc =>
 //            val (name, args, lower, upper) = wc

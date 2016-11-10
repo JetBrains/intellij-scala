@@ -183,7 +183,14 @@ trait TreeAdapter {
     val exprs   = t.templateBody map (it => Seq(it.exprs.map(expression): _*))
     val members = t.templateBody map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
     val early   = t.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
-    val parents = t.templateParents map (it => Seq(it.typeElements map ctorParentName :_*)) getOrElse Seq.empty
+    val parents = t.templateParents
+        .map(it => Seq(it.children.filter(_.isInstanceOf[ScConstructor])
+        .map(x=>toCtor(x.asInstanceOf[ScConstructor])).toSeq:_*))
+        .getOrElse(Seq.empty)
+    val parents2 = t.templateParents
+      .map(it => it.typeElementsWithoutConstructor.flatMap(x=>x.children.find(_.isInstanceOf[ScStableCodeReferenceElement]))
+        .map(c => toCtorName(c.asInstanceOf[ScStableCodeReferenceElement])))
+      .getOrElse(Seq.empty)
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
@@ -195,7 +202,7 @@ trait TreeAdapter {
       case (None, Some(hld))  => Some(hld)
       case (None, None)       => None
     }
-    m.Template(early, parents, self, stats)
+    m.Template(early, parents++parents2, self, stats)
   }
 
   // Java conversion
