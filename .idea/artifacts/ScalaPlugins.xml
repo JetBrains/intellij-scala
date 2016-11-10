@@ -46,7 +46,7 @@
           <element id="module-output" name="scalap" />
         </element>
         <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:6.0.2:jar" />
-        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.8:jar" />
+        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.9:jar" />
         <element id="archive" name="scalameta100.jar">
           <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/trees_2.11/jars/trees_2.11-1.0.0.jar" path-in-jar="/" />
           <element id="extracted-dir" path="$USER_HOME$/.ivy2/cache/org.scalameta/tokenizers_2.11/jars/tokenizers_2.11-1.0.0.jar" path-in-jar="/" />
