@@ -90,6 +90,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
 
     val result = new ScTemplateDefinitionStubImpl(parent, this,
+      isDotty = definition.getProject.hasDotty,
       nameRef = fromString(definition.name),
       qualifiedNameRef = fromString(definition.qualifiedName),
       javaQualifiedNameRef = fromString(definition.getQualifiedName),
