@@ -11,7 +11,11 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
   val behaviourFlatClassName = "BehaviorFlatSpec"
   val testItFlatClassName = "TestItFlatSpec"
 
-  addSourceFile(s"$flatSpecClassName.scala",
+  val flatSpecFileName = flatSpecClassName + ".scala"
+  val behaviourFlatFileName = behaviourFlatClassName + ".scala"
+  val testItFlatFileName = testItFlatClassName + ".scala"
+
+  addSourceFile(flatSpecFileName,
     s"""
       |import org.scalatest._
       |
@@ -31,11 +35,15 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
       | it should "not run other tests" in {
       |   print(">>TEST: FAILED<<")
       | }
+      |
+      | it should "run tagged tests" taggedAs(FlatSpecTag) in {}
       |}
+      |
+      |object FlatSpecTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 
-  addSourceFile(s"$behaviourFlatClassName.scala",
+  addSourceFile(behaviourFlatFileName,
     s"""
       |import org.scalatest._
       |
@@ -49,11 +57,17 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
       |  it should "do other stuff" in {
       |
       |  }
+      |
+      |  it should "tag" taggedAs(BehaviorTag) in {
+      |
+      |  }
       |}
+      |
+      |object BehaviorTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 
-  addSourceFile(s"$testItFlatClassName.scala",
+  addSourceFile(testItFlatFileName,
     s"""
       |import org.scalatest._
       |
@@ -61,10 +75,15 @@ trait FlatSpecGenerator extends ScalaTestTestCase {
       | it should "run test with correct name" in {
       | }
       |
+      | it should "tag" taggedAs(ItTag) in {
+      | }
+      |
       | "Test" should "be fine" in {}
       |
       | it should "change name" in {}
       |}
+      |
+      |object ItTag extends Tag("MyTag")
     """.stripMargin.trim())
 
 }

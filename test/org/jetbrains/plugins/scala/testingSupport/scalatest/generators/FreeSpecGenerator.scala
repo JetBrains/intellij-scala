@@ -8,11 +8,17 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
   */
 trait FreeSpecGenerator extends ScalaTestTestCase {
 
-  addSourceFile("FreeSpecTest.scala",
-    """
+  val freeSpecClassName = "FreeSpecTest"
+  val complexFreeSpecClassName = "ComplexFreeSpec"
+
+  val freeSpecFileName = freeSpecClassName + ".scala"
+  val complexFreeSpecFileName = complexFreeSpecClassName + ".scala"
+
+  addSourceFile(freeSpecFileName,
+    s"""
       |import org.scalatest._
       |
-      |class FreeSpecTest extends FreeSpec {
+      |class $freeSpecClassName extends FreeSpec {
       |  "A FreeSpecTest" - {
       |    "should be able to run single tests" in {
       |      print(">>TEST: OK<<")
@@ -21,16 +27,20 @@ trait FreeSpecGenerator extends ScalaTestTestCase {
       |    "should not run tests that are not selected" in {
       |      print(">>TEST: FAILED<<")
       |    }
+      |
+      |    "can be tagged" taggedAs(FreeSpecTag) in {}
       |  }
       |}
+      |
+      |object FreeSpecTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 
-  addSourceFile("ComplexFreeSpec.scala",
-    """
+  addSourceFile(complexFreeSpecFileName,
+    s"""
       |import org.scalatest._
       |
-      |class ComplexFreeSpec extends FreeSpec {
+      |class $complexFreeSpecClassName extends FreeSpec {
       |  "A ComplexFreeSpec" - {
       |    "Outer scope 1" - {
       |      "Inner scope 1" in {
