@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
-import scala.meta.intellij.ExpansionUtil
+import scala.meta.intellij.MetaExpansionsManager
 
 
 class MacroExpandAction extends AnAction {
@@ -272,7 +272,7 @@ object MacroExpandAction {
   val messageGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.MESSAGES_WINDOW)
 
   def expandMetaAnnotation(annot: ScAnnotation) = {
-    val result = ExpansionUtil.runMetaAnnotation(annot)
+    val result = MetaExpansionsManager.runMetaAnnotation(annot)
     result match {
       case Right(tree) =>
         inWriteCommandAction(annot.getProject) {
