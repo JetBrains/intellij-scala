@@ -62,13 +62,8 @@ class ScObjectImpl protected(stub: StubElement[ScTemplateDefinition], nodeType: 
   }
 
   override def getContainingFile: PsiFile = {
-    if (isSyntheticObject) {
-      ScalaPsiUtil.getCompanionModule(this) match {
-        case Some(clazz) => return clazz.getContainingFile
-        case _ =>
-      }
-    }
-    super.getContainingFile
+    if (isSyntheticObject) getContext.getContainingFile
+    else super.getContainingFile
   }
 
   override def accept(visitor: PsiElementVisitor) {
