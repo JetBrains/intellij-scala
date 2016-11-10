@@ -8,35 +8,13 @@ package lang
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
-import org.jetbrains.plugins.scala.lang.parser.{ElementTypes, ScalaElementTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
-object ScalaTokenSets extends TokenSets {
-  override lazy val elementTypes = ScalaElementTypes
-}
-
-trait TokenSets {
-  val elementTypes: ElementTypes
-
-  lazy val typeDefinitions = TokenSet.create(elementTypes.objectDefinition,
-    elementTypes.classDefinition, elementTypes.traitDefinition)
-
-  import TokenSets._
-
-  lazy val members = TokenSet.orSet(TokenSet.orSet(FUNCTIONS, TokenSet.orSet(
-    ALIASES_SET, TokenSet.orSet(
-      typeDefinitions, TokenSet.orSet(
-        VALUES, TokenSet.orSet(
-          VARIABLES, TokenSet.create(PRIMARY_CONSTRUCTOR)
-        )
-      )
-    )
-  )), MemberElementTypesExtension.getAllElementTypes
-  )
-}
-
 object TokenSets {
+
+  val TYPE_DEFINITIONS = TokenSet.create(OBJECT_DEFINITION, CLASS_DEFINITION, TRAIT_DEFINITION)
+
   val WHITESPACE_OR_COMMENT_SET = TokenSet.create(tWHITE_SPACE_IN_LINE, tLINE_COMMENT, tBLOCK_COMMENT, tDOC_COMMENT, SCALA_DOC_COMMENT)
 
   val MODIFIERS = TokenSet.create(kCASE, kABSTRACT, kLAZY,
@@ -99,6 +77,17 @@ object TokenSets {
   val VALUES = TokenSet.create(VALUE_DECLARATION, PATTERN_DEFINITION)
 
   val VARIABLES = TokenSet.create(VARIABLE_DECLARATION, VARIABLE_DEFINITION)
+
+  val MEMBERS = TokenSet.orSet(TokenSet.orSet(FUNCTIONS, TokenSet.orSet(
+    ALIASES_SET, TokenSet.orSet(
+      TYPE_DEFINITIONS, TokenSet.orSet(
+        VALUES, TokenSet.orSet(
+          VARIABLES, TokenSet.create(PRIMARY_CONSTRUCTOR)
+        )
+      )
+    )
+  )), MemberElementTypesExtension.getAllElementTypes
+  )
 
   val TEMPLATE_PARENTS = TokenSet.create(CLASS_PARENTS, TRAIT_PARENTS)
 

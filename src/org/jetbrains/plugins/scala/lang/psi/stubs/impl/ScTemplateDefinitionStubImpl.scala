@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StringRefArrayExt
   */
 class ScTemplateDefinitionStubImpl(parent: StubElement[_ <: PsiElement],
                                    elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                   val isDotty: Boolean,
                                    private val nameRef: StringRef,
                                    private val qualifiedNameRef: StringRef,
                                    private val javaQualifiedNameRef: StringRef,

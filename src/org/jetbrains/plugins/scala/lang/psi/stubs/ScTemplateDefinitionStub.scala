@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * @author ilyas
  */
 trait ScTemplateDefinitionStub extends PsiClassStub[ScTemplateDefinition] with ScMemberOrLocal {
+  def isDotty: Boolean
+
   def javaQualifiedName: String
 
   def isPackageObject: Boolean

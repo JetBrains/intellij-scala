@@ -11,7 +11,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -58,7 +57,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
                 g.startOffsetInParent == lastParent.startOffsetInParent => if (!process) return false
               case _ =>
                 //todo: is this good? Maybe parser => always expression.
-                val last = findLastChildByType(getProject.tokenSets.members)
+                val last = findLastChildByType(TokenSets.TYPE_DEFINITIONS)
                 if (last != null && lastParent != null && last.startOffsetInParent == lastParent.startOffsetInParent) {
                   if (!process) return false
                 }

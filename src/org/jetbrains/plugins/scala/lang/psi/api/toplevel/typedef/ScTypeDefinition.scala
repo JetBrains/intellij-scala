@@ -85,9 +85,9 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   }
 
   @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
-  def baseCompanionModule(implicit tokenSets: TokenSets = getProject.tokenSets): Option[ScTypeDefinition] = {
+  def baseCompanionModule: Option[ScTypeDefinition] = {
     Option(this.getContext).flatMap { scope =>
-      val tokenSet = tokenSets.typeDefinitions
+      val tokenSet = TokenSets.TYPE_DEFINITIONS
 
       val arrayOfElements: Array[PsiElement] = scope match {
         case stub: StubBasedPsiElement[_] if stub.getStub != null =>
