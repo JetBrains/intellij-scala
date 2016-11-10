@@ -505,13 +505,14 @@ trait TreeAdapter {
       case None => Seq.empty
     }
     val caseMod = if (t.hasModifierPropertyScala("case")) Seq(m.Mod.Case()) else Nil
+    val implicitMod = if(t.hasModifierPropertyScala("implicit")) Seq(m.Mod.Implicit()) else Nil
     val sealedMod = if (t.hasModifierPropertyScala("sealed")) Seq(m.Mod.Sealed()) else Nil
     val annotations: Seq[m.Mod.Annot] = t match {
       case ah: ScAnnotationsHolder => Seq(ah.annotations.filterNot(_.strip).map(toAnnot):_*)
       case _ => Seq.empty
     }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
-    annotations ++ sealedMod ++ caseMod ++ overrideMod ++ common ++ classParam
+    annotations ++ implicitMod ++ sealedMod ++ caseMod ++ overrideMod ++ common ++ classParam
   }
 
   // Java conversion
