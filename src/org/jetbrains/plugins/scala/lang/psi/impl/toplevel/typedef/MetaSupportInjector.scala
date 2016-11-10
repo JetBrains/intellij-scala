@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import scala.meta._
 
 class MetaSupportInjector extends SyntheticMembersInjector {
+
+  private val noTrimBodiesProp: Boolean = sys.props.contains("scala.meta.notrimbodies")
   /**
     * This method allows to add custom functions to any class, object or trait.
     * This includes synthetic companion object.
@@ -105,11 +107,16 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     }
   }
 
-  private def trimBodies(tree: Tree): Tree = tree match {
-    case Defn.Val(mods, pats, decltpe, _) => Defn.Val(mods, pats, decltpe, Term.Name("???"))
-    case Defn.Var(mods, pats, decltpe, _) => Defn.Var(mods, pats, decltpe, Some(Term.Name("???")))
-    case Defn.Def(mods, name, tparams, paramss, tpe, _) => Defn.Def(mods, name, tparams, paramss, tpe, Term.Name("???"))
-    case other => other
+  private def trimBodies(tree: Tree): Tree = {
+    if (noTrimBodiesProp) { tree }
+    else {
+      tree match {
+        case Defn.Val(mods, pats, decltpe, _) => Defn.Val(mods, pats, decltpe, Term.Name("???"))
+        case Defn.Var(mods, pats, decltpe, _) => Defn.Var(mods, pats, decltpe, Some(Term.Name("???")))
+        case Defn.Def(mods, name, tparams, paramss, tpe, _) => Defn.Def(mods, name, tparams, paramss, tpe, Term.Name("???"))
+        case other => other
+      }
+    }
   }
 
   private def injectForThis(source: ScTypeDefinition): Seq[String] = {
