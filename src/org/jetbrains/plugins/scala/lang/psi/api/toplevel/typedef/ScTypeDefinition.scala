@@ -173,8 +173,4 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     objOption
   }
 
-  def isMetaAnnotatationImpl: Boolean = {
-    this.members
-    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty)
-  }
 }

@@ -121,6 +121,7 @@ object MetaExpansionsManager {
       annotee.annotations.find(_.getText == annot.getText).foreach(_.delete())
       try {
         val converted = converter.ideaToMeta(annotee)
+        val convertedAnnot = converter.toAnnotCtor(annot)
         val clazz = getCompiledMetaAnnotClass(annot)
         clazz match {
           case Some(outer) =>
@@ -130,7 +131,7 @@ object MetaExpansionsManager {
             val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
             meth.setAccessible(true)
             try {
-              val result = meth.invoke(inst, null, converted.asInstanceOf[AnyRef])
+              val result = meth.invoke(inst, convertedAnnot.asInstanceOf[AnyRef], converted.asInstanceOf[AnyRef])
               Right(result.asInstanceOf[Tree])
             } catch {
               case pc: ProcessCanceledException => throw pc

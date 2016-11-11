@@ -4,10 +4,10 @@ package psi
 package api
 package expr
 
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiAnnotation
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 
@@ -35,15 +35,15 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
 
   def isMetaAnnotation: Boolean = {
     // do not resolve anything while the stubs are building to avoid deadlocks
-    if (ScTemplateDefinitionElementType.isStubBuilding.get())
+    if (ScTemplateDefinitionElementType.isStubBuilding.get() || DumbService.isDumb(getProject))
       return false
-    constructor.reference.exists {
-      ref => ref.bind().exists {
-        result => result.parentElement match {
-          case Some(o: ScTypeDefinition) => o.isMetaAnnotatationImpl
+    val reference = constructor.reference
+    reference.exists { ref =>
+        ref.resolve() match {
+          case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
+          case o: ScTypeDefinition => o.isMetaAnnotatationImpl
           case _ => false
         }
-      }
     }
   }
 

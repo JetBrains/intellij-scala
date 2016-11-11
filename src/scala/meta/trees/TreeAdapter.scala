@@ -40,6 +40,7 @@ trait TreeAdapter {
       case t: ScTrait => toTrait(t)
       case t: ScClass => toClass(t)
       case t: ScObject => toObject(t)
+      case t: ScAnnotation => toAnnot(t)
       case t: ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
 
@@ -48,6 +49,10 @@ trait TreeAdapter {
 
       case other => other ?!
     }
+  }
+
+  def toAnnotCtor(annot: ScAnnotation): m.Term.New = {
+    m.Term.New(m.Template(Nil, Seq(toCtor(annot.constructor)), m.Term.Param(Nil, m.Name.Anonymous(), None, None), None))
   }
 
   def toMacroDefn(t: ScMacroDefinition): m.Defn.Macro = {
