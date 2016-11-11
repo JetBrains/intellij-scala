@@ -191,6 +191,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
   }
 
+  private def isMetaInlineDefn(p: ScParameter): Boolean = {
+    p.owner match {
+      case f: ScFunctionDefinition if f.getModifierList != null =>
+        f.getModifierList.findFirstChildByType(ScalaTokenTypes.kINLINE) != null
+      case _ => false
+    }
+  }
+
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
     val fromType: Option[ScType] = bind.map(_.fromType).getOrElse(None)
     val unresolvedTypeParameters: Seq[TypeParameter] = bind.map(_.unresolvedTypeParameters).getOrElse(None).getOrElse(Seq.empty)
@@ -292,6 +300,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             }
         }
+      case Some(ScalaResolveResult(param: ScParameter, _)) if isMetaInlineDefn(param) =>
+        ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", param.getContext, null).get
       case Some(r@ScalaResolveResult(param: ScParameter, s)) =>
         val owner = param.owner match {
           case f: ScPrimaryConstructor => f.containingClass
