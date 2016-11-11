@@ -20,6 +20,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
@@ -479,6 +480,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     if (baseQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated) return true
 
     isInheritorInner(baseClass, this, deep)
+  }
+
+  def isMetaAnnotatationImpl: Boolean = {
+    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty)
   }
 }
 
