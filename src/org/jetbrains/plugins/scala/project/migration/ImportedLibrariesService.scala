@@ -99,7 +99,7 @@ class ImportedLibrariesService extends AbstractProjectDataService[LibraryDepende
     if (foundMigrators.nonEmpty) service.showPopup(ImportedLibrariesService.MIGRATORS_FOUND_MESSAGE,
       "Dependency migrators found", {
         case "show" => 
-          service.showDialog("Azaza", "Migrators found",  
+          service.showDialog("Scala plugin", "Migrators found",  
             SettingsDescriptor(foundMigrators.map(m => (m.getName, true)), Iterable.empty, Iterable.empty), 
             (descriptor: SettingsDescriptor) => {
               val choosen = descriptor.checkBoxes.zip(foundMigrators).collect {
