@@ -180,6 +180,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (nonObjectClasses.nonEmpty) nonObjectClasses(0) else if (objectClasses.nonEmpty) objectClasses(0) else null
   }
 
+  def getClassPathClazz: PsiClass = getClazz(getTestClassPath, withDependencies = false)
+
   def getPackage(path: String): PsiPackage = {
     ScPackageImpl.findPackage(project, path)
   }
@@ -295,7 +297,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         if (getTestClassPath == "") {
           throw new RuntimeConfigurationException("Test Class is not specified")
         }
-        val clazz = getClazz(getTestClassPath, withDependencies = false)
+        val clazz = getClassPathClazz
         if (clazz == null || isInvalidSuite(clazz)) {
           throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".format(getTestClassPath,
             getModule.getName))
@@ -332,11 +334,11 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     try {
       testKind match {
         case TestKind.CLASS =>
-          clazz = getClazz(getTestClassPath, withDependencies = false)
+          clazz = getClassPathClazz
         case TestKind.ALL_IN_PACKAGE =>
           pack = ScPackageImpl(getPackage(getTestPackagePath))
         case TestKind.TEST_NAME =>
-          clazz = getClazz(getTestClassPath, withDependencies = false)
+          clazz = getClassPathClazz
           if (getTestName == null || getTestName == "") throw new ExecutionException("Test name not found.")
       }
       suiteClass = getSuiteClass
@@ -600,8 +602,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
 trait SuiteValidityChecker {
   protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
-    val list: PsiModifierList = clazz.getModifierList
-    list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
+    !clazz.isInstanceOf[ScClass] || {
+      val list: PsiModifierList = clazz.getModifierList
+      list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
+    }
   }
 
   protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean
