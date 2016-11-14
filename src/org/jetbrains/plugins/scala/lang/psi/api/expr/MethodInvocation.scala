@@ -146,7 +146,19 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   private def tryToGetInnerType(ctx: TypingContext, useExpectedType: Boolean): TypeResult[ScType] = {
-    invalidateCaches()
+    var problemsLocal: Seq[ApplicabilityProblem] = Seq.empty
+    var matchedParamsLocal: Seq[(Parameter, ScExpression)] = Seq.empty
+    var importsUsedLocal: collection.Set[ImportUsed] = collection.Set.empty
+    var implicitFunctionLocal: Option[PsiNamedElement] = None
+    var applyOrUpdateElemLocal: Option[ScalaResolveResult] = None
+
+    def updateCacheFields(): Unit = {
+      problemsVar = problemsLocal
+      matchedParamsVar = matchedParamsLocal
+      importsUsedVar = importsUsedLocal
+      implicitFunctionVar = implicitFunctionLocal
+      applyOrUpdateElemVar = applyOrUpdateElemLocal
+    }
 
     var nonValueType: TypeResult[ScType] = getEffectiveInvokedExpr.getNonValueType(TypingContext.empty)
     this match {
@@ -179,8 +191,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
                            Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)])): ScType = {
       val c = fun(exprs)
       def tail: ScType = {
-        problemsVar = c._2
-        matchedParamsVar = c._3
+        problemsLocal = c._2
+        matchedParamsLocal = c._3
         val dependentSubst = new ScSubstitutor(() => {
           this.scalaLanguageLevel match {
             case Some(level) if level < Scala_2_10 => Map.empty
@@ -194,8 +206,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           val cd = fun(e)
           if (cd._2.nonEmpty) tail
           else {
-            problemsVar = cd._2
-            matchedParamsVar = cd._3
+            problemsLocal = cd._2
+            matchedParamsLocal = cd._3
             val dependentSubst = new ScSubstitutor(() => {
               this.scalaLanguageLevel match {
                 case Some(level) if level < Scala_2_10 => Map.empty
@@ -285,16 +297,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       if (useExpectedType) {
         updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
       }
-      applyOrUpdateElemVar = applyOrUpdateResult
-      importsUsedVar = importsUsed
-      implicitFunctionVar = implicitFunction
+      applyOrUpdateElemLocal = applyOrUpdateResult
+      importsUsedLocal = importsUsed
+      implicitFunctionLocal = implicitFunction
       val isNamedDynamic: Boolean =
         applyOrUpdateResult.exists(result => result.isDynamic &&
           result.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED)
       checkApplication(processedType, args(includeUpdateCall = true, isNamedDynamic)).getOrElse {
-        applyOrUpdateElemVar = None
-        problemsVar = Seq(new DoesNotTakeParameters)
-        matchedParamsVar = Seq()
+        applyOrUpdateElemLocal = None
+        problemsLocal = Seq(new DoesNotTakeParameters)
+        matchedParamsLocal = Seq()
         processedType
       }
     }
@@ -307,22 +319,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       implicitParameters = tuple._2
     }
 
+    updateCacheFields()
+
     Success(res, Some(this))
   }
 
-  private var problemsVar: Seq[ApplicabilityProblem] = _
-  private var matchedParamsVar: Seq[(Parameter, ScExpression)] = _
-  private var importsUsedVar: collection.Set[ImportUsed] = _
-  private var implicitFunctionVar: Option[PsiNamedElement] = _
-  private var applyOrUpdateElemVar: Option[ScalaResolveResult] = _
-
-  private def invalidateCaches(): Unit = {
-    problemsVar = Seq.empty
-    matchedParamsVar = Seq.empty
-    importsUsedVar = collection.Set.empty
-    implicitFunctionVar = None
-    applyOrUpdateElemVar = None
-  }
+  @volatile private var problemsVar: Seq[ApplicabilityProblem] = Seq.empty
+  @volatile private var matchedParamsVar: Seq[(Parameter, ScExpression)] = Seq.empty
+  @volatile private var importsUsedVar: collection.Set[ImportUsed] = collection.Set.empty
+  @volatile private var implicitFunctionVar: Option[PsiNamedElement] = None
+  @volatile private var applyOrUpdateElemVar: Option[ScalaResolveResult] = None
 
   //used in Play
   def setApplicabilityProblemsVar(seq: Seq[ApplicabilityProblem]): Unit = {
