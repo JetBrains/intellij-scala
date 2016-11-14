@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.breadcrumbs
 
 import com.intellij.lang.Language
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiElement
 import com.intellij.xml.breadcrumbs.BreadcrumbsInfoProvider
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -67,7 +68,7 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
 }
 
 object ScalaBreadcrumbsInfoProvider {
-  val SCALA_LANG = Array[Language](ScalaLanguage.Instance)
+  val SCALA_LANG: Array[Language] = Array[Language](ScalaLanguage.Instance)
   
   val MAX_TEXT_LENGTH = 150
   val MAX_STRING_LENGTH = 25
@@ -81,7 +82,7 @@ object ScalaBreadcrumbsInfoProvider {
     def getSignature(el: Option[ScNamedElement], parameters: Seq[ScParameter], tpe: Option[ScType], needTpe: Boolean = false): String =
       el.map(_.name).getOrElse("") + 
         limitString(parameters.map(p => p.name + ": " +  p.typeElement.map(_.getText).getOrElse("Any")).mkString("(", ", ", ")")) + 
-        (if (needTpe) ": " + tpe.map(_.presentableText).getOrElse("") else "")
+        (if (needTpe && el.exists(e => !DumbService.isDumb(e.getProject))) ": " + tpe.map(_.presentableText).getOrElse("") else "")
 
     def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)
 
