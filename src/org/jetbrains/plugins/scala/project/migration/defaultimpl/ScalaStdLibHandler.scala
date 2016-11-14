@@ -61,7 +61,7 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
 
     override def getName: String = "Std lib migrator"
 
-    override def getDescription: String = "Azaza"
+    override def getDescription: String = "Simple migrator for scala standard library (2.11 -> 2.12)"
   }
 }
 
