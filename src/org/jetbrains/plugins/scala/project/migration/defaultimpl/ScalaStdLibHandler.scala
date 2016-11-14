@@ -37,6 +37,8 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
       
       projectStructure.onEdt {
         sdksModel.reset(project)
+        if (JdkVersionUtil.getVersion(sdksModel.getProjectSdk.getVersionString) == JavaSdkVersion.JDK_1_8) return None
+        
         val sdks = sdksModel.getSdks
 
         sdks.find(sdk => JdkVersionUtil.getVersion(sdk.getVersionString) == JavaSdkVersion.JDK_1_8) match {
