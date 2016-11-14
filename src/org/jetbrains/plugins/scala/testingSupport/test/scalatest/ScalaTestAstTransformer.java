@@ -195,7 +195,7 @@ public class ScalaTestAstTransformer {
         return null;
     }
 
-    public Finder getFinder(ScClass clazz, Module module) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+    public Finder getFinder(ScTypeDefinition clazz, Module module) throws MalformedURLException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
         Seq<ScType> classes = MixinNodes.linearization(clazz);
         List<ScType> list = JavaConversions.seqAsJavaList(classes);
         List<PsiClass> newList = new ArrayList<PsiClass>();
@@ -531,7 +531,8 @@ public class ScalaTestAstTransformer {
 
     public Selection testSelection(Location<? extends PsiElement> location) {
         PsiElement element = location.getPsiElement();
-        ScClass clazz = PsiTreeUtil.getParentOfType(element, ScClass.class, false);
+        ScTypeDefinition clazz = PsiTreeUtil.getParentOfType(element, ScClass.class, false);
+        if (clazz == null) clazz = PsiTreeUtil.getParentOfType(element, ScTrait.class, false);
         if (clazz == null) return null;
         Finder finder = null;
         try {

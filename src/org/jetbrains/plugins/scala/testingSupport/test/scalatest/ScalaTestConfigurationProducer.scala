@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
@@ -106,8 +106,7 @@ class ScalaTestConfigurationProducer extends {
     while (PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true) != null) {
       clazz = PsiTreeUtil.getParentOfType(clazz, classOf[ScTypeDefinition], true)
     }
-    if (!clazz.isInstanceOf[ScClass]) return (null, null)
-    if (ScalaTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
+    if (!clazz.isInstanceOf[ScClass] && !clazz.isInstanceOf[ScTrait]) return (null, null)
     if (!suitePaths.exists(suitePath => isInheritor(clazz, suitePath))) return (null, null)
 
     sealed trait ReturnResult
