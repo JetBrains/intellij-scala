@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -272,11 +273,19 @@ object MacroExpandAction {
   val messageGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.MESSAGES_WINDOW)
 
   def expandMetaAnnotation(annot: ScAnnotation) = {
+    import scala.meta._
     val result = MetaExpansionsManager.runMetaAnnotation(annot)
     result match {
       case Right(tree) =>
+        val removeCompanionObject = tree match {
+          case Term.Block(Seq(Defn.Class(_, Type.Name(value1), _, _, _), Defn.Object(_, Term.Name(value2), _))) =>
+            value1 == value2
+          case Term.Block(Seq(Defn.Trait(_, Type.Name(value1), _, _, _), Defn.Object(_, Term.Name(value2), _))) =>
+            value1 == value2
+          case _ => false
+        }
         inWriteCommandAction(annot.getProject) {
-          expandAnnotation(annot, MacroExpansion(null, tree.toString))
+          expandAnnotation(annot, MacroExpansion(null, tree.toString, removeCompanionObject))
         }
       case Left(errorMsg) =>
         messageGroup.createNotification(
@@ -296,6 +305,13 @@ object MacroExpandAction {
         newPsi.firstChild match {
           case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
             val children = block.getChildren
+            if (expansion.removeCompanionObject) {
+              val companion = holder match {
+                case td: ScTypeDefinition => td.baseCompanionModule
+                case _ => None
+              }
+              companion.foreach(_.delete())
+            }
             block.children.find(_.isInstanceOf[ScalaPsiElement]).foreach(p => p.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText))
             holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
             holder.delete()
