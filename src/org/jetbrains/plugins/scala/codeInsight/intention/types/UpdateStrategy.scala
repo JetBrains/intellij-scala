@@ -199,6 +199,9 @@ object UpdateStrategy {
       case tp =>
         val project = context.getProject
         tp.extractClass(project) match {
+          case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
+            val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(_.startsWith("_root_.scala.Option"))
+            (baseTypes :+ tp.canonicalText).map(typeElemfromText)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(
               "_root_.scala.collection.mutable.Seq[",
