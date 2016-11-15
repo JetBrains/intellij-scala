@@ -109,7 +109,7 @@ object TypeAnnotationUtil {
     }
   }
 
-  private def isMemberOf(member: ScMember, fqn: String) = {
+  def isMemberOf(member: ScMember, fqn: String) = {
     val aClass =
       for (module <- Option(ScalaPsiUtil.getModule(member));
            scope <- Option(GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
