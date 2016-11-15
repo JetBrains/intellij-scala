@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeL
   * Created by kate on 7/14/16.
   */
 object TypeAnnotationUtil {
-  private val CollectionFactoryPrefixes =
+  val CollectionFactoryPrefixes =
     Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
       .map(_ + ".empty[")
 
