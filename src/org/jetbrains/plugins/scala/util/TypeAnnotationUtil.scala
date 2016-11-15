@@ -29,6 +29,10 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeL
   * Created by kate on 7/14/16.
   */
 object TypeAnnotationUtil {
+  private val CollectionFactoryPrefixes =
+    Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
+      .map(_ + ".empty[")
+
   def isTypeAnnotationNeeded(requiment: Int, ovPolicy: Int, simplePolicy: Int, isOverride: Boolean, isSimple: Boolean): Boolean = {
 
     requiment != TypeAnnotationRequirement.Optional.ordinal() &&
@@ -135,6 +139,7 @@ object TypeAnnotationUtil {
       case _: ScNewTemplateDefinition => true
       case ref: ScReferenceExpression if ref.refName == "???" => true
       case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for objects
+      case call: ScGenericCall if CollectionFactoryPrefixes.exists(call.text.startsWith) => true
       case call: ScMethodCall => call.getInvokedExpr match {
         case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for case classes
         case _ => false
