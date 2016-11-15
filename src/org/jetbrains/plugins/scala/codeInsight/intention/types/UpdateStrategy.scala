@@ -209,7 +209,7 @@ object UpdateStrategy {
               "_root_.scala.collection.immutable.Map["
             )
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
-            (tp.canonicalText +: baseTypes).map(typeElemfromText)
+            (tp.canonicalText +: baseTypes).reverse.map(typeElemfromText)
           case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
             val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
             (tp +: sealedType.toSeq).map(typeElemFromType)
