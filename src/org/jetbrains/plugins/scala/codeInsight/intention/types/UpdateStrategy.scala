@@ -201,13 +201,10 @@ object UpdateStrategy {
         tp.extractClass(project) match {
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(
-              "_root_.scala.collection.Seq[",
               "_root_.scala.collection.mutable.Seq[",
               "_root_.scala.collection.immutable.Seq[",
-              "_root_.scala.collection.Set[",
               "_root_.scala.collection.mutable.Set[",
               "_root_.scala.collection.immutable.Set[",
-              "_root_.scala.collection.Map[",
               "_root_.scala.collection.mutable.Map[",
               "_root_.scala.collection.immutable.Map["
             )
