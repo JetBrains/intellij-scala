@@ -199,9 +199,6 @@ object UpdateStrategy {
       case tp =>
         val project = context.getProject
         tp.extractClass(project) match {
-          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
-            (tp +: sealedType.toSeq).map(typeElemFromType)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(
               "_root_.scala.collection.Seq[",
@@ -216,6 +213,9 @@ object UpdateStrategy {
             )
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
             (tp.canonicalText +: baseTypes).map(typeElemfromText)
+          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
+            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
+            (tp +: sealedType.toSeq).map(typeElemFromType)
           case _ => Seq(typeElemFromType(tp))
         }
     }
