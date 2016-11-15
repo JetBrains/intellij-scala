@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
@@ -33,8 +33,8 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import scala.collection.mutable
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, psiElement, new CompletionProvider[CompletionParameters]() {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
@@ -42,26 +42,28 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
       if (parameters.getInvocationCount < 2) return
       val position: PsiElement = positionFromParameters(parameters)
       if (!ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return
-      val parent: PsiElement = position.getContext
-      parent match {
-        case ref: ScReferenceExpression =>
-          val qualifier = ref.qualifier match {
-            case Some(qual) => qual
-            case None =>
-              ref.getContext match {
-                case inf: ScInfixExpr if inf.operation == ref => inf.getBaseExpr
-                case posf: ScPostfixExpr if posf.operation == ref => posf.getBaseExpr
-                case pref: ScPrefixExpr if pref.operation == ref => pref.getBaseExpr
-                case _ =>
-                  if (result.getPrefixMatcher.getPrefix == "") return
-                  complete(ref, result, parameters.getOriginalFile, parameters.getInvocationCount)
-                  return
+
+      position.getContext match {
+        case reference: ScReferenceExpression =>
+          val maybeQualifier = reference.qualifier.orElse {
+            reference.getContext match {
+              case expr: ScSugarCallExpr if expr.operation == reference =>
+                Some(expr.getBaseExpr)
+              case _ => None
+            }
+          }
+
+          val file = parameters.getOriginalFile
+          maybeQualifier match {
+            case Some(qualifier) =>
+              qualifier.getTypeWithoutImplicits().foreach {
+                completeImplicits(reference, result, file, _)
+              }
+            case _ =>
+              if (result.getPrefixMatcher.getPrefix != "") {
+                complete(reference, result, file, parameters.getInvocationCount)
               }
           }
-          val typeWithoutImplicits = qualifier.getTypeWithoutImplicits()
-          if (typeWithoutImplicits.isEmpty) return
-          val tp = typeWithoutImplicits.get
-          completeImplicits(ref, result, parameters.getOriginalFile, tp)
         case _ =>
       }
     }
@@ -69,8 +71,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
 
   private def isStatic(member: PsiNamedElement): Boolean = {
     ScalaPsiUtil.nameContext(member) match {
-      case memb: PsiMember =>
-       isStatic(member, memb.containingClass)
+      case memb: PsiMember => isStatic(member, memb.containingClass)
     }
   }
 
@@ -102,6 +103,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
     val file = ref.getContainingFile
 
     val elemsSet = new mutable.HashSet[PsiNamedElement]
+
     def addElemToSet(elem: PsiNamedElement) {
       elemsSet += elem
     }
@@ -136,12 +138,13 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
     }
 
     val collection = StubIndex.getElements(ScalaIndexKeys.IMPLICITS_KEY, "implicit", file.getProject, scope, classOf[ScMember])
-    
+
     import scala.collection.JavaConversions._
 
     val convertible = new ScImplicitlyConvertible(ref)
     val proc = new convertible.CollectImplicitsProcessor(true)
     val processedObjects: mutable.HashSet[String] = mutable.HashSet.empty
+
     def processObject(o: ScObject): Unit = {
       val qualifiedName = o.qualifiedName
       if (!processedObjects(qualifiedName)) {
@@ -156,6 +159,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
         "scala.collection.convert.WrapAsScala",
         "scala.collection.convert.WrapAsJava"
       )
+
     def checkClass(clazz: PsiClass): Unit = {
       if (clazz == null) return
       if (!names(clazz.qualifiedName)) return
@@ -163,6 +167,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
         case o: ScObject => processObject(o)
       }
     }
+
     for (element <- collection) {
       element match {
         case v: ScValue =>
@@ -173,7 +178,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
               }
             case clazz => checkClass(clazz)
           }
-        case f: ScFunction  =>
+        case f: ScFunction =>
           f.containingClass match {
             case o: ScObject =>
               if (isStatic(f)) proc.execute(element, ResolveState.initial())
@@ -209,8 +214,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
         for (elem <- c.candidates) {
           val shouldImport = !elemsSetContains(elem.getElement)
           //todo: overloads?
-          val lookup: ScalaLookupItem = LookupElementManager.getLookupElement(elem, isClassName = true,
-            isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).head
+          val lookup = LookupElementManager.getLookupElement(elem, isClassName = true, shouldImport = shouldImport).head
           lookup.usedImportStaticQuickfix = true
           val element = next.resolveResult.getElement
           lookup.elementToImport = element
@@ -240,6 +244,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
     val file = ref.getContainingFile
 
     var hintShown: Boolean = false
+
     def showHint(shouldImport: Boolean) {
       if (!hintShown && !shouldImport && CompletionService.getCompletionService.getAdvertisementText == null) {
         val actionId = IdeActions.ACTION_SHOW_INTENTION_ACTIONS
@@ -253,6 +258,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
     }
 
     val elemsSet = new mutable.HashSet[PsiNamedElement]
+
     def addElemToSet(elem: PsiNamedElement) {
       elemsSet += elem
     }
@@ -402,7 +408,6 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
   private def createLookupElement(member: PsiNamedElement, clazz: PsiClass, shouldImport: Boolean,
                                   overloaded: Boolean = false): LookupElement = {
     LookupElementManager.getLookupElement(new ScalaResolveResult(member), isClassName = true,
-      isOverloadedForClassName = overloaded, shouldImport = shouldImport,
-      isInStableCodeReference = false, containingClass = Some(clazz)).head
+      isOverloadedForClassName = overloaded, shouldImport = shouldImport, containingClass = Some(clazz)).head
   }
 }
