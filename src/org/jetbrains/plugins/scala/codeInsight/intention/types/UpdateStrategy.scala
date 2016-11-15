@@ -9,14 +9,16 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -165,9 +167,29 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
       case Some(e) if tps.size > 1 =>
         val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
         val expr = new ChooseTypeTextExpression(texts)
+        // TODO Invoke the simplification
         IntentionUtil.startTemplate(added, context, expr, e)
-      case _ => ScalaPsiUtil.adjustTypes(added)
+      case _ =>
+        ScalaPsiUtil.adjustTypes(added)
+        rightExpressionOf(context).foreach(simplify)
     }
+  }
+
+  private def rightExpressionOf(definition: PsiElement): Option[ScExpression] = definition match {
+    case variable: ScVariableDefinition => variable.expr
+    case pattern: ScPatternDefinition => pattern.expr
+    case function: ScFunctionDefinition => function.body
+    case _ => None
+  }
+
+  private def simplify(expression: ScExpression): Unit = expression match {
+    case call: ScGenericCall =>
+      TypeAnnotationUtil.CollectionFactoryPrefixes.find(call.text.startsWith).foreach { it =>
+        implicit val manager = expression.manager
+        val replacement = ScalaPsiElementFactory.createExpressionFromText(it.substring(0, it.length - 1))
+        expression.replace(replacement)
+      }
+    case _ =>
   }
 
   def removeTypeAnnotation(e: PsiElement) {
@@ -199,23 +221,23 @@ object UpdateStrategy {
       case tp =>
         val project = context.getProject
         tp.extractClass(project) match {
-          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
-            (tp +: sealedType.toSeq).map(typeElemFromType)
+          case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
+            val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(_.startsWith("_root_.scala.Option"))
+            (baseTypes :+ tp.canonicalText).map(typeElemfromText)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(
-              "_root_.scala.collection.Seq[",
               "_root_.scala.collection.mutable.Seq[",
               "_root_.scala.collection.immutable.Seq[",
-              "_root_.scala.collection.Set[",
               "_root_.scala.collection.mutable.Set[",
               "_root_.scala.collection.immutable.Set[",
-              "_root_.scala.collection.Map[",
               "_root_.scala.collection.mutable.Map[",
               "_root_.scala.collection.immutable.Map["
             )
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
-            (tp.canonicalText +: baseTypes).map(typeElemfromText)
+            (tp.canonicalText +: baseTypes).reverse.map(typeElemfromText)
+          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
+            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
+            (tp +: sealedType.toSeq).map(typeElemFromType)
           case _ => Seq(typeElemFromType(tp))
         }
     }
