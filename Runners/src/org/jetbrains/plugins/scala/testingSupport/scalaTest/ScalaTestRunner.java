@@ -125,11 +125,11 @@ public class ScalaTestRunner {
       //'test' kind of run should only contain one class, better fail then try to run something irrelevant
       assert(classes.size() == 1);
       for (String clazz : classes) {
-          for (String tn : testNames) {
-          // Should encounter problem if the suite class does not have the specified test name.
           argsArray.add("-s");
           argsArray.add(clazz);
 
+          for (String tn : testNames) {
+          // Should encounter problem if the suite class does not have the specified test name.
           argsArray.add("-t");
           argsArray.add(tn);
         }
