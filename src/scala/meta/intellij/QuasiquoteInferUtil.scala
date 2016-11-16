@@ -1,6 +1,6 @@
 package scala.meta.intellij
 
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
 
 import scala.meta.parsers.{ParseException, Parsed}
+import scala.util.control.ControlThrowable
 
 /**
   * @author Mikhail Mutcianko
@@ -23,9 +24,9 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
 
   import scala.{meta => m}
 
-  def isMetaQQ(ref: ResolvableReferenceElement): Boolean = {
-    ref.bind() match {
-      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
+  def isMetaQQ(ref: ScReferenceExpression): Boolean = {
+    ref.shapeResolve.exists {
+      case ScalaResolveResult(fun: ScFunction, _) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
       case _ => false
     }
   }
@@ -36,19 +37,33 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
   }
 
   def getMetaQQExpectedTypes(stringContextApplicationRef: ScReferenceExpression): Seq[Parameter] = {
+    try {
+      stringContextApplicationRef.qualifier match {
+        case Some(mc: ScMethodCallImpl) => getMetaQQExpectedTypes(mc)
+        case _ => Nil
+      }
+    } catch {
+      case p: ProcessCanceledException => throw p
+      case e: ControlThrowable => throw e
+      case _: Throwable => Nil // workaround for unexpected exceptions in meta parsers
+    }
+  }
+
+  def getMetaQQExpectedTypes(stringContextApplicationRef: ScMethodCallImpl): Seq[Parameter] = {
     ProgressManager.checkCanceled()
-    val joined = stringContextApplicationRef.qualifier match {
-      case Some(mc: ScMethodCallImpl) => mc.argumentExpressions.zipWithIndex.foldLeft("") {
+      val joined = stringContextApplicationRef.argumentExpressions.zipWithIndex.foldLeft("") {
         case (a, (expr, i)) if i > 0 => s"$a$$__meta$i${unquoteString(expr.text)}"
         case (_, (expr, i)) if i == 0 => unquoteString(expr.text)
       }
-      case _ => ""
-    }
     val qqdialect = if (joined.contains("\n"))
       m.Dialect.forName("QuasiquoteTerm(Scala211, Multi)")
     else
       m.Dialect.forName("QuasiquoteTerm(Scala211, Single)")
-    val typeStrings = parseQQExpr(stringContextApplicationRef.refName, joined, qqdialect) match {
+    val prefix = stringContextApplicationRef.getContext match {
+      case r: ScReferenceExpression => r.refName
+      case _ => "UNKNOWN"
+    }
+    val typeStrings = parseQQExpr(prefix, joined, qqdialect) match {
       case Parsed.Success(qqparts) =>
         val parts = collectQQParts(qqparts)
         val classes = parts.map(_.pt)
