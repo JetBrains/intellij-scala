@@ -7,12 +7,15 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
+import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -146,6 +149,7 @@ object ConverterUtil {
     val removeReturnVisitor = (new RemoveRedundantReturnInspection).buildVisitor(holder, isOnTheFly = false)
     val parenthesisedExpr = (new ScalaUnnecessaryParenthesesInspection).buildVisitor(holder, isOnTheFly = false)
     val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
+    val addPrefix = (new ReferenceMustBePrefixedInspection).buildVisitor(holder, isOnTheFly = false)
 
     collectTopElements(offset, endOffset, file).foreach(_.depthFirst.foreach {
       case el: ScFunctionDefinition =>
@@ -154,6 +158,8 @@ object ConverterUtil {
         parenthesisedExpr.visitElement(parentized)
       case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
         removeSemicolon.visitElement(semicolon)
+      case ref: ScReferenceElement if ref.qualifier.isEmpty && !ref.getParent.isInstanceOf[ScImportSelector] =>
+        addPrefix.visitElement(ref)
       case el => intention.invoke(project, editor, el)
     })
 

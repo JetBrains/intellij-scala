@@ -70,7 +70,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
             if (!dropElements.contains(comment)) resultNode.addChild(LiteralExpression(comment.getText))
             dropElements += comment
           case ElementPart(element) =>
-            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements)
+            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements, textMode = false)
             resultNode.addChild(result)
         }
       }
@@ -84,13 +84,13 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         map { a =>
           val typedElement = a.itype.asInstanceOf[TypedElement].getType
           val range = rangeMap.getOrElse(typedElement, new TextRange(0, 0))
-          new Association(a.kind, range, a.path)
+          Association(a.kind, range, a.path)
         }
 
       updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
         map { a =>
           val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
-          new Association(a.kind, range, a.path)
+          Association(a.kind, range, a.path)
         }
 
       val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
@@ -140,8 +140,6 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
         }
 
-        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getStartOffset + text.length, editor)
-        
         TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
           ConverterUtil.collectTopElements(bounds.getStartOffset, bounds.getStartOffset + text.length, file)
         )
@@ -155,6 +153,10 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         }
       }
       scalaProcessor.processTransferableData(project, editor, bounds, i, ref, singletonList(new Associations(shiftedAssociations)))
+
+      inWriteAction {
+        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getStartOffset + text.length, editor)
+      }
     }
   }
 
