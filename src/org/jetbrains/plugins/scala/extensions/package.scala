@@ -631,8 +631,4 @@ package object extensions {
   }
 
   val ChildOf = Parent
-
-  object ResolveResultEx {
-    def unapply(rr: ResolveResult): Option[PsiElement] = Option(rr.getElement)
-  }
 }
