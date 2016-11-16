@@ -140,10 +140,6 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
         }
 
-        TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
-          ConverterUtil.collectTopElements(bounds.getStartOffset, bounds.getStartOffset + text.length, file)
-        )
-
         markedAssociations.map {
           case (association, marker) =>
             val movedAssociation = association.copy(range = new TextRange(marker.getStartOffset - bounds.getStartOffset,
@@ -156,6 +152,10 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
 
       inWriteAction {
         ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getStartOffset + text.length, editor)
+
+        TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
+          ConverterUtil.collectTopElements(bounds.getStartOffset, bounds.getStartOffset + text.length, file)
+        )
       }
     }
   }

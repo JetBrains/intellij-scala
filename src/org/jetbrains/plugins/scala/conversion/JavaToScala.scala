@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -949,6 +950,11 @@ object JavaToScala {
 
     val file = new ScalaCodeFragment(element.getProject, text)
     ConverterUtil.runInspections(file, element.getProject, 0, text.length)
+
+    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
+      ConverterUtil.collectTopElements(0, file.text.length, file)
+    )
+
     file.text
   }
 
