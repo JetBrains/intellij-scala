@@ -10,6 +10,7 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -325,23 +326,30 @@ object MacroExpandAction {
   }
 
   private def reformatCode(psi: PsiElement): PsiElement = {
-    val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
-    val tobeDeleted = new ArrayBuffer[PsiElement]
-    val v = new PsiElementVisitor {
-      override def visitElement(element: PsiElement) = {
-        if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
-          val file = element.getContainingFile
-          val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
-          if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
-            tobeDeleted += element
+    try {
+      val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
+      val tobeDeleted = new ArrayBuffer[PsiElement]
+      val v = new PsiElementVisitor {
+        override def visitElement(element: PsiElement) = {
+          if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+            val file = element.getContainingFile
+            val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
+            if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
+              tobeDeleted += element
+            }
           }
+          element.acceptChildren(this)
         }
-        element.acceptChildren(this)
       }
+      v.visitElement(res)
+      tobeDeleted.foreach(_.delete())
+      res
+    } catch {
+      case p: ProcessCanceledException => throw p
+      case e: Throwable => // if something goes wrong during reformat just return initial ugly psi
+        LOG.warn(e)
+        psi
     }
-    v.visitElement(res)
-    tobeDeleted.foreach(_.delete())
-    res
   }
 
 }
