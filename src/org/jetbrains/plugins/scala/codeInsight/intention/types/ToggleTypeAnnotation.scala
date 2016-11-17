@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
  */
 
 class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
-  def getFamilyName: String = ScalaBundle.message("intention.type.annotation.toggle.family")
+  def getFamilyName: String = ToggleTypeAnnotation.FamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     if (element == null || !IntentionAvailabilityChecker.checkIntention(this, element)) {
@@ -40,6 +40,8 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
 }
 
 object ToggleTypeAnnotation {
+  val FamilyName = ScalaBundle.message("intention.type.annotation.toggle.family")
+
   def complete(strategy: Strategy, element: PsiElement)
               (implicit typeSystem: TypeSystem): Boolean = {
     for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
