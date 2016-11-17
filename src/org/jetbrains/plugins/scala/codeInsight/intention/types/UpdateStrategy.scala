@@ -165,7 +165,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     val added = addActualType(tps.head)
     editor match {
       case Some(e) if tps.size > 1 =>
-        val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
+        val texts = tps.reverse.flatMap(_.getType().toOption).map(ScTypeText)
         val expr = new ChooseTypeTextExpression(texts)
         // TODO Invoke the simplification
         IntentionUtil.startTemplate(added, context, expr, e)
@@ -222,7 +222,7 @@ object UpdateStrategy {
         tp.extractClass(project) match {
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(_.startsWith("_root_.scala.Option"))
-            (baseTypes :+ tp.canonicalText).map(typeElemfromText)
+            (tp.canonicalText +: baseTypes).map(typeElemfromText)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(
               "_root_.scala.collection.mutable.Seq[",
@@ -233,7 +233,7 @@ object UpdateStrategy {
               "_root_.scala.collection.immutable.Map["
             )
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
-            (tp.canonicalText +: baseTypes).reverse.map(typeElemfromText)
+            (tp.canonicalText +: baseTypes).map(typeElemfromText)
           case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
             val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
             (tp +: sealedType.toSeq).map(typeElemFromType)
