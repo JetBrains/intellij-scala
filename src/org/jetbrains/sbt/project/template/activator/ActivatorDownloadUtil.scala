@@ -1,11 +1,14 @@
 package org.jetbrains.sbt.project.template.activator
 
 import java.io._
+import java.util
+import java.util.concurrent.Callable
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.net.NetUtils
+import org.jetbrains.ide.PooledThreadExecutor
 
 /**
  * User: Dmitry.Naydanov
@@ -30,21 +33,23 @@ object ActivatorDownloadUtil {
     if (progress != null) progress.setText2("Downloading " + location)
 
     try {
-      HttpRequests.request(location).productNameAsUserAgent.connect(new HttpRequests.RequestProcessor[Object]() {
-        def process(request: HttpRequests.Request): AnyRef = {
-          try {
-            val contentLength: Int = request.getConnection.getContentLength
-            substituteContentLength(progress, originalText, contentLength)
-            NetUtils.copyStreamContent(progress, request.getInputStream, output, contentLength)
-          }
-          catch {
-            case e: IOException =>
-              throw new IOException(HttpRequests.createErrorMessage(e, request, true), e)
-          }
+      PooledThreadExecutor.INSTANCE.invokeAny(util.Arrays.asList(new Callable[Object] {
+        override def call(): Object = HttpRequests.request(location).productNameAsUserAgent.connect(new HttpRequests.RequestProcessor[Object]() {
+          def process(request: HttpRequests.Request): AnyRef = {
+            try {
+              val contentLength: Int = request.getConnection.getContentLength
+              substituteContentLength(progress, originalText, contentLength)
+              NetUtils.copyStreamContent(progress, request.getInputStream, output, contentLength)
+            }
+            catch {
+              case e: IOException =>
+                throw new IOException(HttpRequests.createErrorMessage(e, request, true), e)
+            }
 
-          null
-        }
-      })
+            null
+          }
+        })
+      }))
     } catch {
       case e: IOException => throw new IOException("Cannot download " + location, e)
     }
