@@ -149,8 +149,6 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
       }
     }
 
-    declareVariableCheckBox.setSelected(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR);
-
     // Replace occurences
     if (occurrencesCount > 1) {
       myCbReplaceAllOccurences.setSelected(false);
@@ -264,9 +262,6 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     }
     if (mySpecifyTypeChb.isEnabled()) {
       ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected();
-    }
-    if (declareVariableCheckBox.isEnabled()) {
-      ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR = declareVariableCheckBox.isSelected();
     }
     super.doOKAction();
   }

@@ -77,7 +77,7 @@ trait IntroduceExpressions {
             val suggestedNames: Array[String] = NameSuggester.suggestNames(expr, validator)
             import scala.collection.JavaConversions.asJavaCollection
             val suggestedNamesSet = new util.LinkedHashSet[String](suggestedNames.toIterable)
-            val asVar = ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_IS_VAR
+            val asVar = false
             val forceInferType = expr match {
               case _: ScFunctionExpr => Some(true)
               case _ => None
