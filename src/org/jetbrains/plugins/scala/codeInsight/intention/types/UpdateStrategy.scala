@@ -183,12 +183,11 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   private def simplify(expression: ScExpression): Unit = expression match {
-    case call: ScGenericCall =>
-      TypeAnnotationUtil.CollectionFactoryPrefixes.find(call.text.startsWith).foreach { it =>
-        implicit val manager = expression.manager
-        val replacement = ScalaPsiElementFactory.createExpressionFromText(it.substring(0, it.length - 1))
-        expression.replace(replacement)
-      }
+    case call: ScGenericCall if TypeAnnotationUtil.isEmptyCollectionFactory(call) =>
+      val s = call.text
+      implicit val manager = expression.manager
+      val newExpression = ScalaPsiElementFactory.createExpressionFromText(s.substring(0, s.indexOf('[')))
+      expression.replace(newExpression)
     case _ =>
   }
 
