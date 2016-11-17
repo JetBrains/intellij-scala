@@ -24,14 +24,14 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel
+import org.jetbrains.plugins.scala.extensions._
 
 /**
   * Created by kate on 7/14/16.
   */
 object TypeAnnotationUtil {
-  val CollectionFactoryPrefixes =
+  private val CollectionClassNames =
     Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
-      .map(_ + ".empty[")
 
   def isTypeAnnotationNeeded(requiment: Int, ovPolicy: Int, simplePolicy: Int, isOverride: Boolean, isSimple: Boolean): Boolean = {
 
@@ -113,14 +113,15 @@ object TypeAnnotationUtil {
     }
   }
 
-  def isMemberOf(member: ScMember, fqn: String) = {
-    val aClass =
-      for (module <- Option(ScalaPsiUtil.getModule(member));
+  def isMemberOf(member: ScMember, fqn: String): Boolean = {
+    val result =
+      for (containtingClass <- Option(member.getContainingClass);
+           module <- Option(ScalaPsiUtil.getModule(member));
            scope <- Option(GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
            aClass <- ScalaPsiManager.instance(member.getProject).getCachedClass(scope, fqn))
-        yield aClass
+        yield containtingClass.isInheritor(aClass, true)
 
-    aClass.exists(member.getContainingClass.isInheritor(_, true))
+    result.getOrElse(false)
   }
 
   def requirementForMethod(method: ScMember, settings: ScalaCodeStyleSettings): Int = {
@@ -139,7 +140,7 @@ object TypeAnnotationUtil {
       case _: ScNewTemplateDefinition => true
       case ref: ScReferenceExpression if ref.refName == "???" => true
       case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for objects
-      case call: ScGenericCall if CollectionFactoryPrefixes.exists(call.text.startsWith) => true
+      case call: ScGenericCall if isEmptyCollectionFactory(call) => true
       case call: ScMethodCall => call.getInvokedExpr match {
         case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for case classes
         case _ => false
@@ -147,6 +148,12 @@ object TypeAnnotationUtil {
       case _: ScThrowStmt => true
       case _ => false
     }
+  }
+
+  def isEmptyCollectionFactory(e: ScExpression): Boolean = e match {
+    case (_: ScGenericCall) && FirstChild(reference: ScReferenceExpression) =>
+      CollectionClassNames.exists(_ + ".empty" == reference.text)
+    case _ => false
   }
 
   def isLocal(psiElement: PsiElement) = psiElement match {

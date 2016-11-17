@@ -128,7 +128,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
     if (!isEnumerator) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
-      myVarCheckbox.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR)
       myVarCheckbox.setMnemonic('v')
       myVarCheckbox.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent): Unit = {
@@ -342,7 +341,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
   override def finish(success: Boolean): Unit = {
     myEditor.getDocument.removeDocumentListener(myCheckIdentifierListener)
 
-    if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR = myVarCheckbox.isSelected
     if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
     try {

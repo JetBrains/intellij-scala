@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
 )
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
 
+  // TODO Don't save these values as we now rely on the code style instead
   public boolean INTRODUCE_VARIABLE_EXPLICIT_TYPE = true;
-  public boolean INTRODUCE_VARIABLE_IS_VAR = false;
   public boolean INTRODUCE_FIELD_EXPLICIT_TYPE = true;
   public boolean INTRODUCE_FIELD_IS_VAR = false;
   public boolean INTRODUCE_FIELD_REPLACE_ALL = false;
