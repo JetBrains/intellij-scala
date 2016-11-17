@@ -113,14 +113,15 @@ object TypeAnnotationUtil {
     }
   }
 
-  def isMemberOf(member: ScMember, fqn: String) = {
-    val aClass =
-      for (module <- Option(ScalaPsiUtil.getModule(member));
+  def isMemberOf(member: ScMember, fqn: String): Boolean = {
+    val result =
+      for (containtingClass <- Option(member.getContainingClass);
+           module <- Option(ScalaPsiUtil.getModule(member));
            scope <- Option(GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
            aClass <- ScalaPsiManager.instance(member.getProject).getCachedClass(scope, fqn))
-        yield aClass
+        yield containtingClass.isInheritor(aClass, true)
 
-    aClass.exists(member.getContainingClass.isInheritor(_, true))
+    result.getOrElse(false)
   }
 
   def requirementForMethod(method: ScMember, settings: ScalaCodeStyleSettings): Int = {
