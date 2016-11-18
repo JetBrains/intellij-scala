@@ -1184,6 +1184,16 @@ object ScalaPsiUtil {
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
+
+    def isStaticJava(m: PsiMember) = m match {
+      case null => false
+      case _: PsiEnumConstant  => true
+      case cl: PsiClass if cl.isInterface | cl.isEnum => true
+      case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
+      case f: PsiField if f.containingClass.isInterface => true
+      case _ => false
+    }
+
     @tailrec
     def hasStablePathInner(m: PsiMember): Boolean = {
       m.getContext match {
@@ -1195,7 +1205,7 @@ object ScalaPsiUtil {
         case null => false
         case o: ScObject if o.isPackageObject || o.qualifiedName == "scala.Predef" => true
         case o: ScObject => hasStablePathInner(o)
-        case j if j.getLanguage.isInstanceOf[JavaLanguage] => true
+        case j if j.getLanguage.isInstanceOf[JavaLanguage] => isStaticJava(m) && hasStablePathInner(j)
         case _ => false
       }
     }
