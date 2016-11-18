@@ -299,18 +299,17 @@ object ScalaPsiUtil {
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
     val foundImplicits = checkImplicits() match {
-      case seq if seq.size > 1 => checkImplicits(withoutImplicitsForArgs = true)
       case Seq() => checkImplicits(noApplicability = true)
-      case seq => seq
+      case seq@Seq(_) => seq
+      case _ => checkImplicits(withoutImplicitsForArgs = true)
     }
 
     foundImplicits match {
-      case Seq(rr) =>
-        ExtensionConversionHelper.specialExtractParameterType(rr) match {
-          case (Some(FunctionType(tp, _)), typeParams) =>
-            Some(ImplicitResolveResult(tp, rr, ScSubstitutor.empty, //todo: from companion parameter
-              unresolvedTypeParameters = typeParams))
-          case _ => None
+      case Seq(resolveResult) =>
+        ExtensionConversionHelper.specialExtractParameterType(resolveResult).map {
+          case (tp, typeParams) =>
+            ImplicitResolveResult(tp, resolveResult, ScSubstitutor.empty, //todo: from companion parameter
+              unresolvedTypeParameters = typeParams)
         }
       case _ => None
     }
