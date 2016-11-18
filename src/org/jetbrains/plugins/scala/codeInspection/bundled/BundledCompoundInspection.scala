@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.bundled
 import com.intellij.codeInspection.{LocalInspectionTool, LocalInspectionToolSession, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledCompoundInspection.MyInspectionVisitorWrapper
+import org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent
 
 /**
   * User: Dmitry.Naydanov
@@ -13,7 +14,7 @@ class BundledCompoundInspection extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new MyInspectionVisitorWrapper(
-      BundledInspectionStoreComponent.getInstance(holder.getProject).getFilteredInspections.map(_.actionFor(holder))
+      BundledCodeStoreComponent.getInstance(holder.getProject).getFilteredInspections.map(_.actionFor(holder))
     )
   }
 
