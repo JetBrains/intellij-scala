@@ -33,5 +33,5 @@ class ArtifactHandlerComponent extends ProjectComponent {
 }
 
 object ArtifactHandlerComponent {
-  def getInstance(project: Project) = project.getComponent(classOf[ArtifactHandlerComponent])
+  def getInstance(project: Project): ArtifactHandlerComponent = project.getComponent(classOf[ArtifactHandlerComponent])
 }

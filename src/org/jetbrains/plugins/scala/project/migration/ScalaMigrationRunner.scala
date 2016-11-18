@@ -26,7 +26,7 @@ class ScalaMigrationRunner(project: Project) {
     def catchRun(migrate: MigrationApiService => Option[MigrationReport]) {
       Try(migrate(projectStructure)) match {
         case Success(report) => report.foreach(projectStructure.showReport)
-        case Failure(exception) => ImportedLibrariesService.showExceptionWarning(projectStructure, exception)
+        case Failure(exception) => BundledCodeStoreComponent.showExceptionWarning(projectStructure, exception)
       }
     }
 
@@ -62,7 +62,7 @@ class ScalaMigrationRunner(project: Project) {
                     override def run(): Unit = {
                       catchRun {
                         service =>
-                          projectStructure.inWriteAction(fix doApplyFix project)
+                          service.inWriteAction(fix doApplyFix project)
                           None
                       }
                     }
@@ -86,7 +86,7 @@ class ScalaMigrationRunner(project: Project) {
   
   //we need our own iterator as there is no way to filter excluded dirs
   private class FilteringFileIterator() {
-    val myCurrentFiles = mutable.Queue[PsiFile]()
+    val myCurrentFiles: mutable.Queue[PsiFile] = mutable.Queue[PsiFile]()
     val (myCurrentDirs, myExcludedDirs) = {
       val startDirs = mutable.Queue[PsiDirectory]()
       val excludedDirs = mutable.HashSet[PsiDirectory]()
@@ -133,8 +133,6 @@ class ScalaMigrationRunner(project: Project) {
       
       val current: PsiFile = myCurrentFiles.dequeue()
       expandDirectoriesUntilFilesNotEmpty()
-      
-      println(current.getName + " in " + current.getContainingDirectory.getName)
       
       current
     }

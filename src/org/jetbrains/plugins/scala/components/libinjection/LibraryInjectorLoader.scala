@@ -80,6 +80,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   type AttributedManifest = (JarManifest, Seq[InjectorDescriptor])
   type ManifestToDescriptors = Seq[AttributedManifest]
 
+  private val myListeners = mutable.HashSet[InjectorsLoadedListener]()
   private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
   private val initialized = new AtomicBoolean(false)
 
@@ -123,6 +124,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     jarCache = verifyAndLoadCache
 //    init()
   }
+  
+  def addListener(l: InjectorsLoadedListener) {
+    myListeners += l
+  }
+  
+  def deleteListener(l: InjectorsLoadedListener) {
+    myListeners remove l
+  }
 
   def init(): Unit = {
     initialized.set(true)
@@ -135,6 +144,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       }
     }
   }
+  
+  def conditionalInit(): Unit = if (!initialized.get()) init()
 
   override def initComponent(): Unit = {
     myInjectorCacheDir.mkdirs()
@@ -255,7 +266,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val candidates = validManifests.map(manifest => manifest -> findMatchingInjectors(manifest))
     LOG.trace(s"Found ${candidates.size} new jars with embedded extensions")
     if (candidates.nonEmpty)
-      askUser(candidates)
+      askUser(candidates) else myListeners.foreach(_.onLoadingCompleted())
   }
 
   private def getAllJarsWithManifest: Seq[VirtualFile] = {
@@ -395,6 +406,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
         val notificationDisplayType = if (numFailed == 0) NotificationType.INFORMATION else NotificationType.ERROR
         GROUP.createNotification("IDEA Extensions", msg, notificationDisplayType, null).notify(project)
         LOG.trace(msg)
+        
+        myListeners.foreach(_.onLoadingCompleted())
       }, indicator)
     }
   }
@@ -487,6 +500,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 }
 
 object LibraryInjectorLoader {
+  trait InjectorsLoadedListener {
+    def onLoadingCompleted(): Unit
+  }
 
   val HELPER_LIBRARY_NAME    = "scala-plugin-dev"
   val INJECTOR_MANIFEST_NAME = "intellij-compat.xml"
