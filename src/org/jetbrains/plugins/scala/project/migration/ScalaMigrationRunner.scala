@@ -32,10 +32,13 @@ class ScalaMigrationRunner(project: Project) {
 
     runWithProgress {
       indicator =>
+        def checkForUserCancel(): Unit = if (indicator.isCanceled) throw new MigrationCanceledException
+        
         indicator setIndeterminate true
 
         migrators.foreach {
           migrator =>
+            checkForUserCancel() 
             catchRun(migrator.migrateGlobal)
         }
 
@@ -45,11 +48,15 @@ class ScalaMigrationRunner(project: Project) {
 
         while (myIterator.hasNext) projectStructure.inReadAction(myIterator.next()) match {
           case scalaFile: ScalaFile if !scalaFile.isCompiled && !scalaFile.isWorksheetFile =>
+            checkForUserCancel()
+            
             val holder = new ProblemsHolder(inspectionManager, scalaFile, false)
             val fixHolder = new MigrationLocalFixHolderImpl(holder)
 
             val myCompoundAction = migrators.flatMap {
-              migrator => migrator.migrateLocal(scalaFile, fixHolder)
+              migrator => 
+                checkForUserCancel()
+                migrator.migrateLocal(scalaFile, fixHolder)
             }
 
             val visitor = new MyRecursiveVisitorWrapper(myCompoundAction)
@@ -57,6 +64,8 @@ class ScalaMigrationRunner(project: Project) {
 
             fixHolder.getFixes.foreach {
               case fix: AbstractFixOnPsiElement[_] =>
+                checkForUserCancel()
+                
                 ApplicationManager.getApplication.invokeLater(new Runnable {
                   override def run(): Unit = CommandProcessor.getInstance().executeCommand(project, new Runnable {
                     override def run(): Unit = {
@@ -78,11 +87,17 @@ class ScalaMigrationRunner(project: Project) {
   }
 
   private def runWithProgress(action: ProgressIndicator => Unit) {
-    new Task.Modal(project, "Migrating...", false) {
-      override def run(indicator: ProgressIndicator): Unit = action.apply(indicator)
+    new Task.Modal(project, "Migrating...", true) {
+      override def run(indicator: ProgressIndicator): Unit = try {
+        action.apply(indicator)
+      } catch {
+        case _: MigrationCanceledException => 
+      }
     }.queue()
   }
   
+  
+  private class MigrationCanceledException extends Exception("Migration was canceled by user")
   
   //we need our own iterator as there is no way to filter excluded dirs
   private class FilteringFileIterator() {
