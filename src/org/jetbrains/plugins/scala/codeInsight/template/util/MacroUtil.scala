@@ -61,10 +61,10 @@ object MacroUtil {
   }
 
   def getPrimaryConbstructorParams(context: ExpressionContext): Option[ScParameters] =
-    Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[PsiClass])).map {
-    case obj: ScObject => obj.fakeCompanionClassOrCompanionClass
-    case other => other
-  }.filter(_.isInstanceOf[ScClass]).flatMap(_.asInstanceOf[ScClass].constructor).map(_.parameterList)
+    Option(context).flatMap(c => Option(PsiTreeUtil.getParentOfType(c.getPsiElementAtStartOffset, classOf[PsiClass]))).map {
+      case obj: ScObject => obj.fakeCompanionClassOrCompanionClass
+      case other => other
+    }.filter(_.isInstanceOf[ScClass]).flatMap(_.asInstanceOf[ScClass].constructor).map(_.parameterList)
 
   def paramPairs(params: String): List[(String, String)] =
     if (params.length < 2) List()
