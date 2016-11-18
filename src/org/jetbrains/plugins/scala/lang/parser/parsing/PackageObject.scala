@@ -42,7 +42,7 @@ trait PackageObject {
     builder.advanceLexer()
 
     if (objectDef parse builder) {
-      marker.done(ScalaElementTypes.OBJECT_DEF)
+      marker.done(ScalaElementTypes.OBJECT_DEFINITION)
     } else {
       marker.drop()
     }

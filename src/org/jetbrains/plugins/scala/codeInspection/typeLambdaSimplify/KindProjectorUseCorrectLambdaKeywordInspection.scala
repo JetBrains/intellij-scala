@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -46,8 +46,7 @@ class KindProjectorUseCorrectLambdaKeywordQuickFix(e: PsiElement, replacement: S
     val elem = getElement
     if (!elem.isValid) return
 
-    val repl = ScalaPsiElementFactory.createTypeElementFromText(replacement, elem.getManager)
-    elem.replace(repl)
+    elem.replace(createTypeElementFromText(replacement)(elem.getManager))
   }
 }
 

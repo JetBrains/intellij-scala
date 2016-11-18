@@ -4,7 +4,7 @@ package declarations
 /**
   * @author Pavel Fatin
   */
-class ExpandProcedureSyntaxTest extends TransformerTest(ExpandProcedureSyntax) {
+class ExpandProcedureSyntaxTest extends TransformerTest(new ExpandProcedureSyntax()) {
   def testProcedureSyntax() = check(
     "def f() {}",
     "def f(): Unit = {}"

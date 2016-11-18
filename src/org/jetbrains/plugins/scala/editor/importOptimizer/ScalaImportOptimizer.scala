@@ -21,14 +21,13 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -176,7 +175,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val firstPsi = range.firstPsi.retrieve()
     val lastPsi = range.lastPsi.retrieve()
 
-    if (Option(firstPsi).exists(!_.isValid) || Option(lastPsi).exists(!_.isValid)) {
+    def notValid(psi: PsiElement) = psi == null || !psi.isValid
+
+    if (notValid(firstPsi) || notValid(lastPsi)) {
       throw new IllegalStateException("Couldn't update imports: import range was invalidated after initial analysis")
     }
 
@@ -230,7 +231,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       }
       else firstPsiNode
 
-    val anchor = lastPsi.getNextSibling.getNode
+    val anchor = Option(lastPsi.getNextSibling).map(_.getNode).orNull
 
     withDisabledPostprocessFormatting(file.getProject) {
       parentNode.removeRange(firstNodeToRemove, anchor)
@@ -270,8 +271,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
      
     for (child <- holder.getNode.getChildren(null)) {
       child.getPsi match {
-        case whitespace: PsiWhiteSpace =>
-        case d: ScDocComment => addRange()
+        case _: PsiWhiteSpace =>
+        case _: ScDocComment => addRange()
         case comment: PsiComment =>
           val next = comment.getNextSibling
           val prev = comment.getPrevSibling
@@ -280,7 +281,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
             w1.getText.contains("\n") && w2.getText.contains("\n") => addRange()
             case _ =>
           }
-        case s: LeafPsiElement =>
+        case _: LeafPsiElement =>
         case a: PsiElement if isImportDelimiter(a) => //do nothing
         case imp: ScImportStmt =>
           if (firstPsi == null) {
@@ -380,7 +381,9 @@ object ScalaImportOptimizer {
       val postfix =
         if (groupStrings.length > 1 || renames.nonEmpty || hiddenNames.nonEmpty) groupStrings.mkString(s"{$space", ", ", s"$space}")
         else groupStrings(0)
-      s"import $root${relative.getOrElse(prefixQualifier)}.$postfix"
+      val prefix = s"$root${relative.getOrElse(prefixQualifier)}"
+      val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
+      s"import $prefix$dotOrNot$postfix"
     }
 
     def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String =
@@ -456,12 +459,12 @@ object ScalaImportOptimizer {
           case ScalaResolveResult(o: ScObject, _) if o.isPackageObject => o.qualifiedName.contains(".")
           case ScalaResolveResult(o: ScObject, _) =>
             o.getParent match {
-              case file: ScalaFile => false
+              case _: ScalaFile => false
               case _ => true
             }
           case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
           case ScalaResolveResult(_: ScTypeDefinition, _) => false
-          case ScalaResolveResult(c: PsiClass, _) => true
+          case ScalaResolveResult(_: PsiClass, _) => true
           case ScalaResolveResult(f: PsiField, _) if f.hasFinalModifier => true
           case _ => false
         }

@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -41,7 +41,7 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
     def isAncestorOfElement(ancestor: PsiElement) = PsiTreeUtil.isContextAncestor(ancestor, element, false)
 
     val expr: Option[ScExpression] = containing match {
-      case pattern @ ScPatternDefinition.expr(e) if isAncestorOfElement(e) => Some(e)
+      case ScPatternDefinition.expr(e) if isAncestorOfElement(e) => Some(e)
       case ifStmt: ScIfStmt =>
         ifStmt.thenBranch.filter(isAncestorOfElement).orElse(ifStmt.elseBranch.filter(isAncestorOfElement))
       case funDef: ScFunctionDefinition =>
@@ -72,8 +72,8 @@ class AddBracesIntention extends PsiElementBaseIntentionAction {
     }
     oneLinerExpr.map {
       expr => () => {
-        val replacement = ScalaPsiElementFactory.createExpressionFromText("{\n%s}".format(expr.getText), expr.getManager)
-        CodeEditUtil.replaceChild(expr.getParent.getNode, expr.getNode, replacement.getNode)
+        CodeEditUtil.replaceChild(expr.getParent.getNode, expr.getNode,
+          createExpressionFromText("{\n%s}".format(expr.getText))(expr.getManager).getNode)
       }
     }
   }

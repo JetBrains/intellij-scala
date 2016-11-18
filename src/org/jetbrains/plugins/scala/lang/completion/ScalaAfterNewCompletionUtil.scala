@@ -38,7 +38,7 @@ object ScalaAfterNewCompletionUtil {
       val element = position
       val newExpr: ScNewTemplateDefinition = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
       newExpr.expectedTypes().map {
-        case ScAbstractType(_, lower, upper) => upper
+        case ScAbstractType(_, _, upper) => upper
         case tp => tp
       }
     } else Array[ScType]()
@@ -69,7 +69,7 @@ object ScalaAfterNewCompletionUtil {
     val iterator = expectedTypes.iterator
     while (iterator.hasNext) {
       val typez = iterator.next()
-      val conformance = predefinedType.conforms(typez, new ScUndefinedSubstitutor())
+      val conformance = predefinedType.conforms(typez, ScUndefinedSubstitutor())
       if (conformance._1) {
         conformance._2.getSubstitutor match {
           case Some(subst) =>
@@ -132,7 +132,7 @@ object ScalaAfterNewCompletionUtil {
                                        renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
     val name: String = psiClass.name
     val isRenamed = renamesMap.filter {
-      case (aName, (renamed, aClazz)) => aName == name && aClazz == psiClass
+      case (aName, (_, aClazz)) => aName == name && aClazz == psiClass
     }.map(_._2._1).headOption
     val lookupElement: ScalaLookupItem = new ScalaLookupItem(psiClass, isRenamed.getOrElse(name)) {
       override def renderElement(presentation: LookupElementPresentation) {
@@ -191,7 +191,7 @@ object ScalaAfterNewCompletionUtil {
                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
                               (implicit typeSystem: TypeSystem) {
     typez.extractClassType(place.getProject) match {
-      case Some((clazz, subst)) =>
+      case Some((clazz, _)) =>
         //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
         val searchScope =
           if (clazz.getUseScope.isInstanceOf[LocalSearchScope]) GlobalSearchScope.allScope(place.getProject)
@@ -210,7 +210,7 @@ object ScalaAfterNewCompletionUtil {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(TypeParameterType(_)))
               }
               else ScDesignatorType(clazz)
-            val conformance = predefinedType.conforms(typez, new ScUndefinedSubstitutor())
+            val conformance = predefinedType.conforms(typez, ScUndefinedSubstitutor())
             if (!conformance._1) return true
             conformance._2.getSubstitutor match {
               case Some(undefSubst) =>

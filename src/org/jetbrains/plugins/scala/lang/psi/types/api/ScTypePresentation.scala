@@ -20,7 +20,7 @@ trait ScTypePresentation extends TypeSystemOwner {
     case e => e.name
   }, {
     case o: ScObject if Set("scala.Predef", "scala").contains(o.qualifiedName) => ""
-    case p: PsiPackage => ""
+    case _: PsiPackage => ""
     case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c) + "."
     case e => e.name + "."
   }
@@ -33,7 +33,7 @@ trait ScTypePresentation extends TypeSystemOwner {
         case e: PsiClass => "<a href=\"psi_element://" + e.qualifiedName + "\"><code>" +
           StringEscapeUtils.escapeHtml(e.name) +
           "</code></a>" + (if (withPoint) "." else "")
-        case pack: PsiPackage if withPoint => ""
+        case _: PsiPackage if withPoint => ""
         case _ => StringEscapeUtils.escapeHtml(e.name) + "."
       }
     }

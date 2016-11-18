@@ -23,7 +23,7 @@ class ScalaTupleUnwrapper extends ScalaUnwrapper with ShortTextDescription {
 
 
   override def collectAffectedElements(e: PsiElement, toExtract: util.List[PsiElement]): PsiElement = {
-    forTupledExpression[PsiElement](e){ (expr, tuple) =>
+    forTupledExpression[PsiElement](e){ (_, tuple) =>
       super.collectAffectedElements(e, toExtract)
       tuple
     } (e)

@@ -12,10 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScPatternDefinition, ScTypeAlias, ScValueDeclaration}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
 
 import scala.collection.mutable
 
@@ -71,7 +70,7 @@ private[annotator] object ModifierChecker {
                 case _: ScParameter =>
                   proccessError(ScalaBundle.message("lazy.modifier.is.not.allowed.with.param"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "lazy"))
-                case declaration: ScValueDeclaration =>
+                case _: ScValueDeclaration =>
                   proccessError(ScalaBundle.message("lazy.values.may.not.be.abstract"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "lazy"))
                 case _ =>
@@ -94,8 +93,8 @@ private[annotator] object ModifierChecker {
                   }
                 case e: ScMember if e.getParent.isInstanceOf[ScTemplateBody] || e.getParent.isInstanceOf[ScEarlyDefinitions] =>
                   val redundant = (e.containingClass, e) match {
-                    case (obj: ScObject, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
-                            valMember.pList.allPatternsSimple => false // SCL-899
+                    case (_: ScObject, valMember: ScPatternDefinition) if valMember.typeElement.isEmpty &&
+                      valMember.pList.simplePatterns => false // SCL-899
                     case (cls, _) if cls.hasFinalModifier => true
                     case _ => false
                   }
@@ -157,7 +156,7 @@ private[annotator] object ModifierChecker {
                 case member: ScMember if member.getParent.isInstanceOf[ScTemplateBody] ||
                   member.getParent.isInstanceOf[ScEarlyDefinitions] =>
                   checkDublicates(modifierPsi, "override")
-                case param: ScClassParameter => checkDublicates(modifierPsi, "override")
+                case _: ScClassParameter => checkDublicates(modifierPsi, "override")
                 case _ =>
                   proccessError(ScalaBundle.message("override.modifier.is.not.allowed"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "override"))
@@ -167,7 +166,7 @@ private[annotator] object ModifierChecker {
                 case c@(_: ScClass | _: ScObject)=>
                   val onTopLevel = c.getContext match {
                     case file: ScalaFile if !file.isScriptFile() && !file.isWorksheetFile => true
-                    case p: ScPackaging => true
+                    case _: ScPackaging => true
                     case _ => false
                   }
                   if (onTopLevel) {

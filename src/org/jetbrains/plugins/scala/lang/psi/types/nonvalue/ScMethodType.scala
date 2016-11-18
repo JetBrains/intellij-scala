@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package lang.psi.types.nonvalue
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiParameter
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiElement, PsiParameter}
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -45,7 +45,8 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   }
 
   def this(param: PsiParameter) {
-    this(param.getName, None, param.paramType, param.paramType, false, param.isVarArgs, false, param.index, Some(param))
+    this(param.getName, None, param.paramType(exact = false), param.paramType(exact = false), false,
+      param.isVarArgs, false, param.index, Some(param))
   }
 
   def paramInCode: Option[ScParameter] = psiParam match {
@@ -141,7 +142,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
 
   def polymorphicTypeSubstitutor(inferValueType: Boolean): ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map(tp => {
+    new ScSubstitutor(new HashMap[(String, Long), ScType] ++ typeParameters.map(tp => {
       var contraVariant = 0
       var coOrInVariant = 0
       internalType.recursiveVarianceUpdate {
@@ -181,7 +182,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       }
       hasRecursiveTypeParameters
     }
-    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map(tp => {
+    new ScSubstitutor(new HashMap[(String, Long), ScType] ++ typeParameters.map(tp => {
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType.v)) Nothing else tp.lowerType.v
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType.v)) Any else tp.upperType.v
       (tp.nameAndId, ScAbstractType(TypeParameterType(tp.psiTypeParameter), lowerType, upperType))
@@ -203,7 +204,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       }
       hasRecursiveTypeParameters
     }
-    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map(tp => {
+    new ScSubstitutor(new HashMap[(String, Long), ScType] ++ typeParameters.map(tp => {
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType.v)) Nothing else tp.lowerType.v
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType.v)) Any else tp.upperType.v
       (tp.nameAndId,
@@ -213,7 +214,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   }
 
   def typeParameterTypeSubstitutor: ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map { tp =>
+    new ScSubstitutor(new HashMap[(String, Long), ScType] ++ typeParameters.map { tp =>
       (tp.nameAndId, TypeParameterType(tp.psiTypeParameter))
     }, Map.empty, None)
 
@@ -290,7 +291,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           undefinedSubst = t._2
           i = i + 1
         }
-        val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++
+        val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, Long), ScType] ++
           typeParameters.zip(p.typeParameters).map({
             case (key, TypeParameter(_, lowerType, upperType, psiTypeParameter)) =>
               (key.nameAndId, TypeParameterType(

@@ -25,7 +25,7 @@ class ScalaTestRunConfiguration(override val project: Project,
     extends AbstractTestRunConfiguration(project, configurationFactory, name)
     with ScalaTestingConfiguration {
 
-  override def suitePaths = List("org.scalatest.Suite")
+  override def suitePaths: List[String] = ScalaTestUtil.suitePaths
 
   override def mainClass = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner"
 
@@ -59,7 +59,7 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
               val psiManager = ScalaPsiManager.instance(project)
               val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map").orNull
               val mapClass = ScalaType.designator(mapPsiClass)
-              val paramClass = firstParam.getType.toScType(project)
+              val paramClass = firstParam.getType.toScType()
               val conformanceType = paramClass match {
                 case parameterizedType: ScParameterizedType => parameterizedType.designator
                 case _ => paramClass
@@ -77,8 +77,7 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
   override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean = {
     val hasConfigMapAnnotation = clazz match {
       case classDef: ScTypeDefinition =>
-        val annotation = classDef.hasAnnotation(wrapWithAnnotationFqn)
-        annotation.isDefined
+        classDef.hasAnnotation(wrapWithAnnotationFqn)
       case _ => false
     }
     if (hasConfigMapAnnotation) {

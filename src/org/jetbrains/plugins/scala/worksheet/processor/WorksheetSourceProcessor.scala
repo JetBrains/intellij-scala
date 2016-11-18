@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
@@ -61,11 +61,17 @@ object WorksheetSourceProcessor {
       } else None
     } else None
   }
+
+  /**
+    * @return (Code, Main class name)
+    */
+  def process(srcFile: ScalaFile, ifEditor: Option[Editor], iNum: Int): Either[(String, String), PsiErrorElement] = 
+    processInner(srcFile, ifEditor.map(_.getDocument), iNum)
   
   /**
    * @return (Code, Main class name)
    */
-  def process(srcFile: ScalaFile, ifEditor: Option[Editor], iterNumber: Int): Either[(String, String), PsiErrorElement] = {
+  def processInner(srcFile: ScalaFile, ifDoc: Option[Document], iterNumber: Int = 0): Either[(String, String), PsiErrorElement] = {
     if (!srcFile.isWorksheetFile) return Right(null)
     
     val name = s"A$$A$iterNumber"
@@ -94,12 +100,12 @@ object WorksheetSourceProcessor {
     val objectPrologue = s"$packStmt ${if (project.hasDotty) "" else s" import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n"} object $name { \n"
 
     val classRes = new StringBuilder(s"final class $classPrologue { \n")
-    val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion("", " : Unit = ", " : Unit = ", "")} { \n val $instanceName = new $name \n")
+    val objectRes = new StringBuilder(s"def main($runPrinterName: java.io.PrintStream) ${withCompilerVersion("", " : Unit = ", " : Unit = ", " : Unit = ")} { \n val $instanceName = new $name \n")
     
     val mySourceBuilder = if (moduleOpt exists (_.hasDotty)) new DottySourceBuilder(classRes, objectRes, iterNumber, srcFile,
-      moduleOpt, ifEditor, macroPrinterName, packOpt, objectPrologue)
+      moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue)
     else new ScalaSourceBuilder(classRes, objectRes, iterNumber, srcFile,
-      moduleOpt, ifEditor, macroPrinterName, packOpt, objectPrologue)
+      moduleOpt, ifDoc, macroPrinterName, packOpt, objectPrologue)
     
     val preDeclarations = mutable.ListBuffer.empty[PsiElement]
     val postDeclarations = mutable.ListBuffer.empty[PsiElement]
@@ -149,9 +155,9 @@ object WorksheetSourceProcessor {
   }
   
   private abstract class SourceBuilderBase(classBuilder: mutable.StringBuilder, objectBuilder: mutable.StringBuilder, iterNumber: Int, srcFile: ScalaFile,
-                                           moduleOpt: Option[Module], editorOpt: Option[Editor], tpePrinterName: String, 
+                                           moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String, 
                                            packOpt: Option[String], objectPrologue: String) {
-    protected val documentOpt = editorOpt flatMap (e => Option(e.getDocument))
+    protected val documentOpt = ifDoc
     protected val name = s"A$$A$iterNumber"
     protected val tempVarName = "$$temp$$"
     protected val instanceName = s"inst$$A$$A"
@@ -183,7 +189,7 @@ object WorksheetSourceProcessor {
 
     protected def getImportInfoString(imp: ScImportStmt): String = {
       val text = imp.getText
-      s"$getTypePrinterName.printImportInfo({$text;}"
+      s"$getTypePrinterName.printImportInfo({$text;})"
     }
 
     protected def getFunDefInfoString(fun: ScFunction): String = {
@@ -296,9 +302,9 @@ object WorksheetSourceProcessor {
     }
 
     protected def processLocalImport(imp: ScImportStmt): Boolean = {
-      if (imp.importExprs.length < 1) return false
+      if (imp.importExprs.size < 1) return false
 
-      var currentQual = imp.importExprs(0).qualifier
+      var currentQual = imp.importExprs.head.qualifier
       var lastFound: Option[(ScStableCodeReferenceElement, PsiElement)] = None
 
       while (currentQual != null) {
@@ -340,10 +346,17 @@ object WorksheetSourceProcessor {
 
     protected def processComment(comment: PsiComment) {
       val range = comment.getTextRange
-      val backOffset = comment.getPrevSibling match {
-        case ws: PsiWhiteSpace if countNls(ws.getText) > 0 => 0
-        case _ => 1
+      
+      @scala.annotation.tailrec
+      def getBackOffset(from: PsiElement): Int = {
+        if (from == null) 1 else from.getPrevSibling match {
+          case ws: PsiWhiteSpace if countNls(ws.getText) > 0 => 0
+          case null => getBackOffset(from.getParent)
+          case _ => 1
+        }
       }
+
+      val backOffset = getBackOffset(comment)
       
       documentOpt match {
         case Some(document) => 
@@ -505,15 +518,15 @@ object WorksheetSourceProcessor {
   }
   
   private class ScalaSourceBuilder(classBuilder: mutable.StringBuilder, objectBuilder: mutable.StringBuilder, iterNumber: Int, srcFile: ScalaFile,
-                                   moduleOpt: Option[Module], editorOpt: Option[Editor], tpePrinterName: String,
+                                   moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String,
                                    packOpt: Option[String], objectPrologue: String) 
-    extends SourceBuilderBase(classBuilder, objectBuilder, iterNumber, srcFile, moduleOpt, editorOpt, tpePrinterName, packOpt, objectPrologue) {
+    extends SourceBuilderBase(classBuilder, objectBuilder, iterNumber, srcFile, moduleOpt, ifDoc, tpePrinterName, packOpt, objectPrologue) {
   }
 
   private class DottySourceBuilder(classBuilder: mutable.StringBuilder, objectBuilder: mutable.StringBuilder, iterNumber: Int, srcFile: ScalaFile,
-                                   moduleOpt: Option[Module], editorOpt: Option[Editor], tpePrinterName: String,
+                                   moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String,
                                    packOpt: Option[String], objectPrologue: String)
-    extends SourceBuilderBase(classBuilder, objectBuilder, iterNumber, srcFile, moduleOpt, editorOpt, tpePrinterName, packOpt, objectPrologue) {
+    extends SourceBuilderBase(classBuilder, objectBuilder, iterNumber, srcFile, moduleOpt, ifDoc, tpePrinterName, packOpt, objectPrologue) {
     override protected val eraseClassName: String = ""
     override protected val erasePrefixName: String = ""
     override protected val plusInfoDef: String = ""

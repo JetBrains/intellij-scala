@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
-
 
 class ScalaTestGenerator extends TestGenerator {
   def generateTest(project: Project, d: CreateTestDialog): PsiElement = {
@@ -33,7 +33,7 @@ class ScalaTestGenerator extends TestGenerator {
           val file: PsiFile = generateTestInternal(project, d)
           file
         } catch {
-          case e: IncorrectOperationException =>
+          case _: IncorrectOperationException =>
             invokeLater {
               val message = CodeInsightBundle.message("intention.error.cannot.create.class.message", d.getClassName)
               val title = CodeInsightBundle.message("intention.error.cannot.create.class.title")
@@ -74,8 +74,7 @@ class ScalaTestGenerator extends TestGenerator {
   private def addSuperClass(typeDefinition: ScTypeDefinition, psiClass: Option[PsiClass], fqName: String) = {
     val extendsBlock = typeDefinition.extendsBlock
     def addExtendsRef(refName: String) = {
-      val (extendsToken, classParents) = ScalaPsiElementFactory.createClassTemplateParents(refName,
-        typeDefinition.getManager)
+      val (extendsToken, classParents) = createClassTemplateParents(refName)(typeDefinition.getManager)
       val extendsAdded = extendsBlock.addBefore(extendsToken, extendsBlock.getFirstChild)
       extendsBlock.addAfter(classParents, extendsAdded)
     }
@@ -88,59 +87,61 @@ class ScalaTestGenerator extends TestGenerator {
     }
   }
 
-  private def addTestMethods(editor: Editor, typeDef: ScTypeDefinition, testFramework: TestFramework, methods: java
-  .util.Collection[MemberInfo], generateBefore: Boolean, generateAfter: Boolean, className: String): Unit = {
+  private def addTestMethods(editor: Editor, typeDef: ScTypeDefinition, testFramework: TestFramework, methods: java.util.Collection[MemberInfo],
+                             generateBefore: Boolean, generateAfter: Boolean, className: String): Unit = {
     val templateBody = typeDef.extendsBlock.templateBody
     import TestConfigurationUtil.isInheritor
+
     import collection.JavaConversions._
-    val psiManager = PsiManager.getInstance(editor.getProject)
+
+    implicit val manager = PsiManager.getInstance(editor.getProject)
+    import ScalaTestGenerator._
     templateBody match {
       case Some(body) =>
         val methodsList = methods.toList
         if (isInheritor(typeDef, "org.scalatest.FeatureSpecLike") ||
             isInheritor(typeDef, "org.scalatest.fixture.FeatureSpecLike")) {
-          ScalaTestGenerator.generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addScalaTestFeatureSpecMethods(methodsList, psiManager, body)
+          generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addScalaTestFeatureSpecMethods(methodsList, body)
         } else if (isInheritor(typeDef, "org.scalatest.FlatSpecLike") ||
             isInheritor(typeDef, "org.scalatest.fixture.FlatSpecLike")) {
-          ScalaTestGenerator.generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addScalaTestFlatSpecMethods(methodsList, psiManager, body, className)
+          generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addScalaTestFlatSpecMethods(methodsList, body, className)
         } else if (isInheritor(typeDef, "org.scalatest.FreeSpecLike") ||
             isInheritor(typeDef, "org.scalatest.fixture.FreeSpecLike") ||
             isInheritor(typeDef, "org.scalatest.path.FreeSpecLike")) {
-          ScalaTestGenerator.generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addScalaTestFreeSpecMethods(methodsList, psiManager, body)
+          generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addScalaTestFreeSpecMethods(methodsList, body)
         } else if (isInheritor(typeDef, "org.scalatest.FunSpecLike") ||
             isInheritor(typeDef, "org.scalatest.fixture.FunSpecLike")) {
-          ScalaTestGenerator.generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addScalaTestFunSpecMethods(methodsList, psiManager, body, className)
+          generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addScalaTestFunSpecMethods(methodsList, body, className)
         } else if (isInheritor(typeDef, "org.scalatest.FunSuiteLike") ||
             isInheritor(typeDef, "org.scalatest.fixture.FunSuiteLike")) {
-          ScalaTestGenerator.generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addScalaTestFunSuiteMethods(methodsList, psiManager, body)
+          generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addScalaTestFunSuiteMethods(methodsList, body)
         } else if (isInheritor(typeDef, "org.scalatest.PropSpecLike") ||
             isInheritor(typeDef, "org.scalatest.fixture.PropSpecLike")) {
-          ScalaTestGenerator.generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addScalaTestPropSpecMethods(methodsList, psiManager, body)
+          generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addScalaTestPropSpecMethods(methodsList, body)
         } else if (isInheritor(typeDef, "org.scalatest.WordSpecLike") ||
             isInheritor(typeDef, "org.scalatest.fixture.WordSpecLike")) {
-          ScalaTestGenerator.generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addScalaTestWordSpecMethods(methodsList, psiManager, body, className)
+          generateScalaTestBeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addScalaTestWordSpecMethods(methodsList, body, className)
         } else if (isInheritor(typeDef, "org.specs2.specification.script.SpecificationLike")) {
-          ScalaTestGenerator.generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.generateSpecs2ScriptSpecificationMethods(methodsList, psiManager, body, className,
-            editor.getProject, typeDef)
+          generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          generateSpecs2ScriptSpecificationMethods(methodsList, body, className, editor.getProject, typeDef)
         } else if (isInheritor(typeDef, "org.specs2.SpecificationLike")) {
-          ScalaTestGenerator.generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.addSpecs2SpecificationMethods(methodsList, psiManager, body, className, editor.getProject)
+          generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          addSpecs2SpecificationMethods(methodsList, body, className, editor.getProject)
         } else if (isInheritor(typeDef, "org.specs2.mutable.SpecificationLike")) {
-          ScalaTestGenerator.generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
-          ScalaTestGenerator.generateSpecs2MutableSpecificationMethods(methodsList, psiManager, body, className)
+          generateSpecs2BeforeAndAfter(generateBefore, generateAfter, typeDef, editor.getProject)
+          generateSpecs2MutableSpecificationMethods(methodsList, body, className)
         } else if (isInheritor(typeDef, "utest.framework.TestSuite")) {
           val file = typeDef.getContainingFile
           assert(file.isInstanceOf[ScalaFile])
           file.asInstanceOf[ScalaFile].addImportForPath("utest._")
-          ScalaTestGenerator.generateUTestMethods(methodsList, psiManager, body, className, editor.getProject)
+          generateUTestMethods(methodsList, body, className, editor.getProject)
         }
       case _ =>
     }
@@ -149,9 +150,10 @@ class ScalaTestGenerator extends TestGenerator {
 
 object ScalaTestGenerator {
 
-  private def generateScalaTestBeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean, typeDef:
-  ScTypeDefinition,
-                                              project: Project) {
+  private def generateScalaTestBeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean,
+                                              typeDef: ScTypeDefinition,
+                                              project: Project)
+                                             (implicit manager: PsiManager): Unit = {
     if (!(generateBefore || generateAfter)) return
     typeDef.extendsBlock.templateBody match {
       case Some(body) =>
@@ -160,15 +162,12 @@ object ScalaTestGenerator {
           case Some(beforeAndAfterTypeDef) if beforeAndAfterTypeDef.isInstanceOf[ScTypeDefinition] =>
             ExtractSuperUtil.addExtendsTo(typeDef, beforeAndAfterTypeDef.asInstanceOf[ScTypeDefinition])
             val closingBrace = body.getLastChild
-            val psiManager = PsiManager.getInstance(project)
+
             if (generateBefore) {
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override def beforeEach() {\n\n}",
-                psiManager),
-                closingBrace)
+              body.addBefore(createMethodFromText("override def beforeEach() {\n\n}"), closingBrace)
             }
             if (generateAfter) {
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override def afterEach() {\n\n}", psiManager),
-                closingBrace)
+              body.addBefore(createMethodFromText("override def afterEach() {\n\n}"), closingBrace)
             }
           case _ =>
         }
@@ -176,21 +175,19 @@ object ScalaTestGenerator {
     }
   }
 
-  private def generateSpecs2BeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean, typeDef: ScTypeDefinition,
-                                           project: Project) {
+  private def generateSpecs2BeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean, typeDef: ScTypeDefinition, project: Project)
+                                          (implicit manager: PsiManager): Unit = {
     if (!(generateBefore || generateAfter)) return
     typeDef.extendsBlock.templateBody match {
       case Some(body) =>
         val closingBrace = body.getLastChild
-        val psiManager = PsiManager.getInstance(project)
         if (generateBefore) {
           val beforeOpt = Option(ScalaPsiManager.instance(project).getCachedClass("org.specs2.specification.BeforeEach",
             GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE))
           beforeOpt match {
             case Some(beforeTypeDef) =>
               ExtractSuperUtil.addExtendsTo(typeDef, beforeTypeDef.asInstanceOf[ScTypeDefinition])
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override protected def before: Any = {\n\n}",
-                psiManager), closingBrace)
+              body.addBefore(createMethodFromText("override protected def before: Any = {\n\n}"), closingBrace)
             case _ =>
           }
         }
@@ -200,8 +197,7 @@ object ScalaTestGenerator {
           afterOpt match {
             case Some(afterTypeDef) =>
               ExtractSuperUtil.addExtendsTo(typeDef, afterTypeDef.asInstanceOf[ScTypeDefinition])
-              body.addBefore(ScalaPsiElementFactory.createMethodFromText("override protected def after: Any = {\n\n}",
-                psiManager), closingBrace)
+              body.addBefore(createMethodFromText("override protected def after: Any = {\n\n}"), closingBrace)
             case _ =>
           }
         }
@@ -209,85 +205,87 @@ object ScalaTestGenerator {
     }
   }
 
-  private def addScalaTestFeatureSpecMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody) {
+  private def addScalaTestFeatureSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
+                                            (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
-      templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(
+      templateBody.addBefore(createExpressionFromText(
         methods.map("scenario (\"" + _.getMember.getName + "\"){\n\n}\n").
-            fold("feature(\"Methods tests\") {")(_ + "\n" + _) + "}", psiManager),
+          fold("feature(\"Methods tests\") {")(_ + "\n" + _) + "}"),
         templateBody.getLastChild)
     }
   }
 
-  private def addScalaTestFlatSpecMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody,
-                                 className: String) {
+  private def addScalaTestFlatSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
+                                         (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
-      templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText("behavior of \"" + className + "\"",
-        psiManager), closingBrace)
-      templateBody.addBefore(ScalaPsiElementFactory.createNewLine(psiManager, "\n\n"), closingBrace)
+      templateBody.addBefore(createExpressionFromText("behavior of \"" + className + "\""), closingBrace)
+      templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       methods.map("it should \"" + _.getMember.getName + "\" in {\n\n}").
-          map(ScalaPsiElementFactory.createExpressionFromText(_, psiManager)).
+        map(createExpressionFromText).
           foreach(expr => {
         templateBody.addBefore(expr, closingBrace)
-        templateBody.addBefore(ScalaPsiElementFactory.createNewLine(psiManager, "\n\n"), closingBrace)
+            templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       })
     }
   }
 
-  private def addScalaTestFreeSpecMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody) {
+  private def addScalaTestFreeSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
+                                         (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
-      templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(
-        methods.map("\"" + _.getMember.getName + "\" in {\n\n}\n").fold("\"Methods tests\" - {")(_ + "\n" + _) + "\n}",
-        psiManager), templateBody.getLastChild)
+      templateBody.addBefore(createExpressionFromText(
+        methods.map("\"" + _.getMember.getName + "\" in {\n\n}\n").fold("\"Methods tests\" - {")(_ + "\n" + _) + "\n}"), templateBody.getLastChild)
     }
   }
 
-  private def addScalaTestFunSpecMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody,
-                                className: String) {
+  private def addScalaTestFunSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
+                                        (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
-      templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(
+      templateBody.addBefore(createExpressionFromText(
         methods.map("it(\"should " + _.getMember.getName + "\") {\n\n}\n").
-            fold("describe(\"" + className + "\") {\n")(_ + "\n" + _) + "\n}", psiManager),
+          fold("describe(\"" + className + "\") {\n")(_ + "\n" + _) + "\n}"),
         templateBody.getLastChild)
     }
   }
 
-  private def addScalaTestFunSuiteMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody) {
+  private def addScalaTestFunSuiteMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
+                                         (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
       methods.map("test(\"test" + _.getMember.getName.capitalize + "\") {\n\n}").
-          map(ScalaPsiElementFactory.createExpressionFromText(_, psiManager)).
+        map(createExpressionFromText).
           foreach(expr => {
         templateBody.addBefore(expr, closingBrace)
-        templateBody.addBefore(ScalaPsiElementFactory.createNewLine(psiManager, "\n\n"), closingBrace)
+            templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       })
     }
   }
 
-  private def addScalaTestPropSpecMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody) {
+  private def addScalaTestPropSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody)
+                                         (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
       val closingBrace = templateBody.getLastChild
       methods.map("property(\"" + _.getMember.getName + " property\"){\n\n}").
-          map(ScalaPsiElementFactory.createExpressionFromText(_, psiManager)).
+        map(createExpressionFromText).
           foreach(expr => {
         templateBody.addBefore(expr, closingBrace)
-        templateBody.addBefore(ScalaPsiElementFactory.createNewLine(psiManager, "\n\n"), closingBrace)
+            templateBody.addBefore(createNewLine("\n\n"), closingBrace)
       })
     }
   }
 
-  private def addScalaTestWordSpecMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody,
-                                 className: String) {
+  private def addScalaTestWordSpecMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
+                                         (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
-      templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(
+      templateBody.addBefore(createExpressionFromText(
         methods.map("\"" + _.getMember.getName + "\" in {\n\n}\n").
-            fold("\"" + className + "\" should {\n")(_ + "\n" + _) + "\n}", psiManager),
+          fold("\"" + className + "\" should {\n")(_ + "\n" + _) + "\n}"),
         templateBody.getLastChild)
     }
   }
 
-  private def addSpecs2SpecificationMethods(methods: List[MemberInfo], psiManager: PsiManager,
-                                            templateBody: ScTemplateBody, className: String, project: Project) {
+  private def addSpecs2SpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String, project: Project)
+                                           (implicit manager: PsiManager): Unit = {
     val testNames = methods.map("test" + _.getMember.getName.capitalize)
     val normalIndentString = FormatterUtil.getNormalIndentString(project)
     val doubleIndent = normalIndentString + normalIndentString
@@ -296,16 +294,14 @@ object ScalaTestGenerator {
         fold("\n" + normalIndentString + "Methods of " + className + " should pass tests:")(_ + "\n" + _)
     else ""
     val closingBrace = templateBody.getLastChild
-    templateBody.addBefore(ScalaPsiElementFactory.createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
-        "\n" + normalIndentString + "\"\"\"", psiManager), closingBrace)
+    templateBody.addBefore(createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
+      "\n" + normalIndentString + "\"\"\""), closingBrace)
     testNames.map(testName =>
-      templateBody.addBefore(ScalaPsiElementFactory.createMethodFromText("def " + testName + " = ok", psiManager),
-        closingBrace))
+      templateBody.addBefore(createMethodFromText("def " + testName + " = ok"), closingBrace))
   }
 
-  private def generateSpecs2ScriptSpecificationMethods(methods: List[MemberInfo], psiManager: PsiManager,
-                                                       templateBody: ScTemplateBody,
-                                                       className: String, project: Project, typeDef: ScTypeDefinition) {
+  private def generateSpecs2ScriptSpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String, project: Project, typeDef: ScTypeDefinition)
+                                                      (implicit manager: PsiManager): Unit = {
     Option(ScalaPsiManager.instance(project).getCachedClass("org.specs2.specification.Groups",
       GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)) match {
       case Some(groupsTypeDef) =>
@@ -317,35 +313,33 @@ object ScalaTestGenerator {
         val checkMethodsString = if (methods.nonEmpty) testNames.map(doubleIndent + "+ " + _).
             fold("\n" + normalIndentString + "Methods of " + className + " should pass tests:")(_ + "\n" + _)
         else ""
-        templateBody.addBefore(ScalaPsiElementFactory.createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
-            "\n" + doubleIndent + "\"\"\"", psiManager), closingBrace)
+        templateBody.addBefore(createMethodFromText("def is = s2\"\"\"" + checkMethodsString +
+          "\n" + doubleIndent + "\"\"\""), closingBrace)
         if (methods.nonEmpty) {
-          templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(testNames.map("eg := ok //" + _).
-              fold("\"" + className + "\" - new group {")(_ + "\n" + _) + "\n}", psiManager), closingBrace)
+          templateBody.addBefore(createExpressionFromText(testNames.map("eg := ok //" + _).
+            fold("\"" + className + "\" - new group {")(_ + "\n" + _) + "\n}"), closingBrace)
         }
       case _ =>
     }
   }
 
-  private def generateSpecs2MutableSpecificationMethods(methods: List[MemberInfo], psiManager: PsiManager,
-                                                        templateBody: ScTemplateBody,
-                                                        className: String) {
+  private def generateSpecs2MutableSpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String)
+                                                       (implicit manager: PsiManager): Unit = {
     if (methods.nonEmpty) {
-      templateBody.addBefore(ScalaPsiElementFactory.createExpressionFromText(methods.
+      templateBody.addBefore(createExpressionFromText(methods.
           map("\""+ _.getMember.getName + "\" in {\nok\n}\n").
-          fold("\"" + className + "\" should {")(_ + "\n" + _) + "\n}", psiManager), templateBody.getLastChild)
+        fold("\"" + className + "\" should {")(_ + "\n" + _) + "\n}"), templateBody.getLastChild)
     }
   }
 
-  private def generateUTestMethods(methods: List[MemberInfo], psiManager: PsiManager, templateBody: ScTemplateBody,
-                                   className: String, project: Project) {
+  private def generateUTestMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String, project: Project)
+                                  (implicit manager: PsiManager): Unit = {
     val normalIndentString = FormatterUtil.getNormalIndentString(project)
-    templateBody.addBefore(ScalaPsiElementFactory.createElement("val tests = TestSuite{}", psiManager, Def.parse(_)),
+    templateBody.addBefore(createElement("val tests = TestSuite{}", Def.parse(_)),
       templateBody.getLastChild)
     if (methods.nonEmpty) {
-      templateBody.addBefore(ScalaPsiElementFactory.createElement(methods.map(normalIndentString + "\"" +
-          _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", psiManager,
-        Def.parse(_)), templateBody.getLastChild)
+      templateBody.addBefore(createElement(methods.map(normalIndentString + "\"" +
+        _.getMember.getName + "\" - {}\n").fold("val methodsTests = TestSuite{")(_ + "\n" + _) + "}", Def.parse(_)), templateBody.getLastChild)
     }
   }
 

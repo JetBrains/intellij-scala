@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -50,7 +50,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   override def setName(name: String): PsiElement = {
     val id = nameId.getNode
     val parent = id.getTreeParent
-    val newId = ScalaPsiElementFactory.createIdentifier(name, getManager)
+    val newId = createIdentifier(name)
     parent.replaceChild(id, newId)
     this
   }
@@ -71,7 +71,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
       def getTextAttributesKey: TextAttributesKey = null
       def getLocationString: String = clazz match {
         case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
-        case x: ScNewTemplateDefinition => "(<anonymous>)"
+        case _: ScNewTemplateDefinition => "(<anonymous>)"
         case _ => ""
       }
       override def getIcon(open: Boolean): Icon = parentMember match {case mem: ScMember => mem.getIcon(0) case _ => null}
@@ -81,7 +81,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   override def getIcon(flags: Int): Icon =
     ScalaPsiUtil.nameContext(this) match {
       case null => null
-      case c: ScCaseClause => Icons.PATTERN_VAL
+      case _: ScCaseClause => Icons.PATTERN_VAL
       case x => x.getIcon(flags)
     }
 

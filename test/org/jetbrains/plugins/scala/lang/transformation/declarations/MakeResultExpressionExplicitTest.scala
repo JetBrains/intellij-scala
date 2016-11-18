@@ -4,7 +4,7 @@ package declarations
 /**
   * @author Pavel Fatin
   */
-class MakeResultExpressionExplicitTest extends TransformerTest(MakeResultExpressionExplicit) {
+class MakeResultExpressionExplicitTest extends TransformerTest(new MakeResultExpressionExplicit()) {
   def testResultExpression() = check(
     "def f(): A = A",
     "def f(): A = return A"

@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprFromText
 
 import scala.annotation.tailrec
 
@@ -27,10 +27,7 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     if (!element.isValid) return
-    check(project, editor, element) match {
-      case Some(x) => x()
-      case None =>
-    }
+    check(project, editor, element).foreach(_.apply())
   }
 
   override def startInWriteAction(): Boolean = false
@@ -38,7 +35,7 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
   @tailrec
   private def check(project: Project, editor: Editor, element: PsiElement): Option[() => Unit] = {
     element match {
-      case ws: PsiWhiteSpace if element.getPrevSibling != null &&
+      case _: PsiWhiteSpace if element.getPrevSibling != null &&
         editor.getCaretModel.getOffset == element.getPrevSibling.getTextRange.getEndOffset =>
         val prev = element.getContainingFile.findElementAt(element.getPrevSibling.getTextRange.getEndOffset - 1)
         check(project, editor, prev)
@@ -47,9 +44,10 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
         id.getParent match {
           case imp: ScImportExpr if imp.selectorSet.isEmpty && imp.qualifier != null =>
             val doIt = () => {
-              val newExpr = ScalaPsiElementFactory.createImportExprFromText(imp.qualifier.getText + ".{" + id.nameId.getText + "}", element.getManager)
+              val name = s"${imp.qualifier.getText}.{${id.nameId.getText}}"
+
               val replaced = inWriteAction {
-                val replaced = imp.replace(newExpr)
+                val replaced = imp.replace(createImportExprFromText(name)(element.getManager))
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                 replaced
               }

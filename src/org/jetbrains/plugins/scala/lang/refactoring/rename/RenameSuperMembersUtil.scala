@@ -103,7 +103,7 @@ object RenameSuperMembersUtil {
     val title =
       if (oneSuperClass) {
         val overimpl = ScalaPsiUtil.nameContext(superMembers(0)) match {
-          case decl: ScDeclaration => "implements"
+          case _: ScDeclaration => "implements"
           case _ => "overrides"
         }
         val qualName = classes(0) match {

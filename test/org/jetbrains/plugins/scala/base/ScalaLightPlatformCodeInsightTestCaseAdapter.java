@@ -54,6 +54,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(), isIncludeReflectLibrary(),
             ScalaLibraryLoader.getSdkNone(), additionalLibraries());
     myLibraryLoader.loadScala(libVersion);
+    TestUtils.disableTimerThread();
     //libLoader.clean();
   }
 

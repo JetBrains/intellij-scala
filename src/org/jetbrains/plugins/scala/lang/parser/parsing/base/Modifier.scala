@@ -19,12 +19,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object Modifier {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.kOVERRIDE =>
-        builder.advanceLexer //Ate override
-        return true
-      case _ => (LocalModifier parse builder) || (AccessModifier parse builder)
-    }
+  def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+    case ScalaTokenTypes.kOVERRIDE =>
+      builder.advanceLexer() // Ate override
+      true
+    case _ => LocalModifier.parse(builder) || AccessModifier.parse(builder)
   }
 }

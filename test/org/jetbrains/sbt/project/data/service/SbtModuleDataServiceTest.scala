@@ -7,7 +7,8 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.data.SbtModuleNode
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
+import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 
 /**
  * @author Nikolay Obedin
@@ -32,7 +33,7 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
 
 
   def doTest(imports: Seq[String], resolvers: Set[SbtResolver]): Unit = {
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
+    FileUtil.delete(ResolverIndex.DEFAULT_INDEXES_DIR)
     importProjectData(generateProject(imports, resolvers))
     val module = ModuleManager.getInstance(getProject).findModuleByName("Module 1")
 
@@ -42,7 +43,6 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
       assert(SbtModule.getImportsFrom(module) == Sbt.DefaultImplicitImports)
 
     assert(SbtModule.getResolversFrom(module) == resolvers)
-    resolvers.forall(r => SbtResolverIndexesManager().find(r).isDefined)
   }
 
 
@@ -54,13 +54,13 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
 
   def testNonEmptyResolvers(): Unit =
     doTest(Seq.empty, Set(
-      SbtResolver(SbtResolver.Kind.Maven, "maven resolver", "http:///nothing"),
-      SbtResolver(SbtResolver.Kind.Ivy, "ivy resolver", getProject.getBasePath)))
+      new SbtMavenResolver("maven resolver", "http:///nothing"),
+      new SbtIvyResolver("ivy resolver", getProject.getBasePath)))
 
   def testNonEmptyImportsAndResolvers(): Unit =
     doTest(Seq("first import", "second import"), Set(
-      SbtResolver(SbtResolver.Kind.Maven, "maven resolver", "http://nothing"),
-      SbtResolver(SbtResolver.Kind.Ivy, "ivy resolver", getProject.getBasePath)))
+      new SbtMavenResolver("maven resolver", "http:///nothing"),
+      new SbtIvyResolver("ivy resolver", getProject.getBasePath)))
 
   def testModuleIsNull(): Unit = {
     val testProject = new project {

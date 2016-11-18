@@ -7,7 +7,6 @@ package types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
@@ -20,18 +19,19 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
-  protected def innerType(ctx: TypingContext) = {
+  protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
     this.bind() match {
-      case Some(ScalaResolveResult(elem, subst)) =>
+      case Some(ScalaResolveResult(elem, _)) =>
         val te: TypeResult[ScType] = typeElement.getType(ctx)
         te match {
-          case Success(ScDesignatorType(pack: PsiPackage), a) =>
+          case Success(ScDesignatorType(_: PsiPackage), _) =>
             this.success(ScalaType.designator(elem))
           case _ =>
             te map {ScProjectionType(_, elem, superReference = false)}
@@ -40,10 +40,11 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     }
   }
 
-  def getKinds(incomplete: Boolean, completion: Boolean): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = StdKinds.stableClass
+  def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = StdKinds.stableClass
 
+  @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =
-    ResolveCache.getInstance(getProject).resolveWithCaching(this, MyResolver, true, incomplete)
+    doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
@@ -59,12 +60,6 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   def bindToElement(p1: PsiElement) = throw new IncorrectOperationException("NYI")
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
   def qualifier = None
-
-  object MyResolver extends ResolveCache.PolyVariantResolver[ScTypeProjectionImpl] {
-    def resolve(projection: ScTypeProjectionImpl, incomplete: Boolean): Array[ResolveResult] = {
-      projection.doResolve(new ResolveProcessor(projection.getKinds(incomplete), projection, projection.refName))
-    }
-  }
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
     if (!accessibilityCheck) processor.doNotCheckAccessibility()

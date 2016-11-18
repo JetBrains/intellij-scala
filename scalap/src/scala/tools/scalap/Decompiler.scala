@@ -90,7 +90,7 @@ object Decompiler {
           val c = classFile.header.constants(index)
           val sBytes: Array[Byte] = c match {
             case s: String => s.getBytes(UTF8)
-            case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(s: String, bytes: Array[Byte]) => bytes
+            case scala.tools.scalap.scalax.rules.scalasig.StringBytesPair(_: String, bytes: Array[Byte]) => bytes
             case _ => Array.empty
           }
           new String(sBytes, UTF8)

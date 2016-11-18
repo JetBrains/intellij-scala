@@ -83,7 +83,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           nameWithPointFun(named) + refName + typeTailForProjection
         case ScThisType(obj: ScObject) =>
           nameWithPointFun(obj) + refName + typeTailForProjection
-        case ScThisType(td: ScTypeDefinition) if checkIfStable(e) =>
+        case ScThisType(_: ScTypeDefinition) if checkIfStable(e) =>
           s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
         case p: ScProjectionType if checkIfStable(p.actualElement) =>
           s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
@@ -134,7 +134,7 @@ object ScTypePresentation extends api.ScTypePresentation {
               case _ => Seq.empty
             }
           }
-        case (s: String, sign: TypeAliasSignature) =>
+        case (_: String, sign: TypeAliasSignature) =>
           val ta = ScTypeAlias.getCompoundCopy(sign, sign.ta)
           val paramsText = if (ta.typeParameters.nonEmpty)
             ta.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
@@ -202,14 +202,14 @@ object ScTypePresentation extends api.ScTypePresentation {
     def innerTypeText(t: ScType, needDotType: Boolean = true, checkWildcard: Boolean = false): String = {
       t match {
         case namedType: NamedType => namedType.name
-        case ScAbstractType(tpt, lower, upper) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
+        case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
         case f@FunctionType(ret, params) if t.isAliasType.isEmpty =>
           val projectOption = f.extractClass().map(_.getProject)
           val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
           typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
           clazz.name + ".this" + typeTail(needDotType)
-        case ScThisType(clazz) =>
+        case ScThisType(_) =>
           "this" + typeTail(needDotType)
         case TupleType(Seq(tpe)) =>
           s"Tuple1[${innerTypeText(tpe)}]"
@@ -235,7 +235,7 @@ object ScTypePresentation extends api.ScTypePresentation {
             val upperBound = if (tp.upperType.v.equiv(Any)) "" else " <: " + tp.upperType.v.toString
             tp.name + lowerBound + upperBound
           }).mkString("[", ", ", "] ") + internalType.toString
-        case mt@ScMethodType(retType, params, isImplicit) =>
+        case mt@ScMethodType(retType, params, _) =>
           innerTypeText(FunctionType(retType, params.map(_.paramType))(mt.project, mt.scope), needDotType)
         case _ => ""//todo
       }

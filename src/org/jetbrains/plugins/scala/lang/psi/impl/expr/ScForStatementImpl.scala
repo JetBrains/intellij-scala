@@ -40,10 +40,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   def enumerators: Option[ScEnumerators] = findChild(classOf[ScEnumerators])
 
   // Binding patterns in reverse order
-  def patterns: Seq[ScPattern] = enumerators match {
-    case None => Seq.empty
-    case Some(x) => x.namings.reverse.map(_.pattern)
-  }
+  def patterns: Seq[ScPattern] = enumerators.toSeq.flatMap(_.patterns)
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
@@ -140,7 +137,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
             case Some(x) => exprText append bodyToText(x)
             case _ => exprText append "{}"
           }
-        case gen2: ScGenerator =>
+        case _: ScGenerator =>
           exprText.append("(").append(gen.rvalue.getText).append(")").append(".").
                   append(if (isYield) "flatMap " else "foreach ").append("{ case ")
           gen.pattern.desugarizedPatternIndex = exprText.length
@@ -209,7 +206,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           try {
             Option(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this))
           } catch {
-            case e: Throwable => None
+            case _: Throwable => None
           }
         }
       case _ => None
@@ -262,7 +259,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       val expr = res.get
       nextEnumerator(gens.head) match {
         case null => res
-        case guard: ScGuard =>
+        case _: ScGuard =>
           //In this case we just need to replace for statement one more time
           expr match {
             case f: ScForStatementImpl =>
@@ -275,7 +272,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
               }
             case _ => res
           }
-        case enum: ScEnumerator =>
+        case _: ScEnumerator =>
           expr match {
             case f: ScForStatementImpl =>
               for {
@@ -290,14 +287,14 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
               }
               val additionalReplacement = f.getDesugarizedExpr
               additionalReplacement match {
-                case Some(repl) =>
+                case Some(_) =>
                   updateAnalog(f)
                   additionalReplacement
                 case _ => res
               }
             case _ => res
           }
-        case gen: ScGenerator =>
+        case _: ScGenerator =>
           expr match {
             case call: ScMethodCall =>
               for {

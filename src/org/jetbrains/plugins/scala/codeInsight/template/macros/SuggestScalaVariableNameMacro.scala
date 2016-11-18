@@ -53,7 +53,6 @@ object SuggestNamesUtil {
     val editor = context.getEditor
     val file = PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument)
     PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
-    val element = file.findElementAt(offset)
     val typez: ScType = p match {
       case x if x.length == 0 => return Array[String]("x") //todo:
       case x if x(0) == "option" || x(0) == "foreach" =>

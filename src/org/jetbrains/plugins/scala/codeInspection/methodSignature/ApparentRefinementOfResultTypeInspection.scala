@@ -15,7 +15,7 @@ class ApparentRefinementOfResultTypeInspection extends AbstractMethodSignatureIn
 
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunctionDeclaration  => f.typeElement match {
-      case Some(e @ ScCompoundTypeElement(types, Some(refinement))) if types.nonEmpty =>
+      case Some(e @ ScCompoundTypeElement(types, Some(_))) if types.nonEmpty =>
         holder.registerProblem(e, getDisplayName, new InsertMissingEquals(f))
       case _ =>
     }

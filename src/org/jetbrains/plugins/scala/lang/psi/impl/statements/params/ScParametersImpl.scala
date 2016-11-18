@@ -13,6 +13,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
 
 /**
@@ -70,7 +71,7 @@ class ScParametersImpl private (stub: StubElement[ScParameters], nodeType: IElem
           case Some(clause) =>
             clause.addParameter(param).parameters.last
           case _ =>
-            val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+            val clause = createClauseFromText("()")
             val newClause = clause.addParameter(param)
             super.add(clause)
             newClause.parameters.last

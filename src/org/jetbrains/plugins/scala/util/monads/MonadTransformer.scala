@@ -16,7 +16,7 @@ trait MonadTransformer { self : PsiElement =>
       case None =>  Failure(msg, Some(self))
     }
     def map[U <: ScType](f: T => U): TypeResult[U] = opt match {
-      case s@Some(elem) => Success(f(elem), Some(self))
+      case Some(elem) => Success(f(elem), Some(self))
       case None         => Failure(msg, None)
     }
   }

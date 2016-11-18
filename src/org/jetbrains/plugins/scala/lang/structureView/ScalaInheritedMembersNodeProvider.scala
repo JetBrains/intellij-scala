@@ -28,7 +28,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
     node match {
       case td: ScalaTypeDefinitionStructureViewElement =>
         val children = new util.ArrayList[TreeElement]()
-        val clazz = td.element
+        val clazz = td.psiElement
         try {
           if (!clazz.isValid) return children
           val signs = clazz.allSignatures
@@ -45,8 +45,8 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
               case _ =>
                 sign.namedElement match {
                   case named: ScNamedElement => ScalaPsiUtil.nameContext(named) match {
-                    case x: ScValue if x.containingClass != clazz => children.add(new ScalaValueStructureViewElement(named.nameId, true))
-                    case x: ScVariable if x.containingClass != clazz => children.add(new ScalaVariableStructureViewElement(named.nameId, true))
+                    case x: ScValue if x.containingClass != clazz => children.add(new ScalaValueStructureViewElement(named, true))
+                    case x: ScVariable if x.containingClass != clazz => children.add(new ScalaVariableStructureViewElement(named, true))
                     case _ =>
                   }
                   case _ =>
@@ -65,7 +65,7 @@ class ScalaInheritedMembersNodeProvider extends FileStructureNodeProvider[TreeEl
           children
         }
         catch {
-          case e: IndexNotReadyException => new util.ArrayList[TreeElement]()
+          case _: IndexNotReadyException => new util.ArrayList[TreeElement]()
         }
       case _ => new util.ArrayList[TreeElement]()
     }

@@ -15,6 +15,7 @@
 
 package org.jetbrains.plugins.scala.util;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -25,6 +26,7 @@ import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.pom.java.LanguageLevel;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.testFramework.ThreadTracker;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
 import org.jetbrains.annotations.NotNull;
@@ -109,7 +111,8 @@ public class TestUtils {
   }
 
   public enum ScalaSdkVersion {
-    _2_10("2.10", "2.10.6"), _2_11("2.11", "2.11.7"), _2_12("2.12", "2.12.0-M4");
+    _2_10("2.10", "2.10.6"), _2_11("2.11", "2.11.7"), _2_11_8("2.11", "2.11.8"),
+    _2_12_OLD("2.12", "2.12.0-M4"), _2_12("2.12", "2.12.0-M5");
     private String major;
     private String minor;
 
@@ -296,4 +299,10 @@ public class TestUtils {
     LanguageLevelProjectExtension.getInstance(project).setLanguageLevel(level);
   }
 
+
+  public static void disableTimerThread() {
+    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "Timer");
+    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "BaseDataReader");
+    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "ProcessWaitFor");
+  }
 }

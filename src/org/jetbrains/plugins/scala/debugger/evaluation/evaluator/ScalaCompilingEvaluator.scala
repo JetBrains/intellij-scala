@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -162,7 +162,7 @@ object ScalaCompilingEvaluator {
     val reference: ArrayReference = process.newInstance(arrayClass, bytes.length)
     keep(reference, context)
     bytes.zipWithIndex.foreach {
-      case (b, i) => reference.setValue(i, process.getVirtualMachineProxy.asInstanceOf[VirtualMachineProxyImpl].mirrorOf(bytes(i)))
+      case (_, i) => reference.setValue(i, process.getVirtualMachineProxy.asInstanceOf[VirtualMachineProxyImpl].mirrorOf(bytes(i)))
       case _ =>
     }
     reference
@@ -255,7 +255,7 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
 
     val anchor =
       if (needBraces) {
-        val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
+        val newBlock = createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
         parent = prevParent.replace(newBlock)
         parent match {
           case bl: ScBlock =>
@@ -265,12 +265,13 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
       }
       else prevParent
 
-    val newInstance = ScalaPsiElementFactory.createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
+    val newInstance = createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
 
+    implicit val manager = context.getManager
     parent.addBefore(scClass, anchor)
-    parent.addBefore(ScalaPsiElementFactory.createNewLine(context.getManager), anchor)
+    parent.addBefore(createNewLine(), anchor)
     parent.addBefore(newInstance, anchor)
-    parent.addBefore(ScalaPsiElementFactory.createNewLine(context.getManager), anchor)
+    parent.addBefore(createNewLine(), anchor)
     anchorRange = anchor.getTextRange
   }
 
@@ -286,7 +287,7 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
          |    ${fragment.getText}
          |  }
          |}""".stripMargin
-    ScalaPsiElementFactory.createTemplateDefinitionFromText(text, context.getContext, context).asInstanceOf[ScClass]
+    createTemplateDefinitionFromText(text, context.getContext, context).asInstanceOf[ScClass]
   }
 }
 

@@ -29,7 +29,7 @@ class LegacyProjectFormatNotifier(project: Project) extends AbstractProjectCompo
 
         val builder = NotificationUtil.builder(project, Message).setNotificationType(NotificationType.WARNING)
 
-        builder.setHandler { ref =>
+        builder.setHandler { _ =>
           val manager = ActionManager.getInstance
           Option(manager.getAction("ImportProject")).foreach { action =>
             manager.tryToExecute(action, ActionCommand.getInputEvent("ImportProject"), null, ActionPlaces.UNKNOWN, true)

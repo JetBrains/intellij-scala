@@ -4,7 +4,6 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -16,8 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -73,7 +74,9 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     if (id == null) None else findSuper(id)
   }
 
-  override def getReference: PsiReference = {
+  def staticSuperName = Option(findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)).map(_.getText).getOrElse("")
+
+  override def getReference = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
     if (id == null) null else new PsiReference {
       def getElement: ScSuperReferenceImpl = ScSuperReferenceImpl.this
@@ -92,7 +95,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
       private def doRename(newName : String) = {
         val parent = id.getNode.getTreeParent
-        parent.replaceChild(id.getNode, ScalaPsiElementFactory.createIdentifier(newName, getManager))
+        parent.replaceChild(id.getNode, createIdentifier(newName))
         ScSuperReferenceImpl.this
       }
 
@@ -156,7 +159,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
   private def superTypes: Option[Seq[ScType]] = reference match {
     case Some(q) => q.resolve() match {
-      case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType(getProject, getResolveScope)))
+      case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType()))
       case _ => None
     }
     case None =>

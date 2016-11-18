@@ -1,0 +1,21 @@
+object ImplicitTest {
+
+    implicit object b extends Function[Int, String] {
+        def apply(i: Int): String = ""
+    }
+
+    def f(i: Int)(implicit func: Int => String) = func(i)
+
+    val a: String = f(1)
+}
+------
+object ImplicitTest {
+
+    implicit object b extends Function[Int, String] {
+        def apply(i: Int): String = ""
+    }
+
+    val a: String = f(1)
+
+    def f(i: Int)(implicit func: Int => String) = func(i)
+}

@@ -4,7 +4,6 @@ package psi
 package api
 package base
 
-import _root_.org.jetbrains.plugins.scala.lang.resolve._
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -19,10 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createIdentifier, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.{Set, mutable}
@@ -80,14 +80,14 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     if (!ScalaNamesUtil.isIdentifier(newName)) return this
     val id = nameId.getNode
     val parent = id.getTreeParent
-    parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newName, getManager))
+    parent.replaceChild(id, createIdentifier(newName))
     resolve()
     this
   }
 
   def isReferenceTo(element: PsiElement): Boolean = {
     element match {
-      case cp: ScClassParameter =>
+      case _: ScClassParameter =>
       case param: ScParameter if !PsiTreeUtil.isContextAncestor(param.owner, this, true) =>
         getParent match {
           case ScAssignStmt(left, _) if left == this =>
@@ -98,48 +98,38 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     val iterator = multiResolve(false).iterator
     while (iterator.hasNext) {
       val resolved = iterator.next()
-      if (isReferenceTo(element, resolved.getElement)) return true
+      if (isReferenceTo(element, resolved.getElement, Some(resolved))) return true
     }
     false
   }
 
   def createReplacingElementWithClassName(useFullQualifiedName: Boolean, clazz: TypeToImport): ScReferenceElement =
-    ScalaPsiElementFactory.createReferenceFromText(
-      if (useFullQualifiedName) clazz.qualifiedName else clazz.name, clazz.element.getManager)
+    createReferenceFromText(if (useFullQualifiedName) clazz.qualifiedName else clazz.name)(clazz.element.getManager)
 
-  def isReferenceTo(element: PsiElement, resolved: PsiElement): Boolean = {
+  def isReferenceTo(element: PsiElement, resolved: PsiElement, rr: Option[ResolveResult]): Boolean = {
     if (ScEquivalenceUtil.smartEquivalence(resolved, element)) return true
     resolved match {
-      case isLightScNamedElement(named) => return isReferenceTo(element, named)
-      case isWrapper(named) => return isReferenceTo(element, named)
+      case isLightScNamedElement(named) => return isReferenceTo(element, named, rr)
+      case isWrapper(named) => return isReferenceTo(element, named, rr)
       case _ =>
     }
     element match {
-      case isWrapper(named) => return isReferenceTo(named, resolved)
+      case isWrapper(named) => return isReferenceTo(named, resolved, rr)
       case td: ScTypeDefinition =>
         resolved match {
           case method: PsiMethod if method.isConstructor =>
             if (ScEquivalenceUtil.smartEquivalence(td, method.containingClass)) return true
           case method: ScFunction if Set("apply", "unapply", "unapplySeq").contains(method.name) =>
-            var break = false
-            val methods = td.allMethods
-            for (n <- methods if !break) {
-              if (n.method.name == method.name) {
-                val methodContainingClass: ScTemplateDefinition = method.containingClass
-                val nodeMethodContainingClass: PsiClass = n.method.containingClass
-                val classesEquiv: Boolean = ScEquivalenceUtil.smartEquivalence(methodContainingClass, nodeMethodContainingClass)
-                if (classesEquiv)
-                  break = true
-              }
-            }
+            if (isSyntheticForCaseClass(method, td)) return true
 
-            if (!break && td.isInstanceOf[ScClass] && td.asInstanceOf[ScClass].isCase && method.isSynthetic) {
-              ScalaPsiUtil.getCompanionModule(td) match {
-                case Some(typeDef) => return isReferenceTo(typeDef)
-                case _ =>
-              }
+            rr match {
+              case Some(srr: ScalaResolveResult) =>
+                srr.getActualElement match {
+                  case c: PsiClass if sameOrInheritor(c, td) => return true
+                  case _ =>
+                }
+              case _ if sameOrInheritor(method.containingClass, td) => return true
             }
-            if (break) return true
           case obj: ScObject if obj.isSyntheticObject =>
             ScalaPsiUtil.getCompanionModule(td) match {
               case Some(typeDef) if typeDef == obj => return true
@@ -167,6 +157,19 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     isIndirectReferenceTo(resolved, element)
   }
 
+  private def isSyntheticForCaseClass(method: ScFunction, td: ScTemplateDefinition): Boolean = {
+    td match {
+      case cl: ScClass if cl.isCase && method.isSynthetic =>
+        ScalaPsiUtil.getCompanionModule(td).exists(isReferenceTo)
+      case _ => false
+    }
+  }
+
+  private def sameOrInheritor(c: PsiClass, base: PsiClass): Boolean = {
+    ScEquivalenceUtil.areClassesEquivalent(base, c) || ScalaPsiUtil.cachedDeepIsInheritor(c, base)
+  }
+
+
   /**
    * Is `resolved` (the resolved target of this reference) itself a reference to `element`, by way of a type alias defined in a object, such as:
    *
@@ -181,7 +184,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     (resolved, element) match {
       case (typeAlias: ScTypeAliasDefinition, cls: PsiClass) =>
         typeAlias.isExactAliasFor(cls)
-      case (cons: ScPrimaryConstructor, cls: PsiClass) =>
+      case (_: ScPrimaryConstructor, cls: PsiClass) =>
         this.bind() match {
           case Some(r: ScalaResolveResult) =>
             r.parentElement match {
@@ -194,7 +197,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
 
         val originalElement = element.getOriginalElement
-        if (originalElement != element) isReferenceTo(originalElement, resolved)
+        if (originalElement != element) isReferenceTo(originalElement, resolved, this.bind())
         else false
     }
   }
@@ -257,7 +260,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
           val toReplace = parts.drop(index).mkString(".")
           val ref: T = referenceCreator(toReplace, true)
           var qual = ref
-          while (qual.qualifier != None) qual = qual.qualifier.get.asInstanceOf[T]
+          while (qual.qualifier.isDefined) qual = qual.qualifier.get.asInstanceOf[T]
           val resolve: Array[ResolveResult] = qual.multiResolve(false)
           def isOk: Boolean = {
             if (packagePart == "java.util") return true //todo: fix possible clashes?
@@ -329,9 +332,9 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
         } else qualifiedName
       this match {
         case stRef: ScStableCodeReferenceElement =>
-          stRef.replace(ScalaPsiElementFactory.createReferenceFromText(refText, stRef.getManager))
+          stRef.replace(createReferenceFromText(refText))
         case ref: ScReferenceExpression =>
-          ref.replace(ScalaPsiElementFactory.createExpressionFromText(refText, ref.getManager))
+          ref.replace(createExpressionFromText(refText))
         case _ => null
       }
     }
@@ -340,7 +343,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 }
 
 object ScReferenceElement {
-  def unapply(e: ScReferenceElement): Option[PsiElement] = Option(e.resolve)
+  def unapply(e: ScReferenceElement): Option[PsiElement] = Option(e.resolve())
 
   object withQualifier {
     def unapply(ref: ScReferenceElement): Option[ScalaPsiElement] = ref.qualifier

@@ -27,7 +27,7 @@ class ScalaChangeUtilSupport extends TreeCopyHandler {
         case ScalaElementTypes.REFERENCE | ScalaElementTypes.REFERENCE_EXPRESSION | ScalaElementTypes.TYPE_PROJECTION => {
           val res = original.getPsi.asInstanceOf[ScReferenceElement].bind
           res match {
-            case Some(resolveResult@ScalaResolveResult(elem: PsiNamedElement, subst: ScSubstitutor)) => {
+            case Some(ScalaResolveResult(elem: PsiNamedElement, _: ScSubstitutor)) => {
               element.putCopyableUserData(ScalaChangeUtilSupport.REFERENCED_MEMBER_KEY, elem)
             }
             case _ =>
@@ -55,7 +55,7 @@ class ScalaChangeUtilSupport extends TreeCopyHandler {
               }
             }
             catch {
-              case ignored: IncorrectOperationException =>
+              case _: IncorrectOperationException =>
             }
             return SourceTreeToPsiMap.psiElementToTree(ref).asInstanceOf[TreeElement]
           } //todo: else

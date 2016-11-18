@@ -9,16 +9,20 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
+import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
@@ -30,7 +34,7 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   private var deleteProjectAtTearDown = false
-  private var scalaLibraryLoader: ScalaLibraryLoader = null
+  private var scalaLibraryLoader: ScalaLibraryLoader = _
 
   override def setUp(): Unit = {
     super.setUp()
@@ -42,9 +46,11 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     CompilerTestUtil.enableExternalCompiler()
 
     addRoots()
-    DebuggerTestUtil.setCompileServerSettings()
+    DebuggerTestUtil.enableCompileServer(useCompileServer)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
+
+  protected def useCompileServer: Boolean = false
 
   protected def addRoots() {
     def getOrCreateChildDir(name: String) = {
@@ -52,6 +58,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       if (!file.exists()) file.mkdir()
       LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
     }
+
+//  protected def addRoots() {
 
     inWriteAction {
       val srcRoot = getOrCreateChildDir("src")
@@ -68,6 +76,17 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     scalaLibraryLoader.loadScala(scalaSdkVersion)
   }
 
+  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
+    addIvyCacheLibraryToModule(myModule, libraryName, libraryPath, jarNames:_*)
+  }
+
+  protected def addIvyCacheLibraryToModule(module: Module, libraryName: String, libraryPath: String, jarNames: String*) = {
+    val libsPath = TestUtils.getIvyCachePath
+    val pathExtended = s"$libsPath/$libraryPath/"
+    VfsRootAccess.allowRootAccess(pathExtended)
+    PsiTestUtil.addLibrary(module, libraryName, pathExtended, jarNames: _*)
+  }
+
   override protected def getTestProjectJdk: Sdk = {
 //    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
 //    if (scalaVersion.startsWith("2.12")) {
@@ -82,31 +101,33 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 
   protected override def tearDown() {
-    CompilerTestUtil.disableExternalCompiler(myProject)
-    CompileServerLauncher.instance.stop()
-    val baseDir = getBaseDir
-    scalaLibraryLoader.clean()
-    super.tearDown()
+    EdtTestUtil.runInEdtAndWait {
+      new ThrowableRunnable[Throwable] {
+        def run() {
+          CompilerTestUtil.disableExternalCompiler(myProject)
+          CompileServerLauncher.instance.stop()
+          val baseDir = getBaseDir
+          scalaLibraryLoader.clean()
+          scalaLibraryLoader = null
+          ScalaCompilerTestBase.super.tearDown()
 
-    if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
+          if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
+        }
+      }
+    }
   }
 
   protected def make(): List[String] = {
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
-    UIUtil.invokeAndWaitIfNeeded(new Runnable {
+    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
-        try {
-          CompilerTestUtil.saveApplicationSettings()
-          val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
-          saveProject()
-          assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
-          CompilerManager.getInstance(getProject).rebuild(callback)
-        }
-        catch {
-          case e: Exception => throw new RuntimeException(e)
-        }
+        CompilerTestUtil.saveApplicationSettings()
+        val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
+        saveProject()
+        assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
+        CompilerManager.getInstance(getProject).rebuild(callback)
       }
     })
     val maxCompileTime = 6000
@@ -126,7 +147,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   }
 
   private class ErrorReportingCallback(semaphore: Semaphore) extends CompileStatusNotification {
-    private var myError: Throwable = null
+    private var myError: Throwable = _
     private val myMessages = ListBuffer[String]()
 
     def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {

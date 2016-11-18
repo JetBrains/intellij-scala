@@ -42,7 +42,7 @@ class ScalaForStatementFixer extends ScalaFixer {
       case Some(cond) if rightParenthesis == null =>
         doc.insertString(cond.getTextRange.getEndOffset, ")")
         WithReformat(0)
-      case Some(cond) if rightParenthesis != null && forStatement.body.exists(_.isInstanceOf[ScBlockExpr]) =>
+      case Some(_) if rightParenthesis != null && forStatement.body.exists(_.isInstanceOf[ScBlockExpr]) =>
         placeInWholeBlock(forStatement.body.get.asInstanceOf[ScBlockExpr], editor)
       case _ => NoOperation
     }

@@ -56,7 +56,7 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
       case DOC_INNER_CLOSE_CODE_TAG =>
         builder.error("Closing code tag before opening")
         builder.advanceLexer()
-      case a: ScaladocSyntaxElementType =>
+      case _: ScaladocSyntaxElementType =>
         parseWikiSyntax
         hasClosingElementsInWikiSyntax = false
       case DOC_INLINE_TAG_START =>

@@ -1,64 +1,55 @@
 package org.jetbrains.plugins.scala
 package project.notification
 
-import com.intellij.ProjectTopics
-import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.module.ModuleUtilCore
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.roots.ModuleRootModificationUtil.setSdkInherited
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootAdapter, ModuleRootManager, ModuleRootModificationUtil}
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.PsiFile
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
-import org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider._
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 class SetupJdkNotificationProvider(project: Project, notifications: EditorNotifications)
-        extends EditorNotifications.Provider[EditorNotificationPanel] {
-
-  project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
-    override def rootsChanged(event: ModuleRootEvent) {
-      notifications.updateAllNotifications()
-    }
-  })
+  extends AbstractNotificationProvider(project, notifications) {
 
   override def getKey = ProviderKey
 
-  override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor): EditorNotificationPanel = {
-    val jdk = Option(PsiManager.getInstance(project).findFile(file))
-            .filter(_.getLanguage == ScalaLanguage.Instance)
-            .flatMap(psiFile => Option(ModuleUtilCore.findModuleForPsiElement(psiFile)))
-            .map(module => ModuleRootManager.getInstance(module).getSdk)
+  override protected def isSourceCode(file: PsiFile) = true
 
-    if (jdk.exists(_ == null)) createPanel(project, PsiManager.getInstance(project).findFile(file)) else null
-  }
-}
+  override protected def hasDeveloperKit(module: Module) =
+    Option(module) map {
+      ModuleRootManager.getInstance
+    } flatMap {
+      _.getSdk.toOption
+    } isDefined
 
-object SetupJdkNotificationProvider {
-  private val ProviderKey = Key.create[EditorNotificationPanel]("Setup JDK")
-
-  private def createPanel(project: Project, file: PsiFile): EditorNotificationPanel = {
-    val panel = new EditorNotificationPanel()
-    panel.setText("Project JDK is not defined")
-    panel.createActionLabel("Setup JDK", new Runnable {
-      override def run() {
-        setupSdk(project, file)
-      }
-    })
-    panel
-  }
-
-  private def setupSdk(project: Project, file: PsiFile) {
-    Option(ProjectSettingsService.getInstance(project).chooseAndSetSdk()).foreach { projectSdk =>
-      Option(ModuleUtilCore.findModuleForPsiElement(file)).foreach { module =>
+  override protected def createTask(module: Module) = new Runnable {
+    override def run() = {
+      Option(project) map {
+        ProjectSettingsService.getInstance
+      } flatMap {
+        _.chooseAndSetSdk.toOption
+      } foreach { _ =>
         inWriteAction {
-          ModuleRootModificationUtil.setSdkInherited(module)
+          setSdkInherited(module)
         }
       }
     }
   }
+
+  override protected def panelText = s"Project $JDKTitle is not defined"
+
+  override protected def developerKitTitle = JDKTitle
+}
+
+object SetupJdkNotificationProvider {
+  private val JDKTitle = "JDK"
+
+  private val ProviderKey = Key.create[EditorNotificationPanel](JDKTitle)
 }

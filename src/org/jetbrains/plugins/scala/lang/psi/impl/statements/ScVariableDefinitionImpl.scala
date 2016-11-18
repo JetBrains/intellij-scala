@@ -35,7 +35,7 @@ class ScVariableDefinitionImpl private (stub: StubElement[ScVariable], nodeType:
   def expr: Option[ScExpression] = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScVariableStub].getBodyExpr
+      return stub.asInstanceOf[ScVariableStub].bodyExpression
     }
     Option(findChildByClassScala(classOf[ScExpression]))
   }
@@ -60,7 +60,7 @@ class ScVariableDefinitionImpl private (stub: StubElement[ScVariable], nodeType:
   def typeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].getTypeElement
+      stub.asInstanceOf[ScVariableStub].typeElement
     }
     else findChild(classOf[ScTypeElement])
   }

@@ -34,19 +34,6 @@ class BoundsTest extends TypeInferenceTestBase {
     doTest(text)
   }
 
-  def testSCL5183(): Unit = {
-    doTest(
-      s"""
-        |class D
-        |def foo[Q >: List[T], T >: D](): Q = List(new D)
-        |
-        |val x = foo()
-        |
-        |${START}x$END
-        |//List[D]
-      """.stripMargin)
-  }
-
   def testSCL5186(): Unit ={
     doTest(
       s"""

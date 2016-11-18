@@ -10,8 +10,8 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -71,7 +71,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     }
     def appendAsMethod() {
       val expression: ScExpression = getTargetExpression(element)
-      val replacement = ScalaPsiElementFactory.createExpressionFromText(s"${expression.getText}.$methodName", expression.getManager)
+      val replacement = createExpressionFromText(s"${expression.getText}.$methodName")(expression.getManager)
       CodeEditUtil.replaceChild(expression.getParent.getNode, expression.getNode, replacement.getNode)
     }
     inWriteAction {

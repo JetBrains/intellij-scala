@@ -8,7 +8,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
 
@@ -25,7 +24,7 @@ trait ScToplevelElement extends ScalaPsiElement {
     val buff = new ArrayBuffer[ScTypeDefinition]
     buff ++= immediateTypeDefinitions
     for (pack <- packagings) buff ++= pack.typeDefinitions
-    buff.toSeq
+    buff
   }
 
   def typeDefinitionsArray: Array[ScTypeDefinition] = {
@@ -42,7 +41,7 @@ trait ScToplevelElement extends ScalaPsiElement {
       case _ => null
     }
     if (stub != null) {
-      stub.getChildrenByType[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
+      stub.getChildrenByType[ScTypeDefinition](TokenSets.TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
     } else findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq
   }
 
@@ -64,7 +63,7 @@ trait ScToplevelElement extends ScalaPsiElement {
         }
         curr = curr.getNextSibling
       }
-      buffer.toSeq
+      buffer
       //collection.immutable.Seq(findChildrenByClassScala(classOf[ScPackaging]).toSeq : _*)
     }
   }

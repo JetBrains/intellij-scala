@@ -4,36 +4,27 @@ package psi
 package stubs
 package elements
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScModifiersStubImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 21.01.2009
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 21.01.2009
+  */
 class ScModifiersElementType(debugName: String)
-        extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
-  def serialize(stub: ScModifiersStub, dataStream: StubOutputStream) {
+  extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
+  override def serialize(stub: ScModifiersStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.hasExplicitModifiers)
     dataStream.writeInt(stub.getModifiers.length)
     for (modifier <- stub.getModifiers) dataStream.writeName(modifier)
   }
 
-  def createPsi(stub: ScModifiersStub): ScModifierList = {
-    new ScModifierListImpl(stub)
-  }
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScModifierList, parentStub: StubElement[ParentPsi]): ScModifiersStub = {
-    val modifiers: Array[String] = psi.getModifiersStrings
-    new ScModifiersStubImpl(parentStub, this, if (modifiers.isEmpty) ArrayUtil.EMPTY_STRING_ARRAY else modifiers, psi.hasExplicitModifiers)
-  }
-
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScModifiersStub = {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub = {
     val explicitModifiers = dataStream.readBoolean()
     val num = dataStream.readInt
     val modifiers =
@@ -43,8 +34,17 @@ class ScModifiersElementType(debugName: String)
         for (i <- 0 until num) mods(i) = dataStream.readName.toString
         mods
       }
-    new ScModifiersStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, modifiers, explicitModifiers)
+    new ScModifiersStubImpl(parentStub, this, modifiers, explicitModifiers)
   }
 
-  def indexStub(stub: ScModifiersStub, sink: IndexSink) {}
+  override def createStub(psi: ScModifierList, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub =
+    new ScModifiersStubImpl(parentStub, this,
+      psi.getModifiersStrings match {
+        case Array() => ArrayUtil.EMPTY_STRING_ARRAY
+        case array => array
+      }, psi.hasExplicitModifiers)
+
+  override def createElement(node: ASTNode): ScModifierList = new ScModifierListImpl(node)
+
+  override def createPsi(stub: ScModifiersStub): ScModifierList = new ScModifierListImpl(stub)
 }

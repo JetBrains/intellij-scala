@@ -41,7 +41,7 @@ class ScValueDeclarationImpl private (stub: StubElement[ScValue], nodeType: IEle
   def typeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScValueStub].getTypeElement
+      stub.asInstanceOf[ScValueStub].typeElement
     }
     else findChild(classOf[ScTypeElement])
   }

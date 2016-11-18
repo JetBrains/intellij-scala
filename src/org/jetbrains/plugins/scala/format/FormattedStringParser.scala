@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * Pavel Fatin
@@ -92,8 +92,9 @@ object FormattedStringParser extends StringParser {
           UnboundPositionalSpecifier(specifier, position)
         }
       } else {
-        if (it.toString().equals("%n")) Injection(ScalaPsiElementFactory.createExpressionFromText("\"\\n\"", literal.getManager), None)
-        else if (it.toString == "%%") Injection(ScalaPsiElementFactory.createExpressionFromText("\"%\"", literal.getManager), None)
+        implicit val manager = literal.getManager
+        if (it.toString().equals("%n")) Injection(createExpressionFromText("\"\\n\""), None)
+        else if (it.toString == "%%") Injection(createExpressionFromText("\"%\""), None)
         else if (remainingArguments.hasNext) Injection(remainingArguments.next(), Some(specifier))
         else UnboundSpecifier(specifier)
       }

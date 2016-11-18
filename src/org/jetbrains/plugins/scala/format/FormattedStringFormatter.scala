@@ -15,7 +15,7 @@ object FormattedStringFormatter extends StringFormatter {
   def format(parts: Seq[StringPart]): String = {
     val bindings = parts.collect {
       case Text(s) => (StringUtil.escapeStringCharacters(s), None)
-      case injection @ Injection(expression, specifier) =>
+      case injection @ Injection(_, specifier) =>
         if (injection.isLiteral && specifier.isEmpty)
           if (injection.value == "%") ("%%", None)
           else (injection.value, None)

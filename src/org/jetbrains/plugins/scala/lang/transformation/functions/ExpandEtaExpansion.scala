@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package functions
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{&&, FirstChild, ReferenceTarget}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -15,8 +16,8 @@ import scala.Function._
 /**
   * @author Pavel Fatin
   */
-object ExpandEtaExpansion extends AbstractTransformer {
-  def transformation: PartialFunction[PsiElement, Unit] = {
+class ExpandEtaExpansion extends AbstractTransformer {
+  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case (e: ScUnderscoreSection) && FirstChild(r @ ReferenceTarget(m: ScFunction)) =>
       process(e, r, clausesOf(m), typed = true)
 
@@ -24,11 +25,11 @@ object ExpandEtaExpansion extends AbstractTransformer {
       process(e, c, clausesOf(m).drop(nestingLevelOf(c)), typed = true)
 
     case (e: ScReferenceExpression) && ReferenceTarget(m: ScFunction) &&
-      NonValueType(t: ScMethodType) && ExpectedType(et: ScParameterizedType) =>
+      NonValueType(_: ScMethodType) && ExpectedType(_: ScParameterizedType) =>
       process(e, e, clausesOf(m), typed = false)
 
     case (e @ ScMethodCall(ReferenceTarget(m: ScFunction), _)) &&
-      NonValueType(t: ScMethodType) && ExpectedType(et: ScParameterizedType) =>
+      NonValueType(_: ScMethodType) && ExpectedType(_: ScParameterizedType) =>
       process(e, e, clausesOf(m).drop(nestingLevelOf(e)), typed = false)
 
     case (e: ScUnderscoreSection) && FirstChild(r @ ReferenceTarget(p: ScParameter)) if p.isCallByNameParameter =>
@@ -43,7 +44,7 @@ object ExpandEtaExpansion extends AbstractTransformer {
     case _ => 1
   }
 
-  private def process(e: ScExpression, target: PsiElement, clauses: Seq[ScParameterClause], typed: Boolean): Unit = {
+  private def process(e: ScExpression, target: PsiElement, clauses: Seq[ScParameterClause], typed: Boolean)(implicit project: Project): Unit = {
     def formatParameters(clause: ScParameterClause) = {
       val list = clause.parameters
         .map(p => p.typeElement.filter(const(typed)).map(t => p.name + ": " + t.text).getOrElse(p.name))

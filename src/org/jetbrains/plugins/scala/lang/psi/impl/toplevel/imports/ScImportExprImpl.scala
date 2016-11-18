@@ -75,7 +75,7 @@ class ScImportExprImpl private (stub: StubElement[ScImportExpr], nodeType: IElem
 
   def deleteExpr() {
     val parent = getParent.asInstanceOf[ScImportStmt]
-    if (parent.importExprs.length == 1) {
+    if (parent.importExprs.size == 1) {
       parent.getParent match {
         case x: ScImportsHolder => x.deleteImportStmt(parent)
         case _ =>

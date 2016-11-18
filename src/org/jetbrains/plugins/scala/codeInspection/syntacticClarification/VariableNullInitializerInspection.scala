@@ -18,18 +18,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 class VariableNullInitializerInspection extends AbstractInspection(inspectionId, inspectionName) {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case definition: ScVariableDefinition if !definition.isLocal =>
-      definition.expr filter {
+      definition.expr.filter {
         _.isValid
-      } filter {
+      }.filter {
         isNull
-      } foreach { expression =>
+      }.foreach { expression =>
         def registerProblem() = holder.registerProblem(expression,
           inspectionName,
           new NullToUnderscoreQuickFix(definition))
 
-        definition.declaredType filter {
+        definition.declaredType.filter {
           isApplicable
-        } foreach { _ =>
+        }.foreach { _ =>
           registerProblem()
         }
       }
@@ -47,13 +47,13 @@ object VariableNullInitializerInspection {
   }
 
   def isNull(expr: ScExpression): Boolean =
-    Option(expr) flatMap { expression =>
+    Option(expr).flatMap { expression =>
       Option(expression.getFirstChild)
-    } flatMap { element =>
+    }.flatMap { element =>
       Option(element.getNode)
-    } map {
+    }.map {
       _.getElementType
-    } exists {
+    }.exists {
       case ScalaTokenTypes.kNULL => true
       case _ => false
     }
@@ -62,11 +62,11 @@ object VariableNullInitializerInspection {
 class NullToUnderscoreQuickFix(definition: ScVariableDefinition)
   extends AbstractFixOnPsiElement(inspectionName, definition) {
 
-  override def doApplyFix(project: Project): Unit = Option(getElement) flatMap {
+  override def doApplyFix(project: Project): Unit = Option(getElement).flatMap {
     _.expr
-  } filter {
+  }.filter {
     isNull
-  } foreach { definition =>
-    definition.replace(createExpressionFromText("_", definition.getManager))
+  }.foreach { definition =>
+    definition.replace(createExpressionFromText("_")(definition.getManager))
   }
 }

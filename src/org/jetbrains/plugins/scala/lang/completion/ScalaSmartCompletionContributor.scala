@@ -139,13 +139,13 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case method: PsiMethod =>
                 val second = checkForSecondCompletion && method.getParameterList.getParametersCount == 0
                 val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.inferMethodTypesArgs(method, subst)
-                checkType(method.getReturnType.toScType(method.getProject, scope), infer, second)
+                checkType(method.getReturnType.toScType(), infer, second)
               case typed: ScTypedDefinition =>
                 if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
                   (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
                   for (tt <- typed.getType(TypingContext.empty)) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
               case f: PsiField =>
-                checkType(f.getType.toScType(f.getProject, scope), ScSubstitutor.empty, checkForSecondCompletion)
+                checkType(f.getType.toScType(), ScSubstitutor.empty, checkForSecondCompletion)
               case _ =>
             }
         case _ =>
@@ -205,7 +205,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                   case ParameterizedType(_, Seq(scType)) => checkType(scType)
                   case _ =>
                 }
-              case Some(o: ScObject) => //do nothing
+              case Some(_: ScObject) => //do nothing
               case Some(clazz: ScTypeDefinition) =>
                 checkTypeProjection(tp)
                 ScalaPsiUtil.getCompanionModule(clazz) match {
@@ -245,7 +245,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           var foundClazz = false
           while (parent != null) {
             parent match {
-              case t: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
+              case _: ScNewTemplateDefinition if foundClazz => //do nothing, impossible to invoke
               case t: ScTemplateDefinition =>
                 t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
                   case Success(scType, _) =>
@@ -295,8 +295,8 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
       val (ref, assign) = extractReference[ScAssignStmt](element)
       if (assign.getRExpression.contains(ref)) {
         assign.getLExpression match {
-          case call: ScMethodCall => //todo: it's update method
-          case leftExpression: ScExpression =>
+          case _: ScMethodCall => //todo: it's update method
+          case _: ScExpression =>
             //we can expect that the type is same for left and right parts.
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
               ref.getResolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), element, parameters.getOriginalPosition)
@@ -623,7 +623,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val addedClasses = new mutable.HashSet[String]
         val newExpr = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
         val types: Array[ScType] = newExpr.expectedTypes().map {
-          case ScAbstractType(_, lower, upper) => upper
+          case ScAbstractType(_, _, upper) => upper
           case tp => tp
         }
         implicit val typeSystem = newExpr.typeSystem

@@ -1,68 +1,47 @@
 package org.jetbrains.plugins.scala
 package project.notification
 
-import javax.swing.JComponent
-
-import com.intellij.ProjectTopics
-import com.intellij.framework.addSupport.impl.AddSupportForSingleFrameworkDialog
-import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.module.{JavaModuleType, ModuleUtil, ModuleUtilCore}
+import com.intellij.framework.addSupport.impl.AddSupportForSingleFrameworkDialog.createDialog
+import com.intellij.openapi.module.ModuleUtil.getModuleType
+import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots._
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager}
+import com.intellij.psi.PsiFile
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider._
 import org.jetbrains.plugins.scala.project.template.ScalaSupportProvider
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorNotifications)
-        extends EditorNotifications.Provider[EditorNotificationPanel] {
-
-  project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
-    override def rootsChanged(event: ModuleRootEvent) {
-      notifications.updateAllNotifications()
-    }
-  })
+  extends AbstractNotificationProvider(project, notifications) {
 
   override def getKey = ProviderKey
 
-  override def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor): EditorNotificationPanel = {
-    val hasSdk = Option(PsiManager.getInstance(project).findFile(file))
-            .filter(_.getLanguage == ScalaLanguage.Instance)
-            .filter(!_.getName.endsWith(".sbt")) // root SBT files belong to main (not *-build) modules
-            .filter(_.isWritable)
-            .flatMap(psiFile => Option(ModuleUtilCore.findModuleForPsiElement(psiFile)))
-            .filter(module => ModuleUtil.getModuleType(module) == JavaModuleType.getModuleType)
-            .filter(!_.getName.endsWith("-build")) // gen-idea doesn't use the SBT module type
-            .map(module => module.hasScala)
+  override protected def isSourceCode(file: PsiFile) =
+    file.getLanguage == ScalaLanguage.Instance &&
+      !file.getName.endsWith(".sbt") && // root SBT files belong to main (not *-build) modules
+      file.isWritable
 
-    if (hasSdk.contains(false)) createPanel(project, PsiManager.getInstance(project).findFile(file)) else null
+  override protected def hasDeveloperKit(module: Module) =
+    getModuleType(module) != JavaModuleType.getModuleType ||
+      module.getName.endsWith("-build") || // gen-idea doesn't use the SBT module type
+      module.hasScala
+
+  override protected def createTask(module: Module) = new Runnable {
+    override def run() =
+      createDialog(module, new ScalaSupportProvider).showAndGet
   }
+
+  override protected def panelText = s"No $developerKitTitle in module"
+
+  override protected def developerKitTitle = ScalaSDKTitle
 }
 
 object SetupScalaSdkNotificationProvider {
-  private val ProviderKey = Key.create[EditorNotificationPanel]("Setup Scala SDK")
+  private val ScalaSDKTitle = ScalaBundle.message("sdk.title")
 
-  private def createPanel(project: Project, file: PsiFile): EditorNotificationPanel = {
-    val panel = new EditorNotificationPanel()
-    panel.setText("No Scala SDK in module")
-    panel.createActionLabel("Setup Scala SDK", new Runnable {
-      override def run() {
-        setupSdk(panel, project, file)
-      }
-    })
-    panel
-  }
-
-  private def setupSdk(parent: JComponent, project: Project, file: PsiFile) {
-    Option(ModuleUtilCore.findModuleForPsiElement(file)).foreach { module =>
-      val dialog = AddSupportForSingleFrameworkDialog.createDialog(module, new ScalaSupportProvider())
-      dialog.showAndGet()
-    }
-  }
+  private val ProviderKey = Key.create[EditorNotificationPanel](ScalaSDKTitle)
 }

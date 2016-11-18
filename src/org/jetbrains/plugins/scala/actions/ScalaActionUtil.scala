@@ -38,7 +38,7 @@ object ScalaActionUtil {
       }
     }
     catch {
-      case e: Exception => disable()
+      case _: Exception => disable()
     }
   }
 

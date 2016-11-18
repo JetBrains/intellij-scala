@@ -9,11 +9,14 @@ import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
+import com.intellij.psi.impl.source.PsiFileImpl
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Seq
 
@@ -24,12 +27,6 @@ import scala.collection.Seq
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScAnnotationsHolder with ScCommentOwner {
-  private var synthNavElement: Option[PsiElement] = None
-  var syntheticContainingClass: Option[ScTypeDefinition] = None
-  def setSynthetic(navElement: PsiElement) {
-    synthNavElement = Some(navElement)
-  }
-  def isSynthetic: Boolean = synthNavElement.nonEmpty
 
   def isCase: Boolean = false
 
@@ -72,13 +69,14 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   override def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
 
+  override def syntheticMembersImpl: Seq[ScMember] = SyntheticMembersInjector.injectMembers(this)
+
   override protected def syntheticMethodsWithOverrideImpl: scala.Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = true)
 
   def fakeCompanionModule: Option[ScObject] = {
     if (this.isInstanceOf[ScObject]) return None
-    val baseCompanion = ScalaPsiUtil.getBaseCompanionModule(this)
-    baseCompanion match {
-      case Some(td: ScObject) => return None
+    baseCompanionModule match {
+      case Some(_: ScObject) => return None
       case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => return None
       case _ =>
     }
@@ -86,7 +84,36 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     calcFakeCompanionModule()
   }
 
-  @Cached(synchronized = true, ModCount.getLibraryAwareCount, this)
+  @Cached(synchronized = true, ModCount.getJavaStructureModificationCount, this)
+  def baseCompanionModule: Option[ScTypeDefinition] = {
+    Option(this.getContext).flatMap { scope =>
+      val tokenSet = TokenSets.TYPE_DEFINITIONS
+
+      val arrayOfElements: Array[PsiElement] = scope match {
+        case stub: StubBasedPsiElement[_] if stub.getStub != null =>
+          stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+        case file: PsiFileImpl if file.getStub != null =>
+          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+        case c => c.getChildren
+      }
+
+      val name = this.name
+      this match {
+        case _: ScClass | _: ScTrait =>
+          arrayOfElements.collectFirst {
+            case o: ScObject if o.name == name => o
+          }
+        case _: ScObject =>
+          arrayOfElements.collectFirst {
+            case c: ScClass if c.name == name => c
+            case t: ScTrait if t.name == name => t
+          }
+        case _ => None
+      }
+    }
+  }
+
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   def calcFakeCompanionModule(): Option[ScObject] = {
     val accessModifier = getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
     val objText = this match {
@@ -105,13 +132,13 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
                       else parameterText
                     }).mkString("(", ", ", ")")
                 }.mkString("(", " => ", s" => $name)")
-              val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
+              val typeElement = createTypeElementFromText(typeElementText)
               s" extends ${typeElement.getText}"
             } else {
               ""
             }
           } catch {
-            case e: Exception => ""
+            case _: Exception => ""
           }
         }
 
@@ -127,7 +154,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
     val obj: ScObject =
-      ScalaPsiElementFactory.createObjectWithContext(objText, getContext, if (next != null) next else this)
+      createObjectWithContext(objText, getContext, if (next != null) next else this)
     import org.jetbrains.plugins.scala.extensions._
     val objOption: Option[ScObject] = obj.toOption
     objOption.foreach { (obj: ScObject) =>
@@ -145,4 +172,5 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     }
     objOption
   }
+
 }

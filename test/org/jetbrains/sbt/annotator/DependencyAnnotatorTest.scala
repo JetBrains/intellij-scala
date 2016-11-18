@@ -3,13 +3,12 @@ package annotator
 
 import _root_.junit.framework.Assert._
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message}
+import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.SbtIvyResolver
 
 
 /**
@@ -18,32 +17,31 @@ import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
  */
 class DependencyAnnotatorTest extends AnnotatorTestBase {
 
-  val testResolver = new SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/%s/sbt/resolvers/testRepository" format TestUtils.getTestDataPath)
+  val testResolver = new SbtIvyResolver("Test repo", "/%s/sbt/resolvers/testIvyCache" format TestUtils.getTestDataPath)
 
-  def testDoNotAnnotateIndexedDep() =
+  def testDoNotAnnotateIndexedDep(): Unit =
     doTest(Seq.empty)
 
-  def testDoNotAnnotateIndexedDepWithDynamicVersion() =
+  def testDoNotAnnotateIndexedDepWithDynamicVersion(): Unit =
     doTest(Seq.empty)
 
-  def testAnnotateUnresolvedDep() = {
+  def testAnnotateUnresolvedDep(): Unit = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
-    doTest(Seq(Error("\"org.jetbrains\"", msg),
-      Error("\"unknown-lib\"", msg),
-      Error("\"0.0.0\"", msg)))
+    doTest(Seq(Warning("\"org.jetbrains\"", msg),
+      Warning("\"unknown-lib\"", msg),
+      Warning("\"0.0.0\"", msg)))
   }
 
-  def testAnnotateUnresolvedDepWithDynamicVersion() = {
+  def testAnnotateUnresolvedDepWithDynamicVersion(): Unit = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
-    doTest(Seq(Error("\"org.jetbrains\"", msg),
-      Error("\"unknown-lib\"", msg),
-      Error("\"latest.release\"", msg)))
+    doTest(Seq(Warning("\"org.jetbrains\"", msg),
+      Warning("\"unknown-lib\"", msg),
+      Warning("\"latest.release\"", msg)))
   }
 
-  override def setUp() = {
+  override def setUp(): Unit = {
     super.setUp()
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
-    SbtResolverIndexesManager().update(Seq(testResolver))
+
 
     val moduleManager = Option(ModuleManager.getInstance(getProject))
     moduleManager.foreach { manager =>
@@ -52,16 +50,16 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
         SbtModule.setResolversTo(module, resolvers + testResolver)
       }
     }
+    testResolver.getIndex(myProject).doUpdate()(getProject)
   }
 
-  override def tearDown() = {
+  override def tearDown(): Unit = {
     super.tearDown()
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
   }
 
   private def doTest(messages: Seq[Message]) {
     val element = loadTestFile()
-    val mock = new AnnotatorHolderMock
+    val mock = new AnnotatorHolderMock(element)
     val annotator = new SbtDependencyAnnotator
 
     val visitor = new ScalaRecursiveElementVisitor {

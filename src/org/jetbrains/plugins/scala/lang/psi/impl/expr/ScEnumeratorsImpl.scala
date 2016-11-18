@@ -7,12 +7,13 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 import scala.collection.mutable
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
@@ -39,7 +40,7 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     val children =
       if (reverseChildren.contains(lastParent)) reverseChildren.drop(reverseChildren.indexOf(lastParent) + (
          lastParent match {
-           case g: ScGenerator => 1
+           case _: ScGenerator => 1
            case _ => 0
          }
         ))
@@ -60,4 +61,5 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     true
   }
 
+  override def patterns: Seq[ScPattern] = namings.reverse.map(_.pattern)
 }

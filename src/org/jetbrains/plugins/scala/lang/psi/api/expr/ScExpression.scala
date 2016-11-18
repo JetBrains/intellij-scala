@@ -7,7 +7,7 @@ package expr
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.ElementText
+import org.jetbrains.plugins.scala.extensions.{ElementText, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -87,13 +88,13 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
 
               val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
-              val results = new ImplicitCollector(ScExpression.this, functionType, functionType, None,
-                isImplicitConversion = true, isExtensionConversion = false).collect()
+              val implicitCollector = new ImplicitCollector(ScExpression.this, functionType, functionType, None, isImplicitConversion = true)
+              val results = implicitCollector.collect()
               if (results.length == 1) {
                 val res = results.head
                 val paramType = InferUtil.extractImplicitParameterType(res)
                 paramType match {
-                  case FunctionType(rt, Seq(param)) =>
+                  case FunctionType(rt, Seq(_)) =>
                     ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                   case _ =>
                     ScalaPsiManager.instance(getProject).getCachedClass(
@@ -104,7 +105,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                           UndefinedType(TypeParameterType(tp), 1))) match {
                           case funTp: ScParameterizedType =>
                             val secondArg = funTp.typeArguments(1)
-                            paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
+                            paramType.conforms(funTp, ScUndefinedSubstitutor())._2.getSubstitutor match {
                               case Some(subst) =>
                                 val rt = subst.subst(secondArg)
                                 if (rt.isInstanceOf[UndefinedType]) defaultResult
@@ -182,8 +183,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         @tailrec
         def isMethodInvocation(expr: ScExpression = ScExpression.this): Boolean = {
           expr match {
-            case p: ScPrefixExpr => false
-            case p: ScPostfixExpr => false
+            case _: ScPrefixExpr => false
+            case _: ScPostfixExpr => false
             case _: MethodInvocation => true
             case p: ScParenthesisedExpr =>
               p.expr match {
@@ -210,11 +211,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             exp match {
               case Some(expected) =>
                 expected.removeAbstracts match {
-                  case FunctionType(_, params) =>
+                  case FunctionType(_, _) =>
                   case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
-                    ScalaPsiUtil.toSAMType(expect, getResolveScope, ScExpression.this.scalaLanguageLevelOrDefault) match {
-                      case Some(_) =>
-                      case _ => res = updateType(retType)
+                    val languageLevel = ScExpression.this.scalaLanguageLevelOrDefault
+                    if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, getResolveScope, languageLevel).isEmpty) {
+                      res = updateType(retType)
                     }
                   case _ => res = updateType(retType)
                 }
@@ -404,10 +405,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             new Parameter("", None, tpe, false, false, false, index)
         }
         val methType =
-          new ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
+          ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
             fromUnderscore = true).tr.getOrAny,
-            params, false)(getProject, getResolveScope)
-        new Success(methType, Some(ScExpression.this))
+            params, isImplicit = false)(getProject, getResolveScope)
+        Success(methType, Some(ScExpression.this))
       }
     }
   }
@@ -424,8 +425,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     if (removeParenthesis && oldParent.isInstanceOf[ScParenthesisedExpr]) {
       return oldParent.asInstanceOf[ScExpression].replaceExpression(expr, removeParenthesis = true)
     }
-    val newExpr: ScExpression = if (ScalaPsiUtil.needParentheses(this, expr)) {
-      ScalaPsiElementFactory.createExpressionFromText("(" + expr.getText + ")", getManager)
+    val newExpr = if (ScalaPsiUtil.needParentheses(this, expr)) {
+      createExpressionFromText(expr.getText.parenthesize(needParenthesis = true))
     } else expr
     val parentNode = oldParent.getNode
     val newNode = newExpr.copy.getNode
@@ -537,8 +538,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
             case _ => res += i
           }
-        case infix@ScInfixExpr(ScExpression.Type(api.Boolean), ElementText(op), right@ScExpression.Type(api.Boolean))
-          if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
+        case ScInfixExpr(left, ElementText(op), right)
+          if withBooleanInfix && (op == "&&" || op == "||") &&
+            left.getType(TypingContext.empty).exists(_ == api.Boolean) &&
+            right.getType(TypingContext.empty).exists(_ == api.Boolean) => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }

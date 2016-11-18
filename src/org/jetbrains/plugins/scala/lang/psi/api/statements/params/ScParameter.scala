@@ -7,8 +7,6 @@ package params
 
 import javax.swing.Icon
 
-import com.intellij.lang.java.lexer.JavaLexer
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
@@ -99,12 +97,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     case _ => getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
   }
 
-  override def getName: String = {
-    val res = super.getName
-    if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_" + res
-    else res
-  }
-
   abstract override def getUseScope: SearchScope = {
     val specificScope = getDeclarationScope match {
       case null => GlobalSearchScope.EMPTY_SCOPE
@@ -120,7 +112,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
-      case f: ScFunctionExpr => true
+      case _: ScFunctionExpr => true
       case _ => false
     }
     case _ => false

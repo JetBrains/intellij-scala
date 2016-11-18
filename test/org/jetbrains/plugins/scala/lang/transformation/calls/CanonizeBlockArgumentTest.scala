@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class CanonizeBlockArgumentTest extends TransformerTest(CanonizeBlockArgument) {
+class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgument()) {
   def testMethodCall() = check(
     "f {A}",
     "f(A)"

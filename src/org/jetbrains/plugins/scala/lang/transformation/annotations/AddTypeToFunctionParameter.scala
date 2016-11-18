@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.transformation.annotations
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
@@ -10,8 +11,8 @@ import org.jetbrains.plugins.scala.lang.transformation._
 /**
   * @author Pavel Fatin
   */
-object AddTypeToFunctionParameter extends AbstractTransformer {
-  def transformation: PartialFunction[PsiElement, Unit] = {
+class AddTypeToFunctionParameter extends AbstractTransformer {
+  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case (p: ScParameter) && Parent(e @ Parent(Parent(_: ScFunctionExpr))) if p.paramType.isEmpty =>
 
       val annotation = annotationFor(p.getRealParameterType().get, e)

@@ -9,13 +9,15 @@ import com.intellij.psi.scope._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -33,14 +35,14 @@ object ResolveProcessor {
     }
 
     result.getActualElement match {
-      case c: ScTypeParam => null
+      case _: ScTypeParam => null
       case c: ScObject => "Object:" + c.qualifiedName
       case c: PsiClass => "Class:" + c.qualifiedName
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
         t.aliasedType(TypingContext.empty) match {
-          case Success(tp, elem) =>
+          case Success(tp, _) =>
             tp.extractClass(Option(place).map(_.getProject).orNull) match {
-              case Some(c: ScObject) => defaultForTypeAlias(t)
+              case Some(_: ScObject) => defaultForTypeAlias(t)
               case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
                 "Class:" + td.qualifiedName
               case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
@@ -128,7 +130,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     val memb: PsiMember = {
       named match {
         case memb: PsiMember => memb
-        case pl => ScalaPsiUtil.nameContext(named) match {
+        case _ => ScalaPsiUtil.nameContext(named) match {
           case memb: PsiMember => memb
           case _ => return true //something strange
         }
@@ -154,7 +156,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case clazz: PsiClass if !isThisOrSuperResolve || PsiTreeUtil.isContextAncestor(clazz, ref, true) =>
           addResult(new ScalaResolveResult(named, getSubst(state),
             getImports(state), nameShadow, boundClass = getBoundClass(state), fromType = getFromType(state), isAccessible = accessible))
-        case clazz: PsiClass => //do nothing, it's wrong class or object
+        case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
         case _ =>
           addResult(new ScalaResolveResult(named, getSubst(state),
@@ -231,4 +233,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (stateName == null) name else stateName
     }
   }
+
+  override def toString = s"ResolveProcessor($name)"
 }

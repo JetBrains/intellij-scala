@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -120,7 +120,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ref: ScReferenceElement =>
         if (!ref.isValid || ref.isReferenceTo(clazz)) return
         ref.bind() match {
-          case Some(ScalaResolveResult(t: ScTypeAliasDefinition, subst)) if t.typeParameters.isEmpty =>
+          case Some(ScalaResolveResult(t: ScTypeAliasDefinition, _)) if t.typeParameters.isEmpty =>
             for (tp <- t.aliasedType(TypingContext.empty)) {
               tp match {
                 case ScDesignatorType(c: PsiClass) if c == clazz => return
@@ -140,17 +140,28 @@ trait ScImportsHolder extends ScalaPsiElement {
       case ref: ScReferenceElement => ref.isValid && !ref.isReferenceTo(elem)
       case _ => false
     }
-    ScalaNamesUtil.qualifiedName(elem) match {
-      case Some(qual) if needImport => addImportForPath(qual, ref)
-      case _ =>
+    if (needImport) {
+      cClass match {
+        case Some(clazz) =>
+          val qualName = clazz.qualifiedName
+          if (qualName != null) {
+            addImportForPath(qualName + "." + elem.name, ref)
+          }
+        case _ =>
+          val qualName = ScalaNamesUtil.qualifiedName(elem).orNull
+          if (qualName != null) {
+            addImportForPath(qualName, ref)
+          }
+      }
     }
   }
 
   def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement = null): Unit = {
     import ScalaImportOptimizer._
 
+    implicit val manager = getManager
     def samePackage(path: String) = {
-      val ref = ScalaPsiElementFactory.createReferenceFromText(path, this.getManager)
+      val ref = createReferenceFromText(path)
       val pathQualifier = Option(ref).flatMap(_.qualifier.map(_.getText)).getOrElse("")
       val ourPackageName: Option[String] =
         Option(PsiTreeUtil.getParentOfType(this, classOf[ScPackaging], false)).map(_.fullPackageName)
@@ -190,7 +201,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       else refsContainer == null && hasCodeBeforeImports
 
     if (needToInsertFirst) {
-      val dummyImport = ScalaPsiElementFactory.createImportFromText("import dummy._", getManager)
+      val dummyImport = createImportFromText("import dummy._")
       val usedNames = collectUsedImportedNames(this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
       val psiAnchor = PsiAnchor.create(inserted)
@@ -220,13 +231,13 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {
-    val ref = ScalaPsiElementFactory.createReferenceFromText(importInfo.prefixQualifier, this, place)
+    val ref = createReferenceFromText(importInfo.prefixQualifier, this, place)
     ref.multiResolve(false).nonEmpty
   }
 
   private def createInfoFromPath(path: String, place: PsiElement): Seq[ImportInfo] = {
     val importText = s"import ${ScalaNamesUtil.escapeKeywordsFqn(path)}"
-    val importStmt = ScalaPsiElementFactory.createImportFromTextWithContext(importText, this, place)
+    val importStmt = createImportFromTextWithContext(importText, this, place)
     ScalaImportOptimizer.createInfo(importStmt)
   }
 
@@ -282,7 +293,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     def shortenWhitespace(node: ASTNode) {
       if (node == null) return
       if (node.getText.count(_ == '\n') >= 2) {
-        val nl = ScalaPsiElementFactory.createNewLine(getManager, node.getText.replaceFirst("[\n]", ""))
+        val nl = createNewLine(node.getText.replaceFirst("[\n]", ""))(getManager)
         getNode.replaceChild(node, nl.getNode)
       }
     }

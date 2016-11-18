@@ -18,14 +18,14 @@ object Bounds extends api.Bounds {
     second match {
       case DottyOrType(left, right) =>
         def lift: ScType => ScType = glb(first, _, checkWeak)
-        return lub(lift(left), lift(right))
+        return lub(lift(left), lift(right), checkWeak)
       case _ =>
     }
 
     first match {
       case DottyOrType(left, right) =>
         def lift: ScType => ScType = glb(_, second, checkWeak)
-        return lub(lift(left), lift(right))
+        return lub(lift(left), lift(right), checkWeak)
       case _ =>
     }
 

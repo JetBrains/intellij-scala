@@ -42,7 +42,7 @@ class ScalaWhileConditionFixer extends ScalaFixer {
         moveToStart(editor, leftParenthesis)
         doc.insertString(rightParenthesis.getTextRange.getEndOffset, " {\n\n}")
         WithReformat(1)
-      case Some(cond) if rightParenthesis != null && whileStatement.body.isDefined =>
+      case Some(_) if rightParenthesis != null && whileStatement.body.isDefined =>
         whileStatement.body match {
           case Some(block: ScBlockExpr) =>
             return placeInWholeBlock(block, editor)

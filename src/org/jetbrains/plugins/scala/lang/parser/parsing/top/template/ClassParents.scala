@@ -4,9 +4,9 @@ package parser
 package parsing
 package top.template
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.Parents
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
 /**
@@ -19,29 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
  */
 object ClassParents extends ClassParents {
   override protected val constructor = Constructor
-  override protected val annotType = AnnotType
+
+  override protected def parseParent(builder: ScalaPsiBuilder): Boolean =
+    AnnotType.parse(builder, isPattern = false)
 }
 
-trait ClassParents {
+trait ClassParents extends Parents {
   protected val constructor: Constructor
-  protected val annotType: AnnotType
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val classParentsMarker = builder.mark
-    if (!constructor.parse(builder)) {
-      classParentsMarker.drop()
-      return false
-    }
-    //Look for mixin
-    while (builder.getTokenType == ScalaTokenTypes.kWITH) {
-      builder.advanceLexer() //Ate with
-      if (!annotType.parse(builder, isPattern = false)) {
-        builder error ScalaBundle.message("wrong.simple.type")
-        classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
-        return true
-      }
-    }
-    classParentsMarker.done(ScalaElementTypes.CLASS_PARENTS)
-    true
-  }
+  override protected val elementType = ScalaElementTypes.CLASS_PARENTS
+
+  override protected def parseFirstParent(builder: ScalaPsiBuilder) = constructor.parse(builder)
 }

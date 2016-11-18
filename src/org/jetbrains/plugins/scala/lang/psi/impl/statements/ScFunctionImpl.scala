@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 
 /**
@@ -34,7 +35,7 @@ with ScFunction with ScTypeParametersOwner {
       case notNull => notNull
     }
     if (n == null) {
-      return ScalaPsiElementFactory.createIdentifier(getStub.asInstanceOf[ScFunctionStub].getName, getManager).getPsi
+      return createIdentifier(getStub.asInstanceOf[ScFunctionStub].getName).getPsi
     }
     n.getPsi
   }

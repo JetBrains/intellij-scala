@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.psi.PsiTypeParameter
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getPsiElementId
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 
 import scala.collection.Seq
@@ -28,7 +28,7 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
                          lowerType: Suspension,
                          upperType: Suspension,
                          psiTypeParameter: PsiTypeParameter) {
-  val nameAndId = getPsiElementId(psiTypeParameter)
+  val nameAndId = psiTypeParameter.nameAndId
 
   val name = nameAndId._1
 
@@ -64,18 +64,17 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
 
 object TypeParameter {
   def apply(typeParameter: PsiTypeParameter): TypeParameter = {
-    val (typeParameters, maybeLower, maybeUpper) = typeParameter match {
+    val (typeParameters, lazyLower, lazyUpper) = typeParameter match {
       case typeParam: ScTypeParam =>
-        (typeParam.typeParameters, typeParam.lowerBound.toOption, typeParam.upperBound.toOption)
+        (typeParam.typeParameters, () => typeParam.lowerBound.getOrNothing, () => typeParam.upperBound.getOrAny)
       case _ =>
         val manager = ScalaPsiManager.instance(typeParameter.getProject)
-        val upper = manager.javaPsiTypeParameterUpperType(typeParameter)
-        (Seq.empty, None, Some(upper))
+        (Seq.empty, () => Nothing, () => manager.javaPsiTypeParameterUpperType(typeParameter))
     }
     TypeParameter(
       typeParameters.map(TypeParameter(_)),
-      new Suspension(maybeLower.getOrElse(Nothing)),
-      new Suspension(maybeUpper.getOrElse(Any)),
+      new Suspension(lazyLower),
+      new Suspension(lazyUpper),
       typeParameter)
   }
 }
@@ -84,7 +83,7 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
                              lowerType: Suspension,
                              upperType: Suspension,
                              psiTypeParameter: PsiTypeParameter) extends ValueType with NamedType {
-  val nameAndId = getPsiElementId(psiTypeParameter)
+  val nameAndId = psiTypeParameter.nameAndId
 
   override val name = nameAndId._1
 
@@ -102,10 +101,29 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     case _ => false
   }
 
+  def isCovariant = psiTypeParameter match {
+    case typeParam: ScTypeParam => typeParam.isCovariant
+    case _ => false
+  }
+
+  def isContravariant = psiTypeParameter match {
+    case typeParam: ScTypeParam => typeParam.isContravariant
+    case _ => false
+  }
+
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {
-      case that: TypeParameterType => that.psiTypeParameter eq psiTypeParameter
+      case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
+        (psiTypeParameter, that.psiTypeParameter) match {
+          case (myBound: ScTypeParam, thatBound: ScTypeParam) =>
+            //TODO this is a temporary hack, so ignore substitutor for now
+            myBound.lowerBound.exists(typeSystem.equivalence.equiv(_, thatBound.lowerBound.getOrNothing)) &&
+              myBound.upperBound.exists(typeSystem.equivalence.equiv(_, thatBound.upperBound.getOrNothing)) &&
+              (myBound.name == thatBound.name || thatBound.isHigherKindedTypeParameter || myBound.isHigherKindedTypeParameter)
+          case _ => false
+        }
+      }
       case _ => false
     }, substitutor)
 

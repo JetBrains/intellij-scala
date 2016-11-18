@@ -4,7 +4,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 
 import scala.collection.mutable
@@ -32,8 +32,8 @@ class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
           case _ =>
         }
         val shouldCompleteFileName = parent match {
-          case f: ScalaFile => true
-          case p: ScPackaging => true
+          case _: ScalaFile => true
+          case _: ScPackaging => true
           case _ => false
         }
         if (shouldCompleteFileName && !classesNames.contains(fileName) && !objectNames.contains(fileName)) {
@@ -44,7 +44,7 @@ class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
             for (o <- objectNames if !classesNames.contains(o)) {
               result.addElement(LookupElementBuilder.create(o))
             }
-          case o: ScObject =>
+          case _: ScObject =>
             for (o <- classesNames if !objectNames.contains(o)) {
               result.addElement(LookupElementBuilder.create(o))
             }

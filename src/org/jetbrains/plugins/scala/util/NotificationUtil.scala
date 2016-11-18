@@ -45,7 +45,7 @@ object NotificationUtil  {
   
   type Handler = (String) => (Unit)
   
-  private val IdHandler: Handler = { (s: String) => {} }
+  private val IdHandler: Handler = { (_: String) => {} }
   
   private class HyperlinkListener(handler: Handler) extends NotificationListener {
     def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {

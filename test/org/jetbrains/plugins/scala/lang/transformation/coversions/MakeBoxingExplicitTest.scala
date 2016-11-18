@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.transformation.conversions.MakeBoxingExp
 /**
   * @author Pavel Fatin
   */
-class MakeBoxingExplicitTest extends TransformerTest(MakeBoxingExplicit) {
+class MakeBoxingExplicitTest extends TransformerTest(new MakeBoxingExplicit()) {
   def testPrimitiveToAny() = check(
     "val v: Any = 1",
     "val v: Any = scala.runtime.BoxesRunTime.boxToInteger(1)"

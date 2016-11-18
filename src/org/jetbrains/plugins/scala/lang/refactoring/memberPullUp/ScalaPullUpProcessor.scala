@@ -7,13 +7,13 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractMemberInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
@@ -43,11 +43,11 @@ class ScalaPullUpProcessor(project: Project,
    * Should be invoked in write action
    * */
   def moveMembersToBase() {
-    val manager = targetClass.getManager
+    implicit val manager = targetClass.getManager
     val extendsBlock = targetClass.extendsBlock
     val templateBody = extendsBlock.templateBody match {
       case Some(tb) => tb
-      case None => extendsBlock.add(ScalaPsiElementFactory.createTemplateBody(manager))
+      case None => extendsBlock.add(createTemplateBody)
     }
     val anchor = templateBody.getLastChild
 
@@ -65,12 +65,12 @@ class ScalaPullUpProcessor(project: Project,
       } {
         handleOldMember(info)
 
-        templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
+        templateBody.addBefore(createNewLine(), anchor)
         val added = templateBody.addBefore(memberCopy, anchor).asInstanceOf[ScMember]
         if (info.isToAbstract) TypeAdjuster.markToAdjust(added)
         else movedDefinitions += added
       }
-      templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
+      templateBody.addBefore(createNewLine(), anchor)
 
       ScalaChangeContextUtil.decodeContextInfo(movedDefinitions)
     }
@@ -99,7 +99,7 @@ class ScalaPullUpProcessor(project: Project,
         val member = decl.copy().asInstanceOf[ScMember]
         Seq(member)
       case ScalaExtractMemberInfo(m, true) =>
-        declarationsText(m).map(ScalaPsiElementFactory.createDeclarationFromText(_, m.getParent, m).asInstanceOf[ScMember])
+        declarationsText(m).map(createDeclarationFromText(_, m.getParent, m).asInstanceOf[ScMember])
       case ScalaExtractMemberInfo(m, false) if m.hasModifierProperty("override") =>
         val copy = m.copy().asInstanceOf[ScMember]
         copy.setModifierProperty("override", value = false)
@@ -135,7 +135,7 @@ class ScalaPullUpProcessor(project: Project,
         copy.accept(new ScalaRecursiveElementVisitor() {
           override def visitSimpleTypeElement(te: ScSimpleTypeElement): Unit = {
             val tpe = te.calcType
-            te.replace(ScalaPsiElementFactory.createTypeElementFromText(tpe.canonicalText, te.getManager))
+            te.replace(createTypeElementFromText(tpe.canonicalText)(te.getManager))
           }
         })
         Seq(copy.getText)
@@ -155,7 +155,7 @@ class ScalaPullUpProcessor(project: Project,
           Option(copy.findFirstChildByType(ScalaTokenTypes.tASSIGN)),
           Option(copy.findFirstChildByType(ScalaTokenTypes.tUPPER_BOUND)),
           Option(copy.findFirstChildByType(ScalaTokenTypes.tLOWER_BOUND)),
-          Option(copy.aliasedTypeElement)
+          copy.aliasedTypeElement
         ).flatten.foreach(_.delete())
         Seq(copy.getText)
       case _ => throw new IllegalArgumentException(s"Cannot create declaration text from member ${m.getText}")

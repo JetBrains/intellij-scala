@@ -149,7 +149,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       locationsOfLine(refType, line).asJava
     }
     catch {
-      case e: AbsentInformationException => Collections.emptyList()
+      case _: AbsentInformationException => Collections.emptyList()
     }
   }
 
@@ -255,7 +255,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     def nonWhitespaceInner(element: PsiElement, document: Document): PsiElement = {
       element match {
         case null => null
-        case ws: PsiWhiteSpace if document.getLineNumber(element.getTextRange.getEndOffset) == position.getLine =>
+        case _: PsiWhiteSpace if document.getLineNumber(element.getTextRange.getEndOffset) == position.getLine =>
           val nextElement = file.findElementAt(element.getTextRange.getEndOffset)
           nonWhitespaceInner(nextElement, document)
         case _ => element
@@ -269,7 +269,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         nonWhitespaceInner(firstElement, document)
       }
       catch {
-        case t: Throwable => firstElement
+        case _: Throwable => firstElement
       }
     }
   }
@@ -300,7 +300,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
             else false
         }
       } catch {
-        case e: Exception => None
+        case _: Exception => None
       }
     }
 
@@ -329,7 +329,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       else if (!isAnonfun(currentMethod)) {
         possiblePositions.find {
           case e: PsiElement if isLambda(e) => false
-          case (e: ScExpression) childOf (p: ScParameter) => false
+          case (_: ScExpression) childOf (_: ScParameter) => false
           case _ => true
         }
       }
@@ -356,7 +356,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       else None
     }
     catch {
-      case e: AbsentInformationException => None
+      case _: AbsentInformationException => None
     }
   }
 
@@ -693,7 +693,7 @@ object ScalaPositionManager {
 
   def checkedLineNumber(location: Location): Int =
     try location.lineNumber() - 1
-    catch {case ie: InternalError => -1}
+    catch {case _: InternalError => -1}
 
   def cachedSourceName(refType: ReferenceType): Option[String] = {
     ScalaPositionManager.instance(refType).map(_.caches).flatMap(_.cachedSourceName(refType))
@@ -756,8 +756,13 @@ object ScalaPositionManager {
 
   def isIndyLambda(m: Method): Boolean = {
     val name = m.name()
-    val lastDollar = name.lastIndexOf('$')
-    lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
+    def isBeforeM5indyLambda = {
+      val lastDollar = name.lastIndexOf('$')
+      lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
+    }
+    def isAfterM5indyLambda = name.startsWith("$anonfun$") && !name.endsWith("$adapted")
+
+    isAfterM5indyLambda || isBeforeM5indyLambda
   }
 
   def isAnonfunType(refType: ReferenceType): Boolean = {
@@ -798,7 +803,7 @@ object ScalaPositionManager {
     element match {
       case null => null
       case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) || isLambda(elem) => elem
-      case InsideMacro(macroCall) => macroCall
+      case elem if isMacroCall(elem) => elem
       case elem => findGeneratingClassOrMethodParent(elem.getParent)
     }
   }
@@ -817,9 +822,16 @@ object ScalaPositionManager {
   private object InsideMacro {
     def unapply(elem: PsiElement): Option[ScMethodCall] = {
       elem.parentsInFile.collectFirst {
-        case mc @ ScMethodCall(ResolvesTo(MacroDef(_)), _) => mc
+        case mc: ScMethodCall if isMacroCall(mc) => mc
       }
     }
+  }
+
+  def isInsideMacro(elem: PsiElement): Boolean = elem.parentsInFile.exists(isMacroCall)
+
+  private def isMacroCall(elem: PsiElement): Boolean = elem match {
+    case ScMethodCall(ResolvesTo(MacroDef(_)), _) => true
+    case _ => false
   }
 
   object InsideAsync {
@@ -828,8 +840,6 @@ object ScalaPositionManager {
       case _ => None
     }
   }
-
-  def isInsideMacro(elem: PsiElement): Boolean = InsideMacro.unapply(elem).isDefined
 
   def shouldSkip(location: Location, debugProcess: DebugProcess): Boolean = {
     ScalaPositionManager.instance(debugProcess).forall(_.shouldSkip(location))
@@ -889,11 +899,15 @@ object ScalaPositionManager {
     }
     private var classJVMNameParts: Seq[String] = null
 
-    private def computeClassJVMNameParts: Seq[String] = {
+    private def computeClassJVMNameParts(elem: PsiElement): Seq[String] = {
       if (exactName.isDefined) Seq.empty
       else inReadAction {
-        val parts = elem.withParentsInFile.flatMap(partsFor)
-        parts.toSeq.reverse
+        elem match {
+          case InsideMacro(call) => computeClassJVMNameParts(call.getParent)
+          case _ =>
+            val parts = elem.withParentsInFile.flatMap(partsFor)
+            parts.toSeq.reverse
+        }
       }
     }
 
@@ -942,7 +956,7 @@ object ScalaPositionManager {
       val newValue = isCompiledWithIndyLambdas(containingFile)
       if (newValue != compiledWithIndyLambdas || classJVMNameParts == null) {
         compiledWithIndyLambdas = newValue
-        classJVMNameParts = computeClassJVMNameParts
+        classJVMNameParts = computeClassJVMNameParts(elem)
       }
     }
 

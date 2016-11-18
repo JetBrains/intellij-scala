@@ -23,7 +23,7 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
     case e: ScReferenceExpression => e.getParent match {
       case call: ScMethodCall =>
         call.getParent match {
-          case callParent: ScMethodCall => // do nothing
+          case _: ScMethodCall => // do nothing
           case _ => if (call.argumentExpressions.isEmpty) {
             implicit val typeSystem = holder.typeSystem
             e.resolve() match {

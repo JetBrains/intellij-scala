@@ -4,8 +4,12 @@ import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup._
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result, TextResult}
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypeText
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -28,7 +32,15 @@ abstract class ChooseValueExpression[T](lookupItems: Seq[T], defaultItem: T) ext
           if (range != null) {
             //need to insert with FQNs
             val newText = result(item.getObject.asInstanceOf[T])
-            topLevelEditor.getDocument.replaceString(range.getStartOffset, range.getEndOffset, newText)
+            val document = topLevelEditor.getDocument
+            val startOffset = range.getStartOffset
+            document.replaceString(startOffset, range.getEndOffset, newText)
+
+            val file = context.getFile
+            PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+            val newRange = TextRange.create(startOffset, startOffset + newText.length)
+            val elem = ScalaRefactoringUtil.commonParent(file, newRange)
+            TypeAdjuster.markToAdjust(elem)
           }
         }
       }

@@ -9,14 +9,12 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.AbstractCollection
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
 
 import scala.beans.BeanProperty
-import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
@@ -50,21 +48,6 @@ class SbtSystemSettings(project: Project)
 
   @BeanProperty
   var customSbtStructurePath: String = ""
-
-  def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {
-    if (old.jdkName != current.jdkName) {
-      getPublisher.onJdkChanged(old.jdk, current.jdk)
-    }
-    if (old.resolveClassifiers != current.resolveClassifiers) {
-      getPublisher.onResolveClassifiersChanged(old.resolveClassifiers, current.resolveClassifiers)
-    }
-    if (old.resolveSbtClassifiers != current.resolveSbtClassifiers) {
-      getPublisher.onResolveSbtClassifiersChanged(old.resolveSbtClassifiers, current.resolveSbtClassifiers)
-    }
-    if (old.sbtVersion != current.sbtVersion) {
-      getPublisher.onSbtVersionChanged(old.sbtVersion, current.sbtVersion)
-    }
-  }
 
   def getState: SbtSystemSettingsState = {
     val state = new SbtSystemSettingsState()
@@ -112,6 +95,8 @@ class SbtSystemSettings(project: Project)
   override def getLinkedProjectSettings(linkedProjectPath: String): SbtProjectSettings =
     Option(super.getLinkedProjectSettings(linkedProjectPath))
       .getOrElse(super.getLinkedProjectSettings(ExternalSystemApiUtil.normalizePath(linkedProjectPath)))
+
+  override def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings): Unit = {}
 }
 
 object SbtSystemSettings {

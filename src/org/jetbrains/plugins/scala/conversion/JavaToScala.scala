@@ -148,7 +148,7 @@ object JavaToScala {
       case f: PsiForStatement =>
         val initialization = Option(f.getInitialization).map(convertPsiToIntermdeiate(_, externalProperties))
         val condition = Some(f.getCondition match {
-          case empty: PsiEmptyStatement => LiteralExpression("true")
+          case _: PsiEmptyStatement => LiteralExpression("true")
           case null => LiteralExpression("true")
           case _ => convertPsiToIntermdeiate(f.getCondition, externalProperties)
         })
@@ -217,7 +217,7 @@ object JavaToScala {
         }
 
         def inExpression: Boolean = Option(be.getParent) match {
-          case Some(e: PsiExpression) => true
+          case Some(_: PsiExpression) => true
           case _ => false
         }
 
@@ -429,8 +429,8 @@ object JavaToScala {
       case s: PsiLabeledStatement =>
         val statements = Option(s.getStatement).map(convertPsiToIntermdeiate(_, externalProperties))
         NotSupported(statements, s.getLabelIdentifier.getText + " //todo: labels is not supported")
-      case e: PsiEmptyStatement => EmptyConstruction()
-      case e: PsiErrorElement => EmptyConstruction()
+      case _: PsiEmptyStatement => EmptyConstruction()
+      case _: PsiErrorElement => EmptyConstruction()
       case e => LiteralExpression(e.getText)
     }
 
@@ -848,7 +848,7 @@ object JavaToScala {
       val modifiers = new ArrayBuffer[IntermediateNode]()
 
       val simpleList = SIMPLE_MODIFIERS_MAP.filter {
-        case (psiType, el) => owner.hasModifierProperty(psiType)
+        case (psiType, _) => owner.hasModifierProperty(psiType)
       }.values
 
       modifiers ++= simpleList.map(SimpleModifier)
@@ -939,8 +939,8 @@ object JavaToScala {
     expr.getParent match {
       case b: PsiExpressionStatement =>
         b.getParent match {
-          case b: PsiBlockStatement => true
-          case b: PsiCodeBlock => true
+          case _: PsiBlockStatement => true
+          case _: PsiCodeBlock => true
           case _ => false
         }
       case _ => false

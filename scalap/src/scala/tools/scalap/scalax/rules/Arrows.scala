@@ -11,7 +11,7 @@ trait Arrows extends UnitFunctors  {
   def arrow[A, B](f : A => B) : Arr[A, B]
   def diag[A]: Arr[A, (A, A)] = arrow[A, (A, A)] { a => (a, a) }
   
-  override def unit[B](b : => B) : M[B] = arrow { any : Any => b }
+  override def unit[B](b : => B) : M[B] = arrow { _: Any => b }
   
   trait Arrow[-A, +B] extends Functor[B] { this : Arr[A, B] =>
     

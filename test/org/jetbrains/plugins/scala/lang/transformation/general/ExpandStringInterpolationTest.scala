@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandStringInterpolationTest extends TransformerTest(ExpandStringInterpolation) {
+class ExpandStringInterpolationTest extends TransformerTest(new ExpandStringInterpolation()) {
   def testEmpty() = check(
     s"""
       s""

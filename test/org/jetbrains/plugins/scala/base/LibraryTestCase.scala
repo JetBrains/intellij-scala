@@ -21,6 +21,7 @@ abstract class LibraryTestCase extends LightCodeInsightFixtureTestCase {
   override def tearDown() {
     try {
       libraryLoader.foreach(_.clean())
+      libraryLoader = None
     } finally {
       super.tearDown()
     }

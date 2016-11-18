@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
 
 
 /**
@@ -10,12 +10,9 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase with ScalaVersion_2_11
 
-class ScalaMethodEvaluationTest_212 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12 {
+class ScalaMethodEvaluationTest_212 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12
 
-  override def testPrivateInTrait(): Unit = {} //SCL-10132
-
-  override def testLocalsInTrait(): Unit = {}  //SCL-10132
-}
+class ScalaMethodEvaluationTest_212_OLD extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_OLD
 
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   
@@ -225,7 +222,6 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     runDebugger() {
       waitForBreakpoint()
       evalEquals("s.length", "3")
-      evalEquals("s.length()", "3")
     }
   }
 

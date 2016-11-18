@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -132,7 +132,7 @@ object ScalaCompletionUtil {
             }
           case _ => return (true, true)
         }
-      case expr: ScReferenceExpression =>
+      case _: ScReferenceExpression =>
         parent.getParent match {
           case _: ScBlockExpr | _: ScTemplateBody | _: ScBlock | _: ScCaseClause =>
             if (awful(parent, leaf))
@@ -265,7 +265,7 @@ object ScalaCompletionUtil {
   def processPsiLeafForFilter(leaf: PsiElement): (PsiElement, Boolean) = Option(leaf) map {
     l => l.getContainingFile match {
       case scriptFile: ScalaFile if scriptFile.isScriptFile() => (leaf.getParent, true)
-      case scalaFile: ScalaFile => (leaf, false)
+      case _: ScalaFile => (leaf, false)
       case _ => (null, false)
     }
   } getOrElse (null, false)
@@ -322,7 +322,7 @@ object ScalaCompletionUtil {
     @tailrec
     def inner(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
+      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner =>
         if (owner.containingFile.contains(parameters.getOriginalFile)) {
           val dummyId = getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile)
           val relativeOffset = parameters.getOffset - owner.getTextRange.getStartOffset

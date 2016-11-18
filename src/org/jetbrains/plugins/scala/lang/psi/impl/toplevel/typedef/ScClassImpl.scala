@@ -15,11 +15,11 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.CLASS_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
@@ -34,11 +34,17 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * @author Alexander.Podkhalyuzin
- */
-
-class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+  * @author Alexander.Podkhalyuzin
+  */
+class ScClassImpl private(stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScTemplateDefinitionStub) =
+    this(stub, CLASS_DEFINITION, null)
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => visitor.visitClass(this)
@@ -46,55 +52,39 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     }
   }
 
+  override def constructor: Option[ScPrimaryConstructor] =
+    super.constructor.orElse {
+      findChild(classOf[ScPrimaryConstructor])
+    }
+
   override def additionalJavaNames: Array[String] = {
     //do not add all cases with fakeCompanionModule, it will be used in Stubs.
     if (isCase) fakeCompanionModule.map(_.getName).toArray
     else Array.empty
   }
 
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.CLASS_DEF, null)}
-
   override def toString: String = "ScClass: " + name
 
   override def getIconInner = Icons.CLASS
 
-  def constructor: Option[ScPrimaryConstructor] = {
-    val stub = getStub
-    if (stub != null) {
-      val array =
-        stub.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory)
-      return array.headOption
-    }
-    findChild(classOf[ScPrimaryConstructor])
-  }
-
-  def parameters: Seq[ScClassParameter] = constructor match {
-    case Some(c) => c.effectiveParameterClauses.flatMap(_.unsafeClassParameters)
-    case None => Seq.empty
-  }
-
-  override def members: Seq[ScMember] = constructor match {
-    case Some(c) => super.members ++ Seq(c)
-    case _ => super.members
-  }
-
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
+
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                                  state: ResolveState,
+                                                  lastParent: PsiElement,
+                                                  place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
     constructor match {
       case Some(constr) if place != null && PsiTreeUtil.isContextAncestor(constr, place, false) =>
-        //ignore, should be processed in ScParameters
+      //ignore, should be processed in ScParameters
       case _ =>
         for (p <- parameters) {
           ProgressManager.checkCanceled()
-          if (processor.isInstanceOf[BaseProcessor]) { // don't expose class parameters to Java.
+          if (processor.isInstanceOf[BaseProcessor]) {
+            // don't expose class parameters to Java.
             if (!processor.execute(p, state)) return false
           }
         }
@@ -134,7 +124,8 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     }
 
 
-    if (isCase) { //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
+    if (isCase) {
+      //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
       val caseClassGeneratedFunctions = Array(
         "def canEqual(that: Any): Boolean = ???",
         "def equals(that: Any): Boolean = ???",
@@ -156,6 +147,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
             res += method
           }
         }
+
         TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o) { node =>
           this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
         }
@@ -193,8 +185,8 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
               method.setSynthetic(this)
               buf += method
             } catch {
-              case e: Exception =>
-                //do not add methods if class has wrong signature.
+              case _: Exception =>
+              //do not add methods if class has wrong signature.
             }
           }
         case None =>
@@ -207,9 +199,9 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     val x = constructor.getOrElse(return "")
     val className = name
     val paramString = (if (x.parameterList.clauses.length == 1 &&
-      x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
+      x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map { c =>
       val start = if (c.isImplicit) "(implicit " else "("
-      c.parameters.map{ p =>
+      c.parameters.map { p =>
         val paramType = p.typeElement match {
           case Some(te) => te.getText
           case None => "Any"
@@ -224,7 +216,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   private def implicitMethodText: String = {
     val constr = constructor.getOrElse(return "")
-    val returnType = name + typeParametersClause.map(clause => typeParameters.map(_.name).
+    val returnType = name + typeParametersClause.map(_ => typeParameters.map(_.name).
       mkString("[", ",", "]")).getOrElse("")
     val typeParametersText = typeParametersClause.map(tp => {
       tp.typeParameters.map(tp => {
@@ -257,13 +249,13 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   def getSyntheticImplicitMethod: Option[ScFunction] = {
     if (hasModifierProperty("implicit")) {
       constructor match {
-        case Some(x: ScPrimaryConstructor) =>
+        case Some(_: ScPrimaryConstructor) =>
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
             method.setSynthetic(this)
             Some(method)
           } catch {
-            case e: Exception => None
+            case _: Exception => None
           }
         case None => None
       }

@@ -270,7 +270,6 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
         |def len(s: String): Int  = s.length
         |
         |val f: F[String, Int] = len
-        |
       """.stripMargin
     checkCodeHasNoErrors(code)
   }
@@ -369,7 +368,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
         Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) ::
         Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) ::
         Error("c", typeMismatch()) :: Error("c", doesNotConform()) ::
-        Error("()", doesNotTakeParameters()) ::
+        Error("()", doesNotTakeParameters()) :: Error("c", cannotResolveReference()) ::
         Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) ::
         Error("e", typeMismatch()) :: Error("e", doesNotConform()) ::
         Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) ::
@@ -480,6 +479,27 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
     checkCodeHasNoErrors(code)
   }
 
+  def testNotSAMWithAbstractFields(): Unit = {
+    val code =
+      """
+        |object Moo {
+        |
+        |  val zs: NotReallySAM = (s: String) => ???
+        |
+        |
+        |  trait NotReallySAM {
+        |    val koo: Int
+        |    def foo(s: String): Int
+        |  }
+        |
+        |  abstract class AbstractNotReallySAM(val koo: Int) extends NotReallySAM
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("(s: String) => ???", typeMismatch()) :: Nil =>
+    }
+  }
+
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
     assertNothing(messages(scalaCode, javaCode))
   }
@@ -491,11 +511,10 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
     }
 
     val annotator = new ScalaAnnotator() {}
-    val mock = new AnnotatorHolderMock
+    val file: ScalaFile = parseText(scalaCode)
+    val mock = new AnnotatorHolderMock(file)
 
-    val parse: ScalaFile = parseText(scalaCode)
-
-    parse.depthFirst.foreach(annotator.annotate(_, mock))
+    file.depthFirst.foreach(annotator.annotate(_, mock))
 
     mock.errorAnnotations.filter {
       case Error(_, null) => false
@@ -521,7 +540,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
 
 }
 
-class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_12) {
+class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_12_OLD) {
   def testFunctionSAM() {
     val code =
       """
@@ -657,6 +676,31 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
         |((x: Int) => x): SelfTp3[Int] //this compiles with 2.12-M4
       """.stripMargin
     checkCodeHasNoErrors(code)
+  }
+
+  def testNoEtaExpansionFromMethodType(): Unit = {
+    val code =
+      """
+        |package testNoEtaExpansionFromMethodType
+        |
+        |object Moo {
+        |  def foo(request: Request123): Unit = {
+        |    copyStreamContent(request.getInputStream)
+        |  }
+        |
+        |  def copyStreamContent(inputStream: InputStream): Int = -1
+        |}
+        |
+        |trait InputStream {
+        |  def write(s: String): Unit = {}
+        |  def bar(): Int
+        |}
+        |trait Request123 {
+        |  def getInputStream(): InputStream
+        |}
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code, None)
   }
 }
 

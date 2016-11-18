@@ -7,7 +7,7 @@ import scala.language.implicitConversions
 /**
   * @author Pavel Fatin
   */
-class ExpandImplicitConversionTest extends TransformerTest(ExpandImplicitConversion) {
+class ExpandImplicitConversionTest extends TransformerTest(new ExpandImplicitConversion()) {
   def testTypeConversionMethod() = check(
     "implicit def f(p: A): B = _",
     "val v: B = A",

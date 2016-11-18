@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createPatternFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, StdKinds}
@@ -23,7 +23,7 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
                    (implicit typeSystem: TypeSystem = holder.typeSystem) {
     val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
     if (isInCaseClause) {
-      val dummyRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
+      val dummyRef: ScStableCodeReferenceElement = createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
       
       if (dummyRef == null) return //can happen in invalid code, e.g. if ')' is absent in case pattern
       val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
@@ -43,7 +43,7 @@ class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
         extends AbstractFixOnPsiElement("Convert to Stable Identifier Pattern `%s`".format(r.getText), r) {
   def doApplyFix(project: Project) {
     val ref = getElement
-    val stableIdPattern = ScalaPsiElementFactory.createPatternFromText("`%s`".format(ref.getText), ref.getManager)
+    val stableIdPattern = createPatternFromText("`%s`".format(ref.getText))(ref.getManager)
     ref.replace(stableIdPattern)
   }
 }

@@ -50,7 +50,7 @@ class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, Reference
         helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       }
       catch {
-        case ignore: IndexNotReadyException =>
+        case _: IndexNotReadyException =>
         case ignore: AssertionError if ignore.getMessage endsWith "has null range" =>
       }
     }

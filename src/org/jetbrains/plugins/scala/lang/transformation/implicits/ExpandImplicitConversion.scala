@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package implicits
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{FirstChild, ImplicitConversion}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -11,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 /**
   * @author Pavel Fatin
   */
-object ExpandImplicitConversion extends AbstractTransformer {
+class ExpandImplicitConversion extends AbstractTransformer {
   // TODO we need to aquire complete resolve result, not the bare element to account for substitutor
-  def transformation: PartialFunction[PsiElement, Unit] = {
+  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case e @ ImplicitConversion(f: ScFunction) =>
       val FirstChild(reference: ScReferenceExpression) = e.replace(code"${f.name}($e)")
       bindTo(reference, qualifiedNameOf(f))

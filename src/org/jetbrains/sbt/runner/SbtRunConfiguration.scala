@@ -103,7 +103,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
       val jdk: Sdk = JavaParametersUtil.createProjectJdk(configuration.getProject, null)
       try {
         jdk.getSdkType match {
-          case sdkType : AndroidSdkType =>
+          case _: AndroidSdkType =>
             envirnomentVariables.put("ANDROID_HOME", jdk.getSdkModificator.getHomePath)
           case _ => // do nothing
         }

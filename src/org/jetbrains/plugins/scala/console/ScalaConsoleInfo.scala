@@ -13,6 +13,7 @@ import com.intellij.util.containers.WeakHashMap
  */
 
 object ScalaConsoleInfo {
+  private val SCALA_LANGUAGE_CONSOLE_KEY = new com.intellij.openapi.util.Key[String]("ScalaLanguageConsoleKey")
   private val NULL = (null, null, null)
   private val allConsoles =
     new WeakHashMap[Project, List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)]]()
@@ -25,6 +26,12 @@ object ScalaConsoleInfo {
   def getController(editor: Editor): ConsoleHistoryController = get(editor)._2
   def getProcessHandler(editor: Editor): ProcessHandler = get(editor)._3
 
+  def setIsConsole(file: PsiFile, flag: Boolean) {
+    file.putCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY, if (flag) "console" else null)
+  }
+
+  def isConsole(file: PsiFile): Boolean = file.getCopyableUserData(SCALA_LANGUAGE_CONSOLE_KEY) != null
+  
   def addConsole(console: ScalaLanguageConsole, model: ConsoleHistoryController, processHandler: ProcessHandler) {
     val project = console.getProject
     synchronized {
@@ -65,7 +72,7 @@ object ScalaConsoleInfo {
         case null => NULL
         case list =>
           list.find {
-            case (console: ScalaLanguageConsole, model: ConsoleHistoryController, handler: ProcessHandler) =>
+            case (console: ScalaLanguageConsole, _: ConsoleHistoryController, _: ProcessHandler) =>
               console.getConsoleEditor == editor
           } match {
             case Some(res) => res
@@ -81,7 +88,7 @@ object ScalaConsoleInfo {
         case null => NULL
         case list =>
           list.find {
-            case (console: ScalaLanguageConsole, model: ConsoleHistoryController, handler: ProcessHandler) =>
+            case (console: ScalaLanguageConsole, _: ConsoleHistoryController, _: ProcessHandler) =>
               console.getFile == file
           } match {
             case Some(res) => res

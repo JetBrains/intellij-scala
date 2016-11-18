@@ -25,7 +25,7 @@ object BaseTypes {
         reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases) ++ Seq(tp) else Seq(tp)))
       case ScDesignatorType(c : PsiClass) =>
         reduce(c.getSuperTypes.flatMap { p => {
-          val tp = p.toScType(c.getProject)
+          val tp = p.toScType()
           (if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases)
           else Seq()) ++ Seq(tp)
         }
@@ -36,7 +36,7 @@ object BaseTypes {
       case ScThisType(clazz) => BaseTypes.get(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty), visitedAliases = visitedAliases)
       case TypeParameterType(Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
       case ScExistentialArgument(_, Nil, _, upper) => get(upper, notAll, visitedAliases = visitedAliases)
-      case a: JavaArrayType => Seq(Any)
+      case _: JavaArrayType => Seq(Any)
       case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
         if (visitedAliases.contains(ta)) return Seq.empty
@@ -62,7 +62,7 @@ object BaseTypes {
           case Some(clazz) =>
             val s = p.substitutor
             reduce(clazz.getSuperTypes.flatMap { t => {
-              val substituted = s.subst(t.toScType(clazz.getProject))
+              val substituted = s.subst(t.toScType())
               (if (!notAll) BaseTypes.get(substituted, notAll, visitedAliases = visitedAliases)
               else Seq()) ++ Seq(substituted)
             }
@@ -71,7 +71,7 @@ object BaseTypes {
         }
       case ex: ScExistentialType => get(ex.quantified, notAll, visitedAliases = visitedAliases).map { _.unpackedType }
       case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp, visitedAliases = visitedAliases) ++ Seq(comp)))
-      case proj@ScProjectionType(p, elem, _) =>
+      case proj@ScProjectionType(_, elem, _) =>
         val s = proj.actualSubst
         elem match {
           case td : ScTypeDefinition => reduce(td.superTypes.flatMap{tp =>
@@ -81,7 +81,7 @@ object BaseTypes {
           case c : PsiClass =>
             reduce(c.getSuperTypes.flatMap {st =>
             {
-              val substituted = s.subst(st.toScType(c.getProject))
+              val substituted = s.subst(st.toScType())
               (if (!notAll) BaseTypes.get(substituted, visitedAliases = visitedAliases)
               else Seq()) ++ Seq(substituted)
             }

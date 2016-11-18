@@ -59,10 +59,12 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     super.setUpInWriteAction()
     val outputZipFile = new File(outputZipFileName)
     val projectDir = new File(projectDirPath)
+    println("Starting download")
     if (!outputZipFile.exists() && !projectDir.exists()) {
       //don't download if zip file is already there
       GithubDownloadUtil.downloadAtomically(null, downloadURL, outputZipFile, githubUsername, githubRepoName)
     }
+    println("Finished download, extracting")
     if (!projectDir.exists()) {
       //don't unpack if the project is already unpacked
       ZipUtil.unzip(null, projectDir, outputZipFile, null, null, true)

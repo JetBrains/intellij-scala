@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLineNode
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -39,10 +40,10 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       val clausesType = clauses.foldLeft(Nothing: ScType)((tp, clause) => tp.lub(clause.expr match {
         case Some(expr) => expr.getType(TypingContext.empty).getOrNothing
         case _ => Nothing
-      }))
+      }, checkWeak = true))
 
       getContext match {
-        case c: ScCatchBlock =>
+        case _: ScCatchBlock =>
           val manager = ScalaPsiManager.instance(getProject)
           val funs = manager.getCachedClasses(getResolveScope, "scala.PartialFunction")
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class", Some(this)))
@@ -68,10 +69,10 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           }
 
           return et match {
-            case f@FunctionType(_, params) =>
+            case FunctionType(_, params) =>
               Success(FunctionType(clausesType, params.map(removeVarianceAbstracts))
                 (getProject, getResolveScope), Some(this))
-            case f@PartialFunctionType(_, param) =>
+            case PartialFunctionType(_, param) =>
               Success(PartialFunctionType(clausesType, removeVarianceAbstracts(param))
                 (getProject, getResolveScope), Some(this))
             case _ =>
@@ -121,7 +122,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case _ => t
             }
-            case proj@ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
+            case ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
             case ScCompoundType(comps, signatureMap, typesMap) =>
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>
@@ -151,7 +152,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case JavaArrayType(argument) => JavaArrayType(existize(argument, visitedWithT))
             case ParameterizedType(des, typeArgs) =>
               ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
-            case ex@ScExistentialType(q, wildcards) =>
+            case ScExistentialType(q, wildcards) =>
               new ScExistentialType(existize(q, visitedWithT), wildcards.map {
                 ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lower, visitedWithT), existize(ex.upper, visitedWithT))
               })
@@ -197,7 +198,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   def addDefinition(decl: ScMember, before: PsiElement): Boolean = {
     getNode.addChild(decl.getNode,before.getNode)
-    getNode.addChild(ScalaPsiElementFactory.createNewLineNode(getManager), before.getNode)
+    getNode.addChild(createNewLineNode(), before.getNode)
     true
   }
 

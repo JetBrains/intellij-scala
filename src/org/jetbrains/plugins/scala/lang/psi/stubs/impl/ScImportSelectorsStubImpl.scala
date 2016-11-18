@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 
 /**
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 
 class ScImportSelectorsStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                          elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-        extends StubBaseWrapper[ScImportSelectors](parent, elemType) with ScImportSelectorsStub {
+  extends StubBase[ScImportSelectors](parent, elemType) with ScImportSelectorsStub {
   var singleWildcard: Boolean = _
 
   def this(parent: StubElement[ParentPsi],

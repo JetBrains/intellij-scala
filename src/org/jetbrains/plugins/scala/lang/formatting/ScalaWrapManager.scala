@@ -44,15 +44,15 @@ object ScalaWrapManager {
     }
 
     psi match {
-      case psi: ScInfixExpr =>
+      case _: ScInfixExpr =>
         return wrapBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation, assignments = true)
-      case psi: ScInfixPattern =>
+      case _: ScInfixPattern =>
         return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference, assignments = false)
-      case psi: ScReferenceableInfixTypeElement =>
+      case _: ScReferenceableInfixTypeElement =>
         return wrapBinary(_.isInstanceOf[ScReferenceableInfixTypeElement], _.asInstanceOf[ScReferenceableInfixTypeElement].reference, assignments = false)
-      case psi: ScCompositePattern =>
+      case _: ScCompositePattern =>
         return Wrap.createWrap(settings.BINARY_OPERATION_WRAP, false)
-      case psi: ScArgumentExprList =>
+      case _: ScArgumentExprList =>
         val parentSuggestedWrap = block.myParentBlock.suggestedWrap
         val wrap = if (parentSuggestedWrap != null) Wrap.createChildWrap(parentSuggestedWrap,
           WrapType.byLegacyRepresentation(settings.CALL_PARAMETERS_WRAP), false)
@@ -61,17 +61,17 @@ object ScalaWrapManager {
           wrap.ignoreParentWraps()
         }
         return wrap
-      case psi: ScReferenceExpression =>
+      case _: ScReferenceExpression =>
         return Wrap.createWrap(settings.METHOD_CALL_CHAIN_WRAP, true)
-      case psi: ScMethodCall =>
+      case _: ScMethodCall =>
         return Wrap.createWrap(settings.METHOD_CALL_CHAIN_WRAP, true)
-      case psi: ScPatternArgumentList =>
+      case _: ScPatternArgumentList =>
         return Wrap.createWrap(settings.CALL_PARAMETERS_WRAP, false)
       case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && block.myLastNode != null =>
         return Wrap.createChildWrap(block.getWrap, WrapType.byLegacyRepresentation(settings.EXTENDS_LIST_WRAP), true)
-      case psi: ScParameterClause =>
+      case _: ScParameterClause =>
         return Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, false)
-      case psi: ScParameters =>
+      case _: ScParameters =>
         return Wrap.createWrap(settings.METHOD_PARAMETERS_WRAP, true)
       case annot: ScAnnotations if annot.getAnnotations.length > 0 =>
         annot.getParent match {
@@ -119,42 +119,42 @@ object ScalaWrapManager {
     }
 
     parentPsi match {
-      case inf: ScInfixExpr =>
+      case _: ScInfixExpr =>
         return arrageBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation,
           _.asInstanceOf[ScInfixExpr].rOp, _.asInstanceOf[ScInfixExpr].lOp)
-      case inf: ScInfixPattern =>
+      case _: ScInfixPattern =>
         return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference,
           _.asInstanceOf[ScInfixPattern].rightPattern.orNull,
           _.asInstanceOf[ScInfixPattern].leftPattern)
-      case inf: ScReferenceableInfixTypeElement =>
+      case _: ScReferenceableInfixTypeElement =>
         return arrageBinary(_.isInstanceOf[ScReferenceableInfixTypeElement], _.asInstanceOf[ScReferenceableInfixTypeElement].reference,
           _.asInstanceOf[ScInfixTypeElement].rightTypeElement.orNull,
           _.asInstanceOf[ScInfixTypeElement].leftTypeElement)
-      case psi: ScCompositePattern =>
+      case _: ScCompositePattern =>
         if (childPsi.isInstanceOf[ScPattern]) return suggestedWrap
         else return null
-      case call: ScMethodCall =>
+      case _: ScMethodCall =>
         if (child.getElementType == ScalaTokenTypes.tDOT) return suggestedWrap
         else return null
-      case ref: ScReferenceExpression =>
+      case _: ScReferenceExpression =>
         if (child.getElementType == ScalaTokenTypes.tDOT) return suggestedWrap
         else return null
-      case args: ScArgumentExprList =>
+      case _: ScArgumentExprList =>
         if (childPsi.isInstanceOf[ScExpression]) return suggestedWrap
         else return null
-      case patt: ScPatternArgumentList =>
+      case _: ScPatternArgumentList =>
         childPsi match {
           case _: ScPattern => return suggestedWrap
           case _: ScSequenceArg => return suggestedWrap
           case _ => return null
         }
-      case params: ScParameterClause =>
+      case _: ScParameterClause =>
         if (childPsi.isInstanceOf[ScParameter]) return suggestedWrap
         else return null
       case params: ScParameters =>
         if (childPsi.isInstanceOf[ScParameterClause] && params.clauses.head != childPsi) return suggestedWrap
         else return null
-      case annot: ScAnnotations =>
+      case _: ScAnnotations =>
         if (childPsi.isInstanceOf[ScAnnotation]) return suggestedWrap
         else return null
       case _ if parentNode.getElementType == ScalaTokenTypes.kEXTENDS && parent.myLastNode != null =>

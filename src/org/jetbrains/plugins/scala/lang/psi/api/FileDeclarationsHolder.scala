@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
@@ -51,12 +51,12 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
 
     if (ScalaPsiUtil.kindProjectorPluginEnabled(place)) {
-      val manager = place.getManager
-      processor.execute(new ScSyntheticClass(manager, "Lambda", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "λ", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "?", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "+?", Any), state)
-      processor.execute(new ScSyntheticClass(manager, "-?", Any), state)
+      implicit val manager = place.getManager
+      processor.execute(new ScSyntheticClass("Lambda", Any), state)
+      processor.execute(new ScSyntheticClass("λ", Any), state)
+      processor.execute(new ScSyntheticClass("?", Any), state)
+      processor.execute(new ScSyntheticClass("+?", Any), state)
+      processor.execute(new ScSyntheticClass("-?", Any), state)
     }
 
     val scope = place.getResolveScope

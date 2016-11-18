@@ -36,7 +36,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   private def addTypeParameter(t: TypeSymbol) {
     def checkName(name: String): Boolean = {
       currentTypeParameters.forall {
-        case (symbol: TypeSymbol, symbolName: String) => name != symbolName
+        case (_: TypeSymbol, symbolName: String) => name != symbolName
       }
     }
     if (checkName(t.name)) {
@@ -115,22 +115,17 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
           // todo: we need to find why such strange type is here
           indent()
           printTypeSymbol(level, t)
-        case s =>
+        case _ =>
       }
     }
   }
 
   def isCaseClassObject(o: ObjectSymbol): Boolean = {
-    val TypeRefType(prefix, classSymbol: ClassSymbol, typeArgs) = o.infoType
+    val TypeRefType(_, classSymbol: ClassSymbol, _) = o.infoType
     o.isFinal && (classSymbol.children.find(x => x.isCase && x.isInstanceOf[MethodSymbol]) match {
       case Some(_) => true
       case None => false
     })
-  }
-
-  private def underCaseClass(m: MethodSymbol) = m.parent match {
-    case Some(c: ClassSymbol) => c.isCase
-    case _ => false
   }
 
   private def underObject(m: MethodSymbol) = m.parent match {
@@ -281,7 +276,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     print("object ")
     val poName = o.symbolInfo.owner.name
     print(processName(poName))
-    val TypeRefType(prefix, classSymbol: ClassSymbol, typeArgs) = o.infoType
+    val TypeRefType(_, classSymbol: ClassSymbol, _) = o.infoType
     printType(classSymbol)
     print(" {\n")
     printChildren(level, classSymbol)
@@ -293,7 +288,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     printModifiers(o)
     print("object ")
     print(processName(o.name))
-    val TypeRefType(prefix, classSymbol: ClassSymbol, typeArgs) = o.infoType
+    val TypeRefType(_, classSymbol: ClassSymbol, _) = o.infoType
     printType(classSymbol)
     print(" {\n")
     printChildren(level, classSymbol)
@@ -362,9 +357,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     }
 
     t match {
-      case mt@MethodType(resType, paramSymbols) => _pmt(mt)
-      case mt@ImplicitMethodType(resType, paramSymbols) => _pmt(mt)
-      case pt@PolyType(mt, typeParams) =>
+      case mt@MethodType(_, _) => _pmt(mt)
+      case mt@ImplicitMethodType(_, _) => _pmt(mt)
+      case PolyType(mt, typeParams) =>
         for (param <- typeParams) addTypeParameter(param)
         print(typeParamString(typeParams))
         try {
@@ -547,15 +542,15 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
                 tp match {
                   case ThisType(symbol) => symbol == parent
                   case SingleType(_, symbol) => symbol == parent
-                  case c: ConstantType => false
+                  case _: ConstantType => false
                   case TypeRefType(_, symbol, _) => symbol == parent
-                  case t: TypeBoundsType => false
+                  case _: TypeBoundsType => false
                   case RefinedType(symbol, refs) => symbol == parent || !refs.forall(tp => !checkContainsSelf(Some(tp), parent))
                   case ClassInfoType(symbol, refs) => symbol == parent || !refs.forall(tp => !checkContainsSelf(Some(tp), parent))
                   case ClassInfoTypeWithCons(symbol, refs, _) => symbol == parent || !refs.forall(tp => !checkContainsSelf(Some(tp), parent))
-                  case ImplicitMethodType(resultType, _) => false
-                  case MethodType(resultType, _) => false
-                  case NullaryMethodType(resultType) => false
+                  case ImplicitMethodType(_, _) => false
+                  case MethodType(_, _) => false
+                  case NullaryMethodType(_) => false
                   case PolyType(typeRef, symbols) =>
                     checkContainsSelf(Some(typeRef), parent) || symbols.contains(parent)
                   case PolyTypeWithCons(typeRef, symbols, _) =>
@@ -620,9 +615,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
           else text
         }
         sep + typeRefs.map(toString(_, level)).mkString("", " with ", "") + classStr
-      case RefinedType(classSym, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
-      case ClassInfoType(symbol, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString(" extends ", " with ", "")
-      case ClassInfoTypeWithCons(symbol, typeRefs, cons) => sep + typeRefs.map(toString(_, level)).
+      case RefinedType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
+      case ClassInfoType(_, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString(" extends ", " with ", "")
+      case ClassInfoTypeWithCons(_, typeRefs, cons) => sep + typeRefs.map(toString(_, level)).
               mkString(cons + " extends ", " with ", "")
 
       case ImplicitMethodType(resultType, _) => toString(resultType, sep, level)
@@ -633,9 +628,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
         "({ type λ" + typeParamString(symbols) + " = " + toString(typeRef, sep, level) + " })#λ"
       case PolyTypeWithCons(typeRef, symbols, cons) =>
         typeParamString(symbols) + cons + toString(typeRef, sep, level)
-      case AnnotatedType(typeRef, attribTreeRefs) =>
+      case AnnotatedType(typeRef, _) =>
         toString(typeRef, sep, level)
-      case AnnotatedWithSelfType(typeRef, symbol, attribTreeRefs) => toString(typeRef, sep, level)
+      case AnnotatedWithSelfType(typeRef, _, _) => toString(typeRef, sep, level)
       //case DeBruijnIndexType(typeLevel, typeIndex) =>
       case ExistentialType(typeRef, symbols) =>
         val refs = symbols.map(toString).filter(!_.startsWith("_")).map("type " + _)
@@ -656,7 +651,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
       }
       val name: String = currentTypeParameters.getOrElse(symbol, symbol.name)
       atrs + getVariance(symbol) + processName(name) + toString(symbolType)
-    case s => symbol.toString
+    case _ => symbol.toString
   }
 
   def typeArgString(typeArgs: Seq[Type], level: Int): String =

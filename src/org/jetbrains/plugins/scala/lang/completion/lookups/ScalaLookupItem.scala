@@ -24,8 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -54,6 +54,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var isInStableCodeReference: Boolean = false
   var usedImportStaticQuickfix: Boolean = false
   var elementToImport: PsiNamedElement = null
+  var objectOfElementToImport: Option[ScObject] = None
   var someSmartCompletion: Boolean = false
   var typeParametersProblem: Boolean = false
   var typeParameters: Seq[ScType] = Seq.empty
@@ -173,7 +174,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
         }
       case f: PsiField =>
         presentation.setTypeText(presentationString(f.getType, substitutor))
-      case p: PsiPackage => presentation.setTailText(tailText, /*grayed*/ true)
+      case _: PsiPackage => presentation.setTailText(tailText, /*grayed*/ true)
       case _ =>
     }
     if (presentation.isReal)
@@ -248,12 +249,14 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
               case _ => true
             }))
             ref = ref.getParent.asInstanceOf[ScReferenceElement]
+
+          implicit val manager = ref.getManager
           val newRef = ref match {
             case ref: ScReferenceExpression if prefixCompletion =>
               val parts = cl.qualifiedName.split('.')
               if (parts.length > 1) {
                 val newRefText = parts.takeRight(2).mkString(".")
-                ScalaPsiElementFactory.createExpressionFromText(newRefText, ref.getManager).asInstanceOf[ScReferenceExpression]
+                createExpressionFromText(newRefText).asInstanceOf[ScReferenceExpression]
               } else {
                 ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
               }
@@ -261,7 +264,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
               val parts = cl.qualifiedName.split('.')
               if (parts.length > 1) {
                 val newRefText = parts.takeRight(2).mkString(".")
-                ScalaPsiElementFactory.createReferenceFromText(newRefText, ref.getManager)
+                createReferenceFromText(newRefText)
               } else {
                 ref.createReplacingElementWithClassName(useFullyQualifiedName, cl)
               }
@@ -297,9 +300,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
               case scalaFile: ScalaFile =>
                 val elem = scalaFile.findElementAt(context.getStartOffset + shift)
                 def qualifyReference(ref: ScReferenceExpression) {
-                  val newRef = ScalaPsiElementFactory.createExpressionFromText(
-                    containingClass.name + "." + ref.getText,
-                    containingClass.getManager).asInstanceOf[ScReferenceExpression]
+                  val newRef = createExpressionFromText(s"${containingClass.name}.${ref.getText}")(containingClass.getManager)
+                    .asInstanceOf[ScReferenceExpression]
                   ref.getNode.getTreeParent.replaceChild(ref.getNode, newRef.getNode)
                   newRef.qualifier.get.asInstanceOf[ScReferenceExpression].bindToElement(containingClass)
                 }
@@ -317,7 +319,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                           case member: PsiMember =>
                             val containingClass = member.containingClass
                             if (containingClass != null && containingClass.qualifiedName != null) {
-                              ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null)
+                              ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null, objectOfElementToImport)
                             }
                           case _ =>
                         }

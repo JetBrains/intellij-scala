@@ -26,9 +26,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
@@ -556,7 +555,9 @@ object getDummyBlocks {
     val first = extBlock.getFirstChild
     val last = tempBody match {
       case None => extBlock.getLastChild
-      case Some(x) => x.getPrevSibling
+      case Some(x) =>
+        val p = x.getPrevSibling
+        if (p.isInstanceOf[PsiWhiteSpace]) p.getPrevSibling else p
     }
     if (last != null) {
       val indent = ScalaIndentProcessor.getChildIndent(block, first.getNode)
@@ -704,8 +705,7 @@ object getDummyBlocks {
           (node.getStartOffset + acc + linePrefixLength, node.getStartOffset + acc + line.length,
               Indent.getSpaceIndent(0, true), alignment)
         else if (trimmedLine.startsWith("\"\"\"") && acc == 0) {
-          if (Option(node.getTreePrev).exists(_.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE) &&
-          line.length > 3) {
+          if (trimmedLine.startsWith("\"\"\"|") && line.length > 3) {
             //split beginning of interpolated string (s"""|<string>) to facilitate alignment in difficult cases
             // first, add block for opening quotes
             subBlocks.add(new StringLineScalaBlock(new TextRange(node.getStartOffset, node.getStartOffset + 3), node,
@@ -852,7 +852,7 @@ object getDummyBlocks {
     override def getChildAttributes(newChildIndex: Int): ChildAttributes =
       new ChildAttributes(Indent.getNoneIndent, null)
 
-    override def getSubBlocks(): util.List[Block] = {
+    override def getSubBlocks: util.List[Block] = {
       if (mySubBlocks == null) {
         mySubBlocks = new util.ArrayList[Block]()
       }

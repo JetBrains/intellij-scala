@@ -26,13 +26,6 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |class X2[A <: B, B <: C, ${START}C <: A${END}]
       """.stripMargin, "‘A’ has itself as bound")
   }
-  
-  def testScl7139_3() {
-    checkTextHasError(
-      s"""
-        |class X3[A, B, ${START}C >: A <: B${END}]
-      """.stripMargin, "Lower bound doesn't conform to upper bound")
-  }
 
   def testScl1731(): Unit = {
     checkTextHasError(
@@ -132,5 +125,24 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  val parameters = Map[String, Any]("a", "b")
         |}
       """.stripMargin, "Type mismatch, expected: (String, Any), actual: String(\"b\")")
+  }
+
+  def testSCL10583(): Unit = {
+    checkTextHasError(
+      """
+        |Some(1) flatMap (Seq(_))
+      """.stripMargin, "Type mismatch, expected: Option[?], actual: Seq[Int]")
+  }
+
+  def testSCL10608(): Unit = {
+    checkTextHasError(
+      """
+        |def abc = {
+        |    23
+        |    val b = "nope"
+        |  }
+        |def foo(par: Int) = ???
+        |foo(abc)
+      """.stripMargin, "Type mismatch, expected: Int, actual: Unit")
   }
 }

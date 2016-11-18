@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -91,15 +91,12 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
         body <- doStmt.getExprBody
         doStmtParent <- doStmt.parent
       } {
-        val condText = condition.getText
         val bodyText = body.getText
 
-        val whileText = s"while ($condText) $bodyText"
+        implicit val manager = element.getManager
 
-        val manager = element.getManager
-
-        val newWhileStmt = ScalaPsiElementFactory.createExpressionFromText(whileText.toString, manager)
-        val newBody = ScalaPsiElementFactory.createExpressionFromText(bodyText, manager)
+        val newWhileStmt = createExpressionFromText(s"while (${condition.getText}) $bodyText")
+        val newBody = createExpressionFromText(bodyText)
 
         val parentBlockHasBraces: Boolean = doStmt.getParent.children.map(_.getNode.getElementType).contains(ScalaTokenTypes.tLBRACE)
 
@@ -116,7 +113,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
           val newDoStmt =
             if (!parentBlockHasBraces && parentBlockNeedBraces) {
               val doStmtInBraces =
-                doStmt.replaceExpression(ScalaPsiElementFactory.createBlockFromExpr(doStmt, manager), removeParenthesis = true)
+                doStmt.replaceExpression(createBlockFromExpr(doStmt), removeParenthesis = true)
               PsiTreeUtil.findChildOfType(doStmtInBraces, classOf[ScDoStmt], true)
             } else doStmt
           val newExpression: ScExpression = newDoStmt.replaceExpression(newWhileStmt, removeParenthesis = true)
@@ -132,7 +129,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
             if (elementType != ScalaTokenTypes.tLBRACE && elementType != ScalaTokenTypes.tRBRACE)
               parent.addBefore(elem, newExpression)
           }
-          parent.addBefore(ScalaPsiElementFactory.createNewLine(manager), newExpression)
+          parent.addBefore(createNewLine(), newExpression)
 
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }

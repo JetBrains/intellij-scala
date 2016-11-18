@@ -78,7 +78,7 @@ object ScalaCode {
         case i: Int => Seq(i.toString)
         case Some(s: String) => Seq(s)
         case Some(i: Int) => Seq(i.toString)
-        case Some(e: PsiElement) => Seq("%e")
+        case Some(_: PsiElement) => Seq("%e")
         case None => Seq.empty
         case @@(es, s) => Seq(Seq.fill(es.length)("%e").mkString(s))
         case _ => Seq("%e")
@@ -86,7 +86,7 @@ object ScalaCode {
 
       val argumetns = args.flatMap {
         case _: String | _: Int | None => Seq.empty
-        case Some(s: String) => Seq.empty
+        case Some(_: String) => Seq.empty
         case Some(e: PsiElement) => Seq(e)
         case @@(es, _) => es
         case it => Seq(it)

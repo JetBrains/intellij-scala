@@ -20,7 +20,7 @@ class DecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
   def testContext() = doTest("Context.class")
 
-  def testSymbolicXmlBuilder() = doTest("SymbolicXmlBuilder.class")
+  def testSymbolicXmlBuilder() = doTest("SymbolicXMLBuilder.class")
 
   def testSocketServer() = doTest("SocketServer.class")
 

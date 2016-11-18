@@ -12,11 +12,11 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
-import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.extensions.{StringExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
@@ -34,7 +34,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
     case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _))))
       if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkSameResolve(fun) =>
       registerProblem(holder, ms, fun) //if fun is last statement in block, result can be block without braces
-    case ms @ ScMatchStmt(und: ScUnderscoreSection, _) if checkSameResolve(ms) =>
+    case ms @ ScMatchStmt(_: ScUnderscoreSection, _) if checkSameResolve(ms) =>
       registerProblem(holder, ms, ms)
   }
 
@@ -78,7 +78,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
       case _ => return true
     }
 
-    val newCall = ScalaPsiElementFactory.createExpressionWithContextFromText(refText + dummyCaseClauses, call.getContext, call)
+    val newCall = createExpressionWithContextFromText(refText + dummyCaseClauses, call.getContext, call)
     newCall match {
       case ScMethodCall(ref: ScReferenceExpression, _) => ref.resolve() == oldResolve
       case _ => true
@@ -102,13 +102,13 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
 
     addNamingPatterns(matchStmtCopy, needNamingPattern(mStmt))
     matchStmtCopy.deleteChildRange(matchStmtCopy.getFirstChild, leftBrace.getPrevSibling)
-    val newBlock = ScalaPsiElementFactory.createExpressionFromText(matchStmtCopy.getText, mStmt.getManager)
+    val newBlock = createExpressionFromText(matchStmtCopy.getText)(mStmt.getManager)
     CodeEditUtil.setOldIndentation(newBlock.getNode.asInstanceOf[TreeElement], CodeEditUtil.getOldIndentation(matchStmtCopy.getNode))
     extensions.inWriteAction {
       fExpr.getParent match {
         case (argList: ScArgumentExprList) childOf (call: ScMethodCall) if argList.exprs.size == 1 =>
           val newMethCall =
-            ScalaPsiElementFactory.createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText, fExpr.getManager)
+            createExpressionFromText(call.getInvokedExpr.getText + " " + newBlock.getText)(fExpr.getManager)
           call.replace(newMethCall)
         case block@ScBlock(`fExpr`) =>
           block.replace(newBlock)
@@ -136,11 +136,13 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
   private def addNamingPatterns(matchStmt: ScMatchStmt, indexes: Seq[Int]): Unit = {
     val clauses = matchStmt.caseClauses
     val name = matchStmt.expr.map(_.getText).getOrElse(return)
+    implicit val manager = matchStmt.getManager
     indexes.map(i => clauses(i).pattern).foreach {
-      case Some(w: ScWildcardPattern) => w.replace(ScalaPsiElementFactory.createPatternFromText(name, matchStmt.getManager))
+      case Some(w: ScWildcardPattern) =>
+        w.replace(createPatternFromText(name))
       case Some(p: ScPattern) =>
-        val newPatternText = if (needParentheses(p)) s"$name @ (${p.getText})" else s"$name @ ${p.getText}"
-        p.replace(ScalaPsiElementFactory.createPatternFromText(newPatternText, matchStmt.getManager))
+        val text = p.getText.parenthesize(needParentheses(p))
+        p.replace(createPatternFromText(s"$name @ $text"))
       case _ =>
     }
   }

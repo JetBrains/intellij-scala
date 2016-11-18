@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 
 /**
@@ -54,7 +54,7 @@ class SbtReplaceProjectWithProjectInQuickFix(call: ScMethodCall)
     val place = getElement
     place match {
       case ScMethodCall(_, Seq(_, pathElt)) =>
-        place.replace(ScalaPsiElementFactory.createExpressionFromText("project.in(" + pathElt.getText + ")", place.getManager))
+        place.replace(createExpressionFromText("project.in(" + pathElt.getText + ")")(place.getManager))
       case _ => // do nothing
     }
   }

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
@@ -36,7 +36,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
     var endOffset = startOffset + lookupStringLength
 
     item match {
-      case ScalaLookupItem(obj: ScObject) =>
+      case ScalaLookupItem(_: ScObject) =>
         if (context.getCompletionChar != '.') {
           document.insertString(endOffset, ".")
           endOffset += 1
@@ -110,7 +110,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
                 if (ref != null && !isRenamed) {
                   if (item.prefixCompletion) {
                     val newRefText = clazz.qualifiedName.split('.').takeRight(2).mkString(".")
-                    val newRef = ScalaPsiElementFactory.createReferenceFromText(newRefText, clazz.getManager)
+                    val newRef = createReferenceFromText(newRefText)(clazz.getManager)
                     val replaced = ref.replace(newRef).asInstanceOf[ScStableCodeReferenceElement]
                     replaced.bindToElement(clazz)
                   } else {

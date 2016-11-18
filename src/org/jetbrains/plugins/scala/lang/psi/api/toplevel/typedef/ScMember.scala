@@ -10,9 +10,10 @@ import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.search.{LocalSearchScope, PackageScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -35,6 +36,16 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   def isInstance: Boolean = !isLocal
 
+  protected var synthNavElement: Option[PsiElement] = None
+  var syntheticCaseClass: Option[ScClass] = None
+  var syntheticContainingClass: Option[ScTypeDefinition] = None
+  def setSynthetic(navElement: PsiElement) {
+    synthNavElement = Some(navElement)
+  }
+  def isSynthetic: Boolean = synthNavElement.nonEmpty
+  def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
+
+
   /**
     * getContainingClassStrict(bar) == null in
     *
@@ -53,14 +64,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     val context = getContext
     (getContainingClassLoose, this) match {
       case (null, _) => null
-      case (found, fun: ScFunction) if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
+      case (_, fun: ScFunction) if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
       case (found, fun: ScFunction) if fun.isSynthetic => found
+      case (found, ta: ScTypeAlias) if ta.syntheticContainingClass.isDefined => ta.syntheticContainingClass.get
       case (found, td: ScTypeDefinition) if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
       case (found, td: ScTypeDefinition) if td.isSynthetic => found
       case (found, _: ScClassParameter | _: ScPrimaryConstructor) => found
       case (found, _) if context == found.extendsBlock || found.extendsBlock.templateBody.contains(context) ||
         found.extendsBlock.earlyDefinitions.contains(context) => found
-      case (found, _) => null // See SCL-3178
+      case (_, _) => null // See SCL-3178
     }
   }
 
@@ -165,6 +177,15 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   abstract override def getUseScope: SearchScope = {
     val accessModifier = Option(getModifierList).flatMap(_.accessModifier)
 
+    def withCompanionSearchScope(typeDefinition: ScTypeDefinition): SearchScope = {
+      val scope = new LocalSearchScope(typeDefinition)
+      getBaseCompanionModule(typeDefinition).map {
+        new LocalSearchScope(_)
+      }.map {
+        scope.union
+      }.getOrElse(scope)
+    }
+
     def fromContainingBlockOrMember(): Option[SearchScope] = {
       val blockOrMember = PsiTreeUtil.getContextOfType(this, true, classOf[ScBlock], classOf[ScMember])
       blockOrMember match {
@@ -177,25 +198,35 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     def fromQualifiedPrivate(): Option[SearchScope] = {
       accessModifier.filter(am => am.isPrivate && am.getReference != null).map(_.scope) collect {
         case p: PsiPackage => new PackageScope(p, true, true)
-        case td: ScTypeDefinition => ScalaPsiUtil.withCompanionSearchScope(td)
+        case td: ScTypeDefinition => withCompanionSearchScope(td)
       }
     }
 
     val fromModifierOrContext = this match {
       case _ if accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
-        Option(containingClass).orElse(containingFile).map(new LocalSearchScope(_))
+        Option(containingClass).orElse(containingFile).map {
+          new LocalSearchScope(_)
+        }
       case _ if accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
-        containingClass match {
-          case null => containingFile.map(new LocalSearchScope(_))
-          case c => Some(ScalaPsiUtil.withCompanionSearchScope(c))
+        Option(containingClass).collect {
+          case definition: ScTypeDefinition => withCompanionSearchScope(definition)
+        }.orElse {
+          containingFile.map(new LocalSearchScope(_))
         }
       case cp: ScClassParameter =>
-        Option(cp.containingClass).map(_.getUseScope)
-          .orElse(Option(super.getUseScope))
+        Option(cp.containingClass).map {
+          _.getUseScope
+        }.orElse {
+          Option(super.getUseScope)
+        }
       case fun: ScFunction if fun.isSynthetic =>
-        fun.getSyntheticNavigationElement.map(_.getUseScope)
+        fun.getSyntheticNavigationElement.map {
+          _.getUseScope
+        }
       case _ =>
-        fromQualifiedPrivate().orElse(fromContainingBlockOrMember())
+        fromQualifiedPrivate().orElse {
+          fromContainingBlockOrMember()
+        }
     }
     ScalaPsiUtil.intersectScopes(super.getUseScope, fromModifierOrContext)
   }

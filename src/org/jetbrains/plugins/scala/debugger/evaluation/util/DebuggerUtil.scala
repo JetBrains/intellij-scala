@@ -20,10 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryCon
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScExpression, ScForStatement, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -180,7 +179,7 @@ object DebuggerUtil {
     val valueClassParameter = function.containingClass match {
       case cl: ScClass if ValueClassType.isValueClass(cl) =>
         cl.constructors match {
-          case Array(pc: ScPrimaryConstructor) => pc.parameters.headOption
+          case Seq(pc: ScPrimaryConstructor) => pc.parameters.headOption
           case _ => None
         }
       case _ => None
@@ -211,7 +210,7 @@ object DebuggerUtil {
         case _ => JVMNameUtil.getJVMRawText("()V")
       }
       case clazz: ScClass => new JVMConstructorSignature(clazz)
-      case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
+      case _: PsiClass => JVMNameUtil.getJVMRawText("()V")
       case _ => JVMNameUtil.getJVMRawText("()V")
     }
   }
@@ -344,7 +343,7 @@ object DebuggerUtil {
     val allClasses = try {
       debugProcess.getPositionManager.getAllClasses(sourcePosition)
     } catch {
-      case e: NoDataException => return None
+      case _: NoDataException => return None
     }
 
     if (!allClasses.isEmpty) Some(allClasses.get(0))
@@ -376,7 +375,7 @@ object DebuggerUtil {
 
   def classnamePostfix(t: ScTemplateDefinition, withPostfix: Boolean = false): String = {
     t match {
-      case t: ScTrait if withPostfix => "$class"
+      case _: ScTrait if withPostfix => "$class"
       case o: ScObject if withPostfix || o.isPackageObject => "$"
       case c: ScClass if withPostfix && ValueClassType.isValueClass(c) => "$" //methods from a value class always delegate to the companion object
       case _ => ""
@@ -515,7 +514,7 @@ object DebuggerUtil {
         ScalaPsiUtil.nameContext(b) match {
           case v @ (_: ScValue | _: ScVariable) =>
             !v.getContext.isInstanceOf[ScTemplateBody] && !v.getContext.isInstanceOf[ScEarlyDefinitions]
-          case clause: ScCaseClause => true
+          case _: ScCaseClause => true
           case _ => true //todo: for generator/enumerators
         }
       case o: ScObject =>
@@ -532,7 +531,7 @@ object DebuggerUtil {
   @tailrec
   def isLocalClass(td: PsiClass): Boolean = {
     td.getParent match {
-      case tb: ScTemplateBody =>
+      case _: ScTemplateBody =>
         val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
         if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
         isLocalClass(parent)

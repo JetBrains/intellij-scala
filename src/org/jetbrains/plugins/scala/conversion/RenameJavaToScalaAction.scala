@@ -47,7 +47,7 @@ class RenameJavaToScalaAction extends AnAction {
       enable()
     }
     catch {
-      case e: Exception => disable()
+      case _: Exception => disable()
     }
 
   }

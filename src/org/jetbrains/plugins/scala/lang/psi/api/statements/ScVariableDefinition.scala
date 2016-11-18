@@ -25,7 +25,7 @@ trait ScVariableDefinition extends ScVariable {
 
   def hasExplicitType: Boolean = typeElement.isDefined
 
-  def isSimple: Boolean = pList.allPatternsSimple && bindings.size == 1
+  def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitVariableDefinition(this)
@@ -34,6 +34,6 @@ trait ScVariableDefinition extends ScVariable {
 
 object ScVariableDefinition {
   object expr {
-    def unapply(definition: ScVariableDefinition): Option[ScExpression] = definition.expr
+    def unapply(definition: ScVariableDefinition): Option[ScExpression] = Option(definition).flatMap(_.expr)
   }
 }

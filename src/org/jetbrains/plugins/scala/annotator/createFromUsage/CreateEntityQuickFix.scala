@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.util.{Failure, Success, Try}
 
@@ -97,6 +98,10 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
       }
 
       ScalaPsiUtil.adjustTypes(entity)
+      entity match {
+        case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
+        case _ =>
+      }
 
       val builder = new TemplateBuilderImpl(entity)
 
@@ -153,7 +158,7 @@ object CreateEntityQuickFix {
           case Some(ScTemplateDefinition.ExtendsBlock(block)) => Success(block)
           case None => Failure(new IllegalStateException("Cannot find template definition for not-static super reference"))
         }
-      case Both(th: ScThisReference, ParentExtendsBlock(block)) => Success(block)
+      case Both(_: ScThisReference, ParentExtendsBlock(block)) => Success(block)
       case Both(ReferenceTarget((_: ScSelfTypeElement)), ParentExtendsBlock(block)) => Success(block)
       case _ => Failure(new IllegalStateException("Cannot find a place to create definition"))
     }
@@ -168,8 +173,9 @@ object CreateEntityQuickFix {
     val holder = anchor.getParent
     val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
 
-    val entity = holder.addAfter(parseElement(text, ref.getManager), anchor)
-    if (hasMembers) holder.addAfter(createNewLine(ref.getManager), entity)
+    implicit val manager = ref.getManager
+    val entity = holder.addAfter(createElementFromText(text), anchor)
+    if (hasMembers) holder.addAfter(createNewLine(), entity)
 
     entity
   }
@@ -178,10 +184,11 @@ object CreateEntityQuickFix {
     val anchor = anchorForUnqualified(ref).get
     val holder = anchor.getParent
 
-    val entity = holder.addBefore(parseElement(text, ref.getManager), anchor)
+    implicit val manager = ref.getManager
+    val entity = holder.addBefore(createElementFromText(text), anchor)
 
-    holder.addBefore(createNewLine(ref.getManager, "\n\n"), entity)
-    holder.addAfter(createNewLine(ref.getManager, "\n\n"), entity)
+    holder.addBefore(createNewLine("\n\n"), entity)
+    holder.addAfter(createNewLine("\n\n"), entity)
 
     entity
   }

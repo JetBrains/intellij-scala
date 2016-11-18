@@ -3,43 +3,34 @@ package lang
 package psi
 package stubs
 package impl
-import com.intellij.psi.PsiClass
-import com.intellij.psi.tree.{IStubFileElementType, TokenSet}
-import com.intellij.util.io.StringRef
+
+import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
+import com.intellij.psi.tree.IStubFileElementType
+import com.intellij.psi.{PsiClass, PsiFile}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.PsiFileStubWrapperImpl
+
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
+abstract class AbstractFileStub(file: ScalaFile)
+  extends PsiFileStubImpl[ScalaFile](file) with ScFileStub {
+  override def getClasses: Array[PsiClass] =
+    getChildrenByType(TokenSets.TYPE_DEFINITIONS, PsiClass.ARRAY_FACTORY)
 
-class ScFileStubImpl(file: ScalaFile) extends PsiFileStubWrapperImpl[ScalaFile](file) with ScFileStub {
+  override def getType: IStubFileElementType[Nothing] =
+    fileElementType.asInstanceOf[IStubFileElementType[Nothing]]
 
-  override def getType: IStubFileElementType[Nothing] = ScalaElementTypes.FILE.asInstanceOf[IStubFileElementType[Nothing]]
+  protected def fileElementType: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
+    ScalaElementTypes.FILE
+}
 
-  var packName: StringRef = _
-  var sourceFileName: StringRef = _
-  var compiled: Boolean = false
-  var script: Boolean = false
+class ScFileStubImpl(file: ScalaFile) extends AbstractFileStub(file) {
+  override def packageName: String = file.packageName
 
-  def this(file: ScalaFile, pName : StringRef, name: StringRef, compiled: Boolean, script: Boolean) = {
-    this(file)
-    this.sourceFileName = name
-    packName = pName
-    this.compiled = compiled
-    this.script = script
-  }
+  override def sourceName: String = file.sourceName
 
-  def getClasses: Array[PsiClass] = {
-    import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
-    getChildrenByType(TokenSet.create(CLASS_DEF, OBJECT_DEF, TRAIT_DEF), PsiClass.ARRAY_FACTORY)
-  }
+  override def isCompiled: Boolean = file.isCompiled
 
-  def getFileName: String = StringRef.toString(sourceFileName)
-
-  def packageName: String = StringRef.toString(packName)
-
-  def isCompiled: Boolean = compiled
-
-  def isScript: Boolean = script
+  override def isScript: Boolean = file.isScriptFile(withCaching = false)
 }

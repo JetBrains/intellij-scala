@@ -7,12 +7,13 @@ import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PostFormatProcessor
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Alexander Podkhalyuzin
@@ -32,7 +33,7 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
         case _ =>
       }
       stmt.elseBranch match {
-        case Some(i: ScIfStmt) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
+        case Some(_: ScIfStmt) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
         case Some(el) =>
           processExpression(el, stmt, commonSetttings.IF_BRACE_FORCE)
         case _ =>
@@ -89,8 +90,8 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
   override def visitTryExpression(tryStmt: ScTryStmt) {
     if (checkElementContainsRange(tryStmt)) {
       super.visitTryExpression(tryStmt)
-      tryStmt.tryBlock.exprs match {
-        case Seq(expr) => processExpression(expr, tryStmt, scalaSettings.TRY_BRACE_FORCE)
+      tryStmt.tryBlock.children.toList.filter(!_.isInstanceOf[PsiWhiteSpace]).tail match {
+        case tryChildren if tryChildren.nonEmpty => processExpressions(tryChildren, tryStmt, scalaSettings.TRY_BRACE_FORCE)
         case _ =>
       }
       tryStmt.finallyBlock match {
@@ -128,37 +129,61 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
 
   private def processExpression(expr: ScExpression, stmt: PsiElement, option: Int) {
     expr match {
-      case b: ScBlockExpr =>
+      case _: ScBlockExpr =>
+      case c: ScBlock if c.firstChild.exists(_.isInstanceOf[ScBlockExpr]) && c.firstChild == c.lastChild =>
       case _ =>
         if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
           (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
             PostFormatProcessorHelper.isMultiline(stmt))) {
-          replaceExprWithBlock(expr)
+          replaceExprsWithBlock(expr)
         }
     }
   }
 
-  private def replaceExprWithBlock(expr: ScExpression) {
-    assert(expr.isValid)
-    if (!checkElementContainsRange(expr)) return
+  private def processExpressions(elements: Seq[PsiElement], stmt: PsiElement, option: Int) {
+    if (elements.size == 1 && elements.head.isInstanceOf[ScBlockExpr]) return
+    if (elements.head.getNode.getElementType != ScalaTokenTypes.tLBRACE ||
+      elements.last.getNode.getElementType != ScalaTokenTypes.tRBRACE) {
+      if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
+        (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
+          PostFormatProcessorHelper.isMultiline(stmt))) {
+        replaceExprsWithBlock(elements:_*)
+      }
+    }
+  }
 
-    val parent = expr.getParent
+  private def replaceExprsWithBlock(elements: PsiElement*): Unit = {
+    assert(elements.nonEmpty && elements.forall(_.isValid))
+    if (!elements.forall(checkElementContainsRange)) return
+
+    val head = elements.head
+    val parent = head.getParent
     val oldTextLength: Int = parent.getTextLength
     try {
-      val project = expr.getProject
-      val newExpr = ScalaPsiElementFactory.createExpressionFromText("{\n" + expr.getText + "\n}", expr.getManager)
-      val prev = expr.getPrevSibling
+      val project = head.getProject
+      val concatText = "{\n" + elements.tail.foldLeft(head.getText)((res, expr) => res + "\n"+ expr.getText) + "\n}"
+      val newExpr = createExpressionFromText(concatText)(head.getManager)
+      val prev = head.getPrevSibling
       if (ScalaPsiUtil.isLineTerminator(prev) || prev.isInstanceOf[PsiWhiteSpace]) {
         CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(prev))
       }
+      Option(elements.last.getNextSibling) match {
+        case Some(next) if ScalaPsiUtil.isLineTerminator(next) || next.isInstanceOf[PsiWhiteSpace] =>
+          CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(next))
+        case _ =>
+      }
+      for (expr <- elements.tail) {
+        CodeEditUtil.removeChild(SourceTreeToPsiMap.psiElementToTree(parent), SourceTreeToPsiMap.psiElementToTree(expr))
+      }
       CodeEditUtil.replaceChild(SourceTreeToPsiMap.psiElementToTree(parent),
-        SourceTreeToPsiMap.psiElementToTree(expr),
+        SourceTreeToPsiMap.psiElementToTree(head),
         SourceTreeToPsiMap.psiElementToTree(newExpr))
       CodeStyleManager.getInstance(project).reformat(parent, true)
     }
     finally {
       updateResultRange(oldTextLength, parent.getTextLength)
     }
+
   }
 
   protected def checkElementContainsRange(element: PsiElement): Boolean = {

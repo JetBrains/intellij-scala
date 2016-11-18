@@ -16,10 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -36,7 +35,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     try {
       UsageTrigger.trigger(ScalaBundle.message("introduce.field.id"))
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
+      checkFile(file, project, editor, REFACTORING_NAME)
 
       val (expr: ScExpression, types: Array[ScType]) = getExpression(project, editor, file, startOffset, endOffset) match {
         case Some((e, tps)) => (e, tps)
@@ -55,9 +54,9 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    val canBeIntroduced: (ScExpression) => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, canBeIntroduced) {
-      ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+    val canBeIntroduced: (ScExpression) => Boolean = checkCanBeIntroduced(_)
+    afterExpressionChoosing(project, editor, file, dataContext, REFACTORING_NAME, canBeIntroduced) {
+      trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
   }
@@ -68,7 +67,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
 
   def convertExpressionToField(ifc: IntroduceFieldContext[ScExpression]) {
 
-    val possiblePlace = ScalaRefactoringUtil.checkCanBeIntroduced(ifc.element, showErrorMessage(_, ifc.project, ifc.editor))
+    val possiblePlace = checkCanBeIntroduced(ifc.element, showErrorMessage(_, ifc.project, ifc.editor))
     if (!possiblePlace) return
 
     def runWithDialog() {
@@ -87,7 +86,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
   }
 
   private def runRefactoringInside(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]) {
-    val expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element)
+    val expression = expressionToIntroduce(ifc.element)
     val mainOcc = ifc.occurrences.filter(_.getStartOffset == ifc.editor.getSelectionModel.getSelectionStart)
     val occurrencesToReplace = if (settings.replaceAll) ifc.occurrences else mainOcc
     val aClass = ifc.aClass
@@ -96,44 +95,42 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       showErrorMessage("Cannot find place for the new field", ifc.project, ifc.editor)
       return
     }
-    val manager = aClass.getManager
+    implicit val manager = aClass.getManager
     val name = settings.name
     val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
-    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrencesToReplace, name, ifc.file)
+    val replacedOccurences = replaceOccurences(occurrencesToReplace, name, ifc.file)
 
     val anchor = anchorForNewDeclaration(expression, replacedOccurences, aClass)
     val initInDecl = settings.initInDeclaration
     var createdDeclaration: PsiElement = null
     if (initInDecl) {
-      createdDeclaration = ScalaPsiElementFactory
-              .createDeclaration(name, typeName, settings.defineVar, expression, manager)
+      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, expression)
     } else {
-      val underscore = ScalaPsiElementFactory.createExpressionFromText("_", manager)
-      createdDeclaration = ScalaPsiElementFactory
-              .createDeclaration(name, typeName, settings.defineVar, underscore, manager)
+      val underscore = createExpressionFromText("_")
+      createdDeclaration = createDeclaration(name, typeName, settings.defineVar, underscore)
 
       anchorForInitializer(replacedOccurences, ifc.file) match {
         case Some(anchorForInit) =>
           val parent = anchorForInit.getParent
-          val assignStmt = ScalaPsiElementFactory.createExpressionFromText(s"$name = ${expression.getText}", manager)
+          val assignStmt = createExpressionFromText(s"$name = ${expression.getText}")
           parent.addBefore(assignStmt, anchorForInit)
-          parent.addBefore(ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi, anchorForInit)
+          parent.addBefore(createNewLine(), anchorForInit)
         case None => throw new IntroduceException
 
       }
     }
 
-    import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.VisibilityLevel
     settings.visibilityLevel match {
-      case VisibilityLevel.DEFAULT =>
-      case VisibilityLevel.PRIVATE => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("private", value = true)
-      case VisibilityLevel.PROTECTED => createdDeclaration.asInstanceOf[ScMember].setModifierProperty("protected", value = true)
+      case "" =>
+      case other =>
+        val modifier = createModifierFromText(other)
+        createdDeclaration.asInstanceOf[ScMember].getModifierList.add(modifier)
     }
 
     lazy val document: Document = ifc.editor.getDocument
 
     anchor match {
-      case (tp: ScTemplateParents) childOf (extBl: ScExtendsBlock) =>
+      case (_: ScTemplateParents) childOf (extBl: ScExtendsBlock) =>
         val earlyDef = extBl.addEarlyDefinitions()
         createdDeclaration = earlyDef.addAfter(createdDeclaration, earlyDef.getFirstChild)
       case _ childOf (ed: ScEarlyDefinitions) if onOneLine(document, ed.getTextRange) =>
@@ -145,7 +142,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
         PsiDocumentManager.getInstance(ifc.project).commitDocument(document)
       case _ childOf parent =>
         createdDeclaration = parent.addBefore(createdDeclaration, anchor)
-        parent.addBefore(ScalaPsiElementFactory.createNewLineNode(manager, "\n").getPsi, anchor)
+        parent.addBefore(createNewLine(), anchor)
     }
 
     ScalaPsiUtil.adjustTypes(createdDeclaration)
@@ -163,7 +160,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val occCount = ifc.occurrences.length
     // Add occurrences highlighting
     if (occCount > 1)
-      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(ifc.project, ifc.occurrences, ifc.editor)
+      occurrenceHighlighters = highlightOccurrences(ifc.project, ifc.occurrences, ifc.editor)
 
     val dialog = new ScalaIntroduceFieldDialog(ifc, settings)
     dialog.show()

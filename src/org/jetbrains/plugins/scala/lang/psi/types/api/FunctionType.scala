@@ -40,7 +40,7 @@ sealed trait FunctionType {
       case 0 => None //hack for http://youtrack.jetbrains.com/issue/SCL-6880 to avoid infinite loop.
       case _ =>
         `type`.isAliasType match {
-          case Some(AliasType(definition: ScTypeAliasDefinition, Success(lower, _), _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, Success(lower, _), _)) =>
             extractForPrefix(lower, prefix, depth - 1)
           case _ =>
             `type` match {

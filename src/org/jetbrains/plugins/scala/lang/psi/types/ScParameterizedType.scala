@@ -7,14 +7,17 @@ package types
  * @author ilyas
  */
 
+import java.util.concurrent.ConcurrentMap
+
 import com.intellij.psi._
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeVisitor, ValueType}
+ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -57,6 +60,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 
   private var hash: Int = -1
 
+  //noinspection HashCodeUsesVar
   override def hashCode: Int = {
     if (hash == -1) {
       hash = designator.hashCode() + typeArguments.hashCode() * 31
@@ -67,7 +71,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   protected override def substitutorInner: ScSubstitutor = {
     def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => TypeParameterType): ScSubstitutor = {
       val argsIterator = typeArguments.iterator
-      val builder = ListMap.newBuilder[(String, PsiElement), ScType]
+      val builder = ListMap.newBuilder[(String, Long), ScType]
       while (paramsIterator.hasNext && argsIterator.hasNext) {
         val p1 = map(paramsIterator.next())
         val p2 = argsIterator.next()
@@ -117,6 +121,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
+      case (ParameterizedType(Nothing, _), Nothing) => (true, uSubst)
+      case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => (true, uSubst)
       case (ParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
         if (falseUndef) return (false, uSubst)
         val subst = new ScSubstitutor(Map(tpt.arguments.zip(args).map {
@@ -127,24 +133,32 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         conformance = subst.subst(lower).conforms(r, conformance._2)
         if (!conformance._1) return (false, uSubst)
         (true, conformance._2)
-      case (ParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+      case (ParameterizedType(proj@ScProjectionType(_, _, _), _), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case (ParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) =>
+      case (ParameterizedType(ScDesignatorType(_: ScTypeAliasDefinition), _), _) =>
         isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
+          case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) =>
             (lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
             }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
+      case (ParameterizedType(UndefinedType(_, _), _), ParameterizedType(_, _)) =>
+        val t = Conformance.processHigherKindedTypeParams(this, r.asInstanceOf[ParameterizedType], undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        (true, t._2)
+      case (ParameterizedType(_, _), ParameterizedType(UndefinedType(_, _), _)) =>
+        val t = Conformance.processHigherKindedTypeParams(r.asInstanceOf[ParameterizedType], this, undefinedSubst, falseUndef)
+        if (!t._1) return (false, undefinedSubst)
+        (true, t._2)
       case (ParameterizedType(_, _), ParameterizedType(designator1, typeArgs1)) =>
         var t = designator.equiv(designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
@@ -213,7 +227,19 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 }
 
 object ScParameterizedType {
+  val cache: ConcurrentMap[(ScType, Seq[ScType]), ValueType] =
+    ContainerUtil.createConcurrentWeakMap[(ScType, Seq[ScType]), ValueType]()
+
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
+    val key = (designator, typeArgs)
+    Option(cache.get(key)).getOrElse {
+      val result = create(designator, typeArgs)
+      cache.put(key, result)
+      result
+    }
+  }
+
+  private def create(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
     val res = new ScParameterizedType(designator, typeArgs)
     designator match {
       case ScProjectionType(_: ScCompoundType, _, _) =>
@@ -226,14 +252,5 @@ object ScParameterizedType {
         }
       case _ => res
     }
-  }
-}
-
-private[types] object CyclicHelper {
-  def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
-    import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
-    doComputationsForTwoElements(pn1, pn2, (p: Object, searches: Seq[Object]) => {
-      !searches.contains(p)
-    }, pn2, pn1, fun(), CYCLIC_HELPER_KEY)
   }
 }

@@ -126,8 +126,7 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
         element.flatMap(_.depthFirst.find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER))
 
       def createCaseClassPatern(text: String, pattern: PsiElement): Option[ScPattern] = {
-        Option(ScalaPsiElementFactory.createCaseClauseFromTextWithContext(text + "()",
-          pattern.getContext.getContext, pattern.getContext, pattern.getManager)).flatMap(_.pattern)
+        Option(ScalaPsiElementFactory.createCaseClauseFromTextWithContext(text + "()", pattern.getContext.getContext, pattern.getContext)).flatMap(_.pattern)
       }
 
       class MyConsumer(resultSet: CompletionResultSet) extends Consumer[CompletionResult] {

@@ -9,12 +9,13 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
@@ -73,7 +74,7 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
 
   def body: Option[ScExpression] = {
     val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScFunctionStub].getBodyExpression else findChild(classOf[ScExpression])
+    if (stub != null) stub.asInstanceOf[ScFunctionStub].bodyExpression else findChild(classOf[ScExpression])
   }
 
   override def hasAssign: Boolean = true
@@ -88,8 +89,7 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
 
   def doGetType(): ScType = {
     name match {
-      case "doMacro" =>
-        ScalaPsiElementFactory.createTypeElementFromText("(Int, String)", getManager).getType().get
+      case "doMacro" => createTypeElementFromText("(Int, String)").getType().get
       case _ => Any
     }
   }
@@ -99,4 +99,6 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
       case _ => super.accept(visitor)
     }
   }
+
+  override def expand(args: Seq[ScExpression]): ScalaPsiElement = this
 }

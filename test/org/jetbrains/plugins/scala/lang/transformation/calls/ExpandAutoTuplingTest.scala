@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandAutoTuplingTest extends TransformerTest(ExpandAutoTupling,
+class ExpandAutoTuplingTest extends TransformerTest(new ExpandAutoTupling(),
   """
      object O {
        def f(v: Any) {}

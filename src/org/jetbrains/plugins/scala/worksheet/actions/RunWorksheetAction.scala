@@ -18,8 +18,6 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
-import com.intellij.openapi.ui.MessageType
-import com.intellij.openapi.ui.popup.util.PopupUtil
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
@@ -171,9 +169,8 @@ object RunWorksheetAction {
     val myProcessListener: ProcessAdapter = new ProcessAdapter {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
         val text = event.getText
-        if (ConsoleViewContentType.NORMAL_OUTPUT == ConsoleViewContentType.getConsoleViewType(outputType)) {
+        if (ConsoleViewContentType.NORMAL_OUTPUT == (ConsoleViewContentType getConsoleViewType outputType)) 
           worksheetPrinter processLine text
-        }
       }
 
       override def processTerminated(event: ProcessEvent): Unit = {

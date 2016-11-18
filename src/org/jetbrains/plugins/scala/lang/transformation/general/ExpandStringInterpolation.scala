@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package general
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.format.{Injection, InterpolatedStringParser, StringPart, Text}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
@@ -9,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 /**
   * @author Pavel Fatin
   */
-object ExpandStringInterpolation extends AbstractTransformer {
-  def transformation: PartialFunction[PsiElement, Unit] = {
+class ExpandStringInterpolation extends AbstractTransformer {
+  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case e: ScInterpolatedStringLiteral if e.reference.isDefined =>
       InterpolatedStringParser.parse(e).foreach { parts =>
         // TODO it's probably simpler to parse the string directly, the format parser is for a different use case

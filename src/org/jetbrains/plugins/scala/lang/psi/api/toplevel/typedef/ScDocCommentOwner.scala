@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.api.toplevel.typedef
 
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 /**
@@ -18,5 +19,9 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
   @Nullable
   def getDocComment: PsiDocComment = docComment.orNull
 
-  def isDeprecated = false
+  def isDeprecated = this match {
+    case holder: ScAnnotationsHolder =>
+      holder.hasAnnotation("scala.deprecated") || holder.hasAnnotation("java.lang.Deprecated")
+    case _ => false
+  }
 }

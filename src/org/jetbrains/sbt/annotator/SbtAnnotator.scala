@@ -7,9 +7,8 @@ import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -20,6 +19,9 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  * @author Pavel Fatin
  */
 class SbtAnnotator extends Annotator {
+
+  import SbtAnnotator._
+
   def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
     case file: SbtFileImpl =>
       val project = file.getProject
@@ -35,6 +37,20 @@ class SbtAnnotator extends Annotator {
 
   private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: String, holder: AnnotationHolder)
                       (implicit typeSystem: TypeSystem) {
+
+    private val allowedTypes: List[String] =
+      if (sbtVersionLessThan("0.13.0")) AllowedTypes012
+      else if (sbtVersionLessThan("0.13.6")) AllowedTypes013
+      else AllowedTypes0136
+
+    private val expectedExpressionType: String =
+      if (sbtVersionLessThan("0.13.6")) SbtBundle("sbt.annotation.expectedExpressionType")
+      else SbtBundle("sbt.annotation.expectedExpressionTypeSbt0136")
+
+    private def expressionMustConform(expressionType: ScType) =
+      if (sbtVersionLessThan("0.13.6")) SbtBundle("sbt.annotation.expressionMustConform", expressionType)
+      else SbtBundle("sbt.annotation.expressionMustConformSbt0136", expressionType)
+
     def annotate(implicit typeSystem: TypeSystem) {
       sbtFileElements.collect {
         case exp: ScExpression => annotateTypeMismatch(exp)
@@ -51,20 +67,17 @@ class SbtAnnotator extends Annotator {
     }
 
     private def annotateTypeMismatch(expression: ScExpression) =
-      expression.getType(TypingContext.empty).foreach { expressionType =>
-        if (expressionType.equiv(Nothing) || expressionType.equiv(Null)) {
-          holder.createErrorAnnotation(expression, SbtBundle("sbt.annotation.expectedExpressionType"))
-        } else {
-          if (!isTypeAllowed(expression, expressionType))
-            holder.createErrorAnnotation(expression, SbtBundle("sbt.annotation.expressionMustConform", expressionType))
-        }
+      for {
+        expressionType <- expression.getType(TypingContext.empty).toOption
+        message <-
+          if (expressionType.equiv(Nothing) || expressionType.equiv(Null))
+            Option(expectedExpressionType)
+          else if (!isTypeAllowed(expression, expressionType, allowedTypes))
+            Option(expressionMustConform(expressionType))
+          else None
+      } {
+        holder.createErrorAnnotation(expression, message)
       }
-
-    private def findTypeByText(exp: ScExpression, text: String): Option[ScType] =
-      Option(ScalaPsiElementFactory.createTypeFromText(text, exp.getContext, exp))
-
-    private def isTypeAllowed(expression: ScExpression, expressionType: ScType): Boolean =
-      SbtAnnotator.AllowedTypes.exists(typeStr => findTypeByText(expression, typeStr) exists (t => expressionType conforms t))
 
     private def annotateMissingBlankLines(): Unit =
       sbtFileElements.sliding(3).foreach {
@@ -75,9 +88,20 @@ class SbtAnnotator extends Annotator {
 
     private def sbtVersionLessThan(version: String): Boolean =
       StringUtil.compareVersionNumbers(sbtVersion, version) < 0
+
   }
 }
 
 object SbtAnnotator {
-  val AllowedTypes = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+  val AllowedTypes012 = List("Seq[Project.Setting[_]]", "Project.Setting[_]")
+  val AllowedTypes013 = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
+  val AllowedTypes0136 = List("sbt.internals.DslEntry")
+
+  def isTypeAllowed(expression: ScExpression, expressionType: ScType, allowedTypes: Seq[String])(implicit typeSystem: TypeSystem): Boolean =
+    allowedTypes.flatMap { typeName =>
+      createTypeFromText(typeName, expression.getContext, expression)
+    }.exists { expectedType =>
+      lazy val typeAfterImplicits = expression.getTypeAfterImplicitConversion(expectedOption = Option(expectedType)).tr.getOrNothing
+      expressionType.conforms(expectedType) || typeAfterImplicits.conforms(expectedType)
+    }
 }

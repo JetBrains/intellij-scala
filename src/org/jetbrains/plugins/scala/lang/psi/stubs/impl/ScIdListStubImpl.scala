@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
 /**
  * User: Alexander Podkhalyuzin
@@ -15,4 +15,4 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
 
 class ScIdListStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-extends StubBaseWrapper[ScIdList](parent, elemType) with ScIdListStub
+  extends StubBase[ScIdList](parent, elemType) with ScIdListStub

@@ -5,17 +5,16 @@ package importsTracker
 
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
 
-import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Set, mutable}
 
 /**
  * @author Alexander Podkhalyuzin
  */
-
-
 class ImportTracker {
   def registerUsedImports(file: ScalaFile, used: Set[ImportUsed]) {
     val refHolder = ScalaRefCountHolder.getInstance(file)
@@ -24,21 +23,28 @@ class ImportTracker {
     }
   }
 
-  def getUnusedImport(file: ScalaFile): Array[ImportUsed] = {
-    val buff = new ArrayBuffer[ImportUsed]
-    val iter = file.getAllImportUsed.iterator
-    val refHolder = ScalaRefCountHolder getInstance file
-    val runnable = new Runnable {
-      def run() {
-        while (iter.nonEmpty) {
-          val used = iter.next()
-          if (refHolder.isRedundant(used)) buff += used
-        }
+  def getUnusedImport(file: ScalaFile): Seq[ImportUsed] = {
+    val buff = new mutable.HashSet[ImportUsed]()
+    val imports = file.getAllImportUsed
+    val refHolder = ScalaRefCountHolder.getInstance(file)
+
+    refHolder.retrieveUnusedReferencesInfo { () =>
+      imports.foreach {
+        case used@ImportSelectorUsed(e) => //if the entire line is unused, highlight the entire line
+          if (refHolder.isRedundant(used)) {
+            e.parent.flatMap(_.parent) match {
+              case Some(expr: ScImportExpr) if expr.selectors.map(ImportSelectorUsed).forall(refHolder.isRedundant) =>
+                buff += ImportExprUsed(expr)
+              case _ => buff += used
+            }
+          }
+        case used  =>
+          if (refHolder.isRedundant(used)) {
+            buff += used
+          }
       }
     }
-    
-    refHolder retrieveUnusedReferencesInfo runnable
-    buff.toArray
+    buff.toSeq
   }
 }
 

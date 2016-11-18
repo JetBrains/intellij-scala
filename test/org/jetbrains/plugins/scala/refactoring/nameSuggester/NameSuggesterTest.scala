@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package refactoring.nameSuggester
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.junit.Assert
 
@@ -13,7 +13,7 @@ import org.junit.Assert
 class
 NameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testNamesByType(typeElementText: String, names: Seq[String]) {
-    val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, myFixture.getPsiManager)
+    val typeElement = createTypeElementFromText(typeElementText)(myFixture.getPsiManager)
     val scType = typeElement.getType().getOrNothing
     Assert.assertEquals(names.mkString(", "), NameSuggester.suggestNamesByType(scType).mkString(", "))
   }

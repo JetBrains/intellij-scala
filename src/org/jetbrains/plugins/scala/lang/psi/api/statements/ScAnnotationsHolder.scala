@@ -4,22 +4,25 @@ package psi
 package api
 package statements
 
+import java.io.IOException
+
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createAnAnnotation, createNewLine}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedMacroUtil, ModCount}
 
-import scala.annotation.tailrec
+import scala.meta.intellij.MetaExpansionsManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,91 +31,92 @@ import scala.annotation.tailrec
 
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   def annotations: Seq[ScAnnotation] = {
-    val stub: StubElement[_ <: PsiElement] = this match {
-      case st: StubBasedPsiElement[_] if st.getStub != null =>
-        st.getStub.asInstanceOf[StubElement[_ <: PsiElement]] // !!! Appeasing an unexplained compile error
-      case file: PsiFileImpl if file.getStub != null => file.getStub
-      case _ => null
+    val maybeStub: Option[StubElement[_ <: PsiElement]] = Some(this) flatMap {
+      case element: StubBasedPsiElement[_] =>
+        // !!! Appeasing an unexplained compile error
+        Option(element.getStub.asInstanceOf[StubElement[_ <: PsiElement]])
+      case file: PsiFileImpl =>
+        Option(file.getStub)
+      case _ => None
     }
-    if (stub != null) {
-      val annots: Array[ScAnnotations] =
-        stub.getChildrenByType(TokenSet.create(ScalaElementTypes.ANNOTATIONS), JavaArrayFactoryUtil.ScAnnotationsFactory)
-      if (annots.length > 0) {
-        return annots(0).getAnnotations.toSeq
-      } else return Seq.empty
-    }
-    if (findChildByClassScala(classOf[ScAnnotations]) != null)
-      findChildByClassScala(classOf[ScAnnotations]).getAnnotations.toSeq
-    else Seq.empty
-  }
 
-  def annotationNames: Seq[String] = annotations.map((x: ScAnnotation) => {
-    val text: String = x.annotationExpr.constr.typeElement.getText
-    text.substring(text.lastIndexOf(".", 0) + 1, text.length)
-  })
+    val maybeStubAnnotations = maybeStub.toSeq.flatMap({
+          _.getChildrenByType(TokenSet.create(ScalaElementTypes.ANNOTATIONS),
+            JavaArrayFactoryUtil.ScAnnotationsFactory).toSeq
+        }).headOption
 
-  def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.qualifiedName).isDefined
+    val maybeAnnotations = maybeStubAnnotations.orElse(Option(findChildByClassScala(classOf[ScAnnotations])))
 
-  def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = {
-    annotations.find(annot => acceptType(annot.typeElement.getType(TypingContext.empty).getOrAny, qualifiedName))
-  }
-
-  def allMatchingAnnotations(qualifiedName: String): Seq[ScAnnotation] = {
-    annotations.filter { annot =>
-      acceptType(annot.typeElement.getType().getOrAny, qualifiedName)
+    maybeAnnotations.toSeq.flatMap {
+      _.getAnnotations.toSeq
     }
   }
 
-  @tailrec
-  private def acceptType(tp: ScType, qualifiedName: String): Boolean = {
-    tp match {
-      case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName == qualifiedName
-      case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) => clazz.qualifiedName == qualifiedName
-      case _ =>
-        tp.isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) =>
-            acceptType(ta.aliasedType(TypingContext.empty).getOrAny, qualifiedName)
-          case _ => false
+  def hasAnnotation(qualifiedName: String): Boolean =
+    annotations(qualifiedName).nonEmpty
+
+  def annotations(qualifiedName: String): Seq[ScAnnotation] = {
+    def acceptType: ScType => Boolean = {
+      case ScDesignatorType(clazz: PsiClass) =>
+        clazz.qualifiedName == qualifiedName
+      case ParameterizedType(designator@ScDesignatorType(_: PsiClass), _) =>
+        acceptType(designator)
+      case tp =>
+        tp.isAliasType collect {
+          case AliasType(definition: ScTypeAliasDefinition, _, _) =>
+            definition.aliasedType.getOrAny
+        } exists {
+          acceptType
         }
+    }
+
+    annotations map { annotation =>
+      (annotation, annotation.typeElement.getType().getOrAny)
+    } filter {
+      case (_, scType) => acceptType(scType)
+    } map {
+      _._1
     }
   }
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = {
     val container = findChildByClassScala(classOf[ScAnnotations])
 
-    val element = ScalaPsiElementFactory.createAnAnnotation(qualifiedName, getManager)
-
-    val added = container.add(element).asInstanceOf[PsiAnnotation]
-    container.add(ScalaPsiElementFactory.createNewLine(getManager))
+    val added = container.add(createAnAnnotation(qualifiedName))
+    container.add(createNewLine())
 
     ScalaPsiUtil.adjustTypes(added, addImports = true)
-
-    added
+    added.asInstanceOf[PsiAnnotation]
   }
 
-  def findAnnotation(qualifiedName: String): PsiAnnotation = {
-    hasAnnotation(qualifiedName) match {
-      case Some(x) => x
-      case None => null
-    }
-  }
+  def findAnnotation(qualifiedName: String): PsiAnnotation =
+    annotations(qualifiedName).headOption.orNull
 
   def findAnnotationNoAliases(qualifiedName: String): PsiAnnotation = {
-    val name = qualifiedName.split('.').last
-
-    def sameName(annotation: ScAnnotation): Boolean = {
-      annotation.typeElement match {
-        case simple: ScSimpleTypeElement => simple.reference.exists(_.refName == name)
-        case ScParameterizedTypeElement(simple: ScSimpleTypeElement, _) => simple.reference.exists(_.refName == name)
-        case _ => false
-      }
+    def sameName: ScTypeElement => Boolean = {
+      case simple: ScSimpleTypeElement =>
+        simple.reference exists {
+          _.refName == qualifiedName.substring(qualifiedName.lastIndexOf('.') + 1)
+        }
+      case ScParameterizedTypeElement(simple: ScSimpleTypeElement, _) => sameName(simple)
+      case _ => false
     }
 
-    if (!annotations.exists(sameName)) return null
+    annotations map {
+      _.typeElement
+    } find {
+      sameName
+    } map { _ =>
+      findAnnotation(qualifiedName)
+    } orNull
+  }
 
-    hasAnnotation(qualifiedName) match {
-      case Some(x) => x
-      case None => null
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  def getMetaExpansion: Either[String, scala.meta.Tree] = {
+    val metaAnnotation = annotations.find(_.isMetaAnnotation)
+    metaAnnotation match {
+      case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
+      case None        => Left("")
     }
   }
 

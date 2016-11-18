@@ -9,9 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
@@ -42,7 +41,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
   override def getDisplayName: String = InspectionBundle.message("applied.type.lambda.can.be.simplified")
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
+    if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
 
     def addInfo(paramType: ScParameterizedTypeElement, replacementText: => String) = {
       val fixes = Array[LocalQuickFix](new SimplifyAppliedTypeLambdaQuickFix(paramType, replacementText))
@@ -62,7 +61,6 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                     val name1 = typeProjection.nameId
                     val name2 = typeAliasDefinition.nameId
                     if (name1.getText == name2.getText) {
-                      val at: TypeResult[ScType] = typeAliasDefinition.aliasedType
                       val params = typeAliasDefinition.typeParameters
                       val typeArgs = paramType.typeArgList.typeArgs
                       if (params.length == typeArgs.length) {
@@ -113,7 +111,7 @@ class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, r
         extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.type"), paramType) {
 
   def doApplyFix(project: Project): Unit = {
-    getElement.replace(ScalaPsiElementFactory.createTypeElementFromText(replacement, getElement.getManager))
+    getElement.replace(createTypeElementFromText(replacement)(getElement.getManager))
   }
 }
 

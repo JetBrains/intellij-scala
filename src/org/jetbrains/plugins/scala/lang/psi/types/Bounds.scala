@@ -28,7 +28,7 @@ object Bounds extends api.Bounds {
     else if (conforms(t2, t1, checkWeak)) t2
     else {
       (t1, t2) match {
-        case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(name2, args2, lower2, upper2)) =>
+        case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
           ScExistentialArgument(name, args, lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
         case (ScExistentialArgument(name, args, lower, upper), _) => ScExistentialArgument(name, args, lub(lower, t2, checkWeak), glb(upper, t2))
         case (_, ScExistentialArgument(name, args, lower, upper)) => ScExistentialArgument(name, args, lub(lower, t1, checkWeak), glb(upper, t1))
@@ -68,7 +68,7 @@ object Bounds extends api.Bounds {
   def baseTypeSeqDepth(ts: Seq[ScType]): Int = {
     @tailrec def loop(tps: Seq[ScType], acc: Int): Int = tps match {
       // TODO: should be implemented according to Scala compiler sources. However concerns about performance stops me.
-      case tp :: rest => loop(rest, acc max 1)
+      case _ :: rest => loop(rest, acc max 1)
       case _          => acc
     }
     loop(ts, 0)
@@ -80,7 +80,7 @@ object Bounds extends api.Bounds {
     lubDepthAdjust(td, td max bd)
   }
 
-  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, new ScUndefinedSubstitutor(), checkWeak)._1
+  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, ScUndefinedSubstitutor(), checkWeak)._1
 
   //This weird method is copy from Scala compiler. See scala.reflect.internal.Types#lubDepthAdjust
   private def lubDepthAdjust(td: Int, bd: Int): Int = {
@@ -112,11 +112,11 @@ object Bounds extends api.Bounds {
     val projectionOption = {
       def projectionOption(tp: ScType): Option[ScType] = tp match {
         case ParameterizedType(des, _) => projectionOption(des)
-        case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
-          case c: PsiClass => Some(p)
+        case proj@ScProjectionType(p, _, _) => proj.actualElement match {
+          case _: PsiClass => Some(p)
           case t: ScTypeAliasDefinition =>
             projectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
-          case t: ScTypeAliasDeclaration => Some(p)
+          case _: ScTypeAliasDeclaration => Some(p)
           case _ => None
         }
         case ScDesignatorType(t: ScTypeAliasDefinition) =>
@@ -135,7 +135,7 @@ object Bounds extends api.Bounds {
       getNamedElement match {
         case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).filter(!_.isEmpty)
         case p: PsiClass => p.getSupers.toSeq.map(cl => new Options(ScalaType.designator(cl))).filter(!_.isEmpty)
-        case a: ScTypeAlias =>
+        case _: ScTypeAlias =>
           val upperType: ScType = tp.isAliasType.get.upper.getOrAny
           val options: Seq[Options] = {
             upperType match {
@@ -185,7 +185,7 @@ object Bounds extends api.Bounds {
             val superTypes: Seq[ScType] = drv match {
               case td: ScTemplateDefinition => td.superTypes
               case _ => drv.getSuperTypes.map {
-                _.toScType(drv.getProject)
+                _.toScType()
               }
             }
             val iterator = superTypes.iterator
@@ -251,7 +251,7 @@ object Bounds extends api.Bounds {
           case (_, ex: ScExistentialType) => lub(t1, ex.quantified, checkWeak).unpackedType
           case (TypeParameterType(Nil, _, upper, _), _) => lub(upper.v, t2, checkWeak)
           case (_, TypeParameterType(Nil, _, upper, _)) => lub(t1, upper.v, checkWeak)
-          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(name2, args2, lower2, upper2)) =>
+          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
             ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
           case (ScExistentialArgument(name, args, lower, upper), r) =>
             ScExistentialArgument(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
@@ -335,7 +335,7 @@ object Bounds extends api.Bounds {
         (ex, Some(ex))
       } else {
         (substed1, substed2) match {
-          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(name2, args2, lower2, upper2)) =>
+          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
             val newLub = if (stopAddingUpperBound) Any else lub(Seq(upper, upper2), checkWeak, stopAddingUpperBound = true)
             (ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), newLub), None)
           case (ScExistentialArgument(name, args, lower, upper), _) =>

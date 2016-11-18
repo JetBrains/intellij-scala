@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandUnaryCallTest extends TransformerTest(ExpandUnaryCall,
+class ExpandUnaryCallTest extends TransformerTest(new ExpandUnaryCall(),
   """
      object O {
        def unary_! {}

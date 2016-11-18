@@ -13,5 +13,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
  */
 
 trait ScTypeParamClauseStub extends StubElement[ScTypeParamClause] {
-  def getTypeParamClauseText: String
+  def typeParameterClauseText: String
 }

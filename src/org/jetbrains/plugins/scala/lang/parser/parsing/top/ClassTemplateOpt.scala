@@ -24,7 +24,7 @@ object ClassTemplateOpt extends ClassTemplateOpt {
 
 //May be hard to read. Because written before understanding that before TemplateBody could be nl token
 //So there are fixed it, but may be should be some rewrite.
-trait ClassTemplateOpt {
+trait ClassTemplateOpt extends TemplateOpt {
   protected val templateBody: TemplateBody
   protected val earlyDef: EarlyDef
   protected val classParents: ClassParents

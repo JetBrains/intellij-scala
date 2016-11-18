@@ -9,16 +9,16 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-
-import scala.collection.mutable
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -105,7 +105,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def patternWithType(pattern: ScTypedPattern) {
-    val newPattern = ScalaPsiElementFactory.createPatternFromText(pattern.name, pattern.getManager)
+    val newPattern = createPatternFromText(pattern.name)(pattern.getManager)
     pattern.replace(newPattern)
   }
 
@@ -121,7 +121,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
               val param1 = param.getParent match {
                 case x: ScParameterClause if x.parameters.length == 1 =>
                   // ensure  that the parameter is wrapped in parentheses before we add the type annotation.
-                  val clause: PsiElement = x.replace(ScalaPsiElementFactory.createClauseForFunctionExprFromText("(" + param.getText + ")", param.getManager))
+                  val clause: PsiElement = x.replace(createClauseForFunctionExprFromText(param.getText.parenthesize(true))(param.getManager))
                   clause.asInstanceOf[ScParameterClause].parameters.head
                 case _ => param
               }
@@ -134,8 +134,9 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def parameterWithType(param: ScParameter) {
-    val newParam = ScalaPsiElementFactory.createParameterFromText(param.name, param.getManager)
-    val newClause = ScalaPsiElementFactory.createClauseForFunctionExprFromText(newParam.getText, param.getManager)
+    implicit val manager = param.getManager
+    val newParam = createParameterFromText(param.name)
+    val newClause = createClauseForFunctionExprFromText(newParam.getText)
     val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
     if (expr != null) {
       val firstClause = expr.params.clauses.head
@@ -152,10 +153,10 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     def addActualType(annotation: ScTypeElement) = {
       val parent = anchor.getParent
       val added = parent.addAfter(annotation, anchor)
-      val colon = ScalaPsiElementFactory.createColon(context.getManager)
-      val whitespace = ScalaPsiElementFactory.createWhitespace(context.getManager)
-      parent.addAfter(whitespace, anchor)
-      parent.addAfter(colon, anchor)
+
+      implicit val manager = context.getManager
+      parent.addAfter(createWhitespace, anchor)
+      parent.addAfter(createColon, anchor)
       added
     }
 
@@ -164,11 +165,30 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     val added = addActualType(tps.head)
     editor match {
       case Some(e) if tps.size > 1 =>
-        val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
+        val texts = tps.reverse.flatMap(_.getType().toOption).map(ScTypeText)
         val expr = new ChooseTypeTextExpression(texts)
+        // TODO Invoke the simplification
         IntentionUtil.startTemplate(added, context, expr, e)
-      case _ => ScalaPsiUtil.adjustTypes(added)
+      case _ =>
+        ScalaPsiUtil.adjustTypes(added)
+        rightExpressionOf(context).foreach(simplify)
     }
+  }
+
+  private def rightExpressionOf(definition: PsiElement): Option[ScExpression] = definition match {
+    case variable: ScVariableDefinition => variable.expr
+    case pattern: ScPatternDefinition => pattern.expr
+    case function: ScFunctionDefinition => function.body
+    case _ => None
+  }
+
+  private def simplify(expression: ScExpression): Unit = expression match {
+    case call: ScGenericCall if TypeAnnotationUtil.isEmptyCollectionFactory(call) =>
+      val s = call.text
+      implicit val manager = expression.manager
+      val newExpression = ScalaPsiElementFactory.createExpressionFromText(s.substring(0, s.indexOf('[')))
+      expression.replace(newExpression)
+    case _ =>
   }
 
   def removeTypeAnnotation(e: PsiElement) {
@@ -185,7 +205,7 @@ object UpdateStrategy {
 
   def annotationsFor(t: ScType, context: PsiElement)
                     (implicit typeSystem: TypeSystem = context.typeSystem): Seq[ScTypeElement] = {
-    def typeElemfromText(s: String) = ScalaPsiElementFactory.createTypeElementFromText(s, context.getManager)
+    def typeElemfromText(s: String) = createTypeElementFromText(s)(context.getManager)
     def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 
     t match {
@@ -200,23 +220,23 @@ object UpdateStrategy {
       case tp =>
         val project = context.getProject
         tp.extractClass(project) match {
-          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
-            (tp +: sealedType.toSeq).map(typeElemFromType)
+          case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
+            val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(_.startsWith("_root_.scala.Option"))
+            (tp.canonicalText +: baseTypes).map(typeElemfromText)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(
-              "_root_.scala.collection.Seq[",
               "_root_.scala.collection.mutable.Seq[",
               "_root_.scala.collection.immutable.Seq[",
-              "_root_.scala.collection.Set[",
               "_root_.scala.collection.mutable.Set[",
               "_root_.scala.collection.immutable.Set[",
-              "_root_.scala.collection.Map[",
               "_root_.scala.collection.mutable.Map[",
               "_root_.scala.collection.immutable.Map["
             )
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
             (tp.canonicalText +: baseTypes).map(typeElemfromText)
+          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
+            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
+            (tp +: sealedType.toSeq).map(typeElemFromType)
           case _ => Seq(typeElemFromType(tp))
         }
     }

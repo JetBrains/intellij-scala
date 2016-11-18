@@ -20,7 +20,7 @@ trait ScPatternDefinition extends ScValue {
 
   def expr: Option[ScExpression]
 
-  def isSimple: Boolean = pList.allPatternsSimple && bindings.size == 1
+  def isSimple: Boolean = pList.simplePatterns && bindings.size == 1
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitPatternDefinition(this)
@@ -29,9 +29,6 @@ trait ScPatternDefinition extends ScValue {
 
 object ScPatternDefinition {
   object expr {
-    def unapply(definition: ScPatternDefinition): Option[ScExpression] = {
-      if (definition == null) None
-      else definition.expr
-    }
+    def unapply(definition: ScPatternDefinition): Option[ScExpression] = Option(definition).flatMap(_.expr)
   }
 }

@@ -23,7 +23,8 @@ case class ScalaChangeInfo(newVisibility: String,
                            @BeanProperty newName: String,
                            newType: ScType,
                            newParams: Seq[Seq[ScalaParameterInfo]],
-                           isAddDefaultArgs: Boolean)
+                           isAddDefaultArgs: Boolean,
+                           addTypeAnnotation: Option[Boolean] = None)
         extends ScalaChangeInfoBase(newParams.flatten.toArray)
         with UnsupportedJavaInfo with VisibilityChangeInfo with ParametersChangeInfo {
 

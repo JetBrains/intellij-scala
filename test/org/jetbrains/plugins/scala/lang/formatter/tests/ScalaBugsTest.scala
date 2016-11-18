@@ -1692,5 +1692,724 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL10477() = {
+
+    getCommonSettings.KEEP_LINE_BREAKS = false
+
+    val before =
+      """
+        |class A {
+        |  def foo() = {
+        |    val logFile = "README.md"
+        |    foo()
+        |    var foobar = "foobar"
+        |    type A = Int
+        |    foo()
+        |    var foobar1 = "foobar"
+        |    type A1 = Int
+        |    val logFile1 = "README.md"
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
+  def testSCL6267() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+
+    val before =
+      """
+        |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
+        |import java.util.UUID
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
+  def testSCL6267_1() = {
+    val before =
+      """
+        |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
+        |import java.util.UUID
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _}
+        |// collision with Matcher's have 'symbol implicit
+        |import java.util.UUID
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL5032() = {
+    val before =
+      """
+        |collection.map { item =>
+        |  item.property
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL4890() = {
+    getScalaSettings.ALIGN_IF_ELSE = true
+    val before =
+      """
+        |val recentProgresses = if (guids.nonEmpty) Nil
+        |                       else {
+        |                         unblob(statuses.flatMap { sum =>
+        |                           for {
+        |                             prog <- sum.progresses
+        |                             if prog.scanTime >= oldest
+        |                             if systemGuids.isEmpty || systemGuids.contains(prog.systemGuid)
+        |                           } yield prog
+        |                         })
+        |                       }
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL10520() = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+    val before = "\"\"\"\n  |foo\n  |bar\n\"\"\""
+    doTextTest(before)
+  }
+
+  def testSCL8889() = {
+    val before =
+      """
+        |object MyObj {
+        |  def :=(t: (String, String)) = ???
+        |}
+        |
+        |MyObj:=("toto", "tata")
+        |MyObj:=(("toto", "tata"))
+        |MyObj:=Tuple2("toto", "tata")
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |object MyObj {
+        |  def :=(t: (String, String)) = ???
+        |}
+        |
+        |MyObj := ("toto", "tata")
+        |MyObj := (("toto", "tata"))
+        |MyObj := Tuple2("toto", "tata")
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL9990() = {
+    getScalaSettings.SPACE_BEFORE_BRACE_METHOD_CALL = false
+    val before = "Seq(1, 2, 3).map { case x => x * x }"
+    val after = "Seq(1, 2, 3).map{ case x => x * x }"
+
+    doTextTest(before, after)
+  }
+
+  def testSCL4291() = {
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
+    val before =
+      """
+        |(
+        |  a,
+        |  b
+        |  )
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |(
+        |  a,
+        |  b
+        |)
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL4291_1() = {
+    getScalaSettings.ALIGN_TUPLE_ELEMENTS = true
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = false
+    val before =
+      """
+        |val foo = (
+        |a,
+        |b
+        |)
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |val foo = (
+        |            a,
+        |            b
+        |            )
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL4291_2() = {
+    getScalaSettings.ALIGN_TUPLE_ELEMENTS = true
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
+    val before =
+      """
+        |val foo = (
+        |a,
+        |b
+        |)
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |val foo = (
+        |            a,
+        |            b
+        |          )
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL4743() = {
+    val before =
+      """
+        |def f = if (true) 1 else {
+        |  0
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL5025() = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    getScalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = true
+    val before =
+      """
+        |multipleParams(delay = 3,
+        |param2 = 4,
+        |param3 = 5){
+        |println("foo")
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |multipleParams(delay = 3,
+        |               param2 = 4,
+        |               param3 = 5) {
+        |  println("foo")
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL5025_1() = {
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS = true
+    getScalaSettings.DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = true
+    val before =
+      """
+        |abstract class Simulation {
+        |  def afterDelay(delay: Int)(block: => Unit) {
+        |    val item = WorkItem(time = currentTime + delay, action = () => block)
+        |    agenda = insert(agenda, item)
+        |  }
+        |
+        |  def run() {
+        |    afterDelay(0) {
+        |      println("*** simulation started, time = " + currentTime + " ***")
+        |    }
+        |    while (!agenda.isEmpty) next()
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL5585() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
+    val before =
+      """|trait Foo {}
+         |
+         |class Bar extends Foo
+         |  with Foo
+         |{}
+         |
+         |class Baz {}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL5585_1() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED
+    val before =
+      """
+        |trait Foo {}
+        |
+        |class Bar extends Foo
+        |  with Foo {}
+        |
+        |class Baz {}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |trait Foo {}
+        |
+        |class Bar extends Foo
+        |  with Foo
+        |{}
+        |
+        |class Baz {}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL6438() = {
+    getCommonSettings.BLANK_LINES_BEFORE_IMPORTS = 0
+    val before =
+      """
+        |object O {
+        |  import foo.bar
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL6696() = {
+    getScalaSettings.DO_NOT_INDENT_TUPLES_CLOSE_BRACE = true
+    val before =
+      """
+        |val a = (52,
+        |  52
+        |)
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7001() = {
+    val before =
+      """
+        |type Set =
+        |  Int => Boolean
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL6576() = {
+    getScalaSettings.INDENT_FIRST_PARAMETER_CLAUSE = true
+    val before =
+      """
+        |implicit def foo
+        |(a: Int)
+        |(b: Int) = ???
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |implicit def foo
+        |  (a: Int)
+        |  (b: Int) = ???
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL5032_1() = {
+
+    val before =
+      """
+        |collection.map { _ => doStuff()
+        |item.property}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |collection.map { _ =>
+        |  doStuff()
+        |  item.property
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL5032_2() = {
+    val before = "collection.map { _ => item.property }"
+    doTextTest(before)
+  }
+
+  def testSCL10527() = {
+    val before =
+      """
+        |def xyz(arg: String): String =
+        |  "good formatting"
+        |
+        |/**
+        |  *
+        |  * @param arg
+        |  * @return
+        |  */
+        |def xyz1(arg: string): String =
+        |  "wrong formatting"
+        |
+        |val x =
+        |  42
+        |
+        |//someComment
+        |val x1 =
+        |  42
+        |
+        |var y =
+        |  42
+        |
+        |/*Other comment*/
+        |var y1 =
+        |  42
+        |
+        |//comment
+        |type T =
+        |  Int
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL10527_1() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+    val before =
+      """
+        |//comment
+        |class Foo
+        |{
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL10527_2() = {
+    getCommonSettings.CLASS_BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED
+    val before =
+      """
+        |//comment
+        |class Foo
+        |  {
+        |  }
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7048() = {
+    getCommonSettings.SPACE_WITHIN_METHOD_CALL_PARENTHESES = true
+    val before =
+      """
+        |foo( a, b, c )
+        |bar()
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7048_1() = {
+    getCommonSettings.SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES = true
+    val before =
+      """
+        |foo(a, b, c)
+        |bar( )
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7171() = {
+    val before =
+      """
+        |_ fold(
+        |  _ => ???,
+        |  _ => ???
+        |)
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL7453() = {
+    getCommonSettings.METHOD_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    getScalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = true
+    getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    getCommonSettings.BLANK_LINES_AFTER_CLASS_HEADER = 1
+    val before =
+      """
+        |case class ImAClass(something1: Int, something2: Int, something3: Int, something4: Int, something5: Int) {
+        |  val uselessVal = 1
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |case class ImAClass(
+        |    something1: Int,
+        |    something2: Int,
+        |    something3: Int,
+        |    something4: Int,
+        |    something5: Int) {
+        |
+        |  val uselessVal = 1
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL7690() = {
+    getCommonSettings.SPACE_BEFORE_TYPE_PARAMETER_LIST = true
+    val before = "bar[A, B]()"
+    val after = "bar [A, B]()"
+    doTextTest(before, after)
+  }
+
+  def testSCL7690_1() = {
+    getScalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = true
+    val before = "def bar[A, B]: Int = 42"
+    val after = "def bar [A, B]: Int = 42"
+    doTextTest(before, after)
+  }
+
+  def testSCL9066() = {
+    getScalaSettings.TRY_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |try {
+        |  42
+        |} catch {
+        |  case _: Exception => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9066_1() = {
+    getScalaSettings.TRY_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |try 42 catch {
+        |  case _: Exception => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |try {
+        |  42
+        |} catch {
+        |  case _: Exception => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL_10545() = {
+    getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |42 match {
+        |  case 42 => {
+        |    42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL_10545_1() = {
+    getScalaSettings.CASE_CLAUSE_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |42 match {
+        |  case 42 => 42
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |42 match {
+        |  case 42 => {
+        |    42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL9072() = {
+    val before = "whenReady(dao.findNetworkRule(\"A12345\")) {          _ => ()          }"
+    val after = "whenReady(dao.findNetworkRule(\"A12345\")) { _ => () }"
+    doTextTest(before, after)
+  }
+
+  def testSCL9321() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """
+        |object Test {
+        |  println(42) //before val
+        |  val x = 42 //before var
+        |  var y = 42 //before def
+        |
+        |  def z = 42 //before type
+        |
+        |  type F = Int //before class
+        |
+        |  class Inner //before object
+        |
+        |  object OInner //before trait
+        |
+        |  trait TInner
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9450() = {
+    getScalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE = false
+    getScalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES = true
+    val before =
+      """
+        |trait Something { this: Runnable =>
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9450_1() = {
+    getScalaSettings.PLACE_SELF_TYPE_ON_NEW_LINE = false
+    getScalaSettings.SPACE_INSIDE_SELF_TYPE_BRACES = true
+    val before =
+      """
+        |trait Something { this: Runnable => }
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9721() = {
+    getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = true
+    val before =
+      """
+        |trait Bar
+        |
+        |trait Foo extends Bar
+        |// with Baz
+        |{
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9786() = {
+    getCommonSettings.IF_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    val before =
+      """
+        |if (true)
+        |  println("1")
+        |else
+        |  println("2")
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |if (true) {
+        |  println("1")
+        |} else {
+        |  println("2")
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL9786_1() = {
+    getCommonSettings.IF_BRACE_FORCE = CommonCodeStyleSettings.FORCE_BRACES_ALWAYS
+    getCommonSettings.ELSE_ON_NEW_LINE = true
+    val before = "if (true) -1 else 42"
+    val after =
+      """
+        |if (true) {
+        |  -1
+        |}
+        |else {
+        |  42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
+  }
+
+  def testSCL9869() = {
+    getScalaSettings.SD_KEEP_BLANK_LINES_BETWEEN_TAGS = true
+    val before =
+      """
+        |//
+        |// A single line comment 1
+        |//
+        |// A single line comment 2
+        |//
+        |
+        |/*
+        |Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue
+        |ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas
+        |mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.
+        |
+        |
+        |Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        |Aenean ut gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id dolor. Pellentesque auctor nisi id
+        |magna consequat sagittis. Curabitur dapibus enim sit amet elit pharetra tincidunt feugiat nisl imperdiet.
+        |*/
+        |
+        |/** Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas
+        |  * congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero
+        |  * egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.
+        |  *
+        |  *
+        |  * Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        |  * Aenean ut gravida lorem. Ut turpis felis, pulvinar a semper sed, adipiscing id dolor. Pellentesque auctor nisi id
+        |  * magna consequat sagittis. Curabitur dapibus enim sit amet elit pharetra tincidunt feugiat nisl imperdiet.
+        |  *
+        |  *
+        |  * @constructor does something
+        |  *
+        |  * @param p1 String. A parameter
+        |  *
+        |  * @param p2 String. A parameter
+        |  *
+        |  * @param p3 String. A parameter
+        |  *
+        |  * @return something
+        |  *
+        |  * @since 1.0
+        |  * @version 1.0
+        |  *
+        |  * @note a final remark.
+        |  */
+        |class Demo(p1: String, p2: String, p3: String) {
+        |
+        |  def aMethod(): Unit = {}
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL10632() = {
+    val before =
+      """
+        |class IndentBug {
+        |  //someComment
+        |  lazy val myVal =
+        |    42
+        |
+        |  //someComment
+        |  private val myVal2 =
+        |    42
+        |
+        |  /*Some other comment*/
+        |  override def foo =
+        |    42
+        |
+        |  /**
+        |    * ScalaDoc
+        |    */
+        |  protected def foo2 =
+        |    42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }

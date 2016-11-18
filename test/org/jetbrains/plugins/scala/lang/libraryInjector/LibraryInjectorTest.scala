@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil}
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
@@ -16,14 +17,16 @@ import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.junit.experimental.categories.Category
 
 /**
   * Created by mucianm on 16.03.16.
   */
+@Category(Array(classOf[PerfCycleTests]))
 class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
   val LIBRARY_NAME = "dummy_lib.jar"
-  private var scalaLibraryLoader: ScalaLibraryLoader = null
+  private var scalaLibraryLoader: ScalaLibraryLoader = _
 
   trait Zipable {
     def zip(toDir: File): File = ???
@@ -60,7 +63,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     super.setUp()
 
     CompilerTestUtil.enableExternalCompiler()
-    DebuggerTestUtil.setCompileServerSettings()
+    DebuggerTestUtil.enableCompileServer(true)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
 
@@ -77,6 +80,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     CompilerTestUtil.disableExternalCompiler(myProject)
     CompileServerLauncher.instance.stop()
     scalaLibraryLoader.clean()
+    scalaLibraryLoader = null
     super.tearDown()
   }
 

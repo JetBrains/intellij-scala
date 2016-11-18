@@ -141,7 +141,6 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     scalaCodeStyleSettings.setSortImports(sortImportsCheckBox.isSelected());
     scalaCodeStyleSettings.setCollectImports(collectImportsWithTheCheckBox.isSelected());
     scalaCodeStyleSettings.setClassCountToUseImportOnDemand((Integer) classCountSpinner.getValue());
-    scalaCodeStyleSettings.setImportMembersUsingUnderScore(importMembersUsingUnderscoreCheckBox.isSelected());
     scalaCodeStyleSettings.setImportShortestPathForAmbiguousReferences(importTheShortestPathCheckBox.isSelected());
     scalaCodeStyleSettings.setImportsWithPrefix(getPrefixPackages());
     scalaCodeStyleSettings.setAlwaysUsedImports(getAlwaysUsedImports());
@@ -164,8 +163,6 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
             sortImportsCheckBox.isSelected()) return true;
     if (scalaCodeStyleSettings.isCollectImports() !=
             collectImportsWithTheCheckBox.isSelected()) return true;
-    if (scalaCodeStyleSettings.isImportMembersUsingUnderScore() !=
-            importMembersUsingUnderscoreCheckBox.isSelected()) return true;
     if (scalaCodeStyleSettings.isImportShortestPathForAmbiguousReferences() !=
             importTheShortestPathCheckBox.isSelected()) return true;
     if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
@@ -190,7 +187,6 @@ public class ImportsPanel extends CodeStyleAbstractPanel {
     setValue(sortImportsCheckBox, scalaCodeStyleSettings.isSortImports());
     setValue(collectImportsWithTheCheckBox, scalaCodeStyleSettings.isCollectImports());
     setValue(classCountSpinner, scalaCodeStyleSettings.getClassCountToUseImportOnDemand());
-    setValue(importMembersUsingUnderscoreCheckBox, scalaCodeStyleSettings.isImportMembersUsingUnderScore());
     setValue(importTheShortestPathCheckBox, scalaCodeStyleSettings.isImportShortestPathForAmbiguousReferences());
 
     myReferencesWithPrefixModel.clear();

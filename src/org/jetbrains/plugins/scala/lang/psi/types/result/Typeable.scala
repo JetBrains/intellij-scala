@@ -23,7 +23,10 @@ trait Typeable {
 }
 
 object Typeable {
-  def unapply(typeable: Typeable): Option[ScType] = typeable.getType().toOption
+  def unapply(typeable: Typeable): Option[ScType] =
+    Option(typeable).flatMap {
+      _.getType().toOption
+    }
 }
 
 trait TypingContext {

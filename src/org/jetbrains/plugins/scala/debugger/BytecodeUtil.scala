@@ -104,4 +104,9 @@ private[debugger] object BytecodeUtil {
     if (codeIndex < 0 || codeIndex > bytecodes.length - 1) false
     else bytecodes(codeIndex) == iconst_0
   }
+
+  def isGoto(codeIndex: Int, bytecodes: Array[Byte]): Boolean = {
+    if (codeIndex < 0 || codeIndex > bytecodes.length - 1) false
+    else bytecodes(codeIndex) == goto
+  }
 }

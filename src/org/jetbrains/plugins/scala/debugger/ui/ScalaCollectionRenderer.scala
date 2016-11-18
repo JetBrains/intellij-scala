@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.debugger.ui
 
 import java.util
 
+import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, TypeEvaluator}
 import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException, EvaluationContext, TextWithImportsImpl}
-import com.intellij.debugger.engine.{DebugProcessImpl, DebuggerUtils, JVMNameUtil}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.reflect.NameTransformer
 
 /**
@@ -36,10 +36,6 @@ class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSett
   }
 
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
-
-  private def notView(tp: Type): Boolean = !DebuggerUtils.instanceOf(tp, viewClassName)
-
-  private def notStream(tp: Type): Boolean = !DebuggerUtils.instanceOf(tp, streamClassName)
 }
 
 object ScalaCollectionRenderer {
@@ -47,9 +43,26 @@ object ScalaCollectionRenderer {
     def exprEval = new ExpressionEvaluatorImpl(e)
   }
 
-  private val hasDefiniteSizeEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "hasDefiniteSize", JVMNameUtil.getJVMRawText("()Z"), Nil)
-  private val nonEmptyEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "nonEmpty", JVMNameUtil.getJVMRawText("()Z"), Nil)
-  private val sizeEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "size", JVMNameUtil.getJVMRawText("()I"), Nil)
+  private val evaluators: mutable.HashMap[DebugProcess, CachedEvaluators] = new mutable.HashMap()
+
+  private def cachedEvaluators(context: EvaluationContext): CachedEvaluators = {
+    val debugProcess = context.getDebugProcess
+    evaluators.get(debugProcess).orElse {
+      if (debugProcess.isDetached || debugProcess.isDetaching) None
+      else {
+        val value = new CachedEvaluators
+        evaluators.put(debugProcess, value)
+        debugProcess.addDebugProcessListener(new DebugProcessAdapterImpl {
+          override def processDetached(process: DebugProcessImpl, closedByUser: Boolean): Unit = evaluators.remove(debugProcess)
+        })
+        Some(value)
+      }
+    }.getOrElse(new CachedEvaluators)
+  }
+
+  private def hasDefiniteSizeEval(context: EvaluationContext) = cachedEvaluators(context).hasDefiniteSizeEval
+  private def nonEmptyEval(context: EvaluationContext) = cachedEvaluators(context).nonEmptyEval
+  private def sizeEval(context: EvaluationContext) = cachedEvaluators(context).sizeEval
 
   val collectionClassName = "scala.collection.GenIterable"
   val streamClassName = "scala.collection.immutable.Stream"
@@ -61,21 +74,27 @@ object ScalaCollectionRenderer {
 
   def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
-      case ct: ClassType if ct.name.startsWith("scala.collection") &&
-        !DebuggerUtils.instanceOf(ct, streamClassName) && !DebuggerUtils.instanceOf(ct, iteratorClassName) => true
-      case _ => evaluateBoolean(value, evaluationContext, hasDefiniteSizeEval)
+      case ct: ClassType if ct.name.startsWith("scala.collection") && notStream(ct) && notIterator(ct) => true
+      case _ => evaluateBoolean(value, evaluationContext, hasDefiniteSizeEval(evaluationContext))
     }
   }
 
   def nonEmpty(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
       case ct: ClassType if ct.name.toLowerCase.contains("empty") || ct.name.contains("Nil") => false
-      case _ => evaluateBoolean(value, evaluationContext, nonEmptyEval)
+      case _ => evaluateBoolean(value, evaluationContext, nonEmptyEval(evaluationContext))
     }
   }
 
-  def size(value: Value, evaluationContext: EvaluationContext): Int = evaluateInt(value, evaluationContext, sizeEval)
+  def size(value: Value, evaluationContext: EvaluationContext): Int = evaluateInt(value, evaluationContext, sizeEval(evaluationContext))
 
+  private def checkNotCollectionOfKind(tp: Type, shortName: String, baseClassName: String) = !tp.name.contains(shortName) && !DebuggerUtils.instanceOf(tp, baseClassName)
+
+  private def notView(tp: Type): Boolean = checkNotCollectionOfKind(tp, "View", viewClassName)
+
+  private def notStream(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Stream", streamClassName)
+
+  private def notIterator(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Iterator", iteratorClassName)
   /**
    * util method for collection displaying in debugger
     *
@@ -142,21 +161,7 @@ object ScalaCollectionRenderer {
 
   object ScalaToArrayRenderer extends ReferenceRenderer(collectionClassName) with ChildrenRenderer {
 
-    private lazy val toArrayEvaluator = {
-      val classTagObjectEval = {
-        val classTagEval = stableObjectEval("scala.reflect.ClassTag$")
-        ScalaMethodEvaluator(classTagEval, "Object", null, Nil)
-      }
-
-      val manifestObjectEval = {
-        val predefEval = stableObjectEval("scala.Predef$")
-        val manifestEval = new ScalaMethodEvaluator(predefEval, "Manifest", null, Nil)
-        new ScalaMethodEvaluator(manifestEval, "Object", null, Nil)
-      }
-      val argEval = ScalaDuplexEvaluator(classTagObjectEval, manifestObjectEval)
-
-      new ScalaMethodEvaluator(new ScalaThisEvaluator(), "toArray", null, Seq(argEval))
-    }
+    private def toArrayEvaluator(context: EvaluationContext) = cachedEvaluators(context).toArrayEvaluator
 
     override def getUniqueId: String = "ScalaToArrayRenderer"
 
@@ -166,7 +171,7 @@ object ScalaCollectionRenderer {
         return nonEmpty(value, context) && hasDefiniteSize(value, context)
       }
       catch {
-        case e: EvaluateException =>
+        case _: EvaluateException =>
       }
 
       try {
@@ -175,13 +180,15 @@ object ScalaCollectionRenderer {
         defaultChildrenRenderer.isExpandable(children, evaluationContext, parentDescriptor)
       }
       catch {
-        case e: EvaluateException =>
+        case _: EvaluateException =>
           true
       }
     }
 
-    override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement =
-      ScalaPsiElementFactory.createExpressionFromText("this.toArray()", PsiManager.getInstance(context.getProject))
+    override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement = {
+      implicit val manager = PsiManager.getInstance(context.getProject)
+      createExpressionFromText("this.toArray()")
+    }
 
 
     override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext) {
@@ -209,15 +216,36 @@ object ScalaCollectionRenderer {
       renderer
     }
 
-
-    private def stableObjectEval(name: String) = new ScalaFieldEvaluator(new TypeEvaluator(JVMNameUtil.getJVMRawText(name)), "MODULE$", false)
-
     private def evaluateChildren(context: EvaluationContext, descriptor: NodeDescriptor): Value = {
-      val evaluator: ExpressionEvaluator = toArrayEvaluator.exprEval
+      val evaluator: ExpressionEvaluator = toArrayEvaluator(context).exprEval
       val value: Value = evaluator.evaluate(context)
       DebuggerUtilsEx.keep(value, context)
       value
     }
+  }
+
+  private class CachedEvaluators {
+    val hasDefiniteSizeEval = ScalaMethodEvaluator(new ScalaThisEvaluator(), "hasDefiniteSize", JVMNameUtil.getJVMRawText("()Z"), Nil)
+    val nonEmptyEval = ScalaMethodEvaluator(new ScalaThisEvaluator(), "nonEmpty", JVMNameUtil.getJVMRawText("()Z"), Nil)
+    val sizeEval = ScalaMethodEvaluator(new ScalaThisEvaluator(), "size", JVMNameUtil.getJVMRawText("()I"), Nil)
+
+    val toArrayEvaluator = {
+      val classTagObjectEval = {
+        val classTagEval = stableObjectEval("scala.reflect.ClassTag$")
+        ScalaMethodEvaluator(classTagEval, "Object", null, Nil)
+      }
+
+      val manifestObjectEval = {
+        val predefEval = stableObjectEval("scala.Predef$")
+        val manifestEval = ScalaMethodEvaluator(predefEval, "Manifest", null, Nil)
+        ScalaMethodEvaluator(manifestEval, "Object", null, Nil)
+      }
+      val argEval = ScalaDuplexEvaluator(classTagObjectEval, manifestObjectEval)
+
+      ScalaMethodEvaluator(new ScalaThisEvaluator(), "toArray", null, Seq(argEval))
+    }
+
+    private def stableObjectEval(name: String) = ScalaFieldEvaluator(new TypeEvaluator(JVMNameUtil.getJVMRawText(name)), "MODULE$", classPrivateThisField = false)
   }
 }
 

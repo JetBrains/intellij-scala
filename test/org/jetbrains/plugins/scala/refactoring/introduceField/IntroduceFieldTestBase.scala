@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldContext, IntroduceFieldSettings, ScalaIntroduceFieldFromExpressionHandler}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
@@ -32,7 +33,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
 
   def folderPath: String = baseRootPath() + "introduceField/"
 
-  protected def doTest() {
+  protected def doTest(scType: ScType = StdType.QualNameToType("scala.Int")) {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -62,7 +63,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
       case -1 => 0
       case idx: Int => fileText.charAt(idx + selectedClassNumberMarker.length).toString.toInt
     }
-
+    
     //start to inline
     try {
       val handler = new ScalaIntroduceFieldFromExpressionHandler
@@ -74,8 +75,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
       initInDecl.foreach(settings.initInDeclaration = _)
       settings.defineVar = true
       settings.name = "i"
-      settings.explicitType = true
-      settings.scType = StdType.QualNameToType("scala.Int")
+      settings.scType = scType
       ScalaUtils.runWriteActionDoNotRequestConfirmation(new Runnable {
         def run() {
           handler.runRefactoring(ifc, settings)
@@ -97,6 +97,7 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
         assertTrue("Test result must be in last comment statement.", false)
         ""
     }
+    
     assertEquals(output, res)
   }
 }

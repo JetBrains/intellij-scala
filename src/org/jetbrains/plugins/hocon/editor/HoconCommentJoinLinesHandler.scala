@@ -16,7 +16,7 @@ import org.jetbrains.plugins.hocon.psi.HoconPsiFile
  */
 class HoconCommentJoinLinesHandler extends JoinLinesHandlerDelegate {
   def tryJoinLines(document: Document, file: PsiFile, start: Int, end: Int): Int = file match {
-    case hoconFile: HoconPsiFile =>
+    case _: HoconPsiFile =>
       import CommonUtil._
       val element = file.findElementAt(start)
       if (element != null && HoconTokenSets.Comment.contains(element.getNode.getElementType)) {

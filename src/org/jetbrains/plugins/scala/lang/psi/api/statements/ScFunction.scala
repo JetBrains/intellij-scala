@@ -7,11 +7,9 @@ package statements
 
 import java.util
 
-import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
-import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
@@ -22,12 +20,12 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScModifiableTypedDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.fake.{FakePsiReferenceList, FakePsiTypeParameterList}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentifier, ScSyntheticFunction, ScSyntheticTypeParameter, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
@@ -58,7 +56,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def methodType: ScType = {
     paramClauses.foldRight[ScType](retType) {
-      (params: Seq[Parameter], tp: ScType) => new ScMethodType(tp, params, false)(getProject, getResolveScope)
+      (params: Seq[Parameter], tp: ScType) => ScMethodType(tp, params, isImplicit = false)(getProject, getResolveScope)
     }
   }
 
@@ -74,21 +72,12 @@ trait ScFun extends ScTypeParametersOwner {
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
   with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
-  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement
-  with ScModifiableTypedDeclaration {
+  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
 
-  private var synthNavElement: Option[PsiElement] = None
-  var syntheticCaseClass: Option[ScClass] = None
-  var syntheticContainingClass: Option[ScTypeDefinition] = None
-  def setSynthetic(navElement: PsiElement) {
-    synthNavElement = Some(navElement)
-  }
   def isSyntheticCopy: Boolean = synthNavElement.nonEmpty && name == "copy"
   def isSyntheticApply: Boolean = synthNavElement.nonEmpty && name == "apply"
   def isSyntheticUnapply: Boolean = synthNavElement.nonEmpty && name == "unapply"
   def isSyntheticUnapplySeq: Boolean = synthNavElement.nonEmpty && name == "unapplySeq"
-  def isSynthetic: Boolean = synthNavElement.nonEmpty
-  def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
 
   def hasUnitResultType: Boolean = {
     @tailrec
@@ -111,7 +100,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def isEmptyParen: Boolean = paramClauses.clauses.size == 1 && paramClauses.params.isEmpty
 
   def addEmptyParens() {
-    val clause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+    val clause = createClauseFromText("()")
     paramClauses.addClause(clause)
   }
 
@@ -121,16 +110,14 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def isNative: Boolean = {
-    hasAnnotation("scala.native").isDefined
-  }
+  def isNative: Boolean = hasAnnotation("scala.native")
 
   override def hasModifierProperty(name: String): Boolean = {
     if (name == "abstract") {
       this match {
         case _: ScFunctionDeclaration =>
           containingClass match {
-            case t: ScTrait => return true
+            case _: ScTrait => return true
             case c: ScClass if c.hasAbstractModifier => return true
             case _ =>
           }
@@ -168,7 +155,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
               case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
             }
-            Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType(getProject, getResolveScope)))
+            Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType()))
           case _ => None
         }
         superReturnType
@@ -180,7 +167,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (effectiveParameterClauses.nonEmpty) return true
     superMethod match {
       case Some(fun: ScFunction) => fun.hasParameterClause
-      case Some(psi: PsiMethod) => true
+      case Some(_: PsiMethod) => true
       case None => false
     }
   }
@@ -209,7 +196,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
-            Success(m.getReturnType.toScType(getProject, getResolveScope), Some(this))
+            Success(m.getReturnType.toScType(), Some(this))
           case _ => Failure("No defined return type", Some(this))
         }
     }
@@ -227,9 +214,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (!hasParameterClause) return resultType
     val res = if (clauses.nonEmpty)
       clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-        new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
       }
-      else new ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
+      else ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
     res.asInstanceOf[ScMethodType]
   }
 
@@ -250,7 +237,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
         if (stub != null) {
-          return stub.asInstanceOf[ScFunctionStub].getReturnTypeElement
+          return stub.asInstanceOf[ScFunctionStub].returnTypeElement
         }
       case _ =>
     }
@@ -309,20 +296,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
 
-  @CachedInsidePsiElement(this, ModCount.getLibraryAwareCount)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
 
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
-    if (isConstructor) {
-      containingClass match {
-        case owner: ScTypeParametersOwner =>
-          if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(owner, paramClauses, classParam = false)
-        case _ => None
-      }
-    } else {
-      if (hasImplicit) None else ScalaPsiUtil.syntheticParamClause(this, paramClauses, classParam = false)
-    }
+    ScalaPsiUtil.syntheticParamClause(if (isConstructor) containingClass else this, paramClauses, classParam = false, hasImplicit)
   }
 
   def declaredElements = Seq(this)
@@ -336,13 +315,13 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
       case -1 =>
-        parameters.find { case param =>
+        parameters.find { param =>
           ScalaNamesUtil.equivalent(param.name, name) ||
-              param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
+            param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
         }
       case i if i < 0 || i >= effectiveParameterClauses.length => None
       case _ =>
-        effectiveParameterClauses.apply(clausePosition).effectiveParameters.find { case param =>
+        effectiveParameterClauses.apply(clausePosition).effectiveParameters.find { param =>
           ScalaNamesUtil.equivalent(param.name, name) ||
             param.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
         }
@@ -399,7 +378,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   @tailrec
   private def isJavaVarargs: Boolean = {
-    if (hasAnnotation("scala.annotation.varargs").isDefined) true
+    if (hasAnnotation("scala.annotation.varargs")) true
     else {
       superMethod match {
         case Some(f: ScFunction) => f.isJavaVarargs
@@ -412,7 +391,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * @return Empty array, if containing class is null.
    */
-  @Cached(synchronized = false, ModCount.getLibraryAwareCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
@@ -445,7 +424,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     getReturnTypeImpl
   }
 
-  @CachedInsidePsiElement(this, ModCount.getLibraryAwareCount)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
     def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
@@ -558,7 +537,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
 
     override def getReferencedTypes: Array[PsiClassType] = {
-      hasAnnotation("scala.throws") match {
+      annotations("scala.throws").headOption match {
         case Some(annotation) =>
           annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
             _.getType(TypingContext.empty) match {
@@ -613,14 +592,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     new HierarchicalMethodSignatureImpl(getSignature(PsiSubstitutor.EMPTY))
   }
 
-  override def isDeprecated: Boolean = {
-    hasAnnotation("scala.deprecated").isDefined || hasAnnotation("java.lang.Deprecated").isDefined
-  }
-
   override def getName: String = {
-    val res = if (isConstructor && getContainingClass != null) getContainingClass.getName else super.getName
-    if (JavaLexer.isKeyword(res, LanguageLevel.HIGHEST)) "_mth" + res
-    else res
+    if (isConstructor) Option(getContainingClass).map(_.getName).getOrElse(super.getName)
+    else super.getName
   }
 
   override def setName(name: String): PsiElement = {
@@ -650,21 +624,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  //Why not to use default value? It's not working in Scala...
-  def getTypeNoImplicits(ctx: TypingContext): TypeResult[ScType] = getTypeNoImplicits(ctx, returnType)
-
-  def getTypeNoImplicits(ctx: TypingContext, rt: TypeResult[ScType]): TypeResult[ScType] = {
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
+  def functionTypeNoImplicits(retType: Option[ScType] = returnType.toOption): Option[ScType] = {
     collectReverseParamTypesNoImplicits match {
       case Some(params) =>
         val project = getProject
         val resolveScope = getResolveScope
-        rt.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
-      case None => Failure("no params", Some(this))
+        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
+      case None => None
     }
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
-  def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
+  private def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
     var i = paramClauses.clauses.length - 1
     val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty
     while (i >= 0) {
@@ -678,8 +649,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
     Some(res)
   }
-
-  override def modifiableReturnType: Option[ScType] = returnType.toOption
 }
 
 object ScFunction {

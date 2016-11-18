@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.SourcePositionHighlighter
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.DocumentUtil
 import com.intellij.xdebugger.XDebuggerUtil
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaPositionManager, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 
@@ -17,6 +17,7 @@ import scala.collection.JavaConverters._
 
 class ExactBreakpointTest extends ExactBreakpointTestBase with ScalaVersion_2_11
 class ExactBreakpointTest_212 extends ExactBreakpointTestBase with ScalaVersion_2_12
+class ExactBreakpointTest_212_OLD extends ExactBreakpointTestBase with ScalaVersion_2_12_OLD
 
 abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
 

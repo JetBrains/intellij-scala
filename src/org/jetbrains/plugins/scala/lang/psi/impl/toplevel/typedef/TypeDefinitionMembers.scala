@@ -5,6 +5,8 @@ package impl
 package toplevel
 package typedef
 
+import java.io.IOException
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
@@ -12,7 +14,9 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -25,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI
 
 import scala.reflect.NameTransformer
 
@@ -485,10 +490,12 @@ object TypeDefinitionMembers {
     }
 
     def forAllSignatureNodes(c: PsiClass)(action: Node => Unit): Unit = {
-      for {
-        signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
-        (_, node) <- signature
-      } action(node)
+      withResponsibleUI {
+        for {
+          signature <- TypeDefinitionMembers.getSignatures(c).allFirstSeq()
+          (_, node) <- signature
+        } action(node)
+      }
     }
   }
 
@@ -498,51 +505,26 @@ object TypeDefinitionMembers {
 
   def getParameterlessSignatures(clazz: PsiClass)
                                 (implicit typeSystem: TypeSystem = clazz.typeSystem): PMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareDependencyItem(clazz))
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): PMap = ParameterlessNodes.build(clazz)
-
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardParameterlessSignatures
-        }
-      case _ =>
-    }
 
     inner()
   }
 
   def getTypes(clazz: PsiClass)
               (implicit typeSystem: TypeSystem = clazz.typeSystem): TMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareDependencyItem(clazz))
-    def inner(): TMap =TypeNodes.build(clazz)
 
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardTypes
-        }
-      case _ =>
-    }
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    def inner(): TMap =TypeNodes.build(clazz)
 
     inner()
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None)
                    (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareDependencyItem(clazz))
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
-    clazz match {
-      case o: ScObject =>
-        val qual = o.qualifiedName
-        if (qual == "scala" || qual == "scala.Predef") {
-          return o.getHardSignatures
-        }
-      case _ =>
-    }
     val ans = buildNodesClass()
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
@@ -555,7 +537,7 @@ object TypeDefinitionMembers {
                 c match {
                   case o: ScObject =>
                     if (allowedNames.contains(o.name)) {
-                      @CachedInsidePsiElement(o, CachesUtil.libraryAwareDependencyItem(o))
+                      @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
                       def buildNodesObject(): SMap = SignatureNodes.build(o)
 
                       val add = buildNodesObject()
@@ -563,7 +545,7 @@ object TypeDefinitionMembers {
                     }
                   case c: ScClass =>
                     if (allowedNames.contains(c.name)) {
-                      @CachedInsidePsiElement(c, CachesUtil.libraryAwareDependencyItem(c))
+                      @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
                       def buildNodesClass2(): SMap = SignatureNodes.build(c)
 
                       val add = buildNodesClass2()
@@ -595,8 +577,8 @@ object TypeDefinitionMembers {
   def getSelfTypeSignatures(clazz: PsiClass)
                            (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
 
-    @CachedInsidePsiElement(clazz, CachesUtil.libraryAwareDependencyItem(clazz))
-    def selfTypeSignaturesInner(implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    def selfTypeSignaturesInner(implicit typeSystem : TypeSystem = clazz.typeSystem): SMap = {
       clazz match {
         case td: ScTypeDefinition =>
           td.selfType match {
@@ -607,7 +589,7 @@ object TypeDefinitionMembers {
                   getSignatures(c, Some(clazzType), clazz)
                 case tp =>
                   val cl = tp.extractClassType(clazz.getProject) match {
-                    case Some((selfClazz, subst)) => selfClazz
+                    case Some((selfClazz, _)) => selfClazz
                     case _ => clazz
                   }
                   getSignatures(cl)
@@ -634,7 +616,7 @@ object TypeDefinitionMembers {
                 getTypes(c, Some(clazzType), clazz)
               case tp =>
                 val cl = tp.extractClassType(clazz.getProject) match {
-                  case Some((selfClazz, subst)) => selfClazz
+                  case Some((selfClazz, _)) => selfClazz
                   case _ => clazz
                 }
                 getTypes(cl)
@@ -679,6 +661,7 @@ object TypeDefinitionMembers {
     }
 
     if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
+
 
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(clazz, Option(place)),
       () => getParameterlessSignatures(clazz), () => getTypes(clazz), isSupers = false,
@@ -860,7 +843,7 @@ object TypeDefinitionMembers {
           }
           sig match {
             case phys: PhysicalSignature if processMethods => if (!addMethod(phys.method)) return false
-            case phys: PhysicalSignature => //do nothing
+            case _: PhysicalSignature => //do nothing
             case s: Signature if processMethods && s.namedElement.isInstanceOf[PsiMethod] =>
               //this is compound type case
               if (!addMethod(s.namedElement)) return false
@@ -884,7 +867,7 @@ object TypeDefinitionMembers {
 
                 n.info match {
                   case phys: PhysicalSignature if processMethods => if (!addMethod(phys.method)) return false
-                  case phys: PhysicalSignature => //do nothing
+                  case _: PhysicalSignature => //do nothing
                   case s: Signature if processMethods && s.namedElement.isInstanceOf[PsiMethod] =>
                     //this is compound type case
                     if (!addMethod(s.namedElement)) return false

@@ -4,7 +4,6 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -23,11 +22,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticValue
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve._
@@ -59,10 +60,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     def tail(qualName: String)(simpleImport: => PsiElement): PsiElement = {
       safeBindToElement(qualName, {
         case (qual, true) =>
-          ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
-            asInstanceOf[ScReferenceExpression]
+          createExpressionWithContextFromText(qual, getContext, this).asInstanceOf[ScReferenceExpression]
         case (qual, false) =>
-          ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
+          createExpressionFromText(qual).asInstanceOf[ScReferenceExpression]
       })(simpleImport)
     }
 
@@ -85,12 +85,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
             //need to use unqualified reference with new import
             if (!this.isQualified) this
-            else this.replace(ScalaPsiElementFactory.createExpressionFromText(this.refName, getManager).asInstanceOf[ScReferenceExpression])
+            else this.replace(createExpressionFromText(this.refName).asInstanceOf[ScReferenceExpression])
             //todo: conflicts with other classes with same name?
           }
         }
         this
-      case t: ScTypeAlias =>
+      case _: ScTypeAlias =>
         throw new IncorrectOperationException("type does not match expected kind")
       case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.name == "apply" =>
         bindToElement(fun.containingClass)
@@ -179,6 +179,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def shapeMultiType: Array[TypeResult[ScType]] = {
     shapeResolve.filter(_.isInstanceOf[ScalaResolveResult]).
       map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
+  }
+
+  private def isMetaInlineDefn(p: ScParameter): Boolean = {
+    p.owner match {
+      case f: ScFunctionDefinition if f.getModifierList != null =>
+        f.getModifierList.findFirstChildByType(ScalaTokenTypes.kINLINE) != null
+      case _ => false
+    }
   }
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
@@ -282,10 +290,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             }
         }
+      case Some(ScalaResolveResult(param: ScParameter, _)) if isMetaInlineDefn(param) =>
+        ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", param.getContext, null).get
       case Some(r@ScalaResolveResult(param: ScParameter, s)) =>
         val owner = param.owner match {
           case f: ScPrimaryConstructor => f.containingClass
-          case f: ScFunctionExpr => null
+          case _: ScFunctionExpr => null
           case f => f
         }
         r.fromType match {
@@ -306,7 +316,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         val optionResult: Option[ScType] = {
           fun.definedReturnType match {
             case s: Success[ScType] => Some(s.get)
-            case fail: Failure => None
+            case _: Failure => None
           }
         }
         s.subst(fun.polymorphicType(optionResult))
@@ -324,7 +334,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (seqClass != null) {
           ScParameterizedType(ScalaType.designator(seqClass), Seq(computeType))
         } else computeType
-      case Some(ScalaResolveResult(obj: ScObject, s)) =>
+      case Some(ScalaResolveResult(obj: ScObject, _)) =>
         def tail = {
           fromType match {
             case Some(tp) => ScProjectionType(tp, obj, superReference = false)
@@ -379,71 +389,67 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           clazz.typeParameters.map(TypeParameterType(_, Some(s)))))
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
       case Some(ScalaResolveResult(field: PsiField, s)) =>
-        s.subst(field.getType.toScType(field.getProject, getResolveScope))
+        s.subst(field.getType.toScType())
       case Some(ScalaResolveResult(method: PsiMethod, s)) =>
-        if (method.getName == "getClass" && method.containingClass != null &&
-          method.containingClass.getQualifiedName == "java.lang.Object") {
+        val returnType = Option(method.containingClass).filter {
+          method.getName == "getClass" && _.getQualifiedName == "java.lang.Object"
+        }.flatMap { _ =>
+          val maybeReference = qualifier.orElse {
+            val result: Option[Typeable] = getContext match {
+              case infixExpr: ScInfixExpr if infixExpr.operation == this => Some(infixExpr.lOp)
+              case postfixExpr: ScPostfixExpr if postfixExpr.operation == this => Some(postfixExpr.operand)
+              case _ => ScalaPsiUtil.drvTemplate(this)
+            }
+            result
+          }
 
-          def getType(element: PsiNamedElement) = Option(element) collect {
+          def getType(element: PsiNamedElement): Option[ScType] = Option(element).collect {
             case pattern: ScBindingPattern => pattern
             case fieldId: ScFieldId => fieldId
             case parameter: ScParameter => parameter
-          } map {
+          }.flatMap {
             _.getType().toOption
           }
 
-          def removeTypeDesignator(`type`: ScType): Option[ScType] = `type` match {
-            case ScDesignatorType(element) => getType(element) match {
-              case Some(maybeType) => maybeType.flatMap(removeTypeDesignator)
-              case _ => Some(`type`)
+          def removeTypeDesignator(`type`: ScType): ScType = {
+            val maybeType = `type` match {
+              case ScDesignatorType(element) =>
+                getType(element)
+              case projectionType: ScProjectionType =>
+                getType(projectionType.actualElement).map {
+                  projectionType.actualSubst.subst
+                }
+              case _ => None
             }
-            case projectionType: ScProjectionType => getType(projectionType.actualElement) match {
-              case Some(maybeType) => maybeType.map(projectionType.actualSubst.subst).flatMap(removeTypeDesignator)
-              case _ => Some(`type`)
-            }
-            case _ => Some(`type`)
+            maybeType.map(removeTypeDesignator).getOrElse(`type`)
           }
 
-          val maybeJLClass = Option(ScalaPsiManager.instance(getProject)
+          def convertQualifier(jlClass: PsiClass): ScType = {
+            val maybeType = maybeReference.flatMap {
+              _.getType().toOption
+            }
+
+            val upperBound = maybeType.flatMap {
+              case ScThisType(clazz) => Some(ScDesignatorType(clazz))
+              case ScDesignatorType(_: ScObject) => None
+              case ScCompoundType(comps, _, _) => comps.headOption.map(removeTypeDesignator)
+              case tp => Some(tp).map(removeTypeDesignator)
+            }.getOrElse(Any)
+
+            val argument = ScExistentialArgument("_$1", Nil, Nothing, upperBound)
+            ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)), List(argument))
+          }
+
+          Option(ScalaPsiManager.instance(getProject)
             .getCachedClass("java.lang.Class", getResolveScope, ScalaPsiManager.ClassCategory.TYPE))
-
-          def convertQualifier(typeResult: TypeResult[ScType]): Option[ScType] = maybeJLClass.map {
-            case jlClass =>
-              val upperBound = typeResult.toOption.flatMap {
-                case ScThisType(clazz) => Some(ScDesignatorType(clazz))
-                case ScDesignatorType(o: ScObject) => None
-                case ScCompoundType(comps, _, _) => comps.headOption.flatMap(removeTypeDesignator)
-                case tp => removeTypeDesignator(tp)
-              }.getOrElse(Any)
-
-              val ex = ScExistentialArgument("_$1", Nil, Nothing, upperBound)
-              ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(ex)), List(ex))
-          }
-
-          val returnType: Option[ScType] = qualifier match {
-            case Some(qual) =>
-              convertQualifier(qual.getType(TypingContext.empty))
-            case None =>
-              getContext match {
-                case i: ScInfixExpr if i.operation == this =>
-                  convertQualifier(i.lOp.getType(TypingContext.empty))
-                case i: ScPostfixExpr if i.operation == this =>
-                  convertQualifier(i.operand.getType(TypingContext.empty))
-                case _ =>
-                  for {
-                    clazz <- ScalaPsiUtil.drvTemplate(this)
-                    qualifier <- convertQualifier(clazz.getType(TypingContext.empty))
-                  } yield qualifier
-              }
-          }
-          ResolveUtils.javaPolymorphicType(method, s, getResolveScope, returnType)
-        } else {
-          ResolveUtils.javaPolymorphicType(method, s, getResolveScope)
+            .map(convertQualifier)
         }
+
+        ResolveUtils.javaPolymorphicType(method, s, getResolveScope, returnType)
       case _ => return Failure("Cannot resolve expression", Some(this))
     }
     qualifier match {
-      case Some(s: ScSuperReference) =>
+      case Some(_: ScSuperReference) =>
       case None => //infix, prefix and postfix
         getContext match {
           case sugar: ScSugarCallExpr if sugar.operation == this =>
@@ -490,7 +496,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
 
   def getPrevTypeInfoParams: Seq[TypeParameter] = {
     qualifier match {
-      case Some(s: ScSuperReference) => Seq.empty
+      case Some(_: ScSuperReference) => Seq.empty
       case Some(qual) =>
         qual.getNonValueType(TypingContext.empty).map {
           case t: ScTypePolymorphicType => t.typeParameters

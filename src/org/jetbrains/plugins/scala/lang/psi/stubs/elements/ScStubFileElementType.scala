@@ -3,36 +3,43 @@ package lang
 package psi
 package stubs
 package elements
+
 import com.intellij.lang.Language
-import com.intellij.psi.StubBuilder
-import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.tree.IStubFileElementType
+import com.intellij.psi.{PsiElement, StubBuilder}
+import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubFileElementWrapper
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.AbstractFileStub
 
 /**
- * @author ilyas
- */
-
-class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[ScalaFile, ScFileStub]("scala.FILE", lang) {
-
+  * @author ilyas
+  */
+class ScStubFileElementType(val debugName: String = "file",
+                            language: Language = ScalaLanguage.Instance)
+  extends IStubFileElementType[ScFileStub](debugName, language) with DefaultStubSerializer[ScFileStub] {
   override def getStubVersion: Int = StubVersion.STUB_VERSION
 
-  override def getBuilder: StubBuilder = new ScalaFileStubBuilder()
-
-  override def getExternalId = "scala.FILE"
-
-  override def deserializeImpl(dataStream: StubInputStream, parentStub: Object): ScFileStub = {
-    ScalaStubsUtil.deserializeFileStubElement(dataStream, parentStub)
-  }
+  override def getBuilder: StubBuilder = new ScalaFileStubBuilder
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
-    ScalaStubsUtil.serializeFileStubElement(stub, dataStream)
+    dataStream.writeBoolean(stub.isScript)
+    dataStream.writeBoolean(stub.isCompiled)
+    dataStream.writeName(stub.packageName)
+    dataStream.writeName(stub.sourceName)
   }
 
-  def indexStub(stub: ScFileStub, sink: IndexSink){
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScFileStub =
+    new FileStubImpl(isScript = dataStream.readBoolean,
+      isCompiled = dataStream.readBoolean,
+      packageName = StringRef.toString(dataStream.readName),
+      sourceName = StringRef.toString(dataStream.readName))
+
+  private class FileStubImpl(val isScript: Boolean,
+                             val isCompiled: Boolean,
+                             val packageName: String,
+                             val sourceName: String)
+    extends AbstractFileStub(null)
 
 }
 

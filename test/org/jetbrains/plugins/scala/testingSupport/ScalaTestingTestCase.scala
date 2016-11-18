@@ -50,12 +50,6 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     })
   }
 
-  override protected def tearDown() = {
-    EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
-      override def run(): Unit = ScalaTestingTestCase.super.tearDown()
-    })
-  }
-
   override val testDataBasePrefix = "testingSupport"
 
   protected val useDynamicClassPath = false
@@ -66,6 +60,8 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
       assert(checkTestNodeInFileStructure(structureViewRoot, test, None, status))
     }
   }
+
+  override def invokeTestRunnable(runnable: Runnable): Unit = runnable.run()
 
   override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
                                                   testStatus: Int = TestStructureViewElement.normalStatusId) = {

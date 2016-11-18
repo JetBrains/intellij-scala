@@ -25,7 +25,6 @@ import com.intellij.util.{DocumentUtil, Processor}
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
@@ -41,13 +40,13 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
       highlightInfoProcessor) with ScalaUnusedImportPassBase {
   protected def getFixes: List[IntentionAction] = List(new ScalaOptimizeImportsFix, new ScalaEnableOptimizeImportsOnTheFlyFix)
 
-  private var myHighlights: util.List[HighlightInfo] = null
-  private var myOptimizeImportsRunnable: Runnable = null
+  private var myHighlights: util.List[HighlightInfo] = _
+  private var myOptimizeImportsRunnable: Runnable = _
 
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = {
     file match {
       case scalaFile: ScalaFile if HighlightingLevelManager.getInstance(file.getProject) shouldInspect file =>
-        val unusedImports: Array[ImportUsed] = ImportTracker getInstance file.getProject getUnusedImport scalaFile
+        val unusedImports = ImportTracker.getInstance(file.getProject).getUnusedImport(scalaFile)
         val annotations = collectAnnotations(unusedImports, new AnnotationHolderImpl(new AnnotationSession(file)))
 
         val list = new util.ArrayList[HighlightInfo](annotations.length)
@@ -94,15 +93,7 @@ object ScalaUnusedImportPass {
         val undoManager: UndoManager = UndoManager.getInstance(project)
         if (undoManager.isUndoInProgress || undoManager.isRedoInProgress) return
         PsiDocumentManager.getInstance(project).commitAllDocuments()
-        val beforeText: String = file.getText
-        val oldStamp: Long = document.getModificationStamp
         DocumentUtil.writeInRunUndoTransparentAction(runnable)
-        if (oldStamp != document.getModificationStamp) {
-          val afterText: String = file.getText
-          if (Comparing.strEqual(beforeText, afterText)) {
-            LOG.error(LogMessageEx.createEvent("Import optimizer  hasn't optimized any imports", file.getViewProvider.getVirtualFile.getPath, AttachmentFactory.createAttachment(file.getViewProvider.getVirtualFile)))
-          }
-        }
       }
     })
   }

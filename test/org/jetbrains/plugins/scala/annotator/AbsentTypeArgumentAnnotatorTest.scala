@@ -21,7 +21,7 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
     val file: ScalaFile = s"$prefix$code$postfix".parse
 
     val annotator = new ScalaAnnotator() {}
-    val mock = new AnnotatorHolderMock
+    val mock = new AnnotatorHolderMock(file)
 
     file.depthFirst.foreach(annotator.annotate(_, mock))
     mock.annotations.filter(_.isInstanceOf[ErrorWithRange])

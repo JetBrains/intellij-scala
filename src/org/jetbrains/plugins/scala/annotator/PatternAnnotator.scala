@@ -87,10 +87,10 @@ object PatternAnnotator {
         val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("scrutinee.incompatible.pattern.type", patTypeText, exprTypeText)
         holder.createErrorAnnotation(pattern, message)
-      case ScTypedPattern(typeElem @ ScCompoundTypeElement(_, Some(refinement))) =>
+      case ScTypedPattern(typeElem @ ScCompoundTypeElement(_, Some(_))) =>
         val message = ScalaBundle.message("pattern.on.refinement.unchecked")
         holder.createWarningAnnotation(typeElem, message)
-      case c: ScConstructorPattern if neverMatches && patType.isFinalType =>
+      case _: ScConstructorPattern if neverMatches && patType.isFinalType =>
         val message = ScalaBundle.message("constructor.cannot.be.instantiated.to.expected.type", patType, exprType)
         holder.createErrorAnnotation(pattern, message)
       case (_: ScTuplePattern | _: ScInfixPattern) if neverMatches =>

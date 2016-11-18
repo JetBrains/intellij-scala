@@ -75,21 +75,21 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         val buffer: StringBuilder = new StringBuilder("")
         p match {
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
-          case (sign: PhysicalSignature, i: Int) =>
+          case (sign: PhysicalSignature, _: Int) =>
             //i  can be -1 (it's update method)
             val methodName = sign.method.name
+            implicit val typeSystem = sign.typeSystem
 
             val subst = sign.substitutor
             val returnType = sign.method match {
               case function: ScFunction => subst.subst(function.returnType.getOrAny)
-              case method: PsiMethod => subst.subst(method.getReturnType.toScType(method.getProject))
+              case method: PsiMethod => subst.subst(method.getReturnType.toScType())
             }
 
             val oneArgCaseClassMethod: Boolean = sign.method match {
               case function: ScFunction => ScPattern.isOneArgCaseClassMethod(function)
               case _ => false
             }
-            import sign.typeSystem
             val params = ScPattern.extractorParameters(returnType, args, oneArgCaseClassMethod).zipWithIndex
 
             if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -223,15 +223,13 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                           s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor)))))
-                        val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                          s.bindT(p.nameAndId, p.upperBound.getOrAny))
                         val result = fun.parameters.head.getType(TypingContext.empty)
                         if (result.isEmpty) substitutor
                         else {
                           val funType = undefSubst.subst(result.get)
                           constr.expectedType match {
                             case Some(tp) =>
-                              val conformance = funType.conforms(tp, new ScUndefinedSubstitutor())
+                              val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
                               if (conformance._1) {
                                 conformance._2.getSubstitutor match {
                                   case Some(newSubst) => newSubst.followed(substitutor)

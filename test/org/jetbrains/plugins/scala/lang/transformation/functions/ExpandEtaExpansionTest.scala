@@ -4,7 +4,7 @@ package functions
 /**
   * @author Pavel Fatin
   */
-class ExpandEtaExpansionTest extends TransformerTest(ExpandEtaExpansion) {
+class ExpandEtaExpansionTest extends TransformerTest(new ExpandEtaExpansion()) {
   def testExplicit() = check(
     "def f(a: A) = _",
     "f _",

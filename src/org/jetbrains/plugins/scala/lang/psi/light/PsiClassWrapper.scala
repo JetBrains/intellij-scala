@@ -34,7 +34,8 @@ import _root_.scala.collection.mutable.ArrayBuffer
  */
 class PsiClassWrapper(val definition: ScTemplateDefinition,
                       private var qualName: String,
-                      private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClass /*with SyntheticElement*/ {
+                      private var name: String)
+  extends LightElement(definition.getManager, definition.getLanguage) with PsiClass /*with SyntheticElement*/ {
   override def hashCode(): Int = definition.hashCode()
 
   override def equals(obj: Any): Boolean = {
@@ -71,7 +72,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   def getFields: Array[PsiField] = {
     definition match {
-      case o: ScObject => Array.empty
+      case _: ScObject => Array.empty
       case _ => definition.getFields //todo:
     }
   }
@@ -203,7 +204,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   def isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean = {
     definition match {
-      case o: ScObject =>
+      case _: ScObject =>
         baseClass.getQualifiedName == "java.lang.Object" ||
                 (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false
@@ -212,7 +213,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
 
   def isInheritorDeep(baseClass: PsiClass, classToByPass: PsiClass): Boolean = {
     definition match {
-      case o: ScObject =>
+      case _: ScObject =>
         baseClass.getQualifiedName == "java.lang.Object" ||
                 (baseClass.getQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated)
       case _ => false

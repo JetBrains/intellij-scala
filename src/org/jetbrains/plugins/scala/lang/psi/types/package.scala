@@ -32,12 +32,12 @@ package object types {
 
     def conforms(`type`: ScType)
                 (implicit typeSystem: TypeSystem): Boolean = {
-      conforms(`type`, new ScUndefinedSubstitutor(), checkWeak = false)._1
+      conforms(`type`, ScUndefinedSubstitutor(), checkWeak = false)._1
     }
 
     def weakConforms(`type`: ScType)
                     (implicit typeSystem: TypeSystem): Boolean = {
-      conforms(`type`, new ScUndefinedSubstitutor(), checkWeak = true)._1
+      conforms(`type`, ScUndefinedSubstitutor(), checkWeak = true)._1
     }
 
     def conforms(`type`: ScType,
@@ -51,12 +51,12 @@ package object types {
       typeSystem.bounds.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
+    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.lub(scType, `type`, checkWeak)
     }
 
     def removeUndefines(): ScType = scType.recursiveUpdate {
-      case u: UndefinedType => (true, Any)
+      case _: UndefinedType => (true, Any)
       case tp: ScType => (false, tp)
     }
 
@@ -134,7 +134,7 @@ package object types {
       typeSystem.bounds.glb(types, checkWeak)
     }
 
-    def lub(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
+    def lub(checkWeak: Boolean = true)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.glb(types, checkWeak)
     }
   }

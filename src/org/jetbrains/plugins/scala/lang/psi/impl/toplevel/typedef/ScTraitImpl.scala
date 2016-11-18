@@ -11,23 +11,28 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.TRAIT_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 
 import scala.collection.mutable.ArrayBuffer
 
 /**
-* @author Alexander Podkhalyuzin
-* @since 20.02.2008
-*/
-class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+  * @author Alexander Podkhalyuzin
+  * @since 20.02.2008
+  */
+class ScTraitImpl private(stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node) with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScTemplateDefinitionStub) =
+    this(stub, TRAIT_DEFINITION, null)
+
   override def additionalJavaNames: Array[String] = {
     Array(fakeCompanionClass.getName) //do not add fakeCompanionModule => will build tree from stubs everywhere
   }
@@ -39,21 +44,19 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     }
   }
 
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.TRAIT_DEF, null)}
-
   override def toString: String = "ScTrait: " + name
 
   override def getIconInner = Icons.TRAIT
 
   import com.intellij.psi._
   import com.intellij.psi.scope.PsiScopeProcessor
+
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                                  state: ResolveState,
+                                                  lastParent: PsiElement,
+                                                  place: PsiElement): Boolean = {
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
-    super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
+      super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
@@ -63,8 +66,6 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
 
   override def isInterface: Boolean = true
-
-  def fakeCompanionClass: PsiClass = new PsiClassWrapper(this, getQualifiedName + "$class", getName + "$class")
 
   override def getMethods: Array[PsiMethod] = {
     getAllMethods.filter(_.containingClass == this)

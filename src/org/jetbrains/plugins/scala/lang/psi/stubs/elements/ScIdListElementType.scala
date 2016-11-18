@@ -5,32 +5,26 @@ package stubs
 package elements
 
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScIdList
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScIdListImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScIdListStubImpl
+
 /**
- * User: Alexander Podkhalyuzin
- * Date: 19.07.2009
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 19.07.2009
+  */
 class ScIdListElementType[Func <: ScIdList]
-        extends ScStubElementType[ScIdListStub, ScIdList]("id list") {
-  def serialize(stub: ScIdListStub, dataStream: StubOutputStream): Unit = {
-  }
-
-  def createPsi(stub: ScIdListStub): ScIdList = {
-    new ScIdListImpl(stub)
-  }
-
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScIdList, parentStub: StubElement[ParentPsi]): ScIdListStub = {
-    new ScIdListStubImpl(parentStub, this)
-  }
-
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScIdListStub = {
+  extends ScStubElementType[ScIdListStub, ScIdList]("id list") {
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
     new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
-  }
 
-  def indexStub(stub: ScIdListStub, sink: IndexSink): Unit = {}
+  override def createStub(psi: ScIdList, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
+    new ScIdListStubImpl(parentStub, this)
+
+  override def createElement(node: ASTNode): ScIdList = new ScIdListImpl(node)
+
+  override def createPsi(stub: ScIdListStub): ScIdList = new ScIdListImpl(stub)
 }

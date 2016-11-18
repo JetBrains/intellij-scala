@@ -103,11 +103,11 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
-      case wh: ScWhileStmt => Array((Unit, None))
+      case _: ScWhileStmt => Array((Unit, None))
       case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
-      case d: ScDoStmt => Array((api.Unit, None))
-      case fb: ScFinallyBlock => Array((api.Unit, None))
-      case cb: ScCatchBlock => Array.empty
+      case _: ScDoStmt => Array((api.Unit, None))
+      case _: ScFinallyBlock => Array((api.Unit, None))
+      case _: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
         val throwableClass = ScalaPsiManager.instance(te.getProject).getCachedClass(te.getResolveScope, "java.lang.Throwable")
@@ -158,13 +158,13 @@ private[expr] object ExpectedTypes {
                     //for named parameters
                     Array((subst.subst(p.getType(TypingContext.empty).getOrAny), p.typeElement))
                   case f: PsiField =>
-                    Array((subst.subst(f.getType.toScType(f.getProject, expr.getResolveScope)), None))
+                    Array((subst.subst(f.getType.toScType()), None))
                   case _ => Array.empty
                 }
               case _ => Array.empty
             }
-          case ref: ScReferenceExpression => expectedExprTypes(a)
-          case call: ScMethodCall =>
+          case _: ScReferenceExpression => expectedExprTypes(a)
+          case _: ScMethodCall =>
             a.mirrorMethodCall match {
               case Some(mirrorCall) => mirrorCall.args.exprs.last.expectedTypesEx(fromUnderscore = fromUnderscore)
               case _ => Array.empty
@@ -197,7 +197,7 @@ private[expr] object ExpectedTypes {
         val index = exprs.indexOf(actExpr)
         if (index >= 0) {
           for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
-            tp match {
+            tp.removeAbstracts match {
               case TupleType(comps) if comps.length == exprs.length =>
                 buffer += ((comps(index), None))
               case _ =>
@@ -360,8 +360,9 @@ private[expr] object ExpectedTypes {
       expr match {
         case assign: ScAssignStmt =>
           if (isDynamicNamed) {
-            p match {
-              case (TupleType(comps), te) if comps.length == 2 =>
+            val (tp, te) = p
+            tp.removeAbstracts match {
+              case TupleType(comps) if comps.length == 2 =>
                 res += ((comps(1), te.map {
                   case t: ScTupleTypeElement if t.components.length == 2 => t.components(1)
                   case t => t
@@ -392,25 +393,25 @@ private[expr] object ExpectedTypes {
     tp match {
       case Success(ScMethodType(_, params, _), _) =>
         if (params.length == 1 && !params.head.isRepeated && exprs.length > 1) {
-          params.head.paramType match {
+          params.head.paramType.removeAbstracts match {
             case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case _ =>
           }
         } else applyForParams(params)
-      case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), typeParams), _) =>
+      case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), _), _) =>
         val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.head.isRepeated && exprs.length > 1) {
-          newParams.head.paramType match {
+          newParams.head.paramType.removeAbstracts match {
             case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case _ =>
           }
         } else applyForParams(newParams)
-      case Success(t@ScTypePolymorphicType(anotherType, typeParams), _) if !forApply =>
+      case Success(ScTypePolymorphicType(anotherType, typeParams), _) if !forApply =>
         val cand = call.getOrElse(expr).applyShapeResolveForExpectedType(anotherType, exprs, call)
         if (cand.length == 1) {
           cand(0) match {

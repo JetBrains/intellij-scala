@@ -144,16 +144,14 @@ object Cached {
             q"val currModCount = $cachesUtilFQN.enclosingModificationOwner($psiElement).getModificationCount"
           case ModCount.getOutOfCodeBlockModificationCount =>
             q"val currModCount = $scalaPsiManagerFQN.instance($psiElement.getProject).getModificationCount"
-          case ModCount.getLibraryAwareCount =>
-            q"val currModCount = $cachesUtilFQN.libraryAwareDependencyItem($psiElement).getModificationCount"
           case _ =>
             q"val currModCount = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
         }
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = {
-            $actualCalculation
+            if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
+            else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
           }
-          $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           ..$currModCount
           def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}

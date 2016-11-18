@@ -6,7 +6,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
@@ -66,7 +66,7 @@ class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
       return
     }
 
-    cl.replace(ScalaPsiElementFactory.createDocHeaderElement(op.getText.length(), op.getManager))
+    cl.replace(createDocHeaderElement(op.getText.length())(op.getManager))
   }
 }
 
@@ -78,7 +78,8 @@ class ScalaDocMoveTextToNewLineQuickFix(textData: PsiElement)
     val data = getElement
     if (!data.isValid) return
 
-    data.getParent.addBefore(ScalaPsiElementFactory.createDocWhiteSpace(data.getManager), data)
-    data.getParent.addBefore(ScalaPsiElementFactory.createLeadingAsterisk(data.getManager), data)
+    implicit val manager = data.getManager
+    data.getParent.addBefore(createDocWhiteSpace, data)
+    data.getParent.addBefore(createLeadingAsterisk, data)
   }
 }

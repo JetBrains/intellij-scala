@@ -4,6 +4,8 @@ package psi
 package api
 package expr
 
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
@@ -18,4 +20,6 @@ trait ScEnumerators extends ScalaPsiElement {
   def guards: Seq[ScGuard]
 
   def namings: Seq[ScPatterned]
+
+  def patterns: Seq[ScPattern]
 }

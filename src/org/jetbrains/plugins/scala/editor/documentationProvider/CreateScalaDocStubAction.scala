@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDocCommentOwner, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocCommentFromText
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.collection.mutable
@@ -40,7 +40,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
         id.getParent match {
           case docOwner: ScDocCommentOwner =>
             docOwner.docComment match {
-              case Some(comment) => recreateStub(docOwner, editor.getDocument)
+              case Some(_) => recreateStub(docOwner, editor.getDocument)
               case None => createStub(docOwner, editor.getDocument) 
             }
           case _ =>
@@ -50,8 +50,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
   }
   
   private def createStub(docOwner: ScDocCommentOwner, psiDocument: Document) {
-    val newComment = ScalaPsiElementFactory.createDocCommentFromText(
-      ScalaDocumentationProvider createScalaDocStub docOwner trim(), docOwner.getManager)
+    val newComment = createDocCommentFromText(ScalaDocumentationProvider.createScalaDocStub(docOwner).trim())(docOwner.getManager)
     val project = docOwner.getProject
     val docCommentEnd = docOwner.getTextRange.getStartOffset - 1
     
@@ -77,7 +76,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
     def filterTags[T](groupName: String, newTags: mutable.HashMap[String, T]) {
       oldTags foreach {
         case tag if tag.getName == groupName => newTags remove tag.getValueElement.getText match {
-          case Some(elem) => //do nothing
+          case Some(_) => //do nothing
           case None => tag.delete()
         }
         case _ =>

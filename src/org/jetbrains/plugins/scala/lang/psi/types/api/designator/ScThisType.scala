@@ -47,7 +47,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
         (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), substitutor)
       case (ScThisType(obj1: ScObject), ScDesignatorType(obj2: ScObject)) =>
         (ScEquivalenceUtil.areClassesEquivalent(obj1, obj2), substitutor)
-      case (_, ScDesignatorType(obj: ScObject)) =>
+      case (_, ScDesignatorType(_: ScObject)) =>
         (false, substitutor)
       case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
         typed.getType(TypingContext.empty) match {
@@ -56,7 +56,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
           case _ =>
             (false, substitutor)
         }
-      case (_, ScProjectionType(_, o: ScObject, _)) => (false, substitutor)
+      case (_, ScProjectionType(_, _: ScObject, _)) => (false, substitutor)
       case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, _)) if elem.isStable =>
         elem.getType(TypingContext.empty) match {
           case Success(singleton: DesignatorOwner, _) if singleton.isSingleton =>

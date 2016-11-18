@@ -38,7 +38,7 @@ object JavaConversionUtil {
         if (!annotationsText.isEmpty)
           builder.append(annotationsText).append(" ")
         for ((fqn, keyword) <- keywordAnnotations) {
-          if (holder.hasAnnotation(fqn).isDefined) builder.append(keyword).append(" ")
+          if (holder.hasAnnotation(fqn)) builder.append(keyword).append(" ")
         }
       case _ =>
     }

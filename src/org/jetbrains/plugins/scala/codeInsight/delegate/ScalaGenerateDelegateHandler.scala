@@ -20,14 +20,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConversions._
 
@@ -53,15 +53,14 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
     val elementAtOffset = file.findElementAt(editor.getCaretModel.getOffset)
 
-    val specifyType = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
-
     inWriteCommandAction(project) {
       try {
         val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
         val generatedMethods = for (member <- candidates) yield {
           val prototype: ScFunctionDefinition =
-            ScalaPsiElementFactory.createMethodFromSignature(member.sign, aClass.getManager, specifyType, body = "???")
+            createMethodFromSignature(member.sign, needsInferType = true, body = "???")(aClass.getManager)
                   .asInstanceOf[ScFunctionDefinition]
+          TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
           prototype.setModifierProperty("override", value = member.isOverride)
           val body = methodBody(target, prototype)
           prototype.body.foreach(_.replace(body))
@@ -82,7 +81,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
         TypeAdjuster.adjustFor(generatedMethods)
       }
       catch {
-        case e: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
+        case _: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")
       }
     }
   }
@@ -105,7 +104,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
       paramClause.parameters.map(_.name).mkString("(", ", ", ")")
     }
     val params = prototype.effectiveParameterClauses.map(paramClauseApplicationText).mkString
-    ScalaPsiElementFactory.createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params", prototype.getManager)
+    createExpressionFromText(s"$dText.$methodName$typeParamsForCall$params")(prototype.getManager)
   }
 
 
@@ -128,7 +127,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
     val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
     val tBody = aClass.extendsBlock.templateBody.get
-    val place = ScalaPsiElementFactory.createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
+    val place = createExpressionWithContextFromText(delegateText(delegate), tBody, tBody.getFirstChild)
     if (aClass == null) return null
     val processor = new CompletionProcessor(StdKinds.methodRef, place, false)
     processor.processType(delegateType, place)
@@ -136,7 +135,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val members = toMethodMembers(candidates, place)
 
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser[ScMethodMember](members.toArray, false, true, false, true, aClass)
+      val chooser = new ScalaMemberChooser[ScMethodMember](members.toArray, false, true, false, true, false, aClass)
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.method.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
@@ -170,7 +169,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val elements: Array[ClassMember] = targetElements(file, editor)
     if (elements == null || elements.length == 0) return null
     if (!ApplicationManager.getApplication.isUnitTestMode) {
-      val chooser = new ScalaMemberChooser(elements, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
+      val chooser = new ScalaMemberChooser(elements, false, false, false, false, false, classAtOffset(editor.getCaretModel.getOffset, file))
       chooser.setTitle(CodeInsightBundle.message("generate.delegate.target.chooser.title"))
       chooser.show()
       if (chooser.getExitCode != DialogWrapper.OK_EXIT_CODE) return null
@@ -209,7 +208,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
-    case ta: ScAliasMember => false
+    case _: ScAliasMember => false
     case typed: ScalaTypedMember if typed.scType == Unit => false
     case method: ScMethodMember =>
       method.getElement match {

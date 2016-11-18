@@ -4,30 +4,31 @@ package decompiler
 import java.io.IOException
 
 import com.intellij.lang.LanguageParserDefinitions
-import com.intellij.openapi.project.{DefaultProjectFactory, Project, ProjectManager}
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
 import com.intellij.psi.compiled.ClsStubBuilder
 import com.intellij.psi.stubs.{PsiFileStub, PsiFileStubImpl}
-import com.intellij.psi.tree.IStubFileElementType
-import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.util.indexing.FileContent
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.decompile
+import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.StubVersion
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
 object ScClsStubBuilder {
   def canBeProcessed(file: VirtualFile): Boolean = {
     try {
       canBeProcessed(file, file.contentsToByteArray())
     } catch {
-      case ex: IOException => false
-      case u: UnsupportedOperationException => false //why we need to handle this?
+      case _: IOException => false
+      case _: UnsupportedOperationException => false //why we need to handle this?
     }
   }
 
@@ -59,68 +60,79 @@ object ScClsStubBuilder {
       case _ => false
     }
   }
+
+  private class Directory(directory: VirtualFile) {
+
+    def isInner(name: String): Boolean = {
+      if (name.endsWith("$") && contains(name, name.length - 1)) {
+        return false //let's handle it separately to avoid giving it for Java.
+      }
+      isInner(NameTransformer.decode(name), 0)
+    }
+
+    private def isInner(name: String, from: Int): Boolean = {
+      val index = name.indexOf('$', from)
+
+      val containsPart = index > 0 && contains(name, index)
+      index != -1 && (containsPart || isInner(name, index + 1))
+    }
+
+    private def contains(name: String, endIndex: Int): Boolean =
+      directory.getChildren.exists { child =>
+        child.getExtension == "class" &&
+          NameTransformer.decode(child.getNameWithoutExtension) != name.substring(0, endIndex)
+      }
+  }
+
 }
 
 class ScClsStubBuilder extends ClsStubBuilder {
   override def getStubVersion: Int = StubVersion.STUB_VERSION
 
-  override def buildFileStub(content: FileContent): PsiFileStub[ScalaFile] = {
-    if (isInnerClass(content.getFile)) null
-    else buildFileStub(content.getFile, content.getContent, ProjectManager.getInstance().getDefaultProject)
-  }
-
-  private def buildFileStub(vFile: VirtualFile, bytes: Array[Byte], project: Project): PsiFileStub[ScalaFile] = {
-    val result = DecompilerUtil.decompile(vFile, bytes)
-    val source = result.sourceName
-    val text = result.sourceText
-    val file = ScalaPsiElementFactory.createScalaFile(text.replace("\r", ""),
-      PsiManager.getInstance(DefaultProjectFactory.getInstance().getDefaultProject))
-
-    val adj = file.asInstanceOf[CompiledFileAdjuster]
-    adj.setCompiled(c = true)
-    adj.setSourceFileName(source)
-    adj.setVirtualFile(vFile)
-
-    val fType = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE).getFileNodeType
-    val stub = fType.asInstanceOf[IStubFileElementType[PsiFileStub[PsiFile]]].getBuilder.buildStubTree(file)
-    stub.asInstanceOf[PsiFileStubImpl[PsiFile]].clearPsi("Stub was built from decompiled file")
-    stub.asInstanceOf[PsiFileStub[ScalaFile]]
-  }
-
-  private def isInnerClass(file: VirtualFile): Boolean = {
-    if (file.getExtension != "class") return false
-    val name: String = file.getNameWithoutExtension
-    val parent: VirtualFile = file.getParent
-    isInner(name, new ParentDirectory(parent))
-  }
-
-  private def isInner(name: String, directory: Directory): Boolean = {
-    if (name.endsWith("$") && directory.contains(name.dropRight(1))) {
-      return false //let's handle it separately to avoid giving it for Java.
+  override def buildFileStub(content: FileContent): PsiFileStub[ScalaFile] =
+    content.getFile match {
+      case file if isInnerClass(file) => null
+      case file =>
+        implicit val manager = PsiManager.getInstance(content.getProject)
+        val scalaFile = createScalaFile(file, content.getContent)
+        createFileStub(scalaFile)
     }
-    isInner(NameTransformer.decode(name), 0, directory)
+
+  private def createFileStub(file: ScalaFile): PsiFileStub[ScalaFile] = {
+    val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(ScalaLanguage.Instance)
+      .asInstanceOf[ScalaParserDefinition]
+    parserDefinition.hasDotty = file.getProject.hasDotty
+
+    val fileElementType = parserDefinition.getFileNodeType
+
+    val result = fileElementType.getBuilder.buildStubTree(file)
+      .asInstanceOf[PsiFileStubImpl[ScalaFile]]
+    result.clearPsi("Stub was built from decompiled file")
+    result
   }
 
-  @tailrec
-  private def isInner(name: String, from: Int, directory: Directory): Boolean = {
-    val index: Int = name.indexOf('$', from)
-    index != -1 && (containsPart(directory, name, index) || isInner(name, index + 1, directory))
+  private def createScalaFile(virtualFile: VirtualFile, bytes: Array[Byte])
+                             (implicit manager: PsiManager): ScalaFile = {
+    val decompiled = decompile(virtualFile, bytes)
+    val result = createScalaFileFromText(decompiled.sourceText.replace("\r", ""))
+
+    val adjuster = result.asInstanceOf[CompiledFileAdjuster]
+    adjuster.setCompiled(c = true)
+    adjuster.setSourceFileName(decompiled.sourceName)
+    adjuster.setVirtualFile(virtualFile)
+
+    result
   }
 
-  private def containsPart(directory: Directory, name: String, endIndex: Int): Boolean = {
-    endIndex > 0 && directory.contains(name.substring(0, endIndex))
-  }
-
-  private trait Directory {
-    def contains(name: String): Boolean
-  }
-
-  private class ParentDirectory(dir: VirtualFile) extends Directory {
-    def contains(name: String): Boolean = {
-      if (dir == null) return false
-      !dir.getChildren.forall(child =>
-        child.getExtension != "class" || NameTransformer.decode(child.getNameWithoutExtension) == name
-      )
+  private def isInnerClass(file: VirtualFile): Boolean =
+    file.getExtension match {
+      case "class" => false
+      case _ =>
+        import ScClsStubBuilder.Directory
+        Option(file.getParent).map {
+          new Directory(_)
+        }.exists {
+          _.isInner(file.getNameWithoutExtension)
+        }
     }
-  }
 }

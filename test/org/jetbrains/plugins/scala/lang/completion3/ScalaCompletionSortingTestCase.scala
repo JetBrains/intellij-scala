@@ -36,6 +36,12 @@ abstract class ScalaCompletionSortingTestCase(completionType: CompletionType,
     getLookup
   }
 
+  def invokeCompletionByText(name: String, text: String): LookupImpl = {
+    configureNoCompletionByText(name, text)
+    myFixture.complete(completionType)
+    getLookup
+  }
+
   def checkPreferredItems(selected: Int, expected: String*) {
     invokeCompletion(getTestName(false) + ".scala")
     assertPreferredItems(selected, expected: _*)
@@ -48,6 +54,10 @@ abstract class ScalaCompletionSortingTestCase(completionType: CompletionType,
   def configureNoCompletion(path: String) {
     myFixture.configureFromExistingVirtualFile(
       myFixture.copyFileToProject(path, com.intellij.openapi.util.text.StringUtil.getShortName(path, '/')))
+  }
+
+  def configureNoCompletionByText(name: String, text: String) {
+    myFixture.configureByText(name, text)
   }
 
   def incUseCount(lookup: LookupImpl, index: Int): Unit = {

@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -30,22 +30,22 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val statement = element.getParent.asInstanceOf[ScForStatement]
-    val manager = statement.getManager
-    val block = ScalaPsiElementFactory.parseElement("{}", manager)
+    implicit val manager = statement.getManager
+    val block = createElementFromText("{}")
 
     for (lParen <- Option(statement.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS))) {
       val lBrace = lParen.replace(block.getFirstChild)
-      statement.addAfter(ScalaPsiElementFactory.createNewLine(manager), lBrace)
+      statement.addAfter(createNewLine(), lBrace)
     }
 
     for (rParen <- Option(statement.findFirstChildByType(ScalaTokenTypes.tRPARENTHESIS))) {
       val rBrace = rParen.replace(block.getLastChild)
-      statement.addBefore(ScalaPsiElementFactory.createNewLine(manager), rBrace)
+      statement.addBefore(createNewLine(), rBrace)
     }
 
     for (enumerators <- statement.enumerators;
          semi <- enumerators.findChildrenByType(ScalaTokenTypes.tSEMICOLON)) {
-      semi.replace(ScalaPsiElementFactory.createNewLine(manager))
+      semi.replace(createNewLine())
     }
   }
 }

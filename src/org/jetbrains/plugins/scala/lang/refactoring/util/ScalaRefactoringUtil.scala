@@ -3,20 +3,20 @@ package lang
 package refactoring
 package util
 
-import _root_.java.awt.Component
-import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import java.awt.Component
 import java.util
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
-import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
-import _root_.com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
+import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
 import com.intellij.openapi.editor.{Editor, RangeMarker, VisualPosition}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType, TypeSystem}
@@ -92,10 +92,11 @@ object ScalaRefactoringUtil {
       if (text(i) == '\n') hasNlToken = true
       i = i - 1
     }
-    if (hasNlToken) e = ScalaPsiElementFactory.createExpressionFromText(text.substring(0, i + 1), e.getManager)
+
+    implicit val manager = e.getManager
+    if (hasNlToken) e = createExpressionFromText(text.substring(0, i + 1))
     e.getParent match {
-      case x: ScMethodCall if x.args.exprs.nonEmpty =>
-        ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
+      case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")
       case _ => e
     }
   }
@@ -147,7 +148,7 @@ object ScalaRefactoringUtil {
         }
       case _ =>
     }
-    ownersArray.toSeq
+    ownersArray
   }
 
   def getTypeAliasOwnersList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
@@ -178,7 +179,7 @@ object ScalaRefactoringUtil {
       case _ => false
     }
 
-    ownersArray.toSeq
+    ownersArray
   }
 
   def getMinOwner(ownres: Array[ScTypeParametersOwner], currentFile: PsiFile): PsiElement = {
@@ -191,7 +192,7 @@ object ScalaRefactoringUtil {
     val rangeText = file.getText.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {
-      val expr = ScalaPsiElementFactory.createOptionExpressionFromText(rangeText, file.getManager)
+      val expr = createOptionExpressionFromText(rangeText)(file.getManager)
       expr match {
         case Some(expression: ScInfixExpr) =>
           val op1 = expression.operation
@@ -240,7 +241,7 @@ object ScalaRefactoringUtil {
       val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
 
       val text = s"$prefix$quote$rangeText$quote"
-      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, lit.getContext, lit).asInstanceOf[ScLiteral]
+      val expr = createExpressionWithContextFromText(text, lit.getContext, lit).asInstanceOf[ScLiteral]
       val tpe = expr.getNonValueType().getOrAny
       Some(expr, Array(tpe))
     }
@@ -271,7 +272,7 @@ object ScalaRefactoringUtil {
 
   def expressionToIntroduce(expr: ScExpression): ScExpression = {
     def copyExpr = expr.copy.asInstanceOf[ScExpression]
-    def liftMethod = ScalaPsiElementFactory.createExpressionFromText(expr.getText + " _", expr.getManager)
+    def liftMethod = createExpressionFromText(expr.getText + " _")(expr.getManager)
     expr match {
       case ref: ScReferenceExpression =>
         ref.resolve() match {
@@ -344,7 +345,7 @@ object ScalaRefactoringUtil {
       case lit: ScLiteral if lit.isString =>
         val text = lit.getValue.asInstanceOf[String]
         val filter: ScLiteral => Boolean = {
-          case toCheck: ScInterpolatedStringLiteral if text.contains('$') => false
+          case _: ScInterpolatedStringLiteral if text.contains('$') => false
           case _ => true
         }
         getTextOccurrenceInLiterals(text, enclosingContainer, filter)
@@ -545,9 +546,9 @@ object ScalaRefactoringUtil {
           case Some(r) => builder.append(getShortText(r))
           case _ =>
         }
-      case bl: ScBlock =>
+      case _: ScBlock =>
         builder.append("{...}")
-      case d: ScDoStmt =>
+      case _: ScDoStmt =>
         builder.append("do {...} while (...)")
       case f: ScForStatement =>
         builder.append("for (...) ")
@@ -590,7 +591,7 @@ object ScalaRefactoringUtil {
           if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {
-          case Some(tb) => builder.append(" {...}")
+          case Some(_) => builder.append(" {...}")
           case _ =>
         }
       case p: ScParenthesisedExpr =>
@@ -652,8 +653,8 @@ object ScalaRefactoringUtil {
           builder.append(getShortText(u.bindingExpr.get))
           builder.append(" _")
         }
-      case u: ScUnitExpr => builder.append("()")
-      case w: ScWhileStmt => builder.append("while (...) {...}")
+      case _: ScUnitExpr => builder.append("()")
+      case _: ScWhileStmt => builder.append("while (...) {...}")
       case x: ScXmlExpr => builder.append(x.getText)
       case _ => builder.append(expr.getText)
     }
@@ -685,7 +686,7 @@ object ScalaRefactoringUtil {
   }
 
   def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                              refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
+                              refactoringName: String, exprFilter: (ScExpression) => Boolean = _ => true)(invokesNext: => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
@@ -764,18 +765,6 @@ object ScalaRefactoringUtil {
     invokesNext(currentSelectedElement)
   }
 
-  private def getElementOnCaretOffset(file: PsiFile, editor: Editor): PsiElement = {
-    val offset = editor.getCaretModel.getOffset
-    val element: PsiElement = file.findElementAt(offset) match {
-      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-        w.getText.contains("\n") => file.findElementAt(offset - 1)
-      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-        w.getText.contains(" ") => file.findElementAt(offset - 1)
-      case p => p
-    }
-    element
-  }
-
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
     if (file.asInstanceOf[ScalaFile].isScriptFile()) file
     else {
@@ -832,7 +821,7 @@ object ScalaRefactoringUtil {
       showErrorMessageWithException(ScalaBundle.message("file.is.not.writable"), project, editor, refactoringName)
   }
 
-  def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = s => {}): Boolean = {
+  def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = _ => {}): Boolean = {
     var errorMessage: String = null
     ScalaPsiUtil.getParentOfType(expr, classOf[ScConstrBlock]) match {
       case block: ScConstrBlock =>
@@ -962,7 +951,7 @@ object ScalaRefactoringUtil {
       val result: Boolean = nextParent match {
         case _: ScBlock => true
         case forSt: ScForStatement if forSt.body.orNull == parExpr => false //in this case needBraces == true
-        case forSt: ScForStatement => true
+        case _: ScForStatement => true
         case _ => false
       }
       result || needBraces(parExpr, nextParent)
@@ -972,7 +961,7 @@ object ScalaRefactoringUtil {
     val nextPar = nextParent(expr, elem.getContainingFile)
     nextPar match {
       case prevExpr: ScExpression if !checkEnd(nextPar, expr) => findParentExpr(prevExpr)
-      case prevExpr: ScExpression if checkEnd(nextPar, expr) => expr
+      case _: ScExpression if checkEnd(nextPar, expr) => expr
       case _ => expr
     }
   }
@@ -995,10 +984,10 @@ object ScalaRefactoringUtil {
       case tb: ScTryBlock if !tb.hasRBrace => true
       case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions | _: ScalaFile | _: ScCaseClause => false
       case _: ScFunction => true
-      case Both(fun: ScFunction, _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
+      case Both(_: ScFunction, _ childOf (_: ScTemplateBody | _: ScEarlyDefinitions)) => true
       case ifSt: ScIfStmt if Seq(ifSt.thenBranch, ifSt.elseBranch) contains Option(parExpr) => true
       case forSt: ScForStatement if forSt.body.orNull == parExpr => true
-      case forSt: ScForStatement => false
+      case _: ScForStatement => false
       case _: ScEnumerator | _: ScGenerator => false
       case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => false
       case whSt: ScWhileStmt if whSt.body.orNull == parExpr => true
@@ -1023,8 +1012,7 @@ object ScalaRefactoringUtil {
           case ScPostfixExpr(_, `ref`) =>
           case ScPrefixExpr(`ref`, _) =>
           case _ =>
-            val newRef = ScalaPsiElementFactory.createExpressionFromText(ref.getText, position)
-              .asInstanceOf[ScReferenceExpression]
+            val newRef = createExpressionFromText(ref.getText, position).asInstanceOf[ScReferenceExpression]
             result &= ref.resolve() == newRef.resolve()
         }
         super.visitReferenceExpression(ref)
@@ -1038,7 +1026,7 @@ object ScalaRefactoringUtil {
   def container(element: PsiElement, file: PsiFile): PsiElement = {
     def oneExprBody(fun: ScFunctionDefinition): Boolean = fun.body match {
       case Some(_: ScBlock) => false
-      case Some(newTd: ScNewTemplateDefinition) => false
+      case Some(_: ScNewTemplateDefinition) => false
       case Some(_) => true
       case None => false
     }

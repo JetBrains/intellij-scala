@@ -6,8 +6,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -52,18 +53,20 @@ class SplitElseIfIntention extends PsiElementBaseIntentionAction {
     val endIndex = ifStmt.elseBranch.get.getTextRange.getStartOffset - ifStmt.getTextRange.getStartOffset
     val elseIndex = ifStmt.getText.substring(startIndex, endIndex).indexOf("else") - 1
     val diff = editor.getCaretModel.getOffset - ifStmt.thenBranch.get.getTextRange.getEndOffset - elseIndex
+    val newlineBeforeElse = ifStmt.children.find(_.getNode.getElementType == ScalaTokenTypes.kELSE).
+      exists(_.getPrevSibling.getText.contains("\n"))
 
     val expr = new StringBuilder
     expr.append("if (").append(ifStmt.condition.get.getText).append(") ").
-      append(ifStmt.thenBranch.get.getText).append(" else {\n").
+      append(ifStmt.thenBranch.get.getText).append(if (newlineBeforeElse) "\n" else " ").append("else {\n").
       append(ifStmt.elseBranch.get.getText).append("\n}")
 
-    val newIfStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
     val size = newIfStmt.asInstanceOf[ScIfStmt].thenBranch.get.getTextRange.getEndOffset -
       newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
 
     inWriteAction {
-      ifStmt.replaceExpression(newIfStmt, true)
+      ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }

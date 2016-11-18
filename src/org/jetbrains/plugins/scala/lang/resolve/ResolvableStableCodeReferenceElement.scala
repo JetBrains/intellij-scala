@@ -11,11 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -113,7 +112,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         val fromType = s.subst(typed.getType(TypingContext.empty).getOrElse(return))
         processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
         processor match {
-          case p: ExtractorResolveProcessor =>
+          case _: ExtractorResolveProcessor =>
             if (processor.candidatesS.isEmpty) {
               //check implicit conversions
               val expr =
@@ -128,8 +127,8 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           case _ => //do nothing
         }
       case ScalaResolveResult(field: PsiField, s) =>
-        processor.processType(s.subst(field.getType.toScType(getProject, getResolveScope)), this)
-      case ScalaResolveResult(clazz: PsiClass, s) =>
+        processor.processType(s.subst(field.getType.toScType()), this)
+      case ScalaResolveResult(clazz: PsiClass, _) =>
         processor.processType(new ScDesignatorType(clazz, true), this) //static Java import
       case ScalaResolveResult(pack: ScPackage, s) =>
         pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, s),
@@ -251,7 +250,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private def candidatesFilter(result: ScalaResolveResult) = {
     result.element match {
       case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {
-        case s: ScalaFile => true // scala classes are available from default package
+        case _: ScalaFile => true // scala classes are available from default package
         // Other classes from default package are available only for top-level Scala statements
         case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
       }

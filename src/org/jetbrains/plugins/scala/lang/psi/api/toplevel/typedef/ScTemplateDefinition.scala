@@ -7,7 +7,7 @@ package typedef
 
 import java.util
 
-import com.intellij.lang.ASTNode
+import com.intellij.execution.junit.JUnitUtil
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.pom.java.LanguageLevel
@@ -18,24 +18,29 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+
+import scala.collection.JavaConverters._
 
 /**
  * @author ven
  */
-trait ScTemplateDefinition extends ScNamedElement with PsiClass {
+trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   import com.intellij.psi.PsiMethod
   def qualifiedName: String = null
 
@@ -90,7 +95,22 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
-    PsiClassImplUtil.findMethodsByName(this, name, checkBases)
+    val toSearchWithIndices = Set("main", JUnitUtil.SUITE_METHOD_NAME) //these methods may be searched from EDT, search them without building a whole type hierarchy
+
+    def withIndices(): Array[PsiMethod] = {
+      val inThisClass = functionsByName(name)
+
+      val files = this.allSupers.flatMap(_.containingVirtualFile).asJava
+      val scope = GlobalSearchScope.filesScope(getProject, files)
+      val manager = ScalaShortNamesCacheManager.getInstance(getProject)
+      val candidates = manager.getMethodsByName(name, scope)
+      val inBaseClasses = candidates.filter(m => this.isInheritor(m.containingClass, deep = true))
+
+      (inThisClass ++ inBaseClasses).toArray
+    }
+
+    if (toSearchWithIndices.contains(name)) withIndices()
+    else PsiClassImplUtil.findMethodsByName(this, name, checkBases)
   }
 
   override def findFieldByName(name: String, checkBases: Boolean): PsiField = {
@@ -132,11 +152,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     PsiSuperMethodImplUtil.getVisibleSignatures(this)
   }
 
-  def getType(ctx: TypingContext): TypeResult[ScType]
-
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 
-  def members: Seq[ScMember] = extendsBlock.members
+  def members: Seq[ScMember] = extendsBlock.members ++ syntheticMembers
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
@@ -159,6 +177,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def syntheticTypeDefinitions: Seq[ScTypeDefinition] = syntheticTypeDefinitionsImpl
+
+  def syntheticMembers: Seq[ScMember] = syntheticMembersImpl
+
+  def syntheticMembersImpl: Seq[ScMember] = Nil
 
   def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty
 
@@ -344,7 +366,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
                 case e: ScExtendsBlock if e != null =>
                   if (PsiTreeUtil.isContextAncestor(e, place, true) || !PsiTreeUtil.isContextAncestor(this, place, true)) {
                     this match {
-                      case t: ScTypeDefinition if selfTypeElement != None &&
+                      case t: ScTypeDefinition if selfTypeElement.isDefined &&
                         !PsiTreeUtil.isContextAncestor(selfTypeElement.get, place, true) &&
                         PsiTreeUtil.isContextAncestor(e.templateBody.orNull, place, true) &&
                         processor.isInstanceOf[BaseProcessor] && !t.isInstanceOf[ScObject] =>
@@ -367,32 +389,39 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember = {
-    extendsBlock.templateBody match {
-      case Some(body) =>
-        val before = anchor match {
-          case Some(a) => a.getNode
-          case None =>
-            val last = body.getNode.getLastChildNode
-            if (ScalaPsiUtil.isLineTerminator(last.getTreePrev.getPsi)) {
-              last.getTreePrev
-            } else {
-              last
-            }
+    implicit val manager = member.getManager
+    extendsBlock.templateBody.map {
+      _.getNode
+    }.map { node =>
+      val beforeNode = anchor.map {
+        _.getNode
+      }.getOrElse {
+        val last = node.getLastChildNode
+        last.getTreePrev match {
+          case result if isLineTerminator(result.getPsi) => result
+          case _ => last
         }
-        if (ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
-        body.getNode.addChild(member.getNode, before)
-        if (!ScalaPsiUtil.isLineTerminator(before.getPsi))
-          body.getNode.addChild(ScalaPsiElementFactory.createNewLineNode(member.getManager), before)
-        else
-          body.getNode.replaceChild(before, ScalaPsiElementFactory.createNewLineNode(member.getManager))
-      case None =>
-        val eBlockNode: ASTNode = extendsBlock.getNode
-        eBlockNode.addChild(ScalaPsiElementFactory.createWhitespace(member.getManager).getNode)
-        eBlockNode.addChild(ScalaPsiElementFactory.createBodyFromMember(member, member.getManager).getNode)
-        return members(0)
+      }
+
+      val before = beforeNode.getPsi
+      if (isLineTerminator(before))
+        node.addChild(createNewLineNode(), beforeNode)
+      node.addChild(member.getNode, beforeNode)
+
+      val newLineNode = createNewLineNode()
+      if (isLineTerminator(before)) {
+        node.replaceChild(beforeNode, newLineNode)
+      } else {
+        node.addChild(newLineNode, beforeNode)
+      }
+
+      member
+    }.getOrElse {
+      val node = extendsBlock.getNode
+      node.addChild(createWhitespace.getNode)
+      node.addChild(createBodyFromMember(member.getText).getNode)
+      members.head
     }
-    member
   }
 
   def deleteMember(member: ScMember) {
@@ -451,6 +480,10 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     if (baseQualifiedName == "scala.ScalaObject" && !baseClass.isDeprecated) return true
 
     isInheritorInner(baseClass, this, deep)
+  }
+
+  def isMetaAnnotatationImpl: Boolean = {
+    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty)
   }
 }
 

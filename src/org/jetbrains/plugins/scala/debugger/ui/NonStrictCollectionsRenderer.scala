@@ -137,7 +137,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
   }
 
   def isApplicable(tpe: Type): Boolean = tpe match {
-    case refType: ReferenceType if !mustNotExpandStreams =>
+    case _: ReferenceType if !mustNotExpandStreams =>
       isStream(tpe) || isView(tpe)
     case _ => false
   }
@@ -209,7 +209,7 @@ object NonStrictCollectionsRenderer {
         JavaPsiFacade.getInstance(project).getElementFactory.createExpressionFromText(name, PositionUtil getContextElement context)
       } 
       catch {
-        case e: IncorrectOperationException => null 
+        case _: IncorrectOperationException => null
       }
     }
 

@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.{Callable, Future}
 import javax.swing.SwingUtilities
 
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.ProgressManager
@@ -12,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.tree.IElementType
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
@@ -36,6 +37,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.HashSet
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
@@ -177,12 +179,16 @@ package object extensions {
     def toInt: Int = if (b) 1 else 0
   }
 
-  implicit class StringExt(val s: String) extends AnyVal{
-    def startsWith(c: Char): Boolean = !s.isEmpty && s.charAt(0) == c
+  implicit class StringExt(val string: String) extends AnyVal {
+    def parenthesize(needParenthesis: Boolean): String = needParenthesis match {
+      case true => s"($string)"
+      case _ => string
+    }
+  }
 
-    def endsWith(c: Char): Boolean = !s.isEmpty && s.charAt(s.length - 1) == c
-
-    def parenthesisedIf(condition: Boolean): String = if (condition) "(" + s + ")" else s
+  implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
+    def hasChildOfType(elementType: IElementType): Boolean =
+      node.findChildByType(elementType) != null
   }
 
   implicit class PsiElementExt(override val repr: PsiElement) extends AnyVal with PsiElementExtTrait {
@@ -196,10 +202,10 @@ package object extensions {
     def typeSystem: TypeSystem = repr.getProject.typeSystem
 
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
-      def lift: PsiType => Option[ScType] = _.toScType(repr.getProject, repr.getResolveScope).toOption
+      def lift: PsiType => Option[ScType] = _.toScType()(typeSystem).toOption
 
       (repr match {
-        case e: ScPrimaryConstructor => None
+        case _: ScPrimaryConstructor => None
         case e: ScFunction if e.isConstructor => None
         case e: ScFunction => e.returnType.toOption
         case e: ScBindingPattern => e.getType(TypingContext.empty).toOption
@@ -220,13 +226,40 @@ package object extensions {
     }
   }
 
+  implicit class MaybePsiElementExt(val maybePsiElement: Option[PsiElement]) extends AnyVal {
+    def text: String = maybePsiElement map {
+      _.getText
+    } getOrElse ""
+  }
+
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
-    def toScType(project: Project,
-                 scope: GlobalSearchScope = null,
-                 visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
+    def toScType(visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
                  paramTopLevel: Boolean = false,
-                 treatJavaObjectAsAny: Boolean = true): ScType = {
-      project.typeSystem.bridge.toScType(`type`, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+                 treatJavaObjectAsAny: Boolean = true)
+                (implicit typeSystem: TypeSystem): ScType =
+      typeSystem.bridge.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
+  }
+
+  implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
+    def lower(implicit typeSystem: TypeSystem,
+              visitedRawTypes: HashSet[PsiClass],
+              paramTopLevel: Boolean): Option[ScType] = bound(`type`.isSuper match {
+      case true => Some(`type`.getSuperBound)
+      case _ => None
+    })
+
+    def upper(implicit typeSystem: TypeSystem,
+              visitedRawTypes: HashSet[PsiClass],
+              paramTopLevel: Boolean): Option[ScType] = bound(`type`.isExtends match {
+      case true => Some(`type`.getExtendsBound)
+      case _ => None
+    })
+
+    private def bound(maybeBound: Option[PsiType])
+                     (implicit typeSystem: TypeSystem,
+                      visitedRawTypes: HashSet[PsiClass],
+                      paramTopLevel: Boolean) = maybeBound map {
+      _.toScType(visitedRawTypes, paramTopLevel = paramTopLevel)
     }
   }
 
@@ -254,11 +287,10 @@ package object extensions {
       }
     }
 
-    def constructors: Array[PsiMethod] = {
+    def constructors: Seq[PsiMethod] =
       clazz match {
-        case c: ScClass => c.constructors
+        case c: ScConstructorOwner => c.constructors
         case _ => clazz.getConstructors
-      }
     }
 
     def isEffectivelyFinal: Boolean = clazz match {
@@ -268,6 +300,17 @@ package object extensions {
       case _ => clazz.hasModifierProperty(PsiModifier.FINAL)
     }
 
+    def allSupers: Seq[PsiClass] = {
+      val res = ArrayBuffer[PsiClass]()
+      def addWithSupers(c: PsiClass): Unit = {
+        if (!res.contains(c)) {
+          if (c != clazz) res += c
+          c.getSupers.foreach(addWithSupers)
+        }
+      }
+      addWithSupers(clazz)
+      res.toVector
+    }
 
     def processPsiMethodsForNode(node: SignatureNodes.Node, isStatic: Boolean, isInterface: Boolean)
                                 (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
@@ -521,7 +564,7 @@ package object extensions {
 
   def invokeAndWait[T](body: => Unit) {
     preservingControlFlow {
-      SwingUtilities.invokeAndWait(new Runnable {
+      ApplicationManager.getApplication.invokeAndWait(new Runnable {
         def run() {
           body
         }
@@ -556,37 +599,24 @@ package object extensions {
   }
 
   implicit class PsiParameterExt(val param: PsiParameter) extends AnyVal {
-    def paramType: ScType = {
-      param match {
-        case f: FakePsiParameter => f.parameter.paramType
-        case param: ScParameter => param.getType(TypingContext.empty).getOrAny
-        case _ => param.getType.toScType(param.getProject, param.getResolveScope, paramTopLevel = true)
-      }
+    def paramType(exact: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
+      case parameter: FakePsiParameter => parameter.parameter.paramType
+      case parameter: ScParameter => parameter.getType(TypingContext.empty).getOrAny
+      case _ =>
+        val paramType = param.getType match {
+          case arrayType: PsiArrayType if exact && param.isVarArgs =>
+            arrayType.getComponentType
+          case tp => tp
+        }
+        paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)(param.typeSystem)
     }
 
-    def exactParamType(treatJavaObjectAsAny: Boolean = true): ScType = {
-      param match {
-        case f: FakePsiParameter => f.parameter.paramType
-        case param: ScParameter => param.getType(TypingContext.empty).getOrAny
-        case _ =>
-          val paramType = param.getType match {
-            case p: PsiArrayType if param.isVarArgs => p.getComponentType
-            case tp => tp
-          }
-          paramType.toScType(param.getProject, param.getResolveScope, paramTopLevel = true,
-            treatJavaObjectAsAny = treatJavaObjectAsAny)
-      }
-    }
-
-    def index: Int = {
-      param match {
-        case f: FakePsiParameter => f.parameter.index
-        case p: ScParameter => p.index
-        case _ =>
-          param.getParent match {
-            case pList: PsiParameterList => pList.getParameterIndex(param)
-            case _ => -1
-          }
+    def index: Int = param match {
+      case parameter: FakePsiParameter => parameter.parameter.index
+      case parameter: ScParameter => parameter.index
+      case _ => param.getParent match {
+        case list: PsiParameterList => list.getParameterIndex(param)
+        case _ => -1
       }
     }
   }

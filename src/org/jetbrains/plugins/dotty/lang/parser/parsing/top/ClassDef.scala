@@ -9,7 +9,8 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.top.params.ClassParamClau
   */
 object ClassDef extends org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassDef {
   override protected val classParamClauses = ClassParamClauses
-  override protected val classTemplateOpt = ClassTemplateOpt
+  override protected val templateOpt = ClassTemplateOpt
   override protected val annotation = Annotation
+  override protected val constrMods = ConstrMods
   override protected val typeParamClause = TypeParamClause
 }

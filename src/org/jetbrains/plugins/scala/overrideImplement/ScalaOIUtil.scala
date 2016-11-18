@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.{ClassMember => JClassMember, GenerateMembersUtil}
+import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -52,9 +52,9 @@ object ScalaOIUtil {
             assert(x.containingClass != null, "Containing Class is null: " + x.getText)
             Some(new ScAliasMember(x, subst, !isImplement))
           case x: PsiField => Some(new JavaFieldMember(x, subst))
-          case x => None
+          case _ => None
         }
-      case x => None
+      case _ => None
     }
   }
 
@@ -72,7 +72,7 @@ object ScalaOIUtil {
     val selectedMembers = ListBuffer[ClassMember]()
     if (!ApplicationManager.getApplication.isUnitTestMode) {
 
-      val chooser = new ScalaMemberChooser[ClassMember](classMembers.toArray, false, true, isImplement, true, clazz)
+      val chooser = new ScalaMemberChooser[ClassMember](classMembers.toArray, false, true, isImplement, true, true, clazz)
       chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
       if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
       chooser.show()
@@ -108,7 +108,7 @@ object ScalaOIUtil {
   def getMembersToImplement(clazz: ScTemplateDefinition, withOwn: Boolean = false, withSelfType: Boolean = false): Iterable[ClassMember] = {
     allMembers(clazz, withSelfType).filter {
       case sign: PhysicalSignature => needImplement(sign, clazz, withOwn)
-      case (named: PsiNamedElement, subst: ScSubstitutor) => needImplement(named, clazz, withOwn)
+      case (named: PsiNamedElement, _: ScSubstitutor) => needImplement(named, clazz, withOwn)
       case _ => false
     }.flatMap(toClassMember(_, isImplement = true))
   }
@@ -157,7 +157,7 @@ object ScalaOIUtil {
   private def needOverride(sign: PhysicalSignature, clazz: ScTemplateDefinition): Boolean = {
     sign.method match {
       case _ if isProductAbstractMethod(sign.method, clazz) => true
-      case f: ScFunctionDeclaration if f.hasAnnotation("scala.native") == None => false
+      case f: ScFunctionDeclaration if !f.isNative => false
       case x if x.name == "$tag" || x.name == "$init$"=> false
       case x: ScFunction if x.isSyntheticCopy => false
       case x if x.containingClass == clazz => false
@@ -188,13 +188,13 @@ object ScalaOIUtil {
     m match {
       case _ if isProductAbstractMethod(m, clazz) => false
       case method if !ResolveUtils.isAccessible(method, place, forCompletion = false) => false
-      case x if name == "$tag" || name == "$init$" => false
+      case _ if name == "$tag" || name == "$init$" => false
       case x if !withOwn && x.containingClass == clazz => false
       case x if x.containingClass != null && x.containingClass.isInterface &&
               !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
       case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
               !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
-      case x: ScFunctionDeclaration if x.hasAnnotation("scala.native") == None => true
+      case x: ScFunctionDeclaration if !x.isNative => true
       case _ => false
     }
   }

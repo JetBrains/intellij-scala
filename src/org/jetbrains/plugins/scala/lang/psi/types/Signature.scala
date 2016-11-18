@@ -73,20 +73,20 @@ object TypeAliasSignature {
 }
 
 class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
-                private val tParams: Array[TypeParameter], val substitutor: ScSubstitutor,
+                private val tParams: Seq[TypeParameter], val substitutor: ScSubstitutor,
                 val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty)
                (implicit val typeSystem: TypeSystem) {
 
   def this(name: String, stream: Seq[() => ScType], paramLength: Int, substitutor: ScSubstitutor,
            namedElement: PsiNamedElement)
           (implicit typeSystem: TypeSystem) =
-    this(name, List(stream), List(paramLength), Array.empty, substitutor, namedElement)
+    this(name, List(stream), List(paramLength), Seq.empty, substitutor, namedElement)
 
   private def types: List[Seq[() => ScType]] = typesEval
 
   def substitutedTypes: List[Seq[() => ScType]] = types.map(_.map(f => () => substitutor.subst(f()).unpackedType))
 
-  def typeParams: Array[TypeParameter] = tParams.map(_.update(substitutor.subst))
+  def typeParams: Seq[TypeParameter] = tParams.map(_.update(substitutor.subst))
 
   def equiv(other: Signature): Boolean = {
     def fieldCheck(other: Signature): Boolean = {
@@ -113,7 +113,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
   }
 
   def paramTypesEquiv(other: Signature): Boolean = {
-    paramTypesEquivExtended(other, new ScUndefinedSubstitutor, falseUndef = true)._1
+    paramTypesEquivExtended(other, ScUndefinedSubstitutor(), falseUndef = true)._1
   }
 
 
@@ -162,7 +162,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
   def parameterlessKind: Int = {
     namedElement match {
       case f: ScFunction if !f.hasParameterClause => 1
-      case p: PsiMethod => 2
+      case _: PsiMethod => 2
       case _ => 3
     }
   }
@@ -185,12 +185,12 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
     (namedElement, other.namedElement) match {
       case (f1: ScFunction, f2: ScFunction) =>
         !f1.hasParameterClause ^ f2.hasParameterClause
-      case (f1: ScFunction, p: PsiMethod) => f1.hasParameterClause
-      case (p: PsiMethod, f2: ScFunction) => f2.hasParameterClause
-      case (p1: PsiMethod, p2: PsiMethod) => true
-      case (p: PsiMethod, _) => false
+      case (f1: ScFunction, _: PsiMethod) => f1.hasParameterClause
+      case (_: PsiMethod, f2: ScFunction) => f2.hasParameterClause
+      case (_: PsiMethod, _: PsiMethod) => true
+      case (_: PsiMethod, _) => false
       case (_, f: ScFunction)  => !f.hasParameterClause
-      case (_, f: PsiMethod) => false
+      case (_, _: PsiMethod) => false
       case _ => true
     }
   }
@@ -223,7 +223,7 @@ object Signature {
     definition
   )
 
-  def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]): ScSubstitutor = {
+  def unify(subst: ScSubstitutor, tps1: Seq[TypeParameter], tps2: Seq[TypeParameter]): ScSubstitutor = {
     var result = subst
     val iterator1 = tps1.iterator
     val iterator2 = tps2.iterator

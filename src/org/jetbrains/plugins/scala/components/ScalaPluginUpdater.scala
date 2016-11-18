@@ -73,8 +73,9 @@ object ScalaPluginUpdater {
 
   def currentRepo: Map[pluginBranch, String] = knownVersions(currentVersion)
 
-  val updGroupId = "ScalaPluginUpdate"
-  val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
+  private val updGroupId = "Scala Plugin Update"
+  private val title = updGroupId
+  private val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
 
   // save plugin version before patching to restore it when switching back
   var savedPluginVersion = ""
@@ -257,7 +258,7 @@ object ScalaPluginUpdater {
             }
           }
         ))
-      case Some(result) => Some(GROUP.createNotification(
+      case Some(_) => Some(GROUP.createNotification(
             s"Your IDEA is outdated to use with Scala plugin $branch branch.<br/>" +
             s"Please update IDEA to at least $suggestedVersion to use latest Scala plugin.",
             NotificationType.WARNING)
@@ -339,7 +340,7 @@ object ScalaPluginUpdater {
     }
     catch {
       case _: NoSuchFieldException | _: IllegalAccessException  =>
-        Notifications.Bus.notify(new Notification(updGroupId, "Scala Plugin Update", "Please remove and reinstall Scala plugin to finish downgrading", NotificationType.INFORMATION))
+        Notifications.Bus.notify(new Notification(updGroupId, title, "Please remove and reinstall Scala plugin to finish downgrading", NotificationType.INFORMATION))
     }
   }
 
@@ -352,7 +353,7 @@ object ScalaPluginUpdater {
       val message = "Please select Scala plugin update channel:" +
         s"""<p/><a href="EAP">EAP</a>\n""" +
         s"""<p/><a href="Release">Release</a>"""
-      val notification = new Notification(updGroupId, "Scala Plugin Update", message, NotificationType.INFORMATION, new NotificationListener {
+      val notification = new Notification(updGroupId, title, message, NotificationType.INFORMATION, new NotificationListener {
         def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent) {
           notification.expire()
           applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS = false

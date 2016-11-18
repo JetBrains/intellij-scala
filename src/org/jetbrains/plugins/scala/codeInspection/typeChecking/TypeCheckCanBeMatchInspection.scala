@@ -17,12 +17,12 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
@@ -97,7 +97,7 @@ object TypeCheckToMatchUtil {
         val matchedExprText = expr.getText
         val (caseClausesText, renameData) = buildCaseClausesText(ifStmt, isInstOfUnderFix, onlyFirst)
         val matchStmtText = s"$matchedExprText match { \n " + caseClausesText + "}"
-        val matchStmt = ScalaPsiElementFactory.createExpressionFromText(matchStmtText, ifStmt.getManager).asInstanceOf[ScMatchStmt]
+        val matchStmt = createExpressionFromText(matchStmtText)(ifStmt.getManager).asInstanceOf[ScMatchStmt]
         (Some(matchStmt), renameData)
       case _ => (None, null)
     }
@@ -147,6 +147,7 @@ object TypeCheckToMatchUtil {
       val asInstOfInGuard = findAsInstOfCalls(guardCond, isInstOf)
       val asInstOfEverywhere = asInstOfInBody ++ asInstOfInGuard
 
+      implicit val manager = ifStmt.getManager
       if (asInstOfInBody.count(checkAndStoreNameAndDef) == 0) {
         //no usage of asInstanceOf
         if (asInstOfEverywhere.isEmpty) {
@@ -158,7 +159,7 @@ object TypeCheckToMatchUtil {
             new ScalaVariableValidator(null, ifStmt.getProject, ifStmt, false, ifStmt.getParent, ifStmt.getParent))
           val name = suggestedNames(0)
           asInstOfEverywhere.foreach { c =>
-            val newExpr = ScalaPsiElementFactory.createExpressionFromText(name, ifStmt.getManager)
+            val newExpr = createExpressionFromText(name)
             inWriteAction {
               c.replaceExpression(newExpr, removeParenthesis = true)
             }
@@ -176,7 +177,7 @@ object TypeCheckToMatchUtil {
           patternDef.delete()
         }
         val name = definedName.get
-        val newExpr = ScalaPsiElementFactory.createExpressionFromText(name, ifStmt.getManager)
+        val newExpr = createExpressionFromText(name)
         inWriteAction {
           asInstOfEverywhere.foreach(_.replaceExpression(newExpr, removeParenthesis = true))
         }
@@ -273,7 +274,7 @@ object TypeCheckToMatchUtil {
       genCall.referencedExpr match {
         case ref: ScReferenceExpression if ref.refName == "asInstanceOf" =>
           ref.resolve() match {
-            case synth: SyntheticNamedElement => true
+            case _: SyntheticNamedElement => true
             case _ => false
           }
         case _ => false
@@ -365,7 +366,7 @@ object TypeCheckToMatchUtil {
       case _ =>
         val guardConditions: List[ScExpression] = conditions.filterNot(equiv(_, isInstOfCall))
         val guardConditionsText: String = guardConditions.map(_.getText).mkString(" && ")
-        val guard = ScalaPsiElementFactory.createExpressionFromText(guardConditionsText, condition).asInstanceOf[ScExpression]
+        val guard = createExpressionFromText(guardConditionsText, condition).asInstanceOf[ScExpression]
 
         Option(guard)
     }

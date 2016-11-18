@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType}
@@ -202,8 +202,10 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append("type <b>" + escapeHtml(typez.name) + "</b>")
         typez match {
           case definition: ScTypeAliasDefinition =>
-            buffer.append(" = " +
-              urlText(definition.aliasedTypeElement.getType(TypingContext.empty).getOrAny))
+            val `type` = definition.aliasedTypeElement.flatMap {
+              _.getType().toOption
+            }.getOrElse(Any)
+            buffer.append(s" = ${urlText(`type`)}")
           case _ =>
         }
         buffer.append("</PRE>")
@@ -744,7 +746,7 @@ object ScalaDocumentationProvider {
               superSignature = SuperMethodsSearch.search(method, null, true, false).findFirst
             }
             catch {
-              case e: IndexNotReadyException =>
+              case _: IndexNotReadyException =>
             }
             if (superSignature == null) return ""
 
@@ -858,7 +860,7 @@ object ScalaDocumentationProvider {
           case ScalaDocTokenType.DOC_MACROS => try {
             macroFinder.getMacroBody(element.getText.stripPrefix("$")).map(a => result append a).getOrElse(result append s"[Cannot find macro: ${element.getText}]")
           } catch {
-            case ee: Exception =>
+            case _: Exception =>
           }
           case _ => result.append(element.getText)
         }
@@ -885,8 +887,8 @@ object ScalaDocumentationProvider {
     })
 
     val (commentBody, tagsPart) = getWikiTextRepresentation(macroFinder)(comment)
-    val scalaComment = ScalaPsiElementFactory.createScalaFile(commentBody.append("<br/>\n").
-      append(tagsPart).toString() + " class a {}", comment.getManager).typeDefinitions.head.getDocComment
+    val text = commentBody.append("<br/>\n").append(tagsPart).append(" class a {}").toString()
+    val scalaComment = createScalaFileFromText(text)(comment.getManager).typeDefinitions.head.getDocComment
 
     scalaComment
   }

@@ -19,10 +19,10 @@ case class FromLocalArgEvaluator(delegate: Evaluator) extends Evaluator {
     evaluator match {
       case ScalaBoxingEvaluator(inner) => evaluateNotFromField(inner, context).map(ScalaBoxingEvaluator.box(_, context))
       case _: ScalaFieldEvaluator => None
-      case ScalaDuplexEvaluator(first: ScalaFieldEvaluator, second: ScalaFieldEvaluator) => None
+      case ScalaDuplexEvaluator(_: ScalaFieldEvaluator, _: ScalaFieldEvaluator) => None
       case ScalaDuplexEvaluator(first: ScalaFieldEvaluator, second) if Try(first.evaluate(context)).isFailure =>
         Some(second.evaluate(context))
-      case ScalaDuplexEvaluator(first, second: ScalaFieldEvaluator) => Try(first.evaluate(context)).toOption
+      case ScalaDuplexEvaluator(first, _: ScalaFieldEvaluator) => Try(first.evaluate(context)).toOption
       case _ => Some(evaluator.evaluate(context))
     }
   }

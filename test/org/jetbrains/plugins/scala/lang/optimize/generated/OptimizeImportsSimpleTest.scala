@@ -8,37 +8,39 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   protected override def rootPath(): String = folderPath
 
-  def testSorted() = doTest()
+  def testFromRoot(): Unit = doTest()
 
-  def testSortedInPackage() = doTest()
+  def testSorted(): Unit = doTest()
 
-  def testTwoExpressions() = doTest()
+  def testSortedInPackage(): Unit = doTest()
 
-  def testDeleteBraces() = doTest()
+  def testTwoExpressions(): Unit = doTest()
 
-  def testDontSaveNotResolved() = doTest()
+  def testDeleteBraces(): Unit = doTest()
 
-  def testImportChainUsed() = doTest()
+  def testDontSaveNotResolved(): Unit = doTest()
 
-  def testLanguageFeatures() = doTest()
+  def testImportChainUsed(): Unit = doTest()
 
-  def testNewLines() = doTest()
+  def testLanguageFeatures(): Unit = doTest()
 
-  def testOneImport() = doTest()
+  def testNewLines(): Unit = doTest()
+
+  def testOneImport(): Unit = doTest()
 
   def testScalaDoc(): Unit = doTest()
 
   def testSCL7275(): Unit = doTest()
 
-  def testSomeTrait() = doTest()
+  def testSomeTrait(): Unit = doTest()
 
-  def testUnusedImportChain() = doTest()
+  def testUnusedImportChain(): Unit = doTest()
 
-  def testUnusedSelector() = doTest()
+  def testUnusedSelector(): Unit = doTest()
 
-  def testUsedImport() = doTest()
+  def testUsedImport(): Unit = doTest()
 
-  def testRelativeNameConflict() = doTest()
+  def testRelativeNameConflict(): Unit = doTest()
 
-  def testNoReformattingComments() = doTest()
+  def testNoReformattingComments(): Unit = doTest()
 }

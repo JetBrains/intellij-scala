@@ -1,0 +1,21 @@
+<html>
+<body>
+Suggests to remove an argument from the method call if it is the same as default one.
+
+<p>
+    Before:
+<pre>
+def f(x: Int, y: Int = 0, z: Int) {}
+f(1, y = 0, z = 1)
+</pre>
+
+<br>
+After:
+<pre>
+def f(x: Int, y: Int = 0, z: Int) {}
+f(1, z = 1)
+</pre>
+</p>
+
+</body>
+</html>

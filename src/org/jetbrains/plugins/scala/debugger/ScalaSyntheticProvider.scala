@@ -28,6 +28,7 @@ object ScalaSyntheticProvider {
       case m: Method if isTraitForwarder(m) => true
       case m: Method if m.name().endsWith("$adapted") => true
       case m: Method if ScalaPositionManager.isIndyLambda(m) => false
+      case m: Method if isAccessorInDelayedInit(m) => true
       case f: Field if f.name().startsWith("bitmap$") => true
       case _ =>
         val machine: VirtualMachine = typeComponent.virtualMachine
@@ -72,7 +73,7 @@ object ScalaSyntheticProvider {
   private def onlyInvokesStatic(m: Method): Boolean = {
     val bytecodes =
       try m.bytecodes()
-      catch {case t: Throwable => return false}
+      catch {case _: Throwable => return false}
 
     var i = 0
     while (i < bytecodes.length) {
@@ -91,6 +92,19 @@ object ScalaSyntheticProvider {
 
   private def hasTraitWithImplementation(m: Method): Boolean = {
     m.declaringType() match {
+      case it: InterfaceType =>
+        val implMethods = it.methodsByName(m.name + "$")
+        if (implMethods.isEmpty) false
+        else {
+          val typeNames = m.argumentTypeNames().asScala
+          val argCount = typeNames.size
+          implMethods.asScala.exists { impl =>
+            val implTypeNames = impl.argumentTypeNames().asScala
+            val implArgCount = implTypeNames.size
+            implArgCount == argCount + 1 && implTypeNames.tail == typeNames ||
+              implArgCount == argCount && implTypeNames == typeNames
+          }
+        }
       case ct: ClassType =>
         val interfaces = ct.allInterfaces().asScala
         val vm = ct.virtualMachine()
@@ -103,6 +117,15 @@ object ScalaSyntheticProvider {
           return true
         }
         false
+      case _ => false
+    }
+  }
+
+  private def isAccessorInDelayedInit(m: Method): Boolean = {
+    val simpleName = m.name.stripSuffix("_$eq")
+    m.declaringType() match {
+      case ct: ClassType if ct.fieldByName(simpleName) != null =>
+        ct.allInterfaces().asScala.exists(_.name() == "scala.DelayedInit")
       case _ => false
     }
   }

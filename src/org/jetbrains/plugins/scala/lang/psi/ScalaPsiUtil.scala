@@ -15,7 +15,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
+import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
@@ -32,18 +32,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.{ScPackageContainer, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionConversionData, ExtensionConversionHelper, ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -63,7 +63,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
-import scala.reflect.NameTransformer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -91,17 +90,17 @@ object ScalaPsiUtil {
     if (param.typeParameters.nonEmpty) {
       paramText += param.typeParameters.map(typeParamString).mkString("[", ", ", "]")
     }
-    param.lowerTypeElement foreach {
-      case tp => paramText = paramText + " >: " + tp.getText
+    param.lowerTypeElement foreach { tp =>
+      paramText = paramText + " >: " + tp.getText
     }
-    param.upperTypeElement foreach {
-      case tp => paramText = paramText + " <: " + tp.getText
+    param.upperTypeElement foreach { tp =>
+      paramText = paramText + " <: " + tp.getText
     }
-    param.viewTypeElement foreach {
-      case tp => paramText = paramText + " <% " + tp.getText
+    param.viewTypeElement foreach { tp =>
+      paramText = paramText + " <% " + tp.getText
     }
-    param.contextBoundTypeElement foreach {
-      case tp => paramText = paramText + " : " + tp.getText
+    param.contextBoundTypeElement foreach { tp =>
+      paramText = paramText + " : " + tp.getText
     }
     paramText
   }
@@ -142,8 +141,8 @@ object ScalaPsiUtil {
                 contains(annot.typeElement.getText.replace(" ", ""))
       }
     } else {
-      s.hasAnnotation("scala.reflect.BooleanBeanProperty").isDefined ||
-        s.hasAnnotation("scala.beans.BooleanBeanProperty").isDefined
+      s.hasAnnotation("scala.reflect.BooleanBeanProperty") ||
+        s.hasAnnotation("scala.beans.BooleanBeanProperty")
     }
   }
 
@@ -155,8 +154,8 @@ object ScalaPsiUtil {
                 contains(annot.typeElement.getText.replace(" ", ""))
       }
     } else {
-      s.hasAnnotation("scala.reflect.BeanProperty").isDefined ||
-        s.hasAnnotation("scala.beans.BeanProperty").isDefined
+      s.hasAnnotation("scala.reflect.BeanProperty") ||
+        s.hasAnnotation("scala.beans.BeanProperty")
     }
   }
 
@@ -165,7 +164,7 @@ object ScalaPsiUtil {
   @tailrec
   def withEtaExpansion(expr: ScExpression): Boolean = {
     expr.getContext match {
-      case call: ScMethodCall => false
+      case _: ScMethodCall => false
       case g: ScGenericCall => withEtaExpansion(g)
       case p: ScParenthesisedExpr => withEtaExpansion(p)
       case _ => true
@@ -263,132 +262,64 @@ object ScalaPsiUtil {
     }
   }
 
-  def findImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
+  def findImplicitConversion(baseExpr: ScExpression, refName: String, ref: ScExpression, processor: BaseProcessor,
                              noImplicitsForArgs: Boolean)
                             (implicit typeSystem: TypeSystem): Option[ImplicitResolveResult] = {
-    lazy val funType = Option(
-      ScalaPsiManager.instance(e.getProject).getCachedClass(
-        "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-      )
-    ) collect {
-      case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl),
-        cl.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
-    } flatMap {
-      case p: ScParameterizedType => Some(p)
-      case _ => None
+
+    val exprType = ImplicitCollector.exprType(baseExpr, fromUnder = false) match {
+      case None => return None
+      case Some(x) if x.equiv(Nothing) => return None //do not proceed with nothing type, due to performance problems.
+      case Some(x) => x
+    }
+    val args = processor match {
+      case _ if !noImplicitsForArgs => Seq.empty
+      case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
+        _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
+      ))
+      case _ => Seq.empty
     }
 
-    def specialExtractParameterType(rr: ScalaResolveResult): (Option[ScType], Seq[TypeParameter]) = {
-      def inner(tp: ScType) = {
-        tp match {
-          case f@FunctionType(_, _) => Some(f)
-          case _ =>
-            funType match {
-              case Some(ft) =>
-                val conformance = tp.conforms(ft, new ScUndefinedSubstitutor())
-                if (conformance._1) {
-                  conformance._2.getSubstitutor match {
-                    case Some(subst) => Some(subst.subst(ft).removeUndefines())
-                    case _ => None
-                  }
-                } else None
-              case _ => None
-            }
-        }
-      }
-      val typeParams = rr.unresolvedTypeParameters match {
-        case Some(tParams) if tParams.nonEmpty => tParams
-        case _ => Seq.empty
-      }
-      (inner(InferUtil.extractImplicitParameterType(rr)), typeParams)
+    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
+      val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
+      new ImplicitCollector(
+        baseExpr,
+        FunctionType(Any, Seq(exprType))(baseExpr.getProject, baseExpr.getResolveScope),
+        FunctionType(exprType, args)(baseExpr.getProject, baseExpr.getResolveScope),
+        coreElement = None,
+        isImplicitConversion = true,
+        extensionData = Some(data)).collect()
     }
 
-    //TODO! remove this after find a way to improve implicits according to compiler.
-    val isHardCoded = refName == "+" &&
-      e.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
-    val kinds = processor.kinds
-    var implicitMap: Seq[ScalaResolveResult] = Seq.empty
-    def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
-      def args = processor match {
-        case _ if !noImplicitsForArgs => Seq.empty
-        case m: MethodResolveProcessor => m.argumentClauses.flatMap(_.map(
-          _.getTypeAfterImplicitConversion(checkImplicits = false, isShape = m.isShapeResolve, None)._1.getOrAny
-        ))
-        case _ => Seq.empty
-      }
-      val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
-      if (exprType.equiv(Nothing)) return //do not proceed with nothing type, due to performance problems.
-      val convertible = new ImplicitCollector(e,
-        FunctionType(Any, Seq(exprType))(e.getProject, e.getResolveScope),
-        FunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
-          predicate = Some((rr, subst) => {
-            ProgressManager.checkCanceled()
-            specialExtractParameterType(rr) match {
-              case (Some(FunctionType(tp, _)), _) =>
-                if (!isHardCoded || !tp.isInstanceOf[ValType]) {
-                  val newProc = new ResolveProcessor(kinds, ref, refName)
-                  newProc.processType(tp, e, ResolveState.initial)
-                  val res = newProc.candidatesS.nonEmpty
-                  if (!noApplicability && res && processor.isInstanceOf[MethodResolveProcessor]) {
-                    val mrp = processor.asInstanceOf[MethodResolveProcessor]
-                    val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
-                      rr.element match {
-                        case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(TypeParameter(_))
-                        case _ => Seq.empty
-                      }, kinds,
-                      mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
-                    newProc.processType(tp, e, ResolveState.initial)
-                    val candidates = newProc.candidatesS.filter(_.isApplicable())
-                    if (candidates.nonEmpty) {
-                      rr.element match {
-                        case fun: ScFunction if fun.hasTypeParameters =>
-                          val newRR = candidates.iterator.next()
-                          newRR.resultUndef match {
-                            case Some(undef) =>
-                              undef.getSubstitutor match {
-                                case Some(uSubst) =>
-                                  Some(rr.copy(subst = newRR.substitutor.followed(uSubst),
-                                    implicitParameterType = rr.implicitParameterType.map(uSubst.subst)),
-                                    subst.followed(uSubst))
-                                case _ => Some(rr, subst)
-                              }
-                            case _ => Some(rr, subst)
-                          }
-                        case _ => Some(rr, subst)
-                      }
-                    } else None
-                  } else if (res) Some(rr, subst)
-                  else None
-                } else None
-              case _ => None
-            }
-          }))
-      implicitMap = convertible.collect()
-    }
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
-    checkImplicits(secondPart = false, noApplicability = false)
-    if (implicitMap.size > 1) {
-      val oldMap = implicitMap
-      checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
-      if (implicitMap.isEmpty) implicitMap = oldMap
-    } else if (implicitMap.isEmpty) {
-      checkImplicits(secondPart = true, noApplicability = false)
-      if (implicitMap.size > 1) {
-        val oldMap = implicitMap
-        checkImplicits(secondPart = false, noApplicability = false, withoutImplicitsForArgs = true)
-        if (implicitMap.isEmpty) implicitMap = oldMap
-      } else if (implicitMap.isEmpty) checkImplicits(secondPart = false, noApplicability = true)
+    val foundImplicits = checkImplicits() match {
+      case seq if seq.size > 1 => checkImplicits(withoutImplicitsForArgs = true)
+      case Seq() => checkImplicits(noApplicability = true)
+      case seq => seq
     }
-    if (implicitMap.length == 1) {
-      val rr = implicitMap.head
-      specialExtractParameterType(rr) match {
-        case (Some(FunctionType(tp, _)), typeParams) =>
-          Some(ImplicitResolveResult(tp, rr.getElement, rr.importsUsed, rr.substitutor, ScSubstitutor.empty, isFromCompanion = false, //todo: from companion parameter
-            unresolvedTypeParameters = typeParams))
-        case _ => None
-      }
-    } else None
+
+    foundImplicits match {
+      case Seq(rr) =>
+        ExtensionConversionHelper.specialExtractParameterType(rr) match {
+          case (Some(FunctionType(tp, _)), typeParams) =>
+            Some(ImplicitResolveResult(tp, rr, ScSubstitutor.empty, //todo: from companion parameter
+              unresolvedTypeParameters = typeParams))
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
+  def isLocalOrPrivate(elem: PsiElement): Boolean = {
+    elem.getContext match {
+      case _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions => false
+      case _: ScTemplateBody =>
+        elem match {
+          case mem: ScMember if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) => true
+          case _ => false
+        }
+      case _ => true
+    }
   }
 
   @tailrec
@@ -417,12 +348,13 @@ object ScalaPsiUtil {
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
       else if (isUpdate) "update"
       else "apply"
+
+    implicit val manager = call.getManager
     val args: Seq[ScExpression] = call.argumentExpressions ++ (
             if (isUpdate) call.getContext.asInstanceOf[ScAssignStmt].getRExpression match {
               case Some(x) => Seq[ScExpression](x)
               case None =>
-                Seq[ScExpression](ScalaPsiElementFactory.createExpressionFromText("{val x: Nothing = null; x}",
-                  call.getManager)) //we can't to not add something => add Nothing expression
+                Seq[ScExpression](createExpressionFromText("{val x: Nothing = null; x}")) //we can't to not add something => add Nothing expression
             }
             else Seq.empty)
     val (expr, exprTp, typeArgs: Seq[ScTypeElement]) = call.getEffectiveInvokedExpr match {
@@ -430,7 +362,7 @@ object ScalaPsiUtil {
         // The type arguments are for the apply/update method, separate them from the referenced expression. (SCL-3489)
         val referencedType = gen.referencedExpr.getNonValueType(TypingContext.empty).getOrNothing
         referencedType match {
-          case tp: ScTypePolymorphicType => //that means that generic call is important here
+          case _: ScTypePolymorphicType => //that means that generic call is important here
             (gen, gen.getType(TypingContext.empty).getOrNothing, Seq.empty)
           case _ =>
             (gen.referencedExpr, gen.referencedExpr.getType(TypingContext.empty).getOrNothing, gen.arguments)
@@ -442,7 +374,7 @@ object ScalaPsiUtil {
       case ScTypePolymorphicType(_, tps) => tps
       case _ => Seq.empty
     }.getOrElse(Seq.empty)
-    val emptyStringExpression = ScalaPsiElementFactory.createExpressionFromText("\"\"", call.getManager)
+    val emptyStringExpression = createExpressionFromText("\"\"")
     val processor = new MethodResolveProcessor(expr, methodName, if (!isDynamic) args :: Nil
       else List(List(emptyStringExpression), args), typeArgs, typeParams,
       isShapeResolve = isShape, enableTupling = true, isDynamic = isDynamic)
@@ -581,7 +513,9 @@ object ScalaPsiUtil {
 
   def getModule(element: PsiElement): Module = {
     val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-    index.getModuleForFile(element.getContainingFile.getVirtualFile)
+    if (element.getContainingFile.getVirtualFile != null)
+      index.getModuleForFile(element.getContainingFile.getVirtualFile)
+    else null
   }
 
   def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
@@ -613,7 +547,7 @@ object ScalaPsiUtil {
           case clazz: PsiClass          =>
             clazz.getSuperTypes.foreach {
               tp =>
-                val stp = tp.toScType(project, scope)
+                val stp = tp.toScType()
                 collectParts(subst.subst(stp))
             }
         }
@@ -624,7 +558,7 @@ object ScalaPsiUtil {
         case ScDesignatorType(v: ScFieldId)                 => v.getType(TypingContext.empty).foreach(collectParts)
         case ScDesignatorType(p: ScParameter)               => p.getType(TypingContext.empty).foreach(collectParts)
         case ScCompoundType(comps, _, _)                 => comps.foreach(collectParts)
-        case p@ParameterizedType(a: ScAbstractType, args) =>
+        case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
           args.foreach(collectParts)
         case p@ParameterizedType(des, args) =>
@@ -655,17 +589,24 @@ object ScalaPsiUtil {
               collectSupers(clazz, subst)
             case _          =>
           }
-        case ScAbstractType(_, lower, upper) =>
+        case ScAbstractType(_, _, upper) =>
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
         case TypeParameterType(_, _, upper, _) => collectParts(upper.v)
         case _                           =>
           tp.extractClassType(project) match {
             case Some((clazz, subst)) =>
-              val packObjects = clazz.contexts.flatMap {
-                case x: ScPackageLike => x.findPackageObject(scope).toIterator
-                case _                => Iterator()
+              var packObjects = new ArrayBuffer[ScTypeDefinition]()
+
+              @tailrec
+              def packageObjectsInImplicitScope(packOpt: Option[ScPackageLike]): Unit = packOpt match {
+                case Some(pack) =>
+                  pack.findPackageObject(scope).foreach(packObjects += _)
+                  packageObjectsInImplicitScope(pack.parentScalaPackage)
+                case _ =>
               }
+
+              packageObjectsInImplicitScope(Option(ScalaPsiUtil.contextOfType(clazz, strict = false, classOf[ScPackageLike])))
               parts += tp
               packObjects.foreach(p => parts += ScDesignatorType(p))
 
@@ -746,6 +687,18 @@ object ScalaPsiUtil {
     cachedResult
   }
 
+  def parentPackage(packageFqn: String, project: Project): Option[ScPackageImpl] = {
+    if (packageFqn.length == 0) None
+    else {
+      val lastDot: Int = packageFqn.lastIndexOf('.')
+      val name =
+        if (lastDot < 0) ""
+        else packageFqn.substring(0, lastDot)
+      val psiPack = ScalaPsiManager.instance(project).getCachedPackage(name).orNull
+      Option(ScPackageImpl(psiPack))
+    }
+  }
+
   def mapToLazyTypesSeq(elems: Seq[PsiParameter]): Seq[() => ScType] = {
     elems.map(param => () =>
       param match {
@@ -755,7 +708,7 @@ object ScalaPsiUtil {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }
-          p.exactParamType(treatJavaObjectAsAny)
+          p.paramType(treatJavaObjectAsAny = treatJavaObjectAsAny)
       }
     )
   }
@@ -804,23 +757,6 @@ object ScalaPsiUtil {
     }
     z.accept(visitor)
     res
-  }
-
-  def getPsiElementId(elem: PsiNamedElement): (String, PsiElement) = {
-    try {
-      (elem.name, elem match {
-        case typeParam: ScTypeParam => typeParam.getPsiElementId
-        case p: PsiTypeParameter =>
-          val cc = for {
-            owner <- Option(p.getOwner)
-            clazz <- Option(owner.containingClass)
-          } yield clazz
-          cc.orNull
-        case _ => elem
-      })
-    } catch {
-      case _ : PsiInvalidElementAccessException => null
-    }
   }
 
   def getSettings(project: Project): ScalaCodeStyleSettings = {
@@ -981,23 +917,23 @@ object ScalaPsiUtil {
     isPlaceTdAncestor(td, newTd)
   }
 
-  def typesCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScType]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
+  def typesCallSubstitutor(tp: Seq[(String, Long)], typeArgs: Seq[ScType]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, Long), ScType]
     for (i <- 0 until math.min(tp.length, typeArgs.length)) {
       map += ((tp(i), typeArgs(i)))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
-  def genericCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
+  def genericCallSubstitutor(tp: Seq[(String, Long)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, Long), ScType]
     for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
       map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType(TypingContext.empty).getOrAny))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
-  def genericCallSubstitutor(tp: Seq[(String, PsiElement)], gen: ScGenericCall): ScSubstitutor = {
+  def genericCallSubstitutor(tp: Seq[(String, Long)], gen: ScGenericCall): ScSubstitutor = {
     val typeArgs: Seq[ScTypeElement] = gen.arguments
     genericCallSubstitutor(tp, typeArgs)
   }
@@ -1163,6 +1099,12 @@ object ScalaPsiUtil {
   }
 
   /**
+    *  For one classOf use PsiTreeUtil.getParenteOfType instead
+    */
+  def getParentOfType(element: PsiElement, clazz: Class[_ <: PsiElement]): PsiElement = {
+    getParentOfType(element, false, clazz)
+  }
+  /**
    *  For one classOf use PsiTreeUtil.getParenteOfType instead
    */
   def getParentOfType(element: PsiElement, classes: Class[_ <: PsiElement]*): PsiElement = {
@@ -1188,6 +1130,12 @@ object ScalaPsiUtil {
     else getParentWithProperty(element.getParent, strict = false, property)
   }
 
+  @tailrec
+  def getParent(element: PsiElement, level: Int): Option[PsiElement] =
+    if (level == 0) Some(element) else
+    if (element.parent.isEmpty) None
+    else getParent(element.getParent, level - 1)
+
   def contextOfType[T <: PsiElement](element: PsiElement, strict: Boolean, clazz: Class[T]): T = {
     var el: PsiElement = if (!strict) element else {
       if (element == null) return null.asInstanceOf[T]
@@ -1210,78 +1158,36 @@ object ScalaPsiUtil {
   }
 
   def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    getBaseCompanionModule(clazz) match {
-      case Some(td) => Some(td)
-      case _ =>
-        clazz match {
-          case x: ScTypeDefinition => x.fakeCompanionModule
-          case _ => None
-        }
+    clazz match {
+      case definition: ScTypeDefinition =>
+        definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
+      case _ => None
+    }
+  }
+
+  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
+    import scala.{meta => m}
+    ah.getMetaExpansion match {
+      case Left(_) => None
+      case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
+      case Right(_) => None
     }
   }
 
   //Performance critical method
-  def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    val (td, scope) = clazz match {
-      case t: ScTypeDefinition if t.getContext != null => (t, t.getContext)
-      case _ => return None
-    }
-
-    val name: String = td.name
-    val arrayOfElements: Array[PsiElement] = scope match {
-      case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-        stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl =>
-        val stub = file.getStub
-        if (stub != null) {
-          file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
-        } else scope.getChildren
-      case _ => scope.getChildren
-    }
-    td match {
-      case _: ScClass | _: ScTrait =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case obj: ScObject if obj.name == name => return Some(obj)
-            case _ =>
-          }
-          i = i + 1
-        }
-        None
-      case _: ScObject =>
-        var i = 0
-        val length  = arrayOfElements.length
-        while (i < length) {
-          arrayOfElements(i) match {
-            case c: ScClass if c.name == name => return Some(c)
-            case t: ScTrait if t.name == name => return Some(t)
-            case _ =>
-          }
-          i = i + 1
-        }
-        None
-      case _ => None
-    }
+  def getBaseCompanionModule(definition: ScTypeDefinition): Option[ScTypeDefinition] = {
+    definition.baseCompanionModule
   }
 
   object FakeCompanionClassOrCompanionClass {
     def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
   }
 
-  def withCompanionSearchScope(clazz: PsiClass): SearchScope = {
-    getBaseCompanionModule(clazz) match {
-      case Some(companion) => new LocalSearchScope(clazz).union(new LocalSearchScope(companion))
-      case None => new LocalSearchScope(clazz)
-    }
-  }
-
   def hasStablePath(o: PsiNamedElement): Boolean = {
     @tailrec
     def hasStablePathInner(m: PsiMember): Boolean = {
       m.getContext match {
-        case f: PsiFile => return true
+        case _: PsiFile => return true
         case _: ScPackaging | _: PsiPackage => return true
         case _ =>
       }
@@ -1312,7 +1218,8 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type` : PsiType): PsiType = {
-        substitutor.subst(`type`.toScType(project, scope)).toPsiType(project, scope)
+        implicit val typeSystem = project.typeSystem
+        substitutor.subst(`type`.toScType()).toPsiType(project, scope)
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
@@ -1417,9 +1324,9 @@ object ScalaPsiUtil {
             val endInParent: Int = startInParent + from.getTextLength
             val parentText = parent.getText
             val modifiedParentText = parentText.substring(0, startInParent) + from.getText + parentText.substring(endInParent)
-            val modifiedParent = ScalaPsiElementFactory.createExpressionFromText(modifiedParentText, parent.getContext)
+            val modifiedParent = createExpressionFromText(modifiedParentText, parent.getContext)
             modifiedParent match {
-              case ScInfixExpr(_, newOper, tuple: ScTuple) =>
+              case ScInfixExpr(_, newOper, _: ScTuple) =>
                 newOper.bind() match {
                   case Some(newResolveResult) =>
                     newResolveResult.getElement == resolveResult.getElement && newResolveResult.tuplingUsed
@@ -1437,7 +1344,7 @@ object ScalaPsiUtil {
         expr.getParent match {
           case ScParenthesisedExpr(_) =>
             val text = expr.getText
-            val dummyFile = ScalaPsiElementFactory.createScalaFile(text, expr.getManager)
+            val dummyFile = createScalaFileFromText(text)(expr.getManager)
             dummyFile.firstChild match {
               case Some(newExpr: ScExpression) => newExpr.getText != text
               case _ => true
@@ -1485,9 +1392,9 @@ object ScalaPsiUtil {
   }
 
   def isScope(element: PsiElement): Boolean = element match {
-    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackageContainer | _: ScParameters |
-            _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
-            _: ScEarlyDefinitions | _: ScRefinement => true
+    case _: ScalaFile | _: ScBlock | _: ScTemplateBody | _: ScPackaging | _: ScParameters |
+         _: ScTypeParamClause | _: ScCaseClause | _: ScForStatement | _: ScExistentialClause |
+         _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
   }
@@ -1500,7 +1407,7 @@ object ScalaPsiUtil {
       case element: ScReferenceElement => element.getReference.toOption
               .flatMap(_.resolve().asOptionOf[ScBindingPattern])
               .flatMap(_.getParent.asOptionOf[ScPatternList])
-              .filter(_.allPatternsSimple)
+        .filter(_.simplePatterns)
               .flatMap(_.getParent.asOptionOf[ScPatternDefinition])
               .flatMap(_.expr.flatMap(_.asOptionOf[PsiLiteral]))
               .flatMap(stringValueOf)
@@ -1537,7 +1444,7 @@ object ScalaPsiUtil {
       }
     }
     exp match {
-      case ScAssignStmt(ResolvesTo(p: ScParameter), Some(expr)) => Some(new Parameter(p))
+      case ScAssignStmt(ResolvesTo(p: ScParameter), Some(_)) => Some(new Parameter(p))
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
@@ -1605,12 +1512,12 @@ object ScalaPsiUtil {
       return true
     }
 
-    e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
+    e.parentsInFile.takeWhile(!isScope(_)).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
   private def isCanonicalArg(expr: ScExpression) = expr match {
     case _: ScParenthesisedExpr => false
-    case ScBlock(expr: ScExpression) => false
+    case ScBlock(_: ScExpression) => false
     case _ => true
   }
 
@@ -1652,8 +1559,8 @@ object ScalaPsiUtil {
     @tailrec
     private def referencedMethod(expr: ScExpression, canBeParameterless: Boolean): Option[PsiMethod] = {
       expr match {
-        case ref @ ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
-        case ref @ ResolvesTo(m: PsiMethod) => Some(m)
+        case ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
+        case ResolvesTo(m: PsiMethod) => Some(m)
         case gc: ScGenericCall => referencedMethod(gc.referencedExpr, canBeParameterless)
         case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get, canBeParameterless)
         case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
@@ -1674,60 +1581,53 @@ object ScalaPsiUtil {
   }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
-  def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
-    if (paramOwner == null) return None
+  def syntheticParamClause(element: PsiNamedElement, paramClauses: ScParameters, classParam: Boolean, hasImplicit: Boolean): Option[ScParameterClause] =
+  Option(element).collect {
+    case parameterOwner: ScTypeParametersOwner if !hasImplicit => parameterOwner
+  }.flatMap { parameterOwner =>
+    def views(typeParameter: ScTypeParam) = typeParameter.viewTypeElement.map { typeElement =>
+      val needParenthesis = typeElement match {
+        case _: ScCompoundTypeElement |
+             _: ScInfixTypeElement |
+             _: ScFunctionalTypeElement |
+             _: ScExistentialTypeElement => true
+        case _ => false
+      }
+      val elementText = typeElement.getText.parenthesize(needParenthesis)
+      s"${typeParameter.name} ${functionArrow(typeElement.getProject)} $elementText"
+    }
 
-    var i = 0
-    def nextName(): String = {
-      i += 1
-      "ev$" + i
+    def bounds(typeParameter: ScTypeParam) = typeParameter.contextBoundTypeElement.map { typeElement =>
+      s"${typeElement.getText}[${typeParameter.name}]"
     }
-    def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
-      val views = typeParam.viewTypeElement.map {
-        vte =>
-          val needParenths = vte match {
-            case _: ScCompoundTypeElement | _: ScInfixTypeElement |
-                 _: ScFunctionalTypeElement | _: ScExistentialTypeElement => true
-            case _ => false
-          }
-          val vteText = if (needParenths) s"(${vte.getText})" else vte.getText
-          val arrow = ScalaPsiUtil.functionArrow(vte.getProject)
-          val code = s"${nextName()}: ${typeParam.name} $arrow $vteText"
-          def updateAnalog(typeElement: ScTypeElement) {
-            vte.analog = typeElement
-          }
-          (code, updateAnalog _)
-      }
-      val bounds = typeParam.contextBoundTypeElement.map {
-        (cbte: ScTypeElement) =>
-          val code = s"${nextName()}: ${cbte.getText}[${typeParam.name}]"
-          def updateAnalog(typeElement: ScTypeElement) {
-            cbte.analog = typeElement
-          }
-          (code, updateAnalog _)
-      }
-      views ++ bounds
+
+    val typeParameters = parameterOwner.typeParameters
+    val maybeText = (typeParameters.flatMap(views) ++ typeParameters.flatMap(bounds)).zipWithIndex.map {
+      case (text, index) => s"ev$$${index + 1}: $text"
+    } match {
+      case Seq() => None
+      case seq => Some(seq.mkString("(implicit ", ", ", ")"))
     }
-    val params: Seq[(String, (ScTypeElement) => Unit)] = paramOwner.typeParameters match {
-      case null => Seq()
-      case xs => xs.flatMap(synthParams)
+
+    val result = maybeText.map {
+      def createClause =
+        if (classParam) (clauseText: String, manager: PsiManager, context: PsiElement) => createImplicitClassParamClauseFromTextWithContext(clauseText, context)
+        else (clauseText: String, manager: PsiManager, context: PsiElement) => createImplicitClauseFromTextWithContext(clauseText, context)
+      createClause(_, element.getManager, paramClauses)
     }
-    val clauseText = params.map(_._1).mkString(",")
-    if (params.isEmpty) None
-    else {
-      val fullClauseText: String = "(implicit " + clauseText + ")"
-      val paramClause: ScParameterClause = {
-        if (classParam) ScalaPsiElementFactory.createImplicitClassParamClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
-        else ScalaPsiElementFactory.createImplicitClauseFromTextWithContext(fullClauseText, paramOwner.getManager, paramClauses)
+
+    result.foreach { clause =>
+      val typeElements = typeParameters.flatMap(_.viewTypeElement) ++
+        typeParameters.flatMap(_.contextBoundTypeElement)
+
+      clause.parameters.flatMap {
+        _.typeElement.toSeq
+      }.foreachWithIndex {
+        case (typeElement, index) => typeElements(index).analog = typeElement
       }
-      paramClause.parameters.foreachWithIndex {
-        (param, index) =>
-          val updateAnalog: (ScTypeElement) => Unit = params(index)._2
-          updateAnalog(param.typeElement.get)
-          ()
-      }
-      Some(paramClause)
     }
+
+    result
   }
 
   def isPossiblyAssignment(ref: PsiReference): Boolean = isPossiblyAssignment(ref.getElement)
@@ -1743,17 +1643,23 @@ object ScalaPsiUtil {
   }
 
   def availableImportAliases(position: PsiElement): Set[(ScReferenceElement, String)] = {
-    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = {
-      val result = collection.mutable.Set[(ScReferenceElement, String)]()
-      if (holder != null) {
-        val importExprs: Seq[ScImportExpr] = holder.getImportStatements.flatMap(_.importExprs)
-        importExprs.flatMap(_.selectors).filter(_.importedName != "_").foreach { s =>
-          if (s.reference.refName != s.importedName) result += ((s.reference, s.importedName))
-        }
-        result.toSet
-      }
-      else Set.empty
-    }
+    def getSelectors(holder: ScImportsHolder): Set[(ScReferenceElement, String)] = Option(holder) map {
+      _.getImportStatements
+    } map {
+      _ flatMap {
+        _.importExprs
+      } flatMap {
+        _.selectors
+      } filter {
+        _.importedName != "_"
+      } filter {
+        _.reference != null
+      } map { selector =>
+        (selector.reference.asInstanceOf[ScReferenceElement], selector.importedName)
+      } filter {
+        case (reference, name) => reference.refName != name
+      } toSet
+    } getOrElse Set.empty
 
     if (position != null && position.getLanguage.getID != "Scala")
       return Set.empty
@@ -1770,7 +1676,7 @@ object ScalaPsiUtil {
 
     def correctResolve(alias: (ScReferenceElement, String)): Boolean = {
       val (aliasRef, text) = alias
-      val ref = ScalaPsiElementFactory.createReferenceFromText(text, position.getContext, position)
+      val ref = createReferenceFromText(text, position.getContext, position)
       val resolves = aliasRef.multiResolve(false)
       resolves.exists {
         case rr: ScalaResolveResult => ref.isReferenceTo(rr.element)
@@ -1787,7 +1693,7 @@ object ScalaPsiUtil {
         if aliasRef.multiResolve(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
     }
     if (suitableAliases.nonEmpty) {
-      val newRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(suitableAliases.head, refPosition.getManager)
+      val newRef: ScStableCodeReferenceElement = createReferenceFromText(suitableAliases.head)(refPosition.getManager)
       Some(newRef)
     } else None
   }
@@ -1808,10 +1714,10 @@ object ScalaPsiUtil {
         parent <- element.parent
       } {
         if (!prevElement.isInstanceOf[PsiWhiteSpace]) {
-          parent.addBefore(ScalaPsiElementFactory.createWhitespace(element.getManager), element)
+          parent.addBefore(createWhitespace(element.getManager), element)
         }
         if (!nextElement.isInstanceOf[PsiWhiteSpace]) {
-          parent.addAfter(ScalaPsiElementFactory.createWhitespace(element.getManager), element)
+          parent.addAfter(createWhitespace(element.getManager), element)
         }
       }
   }
@@ -1854,7 +1760,7 @@ object ScalaPsiUtil {
     }
 
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
-    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(element.getManager).getPsi
+    def newLine: PsiElement = createNewLine()(element.getManager)
 
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)
@@ -1879,13 +1785,13 @@ object ScalaPsiUtil {
   }
 
   def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
-    val manager = member.getManager
+    implicit val manager = member.getManager
     val modifierList = member.getModifierList
     if (newVisibility == "" || newVisibility == "public") {
       modifierList.accessModifier.foreach(_.delete())
       return
     }
-    val newElem = ScalaPsiElementFactory.createModifierFromText(newVisibility, manager).getPsi
+    val newElem = createModifierFromText(newVisibility)
     modifierList.accessModifier match {
       case Some(mod) => mod.replace(newElem)
       case None =>
@@ -1894,7 +1800,7 @@ object ScalaPsiUtil {
         } else {
           val mod = modifierList.getFirstChild
           modifierList.addBefore(newElem, mod)
-          modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), mod)
+          modifierList.addBefore(createWhitespace(manager), mod)
         }
     }
   }
@@ -1973,35 +1879,31 @@ object ScalaPsiUtil {
                 case _ => true
               }
             }
-            val abst: Seq[ScFunction] = templDef.allMethods.toSeq.collect {
-              case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
-            }
-            val constrValid: Boolean = templDef match { //if it's a class check its constructor
-              case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
-              case tr: ScTrait => true
-              case _ => false
-            }
-            val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
-            //cl must have only one abstract member, one argument list and be monomorphic
-            val valid =
-              constrValid &&
-                abst.length == 1 &&
-                abst.head.parameterList.clauses.length == 1 &&
-                !abst.head.hasTypeParameters &&
-                (isScala211 || selfTypeValid)
+            val abst = templDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
+            abst match {
+              case (Seq(PhysicalSignature(fun: ScFunction, _))) =>
+                val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
+                def constructorValid = templDef match {
+                  case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
+                  case _: ScTrait => true
+                  case _ => false
+                }
 
-            if (valid) {
-              val fun = abst.head
-              fun.getType() match {
-                case Success(tp, _) =>
-                  val subbed = sub.subst(tp)
-                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel) match {
-                    case s@Some(_) => s
-                    case _ => Some(subbed)
+                def hasOneParamClause = fun.paramClauses.clauses.length == 1
+
+                def selfTypeCorrectIfScala212 = isScala211 || selfTypeValid
+
+                if (constructorValid && hasOneParamClause && !fun.hasTypeParameters && selfTypeCorrectIfScala212) {
+                  fun.getType() match {
+                    case Success(tp, _) =>
+                      val subbed = sub.subst(tp)
+                      val extrapolated = extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel)
+                      extrapolated.orElse(Some(subbed))
+                    case _ => None
                   }
-                case _ => None
-              }
-            } else None
+                } else None
+              case _ =>  None
+            }
           case _ => //it's a Java abstract class or interface
             def overridesConcreteMethod(method: PsiMethod): Boolean = {
               method.findSuperMethods().exists(!_.hasAbstractModifier)
@@ -2022,9 +1924,9 @@ object ScalaPsiUtil {
               //need to generate ScType for Java method
               val method = abst.head
               val project = method.getProject
-              val returnType: ScType = method.getReturnType.toScType(project, scalaScope)
+              val returnType: ScType = method.getReturnType.toScType()
               val params: Array[ScType] = method.getParameterList.getParameters.map {
-                param: PsiParameter => param.getTypeElement.getType.toScType(project, scalaScope)
+                param: PsiParameter => param.getTypeElement.getType.toScType()
               }
               val fun = FunctionType(returnType, params)(project, scalaScope)
               val subbed = sub.subst(fun)
@@ -2059,12 +1961,12 @@ object ScalaPsiUtil {
   private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope, scalaVersion: ScalaLanguageLevel)
                                        (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
     expected match {
-      case ScExistentialType(ParameterizedType(expectedDesignator, _), wildcards) =>
+      case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {
           case FunctionType(retTp, params) =>
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
               tpArg match {
-                case p@ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
+                case ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
                 case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
                   convertParameter(param, variance)
                 case _ =>
@@ -2102,8 +2004,8 @@ object ScalaPsiUtil {
   }
 
   def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
-    val manager = element.getManager
-    val block = ScalaPsiElementFactory.parseElement("(_)", manager)
+    implicit val manager = element.getManager
+    val block = createElementFromText("(_)")
 
     for (lBrace <- Option(element.findFirstChildByType(ScalaTokenTypes.tLBRACE))) {
       lBrace.replace(block.getFirstChild)

@@ -40,7 +40,7 @@ class CompileServerLauncher extends ApplicationComponent {
       if (started) {
         try new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
         catch {
-          case e: Exception =>
+          case _: Exception =>
         }
       }
       started

@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
@@ -21,12 +22,11 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     *                             See SCL-3036 and SCL-2375
     */
   def toScType(`type`: PsiType,
-               project: Project,
-               scope: GlobalSearchScope = null,
-               visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
-               paramTopLevel: Boolean = false,
-               treatJavaObjectAsAny: Boolean = true): ScType = `type` match {
-    case arrayType: PsiArrayType => JavaArrayType(toScType(arrayType.getComponentType, project, scope))
+               treatJavaObjectAsAny: Boolean)
+              (implicit visitedRawTypes: HashSet[PsiClass],
+               paramTopLevel: Boolean): ScType = `type` match {
+    case arrayType: PsiArrayType =>
+      JavaArrayType(arrayType.getComponentType.toScType())
     case PsiType.VOID => Unit
     case PsiType.BOOLEAN => Boolean
     case PsiType.CHAR => Char
@@ -39,12 +39,20 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     case PsiType.NULL => Null
     case null => Any
     case diamondType: PsiDiamondType =>
-      val types = diamondType.resolveInferredTypes().getInferredTypes
-      if (types.isEmpty) {
-        if (paramTopLevel && treatJavaObjectAsAny) Any else AnyRef
-      } else {
-        toScType(types.get(0), project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+      import scala.collection.JavaConversions._
+      diamondType.resolveInferredTypes().getInferredTypes.toList map {
+        toScType(_, treatJavaObjectAsAny)
+      } match {
+        case Nil if paramTopLevel && treatJavaObjectAsAny => Any
+        case Nil => AnyRef
+        case head :: _ => head
       }
+    case wildcardType: PsiCapturedWildcardType =>
+      toScType(wildcardType.getWildcard, treatJavaObjectAsAny)
+    case intersectionType: PsiIntersectionType =>
+      typeSystem.andType(intersectionType.getConjuncts.map {
+        toScType(_, treatJavaObjectAsAny)
+      })
     case _ => throw new IllegalArgumentException(s"psi type ${`type`} should not be converted to ${typeSystem.name} type")
   }
 

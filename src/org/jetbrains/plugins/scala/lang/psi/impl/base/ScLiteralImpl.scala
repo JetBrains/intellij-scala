@@ -10,14 +10,13 @@ import java.util.Random
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.injection.InjectedLanguageManager
-import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
@@ -43,10 +42,10 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val inner = child.getElementType match {
       case ScalaTokenTypes.kNULL => Null
       case ScalaTokenTypes.tINTEGER =>
-        if (child.getText.endsWith('l') || child.getText.endsWith('L')) api.Long
+        if (child.getText.endsWith("l") || child.getText.endsWith("L")) api.Long
         else Int //but a conversion exists to narrower types in case range fits
       case ScalaTokenTypes.tFLOAT =>
-        if (child.getText.endsWith('f') || child.getText.endsWith('F')) api.Float
+        if (child.getText.endsWith("f") || child.getText.endsWith("F")) api.Float
         else api.Double
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL =>
@@ -69,14 +68,14 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     val textLength = getTextLength
     child.getElementType match {
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING =>
-        if (!text.startsWith('"')) return null
+        if (!text.startsWith("\"")) return null
         text = text.substring(1)
-        if (text.endsWith('"')) {
+        if (text.endsWith("\"")) {
           text = text.substring(0, text.length - 1)
         }
         try StringContext.treatEscapes(text) //for octal escape sequences
         catch {
-          case e: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
+          case _: InvalidEscapeException => StringUtil.unescapeStringCharacters(text)
         }
       case ScalaTokenTypes.tMULTILINE_STRING =>
         if (!text.startsWith("\"\"\"")) return null
@@ -101,7 +100,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         if (chars.length != 1) return null
         Character.valueOf(chars.charAt(0))
       case ScalaTokenTypes.tINTEGER =>
-        val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
+        val endsWithL = child.getText.endsWith("l") || child.getText.endsWith("L")
         text = if (endsWithL) text.substring(0, text.length - 1) else text
         val (number, base) = text match {
           case t if t.startsWith("0x") || t.startsWith("0X") => (t.substring(2), 16)
@@ -122,20 +121,20 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         }
         if (endsWithL) java.lang.Long.valueOf(value) else Integer.valueOf(value.toInt)
       case ScalaTokenTypes.tFLOAT =>
-        if (child.getText.endsWith('f') || child.getText.endsWith('F'))
+        if (child.getText.endsWith("f") || child.getText.endsWith("F"))
           try {
             java.lang.Float.valueOf(text.substring(0, text.length - 1))
           } catch {
-            case e: Exception => null
+            case _: Exception => null
           }
         else
           try {
             java.lang.Double.valueOf(text)
           } catch {
-            case e: Exception => null
+            case _: Exception => null
           }
       case ScalaTokenTypes.tSYMBOL =>
-        if (!text.startsWith('\'')) return null
+        if (!text.startsWith("\'")) return null
         Symbol(text.substring(1))
       case _ => null
     }

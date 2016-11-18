@@ -10,14 +10,16 @@ import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.overrideImplement._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
   * Created by kate
@@ -28,7 +30,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
   */
 class ScalaOverrideContributor extends ScalaCompletionContributor {
   private def registerOverrideCompletion(filter: ElementFilter, keyword: String) {
-    extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+    extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
       and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter("override"))),
         new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), filter)))),
       new CompletionProvider[CompletionParameters] {
@@ -38,7 +40,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       })
   }
 
-  extend(CompletionType.BASIC, PlatformPatterns.psiElement.
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
     and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter(".")))))), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
       def checkIfElementIsAvailable(element: PsiElement, clazz: ScTemplateDefinition): Boolean = {
@@ -71,11 +73,15 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         case mVar: ScVariableMember =>
           (mVar.name, mVar.scType.presentableText)
         case ta: ScAliasMember =>
-          val aliasType = ta.getElement match {
-            case tad: ScTypeAliasDefinition =>
-              tad.aliasedTypeElement.calcType.presentableText
-            case _ => ""
-          }
+          val aliasType = Option(ta.getElement).collect {
+            case definition: ScTypeAliasDefinition => definition
+          }.flatMap {
+            _.aliasedTypeElement
+          }.map {
+            _.calcType
+          }.map {
+            _.presentableText
+          }.getOrElse("")
           (ta.name, aliasType)
       }
 
@@ -94,7 +100,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         if (classMembers.isEmpty) return
 
         handleMembers(classMembers, clazz,
-          (classMember, clazz) => createText(classMember, clazz, full = true), resultSet) { classMember =>
+          (classMember, clazz) => createText(classMember, clazz, full = true), resultSet) { _ =>
           new MyInsertHandler()
         }
     }
@@ -107,16 +113,16 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     if (classMembers.isEmpty) return
 
     def membersToRender = position.getContext match {
-      case m: PsiMethod => classMembers.filter(_.isInstanceOf[ScMethodMember])
+      case _: PsiMethod => classMembers.filter(_.isInstanceOf[ScMethodMember])
       case typedDefinition: ScTypedDefinition if typedDefinition.isVal =>
         classMembers.filter(_.isInstanceOf[ScValueMember])
       case typedDefinition: ScTypedDefinition if typedDefinition.isVar =>
         classMembers.filter(_.isInstanceOf[ScVariableMember])
-      case typeAlis: ScTypeAlias => classMembers.filter(_.isInstanceOf[ScAliasMember])
+      case _: ScTypeAlias => classMembers.filter(_.isInstanceOf[ScAliasMember])
       case _ => classMembers
     }
 
-    handleMembers(membersToRender, clazz, (classMember, clazz) => createText(classMember, clazz), resultSet) { classMember =>
+    handleMembers(membersToRender, clazz, (classMember, clazz) => createText(classMember, clazz), resultSet) { _ =>
       new MyInsertHandler(hasOverride)
     }
   }
@@ -134,7 +140,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
 
         elementOption.foreach { element =>
           TypeAdjuster.markToAdjust(element)
-          if (!hasOverride && ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED) {
+          if (!hasOverride && !element.hasModifierProperty("override") && ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED) {
             element.setModifierProperty("override", value = true)
           }
           ScalaGenerationInfo.positionCaret(context.getEditor, element.asInstanceOf[PsiMember])
@@ -147,25 +153,33 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false): String = {
-    val needsInferType = ScalaGenerationInfo.needsInferType
+    ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
+      ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
+
+    implicit val manager = classMember.getElement.getManager
     val text: String = classMember match {
       case mm: ScMethodMember =>
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
-        val fun = if (full)
-          ScalaPsiElementFactory.createOverrideImplementMethod(mm.sign, mm.getElement.getManager,
-            needsOverrideModifier = false, needsInferType = needsInferType: Boolean, mBody)
-        else ScalaPsiElementFactory.createMethodFromSignature(mm.sign, mm.getElement.getManager,
-          needsInferType = needsInferType, mBody)
+        val fun = if (full) createOverrideImplementMethod(mm.sign, needsOverrideModifier = true, mBody)
+        else createMethodFromSignature(mm.sign, needsInferType = true, mBody)
+
+        val comment = fun.getDocComment
+
+        if (comment != null) {
+          comment.delete()
+        }
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText
       case tm: ScAliasMember =>
-        ScalaPsiElementFactory.getOverrideImplementTypeSign(tm.getElement,
-          tm.substitutor, "this.type", needsOverride = false)
-      case value: ScValueMember =>
-        ScalaPsiElementFactory.getOverrideImplementVariableSign(value.element, value.substitutor, "_",
-          needsOverride = false, isVal = true, needsInferType = needsInferType)
-      case variable: ScVariableMember =>
-        ScalaPsiElementFactory.getOverrideImplementVariableSign(variable.element, variable.substitutor, "_",
-          needsOverride = false, isVal = false, needsInferType = needsInferType)
+        getOverrideImplementTypeSign(tm.getElement, tm.substitutor, needsOverride = false)
+      case member: ScValueMember =>
+        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
+        variable.getText
+      case member: ScVariableMember =>
+        val variable = createOverrideImplementVariable(member.element, member.substitutor, needsOverrideModifier = false, isVal = false)
+        TypeAnnotationUtil.removeTypeAnnotationIfNeeded(variable)
+        variable.getText
       case _ => " "
     }
 
@@ -173,7 +187,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       //remove val, var, def or type
       case -1 => text
       case part => text.substring(part + 1)
-    } else "override " + text
+    } else if (classMember.isInstanceOf[ScMethodMember]) text else "override " + text
   }
 
   private def handleMembers(classMembers: Iterable[ClassMember], td: ScTemplateDefinition,

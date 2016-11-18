@@ -10,6 +10,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.SystemInfo
+import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
@@ -103,13 +104,9 @@ class AdjustSettingsApplicationComponent extends ApplicationComponent {
         VMOptions.writeXmx(xmxValue)
         VMOptions.writeOption("-Xss", xssValue, XSS_PATTERN)
       } catch {
-        case n: NumberFormatException => //do nothing
+        case _: NumberFormatException => //do nothing
       } finally {
-        SwingUtilities.invokeLater(new Runnable {
-          override def run(): Unit = {
-            ApplicationManager.getApplication.restart()
-          }
-        })
+        invokeLater(ApplicationManager.getApplication.restart())
         super.doOKAction() //close OK dialog
       }
     }

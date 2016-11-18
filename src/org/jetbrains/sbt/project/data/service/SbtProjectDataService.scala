@@ -7,8 +7,7 @@ import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
-import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.module.{ModuleManager, ModuleUtil}
+import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import org.jetbrains.plugins.scala.project.IncrementalityType
@@ -52,7 +51,11 @@ object SbtProjectDataService {
 
     private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
       val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-      val projectJdk = data.jdk.flatMap(SdkUtils.findProjectSdk).orElse(existingJdk).orElse(SdkUtils.allJdks.headOption)
+      val projectJdk =
+        data.jdk
+          .flatMap(SdkUtils.findProjectSdk)
+          .orElse(existingJdk)
+          .orElse(SdkUtils.mostRecentJdk)
       projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
     }
 

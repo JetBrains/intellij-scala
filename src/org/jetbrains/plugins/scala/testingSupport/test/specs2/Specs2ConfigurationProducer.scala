@@ -76,7 +76,7 @@ class Specs2ConfigurationProducer extends {
       }
     }
     catch {
-      case e: Exception =>
+      case _: Exception =>
     }
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
     Some((testClass, settings))
@@ -129,7 +129,6 @@ class Specs2ConfigurationProducer extends {
     if (suiteClasses.isEmpty) return (null, null)
     val suiteClazz = suiteClasses.head
     if (!ScalaPsiUtil.cachedDeepIsInheritor(testClassDef, suiteClazz)) return (null, null)
-    val testClassPath = testClassDef.qualifiedName
 
     ScalaPsiUtil.getParentWithProperty(element, strict = false, e => TestNodeProvider.isSpecs2TestExpr(e)) match {
       case Some(infixExpr: ScInfixExpr) => (testClassDef, extractStaticTestName(infixExpr).orNull)

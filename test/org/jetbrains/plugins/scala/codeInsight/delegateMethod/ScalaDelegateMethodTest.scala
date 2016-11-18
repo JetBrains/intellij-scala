@@ -3,7 +3,8 @@ package codeInsight.delegateMethod
 
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
  * Nikolay.Tropin
@@ -11,13 +12,14 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
  */
 class ScalaDelegateMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
-  def runTest(fileText: String, expectedText: String, specifyType: Boolean = true) {
+  def runTest(fileText: String, expectedText: String,
+              defaultSettings: ScalaCodeStyleSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
-    val oldSpecifyType = ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = specifyType
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone().asInstanceOf[ScalaCodeStyleSettings]
+    TypeAnnotationSettings.set(getProjectAdapter, defaultSettings)
     new ScalaGenerateDelegateHandler().invoke(getProjectAdapter, getEditorAdapter, getFileAdapter)
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings)
     checkResultByText(expectedText.replace("\r", "").stripMargin.trim)
-    ScalaApplicationSettings.getInstance.SPECIFY_RETURN_TYPE_EXPLICITLY = oldSpecifyType
   }
 
   def testVal() {
@@ -361,7 +363,9 @@ class ScalaDelegateMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapt
         |
         |  def foo[S >: AnyRef](x: Int) = d.foo[S](x)
         |}"""
-    runTest(text, result, specifyType = false)
+
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    runTest(text, result, defaultSettings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
   }
 
   def testNoTypeParamWithReturn() {

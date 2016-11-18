@@ -8,9 +8,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParametersExt, _}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
 
 import scala.collection.mutable
 
@@ -41,7 +40,7 @@ case class ScCompoundType(components: Seq[ScType],
         tp.typeDepth
           .max(sign.typeParams.depth)
     } ++ typesMap.map {
-      case (s: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
+      case (_: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
         lowerBound.typeDepth
           .max(upperBound.typeDepth)
           .max(params.toArray.depth)

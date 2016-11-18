@@ -60,6 +60,6 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
   private def nameMatches(jvmName: String, funName: String) = {
     val encoded = ScalaNamesUtil.toJavaName(funName)
-    encoded == jvmName || jvmName.startsWith(encoded + "$") || jvmName.contains("$$" + encoded + "$")
+    encoded == jvmName || jvmName.contains(encoded + "$") || jvmName.contains("$" + encoded)
   }
 }

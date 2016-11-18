@@ -7,10 +7,9 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -181,7 +180,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
       }
       if (importsUsed.size == 0) {
         ScalaPsiUtil.nameContext(getActualElement) match {
-          case synthetic: ScSyntheticClass => return SCALA //like scala.Int
+          case _: ScSyntheticClass => return SCALA //like scala.Int
           case obj: ScObject if obj.isPackageObject =>
             val qualifier = obj.qualifiedName
             return getPackagePrecedence(qualifier)
@@ -190,7 +189,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
             return getPackagePrecedence(qualifier)
           case clazz: PsiClass =>
             return getClazzPrecedence(clazz)
-          case memb@(_: ScBindingPattern | _: PsiMember) =>
+          case (_: ScBindingPattern | _: PsiMember) =>
             val clazzStub = ScalaPsiUtil.getContextOfType(getActualElement, false, classOf[PsiClass])
             val clazz: PsiClass = clazzStub match {
               case clazz: PsiClass => clazz
@@ -226,26 +225,26 @@ class ScalaResolveResult(val element: PsiNamedElement,
       importUsed match {
         case _: ImportWildcardSelectorUsed =>
           getActualElement match {
-            case p: PsiPackage => WILDCARD_IMPORT_PACKAGE
+            case _: PsiPackage => WILDCARD_IMPORT_PACKAGE
             case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
             case _ => WILDCARD_IMPORT
           }
         case _: ImportSelectorUsed =>
           getActualElement match {
-            case p: PsiPackage => IMPORT_PACKAGE
+            case _: PsiPackage => IMPORT_PACKAGE
             case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
             case _ => IMPORT
           }
         case ImportExprUsed(expr) =>
           if (expr.singleWildcard) {
             getActualElement match {
-              case p: PsiPackage => WILDCARD_IMPORT_PACKAGE
+              case _: PsiPackage => WILDCARD_IMPORT_PACKAGE
               case o: ScObject if o.isPackageObject => WILDCARD_IMPORT_PACKAGE
               case _ => WILDCARD_IMPORT
             }
           } else {
             getActualElement match {
-              case p: PsiPackage => IMPORT_PACKAGE
+              case _: PsiPackage => IMPORT_PACKAGE
               case o: ScObject if o.isPackageObject => IMPORT_PACKAGE
               case _ => IMPORT
             }

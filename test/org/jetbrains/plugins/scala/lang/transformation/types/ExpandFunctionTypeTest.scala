@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandFunctionTypeTest extends TransformerTest(ExpandFunctionType) {
+class ExpandFunctionTypeTest extends TransformerTest(new ExpandFunctionType()) {
   def testSingleArgument() = check(
     "val v: A => B",
     "val v: Function1[A, B]"

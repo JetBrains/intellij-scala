@@ -19,13 +19,13 @@ class AbstractValueInTraitInspection
     //todo: we should use dataflow analysis to get if it's safe to use declaration here
     case v: ScValueDeclaration if v.getParent.isInstanceOf[ScTemplateBody] =>
       v.containingClass match {
-        case t: ScTrait =>
+        case _: ScTrait =>
           holder.registerProblem(v, "Abstract value used in trait", ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>
       }
     case v: ScVariableDeclaration =>
       v.containingClass match {
-        case t: ScTrait =>
+        case _: ScTrait =>
           holder.registerProblem(v, "Abstract variable used in trait", ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         case _ =>
       }

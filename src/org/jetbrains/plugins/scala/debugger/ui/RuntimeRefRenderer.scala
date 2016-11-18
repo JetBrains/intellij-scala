@@ -50,7 +50,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
   override def calcLabel(descriptor: ValueDescriptor, evaluationContext: EvaluationContext, listener: DescriptorLabelListener): String = {
     val unwrapped = unwrappedDescriptor(descriptor.getValue, evaluationContext.getProject)
     autoRenderer(evaluationContext.getDebugProcess, unwrapped) match {
-      case toStr: ToStringRenderer =>
+      case _: ToStringRenderer =>
         calcToStringLabel(descriptor, unwrapped.getValue, evaluationContext.createEvaluationContext(unwrapped.getValue), listener)
       case r =>
         r.calcLabel(unwrapped, evaluationContext, listener)

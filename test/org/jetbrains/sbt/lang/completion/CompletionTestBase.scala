@@ -10,7 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.testFramework.{LightVirtualFile, UsefulTestCase}
 import org.jetbrains.plugins.scala.lang.completion
-import org.jetbrains.sbt.resolvers.SbtResolverIndexesManager
+import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 
 /**
  * @author Nikolay Obedin
@@ -19,7 +19,9 @@ import org.jetbrains.sbt.resolvers.SbtResolverIndexesManager
 
 abstract class CompletionTestBase extends completion.CompletionTestBase with MockSbt {
 
-  override def folderPath  = super.folderPath + "Sbt/"
+  override val sbtVersion = Sbt.LatestVersion
+
+  override def folderPath: String = super.folderPath + "Sbt/"
   override def testFileExt = ".sbt"
 
 
@@ -28,7 +30,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
    * Instead of using original file copy its contents into
    * mock file prepending implicit SBT imports
    */
-  override def loadFile = {
+  override def loadFile: (String, LightVirtualFile) = {
     val fileName = getTestName(false) + testFileExt
     val filePath = folderPath + fileName
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -41,7 +43,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
     (fileName, mockFile)
   }
 
-  override def loadAndSetFileText(filePath: String, file: VirtualFile) = {
+  override def loadAndSetFileText(filePath: String, file: VirtualFile): String = {
     val fileText = new String(file.contentsToByteArray())
     configureFromFileTextAdapter (filePath, fileText)
     fileText
@@ -57,12 +59,12 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
     super.setUpWithoutScalaLib()
     addSbtAsModuleDependency(getModuleAdapter)
     inWriteAction(StartupManager.getInstance(getProjectAdapter).asInstanceOf[StartupManagerImpl].startCacheUpdate())
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
+    FileUtil.delete(ResolverIndex.DEFAULT_INDEXES_DIR)
   }
 
   override def tearDown(): Unit = {
     super.tearDown()
-    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
+    FileUtil.delete(ResolverIndex.DEFAULT_INDEXES_DIR)
   }
 }
 

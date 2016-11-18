@@ -29,8 +29,8 @@ object ResolvableReferenceElement {
     @inline
     def bind(): Option[ScalaResolveResult] = {
       ProgressManager.checkCanceled()
-      val results = elem.multiResolve(false)
-      if (results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
+      val results = elem.multiResolve(false).collect{case srr: ScalaResolveResult => srr}
+      if (results.length == 1) Some(results(0)) else None
     }
   }
 }

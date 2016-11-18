@@ -7,31 +7,52 @@ import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiComment, PsiElement}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.junit.Assert.fail
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 10.03.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 10.03.2009
+  */
 
 abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected val caretMarker = "/*caret*/"
 
   def folderPath: String = baseRootPath() + "typeConformance/"
 
-  protected def doTest(fileText: String, fileName: String = "dummy.scala") = {
-    import org.junit.Assert._
+  protected def doTest(fileName: String = getTestName(false) + ".scala") {
+    configureFromFile(fileName)
+    val (declaredType, rhsType) = declaredAndExpressionTypes()
+    val res: Boolean = rhsType.conforms(declaredType)(getProjectAdapter.typeSystem)
+
+    if (expectedResult != res)
+      fail(
+        s"""Conformance failure
+            |Expected result: $expectedResult
+            |declared type: ${declaredType.presentableText}
+            |rhs type:      ${rhsType.presentableText}""".stripMargin)
+
+  }
+
+  protected def configureFromFile(fileName: String = getTestName(false) + ".scala") = {
+    val filePath = folderPath + fileName
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
+    assert(file != null, "file " + filePath + " not found")
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
     configureFromFileTextAdapter(fileName, fileText.trim)
+  }
+
+  protected def declaredAndExpressionTypes(): (ScType, ScType) = {
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val caretIndex = scalaFile.getText.indexOf(caretMarker)
     val patternDef =
@@ -43,27 +64,25 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val valueDecl = patternDef.asInstanceOf[ScPatternDefinition]
     val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))
 
-    val expr = valueDecl.expr.getOrElse(throw new RuntimeException("Expression not found"))
+    val expr = valueDecl.expr.getOrElse(sys.error("Expression not found"))
     expr.getType(TypingContext.empty) match {
-      case Success(rhsType, _) =>
-        val res: Boolean = rhsType.conforms(declaredType)(expr.typeSystem)
-        val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-        val text = lastPsi.getText
-        val output = lastPsi.getNode.getElementType match {
-          case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-          case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-            text.substring(2, text.length - 2).trim
-          case _ => fail("Test result must be in last comment statement")
-        }
-        val expectedResult = java.lang.Boolean.parseBoolean(output.asInstanceOf[String])
-        if (expectedResult != res)
-          fail(
-            s"""Conformance failure
-               |Expected result: $expectedResult
-               |declared type: ${declaredType.presentableText}
-               |rhs type:      ${rhsType.presentableText}""".stripMargin)
-      case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + elem.get.getText)
+      case Success(rhsType, _) => (declaredType, rhsType)
+      case Failure(msg, elem) => sys.error(s"Couldn't compute type of ${expr.getText}: $msg")
     }
+  }
+
+  private def expectedResult: Boolean = {
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
+    val text = lastPsi.getText
+    val output = lastPsi.getNode.getElementType match {
+      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
+      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
+        text.substring(2, text.length - 2).trim
+      case _ => fail("Test result must be in last comment statement")
+    }
+    val expectedResult = java.lang.Boolean.parseBoolean(output.asInstanceOf[String])
+    expectedResult
   }
 
   def doApplicatonConformanceTest(fileText: String, fileName: String = "dummy.scala") = {
@@ -74,7 +93,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val element = if (caretIndex > 0) {
       PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScMethodCall], false)
     }
-      else scalaFile.findLastChildByType[PsiElement](ScalaElementTypes.METHOD_CALL)
+    else scalaFile.findLastChildByType[PsiElement](ScalaElementTypes.METHOD_CALL)
     assertNotNull("Failed to locate application",element)
     val application = element.asInstanceOf[ScMethodCall]
     val errors = scala.collection.mutable.ArrayBuffer[String]()
@@ -88,19 +107,11 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
       if (res != expectedResult.toBoolean)
         errors +=
           s"""
-            |Expected: $expectedResult
-            |Param tp: ${param.paramType.presentableText}
-            |Arg   tp: ${exprTp.presentableText}
+             |Expected: $expectedResult
+             |Param tp: ${param.paramType.presentableText}
+             |Arg   tp: ${exprTp.presentableText}
           """.stripMargin
     }
     assertTrue("Conformance failure:\n"+ errors.mkString("\n\n").trim, errors.isEmpty)
-  }
-
-  protected def doTest() {
-    val filePath = folderPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    doTest(fileText, getTestName(false) + ".scala")
   }
 }

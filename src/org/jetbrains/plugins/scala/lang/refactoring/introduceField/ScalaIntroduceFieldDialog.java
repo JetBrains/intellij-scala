@@ -8,10 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.refactoring.HelpID;
-import com.intellij.ui.EditorComboBoxEditor;
-import com.intellij.ui.EditorComboBoxRenderer;
-import com.intellij.ui.EditorTextField;
-import com.intellij.ui.StringComboboxEditor;
+import com.intellij.ui.*;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -19,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
@@ -26,36 +24,37 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
+import java.util.ResourceBundle;
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 01.07.2008
  */
 public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDialog {
-  private JCheckBox myExplicitTypeChb;
-  private JCheckBox myDefineVarChb;
   private JCheckBox myReplaceAllChb;
   private JComboBox myTypeComboBox;
   private ComboBox myNameComboBox;
-  private JRadioButton myDefaultRB;
-  private JRadioButton myProtectedRB;
-  private JRadioButton myPrivateRB;
   private JRadioButton myInitInDeclarationRB;
   private JRadioButton myInitInLocalScopeRB;
 
   private JLabel myTypeLabel;
   private JLabel myNameLabel;
-  private JLabel myVisibilityLabel;
   private JPanel contentPane;
+  private JTextField protectedTextField;
+  private JTextField privateTextField;
+  private JPanel myLinkContainer;
+  private JCheckBox mySpecifyTypeChb;
+  private JCheckBox myVariableCheckBox;
+  private JComboBox visibilityComboBox;
+  private JTextField visibilityTextField;
   private JButton buttonOK;
   public String myEnteredName;
 
@@ -69,8 +68,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private EventListenerList myListenerList = new EventListenerList();
 
   private static final String REFACTORING_NAME = ScalaBundle.message("introduce.field.title");
-  private ButtonGroup myVisibilityButtons;
-
 
   public ScalaIntroduceFieldDialog(IntroduceFieldContext<ScExpression> ifc, IntroduceFieldSettings<ScExpression> settings) {
     super(ifc.project(), true);
@@ -80,13 +77,17 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.validator = ifc.validator();
     this.mySettings = settings;
 
+    ScExpression expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element());
+
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
     init();
     setUpDialog();
     setUpNameComboBox(ifc.possibleNames());
-    bindToSettings(ifc);
+    setUpTypeComboBox(expression);
+    setUpHyperLink(expression);
+    bindToSettings();
     updateOkStatus();
   }
 
@@ -102,7 +103,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   @Nullable
   public String getEnteredName() {
     if (myNameComboBox.getEditor().getItem() instanceof String &&
-        ((String) myNameComboBox.getEditor().getItem()).length() > 0) {
+            ((String) myNameComboBox.getEditor().getItem()).length() > 0) {
       return (String) myNameComboBox.getEditor().getItem();
     } else {
       return null;
@@ -113,105 +114,103 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     return myReplaceAllChb.isSelected();
   }
 
-  public boolean isDeclareVariable() {
-    return myDefineVarChb.isSelected();
-  }
-
-  public ScType getSelectedType() {
-    if (!myExplicitTypeChb.isSelected()) {
-      return null;
-    } else {
+  private ScType getSelectedType() {
+    if (mySpecifyTypeChb.isSelected()) {
       return myTypeMap.get(myTypeComboBox.getSelectedItem());
     }
+
+    return null;
   }
 
-  private void bindToSettings(final IntroduceFieldContext ifc) {
-    myInitInDeclarationRB.addChangeListener(new ChangeListener() {
+  private boolean isPublic() {
+    return visibilityComboBox.getSelectedItem() != null
+            && visibilityComboBox.getSelectedItem().equals("Public");
+  }
+
+  private String getVisibility() {
+    if (isPublic()) return "";
+
+    if (getVisibilityEncloser().equals("")) {
+      return visibilityComboBox.getSelectedItem().toString().toLowerCase() + " ";
+    }
+
+    return visibilityComboBox.getSelectedItem().toString().toLowerCase() + "[" + getVisibilityEncloser() + "] ";
+  }
+
+  private String getVisibilityEncloser() {
+    return visibilityTextField.getText();
+  }
+
+  private void bindToSettings() {
+    myInitInDeclarationRB.addActionListener(new ActionListener() {
       @Override
-      public void stateChanged(ChangeEvent e) {
+      public void actionPerformed(ActionEvent e) {
         mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
         readSettings();
       }
     });
 
-    myInitInLocalScopeRB.addChangeListener(new ChangeListener() {
+    myInitInLocalScopeRB.addActionListener(new ActionListener() {
       @Override
-      public void stateChanged(ChangeEvent e) {
+      public void actionPerformed(ActionEvent e) {
         mySettings.setInitInDeclaration(myInitInDeclarationRB.isSelected());
         readSettings();
       }
     });
 
-    myReplaceAllChb.addChangeListener(new ChangeListener() {
+    myReplaceAllChb.addActionListener(new ActionListener() {
       @Override
-      public void stateChanged(ChangeEvent e) {
+      public void actionPerformed(ActionEvent e) {
         mySettings.setReplaceAll(myReplaceAllChb.isSelected());
         readSettings();
       }
     });
 
-    myExplicitTypeChb.addChangeListener(new ChangeListener() {
+    myVariableCheckBox.addActionListener(new ActionListener() {
       @Override
-      public void stateChanged(ChangeEvent e) {
-        mySettings.setExplicitType(myExplicitTypeChb.isSelected());
-        readSettings();
-      }
-    });
-
-    myDefineVarChb.addChangeListener(new ChangeListener() {
-      @Override
-      public void stateChanged(ChangeEvent e) {
-        mySettings.setDefineVar(myDefineVarChb.isSelected());
-        readSettings();
-      }
-    });
-
-    ChangeListener visibilityListener = new ChangeListener() {
-      @Override
-      public void stateChanged(ChangeEvent e) {
-        if (myDefaultRB.isSelected()) {
-          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.DEFAULT);
-          readSettings();
-        } else if (myProtectedRB.isSelected()) {
-          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.PROTECTED);
-          readSettings();
-        } else if (myPrivateRB.isSelected()) {
-          mySettings.setVisibilityLelel(ScalaApplicationSettings.VisibilityLevel.PRIVATE);
-          readSettings();
+      public void actionPerformed(ActionEvent e) {
+        if (myVariableCheckBox.isSelected()) {
+          mySettings.setDefineVar(true);
+        } else {
+          mySettings.setDefineVar(false);
         }
+        readSettings();
       }
-    };
-    myDefaultRB.addChangeListener(visibilityListener);
-    myPrivateRB.addChangeListener(visibilityListener);
-    myProtectedRB.addChangeListener(visibilityListener);
+    });
+
+    visibilityComboBox.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        visibilityTextField.setEnabled(!isPublic());
+        mySettings.setVisibilityLevel(getVisibility());
+        readSettings();
+      }
+    });
+  }
+
+  private String getPrivateModifierData() {
+    String text = privateTextField.getText();
+    return text.equals("") ? "private" : "private[" + text + "]";
+  }
+
+  private String getProtectedModifierData() {
+    String text = protectedTextField.getText();
+    return text.equals("") ? "protected" : "protected[" + text + "]";
   }
 
   private void setUpDialog() {
-    myReplaceAllChb.setMnemonic(KeyEvent.VK_A);
     myReplaceAllChb.setFocusable(false);
-    myDefineVarChb.setMnemonic(KeyEvent.VK_V);
-    myDefineVarChb.setFocusable(false);
-    myExplicitTypeChb.setMnemonic(KeyEvent.VK_T);
-    myExplicitTypeChb.setFocusable(false);
     myNameLabel.setLabelFor(myNameComboBox);
     myTypeLabel.setLabelFor(myTypeComboBox);
 
-    myVisibilityButtons = new ButtonGroup();
-    myVisibilityButtons.add(myDefaultRB);
-    myVisibilityButtons.add(myProtectedRB);
-    myVisibilityButtons.add(myPrivateRB);
-    myDefaultRB.setMnemonic(KeyEvent.VK_D);
-    myProtectedRB.setMnemonic(KeyEvent.VK_C);
-    myPrivateRB.setMnemonic(KeyEvent.VK_P);
-    myDefaultRB.setFocusable(false);
-    myProtectedRB.setFocusable(false);
-    myPrivateRB.setFocusable(false);
+    final String[] visibility = {"Private", "Protected", "Public"};
+    for (String v : visibility) {
+      visibilityComboBox.addItem(v);
+    }
 
     ButtonGroup initButtons = new ButtonGroup();
     initButtons.add(myInitInDeclarationRB);
     initButtons.add(myInitInLocalScopeRB);
-    myInitInDeclarationRB.setMnemonic(KeyEvent.VK_F);
-    myInitInLocalScopeRB.setMnemonic(KeyEvent.VK_L);
     myInitInDeclarationRB.setFocusable(false);
     myInitInLocalScopeRB.setFocusable(false);
 
@@ -219,8 +218,11 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
     boolean nullText = false;
     for (ScType myType : myTypes) {
-      if (myType.toString() == null) nullText = true;
+      if (myType.toString() == null) {
+        nullText = true;
+      }
     }
+
     // Type specification
     if (myTypes.length == 0 || nullText) {
       myTypeComboBox.setEnabled(false);
@@ -231,12 +233,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
       }
     }
 
-    myExplicitTypeChb.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent event) {
-        myTypeComboBox.setEnabled(myExplicitTypeChb.isSelected());
-      }
-    });
-
     if (occurrencesCount > 1) {
       myReplaceAllChb.setText(myReplaceAllChb.getText() + " (" + occurrencesCount + " occurrences)");
     }
@@ -246,31 +242,26 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         myTypeComboBox.requestFocus();
       }
     }, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.ALT_MASK), JComponent.WHEN_IN_FOCUSED_WINDOW);
-
   }
 
   private void readSettings() {
-    myExplicitTypeChb.setEnabled(mySettings.explicitTypeChbEnabled());
-    myDefineVarChb.setEnabled(mySettings.defineVarChbEnabled());
+    myVariableCheckBox.setEnabled(mySettings.defineVarChbEnabled());
+
     myInitInDeclarationRB.setEnabled(mySettings.initInDeclarationEnabled());
     myInitInLocalScopeRB.setEnabled(mySettings.initLocallyEnabled());
     myReplaceAllChb.setEnabled(mySettings.replaceAllChbEnabled());
 
-    myExplicitTypeChb.setSelected(mySettings.explicitType());
-    myDefineVarChb.setSelected(mySettings.defineVar());
+    myVariableCheckBox.setSelected(mySettings.defineVar());
     myInitInDeclarationRB.setSelected(mySettings.initInDeclaration());
     myInitInLocalScopeRB.setSelected(!mySettings.initInDeclaration());
     myReplaceAllChb.setSelected(mySettings.replaceAll());
-    switch (mySettings.visibilityLevel()) {
-      case DEFAULT:
-        myDefaultRB.setSelected(true);
-        break;
-      case PROTECTED:
-        myProtectedRB.setSelected(true);
-        break;
-      case PRIVATE:
-        myPrivateRB.setSelected(true);
-        break;
+
+    if (mySettings.visibilityLevel().contains("protected")) {
+      visibilityComboBox.setSelectedItem("Protected");
+    } else if (mySettings.visibilityLevel().contains("private")) {
+      visibilityComboBox.setSelectedItem("Private");
+    } else {
+      visibilityComboBox.setSelectedItem("Public");
     }
   }
 
@@ -286,11 +277,11 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     myListenerList.add(DataChangedListener.class, new DataChangedListener());
 
     myNameComboBox.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            fireNameDataChanged();
-          }
-        }
+            new ItemListener() {
+              public void itemStateChanged(ItemEvent e) {
+                fireNameDataChanged();
+              }
+            }
     );
 
     ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
@@ -314,6 +305,54 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
   }
 
+  private boolean needTypeannotations(ScExpression expression) {
+    ScalaCodeStyleSettings settings = ScalaCodeStyleSettings.getInstance(expression.getProject());
+
+    TypeAnnotationUtil.Visibility visibility = TypeAnnotationUtil.visibilityFromString(getVisibility());
+
+    return TypeAnnotationUtil.isTypeAnnotationNeeded(
+            TypeAnnotationUtil.requirementForProperty(false, visibility, settings), //can't declare in local scope
+            settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
+            settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+            false,
+            TypeAnnotationUtil.isSimple(expression)
+    );
+  }
+
+  private void setUpTypeComboBox(final ScExpression expression) {
+    mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+    updateEnablingTypeList();
+
+    mySpecifyTypeChb.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        updateEnablingTypeList();
+      }
+    });
+
+    visibilityComboBox.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+        updateEnablingTypeList();
+      }
+    });
+  }
+
+  private void setUpHyperLink(final ScExpression expression) {
+    HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
+    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
+    myLinkContainer.add(link);
+
+    link.addHyperlinkListener(new HyperlinkListener() {
+      @Override
+      public void hyperlinkUpdate(HyperlinkEvent e) {
+        mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+        updateEnablingTypeList();
+      }
+    });
+  }
+
   public JComponent getPreferredFocusedComponent() {
     return myNameComboBox;
   }
@@ -325,19 +364,13 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void saveSettings() {
     ScalaApplicationSettings scalaSettings = ScalaApplicationSettings.getInstance();
-    if (myExplicitTypeChb.isEnabled())
-      scalaSettings.INTRODUCE_FIELD_EXPLICIT_TYPE = myExplicitTypeChb.isSelected();
-    if (myDefineVarChb.isEnabled())
-      scalaSettings.INTRODUCE_FIELD_IS_VAR = myDefineVarChb.isSelected();
+    if (myVariableCheckBox.isEnabled())
+      scalaSettings.INTRODUCE_FIELD_IS_VAR = myVariableCheckBox.isSelected();
     if (myReplaceAllChb.isEnabled())
       scalaSettings.INTRODUCE_FIELD_REPLACE_ALL = myReplaceAllChb.isSelected();
-    if (myDefaultRB.isSelected()) {
-      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.DEFAULT;
-    } else if (myPrivateRB.isSelected()) {
-      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.PRIVATE;
-    } else if (myProtectedRB.isSelected()) {
-      scalaSettings.INTRODUCE_FIELD_VISIBILITY = ScalaApplicationSettings.VisibilityLevel.PROTECTED;
-    }
+
+    scalaSettings.INTRODUCE_FIELD_VISIBILITY = getVisibility();
+    mySettings.setVisibilityLevel(getVisibility());
 
     if (myInitInDeclarationRB.isEnabled() && myInitInLocalScopeRB.isEnabled()) {
       scalaSettings.INTRODUCE_FIELD_INITIALIZE_IN_DECLARATION = myInitInDeclarationRB.isSelected();
@@ -350,7 +383,6 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
     mySettings.setName(getEnteredName());
     mySettings.setType(getSelectedType());
-
     super.doOKAction();
   }
 
@@ -375,80 +407,128 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
    */
   private void $$$setupUI$$$() {
     contentPane = new JPanel();
-    contentPane.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.setLayout(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), 0, -1));
+    contentPane.setAlignmentX(0.0f);
+    contentPane.setAlignmentY(0.0f);
+    contentPane.setOpaque(true);
     final JPanel panel1 = new JPanel();
-    panel1.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    myExplicitTypeChb = new JCheckBox();
-    myExplicitTypeChb.setText("Specify type explicitly");
-    myExplicitTypeChb.setMnemonic('T');
-    myExplicitTypeChb.setDisplayedMnemonicIndex(8);
-    panel1.add(myExplicitTypeChb, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final Spacer spacer1 = new Spacer();
-    panel1.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-    final JPanel panel2 = new JPanel();
-    panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    myDefineVarChb = new JCheckBox();
-    myDefineVarChb.setText("Declare variable");
-    myDefineVarChb.setMnemonic('V');
-    myDefineVarChb.setDisplayedMnemonicIndex(8);
-    panel2.add(myDefineVarChb, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myReplaceAllChb = new JCheckBox();
-    myReplaceAllChb.setText("Replace all occurrences");
-    myReplaceAllChb.setMnemonic('A');
-    myReplaceAllChb.setDisplayedMnemonicIndex(8);
-    panel2.add(myReplaceAllChb, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JPanel panel3 = new JPanel();
-    panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel1.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), 0, 0));
+    contentPane.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myTypeLabel = new JLabel();
-    myTypeLabel.setText("Variable of type:");
+    myTypeLabel.setText("Type");
     myTypeLabel.setDisplayedMnemonic('Y');
-    myTypeLabel.setDisplayedMnemonicIndex(13);
-    panel3.add(myTypeLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myTypeLabel.setDisplayedMnemonicIndex(1);
+    panel1.add(myTypeLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myNameLabel = new JLabel();
-    myNameLabel.setText("Name:");
-    panel3.add(myNameLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myNameLabel.setText("Name");
+    myNameLabel.setDisplayedMnemonic('N');
+    myNameLabel.setDisplayedMnemonicIndex(0);
+    panel1.add(myNameLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myTypeComboBox = new JComboBox();
-    panel3.add(myTypeComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+    myTypeComboBox.setModel(defaultComboBoxModel1);
+    panel1.add(myTypeComboBox, new GridConstraints(1, 1, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myNameComboBox = new ComboBox();
     myNameComboBox.setEditable(true);
-    panel3.add(myNameComboBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    final JPanel panel4 = new JPanel();
-    panel4.setLayout(new GridLayoutManager(4, 2, new Insets(0, 0, 0, 0), -1, -1));
-    contentPane.add(panel4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    myVisibilityLabel = new JLabel();
-    myVisibilityLabel.setText("Visibility");
-    panel4.add(myVisibilityLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myDefaultRB = new JRadioButton();
-    myDefaultRB.setText("Default");
-    myDefaultRB.setMnemonic('D');
-    myDefaultRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myDefaultRB, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myProtectedRB = new JRadioButton();
-    myProtectedRB.setText("Protected");
-    myProtectedRB.setMnemonic('C');
-    myProtectedRB.setDisplayedMnemonicIndex(5);
-    panel4.add(myProtectedRB, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    myPrivateRB = new JRadioButton();
-    myPrivateRB.setText("Private");
-    myPrivateRB.setMnemonic('P');
-    myPrivateRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myPrivateRB, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel1.add(myNameComboBox, new GridConstraints(2, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
-    label1.setText("Initialize in:");
-    panel4.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    label1.setText("Visibility");
+    label1.setDisplayedMnemonic('B');
+    label1.setDisplayedMnemonicIndex(4);
+    panel1.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    visibilityComboBox = new JComboBox();
+    visibilityComboBox.setEnabled(true);
+    panel1.add(visibilityComboBox, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    visibilityTextField = new JTextField();
+    visibilityTextField.setText("");
+    panel1.add(visibilityTextField, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+    final JPanel panel2 = new JPanel();
+    panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    panel2.setOpaque(false);
+    contentPane.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    mySpecifyTypeChb = new JCheckBox();
+    mySpecifyTypeChb.setContentAreaFilled(false);
+    mySpecifyTypeChb.setHorizontalAlignment(2);
+    mySpecifyTypeChb.setHorizontalTextPosition(11);
+    mySpecifyTypeChb.setMargin(new Insets(0, 0, 0, 0));
+    this.$$$loadButtonText$$$(mySpecifyTypeChb, ResourceBundle.getBundle("org/jetbrains/plugins/scala/ScalaBundle").getString("specify.return.type.explicitly"));
+    panel2.add(mySpecifyTypeChb);
+    myLinkContainer = new JPanel();
+    myLinkContainer.setLayout(new BorderLayout(0, 0));
+    myLinkContainer.setAlignmentX(0.0f);
+    myLinkContainer.setAlignmentY(0.0f);
+    panel2.add(myLinkContainer);
+    final JPanel panel3 = new JPanel();
+    panel3.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
+    contentPane.add(panel3, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final JLabel label2 = new JLabel();
+    label2.setText("Initialize in");
+    panel3.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer1 = new Spacer();
+    panel3.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     myInitInDeclarationRB = new JRadioButton();
+    myInitInDeclarationRB.setLabel("Field declaration");
     myInitInDeclarationRB.setText("Field declaration");
     myInitInDeclarationRB.setMnemonic('F');
     myInitInDeclarationRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myInitInDeclarationRB, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel3.add(myInitInDeclarationRB, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myInitInLocalScopeRB = new JRadioButton();
+    myInitInLocalScopeRB.setLabel("Local scope");
     myInitInLocalScopeRB.setText("Local scope");
     myInitInLocalScopeRB.setMnemonic('L');
     myInitInLocalScopeRB.setDisplayedMnemonicIndex(0);
-    panel4.add(myInitInLocalScopeRB, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    panel3.add(myInitInLocalScopeRB, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer2 = new Spacer();
+    contentPane.add(spacer2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, new Dimension(-1, 2), null, null, 0, false));
+    final Spacer spacer3 = new Spacer();
+    contentPane.add(spacer3, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    final JPanel panel4 = new JPanel();
+    panel4.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), 0, 0));
+    contentPane.add(panel4, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myVariableCheckBox = new JCheckBox();
+    myVariableCheckBox.setLabel("Variable");
+    myVariableCheckBox.setMargin(new Insets(0, 0, 0, 0));
+    myVariableCheckBox.setText("Variable");
+    myVariableCheckBox.setMnemonic('V');
+    myVariableCheckBox.setDisplayedMnemonicIndex(0);
+    myVariableCheckBox.setVerticalAlignment(3);
+    panel4.add(myVariableCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_SOUTHWEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myReplaceAllChb = new JCheckBox();
+    myReplaceAllChb.setMargin(new Insets(0, 0, 0, 0));
+    myReplaceAllChb.setText("Replace all occurrences");
+    myReplaceAllChb.setMnemonic('A');
+    myReplaceAllChb.setDisplayedMnemonicIndex(8);
+    myReplaceAllChb.setVerticalAlignment(1);
+    panel4.add(myReplaceAllChb, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_NORTHWEST, GridConstraints.FILL_NONE, 1, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myTypeLabel.setLabelFor(myTypeComboBox);
+    label1.setLabelFor(visibilityComboBox);
+  }
+
+  /**
+   * @noinspection ALL
+   */
+  private void $$$loadButtonText$$$(AbstractButton component, String text) {
+    StringBuffer result = new StringBuffer();
+    boolean haveMnemonic = false;
+    char mnemonic = '\0';
+    int mnemonicIndex = -1;
+    for (int i = 0; i < text.length(); i++) {
+      if (text.charAt(i) == '&') {
+        i++;
+        if (i == text.length()) break;
+        if (!haveMnemonic && text.charAt(i) != '&') {
+          haveMnemonic = true;
+          mnemonic = text.charAt(i);
+          mnemonicIndex = result.length();
+        }
+      }
+      result.append(text.charAt(i));
+    }
+    component.setText(result.toString());
+    if (haveMnemonic) {
+      component.setMnemonic(mnemonic);
+      component.setDisplayedMnemonicIndex(mnemonicIndex);
+    }
   }
 
   /**
@@ -476,5 +556,10 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         ((DataChangedListener) aList).dataChanged();
       }
     }
+  }
+
+  private void updateEnablingTypeList() {
+    myTypeComboBox.setEnabled(mySpecifyTypeChb.isSelected());
+    myTypeLabel.setEnabled(mySpecifyTypeChb.isSelected());
   }
 }

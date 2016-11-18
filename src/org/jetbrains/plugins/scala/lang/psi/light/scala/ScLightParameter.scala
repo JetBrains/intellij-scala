@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.{PsiAnnotation, PsiClass, PsiElement, PsiTypeElement}
+import com.intellij.psi.{PsiAnnotation, PsiElement, PsiTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -61,11 +61,7 @@ class ScLightParameter(val param: ScParameter, tp: ScType, i: Int)
   override def addAnnotation(qualifiedName: String): PsiAnnotation =
     throw new UnsupportedOperationException("Operation on light element")
 
-  override def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = param.hasAnnotation(qualifiedName)
-
-  override def hasAnnotation(clazz: PsiClass): Boolean = param.hasAnnotation(clazz)
-
-  override def annotationNames: Seq[String] = param.annotationNames
+  override def hasAnnotation(qualifiedName: String): Boolean = param.hasAnnotation(qualifiedName)
 
   override def annotations: Seq[ScAnnotation] = param.annotations
 

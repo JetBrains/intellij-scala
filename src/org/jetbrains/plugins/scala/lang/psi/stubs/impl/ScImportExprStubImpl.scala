@@ -6,7 +6,7 @@ package impl
 
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
-  extends StubBaseWrapper[ScImportExpr](parent, elemType) with ScImportExprStub {
+  extends StubBase[ScImportExpr](parent, elemType) with ScImportExprStub {
 
   var referenceText: StringRef = StringRef.fromString("")
   var singleWildcard: Boolean = _

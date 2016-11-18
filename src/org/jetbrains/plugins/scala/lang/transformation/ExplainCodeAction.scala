@@ -32,7 +32,7 @@ class ExplainCodeAction extends AnAction {
             marker
           }
 
-          withProgressSynchronously(title) { listener =>
+          withProgressSynchronously(title) { _ =>
             try {
               Transformer.transform(file, range, transformers)
             } finally {

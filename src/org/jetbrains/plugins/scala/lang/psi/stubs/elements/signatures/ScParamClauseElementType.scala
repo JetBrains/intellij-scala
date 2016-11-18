@@ -5,35 +5,31 @@ package stubs
 package elements
 package signatures
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterClauseImpl
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParamClauseStubImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 19.10.2008
- */
-
-class ScParamClauseElementType
-extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
-  def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream) {
+  * User: Alexander Podkhalyuzin
+  * Date: 19.10.2008
+  */
+class ScParamClauseElementType extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
+  override def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isImplicit)
   }
 
-  def indexStub(stub: ScParamClauseStub, sink: IndexSink) {}
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
+    new ScParamClauseStubImpl(parentStub, this,
+      isImplicit = dataStream.readBoolean)
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScParamClauseStub = {
-    val implic = dataStream.readBoolean
-    new ScParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, implic)
-  }
+  override def createStub(parameterClause: ScParameterClause, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
+    new ScParamClauseStubImpl(parentStub, this,
+      isImplicit = parameterClause.isImplicit)
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScParameterClause, parentStub: StubElement[ParentPsi]): ScParamClauseStubImpl[ParentPsi] = {
-    new ScParamClauseStubImpl(parentStub, this, psi.isImplicit)     
-  }
+  override def createElement(node: ASTNode): ScParameterClause = new ScParameterClauseImpl(node)
 
-  def createPsi(stub: ScParamClauseStub): ScParameterClause = {
-    new ScParameterClauseImpl(stub)
-  }
+  override def createPsi(stub: ScParamClauseStub): ScParameterClause = new ScParameterClauseImpl(stub)
 }

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -24,9 +25,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
-import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
+import scala.annotation.tailrec
 
 /**
 * @author Alexander Podkhalyuzin
@@ -35,17 +39,44 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTypeParamStub) = {this(stub, ScalaElementTypes.TYPE_PARAM, null)}
+  def this(node: ASTNode) = {
+    this(null, null, node)
+  }
+
+  def this(stub: ScTypeParamStub) = {
+    this(stub, ScalaElementTypes.TYPE_PARAM, null)
+  }
+
+  @tailrec
+  final override protected def extractBound(in: ScType, isLower: Boolean): ScType = {
+    nameId.nextSibling match {
+      case Some(pClause: ScTypeParamClause) =>
+        val tParams = pClause.getChildren.toSeq
+        in match {
+          case ParameterizedType(des, params) =>
+            if (params.length == tParams.length && params.forall(_.isInstanceOf[TypeParameterType]) &&
+              params.map(_.asInstanceOf[TypeParameterType].psiTypeParameter) == tParams) {
+              des
+            } else {
+              //here we should actually construct existential type for partial application
+              in
+            }
+          case t => t.isAliasType match {
+            case Some(AliasType(_: ScTypeAliasDefinition, Success(lower, _), _)) if isLower => extractBound(lower, isLower)
+            case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper, _))) if !isLower => extractBound(upper, isLower)
+            case None => t
+          }
+        }
+      case _ => in
+    }
+  }
 
   override def toString: String = "TypeParameter: " + name
-
-  override def getPsiElementId: PsiElement = this
 
   def getOffsetInFile: Int = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].getPositionInFile
+      return stub.asInstanceOf[ScTypeParamStub].positionInFile
     }
     getTextRange.getStartOffset
   }
@@ -53,7 +84,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   def getContainingFileName: String = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].getContainingFileName
+      return stub.asInstanceOf[ScTypeParamStub].containingFileName
     }
     val containingFile = getContainingFile
     if (containingFile == null) return "NoFile"
@@ -93,7 +124,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   def typeParameterText: String = {
     val stub = getStub
     if (stub != null) {
-      return stub.asInstanceOf[ScTypeParamStub].typeParameterText
+      return stub.asInstanceOf[ScTypeParamStub].text
     }
     getText
   }
@@ -109,28 +140,28 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   override def viewTypeElement: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getViewTypeElement
+      stub.asInstanceOf[ScTypeParamStub].viewBoundsTypeElements
     } else super.viewTypeElement
   }
 
   override def contextBoundTypeElement: Seq[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getContextBoundTypeElement
+      stub.asInstanceOf[ScTypeParamStub].contextBoundsTypeElements
     } else super.contextBoundTypeElement
   }
 
   override def lowerTypeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getLowerTypeElement
+      stub.asInstanceOf[ScTypeParamStub].lowerBoundTypeElement
     } else super.lowerTypeElement
   }
 
   override def upperTypeElement: Option[ScTypeElement] = {
     val stub = getStub
     if (stub != null) {
-      stub.asInstanceOf[ScTypeParamStub].getUpperTypeElement
+      stub.asInstanceOf[ScTypeParamStub].upperBoundTypeElement
     } else super.upperTypeElement
   }
 
@@ -158,4 +189,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
       case Failure(_, _) => Array()
     }
   }
+
+  override def isHigherKindedTypeParameter: Boolean =
+    parent.filter(_.isInstanceOf[ScTypeParamClause]).flatMap(_.parent).exists(_.isInstanceOf[ScTypeParam])
 }

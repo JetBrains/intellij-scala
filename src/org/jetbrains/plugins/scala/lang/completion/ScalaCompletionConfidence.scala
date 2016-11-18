@@ -22,7 +22,7 @@ class ScalaCompletionConfidence extends CompletionConfidence {
         case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING
           if psiFile.getText.charAt(offset - 1) == '.' =>
           psiFile.findElementAt(offset).getPrevSibling match {
-            case ref: ScReferenceExpression => return ThreeState.NO
+            case _: ScReferenceExpression => return ThreeState.NO
             case _ =>
           }
         case _ =>

@@ -5,35 +5,34 @@ package stubs
 package elements
 
 
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
+import com.intellij.util.io.StringRef.fromString
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamClauseStubImpl
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 17.06.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 17.06.2009
+  */
+class ScTypeParamClauseElementType
+  extends ScStubElementType[ScTypeParamClauseStub, ScTypeParamClause]("type parameter clause") {
 
-class ScTypeParamClauseElementType[Func <: ScTypeParamClause]
-        extends ScStubElementType[ScTypeParamClauseStub, ScTypeParamClause]("type parameter clause") {
-  def serialize(stub: ScTypeParamClauseStub, dataStream: StubOutputStream) {
-    dataStream.writeName(stub.getTypeParamClauseText)
+  override def serialize(stub: ScTypeParamClauseStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeName(stub.typeParameterClauseText)
   }
 
-  def indexStub(stub: ScTypeParamClauseStub, sink: IndexSink) {}
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeParamClauseStub =
+    new ScTypeParamClauseStubImpl(parentStub, this,
+      typeParameterClauseTextRef = dataStream.readName)
 
-  def createPsi(stub: ScTypeParamClauseStub): ScTypeParamClause = {
-    new ScTypeParamClauseImpl(stub)
-  }
+  override def createStub(typeParamClause: ScTypeParamClause, parentStub: StubElement[_ <: PsiElement]): ScTypeParamClauseStub =
+    new ScTypeParamClauseStubImpl(parentStub, this,
+      typeParameterClauseTextRef = fromString(typeParamClause.getText))
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScTypeParamClause, parentStub: StubElement[ParentPsi]): ScTypeParamClauseStub = {
-    new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, psi.getText)
-  }
+  override def createElement(node: ASTNode): ScTypeParamClause = new ScTypeParamClauseImpl(node)
 
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScTypeParamClauseStub = {
-    val text = dataStream.readName().toString
-    new ScTypeParamClauseStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, text)
-  }
+  override def createPsi(stub: ScTypeParamClauseStub): ScTypeParamClause = new ScTypeParamClauseImpl(stub)
 }

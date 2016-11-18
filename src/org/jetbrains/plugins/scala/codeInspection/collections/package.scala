@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil.isExpressionOfType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -260,7 +260,7 @@ package object collections {
       qual match {
         case _ childOf ScInfixExpr(`qual`, _, _) if args.size == 1 =>
           s"${qual.getText} $methName ${args.head.getText}"
-        case infix: ScInfixExpr => s"($qualText).$methName$argsText"
+        case _: ScInfixExpr => s"($qualText).$methName$argsText"
         case _ => s"$qualText.$methName$argsText"
       }
 
@@ -279,10 +279,10 @@ package object collections {
   def argListText(args: Seq[ScExpression]): String = {
     args match {
       case Seq(p: ScParenthesisedExpr) => p.getText
-      case Seq(b @ ScBlock(fe: ScFunctionExpr)) => b.getText
+      case Seq(b @ ScBlock(_: ScFunctionExpr)) => b.getText
       case Seq(ScBlock(stmt: ScBlockStatement)) => s"(${stmt.getText})"
       case Seq(b: ScBlock) => b.getText
-      case Seq((fe: ScFunctionExpr) childOf (b: ScBlockExpr)) => b.getText
+      case Seq((_: ScFunctionExpr) childOf (b: ScBlockExpr)) => b.getText
       case Seq(other) => s"(${other.getText})"
       case seq if seq.size > 1 => seq.map(_.getText).mkString("(", ", ", ")")
       case _ => ""
@@ -307,7 +307,7 @@ package object collections {
   def implicitParameterExistsFor(expr: ScExpression): Boolean = {
     expr.findImplicitParameters match {
       case Some(Seq(srr: ScalaResolveResult)) if srr.element.name == InferUtil.notFoundParameterName => false
-      case Some(Seq(srr: ScalaResolveResult, _*)) => true
+      case Some(Seq(_: ScalaResolveResult, _*)) => true
       case _ => false
     }
   }
@@ -339,32 +339,29 @@ package object collections {
   }
 
   def checkResolve(expr: ScExpression, patterns: Array[String]): Boolean = {
-    expr match {
-      case ref: ScReferenceExpression =>
-        ref.resolve() match {
-          case obj: ScObject =>
-            nameFitToPatterns(obj.qualifiedName, patterns)
-          case member: ScMember =>
-            val clazz = member.containingClass
-            if (clazz == null || clazz.qualifiedName == null) false
-            else nameFitToPatterns(clazz.qualifiedName, patterns)
-          case _ => false
-        }
-      case _ => false
+    Option(expr).collect {
+      case ref: ScReferenceExpression => ref.resolve()
+    }.flatMap {
+      case obj: ScObject => Some(obj)
+      case member: ScMember => Option(member.containingClass)
+      case _ => None
+    }.exists {
+      qualifiedNameFitToPatterns(_, patterns)
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String])
-                   (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
-    if (expr == null) return false
-    expr.getType() match {
-      case Success(tp, _) =>
-        tp.tryExtractDesignatorSingleton match {
-          case ExtractClass(cl) if nameFitToPatterns(cl.qualifiedName, patterns) => true
-          case _ => false
-        }
-      case _ => false
-    }
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = Option(expr).flatMap {
+    _.getType().toOption
+  }.flatMap {
+    _.tryExtractDesignatorSingleton.extractClass()(expr.typeSystem)
+  }.exists {
+    qualifiedNameFitToPatterns(_, patterns)
+  }
+
+  private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) = Option(clazz).flatMap {
+    _.qualifiedName.toOption
+  }.exists {
+    nameFitToPatterns(_, patterns)
   }
 
   def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)
@@ -430,7 +427,7 @@ package object collections {
         case `expr` => true
         case (ScFunctionExpr(_, _) | (_: ScCaseClauses)) childOf `expr` => true
         case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case fun: ScFunctionDefinition => false
+        case _: ScFunctionDefinition => false
         case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
       }
 
@@ -441,9 +438,9 @@ package object collections {
           assign
         case assign @ ScAssignStmt(mc @ ScMethodCall(definedOutside(_), _), _) if mc.isUpdateCall =>
           assign
-        case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(v: ScVariable)), _, _) if infix.isAssignmentOperator =>
+        case infix @ ScInfixExpr(definedOutside(ScalaPsiUtil.inNameContext(_: ScVariable)), _, _) if infix.isAssignmentOperator =>
           infix
-        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext(v @ (_ : ScVariable | _: ScValue)))), Some(ref), _)
+        case MethodRepr(itself, Some(definedOutside(ScalaPsiUtil.inNameContext((_ : ScVariable | _: ScValue)))), Some(ref), _)
           if isSideEffectCollectionMethod(ref) || isSetter(ref) || hasUnitReturnType(ref) => itself
         case MethodRepr(itself, None, Some(ref @ definedOutside(_)), _) if hasUnitReturnType(ref) => itself
       }.toSeq
@@ -469,7 +466,7 @@ package object collections {
 
   @tailrec
   def refNameId(expr: ScExpression): Option[PsiElement] = stripped(expr) match {
-    case MethodRepr(itself: ScMethodCall, Some(base), None, _) => refNameId(base)
+    case MethodRepr(_: ScMethodCall, Some(base), None, _) => refNameId(base)
     case MethodRepr(_, _,Some(ref), _) => Some(ref.nameId)
     case _ => None
   }

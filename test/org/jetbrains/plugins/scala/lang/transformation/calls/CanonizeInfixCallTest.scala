@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class CanonizeInfixCallTest extends TransformerTest(CanonizeInfixCall,
+class CanonizeInfixCallTest extends TransformerTest(new CanonizeInfixCall(),
   """
      object O {
        def f(p: A) {}

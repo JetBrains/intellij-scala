@@ -23,11 +23,12 @@ class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPa
     myRbModifyCalls.setText("Modify method calls")
     myRbAddDefaultArg.setMnemonic('d')
     myRbModifyCalls.setMnemonic('m')
+    myRbModifyCalls.setSelected(true)
 
-    add(myRbAddDefaultArg)
     add(myRbModifyCalls)
+    add(myRbAddDefaultArg)
     add(Box.createHorizontalGlue)
-    myRbAddDefaultArg.setSelected(true)
+    
 
     val bg: ButtonGroup = new ButtonGroup
     Seq(myRbAddDefaultArg, myRbModifyCalls).foreach(bg.add)

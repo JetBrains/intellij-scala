@@ -4,18 +4,18 @@ package psi
 package stubs
 package elements
 
-import com.intellij.psi.stubs.{PsiFileStub, StubElement}
+import com.intellij.lang.ASTNode
+import com.intellij.psi.stubs._
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubElementTypeWrapper
+import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
+abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debugName: String)
+  extends IStubElementType[S, T](debugName, ScalaLanguage.Instance) with SelfPsiCreator with DefaultStubSerializer[S] {
 
-abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String)
-extends IStubElementTypeWrapper[S, T](debugName) {
-
-  def getExternalId: String = "sc." + super.toString
+  override def createElement(node: ASTNode): T
 
   def isCompiled(stub: S): Boolean = {
     var parent = stub

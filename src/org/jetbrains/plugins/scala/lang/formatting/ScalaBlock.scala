@@ -7,8 +7,8 @@ import java.util
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -20,9 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 class ScalaBlock(val myParentBlock: ScalaBlock,
@@ -70,14 +69,14 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
       })
     parent match {
       case m: ScMatchStmt =>
-        if (m.caseClauses.length == 0) {
+        if (m.caseClauses.isEmpty) {
           new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
         } else {
           val indent = if (mySettings.INDENT_CASE_FROM_SWITCH) Indent.getSpaceIndent(2 * indentSize)
           else Indent.getNormalIndent
           new ChildAttributes(indent, null)
         }
-      case c: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
+      case _: ScCaseClauses => new ChildAttributes(Indent.getNormalIndent, null)
       case l: ScLiteral
         if l.isMultiLineString && scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         new ChildAttributes(Indent.getSpaceIndent(3, true), null)
@@ -125,7 +124,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
       case p: ScParameterClause if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS && isConstructorArgOrMemberFunctionParameter(p) =>
         new ChildAttributes(
           Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false), null)
-      case p: ScParameterClause =>
+      case _: ScParameterClause =>
         new ChildAttributes(
           if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS) Indent.getNormalIndent
           else Indent.getContinuationWithoutFirstIndent, this.getAlignment)

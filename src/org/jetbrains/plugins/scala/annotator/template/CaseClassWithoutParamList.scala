@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
@@ -49,9 +50,10 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = c.isValid && c.getManager.isInProject(file)
 
-  def invoke(project: Project, editor: Editor, file: PsiFile) {
-    c.addEmptyParens()
-  }
+  def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
+    c.clauses foreach {
+      _.addClause(createClauseFromText("()")(c.getManager))
+    }
 }
 
 class ConvertToObjectFix(c: ScClass) extends IntentionAction {

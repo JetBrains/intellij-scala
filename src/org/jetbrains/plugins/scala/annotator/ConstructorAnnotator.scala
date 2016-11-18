@@ -69,7 +69,7 @@ trait ConstructorAnnotator {
           }
           case _ => holder.createErrorAnnotation(argsElement, "Not applicable." /* TODO + signatureOf(f)*/)
         }
-      case results =>
+      case _ =>
         holder.createErrorAnnotation(constructor.typeElement, "Cannot resolve constructor")
     }
   }
@@ -79,7 +79,7 @@ trait ConstructorAnnotator {
     selfInvocation match {
       case Some(self) =>
         self.bind match {
-          case Some(c: ScPrimaryConstructor) => //it's ok
+          case Some(_: ScPrimaryConstructor) => //it's ok
           case Some(fun: ScFunction) =>
             //check order
             if (fun.getTextRange.getStartOffset > constr.getTextRange.getStartOffset) {

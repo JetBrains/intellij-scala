@@ -38,7 +38,7 @@ class ScalaMoveLeftRightHandler extends MoveElementLeftRightHandler {
         if ref1.forall(isNonAssignOperator) && ref2.forall(isNonAssignOperator) &&
           operatorPriority(ref1) == operatorPriority(ref2) =>
         Array.empty
-      case infix@InfixElement(left, ref, right) if ref.forall(isNonAssignOperator) =>
+      case infix@InfixElement(_, ref, _) if ref.forall(isNonAssignOperator) =>
         collectInfixParts(infix, operatorPriority(ref))
       case cc: ScCaseClauses =>
         cc.caseClauses.toArray

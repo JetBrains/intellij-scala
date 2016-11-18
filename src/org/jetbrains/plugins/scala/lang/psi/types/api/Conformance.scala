@@ -25,7 +25,7 @@ trait Conformance extends TypeSystemOwner {
     */
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = HashSet.empty,
-                          substitutor: ScUndefinedSubstitutor = new ScUndefinedSubstitutor(),
+                          substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
                           checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
@@ -39,11 +39,11 @@ trait Conformance extends TypeSystemOwner {
       return tuple.copy(_2 = substitutor + tuple._2)
     }
     if (guard.currentStack().contains(key)) {
-      return (false, new ScUndefinedSubstitutor())
+      return (false, ScUndefinedSubstitutor())
     }
 
     val res = guard.doPreventingRecursion(key, false, computable(left, right, visited, checkWeak))
-    if (res == null) return (false, new ScUndefinedSubstitutor())
+    if (res == null) return (false, ScUndefinedSubstitutor())
     cache.put(key, res)
     if (substitutor.isEmpty) return res
     res.copy(_2 = substitutor + res._2)

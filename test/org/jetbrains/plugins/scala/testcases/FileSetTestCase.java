@@ -21,6 +21,7 @@ import com.intellij.testFramework.LightIdeaTestCase;
 import junit.framework.TestSuite;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.FileScanner;
+import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -106,7 +107,7 @@ public abstract class FileSetTestCase extends TestSuite {
     protected void setUp() throws Exception {
       super.setUp();
       FileSetTestCase.this.setUp(getProject());
-
+      TestUtils.disableTimerThread();
     }
 
     protected void tearDown() throws Exception {

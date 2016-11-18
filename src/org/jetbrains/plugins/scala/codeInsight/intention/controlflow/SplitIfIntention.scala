@@ -8,7 +8,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIfStmt, ScInfixExpr}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -67,7 +67,7 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
       expr.append(elseBranch.getText).append("\nelse ").append(elseBranch.getText)
     }
 
-    val newIfStmt: ScExpression = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newIfStmt: ScExpression = createExpressionFromText(expr.toString())(element.getManager)
     val diff = newIfStmt.asInstanceOf[ScIfStmt].condition.get.getTextRange.getStartOffset -
       newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
 

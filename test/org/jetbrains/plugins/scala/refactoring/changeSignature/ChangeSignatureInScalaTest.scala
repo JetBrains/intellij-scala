@@ -3,10 +3,12 @@ package refactoring.changeSignature
 
 import com.intellij.psi.PsiMember
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, ParameterInfo}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
 
 /**
@@ -105,7 +107,9 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
   def testLocalFunction(): Unit = {
     isAddDefaultValue = true
     val params = Seq(parameterInfo("i", 0, Int), parameterInfo("s", -1, Boolean, "true"))
-    doTest(null, "local", null, Seq(params))
+    val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))
+    
+    doTest(null, "local", null, Seq(params), settings = TypeAnnotationSettings.noTypeAnnotationForLocal(settings))
   }
 
   def testImported(): Unit = {

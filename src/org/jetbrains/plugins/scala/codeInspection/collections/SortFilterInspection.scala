@@ -32,7 +32,7 @@ object SortFilter extends SimplificationType {
         val text = method.itself.getText
         if (startIndex > 0 && startIndex < text.length) Option(text.substring(startIndex))
         else None
-      case (ScInfixExpr(left, op, right), _) =>
+      case (ScInfixExpr(_, op, right), _) =>
         def argListFromInfix(arg: ScExpression) = arg match {
           case x @ (_: ScBlock | _: ScParenthesisedExpr | _: ScTuple) => x.getText
           case _ => s"(${arg.getText})"

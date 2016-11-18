@@ -13,6 +13,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -52,7 +53,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
         def isTop(element: PsiElement): Boolean = {
           element match {
             case null => true
-            case td: ScTemplateDefinition => false
+            case _: ScTemplateDefinition => false
             case _ => isTop(element.getContext)
           }
         }
@@ -101,7 +102,7 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
     element match {
       case o: ScObject => o.fakeCompanionClassOrCompanionClass
       case wrapper: PsiClassWrapper => wrapper.definition match {
-        case o: ScObject => wrapper
+        case _: ScObject => wrapper
         case definition => definition
       }
       case _ => element
@@ -123,26 +124,28 @@ class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSugge
         with RenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor) {
 
   override def createCenterPanel(): JComponent = {
-
-    val companionType: Option[String] = psiElement match {
-      case clazz: ScTypeDefinition =>
-        ScalaPsiUtil.getBaseCompanionModule(clazz) match {
-          case Some(_: ScObject) => Some("object")
-          case Some(_: ScTrait) => Some("trait")
-          case Some(_: ScClass) => Some("class")
-          case _ => None
-        }
-      case _ => None
+    val companion = Option(psiElement).collect {
+      case definition: ScTypeDefinition => definition
+    }.flatMap {
+      getBaseCompanionModule
     }
 
-    if (companionType.isDefined) {
-      chbRenameCompanion.setText(ScalaBundle.message("rename.companion.module", companionType.get))
+    companion.collect {
+      case _: ScObject => "object"
+      case _: ScTrait => "trait"
+      case _: ScClass => "class"
+    }.foreach { text =>
+      chbRenameCompanion.setText(ScalaBundle.message("rename.companion.module", text))
       chbRenameCompanion.setSelected(true)
-      val panel = Option(super.createCenterPanel()).getOrElse(new JPanel(new BorderLayout()))
+    }
+
+    companion.map { _ =>
+      val panel = Option(super.createCenterPanel()).getOrElse {
+        new JPanel(new BorderLayout())
+      }
       panel.add(chbRenameCompanion, BorderLayout.WEST)
       panel
-    }
-    else null
+    }.orNull
   }
 
   override def performRename(newName: String) {

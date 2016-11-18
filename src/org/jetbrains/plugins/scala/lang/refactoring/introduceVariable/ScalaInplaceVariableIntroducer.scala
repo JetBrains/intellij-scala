@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator}
@@ -128,19 +128,19 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
     if (!isEnumerator) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
-      myVarCheckbox.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR)
       myVarCheckbox.setMnemonic('v')
       myVarCheckbox.addActionListener(new ActionListener {
         def actionPerformed(e: ActionEvent): Unit = {
           val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
 
             private def changeValOrVar(asVar: Boolean, declaration: PsiElement): Unit = {
+              implicit val manager = declaration.getManager
               val replacement =
                 declaration match {
                 case value: ScValue if asVar =>
-                  ScalaPsiElementFactory.createVarFromValDeclaration(value, value.getManager)
+                  createVarFromValDeclaration(value)
                 case variable: ScVariableDefinition if !asVar =>
-                  ScalaPsiElementFactory.createValFromVarDefinition(variable, variable.getManager)
+                  createValFromVarDefinition(variable)
                 case _ => declaration
               }
               if (replacement != declaration) setDeclaration(declaration.replace(replacement))
@@ -189,9 +189,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
               declaration match {
                 case _: ScDeclaredElementsHolder | _: ScEnumerator =>
                   val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
-                  val manager = declarationCopy.getManager
-                  val fakeDeclaration = ScalaPsiElementFactory.createDeclaration(selectedType, "x", isVariable = false,
-                    "", manager, isPresentableText = false)
+                  implicit val manager = declarationCopy.getManager
+                  val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
                   val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
                   val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
                   val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
@@ -209,7 +208,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case holder: ScDeclaredElementsHolder =>
                   val colon = holder.findFirstChildByType(ScalaTokenTypes.tCOLON)
                   val assign = holder.findFirstChildByType(ScalaTokenTypes.tASSIGN)
-                  val whiteSpace = ScalaPsiElementFactory.createExpressionFromText("1 + 1", myFile.getManager).findElementAt(1)
+                  implicit val manager = myFile.getManager
+                  val whiteSpace = createExpressionFromText("1 + 1").findElementAt(1)
                   val newWhiteSpace = holder.addBefore(whiteSpace, assign)
                   holder.getNode.removeRange(colon.getNode, newWhiteSpace.getNode)
                   setDeclaration(holder)
@@ -341,7 +341,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
   override def finish(success: Boolean): Unit = {
     myEditor.getDocument.removeDocumentListener(myCheckIdentifierListener)
 
-    if (myVarCheckbox != null) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_IS_VAR = myVarCheckbox.isSelected
     if (mySpecifyTypeChb != null && !isEnumerator) ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE = mySpecifyTypeChb.isSelected
 
     try {
@@ -356,7 +355,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
     }
     catch {
       //templateState can contain null private fields
-      case exc: NullPointerException =>
+      case _: NullPointerException =>
     }
     finally {
       myEditor.getSelectionModel.removeSelection()

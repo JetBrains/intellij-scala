@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeArgs}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 
 /** Converts type element `@@[A, B]` to `(A @@ B)` */
 class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
@@ -36,8 +36,8 @@ class ConvertToInfixIntention extends PsiElementBaseIntentionAction {
       case _: ScTypeArgs | _: ScParenthesisedTypeElement => false
       case _ => true
     }
-    val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesisedIf(needParens)
-    val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, element.getManager)
+    val newTypeText = Seq(targ1, paramTypeElement.typeElement, targ2).map(_.getText).mkString(" ").parenthesize(needParens)
+    val newTypeElement = createTypeElementFromText(newTypeText)(element.getManager)
     if (paramTypeElement.isValid) {
       val replaced = try {
         paramTypeElement.replace(newTypeElement)

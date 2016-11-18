@@ -25,7 +25,7 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
   def folderPath: String = baseRootPath() + "completion/"
   def testFileExt: String = ".scala"
 
-  protected def loadFile = {
+  protected def loadFile: (String, VirtualFile) = {
     val fileName = getTestName(false) + testFileExt
     val filePath = folderPath + fileName
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
@@ -33,13 +33,13 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     (fileName, file)
   }
 
-  protected def loadAndSetFileText(filePath: String, file: VirtualFile) = {
+  protected def loadAndSetFileText(filePath: String, file: VirtualFile): String = {
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
     configureFromFileTextAdapter(filePath, fileText)
     fileText
   }
 
-  protected def extractCaretOffset(fileText: String) = {
+  protected def extractCaretOffset(fileText: String): Int = {
     val offset = fileText.indexOf(caretMarker)
     assert(offset != -1, "Not specified end marker in test case. Use /*caret*/ in scala file for this.")
     offset

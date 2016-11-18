@@ -53,7 +53,7 @@ trait LocationLineManager {
           refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line + 1)
         else refType.locationsOfLine(line + 1)
       } catch {
-        case aie: AbsentInformationException => return Seq.empty
+        case _: AbsentInformationException => return Seq.empty
       }
 
     checkAndUpdateCaches(refType)
@@ -101,7 +101,7 @@ trait LocationLineManager {
           val index = location.codeIndex()
           bytecodes(index.toInt) == Opcodes.voidReturn
         } catch {
-          case e: Throwable => false
+          case _: Throwable => false
         }
       }
 
@@ -138,7 +138,7 @@ trait LocationLineManager {
       def skipTypeCheckOptimization(method: Method, caseLineLocations: Seq[Location]): Unit = {
         val bytecodes =
           try method.bytecodes()
-          catch {case t: Throwable => return }
+          catch {case _: Throwable => return }
 
         def cacheCorrespondingIloadLocations(iconst_0Loc: Location): Unit = {
           val codeIndex = iconst_0Loc.codeIndex().toInt
@@ -166,7 +166,7 @@ trait LocationLineManager {
       def skipReturnValueAssignment(method: Method, caseLinesLocations: Seq[Seq[Location]]): Unit = {
         val bytecodes =
           try method.bytecodes()
-          catch {case t: Throwable => return }
+          catch {case _: Throwable => return }
 
         def storeCode(location: Location): Option[Seq[Byte]] = {
           val codeIndex = location.codeIndex().toInt
@@ -192,17 +192,17 @@ trait LocationLineManager {
         loadLocations.foreach(cacheCustomLine(_, -1))
       }
 
-      def skipBaseLineExtraLocations(method: Method, baseLine: Int): Unit = {
-        val locations = locationsOfLine(method, baseLine).filter(!customizedLocationsCache.contains(_))
-        if (locations.size <= 1) return
+      def skipBaseLineExtraLocations(method: Method, locations: Seq[Location]): Unit = {
+        val filtered = locations.filter(!customizedLocationsCache.contains(_))
+        if (filtered.size <= 1) return
 
         val bytecodes =
           try method.bytecodes()
           catch {
-            case t: Throwable => return
+            case _: Throwable => return
           }
 
-        val tail: Seq[Location] = locations.tail
+        val tail: Seq[Location] = filtered.tail
 
         val loadExpressionValueLocations = tail.filter { l =>
           BytecodeUtil.readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
@@ -215,17 +215,26 @@ trait LocationLineManager {
         (loadExpressionValueLocations ++ returnLocations).foreach(cacheCustomLine(_, -1))
       }
 
+      def skipGotoLocations(method: Method, possibleLocations: Seq[Location]): Unit = {
+        val bytecodes =
+          try method.bytecodes()
+          catch {case _: Throwable => return }
+
+        val gotos = possibleLocations.filter(loc => BytecodeUtil.isGoto(loc.codeIndex().toInt, bytecodes))
+        gotos.foreach(cacheCustomLine(_, -1))
+      }
+
       def customizeFor(caseClauses: ScCaseClauses): Unit = {
         def tooSmall(m: Method) = {
           try m.allLineLocations().size() <= 3
           catch {
-            case ae: AbsentInformationException => true
+            case _: AbsentInformationException => true
           }
         }
 
         val baseLine = caseClauses.getParent match {
           case ms: ScMatchStmt => ms.expr.map(elementStartLine)
-          case (b: ScBlock) childOf (tr: ScTryStmt) => return //todo: handle try statements
+          case (_: ScBlock) childOf (_: ScTryStmt) => return //todo: handle try statements
           case (b: ScBlock) => Some(elementStartLine(b))
           case _ => None
         }
@@ -237,16 +246,20 @@ trait LocationLineManager {
           caseLinesLocations = caseLines.map(locationsOfLine(m, _))
           if caseLinesLocations.exists(_.nonEmpty)
         } {
-          skipTypeCheckOptimization(m, caseLinesLocations.flatten)
+          val flattenCaseLines = caseLinesLocations.flatten
+          skipTypeCheckOptimization(m, flattenCaseLines)
+          skipGotoLocations(m, flattenCaseLines)
           skipReturnValueAssignment(m, caseLinesLocations)
         }
 
         for {
           m <- methods
           line <- baseLine
-          if locationsOfLine(m, line).size > 1
+          locations = locationsOfLine(m, line)
+          if locations.size > 1
         } {
-          skipBaseLineExtraLocations(m, line)
+          skipBaseLineExtraLocations(m, locations)
+          skipGotoLocations(m, locations)
         }
       }
 

@@ -176,11 +176,10 @@ class VarianceTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator() {}
-    val mock = new AnnotatorHolderMock
+    val file: ScalaFile = (Header + code).parse
+    val mock = new AnnotatorHolderMock(file)
 
-    val parse: ScalaFile = (Header + code).parse
-
-    parse.depthFirst.foreach {
+    file.depthFirst.foreach {
       case fun: ScFunction => annotator.annotate(fun, mock)
       case varr: ScVariable => annotator.annotate(varr, mock)
       case v: ScValue => annotator.annotate(v, mock)

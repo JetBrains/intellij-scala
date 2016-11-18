@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator, Modifier}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName}
+import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.sun.jdi._
-import com.sun.tools.jdi.ConcreteMethodImpl
+import com.sun.tools.jdi.{ConcreteMethodImpl, TypeComponentImpl}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -97,11 +98,12 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         def findWithoutSignature(): Option[Method] = {
           def sameParamNumber(m: Method) = {
             try {
-              if (m.isVarArgs) args.length >= m.argumentTypeNames().size()
-              else args.length == m.argumentTypeNames().size()
+              val argsCount = m.argumentTypeNames().size()
+              if (m.isVarArgs) args.length >= argsCount
+              else args.length == argsCount || args.length == argsCount - 1
             }
             catch {
-              case a: AbsentInformationException => true
+              case _: AbsentInformationException => true
             }
           }
           def linesIntersects(m: Method): Boolean = inReadAction {
@@ -128,70 +130,124 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         jdiMethodsCache.getOrElseUpdate(referenceType, doFind())
       }
 
-      def invokeStaticMethod(referenceType: ReferenceType): AnyRef = {
-        def noStaticMethodException = EvaluationException(DebuggerBundle.message("evaluation.error.no.static.method", methodName))
+      def invokeStaticMethod(referenceType: ReferenceType, jdiMethod: Method): AnyRef = {
+        def fixArguments(): Seq[Value] = {
+          def correctArgType(arg: AnyRef, typeName: String) = arg match {
+            case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType())
+            case _ => true
+          }
+          val paramTypeNames = jdiMethod.argumentTypeNames()
+          if (paramTypeNames.size() == 0) Seq.empty
+          else {
+            val needObj = args.isEmpty || !correctArgType(args.head, paramTypeNames.get(0))
+            if (needObj) unwrappedArgs(obj +: args, jdiMethod)
+            else unwrappedArgs(args, jdiMethod)
+          }
+        }
 
         referenceType match {
-          case classType: ClassType =>
-            val jdiMethod = findMethod(classType).orNull
-            if (jdiMethod != null && methodName == "<init>") {
-              debugProcess.newInstance(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
-            }
-            else if (jdiMethod != null && jdiMethod.isStatic) {
-              debugProcess.invokeMethod(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
-            }
-            else throw noStaticMethodException
-          case _ =>
-            throw noStaticMethodException
+          case ct: ClassType =>
+            debugProcess.invokeMethod(context, ct, jdiMethod, fixArguments())
+          case it: InterfaceType =>
+            debugProcess.invokeMethod(context, it, jdiMethod, fixArguments())
         }
       }
 
-      def findAndInvokeInstanceMethod(objRef: ObjectReference): AnyRef = {
-        val objType = findClass(objRef.referenceType().name())
-        if (objType.isInstanceOf[ArrayType]) throw EvaluationException(s"Method $methodName cannot be invoked on array")
-
-        val classType = objType.asInstanceOf[ClassType]
-
-        def classWithMethod(c: ReferenceType) = findMethod(c).map(m => (c, m))
-
-        val classAndMethod = if (requiresSuperObject) {
-          val superClass = classType.superclass()
-          classWithMethod(superClass)
-            .orElse {
-              traitImplementation.flatMap(ti => Option(ti.getName(context.getDebugProcess))) match {
-                case Some(traitImplName) =>
-                  Try(findClass(traitImplName)) match {
-                    case Success(c: ClassType) => classWithMethod(c)
-                    case _ =>
-                      val traitName = traitImplName.stripSuffix("$class")
-                      Try(findClass(traitName)).toOption.flatMap(classWithMethod)
-                  }
-                case _ => None
-              }
-            }
-        }
-        else classWithMethod(classType)
-
-        classAndMethod match {
-          case Some((clazz: ClassType, method)) if clazz.name.endsWith("$class") =>
-            debugProcess.invokeMethod(context, clazz, method, unwrappedArgs(obj +: args, method))
-          case Some((_, method)) if requiresSuperObject =>
-            debugProcess.invokeInstanceMethod(context, objRef, method, args, ObjectReference.INVOKE_NONVIRTUAL)
-          case Some((clazz, method)) =>
-            debugProcess.invokeMethod(context, objRef, method, unwrappedArgs(args, method))
-          case None =>
-            throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+      def invokeConstructor(referenceType: ReferenceType, method: Method): AnyRef = {
+        referenceType match {
+          case ct: ClassType if methodName == "<init>" =>
+            debugProcess.newInstance(context, ct, method, unwrappedArgs(args, method))
+          case _ => throw EvaluationException(s"Couldn't found appropriate constructor for ${referenceType.name()}")
         }
       }
 
-      obj match {
+      def invokeInstanceMethod(objRef: ObjectReference, jdiMethod: Method): AnyRef = {
+        if (requiresSuperObject)
+          debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod), ObjectReference.INVOKE_NONVIRTUAL)
+        else
+          debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod))
+      }
+
+      def invokeInterfaceMethod(objRef: ObjectReference, jdiMethod: Method): AnyRef = {
+        def togglePrivate(method: Method): Unit = {
+          try {
+            method match {
+              case mImpl: TypeComponentImpl =>
+                val field = classOf[TypeComponentImpl].getDeclaredField("modifiers")
+                field.setAccessible(true)
+                val value = field.get(mImpl).asInstanceOf[Integer].toInt
+                val privateModifierMask = 2
+                field.set(mImpl, value ^ privateModifierMask)
+              case _ =>
+            }
+          } catch {
+            case _: Throwable =>
+          }
+        }
+
+        if (jdiMethod.isAbstract) throw EvaluationException(s"Cannot invoke abstract interface method ${jdiMethod.name()}")
+
+        //see SCL-10132
+        if (!jdiMethod.isDefault && jdiMethod.isPrivate) {
+          togglePrivate(jdiMethod)
+          val result = debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod), ObjectReference.INVOKE_NONVIRTUAL)
+          togglePrivate(jdiMethod)
+          result
+        } else {
+          debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod))
+        }
+      }
+
+      def classWithMethod(c: ReferenceType) = findMethod(c).map(m => (c, m))
+
+      def findInSuperClass(classType: ClassType): Option[(ReferenceType, Method)] = {
+        val superClass = classType.superclass()
+        classWithMethod(superClass)
+          .orElse {
+            traitImplementation.flatMap(ti => Option(ti.getName(context.getDebugProcess))) match {
+              case Some(traitImplName) =>
+                Try(findClass(traitImplName)) match {
+                  case Success(c: ClassType) => classWithMethod(c)
+                  case _ =>
+                    val traitName = traitImplName.stripSuffix("$class")
+                    Try(findClass(traitName)).toOption.flatMap(classWithMethod)
+                }
+              case _ => None
+            }
+          }
+      }
+
+      val typeAndMethod: Option[(ReferenceType, Method)] = obj match {
         case objRef: ObjectReference =>
-          findAndInvokeInstanceMethod(objRef)
-        case obj: ClassType =>
-          val referenceType = findClass(obj.name)
-          invokeStaticMethod(referenceType)
+          val objType = findClass(objRef.referenceType().name())
+          if (objType.isInstanceOf[ArrayType]) throw EvaluationException(s"Method $methodName cannot be invoked on array")
+          val classType = objType.asInstanceOf[ClassType]
+
+          if (requiresSuperObject) findInSuperClass(classType)
+          else classWithMethod(classType)
+        case rt: ReferenceType =>
+          classWithMethod(rt)
         case _ =>
           throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+      }
+
+      if (typeAndMethod.isEmpty) throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+
+      typeAndMethod match {
+        case Some((tp, m)) if m.isConstructor =>
+          invokeConstructor(tp, m)
+        case Some((tp, m)) if m.isStatic =>
+          invokeStaticMethod(tp, m)
+        case Some((_, m)) =>
+          obj match {
+            case objRef: ObjectReference if m.declaringType().isInstanceOf[InterfaceType] =>
+              invokeInterfaceMethod(objRef, m)
+            case objRef: ObjectReference =>
+              invokeInstanceMethod(objRef, m)
+            case _ =>
+              throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+          }
+        case _ => throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
       }
     }
     catch {

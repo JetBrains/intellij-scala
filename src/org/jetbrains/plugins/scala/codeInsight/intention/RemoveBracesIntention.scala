@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -45,7 +45,7 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
     def isAncestorOfElement(ancestor: PsiElement) = PsiTreeUtil.isContextAncestor(ancestor, element, false)
 
     val expr: Option[ScExpression] = containing match {
-      case pattern @ ScPatternDefinition.expr(e) if isAncestorOfElement(e) => Some(e)
+      case ScPatternDefinition.expr(e) if isAncestorOfElement(e) => Some(e)
       case ifStmt: ScIfStmt =>
         ifStmt.thenBranch.filter(isAncestorOfElement).orElse(ifStmt.elseBranch.filter(isAncestorOfElement))
       case funDef: ScFunctionDefinition if !funDef.hasUnitResultType =>
@@ -78,7 +78,7 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
               val Regex = """(?ms)\{(.+)\}""".r
               x.getText match {
                 case Regex(code) =>
-                  val replacement = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(code, element.getManager)
+                  val replacement = createBlockExpressionWithoutBracesFromText(code)(element.getManager)
                   CodeEditUtil.replaceChild(x.getParent.getNode, x.getNode, replacement.getNode)
                   CodeEditUtil.markToReformat(caseClause.getNode, true)
                 case _ =>

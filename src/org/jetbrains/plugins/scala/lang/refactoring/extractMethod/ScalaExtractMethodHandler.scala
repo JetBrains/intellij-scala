@@ -17,12 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createTemplateDefinitionFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.Dup
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -68,7 +69,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
-        case ret: ScReturnStmt => true
+        case _: ScReturnStmt => true
         case m: ScMatchStmt =>
           m.getBranches.forall(checkLastReturn(_))
         case f: ScIfStmt if f.elseBranch.isDefined && f.thenBranch.isDefined =>
@@ -135,13 +136,13 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     while (isParentOk(parent)) {
       parent match {
         case file: ScalaFile if file.isScriptFile() => res += prev
-        case block: ScBlock => res += prev
-        case templ: ScTemplateBody => res += prev
+        case _: ScBlock => res += prev
+        case _: ScTemplateBody => res += prev
         case _ =>
       }
       prev = parent
       parent = parent match {
-        case file: ScalaFile =>
+        case _: ScalaFile =>
           null
         case _ => parent.getParent
       }
@@ -236,7 +237,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
         new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
           ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling,
-          elements, hasReturn, lastReturn, lastExprType, innerClassSettings)
+          elements, hasReturn, ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE, lastReturn, lastExprType, innerClassSettings)
       }
     val duplicates = DuplicatesUtil.findDuplicates(settings)
     performRefactoring(settings, editor)
@@ -253,7 +254,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           case o: ScObject => s"Extract method to object ${o.name}"
           case c: ScClass => s"Extract method to class ${c.name}"
           case t: ScTrait => s"Extract method to trait ${t.name}"
-          case n: ScNewTemplateDefinition => "Extract method to anonymous class"
+          case _: ScNewTemplateDefinition => "Extract method to anonymous class"
         }
       case _: ScTryBlock => local("try block")
       case _: ScConstrBlock => local("constructor")
@@ -283,7 +284,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     if (method == null) return
     val ics = settings.innerClassSettings
 
-    def newLine = ScalaPsiElementFactory.createNewLine(method.getManager)
+    def newLine = createNewLine()(method.getManager)
 
     def addElementBefore(elem: PsiElement, nextSibling: PsiElement) = {
       val added = nextSibling.getParent.addBefore(elem, nextSibling)
@@ -295,7 +296,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       if (!ics.needClass) return
 
       val classText = ics.classText(canonTextForTypes = true)
-      val clazz = ScalaPsiElementFactory.createTemplateDefinitionFromText(classText, anchorNext.getContext, anchorNext)
+      val clazz = createTemplateDefinitionFromText(classText, anchorNext.getContext, anchorNext)
       addElementBefore(clazz, anchorNext)
       addElementBefore(newLine, anchorNext)
     }

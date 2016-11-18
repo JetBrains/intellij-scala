@@ -6,7 +6,7 @@ package top
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
+import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{MixinParents, TemplateBody}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,7 +23,7 @@ object TraitTemplateOpt extends TraitTemplateOpt {
 }
 
 //It's very similar code to ClassTemplateOpt
-trait TraitTemplateOpt {
+trait TraitTemplateOpt extends TemplateOpt {
   protected val templateBody: TemplateBody
   protected val earlyDef: EarlyDef
   protected val mixinParents: MixinParents

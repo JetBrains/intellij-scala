@@ -42,7 +42,7 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
       classOf[ScTrait]) match {
       case Some(c: ScClass) if !c.isCase => true
       case Some(c: ScObject) if !c.isCase => true
-      case Some(c: ScTrait) => true
+      case Some(_: ScTrait) => true
       case _ => false
     }
     file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType && isSuitableClass

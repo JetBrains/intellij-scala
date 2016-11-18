@@ -35,7 +35,7 @@ object ScalaType {
   def expandAliases(tp: ScType, visited: HashSet[ScType] = HashSet.empty): TypeResult[ScType] = {
     if (visited contains tp) return Success(tp, None)
     tp match {
-      case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
+      case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
           t.aliasedType(TypingContext.empty).flatMap(t => expandAliases(proj.actualSubst.subst(t), visited + tp))
         case t: ScTypeAliasDeclaration if t.typeParameters.isEmpty =>
@@ -64,7 +64,7 @@ object ScalaType {
     */
   def designator(element: PsiNamedElement): ScType = {
     element match {
-      case td: ScClass =>
+      case _: ScClass =>
         val designatorType = ScDesignatorType(element)
         designatorType.getValType.getOrElse(designatorType)
       case _ =>

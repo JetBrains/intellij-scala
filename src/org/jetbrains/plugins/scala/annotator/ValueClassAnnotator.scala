@@ -72,7 +72,7 @@ trait ValueClassAnnotator {
     valueClass.constructor match {
       case Some(c) =>
         c.parameters match {
-          case Seq(param) if !param.isPrivateThis =>
+          case Seq(param) if !param.isPrivateThis && (param.isVal || param.isCaseClassVal) =>
           case Seq(param) => holder.createErrorAnnotation(param, ScalaBundle.message("value.class.can.have.only.val.parameter"))
           case _ =>
             holder.createErrorAnnotation(valueClass.nameId, ScalaBundle.message("value.class.can.have.only.one.parameter"))
@@ -86,7 +86,7 @@ trait ValueClassAnnotator {
   }
 
   private def annotateValueClassTypeParameters(tp: Option[ScTypeParamClause], holder: AnnotationHolder): Unit = tp match {
-    case Some(tpClause) => tpClause.typeParameters.filter(_.hasAnnotation("scala.specialized").isDefined).foreach {
+    case Some(tpClause) => tpClause.typeParameters.filter(_.hasAnnotation("scala.specialized")).foreach {
       tpParam =>
         val message: String = ScalaBundle.message("type.parameter.value.class.may.not.be.specialized")
         holder.createErrorAnnotation(tpParam.nameId, message)

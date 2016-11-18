@@ -18,15 +18,19 @@ import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollect
 )
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
 
+  // TODO Don't save these values as we now rely on the code style instead
   public boolean INTRODUCE_VARIABLE_EXPLICIT_TYPE = true;
-  public boolean INTRODUCE_VARIABLE_IS_VAR = false;
   public boolean INTRODUCE_FIELD_EXPLICIT_TYPE = true;
   public boolean INTRODUCE_FIELD_IS_VAR = false;
   public boolean INTRODUCE_FIELD_REPLACE_ALL = false;
 
   public boolean IGNORE_SETTINGS_CHECK = false;
 
-  public boolean SPECIFY_RETURN_TYPE_EXPLICITLY = true;
+  public boolean COPY_SCALADOC = true;
+
+  public enum ReturnTypeLevel {ADD, REMOVE, BY_CODE_STYLE}
+  public ReturnTypeLevel SPECIFY_RETURN_TYPE_EXPLICITLY = ReturnTypeLevel.BY_CODE_STYLE;
+
   public boolean INTRODUCE_PARAMETER_CREATE_DEFAULT = true;
   public boolean ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY = false;
   public boolean OPTIMIZE_IMPORTS_ON_THE_FLY = false;
@@ -35,8 +39,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean RENAME_SEARCH_IN_COMMENTS_AND_STRINGS = false;
   public boolean RENAME_SEARCH_IN_NON_CODE_FILES = false;
 
-  public enum VisibilityLevel {DEFAULT, PROTECTED, PRIVATE}
-  public VisibilityLevel INTRODUCE_FIELD_VISIBILITY = VisibilityLevel.DEFAULT;
+  public String INTRODUCE_FIELD_VISIBILITY = "";
 
   public boolean ADD_OVERRIDE_TO_IMPLEMENTED = true;
 

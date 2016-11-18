@@ -38,7 +38,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
   private def sourceName(frameProxy: StackFrameProxyImpl) =
     try frameProxy.location().sourceName()
     catch {
-      case e: AbsentInformationException => ""
+      case _: AbsentInformationException => ""
     }
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
@@ -66,7 +66,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
             }
           }
           catch {
-            case e: EvaluateException =>
+            case _: EvaluateException =>
               myEvaluatedVariable = null
               myContext = null
           }
@@ -106,7 +106,7 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
               None
             }
           }
-          catch {case ignore: InternalException => None}
+          catch {case _: InternalException => None}
         } else None
       }
     }

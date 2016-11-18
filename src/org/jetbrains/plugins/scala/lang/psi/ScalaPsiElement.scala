@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.extensions.implementation.PsiElementExtTrait
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.intersectScopes
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
@@ -16,6 +17,8 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
   protected var child: PsiElement = null
 
   implicit lazy val typeSystem = getProject.typeSystem
+
+  implicit def manager = getManager
 
   def isInCompiledFile: Boolean = getContainingFile match {
     case file: ScalaFile => file.isCompiled
@@ -120,9 +123,11 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
   }
 
   abstract override def getUseScope: SearchScope = {
-    ScalaPsiUtil.intersectScopes(super.getUseScope, containingFile match {
-      case Some(file: ScalaFile) if file.isWorksheetFile || file.isScriptFile() => Some(new LocalSearchScope(file))
-      case _ => None
-    })
+    val maybeFileScope = containingScalaFile.filter { file =>
+      file.isWorksheetFile || file.isScriptFile()
+    }.map {
+      new LocalSearchScope(_)
+    }
+    intersectScopes(super.getUseScope, maybeFileScope)
   }
 }

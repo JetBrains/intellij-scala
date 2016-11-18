@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
-import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInsight.daemon.impl.HighlightVisitor
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightVisitorImpl}
 import com.intellij.codeInspection._
@@ -8,7 +7,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.impl.source.resolve.PsiResolveHelperImpl
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
 
@@ -16,17 +14,11 @@ import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
  * @author Alexander Podkhalyuzin
  */
 class AnnotatorBasedErrorInspection extends LocalInspectionTool {
-  override def isEnabledByDefault: Boolean = false
-
-  override def getID: String = "AnnotatorBasedError"
-
   override def getGroupDisplayName: String = "Internal"
 
   override def getGroupPath: Array[String] = Array("Scala", "Internal")
 
-  override def getDefaultLevel: HighlightDisplayLevel = HighlightDisplayLevel.ERROR
-
-  override def getDisplayName: String = "Error highlighting for Scala"
+  override def getDisplayName: String = "Annotator Based Error Inspection"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new PsiElementVisitor {

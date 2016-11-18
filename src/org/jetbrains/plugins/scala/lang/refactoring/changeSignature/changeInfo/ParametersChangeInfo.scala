@@ -18,7 +18,7 @@ private[changeInfo] trait ParametersChangeInfo {
   private val oldParameterTypes: Array[String] = oldParametersArray.map(_.getTypeText)
 
   val toRemoveParm: Array[Boolean] = oldParametersArray.zipWithIndex.map {
-    case (p, i) => !newParameters.exists(_.oldIndex == i)
+    case (_, i) => !newParameters.exists(_.oldIndex == i)
   }
 
   val isParameterSetOrOrderChanged: Boolean = {

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class AddTypeToMethodDefinitionTest extends TransformerTest(AddTypeToMethodDefinition) {
+class AddTypeToMethodDefinitionTest extends TransformerTest(new AddTypeToMethodDefinition()) {
   def testImplicitType() = check(
     "def f() = new A()",
     "def f(): A = new A()"

@@ -69,12 +69,12 @@ object Dependency {
         target match {
           case ContainingClass(aClass) =>
             withEntity(aClass.qualifiedName)
-          case aClass: ScSyntheticClass => None
+          case _: ScSyntheticClass => None
           case _ => None
         }
       case _ =>
         target match {
-          case e: ScSyntheticClass =>
+          case _: ScSyntheticClass =>
             None
           case e: PsiClass =>
             withEntity(e.qualifiedName)

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class PartiallyQualifySimpleReferenceTest extends TransformerTest(PartiallyQualifySimpleReference) {
+class PartiallyQualifySimpleReferenceTest extends TransformerTest(new PartiallyQualifySimpleReference()) {
   def testUnqualified() = check(
     """
      object O {

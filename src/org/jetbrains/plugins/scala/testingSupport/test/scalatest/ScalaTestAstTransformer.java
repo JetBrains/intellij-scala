@@ -61,6 +61,8 @@ public class ScalaTestAstTransformer {
         itWordFqns.add("org.scalatest.fixture.FunSpecLike.ItWord");
         itWordFqns.add("org.scalatest.fixture.WordSpecLike.ItWord");
         itWordFqns.add("org.scalatest.path.FunSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.FlatSpecLike.ItVerbStringTaggedAs");
+        itWordFqns.add("org.scalatest.fixture.FlatSpecLike.ItVerbStringTaggedAs");
     }
 
     public Class<?> loadClass(String className, Module module) throws MalformedURLException, ClassNotFoundException {
@@ -137,7 +139,7 @@ public class ScalaTestAstTransformer {
         String finderClassName = null;
         Annotation[] annotations = null;
         for (String annotationFqn: annotationFqns) {
-            Option<ScAnnotation> annotationOption = suiteTypeDef.hasAnnotation(annotationFqn);
+            Option<ScAnnotation> annotationOption = suiteTypeDef.annotations(annotationFqn).headOption();
             if (annotationOption.isDefined() && annotationOption.get() != null) {
                 ScAnnotation styleAnnotation = annotationOption.get();
                 try {

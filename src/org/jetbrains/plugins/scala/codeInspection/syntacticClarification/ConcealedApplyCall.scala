@@ -9,4 +9,4 @@ import org.jetbrains.plugins.scala.lang.transformation.calls.ExpandApplyCall
 class ConcealedApplyCall extends TransformerBasedInspection(
   "Concealed \"apply\" call",
   "Make \"apply\" call explicit",
-  ExpandApplyCall)
+  new ExpandApplyCall())

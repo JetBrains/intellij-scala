@@ -364,7 +364,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case Some(e) => e.accept(this)
       case None =>
     }
-    if (isNodeNeeded) startNode(Some(ret)) {rs =>
+    if (isNodeNeeded) startNode(Some(ret)) { _ =>
       addPendingEdge(null, myHead)
     }
     else addPendingEdge(null, myHead)
@@ -453,7 +453,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
       case None => false
     })
     throwStmt.body.map(_.accept(this))
-    if (isNodeNeeded) startNode(Some(throwStmt)) {rs =>
+    if (isNodeNeeded) startNode(Some(throwStmt)) { _ =>
       addPendingEdge(null, myHead)
     }
     else addPendingEdge(null, myHead)

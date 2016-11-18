@@ -5,7 +5,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
@@ -53,5 +53,16 @@ class SourceFilterScope(myDelegate: GlobalSearchScope, project: Project) extends
 
   override def isSearchInLibraries: Boolean = {
     myDelegate == null || myDelegate.isSearchInLibraries
+  }
+}
+
+object ScalaSourceFilterScope {
+  def apply(scope: SearchScope, project: Project): SearchScope = scope match {
+    case global: GlobalSearchScope => new ScalaSourceFilterScope(global, project)
+    case local: LocalSearchScope =>
+      val filtered = local.getScope.filter(_.getLanguage == ScalaFileType.SCALA_LANGUAGE)
+      val displayName = local.getDisplayName + " in scala"
+      new LocalSearchScope(filtered, displayName, local.isIgnoreInjectedPsi)
+    case _ => scope
   }
 }

@@ -7,12 +7,8 @@ import com.intellij.psi.PsiElement
   * @author Pavel Fatin
   */
 abstract class AbstractTransformer extends Transformer {
-  protected implicit var project: Project = _
+  def transform(e: PsiElement): Boolean =
+    transformation(e.getProject).lift(e).nonEmpty
 
-  def transform(e: PsiElement): Boolean = {
-    project = e.getProject
-    transformation.lift(e).nonEmpty
-  }
-
-  def transformation: PartialFunction[PsiElement, Unit]
+  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit]
 }

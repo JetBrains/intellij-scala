@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandApplyCallTest extends TransformerTest(ExpandApplyCall,
+class ExpandApplyCallTest extends TransformerTest(new ExpandApplyCall(),
   """
      object O {
        def apply(p: A) {}

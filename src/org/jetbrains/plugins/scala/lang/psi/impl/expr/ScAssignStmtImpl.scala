@@ -30,7 +30,7 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
       case call: ScMethodCall => call.getType(ctx)
       case _ =>
         resolveAssignment match {
-          case Some(resolveResult) =>
+          case Some(_) =>
             mirrorMethodCall match {
               case Some(call) => call.getType(TypingContext.empty)
               case None => Success(Unit, Some(this))
@@ -87,9 +87,9 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
         ref.bind() match {
           case Some(r: ScalaResolveResult) =>
             ScalaPsiUtil.nameContext(r.element) match {
-              case v: ScVariable => None
+              case _: ScVariable => None
               case c: ScClassParameter if c.isVar => None
-              case f: PsiField => None
+              case _: PsiField => None
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
                 val processor = new MethodResolveProcessor(ref, ScalaNamesUtil.clean(fun.name) + "_=",
                   getRExpression.map(expr => List(Seq(new Expression(expr)))).getOrElse(Nil), Nil, ref.getPrevTypeInfoParams,

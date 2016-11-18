@@ -36,7 +36,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           val place: PsiElement,
                           val collectImplicits: Boolean = false,
                           forName: Option[String] = None,
-                          postProcess: ScalaResolveResult => Unit = r => {},
+                          postProcess: ScalaResolveResult => Unit = _ => {},
                           val includePrefixImports: Boolean = true)
                          (implicit override val typeSystem: TypeSystem)
   extends BaseProcessor(kinds) with PrecedenceHelper[QualifiedName] {
@@ -63,8 +63,8 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
   def getSignature(element: PsiNamedElement, substitutor: => ScSubstitutor): Option[Signature] = {
     element match {
       case method: PsiMethod => Some(new PhysicalSignature(method, substitutor))
-      case td: ScTypeAlias => None
-      case td: PsiClass => None
+      case _: ScTypeAlias => None
+      case _: PsiClass => None
       case _ => Some(new Signature(element.name, Seq.empty, 0, substitutor, element))
     }
   }
@@ -144,12 +144,12 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case named: PsiNamedElement =>
         if (kindMatches(element)) {
           element match {
-            case method: PsiMethod =>
+            case _: PsiMethod =>
               val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                 implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
                 importsUsed = importsUsed, prefixCompletion = prefixCompletion)
               _addResult(result)
-            case bindingPattern: ScBindingPattern =>
+            case _: ScBindingPattern =>
               val result = new ScalaResolveResult(named, substitutor, nameShadow = isRenamed,
                 implicitFunction = implFunction, isNamedParameter = isNamedParameter, fromType = fromType,
                 importsUsed = importsUsed, prefixCompletion = prefixCompletion)

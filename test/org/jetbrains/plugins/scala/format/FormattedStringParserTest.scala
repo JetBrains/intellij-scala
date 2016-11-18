@@ -5,7 +5,7 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
 /**
  * Pavel Fatin
@@ -126,9 +126,9 @@ class FormattedStringParserTest extends SimpleTestCase {
   }
 
   private def parse(formatString: String, arguments: Int*): List[StringPart] = {
-    val manager = PsiManager.getInstance(fixture.getProject)
-    val expressions = arguments.map(it => ScalaPsiElementFactory.createExpressionFromText(it.toString, manager))
-    val literal = ScalaPsiElementFactory.parseElement('"' + formatString + '"', manager).asInstanceOf[ScLiteral]
+    implicit val manager = PsiManager.getInstance(fixture.getProject)
+    val expressions = arguments.map(it => createExpressionFromText(it.toString))
+    val literal = createElementFromText('"' + formatString + '"', classOf[ScLiteral])
     FormattedStringParser.parseFormatCall(literal, expressions).toList
   }
 }

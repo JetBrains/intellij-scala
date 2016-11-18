@@ -13,7 +13,7 @@ class UnapplyMethodSearcher extends ApplyUnapplyMethodSearcherBase {
 
   protected def checkAndTransform(ref: PsiReference): Option[ResolvableReferenceElement] =
     (ref, ref.getElement.getContext) match {
-      case (sref: ScStableCodeReferenceElement, x: ScConstructorPattern) => Some(sref)
+      case (sref: ScStableCodeReferenceElement, _: ScConstructorPattern) => Some(sref)
       // TODO check every other ScConstructorPattern known to man?
       case _ => None
     }

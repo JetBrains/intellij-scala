@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
   * mattfowler
@@ -16,6 +16,6 @@ class RemoveNewQuickFix(param: ScNewTemplateDefinition) extends AbstractFixOnPsi
     val p = getElement
     if (!p.isValid) return
     p.findFirstChildByType(ScalaTokenTypes.kNEW).delete()
-    p.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(p.getText, p.getManager), false)
+    p.replaceExpression(createExpressionFromText(p.getText)(p.getManager), false)
   }
 }

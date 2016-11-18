@@ -15,7 +15,7 @@ class ScalaElseUnwrapper extends ScalaElseUnwrapperBase {
   override protected def unwrapElseBranch(expr: ScExpression, ifStmt: ScIfStmt, context: ScalaUnwrapContext) = {
     val from = maxIfStmt(ifStmt)
     val branch = expr match {
-      case elseIf @ ScIfStmt(_, Some(thenBr), _) => thenBr
+      case ScIfStmt(_, Some(thenBr), _) => thenBr
       case _ => expr
     }
     context.extractBlockOrSingleStatement(branch, from)

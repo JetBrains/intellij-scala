@@ -132,7 +132,7 @@ object NameSuggester {
 
     def addForParameterizedType(baseType: ScType, args: Seq[ScType]) {
       baseType match {
-        case ScProjectionType(p, ta: ScTypeAliasDefinition, _) =>
+        case ScProjectionType(_, ta: ScTypeAliasDefinition, _) =>
           ta.aliasedType match {
             case Success(ExtractClass(c), _) =>
               generateNamesByType(baseType)
@@ -213,7 +213,7 @@ object NameSuggester {
       case Short => addValTypeName(Short, 2)
       case Boolean => addValTypeName(Boolean)
       case Char => addValTypeName(Char)
-      case TupleType(comps) => add("tuple")
+      case TupleType(_) => add("tuple")
       case FunctionType(ret, params) => addForFunctionType(ret, params)
       case ScDesignatorType(e) => addForNamedElement(e)
       case parameterType: TypeParameterType => addForNamedElementString(parameterType.name)

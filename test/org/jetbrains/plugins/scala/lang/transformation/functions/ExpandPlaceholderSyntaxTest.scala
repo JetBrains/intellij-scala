@@ -4,7 +4,7 @@ package functions
 /**
   * @author Pavel Fatin
   */
-class ExpandPlaceholderSyntaxTest extends TransformerTest(ExpandPlaceholderSyntax) {
+class ExpandPlaceholderSyntaxTest extends TransformerTest(new ExpandPlaceholderSyntax()) {
   def testUnderscore() = check(
     "_.foo",
     "x => x.foo"

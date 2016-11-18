@@ -53,7 +53,7 @@ class CacheStatistics private(id: String, name: String) {
     var res = false
     objectsToKeepTrackOf.foreach {
       case WeakReference(el) if el.equals(obj) => res = objectsToKeepTrackOf.remove(el)
-      case WeakReference(el) =>
+      case WeakReference(_) =>
       case t => objectsToKeepTrackOf.remove(t) //weak refernce has expired
     }
     res

@@ -96,7 +96,7 @@ trait ScalaInplaceRenameHandler {
       case Both(`selected`, fun: ScFunction) if Seq("apply", "unapply", "unapplySeq").contains(fun.name) || fun.isConstructor =>
         specialMethodPopup(fun)
         null
-      case elem =>
+      case _ =>
         if (nameId != null) nameId.getParent match {
           case ref: ScReferenceElement if ScalaRenameUtil.isAliased(ref) =>
             aliasedElementPopup(ref)

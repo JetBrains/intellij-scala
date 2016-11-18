@@ -9,10 +9,10 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiMethod}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementMethod
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
 
@@ -32,10 +32,9 @@ class ScalaMethodImplementor extends MethodImplementor {
       td <- inClass.asOptionOf[ScTemplateDefinition].toSeq
       member <- ScalaOIUtil.getMembersToImplement(td).collect {case mm: ScMethodMember if mm.getElement == method => mm}
     } yield {
-      val specifyType = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
       val body = ScalaGenerationInfo.defaultValue(member.scType, inClass.getContainingFile)
-      val prototype = ScalaPsiElementFactory
-              .createOverrideImplementMethod(member.sign, inClass.getManager, needsOverrideModifier = true, specifyType, body)
+      val prototype = createOverrideImplementMethod(member.sign, needsOverrideModifier = true, body)(inClass.getManager)
+      TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
       prototypeToBaseMethod += (prototype -> method)
       prototype
     }).toArray

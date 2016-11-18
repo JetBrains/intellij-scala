@@ -42,7 +42,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
       case inf: ScInfixExpr if ref == inf.operation =>
         ContextInfo(if (ref.rightAssoc) Some(Seq(inf.lOp)) else inf.rOp match {
           case tuple: ScTuple => Some(tuple.exprs) // See SCL-2001
-          case unit: ScUnitExpr => Some(Nil) // See SCL-3485
+          case _: ScUnitExpr => Some(Nil) // See SCL-3485
           case e: ScParenthesisedExpr => e.expr match {
             case Some(expr) => Some(Seq(expr))
             case _ => Some(Nil)
@@ -95,50 +95,47 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
     val prevInfoTypeParams = reference.getPrevTypeInfoParams
 
     import reference.typeSystem
-    def nonAssignResolve: Array[ResolveResult] = {
-      def processor(smartProcessor: Boolean): MethodResolveProcessor =
-        new MethodResolveProcessor(reference, name, info.arguments.toList,
-          getTypeArgs(reference), prevInfoTypeParams, kinds(reference, reference, incomplete), expectedOption,
-          info.isUnderscore, shapesOnly, enableTupling = true) {
-          override def candidatesS: Set[ScalaResolveResult] = {
-            if (!smartProcessor) super.candidatesS
-            else {
-              val iterator = reference.shapeResolve.map(_.asInstanceOf[ScalaResolveResult]).iterator
-              while (iterator.hasNext) {
-                levelSet.add(iterator.next())
-              }
-              super.candidatesS
+
+    def processor(smartProcessor: Boolean): MethodResolveProcessor =
+      new MethodResolveProcessor(reference, name, info.arguments.toList,
+        getTypeArgs(reference), prevInfoTypeParams, kinds(reference, reference, incomplete), expectedOption,
+        info.isUnderscore, shapesOnly, enableTupling = true) {
+        override def candidatesS: Set[ScalaResolveResult] = {
+          if (!smartProcessor) super.candidatesS
+          else {
+            val iterator = reference.shapeResolve.map(_.asInstanceOf[ScalaResolveResult]).iterator
+            while (iterator.hasNext) {
+              levelSet.add(iterator.next())
             }
+            super.candidatesS
           }
         }
+      }
 
-      var result: Array[ResolveResult] = Array.empty
-      if (shapesOnly) {
+    var result: Array[ResolveResult] = Array.empty
+    if (shapesOnly) {
+      result = reference.doResolve(reference, processor(smartProcessor = false))
+    } else {
+      val candidatesS = processor(smartProcessor = true).candidatesS //let's try to avoid treeWalkUp
+      if (candidatesS.isEmpty || candidatesS.forall(!_.isApplicable())) {
+        // it has another resolve only in one case:
+        // clazz.ref(expr)
+        // clazz has method ref with one argument, but it's not ok
+        // so shape resolve return this wrong result
+        // however there is implicit conversion with right argument
+        // this is ugly, but it can improve performance
         result = reference.doResolve(reference, processor(smartProcessor = false))
       } else {
-        val candidatesS = processor(smartProcessor = true).candidatesS //let's try to avoid treeWalkUp
-        if (candidatesS.isEmpty || candidatesS.forall(!_.isApplicable())) {
-          // it has another resolve only in one case:
-          // clazz.ref(expr)
-          // clazz has method ref with one argument, but it's not ok
-          // so shape resolve return this wrong result
-          // however there is implicit conversion with right argument
-          // this is ugly, but it can improve performance
-          result = reference.doResolve(reference, processor(smartProcessor = false))
-        } else {
-          result = candidatesS.toArray
-        }
-      }
-      if (result.isEmpty && reference.isAssignmentOperator) {
-        val assignProcessor = new MethodResolveProcessor(reference, reference.refName.init, List(argumentsOf(reference)),
-          Nil, prevInfoTypeParams, isShapeResolve = shapesOnly, enableTupling = true)
-        result = reference.doResolve(reference, assignProcessor)
-        result.map(r => r.asInstanceOf[ScalaResolveResult].copy(isAssignment = true): ResolveResult)
-      } else {
-        result
+        result = candidatesS.toArray
       }
     }
-
-    nonAssignResolve
+    if (result.isEmpty && reference.isAssignmentOperator) {
+      val assignProcessor = new MethodResolveProcessor(reference, reference.refName.init, List(argumentsOf(reference)),
+        Nil, prevInfoTypeParams, isShapeResolve = shapesOnly, enableTupling = true)
+      result = reference.doResolve(reference, assignProcessor)
+      result.map(r => r.asInstanceOf[ScalaResolveResult].copy(isAssignment = true): ResolveResult)
+    } else {
+      result
+    }
   }
 }

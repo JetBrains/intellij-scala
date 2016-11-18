@@ -6,6 +6,8 @@ import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
   * @author Alefas
@@ -13,10 +15,13 @@ import org.jetbrains.plugins.scala.ScalaFileType
   */
 class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
   def shouldHighlight(file: PsiFile): Boolean = {
-    file.getFileType != ScalaFileType.SCALA_FILE_TYPE ||
-      !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) ||
-      (file.getViewProvider.getFileType == ScratchFileType.INSTANCE) ||
-      (file.getVirtualFile != null && file.getVirtualFile.getExtension == "sc")
+    file match {
+      case scalaFile: ScalaFile if scalaFile.getFileType == ScalaFileType.SCALA_FILE_TYPE => // can be for example sbt file type
+        !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) || 
+          scalaFile.getViewProvider.getFileType == ScratchFileType.INSTANCE || 
+          scalaFile.isScriptFile(true) || ScalaConsoleInfo.isConsole(file)
+      case _ => true
+    }
   }
 
   override def shouldProcessInBatch(file: PsiFile): Boolean = {

@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
+import java.awt.Point
 import java.util
 
 import com.intellij.openapi.Disposable
@@ -24,6 +25,8 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
     override def addListener(listener: Listener, disposable: Disposable): Unit = {}
 
     override def getInlineElementsInRange(i: Int, i1: Int): util.List[Inlay] = util.Arrays.asList()
+
+    override def getElementAt(point: Point): Inlay = null
   }
 
   override def offsetToLogicalPosition(offset: Int) = {

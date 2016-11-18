@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
@@ -33,7 +33,7 @@ object ConvertibleToMethodValueInspection {
 
 class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId, inspectionName){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case MethodRepr(expr, _, Some(ref), _)
+    case MethodRepr(_, _, Some(ref), _)
       if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty || hasByNameParam(srr.getElement)) =>
       //do nothing if implicit conversions or by-name params are involved
     case MethodRepr(expr, qualOpt, Some(_), args) =>
@@ -47,7 +47,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
       def mayReplace() = und.bindingExpr.get match {
         case ResolvesTo(fun) if hasByNameParam(fun) => false
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)
-        case e => true
+        case _ => true
       }
 
       if (!isInParameterOfParameterizedClass && mayReplace())
@@ -84,7 +84,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 
   private def methodWithoutArgumentsText(expr: ScExpression): Seq[String] = expr match {
     case call: ScMethodCall => Seq(call.getEffectiveInvokedExpr.getText)
-    case ScInfixExpr(_, oper, right) if !ScalaNamesUtil.isOperatorName(oper.refName) =>
+    case ScInfixExpr(_, oper, _) if !ScalaNamesUtil.isOperatorName(oper.refName) =>
       val infixCopy = expr.copy.asInstanceOf[ScInfixExpr]
       infixCopy.getNode.removeChild(infixCopy.rOp.getNode)
       Seq(infixCopy.getText)
@@ -94,7 +94,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
 
   private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String)
                                   (implicit typeSystem: TypeSystem = oldExpr.typeSystem): Boolean = {
-    val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
+    val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
       case Some(expectedType) if FunctionType.isFunctionType(expectedType) =>
         def conformsExpected(expr: ScExpression): Boolean = expr.getType().getOrAny conforms expectedType
@@ -131,7 +131,7 @@ class ConvertibleToMethodValueQuickFix(expr: ScExpression, replacement: String, 
   def doApplyFix(project: Project) {
     val scExpr = getElement
     if (!scExpr.isValid) return
-    val newExpr = ScalaPsiElementFactory.createExpressionFromText(replacement, scExpr.getManager)
+    val newExpr = createExpressionFromText(replacement)(scExpr.getManager)
     scExpr.replaceExpression(newExpr, removeParenthesis = true)
   }
 }

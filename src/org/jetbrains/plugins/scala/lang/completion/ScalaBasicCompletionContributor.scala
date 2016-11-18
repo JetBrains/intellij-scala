@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -144,10 +144,10 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     }
                   case _ if lookingForAnnotations =>
                   case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => //don't show _= methods for vars in basic completion
-                  case fun: ScFun => addElement(el)
-                  case param: ScClassParameter =>
+                  case _: ScFun => addElement(el)
+                  case _: ScClassParameter =>
                     addElement(el)
-                  case param: ScParameter if !el.isNamedParameter=>
+                  case _: ScParameter if !el.isNamedParameter=>
                     el.isLocalVariable = true
                     addElement(el)
                   case patt: ScBindingPattern =>
@@ -159,7 +159,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                       case sVar: ScVariable if sVar.isLocal =>
                         el.isLocalVariable = true
                         addElement(el)
-                      case caseClasuse: ScCaseClause =>
+                      case _: ScCaseClause | _: ScEnumerator | _: ScGenerator =>
                         el.isLocalVariable = true
                         addElement(el)
                       case memb: PsiMember =>
@@ -198,7 +198,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           @tailrec
           def addThisAndSuper(elem: PsiElement): Unit = {
             elem match {
-              case t: ScNewTemplateDefinition => //do nothing, impossible to invoke
+              case _: ScNewTemplateDefinition => //do nothing, impossible to invoke
               case t: ScTemplateDefinition =>
                 addElement(new ScalaLookupItem(t, t.name + ".this"))
                 addElement(new ScalaLookupItem(t, t.name + ".super"))

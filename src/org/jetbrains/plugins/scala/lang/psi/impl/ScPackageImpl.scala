@@ -9,7 +9,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -106,16 +107,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
     Option(tuple._1)
   }
 
-  override def getParentPackage: PsiPackageImpl = {
-    val myQualifiedName = getQualifiedName
-    if (myQualifiedName.length == 0) return null
-    val lastDot: Int = myQualifiedName.lastIndexOf('.')
-    if (lastDot < 0) {
-      ScPackageImpl.findPackage(getProject, "")
-    } else {
-      ScPackageImpl.findPackage(getProject, myQualifiedName.substring(0, lastDot))
-    }
-  }
+  override def getParentPackage: PsiPackageImpl = ScalaPsiUtil.parentPackage(getQualifiedName, getProject).orNull
 
   override def getSubPackages: Array[PsiPackage] = {
     super.getSubPackages.map(ScPackageImpl(_))
@@ -126,6 +118,11 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
   }
 
   override def isValid: Boolean = true
+
+  override def parentScalaPackage: Option[ScPackageLike] = getParentPackage match {
+    case p: ScPackageLike => Option(p)
+    case _ => None
+  }
 }
 
 object ScPackageImpl {
@@ -139,6 +136,12 @@ object ScPackageImpl {
 
   def findPackage(project: Project, pName: String): ScPackageImpl = {
     ScPackageImpl(ScalaPsiManager.instance(project).getCachedPackage(pName).orNull)
+  }
+
+  def ofPackageObject(o: ScObject): PsiPackage = {
+    assert(o.isPackageObject)
+    val qualName = o.qualifiedName.stripSuffix(".`package`")
+    findPackage(o.getProject, qualName)
   }
 
   class DoNotProcessPackageObjectException extends ControlThrowable

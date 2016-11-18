@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandTupleTypeTest extends TransformerTest(ExpandTupleType) {
+class ExpandTupleTypeTest extends TransformerTest(new ExpandTupleType()) {
   def testTuple2() = check(
     "val v: (A, B)",
     "val v: Tuple2[A, B]"

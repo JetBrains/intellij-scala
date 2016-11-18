@@ -10,7 +10,7 @@ trait Bounds extends TypeSystemOwner {
 
   def glb(types: Seq[ScType], checkWeak: Boolean): ScType
 
-  def lub(first: ScType, second: ScType, checkWeak: Boolean = false): ScType
+  def lub(first: ScType, second: ScType, checkWeak: Boolean = true): ScType
 
   def lub(types: Seq[ScType], checkWeak: Boolean): ScType
 }

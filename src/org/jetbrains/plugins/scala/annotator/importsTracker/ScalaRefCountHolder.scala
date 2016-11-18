@@ -98,12 +98,12 @@ class ScalaRefCountHolder private () {
   }
 
 
-  def retrieveUnusedReferencesInfo(analyze: Runnable): Boolean = {
+  def retrieveUnusedReferencesInfo(analyze: () => Unit): Boolean = {
     if (!myState.compareAndSet(State.READY, State.READ)) {
       return false
     }
     try {
-      analyze.run()
+      analyze()
     }
     finally {
       val set: Boolean = myState.compareAndSet(State.READ, State.READY)

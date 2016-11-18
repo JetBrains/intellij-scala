@@ -5,8 +5,9 @@ package stubs
 package elements
 package signatures
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl
+import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,9 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
  */
 
 class ScParameterElementType extends ScParamElementType[ScParameter]("parameter") {
+  override def createElement(node: ASTNode): ScParameter = new ScParameterImpl(node)
 
-
-  def createPsi(stub: ScParameterStub): ScParameter = {
-    new ScParameterImpl(stub)
-  }
+  override def createPsi(stub: ScParameterStub): ScParameter = new ScParameterImpl(stub)
 }

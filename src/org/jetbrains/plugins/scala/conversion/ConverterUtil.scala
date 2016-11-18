@@ -82,10 +82,10 @@ object ConverterUtil {
 
   def canDropElement(element: PsiElement): Boolean = {
     element match {
-      case s: PsiWhiteSpace => true
-      case c: PsiComment => true
-      case a: PsiModifierList => true
-      case r: PsiAnnotation => true
+      case _: PsiWhiteSpace => true
+      case _: PsiComment => true
+      case _: PsiModifierList => true
+      case _: PsiAnnotation => true
       case t: PsiJavaToken =>
         val drop = Seq(JavaTokenType.PUBLIC_KEYWORD, JavaTokenType.PROTECTED_KEYWORD, JavaTokenType.PRIVATE_KEYWORD,
           JavaTokenType.STATIC_KEYWORD, JavaTokenType.ABSTRACT_KEYWORD, JavaTokenType.FINAL_KEYWORD,
@@ -131,7 +131,7 @@ object ConverterUtil {
       elem = elem.getNextSibling
       buf += elem
     }
-    buf.toArray
+    buf.filter(el => el!= null && el.isValid).toArray
   }
 
   def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
@@ -179,7 +179,7 @@ object ConverterUtil {
 
   def compareTextNEq(text1: String, text2: String): Boolean = {
     def textWithoutLastSemicolon(text: String) = {
-      if (text.last == ';') text.substring(0, text.length - 1)
+      if (text != null && text.nonEmpty && text.last == ';') text.substring(0, text.length - 1)
       else text
     }
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)

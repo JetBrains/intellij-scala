@@ -26,7 +26,7 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
     } catch {
-      case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
+      case _: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
 } with LightMethodAdapter(constr.getManager, method, containingClass) with LightScalaMethod {
@@ -101,7 +101,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
     } catch {
-      case e: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
+      case _: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
     }
   }
 } with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
@@ -194,7 +194,7 @@ object ScFunctionWrapper {
         builder.append(function.typeParameters.map(tp => {
           var res = tp.name
           tp.upperTypeElement match {
-            case Some(tParam) =>
+            case Some(_) =>
               val classes = new ArrayBuffer[String]()
               val project = function.getProject
               implicit val typeSystem = project.typeSystem

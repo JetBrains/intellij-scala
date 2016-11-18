@@ -10,12 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
  * Nikolay.Tropin
@@ -52,9 +53,9 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
     val holder = anchor.getParent
     val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
 
-    val entity = holder.addAfter(parseElement(text, td.getManager), anchor)
-
-    if (hasMembers) holder.addAfter(createNewLine(td.getManager), entity)
+    implicit val manager = td.getManager
+    val entity = holder.addAfter(createElementFromText(text), anchor)
+    if (hasMembers) holder.addAfter(createNewLine(), entity)
 
     entity
   }
@@ -76,6 +77,10 @@ abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
       val entity = createEntity(td.extendsBlock, methodText).asInstanceOf[ScFunction]
 
       ScalaPsiUtil.adjustTypes(entity)
+      entity match {
+        case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
+        case _ =>
+      }
 
       val builder = new TemplateBuilderImpl(entity)
 

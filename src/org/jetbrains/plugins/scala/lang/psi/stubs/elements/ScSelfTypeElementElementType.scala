@@ -4,50 +4,48 @@ package psi
 package stubs
 package elements
 
-
+import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex.KEY
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 19.06.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 19.06.2009
+  */
+class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementStub, ScSelfTypeElement]("self type element") {
 
-class ScSelfTypeElementElementType[Func <: ScSelfTypeElement]
-        extends ScStubElementType[ScSelfTypeElementStub, ScSelfTypeElement]("self type element") {
-  def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream) {
+  override def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeName(stub.getTypeElementText)
-    val names = stub.getClassNames
-    dataStream.writeInt(names.length)
-    names.foreach(dataStream.writeName(_))
+    dataStream.writeOptionName(stub.typeElementText)
+    dataStream.writeNames(stub.classNames)
   }
 
-  def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = {
-    new ScSelfTypeElementImpl(stub)
-  }
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
+    new ScSelfTypeElementStubImpl(parentStub, this,
+      nameRef = dataStream.readName,
+      typeElementTextRef = dataStream.readOptionName,
+      typeNamesRefs = dataStream.readNames)
 
-  def createStubImpl[ParentPsi <: PsiElement](psi: ScSelfTypeElement, parentStub: StubElement[ParentPsi]): ScSelfTypeElementStub = {
-    new ScSelfTypeElementStubImpl(parentStub, this, psi.name, psi.typeElement match {case None => "" case Some(x) => x.getText},
-      psi.getClassNames)
-  }
-
-  def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScSelfTypeElementStub = {
-    val name = dataStream.readName
-    val typeElementText = dataStream.readName
-    val n = dataStream.readInt()
-    val names = 1.to(n).map(_ => dataStream.readName().toString).toArray
-    new ScSelfTypeElementStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this, name.toString,
-      typeElementText.toString, names)
-  }
-
-  def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink) {
-    for (name <- stub.getClassNames) {
-      sink.occurrence(ScSelfTypeInheritorsIndex.KEY, name)
+  override def createStub(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
+    val typeElementText = typeElement.typeElement.map {
+      _.getText
     }
+
+    new ScSelfTypeElementStubImpl(parentStub, this,
+      nameRef = StringRef.fromString(typeElement.name),
+      typeElementTextRef = typeElementText.asReference,
+      typeNamesRefs = typeElement.classNames.asReferences)
   }
+
+  override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit =
+    this.indexStub(stub.classNames, sink, KEY)
+
+  override def createElement(node: ASTNode): ScSelfTypeElement = new ScSelfTypeElementImpl(node)
+
+  override def createPsi(stub: ScSelfTypeElementStub): ScSelfTypeElement = new ScSelfTypeElementImpl(stub)
 }

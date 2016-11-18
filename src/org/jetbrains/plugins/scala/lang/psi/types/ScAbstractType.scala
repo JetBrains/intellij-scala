@@ -35,7 +35,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
                          (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case _ if falseUndef => (false, uSubst)
-      case rt =>
+      case _ =>
         var t: (Boolean, ScUndefinedSubstitutor) = r.conforms(upper, uSubst)
         if (!t._1) return (false, uSubst)
         t = lower.conforms(r, t._2)
@@ -68,7 +68,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
             upper.recursiveUpdate(update, newVisited))
         }
         catch {
-          case cce: ClassCastException => throw new RecursiveUpdateException
+          case _: ClassCastException => throw new RecursiveUpdateException
         }
     }
   }
@@ -84,7 +84,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
             upper.recursiveVarianceUpdateModifiable(newData, update, variance))
         }
         catch {
-          case cce: ClassCastException => throw new RecursiveUpdateException
+          case _: ClassCastException => throw new RecursiveUpdateException
         }
     }
   }

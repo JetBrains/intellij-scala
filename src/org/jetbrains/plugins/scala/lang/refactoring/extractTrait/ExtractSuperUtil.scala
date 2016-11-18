@@ -15,14 +15,13 @@ import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.RefactoringMessageUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClassTemplateParents
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
 
 import scala.collection.JavaConverters._
@@ -77,24 +76,24 @@ object ExtractSuperUtil {
     }
   }
 
-  def packageName(clazz: ScTemplateDefinition): String = {
-    clazz.containingFile match {
-      case Some(f: ScalaFile) => f.getPackageName
-      case _ => ""
-    }
-  }
+  def packageName(clazz: ScTemplateDefinition): String =
+    clazz.containingScalaFile.map {
+      _.getPackageName
+    }.getOrElse("")
 
   def addExtendsTo(clazz: ScTemplateDefinition, typeToExtend: ScTypeDefinition, parameters: String = "") {
     val name = typeToExtend.name
     val text = name + parameters
     val oldExtBlock = clazz.extendsBlock
+    implicit val manager = clazz.getManager
+
     val templParents = oldExtBlock.templateParents match {
       case Some(tp: ScTemplateParents) =>
         val tpText = s"${tp.getText} with $text"
-        val (_, newTp) = ScalaPsiElementFactory.createClassTemplateParents(tpText, clazz.getManager)
+        val (_, newTp) = createClassTemplateParents(tpText)
         tp.replace(newTp).asInstanceOf[ScTemplateParents]
       case None =>
-        val (extKeyword, newTp) = ScalaPsiElementFactory.createClassTemplateParents(text, clazz.getManager)
+        val (extKeyword, newTp) = createClassTemplateParents(text)
         oldExtBlock.addRangeBefore(extKeyword, newTp, oldExtBlock.getFirstChild)
         oldExtBlock.templateParents.get
     }
@@ -140,7 +139,7 @@ object ExtractSuperUtil {
     clazz.members.filter {
       case m if m.isPrivate => false
       case fun: ScFunction if fun.isConstructor => false
-      case td: ScTypeDefinition => false
+      case _: ScTypeDefinition => false
       case _: ScPrimaryConstructor => false
       case _ => true
     }.map(new ScalaExtractMemberInfo(_)).asJava

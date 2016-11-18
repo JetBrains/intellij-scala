@@ -16,7 +16,7 @@ import scala.collection.immutable.IndexedSeq
 
 object ParserUtils extends ParserUtilsBase {
 
-  def lookAheadSeq(n: Int)(builder: PsiBuilder): IndexedSeq[IElementType] = (1 to n).map(i => {
+  def lookAheadSeq(n: Int)(builder: PsiBuilder): IndexedSeq[IElementType] = (1 to n).map(_ => {
     val token = if (!builder.eof) builder.getTokenType else null
     builder.advanceLexer()
     token

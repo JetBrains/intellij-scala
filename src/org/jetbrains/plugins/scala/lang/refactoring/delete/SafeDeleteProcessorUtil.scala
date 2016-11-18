@@ -306,7 +306,7 @@ object SafeDeleteProcessorUtil {
       privateModifierList.setModifierProperty(PsiModifier.PRIVATE, true)
     }
     catch {
-      case e: IncorrectOperationException => {
+      case _: IncorrectOperationException => {
         LOG.assertTrue(false)
         return false
       }

@@ -132,7 +132,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     typeArgList.typeArgs.find {
       case e: ScFunctionalTypeElement if isKindProjectorFunctionSyntax(e) => true
       case e if isKindProjectorInlineSyntax(e) => true
-      case e: ScWildcardTypeElementImpl => true
+      case _: ScWildcardTypeElementImpl => true
       case _ => false
     } match {
       case Some(fun) if isKindProjectorFunctionSyntax(fun) => kindProjectorFunctionSyntax(fun)
@@ -165,17 +165,17 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
           case Some(ref) =>
             if (ref.isConstructorReference) {
               ref.resolveNoConstructor match {
-                case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
+                case Array(ScalaResolveResult(to: ScTypeParametersOwner, _: ScSubstitutor))
                   if to.isInstanceOf[PsiNamedElement] =>
                   return tr //all things were done in ScSimpleTypeElementImpl.innerType
-                case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
+                case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, _: ScSubstitutor))
                   if to.isInstanceOf[PsiNamedElement] =>
                   return tr //all things were done in ScSimpleTypeElementImpl.innerType
                 case _ =>
               }
             }
             ref.bind() match {
-              case Some(ScalaResolveResult(e: PsiMethod, _)) =>
+              case Some(ScalaResolveResult(_: PsiMethod, _)) =>
                 return tr //all things were done in ScSimpleTypeElementImpl.innerType
               case _ =>
             }
@@ -230,14 +230,14 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
                         val upperBound = text.indexOf("<:")
                         //we have to call processor execute so both `+A` and A resolve: Lambda[`+A` => (A, A)]
                         processor.execute(tp, state)
-                        processor.execute(new ScSyntheticClass(getManager, s"`$text`", Any), state)
+                        processor.execute(new ScSyntheticClass(s"`$text`", Any), state)
                         if (lowerBound < 0 && upperBound > 0) {
-                          processor.execute(new ScSyntheticClass(getManager, text.substring(0, upperBound), Any), state)
+                          processor.execute(new ScSyntheticClass(text.substring(0, upperBound), Any), state)
                         } else if (upperBound < 0 && lowerBound > 0) {
-                          processor.execute(new ScSyntheticClass(getManager, text.substring(0, lowerBound), Any), state)
+                          processor.execute(new ScSyntheticClass(text.substring(0, lowerBound), Any), state)
                         } else if (upperBound > 0 && lowerBound > 0) {
                           val actualText = text.substring(0, math.min(lowerBound, upperBound))
-                          processor.execute(new ScSyntheticClass(getManager, actualText, Any), state)
+                          processor.execute(new ScSyntheticClass(actualText, Any), state)
                         }
                       }
                     case _ =>
@@ -248,9 +248,8 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
             }
             case _ =>
           }
-          val manager = getManager
-          processor.execute(new ScSyntheticClass(manager, "+", Any), state)
-          processor.execute(new ScSyntheticClass(manager, "-", Any), state)
+          processor.execute(new ScSyntheticClass("+", Any), state)
+          processor.execute(new ScSyntheticClass("-", Any), state)
         case _ =>
       }
     }

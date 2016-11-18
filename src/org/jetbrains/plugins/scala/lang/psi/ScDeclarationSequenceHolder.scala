@@ -23,12 +23,16 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
       lastParent: PsiElement,
       place: PsiElement): Boolean = {
     def processElement(e: PsiElement, state: ResolveState): Boolean = {
-      def isOkForFakeCompanionModule(t: ScTypeDefinition): Boolean = {
-        (processor match {
+      def isOkCompanionModule = {
+        processor match {
           case b: BaseProcessor =>
             b.kinds.contains(ResolveTargets.OBJECT) || b.kinds.contains(ResolveTargets.VAL)
           case _ => true
-        }) && t.fakeCompanionModule.isDefined
+        }
+      }
+
+      def isOkForFakeCompanionModule(t: ScTypeDefinition): Boolean = {
+        isOkCompanionModule && t.fakeCompanionModule.isDefined
       }
 
       e match {

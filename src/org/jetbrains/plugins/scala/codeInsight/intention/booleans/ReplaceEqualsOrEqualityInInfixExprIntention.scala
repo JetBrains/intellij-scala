@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
  * @author Ksenia.Sautina
@@ -52,7 +52,7 @@ class ReplaceEqualsOrEqualityInInfixExprIntention extends PsiElementBaseIntentio
     expr.append(infixExpr.getBaseExpr.getText).append(" ").append(replaceOper(infixExpr.operation.nameId.getText)).
             append(" ").append(infixExpr.getArgExpr.getText)
 
-    val newInfixExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
+    val newInfixExpr = createExpressionFromText(expr.toString())(element.getManager)
 
     val size = newInfixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
             newInfixExpr.getTextRange.getStartOffset

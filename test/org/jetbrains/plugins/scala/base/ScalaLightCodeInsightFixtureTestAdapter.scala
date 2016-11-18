@@ -25,17 +25,21 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with TestFixtureProvider {
   protected val CARET_MARKER = ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
-  private var libLoader: ScalaLibraryLoader = null
+  private var libLoader: ScalaLibraryLoader = _
 
   override protected def setUp() {
     super.setUp()
 
-    myFixture.allowTreeAccessForAllFiles()
-    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
-    libLoader.loadScala(libVersion)
+    if (loadScalaLibrary) {
+      myFixture.allowTreeAccessForAllFiles()
+      libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
+      libLoader.loadScala(libVersion)
+    }
   }
 
   protected def libVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION
+
+  protected def loadScalaLibrary = true
 
   protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
     myFixture.configureByText("dummy.scala", text)
@@ -187,12 +191,15 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
           }
         }, "", null)
         myFixture.checkResult(assumedStub, /*stripTrailingSpaces = */true)
-      case _ => assert(false, "There is no fixes with such hint.")
+      case _ => assert(assertion = false, "There is no fixes with such hint.")
     }
   }
 
   protected override def tearDown() {
-    libLoader.clean()
+    if (libLoader != null) {
+      libLoader.clean()
+    }
+    libLoader = null
     super.tearDown()
   }
 

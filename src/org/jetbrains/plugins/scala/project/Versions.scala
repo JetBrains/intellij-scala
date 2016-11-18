@@ -10,21 +10,21 @@ import scala.util.matching.Regex
  * @author Pavel Fatin
  */
 object Versions extends Versions {
-  val DefaultScalaVersion = Scala.defaultVersion
+  val DefaultScalaVersion: String = Scala.defaultVersion
 
-  val DefaultSbtVersion = Sbt.defaultVersion
+  val DefaultSbtVersion: String = Sbt.defaultVersion
 
-  override protected val releaseVersionLine = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
+  override protected val releaseVersionLine: Regex = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
 
   def loadScalaVersions: Array[String] = loadVersionsOf(Scala)
 
   def loadSbtVersions: Array[String] = loadVersionsOf(Sbt)
 
   private object Scala extends Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-    Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.5"))
+    Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.6", "2.11.8"))
 
-  private object Sbt extends Entity("http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/launcher/",
-    Version("0.12.0"), Seq("0.12.4", "0.13.7"))
+  private object Sbt extends Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
+    Version("0.12.0"), Seq("0.12.4", "0.13.13"))
 }
 
 trait Versions {

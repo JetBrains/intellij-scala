@@ -32,7 +32,7 @@ object TypeConstruction {
   def createIntermediateTypePresentation(inType: PsiType, inProject: Project): IntermediateNode = {
     val buffer = new ArrayBuffer[(IntermediateNode, Option[String])]()
     implicit val typeSystem = inProject.typeSystem
-    val result = getParts(inType.toScType(inProject, paramTopLevel = true), buffer)
+    val result = getParts(inType.toScType(paramTopLevel = true), buffer)
 
     result match {
       case parametrized: ParametrizedConstruction =>

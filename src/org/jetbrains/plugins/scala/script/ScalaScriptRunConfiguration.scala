@@ -81,7 +81,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
       }
     }
     catch {
-      case e: Exception => fileNotFoundError()
+      case _: Exception => fileNotFoundError()
     }
 
     val module = getModule
@@ -127,7 +127,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
       module = ModuleUtilCore.findModuleForFile(file, getProject)
     }
     catch {
-      case e: Exception =>
+      case _: Exception =>
     }
     if (module == null) module = getConfigurationModule.getModule
     module
@@ -183,7 +183,7 @@ class ScalaScriptRunConfiguration(val project: Project, val configurationFactory
   }
 
   def getRefactoringElementListener(element: PsiElement): RefactoringElementListener = element match {
-    case file: ScalaFile => new RefactoringElementAdapter {
+    case _: ScalaFile => new RefactoringElementAdapter {
       def elementRenamedOrMoved(newElement: PsiElement): Unit = {
         newElement match {
           case f: ScalaFile =>

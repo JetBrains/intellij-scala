@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandSetterCallTest extends TransformerTest(ExpandSetterCall,
+class ExpandSetterCallTest extends TransformerTest(new ExpandSetterCall(),
   """
      object O {
        var v1: A = _

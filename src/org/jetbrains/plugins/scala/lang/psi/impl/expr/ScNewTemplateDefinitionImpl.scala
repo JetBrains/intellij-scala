@@ -72,7 +72,7 @@ class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinitio
           tp.allTypeElements.head.getNonValueType(ctx)
         case _ =>
           superTypes.headOption match {
-            case s@Some(t) => Success(t, Some(this))
+            case Some(t) => Success(t, Some(this))
             case None => Success(AnyRef, Some(this)) //this is new {} case
           }
       }
@@ -93,15 +93,9 @@ class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinitio
   override def getName: String = name
 
   override def getSupers: Array[PsiClass] = {
-    val direct = extendsBlock.supers.filter {
-      case clazz: PsiClass => clazz.qualifiedName != "scala.ScalaObject"
-      case _               => true
+    extendsBlock.supers.filter { clazz =>
+      clazz != this && clazz.qualifiedName != "scala.ScalaObject"
     }.toArray
-    val res = new ArrayBuffer[PsiClass]
-    res ++= direct
-    for (sup <- direct if !res.contains(sup)) res ++= sup.getSupers
-    // return strict superclasses
-    res.filter(_ != this).toArray
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,

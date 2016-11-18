@@ -30,7 +30,7 @@ trait SimpleResolveTestBase {
     var tgt: PsiElement = null
     def configureFile(file: (String, String), configureFun: (String, String) => PsiFile) = {
       val (source, fileName) = file
-      val trimmed = source.trim
+      val trimmed = source.trim.replace("\r", "")
       val srcOffset = trimmed.replaceAll(REFTGT, "").indexOf(REFSRC)
       val tgtOffset = trimmed.replaceAll(REFSRC, "").indexOf(REFTGT)
       val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT,""))

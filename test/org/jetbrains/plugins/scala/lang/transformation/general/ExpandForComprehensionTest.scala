@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class ExpandForComprehensionTest extends TransformerTest(ExpandForComprehension) {
+class ExpandForComprehensionTest extends TransformerTest(new ExpandForComprehension()) {
   def testForeach() = check(
     "for(v <- Seq(A)) { v.a() }",
     "Seq(A).foreach(v => v.a())"

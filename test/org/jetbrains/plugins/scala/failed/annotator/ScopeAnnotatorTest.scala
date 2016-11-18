@@ -40,6 +40,26 @@ class ScopeAnnotatorTest extends AnnotatorTestBase(new MyAnnotatorPart) {
         |}
       """.stripMargin).isEmpty
   )
+
+  def testSCL3137(): Unit = assert(
+    messages(
+      """
+        |package a {
+        |  class Foo
+        |}
+        |
+        |package b {
+        |  class Foo
+        |}
+        |
+        |package c {
+        |  trait Bar {
+        |    def foo(foo: a.Foo) {}
+        |    def foo(foo: b.Foo) {}
+        |  }
+        |}
+      """.stripMargin).isEmpty
+  )
 }
 
 object ScopeAnnotatorTest {

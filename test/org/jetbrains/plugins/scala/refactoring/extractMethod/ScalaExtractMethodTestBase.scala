@@ -12,6 +12,8 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
 
 /**
@@ -25,7 +27,8 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
 
   def folderPath: String = baseRootPath() + "extractMethod/"
 
-  protected def doTest() {
+  protected def doTest(settings: ScalaCodeStyleSettings
+                       = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter))) {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
@@ -49,6 +52,9 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
+    val oldSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter).clone()
+    TypeAnnotationSettings.set(getProjectAdapter, settings)
+
     //start to inline
     try {
       val handler = new ScalaExtractMethodHandler
@@ -69,6 +75,8 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
         assertTrue("Test result must be in last comment statement.", false)
         ""
     }
+    
+    TypeAnnotationSettings.set(getProjectAdapter, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
     assertEquals(output, res)
   }
 }

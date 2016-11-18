@@ -27,6 +27,85 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
 
   override protected def annotation: String = InspectionBundle.message("convert.expression.to.sam")
 
+  def testOverloads(): Unit = {
+    val code =
+      """
+        |object Bug1 {
+        |
+        |  trait SAM1 {
+        |    def foo(): Int
+        |  }
+        |
+        |  trait SAM2 {
+        |    def foo(): String
+        |  }
+        |
+        |  def foo(s: SAM1): Unit = {
+        |
+        |  }
+        |
+        |  def foo(s: SAM2): Unit = {
+        |
+        |  }
+        |
+        |  foo(new SAM1 {
+        |    override def foo(): Int = 2
+        |  })
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
+
+  def testReturn(): Unit = {
+    val code =
+      """
+        |trait A {
+        |  def foo(): String
+        |}
+        |
+        |def foo(): Unit = {
+        |  val s: A = new A {
+        |    override def foo(): String = {
+        |      if (true) return ""
+        |      println("AAA")
+        |      "A"
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
+
+  def testInfix(): Unit = {
+    val code =
+      s"""
+         |object Koo {
+         |  def foo(r: Runnable) = r.run()
+         |}
+         |Koo foo ${START}new Runnable $END{
+         |  override def run(): Unit = ???
+         |}
+      """.stripMargin
+    checkTextHasError(code)
+    val before =
+      """
+        |object Koo {
+        |  def foo(r: Runnable) = r.run()
+        |}
+        |Koo foo new Runnable {
+        |  override def run(): Unit = ???
+        |}
+      """.stripMargin
+    val after =
+      """
+        |object Koo {
+        |  def foo(r: Runnable) = r.run()
+        |}
+        |Koo foo (() => ???)
+      """.stripMargin
+    testFix(before, after, annotation)
+  }
+
   def testThreadRunnable(): Unit = {
     val code =
       s"""

@@ -51,7 +51,7 @@ trait ApplicationAnnotator {
                     // handled in bulk above
                   case DoesNotTakeTypeParameters =>
                     holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall), f.name + " does not take type parameters")
-                  case ExcessTypeArgument(arg) =>
+                  case ExcessTypeArgument(arg) if inSameFile(arg, holder) =>
                     holder.createErrorAnnotation(arg, "Too many type arguments for " + f.name)
                   case DefaultTypeParameterMismatch(expected, actual) => genCall.typeArgs match {
                     case Some(typeArgs) =>
@@ -71,65 +71,50 @@ trait ApplicationAnnotator {
                     "Unspecified value parameters: " + missed.mkString(", "))
                   addCreateFromUsagesQuickFixes(reference, holder)
                 }
+                val (problems, fun) = call.applyOrUpdateElement match {
+                  case Some(rr) =>
+                    (rr.problems, rr.element)
+                  case _ => (r.problems, f)
+                }
 
-                r.problems.foreach {
+                problems.foreach {
                   case DoesNotTakeParameters() =>
-                    holder.createErrorAnnotation(call.argsElement, f.name + " does not take parameters")
+                    holder.createErrorAnnotation(call.argsElement, fun.name + " does not take parameters")
                     addCreateFromUsagesQuickFixes(reference, holder)
-                  case ExcessArgument(argument) =>
-                    if (argument != null) {
-                      holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(f))
+                  case ExcessArgument(argument) if inSameFile(argument, holder) =>
+                    holder.createErrorAnnotation(argument, "Too many arguments for method " + nameOf(fun))
+                    addCreateFromUsagesQuickFixes(reference, holder)
+                  case TypeMismatch(expression, expectedType) if inSameFile(expression, holder) =>
+                    for (t <- expression.getType(TypingContext.empty)) {
+                      //TODO show parameter name
+                      val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
+                      val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
+                      val annotation = holder.createErrorAnnotation(expression, message)
+                      annotation.registerFix(ReportHighlightingErrorQuickFix)
                       addCreateFromUsagesQuickFixes(reference, holder)
-                    } else {
-                      //TODO investigate case when argument is null. It's possible when new Expression(ScType)
-                    }
-                  case TypeMismatch(expression, expectedType) =>
-                    if (expression != null)
-                      for (t <- expression.getType(TypingContext.empty)) {
-                        //TODO show parameter name
-                        val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
-                        val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
-                        val annotation = holder.createErrorAnnotation(expression, message)
-                        annotation.registerFix(ReportHighlightingErrorQuickFix)
-                        addCreateFromUsagesQuickFixes(reference, holder)
-                      }
-                    else {
-                      //TODO investigate case when expression is null. It's possible when new Expression(ScType)
                     }
                   case MissedValueParameter(_) => // simultaneously handled above
                   case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
                   case MalformedDefinition() =>
                     holder.createErrorAnnotation(call.getInvokedExpr, f.name + " has malformed definition")
-                  case ExpansionForNonRepeatedParameter(expression) =>
-                    if (expression != null) {
-                      holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
-                    } else {
-                      //TODO investigate case when expression is null. It's possible when new Expression(ScType)
-                    }
-                  case PositionalAfterNamedArgument(argument) =>
-                    if (argument != null) {
-                      holder.createErrorAnnotation(argument, "Positional after named argument")
-                    } else {
-                      //TODO investigate case when argument is null. It's possible when new Expression(ScType)
-                    }
-                  case ParameterSpecifiedMultipleTimes(assignment) =>
-                    if (assignment != null) {
-                      holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
-                    } else {
-                      //TODO investigate case when assignment is null. It's possible when new Expression(ScType)
-                    }
+                  case ExpansionForNonRepeatedParameter(expression) if inSameFile(expression, holder) =>
+                    holder.createErrorAnnotation(expression, "Expansion for non-repeated parameter")
+                  case PositionalAfterNamedArgument(argument) if inSameFile(argument, holder) =>
+                    holder.createErrorAnnotation(argument, "Positional after named argument")
+                  case ParameterSpecifiedMultipleTimes(assignment) if inSameFile(assignment, holder) =>
+                    holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
                   case WrongTypeParameterInferred => //todo: ?
                   case ExpectedTypeMismatch => //will be reported later
-                  case ElementApplicabilityProblem(element, actual, expected) =>
+                  case ElementApplicabilityProblem(element, actual, expected) if inSameFile(element, holder) =>
                     val (actualType, expectedType) = ScTypePresentation.different(actual, expected)
                     holder.createErrorAnnotation(element, ScalaBundle.message("type.mismatch.found.required",
                       actualType, expectedType))
-                  case a =>
+                  case _ =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
               case _ =>
                 r.problems.foreach {
-                  case MissedParametersClause(clause) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
+                  case MissedParametersClause(_) if !reference.isInstanceOf[ScInterpolatedPrefixReference] =>
                     holder.createErrorAnnotation(reference, "Missing arguments for method " + nameOf(f))
                     addCreateFromUsagesQuickFixes(reference, holder)
                   case _ =>
@@ -182,7 +167,7 @@ trait ApplicationAnnotator {
       case _ => //unhandled case (only ref expressions was checked)
     }
 
-    val problems = call.applicationProblems
+    val problems = call.applyOrUpdateElement.map(_.problems).getOrElse(call.applicationProblems)
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
 
     if(missed.nonEmpty)
@@ -241,7 +226,7 @@ trait ApplicationAnnotator {
         annotation.registerFix(new CreateValueQuickFix(exp))
         annotation.registerFix(new CreateVariableQuickFix(exp))
         annotation.registerFix(new CreateObjectQuickFix(exp))
-      case (stRef: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
+      case (_: ScStableCodeReferenceElement) childOf (st: ScSimpleTypeElement) if st.singleton =>
       case (stRef: ScStableCodeReferenceElement) childOf (Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern))) =>
         annotation.registerFix(new CreateCaseClassQuickFix(stRef))
         annotation.registerFix(new CreateExtractorObjectQuickFix(stRef, p))
@@ -285,7 +270,7 @@ trait ApplicationAnnotator {
 
   private def formatSyntheticParams(parameters: Seq[Parameter]) = {
     val parts = parameters.map {
-      case p => p.paramType.presentableText + (if(p.isRepeated) "*" else "")
+      p => p.paramType.presentableText + (if (p.isRepeated) "*" else "")
     }
     parenthesise(parts)
   }
@@ -296,5 +281,9 @@ trait ApplicationAnnotator {
     val annotation = holder.createErrorAnnotation(ref, ScalaBundle.message("cannot.resolve.such.signature", ref.refName))
     annotation.setHighlightType(ProblemHighlightType.INFORMATION)
     registerCreateFromUsageFixesFor(ref, annotation)
+  }
+
+  private def inSameFile(elem: PsiElement, holder: AnnotationHolder): Boolean = {
+    elem != null && elem.getContainingFile == holder.getCurrentAnnotationSession.getFile
   }
 }

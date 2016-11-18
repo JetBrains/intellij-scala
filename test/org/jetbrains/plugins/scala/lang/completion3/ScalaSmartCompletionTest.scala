@@ -4,6 +4,8 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert
 
 /**
@@ -336,7 +338,11 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     checkResultByText(resultText)
   }
 
+  //Return type for inserting method is generated according to TypeAnnotations Settings
   def testNewFunction() {
+    TypeAnnotationSettings.set(getProjectAdapter,
+      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
+    
     val fileText =
       """
       |val x: Int => String = new <caret>

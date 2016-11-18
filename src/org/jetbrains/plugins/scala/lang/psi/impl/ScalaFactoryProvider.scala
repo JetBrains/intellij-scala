@@ -8,5 +8,8 @@ import com.intellij.psi.{JVMElementFactory, JVMElementFactoryProvider, PsiManage
  * @since 15.05.12
  */
 class ScalaFactoryProvider extends JVMElementFactoryProvider {
-  def getFactory(project: Project): JVMElementFactory = new ScalaPsiElementFactoryImpl(PsiManager.getInstance(project))
+  def getFactory(project: Project): JVMElementFactory = {
+    implicit val manager = PsiManager.getInstance(project)
+    new ScalaPsiElementFactoryImpl
+  }
 }

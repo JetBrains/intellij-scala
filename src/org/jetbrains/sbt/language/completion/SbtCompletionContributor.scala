@@ -119,12 +119,12 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
         }
 
         variant.element match {
-          case f: PsiField if f.getType.toScType(f.getProject, parentRef.getResolveScope).conforms(expectedType) =>
+          case f: PsiField if f.getType.toScType().conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.getType().getOrAny.conforms(expectedType) =>
             variant.isLocalVariable =
               (typed.isVar || typed.isVal) &&
-              (typed.containingFile exists (_.getName == parameters.getOriginalFile.getName))
+                typed.containingFile.exists(_.getName == parameters.getOriginalFile.getName)
             apply(variant)
           case _ => // do nothing
         }

@@ -9,24 +9,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 14.10.2008
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 14.10.2008
+  */
 trait ScFunctionStub extends NamedStub[ScFunction] with ScMemberOrLocal {
   def isImplicit: Boolean
 
   def isDeclaration: Boolean
 
-  def getAnnotations : Array[String]
+  def annotations: Array[String]
 
-  def getReturnTypeText: String
+  def returnTypeText: Option[String]
 
-  def getReturnTypeElement: Option[ScTypeElement]
-
-  def getBodyExpression: Option[ScExpression]
-
-  def getBodyText: String
+  def returnTypeElement: Option[ScTypeElement]
 
   def hasAssign: Boolean
+
+  def bodyText: Option[String]
+
+  def bodyExpression: Option[ScExpression]
 }

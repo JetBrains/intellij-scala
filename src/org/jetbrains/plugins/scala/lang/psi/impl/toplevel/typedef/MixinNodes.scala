@@ -377,7 +377,7 @@ abstract class MixinNodes {
               (MixinNodes.linearization(template),
                 ScSubstitutor.empty.putAliases(template), zSubst)
             case syn: ScSyntheticClass =>
-              (syn.getSuperTypes.map { psiType => psiType.toScType(syn.getProject) }: Seq[ScType],
+              (syn.getSuperTypes.map { psiType => psiType.toScType() }: Seq[ScType],
                 ScSubstitutor.empty, ScSubstitutor.empty)
             case clazz: PsiClass =>
               place = Option(clazz.getLastChild)
@@ -397,7 +397,7 @@ abstract class MixinNodes {
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
             val dependentSubst = superType match {
-              case p@ScProjectionType(proj, eem, _) => new ScSubstitutor(proj).followed(p.actualSubst)
+              case p@ScProjectionType(proj, _, _) => new ScSubstitutor(proj).followed(p.actualSubst)
               case ParameterizedType(p@ScProjectionType(proj, _, _), _) => new ScSubstitutor(proj).followed(p.actualSubst)
               case _ => ScSubstitutor.empty
             }
@@ -421,7 +421,7 @@ abstract class MixinNodes {
         case _ =>
       }
       (superType.isAliasType match {
-        case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(superType)
+        case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(superType)
         case _ => superType
       }) match {
         case c: ScCompoundType =>
@@ -462,7 +462,7 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    @CachedWithRecursionGuard[PsiClass](clazz, Seq.empty, CachesUtil.libraryAwareDependencyItem(clazz))
+    @CachedWithRecursionGuard[PsiClass](clazz, Seq.empty, CachesUtil.getDependentItem(clazz)())
     def inner(): Seq[ScType] = {
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
@@ -472,6 +472,8 @@ object MixinNodes {
 
       ProgressManager.checkCanceled()
       val project = clazz.getProject
+      implicit val typeSystem = project.typeSystem
+
       val tp = {
         def default =
           if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
@@ -489,8 +491,8 @@ object MixinNodes {
             case ctp: PsiClassType =>
               val cl = ctp.resolve()
               if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
-              else ctp.toScType(clazz.getProject)
-            case ctp => ctp.toScType(clazz.getProject)
+              else ctp.toScType()
+            case ctp => ctp.toScType()
           }.toSeq
         }
       }
@@ -537,7 +539,7 @@ object MixinNodes {
           }
         case _ =>
           (tp.isAliasType match {
-            case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
+            case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
             case _ => tp
           }) match {
             case c: ScCompoundType => c +=: buffer
@@ -572,7 +574,7 @@ object MixinNodes {
           }
         case _ =>
           (tp.isAliasType match {
-            case Some(AliasType(td: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
+            case Some(AliasType(_: ScTypeAliasDefinition, lower, _)) => lower.getOrElse(tp)
             case _ => tp
           }) match {
             case c: ScCompoundType =>

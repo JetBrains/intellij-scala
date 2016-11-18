@@ -20,7 +20,7 @@ import scala.tools.scalap.Decompiler
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
-  val DECOMPILER_VERSION = 271
+  val DECOMPILER_VERSION = 281
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 
@@ -55,7 +55,7 @@ object DecompilerUtil {
   def isScalaFile(file: VirtualFile): Boolean =
     try isScalaFile(file, file.contentsToByteArray)
     catch {
-      case e: IOException => false
+      case _: IOException => false
     }
   def isScalaFile(file: VirtualFile, bytes: => Array[Byte]): Boolean = decompile(file, bytes).isScala
   def decompile(file: VirtualFile, bytes: => Array[Byte]): DecompilationResult = {
@@ -75,7 +75,7 @@ object DecompilerUtil {
             writeAttribute.writeLong(decompilationResult.timeStamp)
             writeAttribute.close()
           } catch {
-            case e: IOException =>
+            case _: IOException =>
           }
         }
         res = decompilationResult
@@ -93,7 +93,7 @@ object DecompilerUtil {
           }
         }
         catch {
-          case e: IOException => updateAttributeAndData()
+          case _: IOException => updateAttributeAndData()
         }
       } else updateAttributeAndData()
       data = new SoftReference[DecompilationResult](res)
@@ -192,5 +192,7 @@ object DecompilerUtil {
     val ireturn = 0xAC.toByte
     val lreturn = 0xAD.toByte
     val voidReturn = 0xB1.toByte
+
+    val goto = 0xA7.toByte
   }
 }

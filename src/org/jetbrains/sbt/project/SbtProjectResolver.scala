@@ -3,7 +3,7 @@ package project
 
 import java.io.File
 
-import com.intellij.openapi.externalSystem.model.project._
+import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
@@ -16,11 +16,11 @@ import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
-import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure => sbtStructure}
 
-import scala.collection.immutable.HashMap
+import scala.util.{Failure, Success}
 
 /**
  * @author Pavel Fatin
@@ -31,11 +31,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   protected var taskListener: TaskListener = SilentTaskListener
 
-  def resolveProjectInfo(id: ExternalSystemTaskId,
+  override def resolveProjectInfo(id: ExternalSystemTaskId,
                          wrongProjectPathDontUseIt: String,
                          isPreview: Boolean,
                          settings: SbtExecutionSettings,
-                         listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
+                         listener: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
     val root = {
       val file = new File(settings.realProjectPath)
       if (file.isDirectory) file.getPath else file.getParent
@@ -56,11 +56,11 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
       listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
     } match {
-      case Left(errors) => errors match {
+      case Failure(errors) => errors match {
         case _ : SbtRunner.ImportCancelledException => return null
         case _ => throw new ExternalSystemException(errors)
       }
-      case Right(node) => node
+      case Success(node) => node
     }
 
     if (warnings.nonEmpty) {
@@ -72,9 +72,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     convert(root, data, settings.jdk).toDataNode
   }
 
-  private def convert(root: String, data: sbtStructure.StructureData, jdk: Option[String]): Node[ProjectData] = {
+  private def convert(root: String, data: sbtStructure.StructureData, settingsJdk: Option[String]): Node[ESProjectData] = {
     val projects = data.projects
-    val project = data.projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
+    val project: sbtStructure.ProjectData = data.projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
       .orElse(data.projects.headOption)
       .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
@@ -82,8 +82,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val basePackages = projects.flatMap(_.basePackages).distinct
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
-    val projectJdk = project.android.map(android => Android(android.targetVersion))
-            .orElse(jdk.map(JdkByName))
+
+    val projectJdk = chooseJdk(project, settingsJdk)
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
@@ -105,6 +105,23 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.addAll(projects.map(createBuildModule(_, moduleFilesDirectory, data.localCachePath)))
     projectNode
+  }
+
+  /** Choose a project jdk based on information from sbt settings and IDE.
+    * More specific settings from sbt are preferred over IDE settings, on the assumption that the sbt project definition
+    * is what is more likely to be under source control.
+    */
+  private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]) = {
+    // TODO put some of this logic elsewhere in resolving process?
+    val androidSdk = project.android.map(android => Android(android.targetVersion))
+    val jdkHomeInSbtProject = project.java.flatMap(_.home).map(JdkByHome)
+
+    // default either from project structure or initial import settings
+    val default = defaultJdk.map(JdkByName)
+
+    androidSdk
+      .orElse(jdkHomeInSbtProject)
+      .orElse(default)
   }
 
   def createModuleDependencies(projects: Seq[sbtStructure.ProjectData], moduleNodes: Seq[ModuleNode]): Unit = {
@@ -262,7 +279,6 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createBuildModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
-    val name = project.name + Sbt.BuildModuleSuffix
     val buildRoot = project.base / Sbt.ProjectDirectory
 
     // TODO use both ID and Name when related flaws in the External System will be fixed
@@ -307,7 +323,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   def createSbtModuleData(project: sbtStructure.ProjectData, localCachePath: Option[String]): SbtModuleNode = {
     val imports = project.build.imports.flatMap(_.trim.substring(7).split(", "))
-    val resolvers = project.resolvers map { r => new SbtResolver(SbtResolver.Kind.Maven, r.name, r.root) }
+    val resolvers = project.resolvers map { r => new SbtMavenResolver(r.name, r.root).asInstanceOf[SbtResolver] }
     new SbtModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
   }
 
@@ -403,4 +419,5 @@ object SbtProjectResolver {
     def onTaskOutput(message: String, stdOut: Boolean): Unit =
       listener.onTaskOutput(taskId, message, stdOut)
   }
+
 }

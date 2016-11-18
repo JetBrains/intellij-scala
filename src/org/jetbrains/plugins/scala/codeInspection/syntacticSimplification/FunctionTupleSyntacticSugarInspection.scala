@@ -18,7 +18,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def getID: String = "ScalaSyntacticSugar"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (!holder.getFile.isInstanceOf[ScalaFile]) return new PsiElementVisitor {}
+    if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
 
     object QualifiedName {
       def unapply(p: PsiElement): Option[String] = p match {
@@ -74,12 +74,12 @@ object FunctionTupleSyntacticSugarInspection {
 
       val typeTextWithParens = {
         val needParens = typeElement.getContext match {
-          case ft: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
+          case _: ScFunctionalTypeElement => true // (Tuple2[A, B]) => B  ==>> ((A, B)) => C
           case _ => false
         }
-        ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesisedIf(needParens)
+        ("(" + typeElement.typeArgList.getText.drop(1).dropRight(1) + ")").parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens)(typeElement.getManager))
     }
   }
 
@@ -93,23 +93,23 @@ object FunctionTupleSyntacticSugarInspection {
 
       val returnTypeTextWithParens = {
         val returnTypeNeedParens = returnType match {
-          case ft: ScFunctionalTypeElement => true
-          case ft: ScInfixTypeElement => true
+          case _: ScFunctionalTypeElement => true
+          case _: ScInfixTypeElement => true
           case _ => false
         }
-        returnType.getText.parenthesisedIf(returnTypeNeedParens)
+        returnType.getText.parenthesize(returnTypeNeedParens)
       }
       val typeTextWithParens = {
         val needParens = typeElement.getContext match {
-          case ft: ScFunctionalTypeElement => true
-          case ft: ScInfixTypeElement => true
+          case _: ScFunctionalTypeElement => true
+          case _: ScInfixTypeElement => true
           case _: ScConstructor | _: ScTraitParents | _: ScClassParents => true
           case _ => false
         }
         val arrow = ScalaPsiUtil.functionArrow(project)
-        s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesisedIf(needParens)
+        s"(${elemsInParamTypes.map(_.getText).mkString}) $arrow $returnTypeTextWithParens".parenthesize(needParens)
       }
-      typeElement.replace(createTypeElementFromText(typeTextWithParens, typeElement.getManager))
+      typeElement.replace(createTypeElementFromText(typeTextWithParens)(typeElement.getManager))
     }
   }
 }

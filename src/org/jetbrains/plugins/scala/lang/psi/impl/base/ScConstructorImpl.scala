@@ -125,7 +125,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       s.getParent match {
         case p: ScParameterizedTypeElement =>
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map {
+          val appSubst = new ScSubstitutor(new HashMap[(String, Long), ScType] ++ zipped.map {
             case (arg, typeParam) =>
               (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
           }, Map.empty, None)
@@ -141,7 +141,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                     subst(subst.subst(tp).inferValueType))),
                   nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
               } catch {
-                case s: SafeCheckException => //ignore
+                case _: SafeCheckException => //ignore
               }
             case _ =>
           }
@@ -160,7 +160,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case ScalaResolveResult(clazz: PsiClass, subst) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
               val params = clazz.getMethods.flatMap {
                 case p: PsiAnnotationMethod =>
-                  val paramType = subst.subst(p.getReturnType.toScType(getProject, getResolveScope))
+                  val paramType = subst.subst(p.getReturnType.toScType())
                   Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
                 case _ => Seq.empty
               }

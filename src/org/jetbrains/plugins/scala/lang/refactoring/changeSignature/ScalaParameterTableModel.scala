@@ -28,8 +28,6 @@ class ScalaParameterTableModel(typeContext: PsiElement,
   val project = defaultValueContext.getProject
   val initialParams: Seq[Seq[ScalaParameterInfo]] = methodDescriptor.parameters
 
-  private val lastParams = initialParams.flatMap(_.lastOption).dropRight(1)
-
   private val codeFragments = ArrayBuffer[PsiElement]()
 
   def this(typeContext: PsiElement, defaultValueContext: PsiElement, methodDescriptor: ScalaMethodDescriptor) {

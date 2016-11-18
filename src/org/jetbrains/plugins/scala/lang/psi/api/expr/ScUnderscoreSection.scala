@@ -59,14 +59,14 @@ trait ScUnderscoreSection extends ScExpression {
         case x: ScExpression if calcArguments => Some(x)
         case x: ScMatchStmt if !calcArguments => Some(x)
         case x: ScTypedStmt if !calcArguments => Some(x)
-        case x: ScExpression if !calcArguments =>
+        case _: ScExpression if !calcArguments =>
           expr match {
             case _: ScUnderscoreSection => None
             case expr: ScExpression => Some(expr)
             case _ => None
           }
         case _ => expr match {
-          case x: ScUnderscoreSection => None
+          case _: ScUnderscoreSection => None
           case x: ScExpression => Some(x)
           case _ => None
         }
@@ -92,7 +92,7 @@ object ScUnderScoreSectionUtil {
   @tailrec
   def isUnderscore(expr: PsiElement): Boolean = {
     expr match {
-      case u: ScUnderscoreSection => true
+      case _: ScUnderscoreSection => true
       case t: ScTypedStmt => t.expr.isInstanceOf[ScUnderscoreSection]
       case p: ScParenthesisedExpr =>
         p.expr match {
@@ -111,7 +111,7 @@ object ScUnderScoreSectionUtil {
       innerExpr match {
         case under: ScUnderscoreSection =>
           under.bindingExpr match {
-            case Some(e) => return Seq.empty
+            case Some(_) => return Seq.empty
             case _ =>
           }
           val over = under.overExpr

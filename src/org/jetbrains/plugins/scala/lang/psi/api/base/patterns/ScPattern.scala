@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScInterpolationPatternImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
@@ -29,6 +30,7 @@ import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
+import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -120,7 +122,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       }
 
       def rightWay: ScSubstitutor = {
-        val conformance = substitutor.subst(funType).conforms(tp, new ScUndefinedSubstitutor())
+        val conformance = substitutor.subst(funType).conforms(tp, ScUndefinedSubstitutor())
         if (conformance._1) {
           val undefSubst = conformance._2
           undefSubst.getSubstitutor match {
@@ -131,7 +133,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       }
 
       //todo: looks quite hacky to try another direction first, do you know better? see SCL-6543
-      val conformance = tp.conforms(substitutor.subst(funType), new ScUndefinedSubstitutor())
+      val conformance = tp.conforms(substitutor.subst(funType), ScUndefinedSubstitutor())
       if (conformance._1) {
         val undefSubst = conformance._2
         undefSubst.getSubstitutor match {
@@ -141,21 +143,33 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       } else rightWay
     }
 
+//    implicit val psiManager: PsiManager = PsiManager.getInstance(getProject)
     bind match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isQuasiquote(fun) =>
         val tpe = getContext.getContext match {
-          case ip: ScInterpolationPattern =>
+          case _: ScInterpolationPattern =>
             val parts = getParent.asInstanceOf[ScalaPsiElement]
               .findChildrenByType(ScalaTokenTypes.tINTERPOLATED_STRING)
               .map(_.getText)
             if (argIndex < parts.length && parts(argIndex).endsWith("..."))
-              ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", PsiManager.getInstance(getProject))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]")
             if (argIndex < parts.length && parts(argIndex).endsWith(".."))
-              ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", PsiManager.getInstance(getProject))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]")
             else
-              ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", PsiManager.getInstance(getProject))
+              ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree")
         }
         tpe.getType().toOption
+      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && QuasiquoteInferUtil.isMetaQQ(fun) =>
+        try {
+          val patterns = QuasiquoteInferUtil.getMetaQQPatternTypes(getParent.getParent.asInstanceOf[ScInterpolationPatternImpl])
+          if (argIndex < patterns.size) {
+            val clazz = patterns(argIndex)
+            val tpe = ScalaPsiElementFactory.createTypeElementFromText(clazz)
+            tpe.getType().toOption
+          } else { None }
+        } catch {
+          case _: ArrayIndexOutOfBoundsException => None // workaround for meta parser failure on malformed quasiquotes
+        }
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.count(!_.isImplicitParameter) == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
@@ -227,7 +241,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
               }
               case _ => false
             } match {
-              case Some(seq@ParameterizedType(des, seqArgs)) =>
+              case Some(seq@ParameterizedType(_, seqArgs)) =>
                 this match {
                   case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => Some(subst.subst(seq))
                   case _ => Some(subst.subst(seqArgs.head))
@@ -244,7 +258,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
         val args = if (types.nonEmpty && params.last.isVarArgs) {
           val lastType = types.last
           val tp = ScalaPsiElementFactory.createTypeFromText(s"scala.collection.Seq[${lastType.canonicalText}]", cl, cl)
-          types.dropRight(1) :+ tp
+          types.dropRight(1) ++ tp
         } else types
         if (argIndex < args.length) Some(args(argIndex))
         else None
@@ -341,7 +355,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       case _ => None
     }
     case named: ScNamingPattern => named.expectedType
-    case gen: ScGenerator =>
+    case _: ScGenerator =>
       val analog = getAnalog
       if (analog != this) analog.expectedType
       else None
@@ -360,7 +374,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
           case _ => return this
         }
         f.getDesugarizedExpr match {
-          case Some(expr) =>
+          case Some(_) =>
             if (analog != null) return analog
           case _ =>
         }
@@ -473,5 +487,7 @@ object ScPattern {
     val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
     fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
   }
+
+
 
 }

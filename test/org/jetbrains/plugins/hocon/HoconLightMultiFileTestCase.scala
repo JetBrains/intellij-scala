@@ -28,6 +28,8 @@ abstract class HoconLightMultiFileTestCase extends LightPlatformCodeInsightTestC
     inWriteAction {
       rootModel.commit()
     }
+
+    TestUtils.disableTimerThread()
   }
 
   override def tearDown() = {

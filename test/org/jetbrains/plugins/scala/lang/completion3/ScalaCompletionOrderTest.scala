@@ -74,4 +74,8 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase(Completion
     incUseCount(lookup, 1)
     assertPreferredItems(0, "fboo", "fbar")
   }
+
+  def testForGenerator(): Unit = {
+    checkPreferredItems(0, "ir", "iSeq", "iParam")
+  }
 }

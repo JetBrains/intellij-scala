@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
 /**
   * @author Pavel Fatin
   */
-class AddTypeToValueDefinitionTest extends TransformerTest(AddTypeToValueDefinition) {
+class AddTypeToValueDefinitionTest extends TransformerTest(new AddTypeToValueDefinition()) {
   def testSinglePattern() = check(
     "val v = new A()",
     "val v: A = new A()"
