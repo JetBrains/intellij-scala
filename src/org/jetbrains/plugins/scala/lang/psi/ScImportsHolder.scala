@@ -4,7 +4,9 @@ package psi
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.stubs.StubElement
@@ -22,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -201,7 +204,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       else refsContainer == null && hasCodeBeforeImports
 
     if (needToInsertFirst) {
-      val dummyImport = createImportFromText("import dummy._")
+      val dummyImport = createImportFromText("import dummy.dummy")
       val usedNames = collectUsedImportedNames(this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
       val psiAnchor = PsiAnchor.create(inserted)
@@ -258,7 +261,29 @@ trait ScImportsHolder extends ScalaPsiElement {
     childBeforeFirstImport match {
       case Some(elem) if first != null && elem.getTextRange.getEndOffset > first.getTextRange.getStartOffset =>
         addImportAfter(importSt, elem)
-      case _ => addBefore(importSt, first)
+      case _ =>
+        addImportBefore(importSt, first)
+    }
+  }
+
+  protected def indentLine(element: PsiElement): Unit = {
+    val indent = CodeStyleManager.getInstance(getProject).getLineIndent(getContainingFile, element.getTextRange.getStartOffset)
+    if (indent == null) return
+
+    //it's better to work with psi on this stage
+    element.getPrevSibling match {
+      case ws: PsiWhiteSpace =>
+        val oldTextNoIndent = ws.getText.reverse.dropWhile(c => c == ' ' || c == '\t').reverse
+        val newText = oldTextNoIndent + indent
+        if (newText != ws.getText) {
+          val indented = ScalaPsiElementFactory.createNewLine(newText)
+          ws.replace(indented)
+        }
+      case _ =>
+        if (!indent.isEmpty) {
+          val indented = ScalaPsiElementFactory.createNewLine(s"$indent")
+          addBefore(indented, element)
+        }
     }
   }
 
@@ -272,7 +297,9 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def addImportBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
     val anchorNode = anchor.getNode
-    CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchorNode).getPsi
+    val result = CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchorNode).getPsi
+    indentLine(result)
+    result
   }
 
   def addImportAfter(element: PsiElement, anchor: PsiElement): PsiElement = {
