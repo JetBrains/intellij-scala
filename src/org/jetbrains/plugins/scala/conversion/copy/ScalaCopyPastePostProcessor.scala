@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.util.control.Breaks._
 
 /**
@@ -140,13 +141,13 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     if (bindingsToRestore.isEmpty) return
 
-    val grouped = bindingsToRestore.groupBy(_.importsHolder)
+    val commonParent = PsiTreeUtil.findCommonParent(bindingsToRestore.map(_.element).asJava)
+    val importsHolder = ScalaImportTypeFix.getImportHolder(commonParent, project)
+
+    val paths = bindingsToRestore.map(_.path)
+
     inWriteAction {
-      for ((holder, bindings) <- grouped if bindings.nonEmpty) {
-        val commonParent = PsiTreeUtil.findCommonParent(bindings.map(_.element): _*)
-        val paths = bindings.map(_.path)
-        holder.addImportsForPaths(paths, commonParent)
-      }
+      importsHolder.addImportsForPaths(paths, commonParent)
     }
   }
 
