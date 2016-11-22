@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createParameterFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult.ResolverStateBuilder
 import org.jetbrains.plugins.scala.lang.psi.implicits._
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -492,27 +492,18 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }.getOrElse(baseProcessor)
 
   private def collectImplicits(e: ScExpression, processor: BaseProcessor, noImplicitsForArgs: Boolean) {
-    def process(resolveResult: ImplicitResolveResult) = {
+    def builder(result: ImplicitResolveResult): ResolverStateBuilder = {
       ProgressManager.checkCanceled()
-
-      var result = ResolveState.initial.put(ImportUsed.key, resolveResult.importUsed)
-      result = result.put(CachesUtil.IMPLICIT_FUNCTION, resolveResult.element)
-      result = result.put(CachesUtil.IMPLICIT_TYPE, resolveResult.tp)
-
-      resolveResult.getClazz.collect {
-        case clazz: PsiClass => clazz
-      }.foreach { clazz =>
-        result = result.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, clazz)
-      }
-
-      result
+      new ImplicitResolveResult.ResolverStateBuilder(result).withImports
+        .withImplicitType
+        .withImplicitFunction
     }
 
     processor match {
       case _: CompletionProcessor =>
         new ScImplicitlyConvertible(e).implicitMap().foreach { result =>
           //todo: args?
-          val state = process(result)
+          val state = builder(result).state
           processor.processType(result.tp, e, state)
         }
         return
@@ -525,9 +516,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
 
     ScalaPsiUtil.findImplicitConversion(e, name, this, processor, noImplicitsForArgs).foreach { result =>
-      var state = process(result)
-      state = state.put(BaseProcessor.FROM_TYPE_KEY, result.tp)
-      state = state.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, result.unresolvedTypeParameters)
+      val state = builder(result).withType.state
       processor.processType(result.getTypeWithDependentSubstitutor, e, state)
     }
   }

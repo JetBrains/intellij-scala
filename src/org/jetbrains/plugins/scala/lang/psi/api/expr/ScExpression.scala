@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{ElementText, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -559,16 +558,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     var cand = applyProc.candidates
     if (cand.length == 0 && call.isDefined) {
       val expr = call.get.getEffectiveInvokedExpr
-      ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false) match {
-        case Some(res) =>
-          var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, res.element)
-          res.getClazz match {
-            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-            case _ =>
-          }
-          applyProc.processType(res.getTypeWithDependentSubstitutor, expr, state)
-          cand = applyProc.candidates
-        case _ =>
+      ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false).foreach { result =>
+        val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImplicitFunction
+        applyProc.processType(result.getTypeWithDependentSubstitutor, expr, builder.state)
+        cand = applyProc.candidates
       }
     }
     if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {

@@ -92,7 +92,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
         case f: ScPrimaryConstructor => checkCallByName(f.effectiveParameterClauses)
         case _ =>
       }
-      new InnerScalaResolveResult(r.element, None, r, r.implicitDependentSubst followed r.subst, callByName, implicitCase = true)
+      new InnerScalaResolveResult(r.element, None, r, r.substitutor, callByName, implicitCase = true)
     }), noImplicit = true).map(_.repr)
   }
 

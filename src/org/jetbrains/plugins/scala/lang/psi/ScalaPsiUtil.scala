@@ -19,7 +19,6 @@ import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -401,20 +400,14 @@ object ScalaPsiUtil {
     if (!isDynamic && candidates.forall(!_.isApplicable())) {
       processor.resetPrecedence()
       //should think about implicit conversions
-      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = candidates.nonEmpty) match {
-        case Some(res) =>
-          ProgressManager.checkCanceled()
-          val function = res.element
-          var state = ResolveState.initial.put(ImportUsed.key, res.importUsed).
-            put(CachesUtil.IMPLICIT_FUNCTION, function)
-          res.getClazz match {
-            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-            case _ =>
-          }
-          state = state.put(BaseProcessor.FROM_TYPE_KEY, res.tp)
-          state = state.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, res.unresolvedTypeParameters)
-          processor.processType(res.getTypeWithDependentSubstitutor, expr, state)
-        case _ =>
+      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = candidates.nonEmpty).foreach { result =>
+        ProgressManager.checkCanceled()
+
+        val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImports
+          .withImplicitFunction
+          .withType
+
+        processor.processType(result.getTypeWithDependentSubstitutor, expr, builder.state)
       }
       candidates = processor.candidatesS
     }
@@ -1235,7 +1228,7 @@ object ScalaPsiUtil {
 
     def isStaticJava(m: PsiMember) = m match {
       case null => false
-      case _: PsiEnumConstant  => true
+      case _: PsiEnumConstant => true
       case cl: PsiClass if cl.isInterface | cl.isEnum => true
       case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
       case f: PsiField if f.containingClass.isInterface => true

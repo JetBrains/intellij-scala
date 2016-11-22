@@ -8,16 +8,17 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.{CachedValue, PsiTreeUtil}
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitMapResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -419,11 +420,9 @@ object ScImplicitlyConvertible {
   val IMPLICIT_RESOLUTION_KEY: Key[PsiClass] = Key.create("implicit.resolution.key")
   val IMPLICIT_CONVERSIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
 
-  case class Implicit(tp: ScType, fun: ScTypedDefinition, importsUsed: Set[ImportUsed])
-
   val IMPLICIT_REFERENCE_NAME = "implicitReferenceName"
   val IMPLICIT_EXPRESSION_NAME = "implicitExpressionName"
-  val IMPLICIT_CALL_TEXT = IMPLICIT_REFERENCE_NAME + "(" + IMPLICIT_EXPRESSION_NAME + ")"
+  val IMPLICIT_CALL_TEXT: String = IMPLICIT_REFERENCE_NAME + "(" + IMPLICIT_EXPRESSION_NAME + ")"
 
   val FAKE_RESOLVE_RESULT_KEY: Key[ScalaResolveResult] = Key.create("fake.resolve.result.key")
   val FAKE_EXPRESSION_TYPE_KEY: Key[ScType] = Key.create("fake.expr.type.key")
@@ -476,23 +475,59 @@ object ScImplicitlyConvertible {
 
 }
 
-case class ImplicitResolveResult private(tp: ScType, element: PsiNamedElement, importUsed: Set[ImportUsed],
-                                         subst: ScSubstitutor, implicitDependentSubst: ScSubstitutor, isFromCompanion: Boolean,
-                                         unresolvedTypeParameters: Seq[TypeParameter]) {
+case class ImplicitResolveResult private[psi](tp: ScType,
+                                              resolveResult: ScalaResolveResult,
+                                              private val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
+                                              isFromCompanion: Boolean = false,
+                                              private val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) {
+  def element: PsiNamedElement =
+    resolveResult.element
 
-  def getClazz: Option[PsiClass] = Option(element.getParent).collect {
-    case body: ScTemplateBody => body
-  }.map {
-    PsiTreeUtil.getParentOfType(_, classOf[PsiClass])
-  }
+  def substitutor: ScSubstitutor =
+    implicitDependentSubstitutor.followed(resolveResult.substitutor)
 
-  def getTypeWithDependentSubstitutor: ScType = implicitDependentSubst.subst(tp)
+  def getTypeWithDependentSubstitutor: ScType = implicitDependentSubstitutor.subst(tp)
 }
 
 object ImplicitResolveResult {
-  def apply(`type`: ScType, srr: ScalaResolveResult,
-            implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-            isFromCompanion: Boolean = false,
-            unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty): ImplicitResolveResult =
-    ImplicitResolveResult(`type`, srr.element, srr.importsUsed, srr.substitutor, implicitDependentSubstitutor, isFromCompanion, unresolvedTypeParameters)
+
+  class ResolverStateBuilder(result: ImplicitResolveResult) {
+    private[this] var innerState: ResolveState = ResolveState.initial
+
+    def state: ResolveState = innerState
+
+    def withType: ResolverStateBuilder = {
+      innerState = innerState.put(BaseProcessor.FROM_TYPE_KEY, result.tp)
+      innerState.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, result.unresolvedTypeParameters)
+      this
+    }
+
+    def withImports: ResolverStateBuilder = {
+      innerState = innerState.put(ImportUsed.key, result.resolveResult.importsUsed)
+      this
+    }
+
+    def withImplicitType: ResolverStateBuilder = {
+      innerState = innerState.put(CachesUtil.IMPLICIT_TYPE, result.tp)
+      this
+    }
+
+    def withImplicitFunction: ResolverStateBuilder = {
+      innerState = innerState.put(CachesUtil.IMPLICIT_FUNCTION, result.element)
+      elementParent.foreach { parent =>
+        innerState = innerState.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, parent)
+      }
+      this
+    }
+
+    private def elementParent =
+      Option(result.element).map {
+        _.getParent
+      }.collect {
+        case body: ScTemplateBody => body
+      }.map {
+        PsiTreeUtil.getParentOfType(_, classOf[PsiClass])
+      }
+  }
+
 }
