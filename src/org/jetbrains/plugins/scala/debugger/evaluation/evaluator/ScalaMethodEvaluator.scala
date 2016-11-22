@@ -48,7 +48,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
       (objectEvaluator.isInstanceOf[DisableGC] &&
         objectEvaluator.asInstanceOf[DisableGC].getDelegate.isInstanceOf[ScSuperEvaluator])
-    val obj : AnyRef = DebuggerUtil.unwrapScalaRuntimeObjectRef {
+    val obj : AnyRef = DebuggerUtil.unwrapScalaRuntimeRef {
       objectEvaluator.evaluate(context)
     }
     if (obj == null) {

@@ -140,13 +140,9 @@ object DependencyGroups {
     "org.scala-lang" % "scala-reflect" % "2.11.7",
     "org.scala-lang" % "scala-compiler" % "2.11.7",
 
-    "org.scala-lang" % "scala-library" % "2.12.0-M4" withSources(),
-    "org.scala-lang" % "scala-reflect" % "2.12.0-M4",
-    "org.scala-lang" % "scala-compiler" % "2.12.0-M4",
-
-    "org.scala-lang" % "scala-library" % "2.12.0-M5" withSources(),
-    "org.scala-lang" % "scala-reflect" % "2.12.0-M5",
-    "org.scala-lang" % "scala-compiler" % "2.12.0-M5"
+    "org.scala-lang" % "scala-library" % "2.12.0" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.12.0",
+    "org.scala-lang" % "scala-compiler" % "2.12.0"
   )
 
 
