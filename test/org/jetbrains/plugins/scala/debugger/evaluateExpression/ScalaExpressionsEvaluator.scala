@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * User: Alefas
@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class ScalaExpressionsEvaluator extends ScalaExpressionsEvaluatorBase with ScalaVersion_2_11
 class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase with ScalaVersion_2_12
-class ScalaExpressionsEvaluator_212_OLD extends ScalaExpressionsEvaluatorBase with ScalaVersion_2_12_OLD
 
 abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("PrefixUnary.scala",

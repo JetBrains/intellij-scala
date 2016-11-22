@@ -21,7 +21,3 @@ trait ScalaVersion_2_11 extends ScalaVersion {
 trait ScalaVersion_2_12 extends ScalaVersion {
   override protected val scalaSdkVersion = ScalaSdkVersion._2_12
 }
-
-trait ScalaVersion_2_12_OLD extends ScalaVersion {
-  override protected val scalaSdkVersion = ScalaSdkVersion._2_12_OLD
-}

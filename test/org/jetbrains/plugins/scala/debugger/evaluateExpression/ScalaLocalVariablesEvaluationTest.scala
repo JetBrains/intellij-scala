@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * User: Alefas
@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 class ScalaLocalVariablesEvaluationTest extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_11
 class ScalaLocalVariablesEvaluationTest_212 extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_12
-class ScalaLocalVariablesEvaluationTest_212_OLD extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_12_OLD
 
 abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Local.scala",

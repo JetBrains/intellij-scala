@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * @author Nikolay.Tropin
@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class CodeFragmentEvaluationTest extends CodeFragmentEvaluationTestBase with ScalaVersion_2_11
 class CodeFragmentEvaluationTest_212 extends CodeFragmentEvaluationTestBase with ScalaVersion_2_12
-class CodeFragmentEvaluationTest_212_OLD extends CodeFragmentEvaluationTestBase with ScalaVersion_2_12_OLD
 
 abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase {
 
