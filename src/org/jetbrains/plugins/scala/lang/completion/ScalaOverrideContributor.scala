@@ -154,14 +154,12 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
     val text: String = classMember match {
       case mm: ScMethodMember =>
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"
-        val fun = if (full) createOverrideImplementMethod(mm.sign, needsOverrideModifier = true, mBody)
-        else createMethodFromSignature(mm.sign, needsInferType = true, mBody)
+        val fun =
+          if (full)
+            createOverrideImplementMethod(mm.sign, needsOverrideModifier = true, mBody, withComment = false, withAnnotation = false)
+          else
+            createMethodFromSignature(mm.sign, needsInferType = true, mBody, withComment = false, withAnnotation = false)
 
-        val comment = fun.getDocComment
-
-        if (comment != null) {
-          comment.delete()
-        }
         TypeAnnotationUtil.removeTypeAnnotationIfNeeded(fun)
         fun.getText
       case tm: ScAliasMember =>

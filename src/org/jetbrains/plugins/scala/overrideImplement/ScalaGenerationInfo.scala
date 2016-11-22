@@ -201,15 +201,9 @@ object ScalaGenerationInfo {
 
     val needsOverride = !isImplement || toAddOverrideToImplemented
 
-    if (!ScalaApplicationSettings.getInstance().COPY_SCALADOC) {
-      val comment = method.getDocComment
+    val m = createOverrideImplementMethod(sign, needsOverride, body,
+      withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC, withAnnotation = false)(method.getManager)
 
-      if (comment != null) {
-        comment.delete()
-      }
-    }
-
-    val m = createOverrideImplementMethod(sign, needsOverride, body)(method.getManager)
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m)
     val added = td.addMember(m, Option(anchor))
     TypeAdjuster.markToAdjust(added)
@@ -218,7 +212,7 @@ object ScalaGenerationInfo {
 
   def createVariable(comment: String, classMember: ClassMember): ScMember = {
     val isVal = classMember.isInstanceOf[ScValueMember]
-    
+
     val value = classMember match {
       case x: ScValueMember => x.element
       case x: ScVariableMember => x.element

@@ -98,7 +98,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("intVariable")).get, '\t')
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("intVariable")).get)
     checkResultByText(handleText(baseText + outText))
   }
 
@@ -284,6 +284,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     }
   }
 
+  //Like in java, don't save annotations here
   def testWithAnnotation(): Unit = {
     TypeAnnotationSettings.set(getProjectAdapter,
       TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
@@ -300,7 +301,6 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     val outText =
       """
         |class Inheritor extends Base {
-        |  @throws(classOf[Exception])
         |  override def annotFoo(int: Int): Int = super.annotFoo(int)
         |}
       """
