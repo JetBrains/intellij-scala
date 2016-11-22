@@ -86,8 +86,8 @@ private[annotator] object ModifierChecker {
                   proccessError(ScalaBundle.message("final.modifier.not.with.trait"), modifierPsi, holder,
                     new RemoveModifierQuickFix(owner, "final"))
                 case _: ScClass => checkDublicates(modifierPsi, "final")
-                case _: ScObject =>
-                  if (checkDublicates(modifierPsi, "final")) {
+                case e: ScObject =>
+                  if (checkDublicates(modifierPsi, "final") && e.isTopLevel) {
                     proccessWarning(ScalaBundle.message("final.modifier.is.redundant.with.object"), modifierPsi, holder,
                       new RemoveModifierQuickFix(owner, "final"))
                   }
