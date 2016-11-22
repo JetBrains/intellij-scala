@@ -484,7 +484,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   def getImplicitConversions(fromUnder: Boolean = false,
                              expectedOption: => Option[ScType] = smartExpectedType()):
     (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val map = new ScImplicitlyConvertible(this).implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
+    val map = new ScImplicitlyConvertible(this, fromUnder).implicitMap(arguments = expectedTypes(fromUnder).toSeq)
     val implicits: Seq[PsiNamedElement] = map.map(_.element)
     val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression =>

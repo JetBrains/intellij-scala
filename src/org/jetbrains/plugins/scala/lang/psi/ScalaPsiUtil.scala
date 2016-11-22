@@ -42,8 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionConversionData, ExtensionConversionHelper, ImplicitCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -308,8 +307,7 @@ object ScalaPsiUtil {
       case Seq(resolveResult) =>
         ExtensionConversionHelper.specialExtractParameterType(resolveResult).map {
           case (tp, typeParams) =>
-            ImplicitResolveResult(tp, resolveResult, ScSubstitutor.empty, //todo: from companion parameter
-              unresolvedTypeParameters = typeParams)
+            ImplicitResolveResult(tp, resolveResult, unresolvedTypeParameters = typeParams) //todo: from companion parameter
         }
       case _ => None
     }
