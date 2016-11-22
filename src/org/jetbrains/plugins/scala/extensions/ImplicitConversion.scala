@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  */
 object ImplicitConversion {
   def unapply(e: ScExpression): Option[PsiNamedElement] =
-    e.getImplicitConversions(fromUnder = true)._2
+    e.getImplicitConversions(fromUnderscore = true)._2
 }

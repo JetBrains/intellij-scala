@@ -8,7 +8,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.{CachedValue, PsiTreeUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -53,71 +52,55 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
   import ScImplicitlyConvertible.LOG
 
-  def implicitMap(arguments: Seq[ScType] = Seq.empty): Seq[ImplicitResolveResult] = {
-    val buffer = new ArrayBuffer[ImplicitResolveResult]
+  def implicitMap(arguments: Seq[ScType] = Seq.empty): (Seq[RegularImplicitResolveResult], Seq[CompanionImplicitResolveResult]) = {
     val seen = new mutable.HashSet[PsiNamedElement]
-    for (elem <- implicitMapFirstPart) {
+    val firstBuffer = new ArrayBuffer[RegularImplicitResolveResult]
+    for (elem <- collectRegulars) {
       if (!seen.contains(elem.element)) {
         seen += elem.element
-        buffer += elem
+        firstBuffer += elem
       }
     }
-    for (elem <- implicitMapSecondPart(arguments = arguments)) {
+
+    val secondBuffer = new ArrayBuffer[CompanionImplicitResolveResult]
+    for (elem <- collectCompanions(arguments = arguments)) {
       if (!seen.contains(elem.element)) {
         seen += elem.element
-        buffer += elem
+        secondBuffer += elem
       }
     }
-    buffer
+
+    (firstBuffer, secondBuffer)
   }
 
-  @CachedMappedWithRecursionGuard(expression, Seq.empty, ModCount.getBlockModificationCount)
-  private def implicitMapFirstPart: Seq[ImplicitResolveResult] =
-    buildImplicitMap(isFromCompanion = false, Seq.empty)
+  private def adaptResults(results: Set[ScalaResolveResult], `type`: ScType): Set[(ScType, ImplicitMapResult)] =
+    results.map {
+      forMap(_, `type`)
+    }.filter {
+      _.condition
+    }.flatMap { result =>
+      val returnType = result.rt
+      val resolveResult = result.resolveResult
 
-  @CachedMappedWithRecursionGuard(expression, Seq.empty, ModCount.getBlockModificationCount)
-  private def implicitMapSecondPart(arguments: Seq[ScType]): Seq[ImplicitResolveResult] =
-    buildImplicitMap(isFromCompanion = true, arguments)
-
-  private def buildImplicitMap(isFromCompanion: Boolean,
-                               arguments: Seq[ScType]): Seq[ImplicitResolveResult] = {
-    ScalaPsiUtil.debug(s"Implicit map from companion: $isFromCompanion", LOG)
-    val typez: ScType = placeType.getOrElse(return Seq.empty)
-
-    val buffer = new ArrayBuffer[ImplicitMapResult]
-    if (!isFromCompanion) {
-      buffer ++= buildSimpleImplicitMap
-    } else {
-      val processor = new CollectImplicitsProcessor(true)
-      val expandedType: ScType = if (arguments.nonEmpty) TupleType(Seq(typez) ++ arguments)(expression.getProject, expression.getResolveScope) else typez
-      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, expression.getProject, expression.getResolveScope)) {
-        processor.processType(obj, expression, ResolveState.initial())
-      }
-      for (res <- processor.candidatesS.map(forMap(_, typez)) if res.condition) {
-        buffer += res
-      }
-    }
-
-    buffer.flatMap { rr =>
-      val returnType = rr.rt
-      val maybeType = rr.resolveResult.element match {
+      val maybeType = resolveResult.element match {
         case f: ScFunction if f.hasTypeParameters =>
-          rr.subst.getSubstitutor.map {
+          result.subst.getSubstitutor.map {
             _.subst(returnType)
           }
         case _ =>
           Some(returnType)
       }
 
-      maybeType.map {
-        ImplicitResolveResult(_, rr.resolveResult, rr.implicitDependentSubst, isFromCompanion)
+      maybeType.map { tp =>
+        (tp, result)
       }
     }
-  }
 
-  @CachedMappedWithRecursionGuard(expression, ArrayBuffer.empty, ModCount.getBlockModificationCount)
-  private def buildSimpleImplicitMap: ArrayBuffer[ImplicitMapResult] = {
-    val typez: ScType = placeType.getOrElse(return ArrayBuffer.empty)
+  @CachedMappedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
+  private def collectRegulars: Set[RegularImplicitResolveResult] = {
+    ScalaPsiUtil.debug(s"Regular implicit map", LOG)
+
+    val typez = placeType.getOrElse(return Set.empty)
 
     val processor = new CollectImplicitsProcessor(false)
 
@@ -136,18 +119,36 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
     treeWalkUp(expression, null)
 
-    val result = new ArrayBuffer[ImplicitMapResult]
-    if (typez == Nothing) return result
-    if (typez.isInstanceOf[UndefinedType]) return result
+    if (typez == Nothing) return Set.empty
+    if (typez.isInstanceOf[UndefinedType]) return Set.empty
 
-    val sigsFound = processor.candidatesS.map(forMap(_, typez))
+    adaptResults(processor.candidatesS, typez).map {
+      case (tp, result) => RegularImplicitResolveResult(tp, result)
+    }
+  }
 
+  @CachedMappedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
+  private def collectCompanions(arguments: Seq[ScType]): Set[CompanionImplicitResolveResult] = {
+    ScalaPsiUtil.debug(s"Companions implicit map", LOG)
 
-    for (res <- sigsFound if res.condition) {
-      result += res
+    val typez = placeType.getOrElse(return Set.empty)
+
+    val project = expression.getProject
+    val resolveScope = expression.getResolveScope
+    val expandedType = arguments match {
+      case Seq() => typez
+      case seq =>
+        TupleType(Seq(typez) ++ seq)(project, resolveScope)
     }
 
-    result
+    val processor = new CollectImplicitsProcessor(true)
+    ScalaPsiUtil.collectImplicitObjects(expandedType, project, resolveScope).foreach {
+      processor.processType(_, expression, ResolveState.initial())
+    }
+
+    adaptResults(processor.candidatesS, typez).map {
+      case (tp, result) => CompanionImplicitResolveResult(tp, result)
+    }
   }
 
   def forMap(r: ScalaResolveResult, typez: ScType): ImplicitMapResult = {
@@ -472,62 +473,5 @@ object ScImplicitlyConvertible {
   case class ImplicitMapResult(condition: Boolean, resolveResult: ScalaResolveResult, tp: ScType, rt: ScType,
                                newSubst: ScSubstitutor, subst: ScUndefinedSubstitutor,
                                implicitDependentSubst: ScSubstitutor)
-
-}
-
-case class ImplicitResolveResult private[psi](tp: ScType,
-                                              resolveResult: ScalaResolveResult,
-                                              private val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                                              isFromCompanion: Boolean = false,
-                                              private val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) {
-  def element: PsiNamedElement =
-    resolveResult.element
-
-  def substitutor: ScSubstitutor =
-    implicitDependentSubstitutor.followed(resolveResult.substitutor)
-
-  def getTypeWithDependentSubstitutor: ScType = implicitDependentSubstitutor.subst(tp)
-}
-
-object ImplicitResolveResult {
-
-  class ResolverStateBuilder(result: ImplicitResolveResult) {
-    private[this] var innerState: ResolveState = ResolveState.initial
-
-    def state: ResolveState = innerState
-
-    def withType: ResolverStateBuilder = {
-      innerState = innerState.put(BaseProcessor.FROM_TYPE_KEY, result.tp)
-      innerState.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, result.unresolvedTypeParameters)
-      this
-    }
-
-    def withImports: ResolverStateBuilder = {
-      innerState = innerState.put(ImportUsed.key, result.resolveResult.importsUsed)
-      this
-    }
-
-    def withImplicitType: ResolverStateBuilder = {
-      innerState = innerState.put(CachesUtil.IMPLICIT_TYPE, result.tp)
-      this
-    }
-
-    def withImplicitFunction: ResolverStateBuilder = {
-      innerState = innerState.put(CachesUtil.IMPLICIT_FUNCTION, result.element)
-      elementParent.foreach { parent =>
-        innerState = innerState.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, parent)
-      }
-      this
-    }
-
-    private def elementParent =
-      Option(result.element).map {
-        _.getParent
-      }.collect {
-        case body: ScTemplateBody => body
-      }.map {
-        PsiTreeUtil.getParentOfType(_, classOf[PsiClass])
-      }
-  }
 
 }

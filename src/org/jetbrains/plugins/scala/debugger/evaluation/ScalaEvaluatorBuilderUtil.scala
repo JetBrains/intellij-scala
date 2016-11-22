@@ -1442,19 +1442,18 @@ object ScalaEvaluatorBuilderUtil {
 
   object implicitlyConvertedTo {
     def unapply(expr: ScExpression): Option[ScExpression] = {
-      val implicits = expr.getImplicitConversions(fromUnder = true)
-      implicits._2 match {
-        case Some(fun: ScFunction) =>
-          val exprText = expr.getText
-          val callText = s"${fun.name}($exprText)"
-          val newExprText = fun.containingClass match {
-            case o: ScObject if isStable(o) => s"${o.qualifiedName}.$callText"
-            case _: ScObject => //todo: It can cover many cases!
-              throw EvaluationException(ScalaBundle.message("implicit.conversions.from.dependent.objects"))
-            case _ => callText //from scope
-          }
-          Some(createExpressionWithContextFromText(newExprText, expr.getContext, expr))
-        case _ => None
+      val (_, maybeFunction, _, _) = expr.getImplicitConversions(fromUnderscore = true)
+      maybeFunction.collect {
+        case function: ScFunction => function
+      }.map { fun =>
+        val callText = s"${fun.name}(${expr.getText})"
+        val newExprText = fun.containingClass match {
+          case o: ScObject if isStable(o) => s"${o.qualifiedName}.$callText"
+          case _: ScObject => //todo: It can cover many cases!
+            throw EvaluationException(ScalaBundle.message("implicit.conversions.from.dependent.objects"))
+          case _ => callText //from scope
+        }
+        createExpressionWithContextFromText(newExprText, expr.getContext, expr)
       }
     }
   }

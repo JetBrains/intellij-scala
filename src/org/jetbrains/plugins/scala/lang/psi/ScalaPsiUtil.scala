@@ -306,7 +306,7 @@ object ScalaPsiUtil {
       case Seq(resolveResult) =>
         ExtensionConversionHelper.specialExtractParameterType(resolveResult).map {
           case (tp, typeParams) =>
-            ImplicitResolveResult(tp, resolveResult, unresolvedTypeParameters = typeParams) //todo: from companion parameter
+            RegularImplicitResolveResult(tp, resolveResult, unresolvedTypeParameters = typeParams) //todo: from companion parameter
         }
       case _ => None
     }

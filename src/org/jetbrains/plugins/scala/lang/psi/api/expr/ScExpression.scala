@@ -480,11 +480,12 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
  *
    * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
    */
-  def getImplicitConversions(fromUnder: Boolean = false,
+  def getImplicitConversions(fromUnderscore: Boolean = false,
                              expectedOption: => Option[ScType] = smartExpectedType()):
     (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val map = new ScImplicitlyConvertible(this, fromUnder).implicitMap(arguments = expectedTypes(fromUnder).toSeq)
-    val implicits: Seq[PsiNamedElement] = map.map(_.element)
+    val (regularResults, companionResults) = new ScImplicitlyConvertible(this, fromUnderscore)
+      .implicitMap(arguments = expectedTypes(fromUnderscore).toSeq)
+
     val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression =>
         val resolve = ref.multiResolve(false)
@@ -502,9 +503,12 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         case _ => None
       }
       case _ => getTypeAfterImplicitConversion(expectedOption = expectedOption,
-        fromUnderscore = fromUnder).implicitFunction
+        fromUnderscore = fromUnderscore).implicitFunction
     }
-    (implicits, implicitFunction, map.filter(!_.isFromCompanion).map(_.element), map.filter(_.isFromCompanion).map(_.element))
+
+    val regularElements = regularResults.map(_.element)
+    val companionElements = companionResults.map(_.element)
+    (regularElements ++ companionElements, implicitFunction, regularElements, companionElements)
   }
 
   final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
