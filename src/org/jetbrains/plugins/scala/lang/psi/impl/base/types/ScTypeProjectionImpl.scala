@@ -8,7 +8,6 @@ package types
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -48,10 +47,10 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
 
   def getVariants: Array[Object] = {
-    allVariantsCached.flatMap {
+    val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
-        val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
         val qualifier = res.fromType.getOrElse(Nothing)
         LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
       case r => Seq(r.getElement)
@@ -77,14 +76,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     res
   }
 
-  def getSameNameVariants: Array[ResolveResult] = allVariantsCached.collect {
-    case rr @ ResolveResultEx(named: PsiNamedElement) if named.name == refName => rr
-  }
-
-  @CachedMappedWithRecursionGuard(this, Array.empty, CachesUtil.enclosingModificationOwner(this))
-  private def allVariantsCached: Array[ResolveResult] = {
-    doResolve(new CompletionProcessor(getKinds(incomplete = true), ScTypeProjectionImpl.this))
-  }
+  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitTypeProjection(this)

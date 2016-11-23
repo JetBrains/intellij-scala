@@ -4,15 +4,18 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.testFramework.PsiTestUtil
+import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 trait ScalametaUtils {
 
-  protected val metaVersion = "1.2.0"
+  protected val metaVersion = "1.3.0"
   protected val paradiseVersion = "3.0.0-M5"
   protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11_8
 
@@ -36,6 +39,7 @@ trait ScalametaUtils {
   protected def addAllMetaLibraries(module: Module) = {
     val addToModule = addIvyCacheLibraryToModule(module) _
     getMetaLibraries.foreach(addToModule.tupled)
+    VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
   }
 
   protected def enableParadisePlugin(project: Project) = {

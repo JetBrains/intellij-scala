@@ -741,14 +741,14 @@ object ScalaPsiElementFactory {
     val holder = DummyHolderFactory.createHolder(manager, context).getTreeElement
 
     val builder = new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance
-      .createBuilder(project, holder, new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, convertLineSeparators(text.trim)))
+      .createBuilder(project, holder, new ScalaLexer, ScalaLanguage.Instance, convertLineSeparators(text.trim)))
 
     val marker = builder.mark()
     parse(builder)
     while (!builder.eof()) {
       builder.advanceLexer()
     }
-    marker.done(project.elementTypes.file)
+    marker.done(ScalaElementTypes.FILE)
 
     val fileNode = builder.getTreeBuilt
     val node = fileNode.getFirstChildNode

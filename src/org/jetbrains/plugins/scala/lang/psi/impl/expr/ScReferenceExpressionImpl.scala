@@ -9,7 +9,6 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -34,7 +33,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, MethodResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 
 /**
   * @author AlexanderPodkhalyuzin
@@ -139,7 +137,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult] = {
-    allVariantsCached(withImplicits = implicits).filter(r => {
+    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, implicits)).filter(r => {
       if (filterNotNamedVariants) {
         r match {
           case res: ScalaResolveResult => res.isNamedParameter
@@ -149,17 +147,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     })
   }
 
-  @CachedMappedWithRecursionGuard(this, Array.empty, CachesUtil.enclosingModificationOwner(this))
-  private def allVariantsCached(withImplicits: Boolean): Array[ResolveResult] = {
-    val refThis = ScReferenceExpressionImpl.this
-    doResolve(refThis, new CompletionProcessor(getKinds(incomplete = true), refThis, collectImplicits = withImplicits))
-  }
+  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
 
-  def getSameNameVariants: Array[ResolveResult] = allVariantsCached(withImplicits = true).collect {
-    case rr @ ResolveResultEx(named: PsiNamedElement) if named.name == refName => rr
-  }
-
-  def getKinds(incomplete: Boolean, completion: Boolean = false): ResolveTargets.ValueSet = {
+  def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {
       case _ if completion => StdKinds.refExprQualRef // SC-3092
       case _: ScReferenceExpression => StdKinds.refExprQualRef
@@ -189,6 +179,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def shapeMultiType: Array[TypeResult[ScType]] = {
     shapeResolve.filter(_.isInstanceOf[ScalaResolveResult]).
       map(r => convertBindToType(Some(r.asInstanceOf[ScalaResolveResult])))
+  }
+
+  private def isMetaInlineDefn(p: ScParameter): Boolean = {
+    p.owner match {
+      case f: ScFunctionDefinition if f.getModifierList != null =>
+        f.getModifierList.findFirstChildByType(ScalaTokenTypes.kINLINE) != null
+      case _ => false
+    }
   }
 
   protected def convertBindToType(bind: Option[ScalaResolveResult]): TypeResult[ScType] = {
@@ -292,6 +290,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
               }
             }
         }
+      case Some(ScalaResolveResult(param: ScParameter, _)) if isMetaInlineDefn(param) =>
+        ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", param.getContext, null).get
       case Some(r@ScalaResolveResult(param: ScParameter, s)) =>
         val owner = param.owner match {
           case f: ScPrimaryConstructor => f.containingClass

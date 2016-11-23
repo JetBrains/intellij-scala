@@ -133,6 +133,7 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
   }
 
   override def projectOpened(): Unit = {
-   setupMavenIndexes()
+    // disabled feature as too annoying
+    //   setupMavenIndexes()
   }
 }

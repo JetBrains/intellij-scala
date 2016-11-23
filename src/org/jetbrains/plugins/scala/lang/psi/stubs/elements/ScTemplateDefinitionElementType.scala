@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * @author ilyas, alefas
@@ -23,6 +24,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugName) {
 
   override def serialize(stub: ScTemplateDefinitionStub, dataStream: StubOutputStream): Unit = {
+    dataStream.writeBoolean(stub.isDotty)
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getQualifiedName)
     dataStream.writeName(stub.javaQualifiedName)
@@ -41,6 +43,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub =
     new ScTemplateDefinitionStubImpl(parentStub, this,
+      isDotty = dataStream.readBoolean,
       nameRef = dataStream.readName,
       qualifiedNameRef = dataStream.readName,
       javaQualifiedNameRef = dataStream.readName,
@@ -56,6 +59,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       isVisibleInJava = dataStream.readBoolean)
 
   override def createStub(definition: ScTemplateDefinition, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
+    ScTemplateDefinitionElementType.isStubBuilding.set(true)
     val fileName = definition.containingVirtualFile.map {
       _.getName
     }.orNull
@@ -88,7 +92,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     val isLocal = definition.containingClass == null &&
       PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
 
-    new ScTemplateDefinitionStubImpl(parent, this,
+    val result = new ScTemplateDefinitionStubImpl(parent, this,
+      isDotty = definition.getProject.hasDotty,
       nameRef = fromString(definition.name),
       qualifiedNameRef = fromString(definition.qualifiedName),
       javaQualifiedNameRef = fromString(definition.getQualifiedName),
@@ -102,6 +107,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       additionalJavaNamesRefs = definition.additionalJavaNames.asReferences,
       isLocal = isLocal,
       isVisibleInJava = isOkForJava(definition))
+    ScTemplateDefinitionElementType.isStubBuilding.set(false)
+    result
   }
 
   override def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
@@ -153,4 +160,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
+}
+
+object ScTemplateDefinitionElementType {
+  val isStubBuilding: ThreadLocal[Boolean] = new ThreadLocal[Boolean]
 }

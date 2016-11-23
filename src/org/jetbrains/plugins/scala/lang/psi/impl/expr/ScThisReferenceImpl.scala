@@ -25,6 +25,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def toString: String = "ThisReference"
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = refTemplate match {
+    case Some(td) if td.isMetaAnnotatationImpl => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText("scala.meta.Stat", this, null))
     case Some(td) => ScThisReferenceImpl.getThisTypeForTypeDefinition(td, this)
     case _ => Failure("Cannot infer type", Some(this))
   }

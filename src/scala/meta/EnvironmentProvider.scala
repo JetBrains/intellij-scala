@@ -12,5 +12,9 @@ trait EnvironmentProvider {
   def getCurrentProject: Project
 
   def dumbMode: Boolean = false
+
+  // at the time this comment is written, paradise doesn't convert trees 100% equal to what is written in source code
+  // this flag tells tree converter to mimic paradise converter behaviour
+  def paradiseCompatibilityHacks: Boolean = true
 }
 

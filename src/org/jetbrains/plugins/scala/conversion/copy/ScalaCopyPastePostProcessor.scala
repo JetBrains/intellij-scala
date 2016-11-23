@@ -19,7 +19,6 @@ import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dependency.Dependency
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -122,14 +121,13 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
   private def doRestoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project)
                          (filter: Seq[Binding] => Seq[Binding]) {
-    val usingUnderScore = ScalaCodeStyleSettings.getInstance(project).isImportMembersUsingUnderScore
     val bindings =
       (for {
         association <- value.associations
         element <- elementFor(association, file, offset)
         if !association.isSatisfiedIn(element)
       } yield {
-        Binding(element, association.path.asString(usingUnderScore))
+        Binding(element, association.path.asString)
       }).filter {
         case Binding(_, path) =>
           val index = path.lastIndexOf('.')

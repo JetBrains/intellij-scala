@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
-import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -53,9 +53,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
@@ -1158,57 +1157,26 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass)
-                        (implicit tokenSets: TokenSets = clazz.getProject.tokenSets): Option[ScTypeDefinition] = {
+  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
     clazz match {
       case definition: ScTypeDefinition =>
-        getBaseCompanionModule(definition).orElse(definition.fakeCompanionModule)
+        definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
       case _ => None
     }
   }
 
-  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[ScObject] = {
-    ah.getExpansionText match {
-      case Right(text) =>
-        if (text.nonEmpty) {
-          val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(text)(ah.getManager)
-          if (blockImpl != null) {
-            val maybeScObject: Option[ScObject] = blockImpl.firstChild.get.children.findByType(classOf[ScObject])
-            maybeScObject
-          } else None
-        } else None
+  def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
+    import scala.{meta => m}
+    ah.getMetaExpansion match {
       case Left(_) => None
+      case Right(m.Term.Block(Seq(_: m.Defn, obj: m.Defn.Object))) => Some(obj)
+      case Right(_) => None
     }
   }
 
   //Performance critical method
-  def getBaseCompanionModule(definition: ScTypeDefinition)
-                            (implicit tokenSets: TokenSets = definition.getProject.tokenSets): Option[ScTypeDefinition] = {
-    Option(definition.getContext).flatMap { scope =>
-      val tokenSet = tokenSets.typeDefinitions
-
-      val arrayOfElements: Array[PsiElement] = scope match {
-        case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-          stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        case file: PsiFileImpl if file.getStub != null =>
-          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        case context => context.getChildren
-      }
-
-      val name = definition.name
-      definition match {
-        case _: ScClass | _: ScTrait =>
-          arrayOfElements.collectFirst {
-            case o: ScObject if o.name == name => o
-          }
-        case _: ScObject =>
-          arrayOfElements.collectFirst {
-            case c: ScClass if c.name == name => c
-            case t: ScTrait if t.name == name => t
-          }
-        case _ => None
-      }
-    }
+  def getBaseCompanionModule(definition: ScTypeDefinition): Option[ScTypeDefinition] = {
+    definition.baseCompanionModule
   }
 
   object FakeCompanionClassOrCompanionClass {
@@ -1216,6 +1184,16 @@ object ScalaPsiUtil {
   }
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
+
+    def isStaticJava(m: PsiMember) = m match {
+      case null => false
+      case _: PsiEnumConstant  => true
+      case cl: PsiClass if cl.isInterface | cl.isEnum => true
+      case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
+      case f: PsiField if f.containingClass.isInterface => true
+      case _ => false
+    }
+
     @tailrec
     def hasStablePathInner(m: PsiMember): Boolean = {
       m.getContext match {
@@ -1227,7 +1205,7 @@ object ScalaPsiUtil {
         case null => false
         case o: ScObject if o.isPackageObject || o.qualifiedName == "scala.Predef" => true
         case o: ScObject => hasStablePathInner(o)
-        case j if j.getLanguage.isInstanceOf[JavaLanguage] => true
+        case j if j.getLanguage.isInstanceOf[JavaLanguage] => isStaticJava(m) && hasStablePathInner(j)
         case _ => false
       }
     }

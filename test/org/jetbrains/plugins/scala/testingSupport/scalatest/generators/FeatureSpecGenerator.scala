@@ -35,7 +35,13 @@ trait FeatureSpecGenerator extends ScalaTestTestCase {
       | }
       |
       | feature("empty") {}
+      |
+      | feature("Feature 3") {
+      |   scenario("Tagged", FeatureSpecTag) {}
+      | }
       |}
+      |
+      |object FeatureSpecTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 }

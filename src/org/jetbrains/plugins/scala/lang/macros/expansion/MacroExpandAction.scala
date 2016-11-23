@@ -10,6 +10,7 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -23,13 +24,14 @@ import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
-import scala.meta.intellij.ExpansionUtil
+import scala.meta.intellij.MetaExpansionsManager
 
 
 class MacroExpandAction extends AnAction {
@@ -272,11 +274,19 @@ object MacroExpandAction {
   val messageGroup = NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.MESSAGES_WINDOW)
 
   def expandMetaAnnotation(annot: ScAnnotation) = {
-    val result = ExpansionUtil.runMetaAnnotation(annot)
+    import scala.meta._
+    val result = MetaExpansionsManager.runMetaAnnotation(annot)
     result match {
       case Right(tree) =>
+        val removeCompanionObject = tree match {
+          case Term.Block(Seq(Defn.Class(_, Type.Name(value1), _, _, _), Defn.Object(_, Term.Name(value2), _))) =>
+            value1 == value2
+          case Term.Block(Seq(Defn.Trait(_, Type.Name(value1), _, _, _), Defn.Object(_, Term.Name(value2), _))) =>
+            value1 == value2
+          case _ => false
+        }
         inWriteCommandAction(annot.getProject) {
-          expandAnnotation(annot, MacroExpansion(null, tree.toString))
+          expandAnnotation(annot, MacroExpansion(null, tree.toString, removeCompanionObject))
         }
       case Left(errorMsg) =>
         messageGroup.createNotification(
@@ -296,6 +306,13 @@ object MacroExpandAction {
         newPsi.firstChild match {
           case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
             val children = block.getChildren
+            if (expansion.removeCompanionObject) {
+              val companion = holder match {
+                case td: ScTypeDefinition => td.baseCompanionModule
+                case _ => None
+              }
+              companion.foreach(_.delete())
+            }
             block.children.find(_.isInstanceOf[ScalaPsiElement]).foreach(p => p.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText))
             holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
             holder.delete()
@@ -309,23 +326,30 @@ object MacroExpandAction {
   }
 
   private def reformatCode(psi: PsiElement): PsiElement = {
-    val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
-    val tobeDeleted = new ArrayBuffer[PsiElement]
-    val v = new PsiElementVisitor {
-      override def visitElement(element: PsiElement) = {
-        if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
-          val file = element.getContainingFile
-          val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
-          if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
-            tobeDeleted += element
+    try {
+      val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
+      val tobeDeleted = new ArrayBuffer[PsiElement]
+      val v = new PsiElementVisitor {
+        override def visitElement(element: PsiElement) = {
+          if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+            val file = element.getContainingFile
+            val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
+            if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
+              tobeDeleted += element
+            }
           }
+          element.acceptChildren(this)
         }
-        element.acceptChildren(this)
       }
+      v.visitElement(res)
+      tobeDeleted.foreach(_.delete())
+      res
+    } catch {
+      case p: ProcessCanceledException => throw p
+      case e: Throwable => // if something goes wrong during reformat just return initial ugly psi
+        LOG.warn(e)
+        psi
     }
-    v.visitElement(res)
-    tobeDeleted.foreach(_.delete())
-    res
   }
 
 }
