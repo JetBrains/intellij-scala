@@ -101,7 +101,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     while (classParamIterator.hasNext) {
       res += classParamIterator.next()
     }
-    res.toSeq
+    res
   }
 
   def getScalaFieldsByName( name: String, scope: GlobalSearchScope): Seq[PsiMember] = {
@@ -135,7 +135,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     }
     if (count == 0) return Seq.empty
     if (count == 1) return Seq(member)
-    list.toSeq
+    list
   }
 
   def getAllMethodNames: Seq[String] = {
@@ -164,7 +164,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       }
       if (count == 0) Seq.empty
       if (count == 1) Seq(method)
-      list.toSeq
+      list
     }
     def javaMethods: Seq[PsiMethod] = {
       PsiShortNamesCache.getInstance(project).getMethodsByName(cleanName, scope).filter {
@@ -236,7 +236,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     while (classesIterator.hasNext) {
       res += classesIterator.next()
     }
-    res.toSeq
+    res
   }
 
   def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
