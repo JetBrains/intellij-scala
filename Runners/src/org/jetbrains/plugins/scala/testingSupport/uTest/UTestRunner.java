@@ -270,26 +270,26 @@ public class UTestRunner {
           InvocationTargetException,
           IllegalAccessException {
     String[] newArgs = TestRunnerUtil.getNewArgs(args);
-    List<String> classes = new LinkedList<String>();
+    Map<String, Set<UTestPath>> classesToTests = new HashMap<String, Set<UTestPath>>();
     HashMap<String, Set<UTestPath>> failedTestMap = new HashMap<String, Set<UTestPath>>();
     int i = 0;
-    List<UTestPath> tests = new LinkedList<UTestPath>();
     String currentClass = null;
     boolean failedUsed = false;
     while (i < newArgs.length) {
       if (newArgs[i].equals("-s")) {
         ++i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
-          classes.add(newArgs[i]);
+          classesToTests.put(newArgs[i], new HashSet<UTestPath>());
           currentClass = newArgs[i];
           ++i;
         }
       } else if (newArgs[i].equals("-testName")) {
         ++i;
+        if (currentClass == null) throw new RuntimeException("Failed to run tests: no suite class specified for test " + newArgs[i]);
         while (!newArgs[i].startsWith("-")) {
           UTestPath aTest = parseTestPath(currentClass, newArgs[i]);
           if (aTest != null) {
-            tests.add(aTest);
+            classesToTests.get(currentClass).add(aTest);
           }
           ++i;
         }
@@ -315,11 +315,10 @@ public class UTestRunner {
 
     Method runAsyncMethod = getRunAsynchMethod(Class.forName("utest.framework.TestTreeSeq"));
     if (runAsyncMethod != null) {
-      Collection<String> classNames = failedUsed ? failedTestMap.keySet() : classes;
-
-      UTestReporter reporter = new UTestReporter(classNames.size());
-      for (String className: classNames) {
-        runTestSuites(className, failedUsed ? failedTestMap.get(className) : tests, reporter, runAsyncMethod);
+      Map<String, Set<UTestPath>> suitesAndTests = failedUsed ? failedTestMap : classesToTests;
+      UTestReporter reporter = new UTestReporter(suitesAndTests.size());
+      for (String className: suitesAndTests.keySet()) {
+        runTestSuites(className, suitesAndTests.get(className), reporter, runAsyncMethod);
       }
       reporter.waitUntilReportingFinished();
     } else {

@@ -3,8 +3,7 @@ package testingSupport.scalatest
 
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
-import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 /**
@@ -13,7 +12,8 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
   */
 abstract class ScalaTestTestCase extends ScalaTestingTestCase {
 
-  override protected val configurationProducer: AbstractTestConfigurationProducer = new ScalaTestConfigurationProducer
+  override protected val configurationProducer: AbstractTestConfigurationProducer =
+    TestConfigurationUtil.scalaTestConfigurationProducer
 
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
     super.runFileStructureViewTest(testClassName, status, (if (status == ignoredStatusId) {

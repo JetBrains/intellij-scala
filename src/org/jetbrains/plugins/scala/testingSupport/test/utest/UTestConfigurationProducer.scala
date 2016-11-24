@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
+} with TestConfigurationProducer(confType) {
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
     val element = location.getPsiElement
@@ -143,7 +143,8 @@ class UTestConfigurationProducer extends {
     while (!containingObject.isInstanceOf[ScObject] && PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true) != null) {
       containingObject = PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true)
     }
-    if (!containingObject.isInstanceOf[ScObject]) return fail
+    //this is checked once we provide a concrete class for test run
+    //    if (!containingObject.isInstanceOf[ScObject]) return fail
     if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return (null, null)
 
     val nameContainer = ScalaPsiUtil.getParentWithProperty(element, strict = false,
