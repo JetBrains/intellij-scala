@@ -48,7 +48,7 @@ abstract class TransformationTest(transformation: PsiElement => Unit, @Language(
 
   private def parse(@Language("Scala") s: String): ScalaFile = {
     PsiFileFactory.getInstance(myFixture.getProject)
-      .createFileFromText("foo" + ScalaFileType.DEFAULT_EXTENSION, ScalaFileType.SCALA_FILE_TYPE, s)
+      .createFileFromText("foo.scala", ScalaFileType.INSTANCE, s)
       .asInstanceOf[ScalaFile]
   }
 }

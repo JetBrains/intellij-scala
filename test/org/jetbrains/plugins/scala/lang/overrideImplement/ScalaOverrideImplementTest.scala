@@ -1071,4 +1071,36 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val isImplement = false
     runTest(methodName, fileText, expectedText, isImplement)
   }
+
+  def testDoNotSaveAnnotations(): Unit ={
+    val fileText =
+      """
+        |trait Base {
+        |  @throws(classOf[Exception])
+        |  @deprecated
+        |  def annotFoo(int: Int): Int = 45
+        |}
+        |
+        |class Inheritor extends Base {
+        | <caret>
+        |}
+      """
+
+    val expectedText =
+      """
+        |trait Base {
+        |  @throws(classOf[Exception])
+        |  @deprecated
+        |  def annotFoo(int: Int): Int = 45
+        |}
+        |
+        |class Inheritor extends Base {
+        |  override def annotFoo(int: Int): Int = super.annotFoo(int)
+        |}
+      """
+
+    val methodName: String = "annotFoo"
+    val isImplement = false
+    runTest(methodName, fileText, expectedText, isImplement)
+  }
 }

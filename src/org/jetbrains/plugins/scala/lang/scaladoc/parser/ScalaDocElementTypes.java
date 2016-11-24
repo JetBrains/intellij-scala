@@ -22,7 +22,7 @@ public interface ScalaDocElementTypes extends ScalaDocTokenType{
   /**
    * ScalaDoc comment
    */
-  ILazyParseableElementType SCALA_DOC_COMMENT = new ILazyParseableElementType("SCALA_DOC_COMMENT", ScalaFileType.SCALA_FILE_TYPE.getLanguage()) {
+  ILazyParseableElementType SCALA_DOC_COMMENT = new ILazyParseableElementType("SCALA_DOC_COMMENT", ScalaFileType.INSTANCE.getLanguage()) {
 
     public ASTNode parseContents(ASTNode lazyNode) {
       final PsiElement parentElement = lazyNode.getTreeParent().getPsi();

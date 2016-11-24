@@ -161,7 +161,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
 
   private def parseModifiers(modifiers: ScModifierList, entry: ScalaArrangementEntry) {
     if (modifiers != null) {
-      for (modName <- modifiers.getModifiersStrings) {
+      for (modName <- modifiers.modifiers) {
         getModifierByName(modName).flatMap((mod: ArrangementSettingsToken) => {
           entry.addModifier(mod); None
         })

@@ -40,7 +40,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
 
   def getSettings: CodeStyleSettings = mySettings
 
-  def getCommonSettings: CommonCodeStyleSettings = mySettings.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+  def getCommonSettings: CommonCodeStyleSettings = mySettings.getCommonSettings(ScalaLanguage.INSTANCE)
 
   def getTextRange: TextRange =
     if (myLastNode == null) myNode.getTextRange
@@ -58,7 +58,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
 
   def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = mySettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val indentSize = mySettings.getIndentSize(ScalaFileType.SCALA_FILE_TYPE)
+    val indentSize = mySettings.getIndentSize(ScalaFileType.INSTANCE)
     val parent = getNode.getPsi
     val braceShifted = mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     def isBlockOnlyScope(scope: PsiElement) = !isLeaf &&

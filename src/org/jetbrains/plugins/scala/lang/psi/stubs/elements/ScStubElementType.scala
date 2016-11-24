@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
   * @author ilyas
   */
 abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debugName: String)
-  extends IStubElementType[S, T](debugName, ScalaLanguage.Instance) with SelfPsiCreator with DefaultStubSerializer[S] {
+  extends IStubElementType[S, T](debugName, ScalaLanguage.INSTANCE) with SelfPsiCreator with DefaultStubSerializer[S] {
 
   override def createElement(node: ASTNode): T
 

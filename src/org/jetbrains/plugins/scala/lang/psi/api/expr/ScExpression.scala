@@ -6,7 +6,6 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.{ElementText, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -17,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -481,11 +480,12 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
  *
    * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
    */
-  def getImplicitConversions(fromUnder: Boolean = false,
+  def getImplicitConversions(fromUnderscore: Boolean = false,
                              expectedOption: => Option[ScType] = smartExpectedType()):
     (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val map = new ScImplicitlyConvertible(this).implicitMap(fromUnder = fromUnder, args = expectedTypes(fromUnder).toSeq)
-    val implicits: Seq[PsiNamedElement] = map.map(_.element)
+    val (regularResults, companionResults) = new ScImplicitlyConvertible(this, fromUnderscore)
+      .implicitMap(arguments = expectedTypes(fromUnderscore).toSeq)
+
     val implicitFunction: Option[PsiNamedElement] = getParent match {
       case ref: ScReferenceExpression =>
         val resolve = ref.multiResolve(false)
@@ -503,9 +503,12 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         case _ => None
       }
       case _ => getTypeAfterImplicitConversion(expectedOption = expectedOption,
-        fromUnderscore = fromUnder).implicitFunction
+        fromUnderscore = fromUnderscore).implicitFunction
     }
-    (implicits, implicitFunction, map.filter(!_.isFromCompanion).map(_.element), map.filter(_.isFromCompanion).map(_.element))
+
+    val regularElements = regularResults.map(_.element)
+    val companionElements = companionResults.map(_.element)
+    (regularElements ++ companionElements, implicitFunction, regularElements, companionElements)
   }
 
   final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
@@ -538,8 +541,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
             case _ => res += i
           }
-        case ScInfixExpr(ScExpression.Type(api.Boolean), ElementText(op), right@ScExpression.Type(api.Boolean))
-          if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
+        case ScInfixExpr(left, ElementText(op), right)
+          if withBooleanInfix && (op == "&&" || op == "||") &&
+            left.getType(TypingContext.empty).exists(_ == api.Boolean) &&
+            right.getType(TypingContext.empty).exists(_ == api.Boolean) => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el
       }
@@ -557,16 +562,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     var cand = applyProc.candidates
     if (cand.length == 0 && call.isDefined) {
       val expr = call.get.getEffectiveInvokedExpr
-      ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false) match {
-        case Some(res) =>
-          var state = ResolveState.initial.put(CachesUtil.IMPLICIT_FUNCTION, res.element)
-          res.getClazz match {
-            case Some(cl: PsiClass) => state = state.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, cl)
-            case _ =>
-          }
-          applyProc.processType(res.getTypeWithDependentSubstitutor, expr, state)
-          cand = applyProc.candidates
-        case _ =>
+      ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false).foreach { result =>
+        val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImplicitFunction
+        applyProc.processType(result.getTypeWithDependentSubstitutor, expr, builder.state)
+        cand = applyProc.candidates
       }
     }
     if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {

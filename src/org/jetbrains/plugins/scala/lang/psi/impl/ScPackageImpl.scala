@@ -6,12 +6,12 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -33,7 +33,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
-    if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE && pack.getQualifiedName == "scala") {
+    if (place.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && pack.getQualifiedName == "scala") {
       if (!BaseProcessor.isImplicitProcessor(processor)) {
         val scope = processor match {
           case r: ResolveProcessor => r.getResolveScope
@@ -64,7 +64,7 @@ class ScPackageImpl private (val pack: PsiPackage) extends PsiPackageImpl(pack.g
     }
 
     //for Scala
-    if (place.getLanguage == ScalaFileType.SCALA_LANGUAGE) {
+    if (place.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {
       val scope = processor match {
         case r: ResolveProcessor => r.getResolveScope
         case _ => place.getResolveScope

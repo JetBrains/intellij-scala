@@ -24,7 +24,7 @@ class MetaAnnotationsTest extends MetaAnnotationTestBase {
         |}
       """.stripMargin
     )
-    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE,
+    myFixture.configureByText(ScalaFileType.INSTANCE,
       s"""
          |@main
          |object Foo {

@@ -31,7 +31,7 @@ class ScalaCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
     DisplayPriority.COMMON_SETTINGS
   }
 
-  override def getLanguage = ScalaFileType.SCALA_LANGUAGE
+  override def getLanguage = ScalaLanguage.INSTANCE
 
   override def createCustomSettings(settings: CodeStyleSettings) = new ScalaCodeStyleSettings(settings)
 }

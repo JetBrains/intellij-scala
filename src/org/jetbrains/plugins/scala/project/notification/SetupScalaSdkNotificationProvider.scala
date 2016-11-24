@@ -21,7 +21,7 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
   override def getKey = ProviderKey
 
   override protected def isSourceCode(file: PsiFile) =
-    file.getLanguage == ScalaLanguage.Instance &&
+    file.getLanguage.isKindOf(ScalaLanguage.INSTANCE) &&
       !file.getName.endsWith(".sbt") && // root SBT files belong to main (not *-build) modules
       file.isWritable
 

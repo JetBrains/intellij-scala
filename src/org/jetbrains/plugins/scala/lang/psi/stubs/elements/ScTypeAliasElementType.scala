@@ -20,9 +20,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
   override def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)
-    dataStream.writeOptionName(stub.typeElementText)
-    dataStream.writeOptionName(stub.lowerBoundElementText)
-    dataStream.writeOptionName(stub.upperBoundElementText)
+    dataStream.writeOptionName(stub.typeText)
+    dataStream.writeOptionName(stub.lowerBoundText)
+    dataStream.writeOptionName(stub.upperBoundText)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isDeclaration)
     dataStream.writeBoolean(stub.isStableQualifier)
@@ -31,9 +31,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
     new ScTypeAliasStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this,
       nameRef = dataStream.readName,
-      typeElementTextRef = dataStream.readOptionName,
-      lowerTypeElementTextRef = dataStream.readOptionName,
-      upperTypeElementTextRef = dataStream.readOptionName,
+      typeTextRef = dataStream.readOptionName,
+      lowerBoundTextRef = dataStream.readOptionName,
+      upperBoundTextRef = dataStream.readOptionName,
       isLocal = dataStream.readBoolean,
       isDeclaration = dataStream.readBoolean,
       isStableQualifier = dataStream.readBoolean)
@@ -73,9 +73,9 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
 
     new ScTypeAliasStubImpl(parentStub, this,
       nameRef = fromString(alias.name),
-      typeElementTextRef = aliasedTypeText.asReference,
-      lowerTypeElementTextRef = lowerBoundText.asReference,
-      upperTypeElementTextRef = upperBoundText.asReference,
+      typeTextRef = aliasedTypeText.asReference,
+      lowerBoundTextRef = lowerBoundText.asReference,
+      upperBoundTextRef = upperBoundText.asReference,
       isLocal = maybeContainingClass.isEmpty,
       isDeclaration = maybeDeclaration.isDefined,
       isStableQualifier = isStableQualifier)

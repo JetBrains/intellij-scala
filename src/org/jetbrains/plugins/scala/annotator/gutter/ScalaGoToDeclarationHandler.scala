@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import com.intellij.psi.ResolveResult
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiFile, PsiMethod, ResolveResult}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -14,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,7 +31,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (containingFile == null) return null
     val sourceElement = containingFile.findElementAt(offset)
     if (sourceElement == null) return null
-    if (sourceElement.getLanguage != ScalaFileType.SCALA_LANGUAGE) return null
+    if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
     if (sourceElement.getNode.getElementType == ScalaTokenTypes.tASSIGN) {
       return sourceElement.getParent match {

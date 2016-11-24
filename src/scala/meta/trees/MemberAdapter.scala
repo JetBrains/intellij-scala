@@ -26,7 +26,7 @@ trait MemberAdapter {
           case e: ScClass => toClass(e)
           case e: ScObject => toObject(e)
         }
-        members += res
+//        members += res
       }
       override def visitFunctionDefinition(fun: ScFunctionDefinition) = {
         members += toFunDefn(fun)

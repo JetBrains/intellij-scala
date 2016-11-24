@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
+import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.IMPLICITS_KEY
@@ -63,6 +64,9 @@ package object elements {
       StringRef.toString
     }.filter {
       _.nonEmpty
+    } match {
+      case Array() => EMPTY_STRING_ARRAY
+      case array => array
     }
   }
 
@@ -88,34 +92,6 @@ package object elements {
 
     def indexImplicit(sink: IndexSink): Unit =
       sink.occurrence(IMPLICITS_KEY, "implicit")
-  }
-
-  implicit class StubBaseExt(val stubBase: StubBase[_ <: PsiElement]) extends AnyVal {
-
-    def updateOptionalReference[E <: PsiElement](reference: SofterReference[Option[E]])
-                                                (elementConstructor: (PsiElement, PsiElement) => Option[E]): SofterReference[Option[E]] =
-      updateReferenceWithFilter(reference, elementConstructor)(_.toSeq)
-
-    def updateReference[E <: PsiElement](reference: SofterReference[Seq[E]])
-                                        (elementConstructor: (PsiElement, PsiElement) => Seq[E]): SofterReference[Seq[E]] =
-      updateReferenceWithFilter(reference, elementConstructor)
-
-    private def updateReferenceWithFilter[E <: PsiElement, T](reference: SofterReference[T],
-                                                              elementConstructor: (PsiElement, PsiElement) => T)
-                                                             (implicit evidence: T => Seq[E]): SofterReference[T] =
-      Option(reference).filter {
-        _.get match {
-          case null => false
-          case Seq() => true
-          case seq => seq.forall(hasSameContext)
-        }
-      }.getOrElse {
-        new SofterReference(elementConstructor(psi, null))
-      }
-
-    private def hasSameContext: PsiElement => Boolean = _.getContext eq psi
-
-    private def psi = stubBase.getPsi
   }
 
 }

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.{PsiClass, PsiMethod, PsiModifierList}
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 import _root_.scala.collection.immutable.HashMap
@@ -23,7 +23,7 @@ class StaticPsiMethodWrapper private (val method: PsiMethod, containingClass: Ps
     }
   }
 
-  override def getModifierList: PsiModifierList = new LightModifierList(getManager, ScalaFileType.SCALA_LANGUAGE) {
+  override def getModifierList: PsiModifierList = new LightModifierList(getManager, ScalaLanguage.INSTANCE) {
     override def hasModifierProperty(name: String): Boolean = {
       name match {
         case "static" => true

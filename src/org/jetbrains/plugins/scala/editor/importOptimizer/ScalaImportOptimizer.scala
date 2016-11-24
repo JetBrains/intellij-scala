@@ -69,8 +69,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val scalaFile = file match {
       case scFile: ScalaFile => scFile
-      case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE =>
-        multiRootFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE).asInstanceOf[ScalaFile]
+      case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages.contains(ScalaLanguage.INSTANCE) =>
+        multiRootFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE).asInstanceOf[ScalaFile]
       case _ => return EmptyRunnable.getInstance()
     }
 
@@ -331,7 +331,7 @@ object ScalaImportOptimizer {
     val optimizers = LanguageImportStatements.INSTANCE.forFile(topLevelFile)
     if (optimizers.isEmpty) return None
 
-    if (topLevelFile.getViewProvider.getPsi(ScalaFileType.SCALA_LANGUAGE) == null) return None
+    if (topLevelFile.getViewProvider.getPsi(ScalaLanguage.INSTANCE) == null) return None
 
     val i = optimizers.iterator()
     while (i.hasNext) {

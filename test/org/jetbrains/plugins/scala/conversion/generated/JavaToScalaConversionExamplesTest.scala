@@ -56,4 +56,6 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
       TypeAnnotationSettings.noTypeAnnotationForOverride(
         TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
     ))
+
+  def testImports() = doTest()
 }

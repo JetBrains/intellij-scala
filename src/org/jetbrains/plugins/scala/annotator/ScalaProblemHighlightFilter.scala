@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
   def shouldHighlight(file: PsiFile): Boolean = {
     file match {
-      case scalaFile: ScalaFile if scalaFile.getFileType == ScalaFileType.SCALA_FILE_TYPE => // can be for example sbt file type
+      case scalaFile: ScalaFile if scalaFile.getFileType == ScalaFileType.INSTANCE => // can be for example sbt file type
         !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) || 
           scalaFile.getViewProvider.getFileType == ScratchFileType.INSTANCE || 
           scalaFile.isScriptFile(true) || ScalaConsoleInfo.isConsole(file)
@@ -26,7 +26,7 @@ class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
 
   override def shouldProcessInBatch(file: PsiFile): Boolean = {
     if (ProblemHighlightFilter.shouldHighlightFile(file)) {
-      if (file.getFileType == ScalaFileType.SCALA_FILE_TYPE) {
+      if (file.getFileType == ScalaFileType.INSTANCE) {
         val vFile: VirtualFile = file.getVirtualFile
         if (vFile != null && ProjectRootManager.getInstance(file.getProject).getFileIndex.isInLibrarySource(vFile)) {
           return false

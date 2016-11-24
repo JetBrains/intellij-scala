@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, SlowTests, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.junit.experimental.categories.Category
 
 /**
@@ -90,9 +89,9 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
 
     val searchScope =
       new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(myProject),
-        ScalaFileType.SCALA_FILE_TYPE, JavaFileType.INSTANCE), myProject)
+        ScalaFileType.INSTANCE, JavaFileType.INSTANCE), myProject)
 
-    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.SCALA_FILE_TYPE, searchScope)
+    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
 
     LocalFileSystem.getInstance().refreshFiles(files)
 

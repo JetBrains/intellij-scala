@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -38,12 +39,7 @@ class ScParameterClauseImpl private(stub: StubElement[ScParameterClause], nodeTy
     getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory)
   }
 
-  @volatile
-  private var synthClause: Option[ScParameterClause] = None
-  @volatile
-  private var synthClauseModCount: Long = -1
-  private val SYNTH_LOCK = new Object()
-
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   override def effectiveParameters: Seq[ScParameter] = {
     if (!isImplicit) return parameters
     //getParent is sufficient (not getContext), for synthetic clause, getParent will return other PSI,
@@ -61,20 +57,8 @@ class ScParameterClauseImpl private(stub: StubElement[ScParameterClause], nodeTy
             case _ => return parameters
           }
 
-        def syntheticClause(): Option[ScParameterClause] = {
-          val modCount = getManager.getModificationTracker.getModificationCount
-          if (synthClauseModCount == modCount) return synthClause
-          SYNTH_LOCK synchronized {
-            //it's important for all calculations to have the same psi here
-            if (synthClauseModCount == modCount) return synthClause
-            synthClause = ScalaPsiUtil.syntheticParamClause(element, clauses,
-              element.isInstanceOf[ScClass], hasImplicit = false)
-            synthClauseModCount = modCount
-            synthClause
-          }
-        }
-
-        syntheticClause() match {
+        val syntheticClause = ScalaPsiUtil.syntheticParamClause(element, clauses, element.isInstanceOf[ScClass], hasImplicit = false)
+        syntheticClause match {
           case Some(sClause) =>
             val synthParameters = sClause.parameters
             synthParameters.foreach(_.setContext(this, null))

@@ -15,7 +15,7 @@ import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -210,9 +210,14 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
       context match {
         case context: CreateParameterInfoContext =>
           val res = args.getParent match {
-            case ScGenericCall(ref: ResolvableReferenceExpression, _) => fromResolved(ref)
+            case ScGenericCall(expr, _) => expr.asOptionOf[ResolvableReferenceExpression].flatMap(fromResolved(_))
             case ScInfixExpr(_, ref, _) => fromResolved(ref)
-            case ScParameterizedTypeElement(ScSimpleTypeElement(Some(ref)), _) => fromResolved(ref, useActualElement = true)
+            case ScParameterizedTypeElement(typeElem, _) =>
+              typeElem match {
+                case pt: ScTypeProjection => fromResolved(pt, useActualElement = true)
+                case ScSimpleTypeElement(Some(ref)) => fromResolved(ref, useActualElement = true)
+                case _ => None
+              }
             case _: ScMacroDefinition => None//todo:
           }
           context.setItemsToShow(res.toArray)

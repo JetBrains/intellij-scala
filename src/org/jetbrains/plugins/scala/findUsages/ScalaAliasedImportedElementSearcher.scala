@@ -43,26 +43,28 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
 
   private class MyProcessor(myTarget: PsiElement, prefix: String,
                             mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
-    private def getAlias(element: PsiElement): String = {
-        if (!element.getParent.isInstanceOf[ScImportSelector]) return null
-      val importStatement: ScImportSelector = element.getParent.asInstanceOf[ScImportSelector]
-      importStatement.importedName
+    private def getAlias(element: PsiElement) = Option(element.getParent).collect {
+      case selector: ScImportSelector => selector
+    }.flatMap {
+      _.importedName
     }
 
     def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = inReadAction {
-      val alias: String = getAlias(element)
-      if (alias == null) return true
-      val reference: PsiReference = element.getReference
-      if (reference == null) {
-        return true
+      getAlias(element) match {
+        case Some(alias) =>
+          val reference: PsiReference = element.getReference
+          if (reference == null) {
+            return true
+          }
+          if (!reference.isReferenceTo(myTarget)) {
+            return true
+          }
+          val collector: SearchRequestCollector = new SearchRequestCollector(mySession)
+          val fileScope: SearchScope = new LocalSearchScope(element.getContainingFile)
+          collector.searchWord(alias, fileScope, UsageSearchContext.IN_CODE, true, myTarget)
+          PsiSearchHelper.SERVICE.getInstance(element.getProject).processRequests(collector, consumer)
+        case _ => true
       }
-      if (!reference.isReferenceTo(myTarget)) {
-        return true
-      }
-      val collector: SearchRequestCollector = new SearchRequestCollector(mySession)
-      val fileScope: SearchScope = new LocalSearchScope(element.getContainingFile)
-      collector.searchWord(alias, fileScope, UsageSearchContext.IN_CODE, true, myTarget)
-      PsiSearchHelper.SERVICE.getInstance(element.getProject).processRequests(collector, consumer)
     }
   }
 

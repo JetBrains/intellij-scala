@@ -765,6 +765,24 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5728(): Unit = doTest()
 
+  def testSCL8705(): Unit = doTest(
+    """
+      |trait Ura[M[_]] { self =>
+      |  type S
+      |
+      |  def start : M[S]
+      |
+      |  def foo = new Ura[M] {
+      |    type S = (Ura.this.S, Int)
+      |
+      |    def start = /*start*/self.start/*end*/
+      |  }
+      |
+      |}
+      |//M[Ura.this.S]
+    """.stripMargin
+  )
+
   def testSCL8800(): Unit = doTest()
 
   def testSCL8933(): Unit = doTest()
@@ -972,4 +990,19 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |
       | //Int""".stripMargin
   )
+
+  // wrong highlighting in scala lang 2.10.
+  // 2.11, 2.12 - ok
+  def testSCL9677(): Unit = doTest(
+    s"""
+       |import scala.concurrent.Future
+       |
+       |
+       |val s = for (i <- 1 to 100) yield Future.successful(0)  // infers IndexedSeq[Future[Int]] correctly
+       |
+       |//Future.sequence(s) //correct
+       |Future.sequence{${START}s$END}
+       |
+       |//IndexedSeq[Future[Int]]
+    """.stripMargin)
 }

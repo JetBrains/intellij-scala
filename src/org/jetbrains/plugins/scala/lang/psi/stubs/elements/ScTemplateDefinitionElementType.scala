@@ -56,6 +56,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       isVisibleInJava = dataStream.readBoolean)
 
   override def createStub(definition: ScTemplateDefinition, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
+    ScTemplateDefinitionElementType.isStubBuilding.set(true)
     val fileName = definition.containingVirtualFile.map {
       _.getName
     }.orNull
@@ -88,7 +89,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     val isLocal = definition.containingClass == null &&
       PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
 
-    new ScTemplateDefinitionStubImpl(parent, this,
+    val result = new ScTemplateDefinitionStubImpl(parent, this,
       nameRef = fromString(definition.name),
       qualifiedNameRef = fromString(definition.qualifiedName),
       javaQualifiedNameRef = fromString(definition.getQualifiedName),
@@ -102,6 +103,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       additionalJavaNamesRefs = definition.additionalJavaNames.asReferences,
       isLocal = isLocal,
       isVisibleInJava = isOkForJava(definition))
+    ScTemplateDefinitionElementType.isStubBuilding.set(false)
+    result
   }
 
   override def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink): Unit = {
@@ -153,4 +156,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
+}
+
+object ScTemplateDefinitionElementType {
+  val isStubBuilding: ThreadLocal[Boolean] = new ThreadLocal[Boolean]
 }

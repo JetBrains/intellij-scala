@@ -65,7 +65,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def isScalaTemplate(template: FileTemplate): Boolean = {
     val fileType: FileType = FileTypeManagerEx.getInstanceEx.getFileTypeByExtension(template.getExtension)
-    fileType == ScalaFileType.SCALA_FILE_TYPE
+    fileType == ScalaFileType.INSTANCE
   }
 
   def getActionName(directory: PsiDirectory, newName: String, templateName: String): String = {
@@ -108,10 +108,8 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
 
   private def createClassFromTemplate(directory: PsiDirectory, className: String, templateName: String,
                                       parameters: String*): PsiFile = {
-    NewScalaTypeDefinitionAction.createFromTemplate(directory, className, className + SCALA_EXTENSION, templateName, parameters: _*)
+    NewScalaTypeDefinitionAction.createFromTemplate(directory, className, templateName, parameters: _*)
   }
-
-  private val SCALA_EXTENSION = ".scala"
 
   def checkPackageExists(directory: PsiDirectory): Boolean = {
     JavaDirectoryService.getInstance.getPackage(directory) != null
@@ -122,8 +120,7 @@ object NewScalaTypeDefinitionAction {
   @NonNls private[actions] val NAME_TEMPLATE_PROPERTY: String = "NAME"
   @NonNls private[actions] val LOW_CASE_NAME_TEMPLATE_PROPERTY: String = "lowCaseName"
 
-  def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
-                         parameters: String*): PsiFile = {
+  def createFromTemplate(directory: PsiDirectory, name: String, templateName: String, parameters: String*): PsiFile = {
     val project = directory.getProject
     val template: FileTemplate = FileTemplateManager.getInstance(project).getInternalTemplate(templateName)
     val properties: Properties = new Properties(FileTemplateManager.getInstance(project).getDefaultProperties())
@@ -150,7 +147,8 @@ object NewScalaTypeDefinitionAction {
         throw new RuntimeException("Unable to load template for " + FileTemplateManager.getInstance.internalTemplateToSubject(templateName), e)
     }
     val factory: PsiFileFactory = PsiFileFactory.getInstance(project)
-    val file: PsiFile = factory.createFileFromText(fileName, ScalaFileType.SCALA_FILE_TYPE, text)
+    val scalaFileType = ScalaFileType.INSTANCE
+    val file: PsiFile = factory.createFileFromText(s"$name.${scalaFileType.getDefaultExtension}", scalaFileType, text)
     CodeStyleManager.getInstance(project).reformat(file)
     directory.add(file).asInstanceOf[PsiFile]
   }

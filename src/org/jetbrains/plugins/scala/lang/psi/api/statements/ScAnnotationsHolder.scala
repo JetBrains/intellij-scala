@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedMacroUtil, ModCount}
 
-import scala.meta.intellij.ExpansionUtil
+import scala.meta.intellij.MetaExpansionsManager
 
 /**
  * User: Alexander Podkhalyuzin
@@ -112,11 +112,11 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
-  def getExpansionText: Either[String, String] = {
+  def getMetaExpansion: Either[String, scala.meta.Tree] = {
     val metaAnnotation = annotations.find(_.isMetaAnnotation)
     metaAnnotation match {
-      case Some(annot) => ExpansionUtil.runMetaAnnotation(annot).right.map(_.toString())
-      case None        => Right("")
+      case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
+      case None        => Left("")
     }
   }
 

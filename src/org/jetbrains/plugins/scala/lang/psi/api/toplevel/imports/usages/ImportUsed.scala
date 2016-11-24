@@ -37,7 +37,7 @@ object ImportUsed {
 case class ImportExprUsed(expr: ScImportExpr) extends ImportUsed(expr) {
   override def qualName: Option[String] = {
     if (expr.qualifier == null) None
-    else if (expr.singleWildcard) Some(expr.qualifier.qualName + "._")
+    else if (expr.isSingleWildcard) Some(expr.qualifier.qualName + "._")
     else expr.reference.map(ref => expr.qualifier.qualName + "." + ref.refName)
   }
 
@@ -74,8 +74,10 @@ case class ImportExprUsed(expr: ScImportExpr) extends ImportUsed(expr) {
  */
 case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
   override def qualName: Option[String] = {
-    val expr: ScImportExpr = PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])
-    expr.reference.map(ref => ref.qualName + "." + sel.reference.refName)
+    val importExpr = PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])
+    importExpr.reference.zip(sel.reference).map {
+      case (left, right) => s"${left.qualName}.${right.refName}"
+    }.headOption
   }
 
   override def toString: String = "ImportSelectorUsed(" + super.toString + ")"

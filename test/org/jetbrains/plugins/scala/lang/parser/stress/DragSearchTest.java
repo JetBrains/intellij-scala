@@ -84,7 +84,7 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
     exploreForDrags(dragInfo);
 
     PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(TEMP_FILE,
-        ScalaFileType.SCALA_FILE_TYPE, fileText);
+            ScalaFileType.INSTANCE, fileText);
     return DebugUtil.psiToString(psiFile, false);
   }
 

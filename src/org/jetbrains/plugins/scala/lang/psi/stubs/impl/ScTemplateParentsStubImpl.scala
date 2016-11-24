@@ -11,7 +11,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createConstructorTypeElementFromText, createTypeElementFromText}
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StringRefArrayExt, StubBaseExt}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{MaybeStringRefExt, StringRefArrayExt}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -20,13 +20,13 @@ class ScTemplateParentsStubImpl[P <: ScTemplateParents](parent: StubElement[_ <:
                                                         elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                                                         private val parentTypeTextRefs: Array[StringRef],
                                                         private val constructorRef: Option[StringRef])
-  extends StubBase[P](parent, elementType) with ScTemplateParentsStub[P] {
+  extends StubBase[P](parent, elementType) with ScTemplateParentsStub[P] with PsiOwner[P] {
   private var parentTypesElementReferences: SofterReference[Seq[ScTypeElement]] = null
 
   def parentTypesTexts: Array[String] = parentTypeTextRefs.asStrings
 
   def parentTypeElements: Seq[ScTypeElement] = {
-    parentTypesElementReferences = this.updateReference(parentTypesElementReferences) {
+    parentTypesElementReferences = updateReference(parentTypesElementReferences) {
       case (context, child) =>
         constructorText.toSeq.map {
           createConstructorTypeElementFromText(_, context, child)

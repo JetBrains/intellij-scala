@@ -33,7 +33,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
 
     if(editor == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, CommonDataKeys.PROJECT.getData(context))
-    if (file.getLanguage != ScalaFileType.SCALA_LANGUAGE) return
+    if (!file.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return
 
     val selectionModel = editor.getSelectionModel
     if (selectionModel.hasSelection) {

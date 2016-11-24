@@ -4,7 +4,7 @@ import com.intellij.lang.PsiBuilderFactory
 import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.impl.source.tree.{FileElement, TreeElement}
 import com.intellij.psi.{PsiElement, PsiFileFactory}
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
@@ -22,7 +22,7 @@ class BlockParseTest extends SimpleTestCase {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl = new ScalaPsiBuilderImpl(
       PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder, new ScalaLexer,
-        ScalaFileType.SCALA_LANGUAGE, s)
+        ScalaLanguage.INSTANCE, s)
     )
     BlockExpr.parse(builder)
     val node = builder.getTreeBuilt

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.macros.expansion
 
 import java.awt.event.MouseEvent
-import java.io.File
 import java.util
 import javax.swing.Icon
 
@@ -14,6 +13,7 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.util.Function
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.JavaConversions._
-import scala.meta.intellij.ExpansionUtil
+import scala.meta.intellij.MetaExpansionsManager
 
 class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
@@ -30,43 +30,32 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER ) return
-    val p = element.getParent
-    processElement(p).foreach(result.add)
+    processElement(element).foreach(result.add)
   }
 
   private def processElement(element: PsiElement): Option[Marker] = {
-    element match {
+    element.getParent match {
       case holder: ScAnnotationsHolder =>
         val metaAnnot: Option[ScAnnotation] = holder.annotations.find(_.isMetaAnnotation)
         metaAnnot.map { annot =>
-          ExpansionUtil.getCompiledMetaAnnotClass(annot) match {
-            case Some(clazz) if isUpToDate(annot, clazz) => createExpandLineMarker(holder, annot)
-            case _                                       => createNotCompiledLineMarker(holder, annot)
+          MetaExpansionsManager.getCompiledMetaAnnotClass(annot) match {
+            case Some(clazz) if MetaExpansionsManager.isUpToDate(annot, clazz) => createExpandLineMarker(annot.getFirstChild, annot)
+            case _                                                     => createNotCompiledLineMarker(annot.getFirstChild, annot)
           }
         }
       case _ => None
     }
   }
 
-  private def isUpToDate(annot: ScAnnotation, clazz: Class[_]): Boolean = {
-    try {
-      val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath)
-      val sourceFile = new File(annot.constructor.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
-      classFile.exists() && classFile.lastModified() >= sourceFile.lastModified()
-    } catch {
-      case _:Exception => false
-    }
-  }
-
-  private def createExpandLineMarker(holder: ScAnnotationsHolder, annot: ScAnnotation): Marker = {
-    newMarker(holder, AllIcons.General.ExpandAllHover, "Expand scala.meta macro") { _=>
+  private def createExpandLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
+    newMarker(element, AllIcons.General.ExpandAllHover, ScalaBundle.message("scala.meta.expand")) { _=>
       MacroExpandAction.expandMetaAnnotation(annot)
     }
   }
 
-  private def createNotCompiledLineMarker(holder: ScAnnotationsHolder, annot: ScAnnotation): Marker = {
+  private def createNotCompiledLineMarker(element: PsiElement, annot: ScAnnotation): Marker = {
     import org.jetbrains.plugins.scala.project._
-    newMarker(holder, AllIcons.General.Help, "Metaprogram is out of date. Click here to compile.") { elt =>
+    newMarker(element, AllIcons.General.Help, ScalaBundle.message("scala.meta.recompile")) { elt =>
       CompilerManager.getInstance(elt.getProject).make(annot.constructor.reference.get.resolve().module.get,
         new CompileStatusNotification {
           override def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) = {

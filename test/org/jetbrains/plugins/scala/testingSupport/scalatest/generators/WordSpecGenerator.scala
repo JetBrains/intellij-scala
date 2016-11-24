@@ -31,7 +31,13 @@ trait WordSpecGenerator extends ScalaTestTestCase {
       |  "outer" should {
       |    "inner" in {}
       |  }
+      |
+      |  "tagged" should {
+      |    "be tagged" taggedAs(WordSpecTag) in {}
+      |  }
       |}
+      |
+      |object WordSpecTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 }

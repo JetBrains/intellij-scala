@@ -73,20 +73,20 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
-  
+
   def testSCL6409() = {
     val java =
       """
         |public class JavaDummy<T> {
         |    public void method(JavaDummy<? super JavaDummy<?>> arg) {}
         |}""".stripMargin
-    
+
     val scala =
       """
         |class Inheritor extends JavaDummy[Int] {
         |  override def method(arg: JavaDummy[_ <: JavaDummy[_]]): Unit = super.method(arg)
         |}""".stripMargin
-    
+
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
@@ -186,30 +186,6 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromJavaCode("", java, "Lambdas"))
   }
 
-  def testSCL10266(): Unit = {
-    val java =
-      """
-        |interface Mixin<T extends Mixin<T>> {}
-        |
-        |class AcceptMixin {
-        |    static void acceptMixin(Mixin mixin) {
-        |        System.out.println(mixin);
-        |    }
-        |}
-        |
-        |class FooWithMixin implements Mixin<FooWithMixin> {}
-      """.stripMargin
-
-    val scala =
-      """
-        |object ScalaTest extends App {
-        |  AcceptMixin.acceptMixin(new FooWithMixin());
-        |}
-      """.stripMargin
-
-    assertNothing(errorsFromScalaCode(scala, java))
-  }
-
   def testSCL10531(): Unit = {
     val java =
       """
@@ -239,6 +215,36 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    case Id(id) =>
         |      true
         |  }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
+  def testSCL10930() = {
+    val scala =
+      """
+        |  def testThis2(): Range[Integer] = {
+        |    Range.between(1, 3)
+        |  }
+      """.stripMargin
+
+    val java =
+      """
+        |import java.util.Comparator;
+        |
+        |public class Range<T> {
+        |
+        |    private Range(T element1, T element2, Comparator<T> comparator) {
+        |    }
+        |
+        |    public static <T extends Comparable<T>> Range<T> between(T fromInclusive, T toInclusive) {
+        |        return between(fromInclusive, toInclusive, null);
+        |    }
+        |
+        |    public static <T> Range<T> between(T fromInclusive, T toInclusive, Comparator<T> comparator) {
+        |        return new Range<T>(fromInclusive, toInclusive, comparator);
+        |    }
         |}
       """.stripMargin
 

@@ -108,7 +108,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
         |class A extends B
       """.stripMargin,
       Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), 
-        Template(Nil, List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+        Template(Nil, List(Term.Apply(Ctor.Ref.Name("B"), Nil)), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 
@@ -151,7 +151,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
       """.stripMargin,
       Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), 
         Template(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))),
-          Some(Type.Name("Int")), Lit(42))), List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+          Some(Type.Name("Int")), Lit(42))), List(Term.Apply(Ctor.Ref.Name("B"), Nil)), Term.Param(Nil, Name.Anonymous(), None, None), None))
     
     )
   }
@@ -255,7 +255,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
         |object A extends B
       """.stripMargin,
       Defn.Object(Nil, Term.Name("A"),
-        Template(Nil, List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+        Template(Nil, List(Term.Apply(Ctor.Ref.Name("B"), Nil)), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
   
@@ -268,7 +268,7 @@ class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
       """.stripMargin,
        Defn.Object(Nil, Term.Name("A"),
          Template(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), Some(Type.Name("Int")), Lit(2))),
-           List(Ctor.Ref.Name("B")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+           List(Term.Apply(Ctor.Ref.Name("B"), Nil)), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 

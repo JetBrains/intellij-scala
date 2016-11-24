@@ -5,7 +5,7 @@ import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettings, CommonCo
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.psi.impl.source.codeStyle.{CodeEditUtil, PostFormatProcessorHelper}
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElementVisitor {
   private val myPostProcessor: PostFormatProcessorHelper = new PostFormatProcessorHelper(settings)
-  private val commonSetttings = settings.getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
+  private val commonSetttings = settings.getCommonSettings(ScalaLanguage.INSTANCE)
   private val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
   override def visitIfStatement(stmt: ScIfStmt) {

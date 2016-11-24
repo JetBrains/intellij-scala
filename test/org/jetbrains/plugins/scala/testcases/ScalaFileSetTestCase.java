@@ -19,7 +19,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.ScalaFileType;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.ScalaLoader;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
@@ -32,7 +32,7 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   }
 
   protected CommonCodeStyleSettings getSettings() {
-    return CodeStyleSettingsManager.getSettings(getProject()).getCommonSettings(ScalaFileType.SCALA_LANGUAGE);
+      return CodeStyleSettingsManager.getSettings(getProject()).getCommonSettings(ScalaLanguage.INSTANCE);
   }
 
   protected void setSettings() {

@@ -2,24 +2,20 @@ package scala.meta.trees
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, api => p, types => ptype}
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
 //import scala.meta.internal.ast.Term
 //import scala.meta.internal.ast.Term.Param
 import scala.meta.internal.{semantic => h}
-import scala.{meta=>m}
 import scala.meta.trees.error._
-import scala.{Seq => _}
+import scala.{meta => m, Seq => _}
 
 trait TreeAdapter {
   self: TreeConverter =>
@@ -40,6 +36,7 @@ trait TreeAdapter {
       case t: ScTrait => toTrait(t)
       case t: ScClass => toClass(t)
       case t: ScObject => toObject(t)
+      case t: ScAnnotation => toAnnot(t)
       case t: ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
 
@@ -48,6 +45,10 @@ trait TreeAdapter {
 
       case other => other ?!
     }
+  }
+
+  def toAnnotCtor(annot: ScAnnotation): m.Term.New = {
+    m.Term.New(m.Template(Nil, Seq(toCtor(annot.constructor)), m.Term.Param(Nil, m.Name.Anonymous(), None, None), None))
   }
 
   def toMacroDefn(t: ScMacroDefinition): m.Defn.Macro = {
@@ -101,21 +102,33 @@ trait TreeAdapter {
     m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get))
   }
 
-  def toTrait(t: ScTrait) = m.Defn.Trait(
-    convertMods(t),
-    toTypeName(t),
-    Seq(t.typeParameters map toTypeParams:_*),
-    m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
-    template(t.extendsBlock)
-  )
+  def toTrait(t: ScTrait) = {
+    val defn = m.Defn.Trait(
+      convertMods(t),
+      toTypeName(t),
+      Seq(t.typeParameters map toTypeParams: _*),
+      m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
+      template(t.extendsBlock)
+    )
+    ScalaPsiUtil.getBaseCompanionModule(t) match {
+      case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
+      case _      => defn
+    }
+  }
 
-  def toClass(c: ScClass) = m.Defn.Class(
-    convertMods(c),
-    toTypeName(c),
-    Seq(c.typeParameters map toTypeParams:_*),
-    ctor(c.constructor),
-    template(c.extendsBlock)
-  )
+  def toClass(c: ScClass) = {
+    val defn = m.Defn.Class(
+      convertMods(c),
+      toTypeName(c),
+      Seq(c.typeParameters map toTypeParams: _*),
+      ctor(c.constructor),
+      template(c.extendsBlock)
+    )
+    ScalaPsiUtil.getBaseCompanionModule(c) match {
+      case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
+      case _      => defn
+    }
+  }
 
   def toClass(c: PsiClass) = m.Defn.Class(
     convertMods(c.getModifierList),
@@ -183,7 +196,14 @@ trait TreeAdapter {
     val exprs   = t.templateBody map (it => Seq(it.exprs.map(expression): _*))
     val members = t.templateBody map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
     val early   = t.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
-    val parents = t.templateParents map (it => Seq(it.typeElements map ctorParentName :_*)) getOrElse Seq.empty
+    val parents = t.templateParents
+        .map(it => Seq(it.children.filter(_.isInstanceOf[ScConstructor])
+        .map(x=>toCtor(x.asInstanceOf[ScConstructor])).toSeq:_*))
+        .getOrElse(Seq.empty)
+    val parents2 = t.templateParents
+      .map(it => it.typeElementsWithoutConstructor.flatMap(x=>x.children.find(_.isInstanceOf[ScStableCodeReferenceElement]))
+        .map(c => toCtorName(c.asInstanceOf[ScStableCodeReferenceElement])))
+      .getOrElse(Seq.empty)
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
@@ -195,7 +215,7 @@ trait TreeAdapter {
       case (None, Some(hld))  => Some(hld)
       case (None, None)       => None
     }
-    m.Template(early, parents, self, stats)
+    m.Template(early, parents++parents2, self, stats)
   }
 
   // Java conversion
@@ -228,8 +248,11 @@ trait TreeAdapter {
       case Some(ref) => getCtorRef(ref)
       case None => die(s"No reference for ctor ${c.getText}")
     }
-    if (c.arguments.isEmpty)
-      ctorRef
+    if (c.arguments.isEmpty) {
+      if (paradiseCompatibilityHacks) {
+        m.Term.Apply(ctorRef, Nil)
+      } else { ctorRef }
+    }
     else {
       val head = m.Term.Apply(ctorRef, Seq(c.arguments.head.exprs.map(callArgs): _*))
       c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)))
@@ -409,16 +432,23 @@ trait TreeAdapter {
 
   def imports(t: p.toplevel.imports.ScImportExpr):m.Importer = {
     def selector(sel: p.toplevel.imports.ScImportSelector): m.Importee = {
-      if (sel.isAliasedImport && sel.importedName == "_")
-        m.Importee.Unimport(ind(sel.reference))
+      val importedName = sel.importedName.getOrElse {
+        throw new AbortException("Imported name is null")
+      }
+      val reference = sel.reference.getOrElse {
+        throw new AbortException("Reference is null")
+      }
+
+      if (sel.isAliasedImport && importedName == "_")
+        m.Importee.Unimport(ind(reference))
       else if (sel.isAliasedImport)
-        m.Importee.Rename(m.Name.Indeterminate(sel.reference.qualName), m.Name.Indeterminate(sel.importedName))
+        m.Importee.Rename(m.Name.Indeterminate(reference.qualName), m.Name.Indeterminate(importedName))
       else
-        m.Importee.Name(m.Name.Indeterminate(sel.importedName))
+        m.Importee.Name(m.Name.Indeterminate(importedName))
     }
     if (t.selectors.nonEmpty)
-      m.Importer(getQualifier(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Importee.Wildcard()) else Seq.empty))
-    else if (t.singleWildcard)
+      m.Importer(getQualifier(t.qualifier), Seq(t.selectors.map(selector): _*) ++ (if (t.isSingleWildcard) Seq(m.Importee.Wildcard()) else Seq.empty))
+    else if (t.isSingleWildcard)
       m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Wildcard()))
     else
       m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.getNames.head))))
@@ -482,12 +512,15 @@ trait TreeAdapter {
       case Some(mod) if mod.access == THIS_PROTECTED => Seq(m.Mod.Protected(m.Term.This(name)))
       case None => Seq.empty
     }
+    val caseMod = if (t.hasModifierPropertyScala("case")) Seq(m.Mod.Case()) else Nil
+    val implicitMod = if(t.hasModifierPropertyScala("implicit")) Seq(m.Mod.Implicit()) else Nil
+    val sealedMod = if (t.hasModifierPropertyScala("sealed")) Seq(m.Mod.Sealed()) else Nil
     val annotations: Seq[m.Mod.Annot] = t match {
       case ah: ScAnnotationsHolder => Seq(ah.annotations.filterNot(_.strip).map(toAnnot):_*)
       case _ => Seq.empty
     }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
-    annotations ++ overrideMod ++ common ++ classParam
+    annotations ++ implicitMod ++ sealedMod ++ caseMod ++ overrideMod ++ common ++ classParam
   }
 
   // Java conversion

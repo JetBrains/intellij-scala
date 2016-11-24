@@ -169,20 +169,19 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
 
     t match {
       case ScThisType(clazz) =>
-        val thisSubst = new ScSubstitutor(ScThisType(clazz))
         if (clazz.selfType.isEmpty) {
-          processElement(clazz, thisSubst, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
+          processElement(clazz, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
         } else {
           val selfType = clazz.selfType.get
           val clazzType: ScType = clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return true)
           if (selfType == ScThisType(clazz)) {
             //to prevent SOE, let's process Element
-            processElement(clazz, thisSubst, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
+            processElement(clazz, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           } else if (selfType.conforms(clazzType)) {
             processType(selfType, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)).
-              put(ScSubstitutor.key, thisSubst), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
+              put(ScSubstitutor.key, new ScSubstitutor(ScThisType(clazz))), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           } else if (clazzType.conforms(selfType)) {
-            processElement(clazz, thisSubst, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
+            processElement(clazz, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           } else {
             processType(clazz.selfType.map(_.glb(clazzType)).get, place,
               state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)

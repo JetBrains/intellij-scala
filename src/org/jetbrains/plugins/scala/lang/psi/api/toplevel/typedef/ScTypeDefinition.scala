@@ -9,12 +9,14 @@ import com.intellij.navigation.NavigationItem
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
+import com.intellij.psi.impl.source.PsiFileImpl
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Seq
 
@@ -73,13 +75,42 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def fakeCompanionModule: Option[ScObject] = {
     if (this.isInstanceOf[ScObject]) return None
-    ScalaPsiUtil.getBaseCompanionModule(this) match {
+    baseCompanionModule match {
       case Some(_: ScObject) => return None
       case _ if !isCase && !SyntheticMembersInjector.needsCompanion(this) => return None
       case _ =>
     }
 
     calcFakeCompanionModule()
+  }
+
+  @Cached(synchronized = true, ModCount.getJavaStructureModificationCount, this)
+  def baseCompanionModule(implicit tokenSets: TokenSets = getProject.tokenSets): Option[ScTypeDefinition] = {
+    Option(this.getContext).flatMap { scope =>
+      val tokenSet = tokenSets.typeDefinitions
+
+      val arrayOfElements: Array[PsiElement] = scope match {
+        case stub: StubBasedPsiElement[_] if stub.getStub != null =>
+          stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+        case file: PsiFileImpl if file.getStub != null =>
+          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+        case c => c.getChildren
+      }
+
+      val name = this.name
+      this match {
+        case _: ScClass | _: ScTrait =>
+          arrayOfElements.collectFirst {
+            case o: ScObject if o.name == name => o
+          }
+        case _: ScObject =>
+          arrayOfElements.collectFirst {
+            case c: ScClass if c.name == name => c
+            case t: ScTrait if t.name == name => t
+          }
+        case _ => None
+      }
+    }
   }
 
   @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
@@ -142,8 +173,4 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     objOption
   }
 
-  def isMetaAnnotatationImpl: Boolean = {
-    this.members
-    members.exists(_.getModifierList.findChildrenByType(ScalaTokenTypes.kINLINE).nonEmpty)
-  }
 }

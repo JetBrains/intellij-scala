@@ -6,7 +6,7 @@ import java.awt.Color
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.completion.JavaCompletionUtil
-import com.intellij.codeInsight.hint.{ParameterInfoController, ShowParameterInfoHandler}
+import com.intellij.codeInsight.hint.ShowParameterInfoHandler
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
@@ -472,9 +472,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case ScalaResolveResult(method: ScFunction, subst: ScSubstitutor) =>
                     val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
                     res += ((signature, i))
-                    ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
-                      res ++= enhancer.enhance(signature, args.arguments).map((_, i))
-                    }
+                    res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, i) }
                   case _ =>
                 }
               }
@@ -511,9 +509,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     case ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor) =>
                       val signature: PhysicalSignature = new PhysicalSignature(method, subst.followed(collectSubstitutor(method)))
                       res += ((signature, 0))
-                      ScalaParameterInfoEnhancer.enchancers.foreach { enhancer =>
-                        res ++= enhancer.enhance(signature, args.arguments).map(sign => (sign, 0))
-                      }
+                      res ++= ScalaParameterInfoEnhancer.enhance(signature, args.arguments).map { (_, 0) }
                     case ScalaResolveResult(typed: ScTypedDefinition, subst: ScSubstitutor) =>
                       val typez = subst.subst(typed.getType(TypingContext.empty).getOrNothing) //todo: implicit conversions
                       collectForType(typez)

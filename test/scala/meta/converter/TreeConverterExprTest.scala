@@ -44,7 +44,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         |//start
         |new Foo
       """.stripMargin,
-      Term.New(Template(Nil, List(Ctor.Ref.Name("Foo")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+      Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), Nil)), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 
@@ -80,8 +80,8 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   def testThrow(): Unit = {
     doTest(
       "throw new java.lang.RuntimeException",
-      Term.Throw(Term.New(Template(Nil, List(Ctor.Ref.Select(Term.Select(Term.Name("java"),
-        Term.Name("lang")), Ctor.Ref.Name("RuntimeException"))),
+      Term.Throw(Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Select(Term.Select(Term.Name("java"),
+        Term.Name("lang")), Ctor.Ref.Name("RuntimeException")), Nil)),
         Term.Param(Nil, Name.Anonymous(), None, None), None)))
     )
   }
@@ -158,7 +158,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
             Defn.Trait(Nil, Type.Name("Bar"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
               Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None)),
             Defn.Class(Nil, Type.Name("Baz"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
-              Template(Nil, List(Ctor.Ref.Name("Foo"), Ctor.Ref.Name("Bar")),
+              Template(Nil, List(Term.Apply(Ctor.Ref.Select(Term.Name("A"), Ctor.Ref.Name("Foo")), Nil), Ctor.Ref.Name("Bar")),
                 Term.Param(Nil, Name.Anonymous(), None, None),
                 Some(List(Term.Select(Term.Super(Name.Indeterminate("Baz"),
                   Name.Indeterminate("Foo")), Term.Name("hashCode")))))))

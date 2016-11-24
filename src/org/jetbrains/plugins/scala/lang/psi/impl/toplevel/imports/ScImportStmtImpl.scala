@@ -67,10 +67,14 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         }
         val nameHint = processor.getHint(NameHint.KEY)
         val name = if (nameHint == null) "" else nameHint.getName(state)
-        if (name != "" && !importExpr.singleWildcard) {
+        if (name != "" && !importExpr.isSingleWildcard) {
           val decodedName = ScalaNamesUtil.clean(name)
           importExpr.selectorSet match {
-            case Some(set) => set.selectors.exists(selector => ScalaNamesUtil.clean(selector.reference.refName) == decodedName)
+            case Some(set) => set.selectors.flatMap {
+              _.reference
+            }.exists {
+              reference => ScalaNamesUtil.clean(reference.refName) == decodedName
+            }
             case None => if (ScalaNamesUtil.clean(ref.refName) != decodedName) return true
           }
         }
@@ -82,7 +86,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         }
         val exprQual: ScStableCodeReferenceElement = importExpr.selectorSet match {
           case Some(_) => ref
-          case None if importExpr.singleWildcard => ref
+          case None if importExpr.isSingleWildcard => ref
           case None => ref.qualifier.getOrElse(return true)
         }
 
@@ -200,7 +204,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
               refType.foreach { tp =>
                 newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
               }
-              if (importExpr.singleWildcard) {
+              if (importExpr.isSingleWildcard) {
                 if (!checkWildcardImports) return true
                 (elem, processor) match {
                   case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
@@ -213,17 +217,20 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
               } else if (!processor.execute(elem, newState)) return false
             case Some(set) =>
               val shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty
-              set.selectors foreach {
-                selector =>
+              set.selectors.foreach { selector =>
                 ProgressManager.checkCanceled()
-                  val selectorResolve: Array[ResolveResult] = selector.reference.multiResolve(false)
-                  selectorResolve foreach { result =>
-                    if (selector.isAliasedImport && selector.importedName != selector.reference.refName) {
+                for (element <- selector.reference;
+                     result <- element.multiResolve(false)) {
+                  if (selector.isAliasedImport && selector.importedName != selector.reference.map(_.refName)) {
                       //Resolve the name imported by selector
                       //Collect shadowed elements
                       shadowed += ((selector, result.getElement))
                       var newState: ResolveState = state
-                      newState = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(selector.importedName))
+                    selector.importedName.map {
+                      ScalaNamesUtil.clean
+                    }.foreach { name =>
+                      newState = state.put(ResolverEnv.nameKey, name)
+                    }
                       newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
                         put(ScSubstitutor.key, subst)
                       calculateRefType(checkResolve(result)).foreach {tp =>
@@ -297,13 +304,12 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
               }
 
               //wildcard import first, to show that this imports are unused if they really are
-              set.selectors foreach {
-                selector =>
+              set.selectors.foreach { selector =>
                   ProgressManager.checkCanceled()
-                  val selectorResolve: Array[ResolveResult] = selector.reference.multiResolve(false)
-                  selectorResolve foreach { result =>
+                for (element <- selector.reference;
+                     result <- element.multiResolve(false)) {
                     var newState: ResolveState = state
-                    if (!selector.isAliasedImport || selector.importedName == selector.reference.refName) {
+                  if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
                       val rSubst = result match {
                         case result: ScalaResolveResult => result.substitutor
                         case _ => ScSubstitutor.empty

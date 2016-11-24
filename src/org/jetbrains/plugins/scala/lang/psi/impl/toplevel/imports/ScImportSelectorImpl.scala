@@ -11,44 +11,57 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.BooleanExt
+import org.jetbrains.plugins.scala.lang.TokenSets.ID_SET
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.IMPORT_SELECTOR
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 20.02.2008
-*/
-
-class ScImportSelectorImpl private (stub: StubElement[ScImportSelector], nodeType: IElementType, node: ASTNode)
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 20.02.2008
+  */
+class ScImportSelectorImpl private(stub: StubElement[ScImportSelector], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScImportSelector {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScImportSelectorStub) = {this(stub, ScalaElementTypes.IMPORT_SELECTOR, null)}
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScImportSelectorStub) =
+    this(stub, IMPORT_SELECTOR, null)
 
   override def toString: String = "ImportSelector"
 
-  def importedName: String = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScImportSelectorStub].importedName
+  def importedName: Option[String] =
+    Option(getStub).collect {
+      case stub: ScImportSelectorStub => stub
+    }.flatMap {
+      _.importedName
+    }.orElse {
+      Option(findChildByType[PsiElement](ID_SET)).map {
+        _.getText
+      }
+    }.orElse {
+      reference.map {
+        _.refName
+      }
     }
-    val id = findChildByType[PsiElement](TokenSets.ID_SET)
-    if (id == null) reference.refName else id.getText
-  }
 
-  def reference: ScStableCodeReferenceElement = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScImportSelectorStub].reference
+  def reference: Option[ScStableCodeReferenceElement] =
+    Option(getStub).collect {
+      case stub: ScImportSelectorStub => stub
+    }.flatMap {
+      _.reference
+    }.orElse {
+      Option(getFirstChild).collect {
+        case element: ScStableCodeReferenceElement => element
+      }
     }
-    getFirstChild match {case s: ScStableCodeReferenceElement => s case _ => null}
-  }
 
-  def deleteSelector() {
+  override def deleteSelector(): Unit = {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-    if (expr.selectors.length + expr.singleWildcard.toInt == 1) {
+    if (expr.selectors.length + expr.isSingleWildcard.toInt == 1) {
       expr.deleteExpr()
     }
     val forward: Boolean = expr.selectors.head == this
@@ -62,13 +75,14 @@ class ScImportSelectorImpl private (stub: StubElement[ScImportSelector], nodeTyp
         prev = if (forward) node.getTreeNext else node.getTreePrev
         t = node.getElementType
       }
-    } while (node != null && !(t == ScalaElementTypes.IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
+    } while (node != null && !(t == IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
 
     expr.selectors match {
       case Seq(sel: ScImportSelector) if !sel.isAliasedImport =>
-        val withoutBracesText = expr.qualifier.getText + "." + sel.reference.getText
-        val newImportExpr = ScalaPsiElementFactory.createImportExprFromText(withoutBracesText)
-        expr.replace(newImportExpr)
+        sel.reference.foreach { reference =>
+          val withoutBracesText = expr.qualifier.getText + "." + reference.getText
+          expr.replace(createImportExprFromText(withoutBracesText))
+        }
       case _ =>
     }
   }
@@ -78,7 +92,7 @@ class ScImportSelectorImpl private (stub: StubElement[ScImportSelector], nodeTyp
       case stub: ScImportSelectorStub => stub.isAliasedImport
       case _ =>
         PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
-                !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
+          !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
     }
   }
 }

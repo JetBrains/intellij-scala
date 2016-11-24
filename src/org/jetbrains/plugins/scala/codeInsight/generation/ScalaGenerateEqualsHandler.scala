@@ -183,7 +183,7 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
       case Some(c: ScClass) if !c.isCase => true
       case _ => false
     }
-    file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType && isSuitableClass
+    file != null && ScalaFileType.INSTANCE == file.getFileType && isSuitableClass
   }
 
   private def hasEquals(clazz: ScClass)

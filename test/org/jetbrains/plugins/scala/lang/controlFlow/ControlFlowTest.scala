@@ -24,7 +24,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
 
   def doTest() {
     val input: java.util.List[String] = TestUtils.readInput(getBasePath + getTestName(true) + ".test")
-    myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, input.get(0))
+    myFixture.configureByText(ScalaFileType.INSTANCE, input.get(0))
     val file: ScalaFile = myFixture.getFile.asInstanceOf[ScalaFile]
     val model: SelectionModel = myFixture.getEditor.getSelectionModel
     val start: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionStart else 0)

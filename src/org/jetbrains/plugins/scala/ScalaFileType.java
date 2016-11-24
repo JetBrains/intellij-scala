@@ -15,10 +15,8 @@
 
 package org.jetbrains.plugins.scala;
 
-import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -31,13 +29,11 @@ import javax.swing.*;
  */
 public class ScalaFileType extends LanguageFileType implements FileTypeIdentifiableByVirtualFile {
 
-  public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
-  public static final Language SCALA_LANGUAGE = ScalaLanguage.Instance;
-  @NonNls public static final String DEFAULT_EXTENSION = "scala";
+  public static final ScalaFileType INSTANCE = new ScalaFileType();
   @NonNls public static final String WORKSHEET_EXTENSION = "sc";
 
   private ScalaFileType() {
-    super(ScalaLanguage.Instance);
+    super(ScalaLanguage.INSTANCE);
   }
 
   @NotNull
@@ -54,7 +50,7 @@ public class ScalaFileType extends LanguageFileType implements FileTypeIdentifia
   @NotNull
   @NonNls
   public String getDefaultExtension() {
-    return DEFAULT_EXTENSION;
+    return "scala";
   }
 
   public Icon getIcon() {
@@ -66,6 +62,6 @@ public class ScalaFileType extends LanguageFileType implements FileTypeIdentifia
   // while FileTypeManager contains no .scala pattern)
   @Override
   public boolean isMyFileType(@NotNull VirtualFile virtualFile) {
-    return StringUtil.endsWith(virtualFile.getNameSequence(), ".scala");
+    return getDefaultExtension().equals(virtualFile.getExtension());
   }
 }

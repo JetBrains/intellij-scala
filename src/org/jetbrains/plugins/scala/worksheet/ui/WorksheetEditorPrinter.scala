@@ -497,7 +497,7 @@ object WorksheetEditorPrinter {
     WorksheetViewerInfo getViewer editor match {
       case editorImpl: EditorImpl => editorImpl
       case _ => if (isPlain) createBlankEditor(editor.getProject) else
-        createBlankEditorWithLang(editor.getProject, ScalaFileType.SCALA_LANGUAGE, ScalaFileType.SCALA_FILE_TYPE) 
+        createBlankEditorWithLang(editor.getProject, ScalaLanguage.INSTANCE, ScalaFileType.INSTANCE)
     }
   }
   

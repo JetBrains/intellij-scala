@@ -9,6 +9,7 @@ import com.intellij.openapi.options.ex.ConfigurableVisitor
 import com.intellij.openapi.options.{Configurable, ConfigurableGroup, ShowSettingsUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -19,14 +20,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel
+import org.jetbrains.plugins.scala.extensions._
 
 /**
   * Created by kate on 7/14/16.
   */
 object TypeAnnotationUtil {
+  private val CollectionClassNames =
+    Seq("Seq", "Array", "Vector", "Set", "HashSet", "Map", "HashMap", "Iterator", "Option")
+
   def isTypeAnnotationNeeded(requiment: Int, ovPolicy: Int, simplePolicy: Int, isOverride: Boolean, isSimple: Boolean): Boolean = {
 
     requiment != TypeAnnotationRequirement.Optional.ordinal() &&
@@ -98,13 +104,24 @@ object TypeAnnotationUtil {
   }
 
   def requirementForProperty(property: ScMember, settings: ScalaCodeStyleSettings): Int = {
-    if (property.isLocal) {
+    if (property.isLocal || isMemberOf(property, "scala.DelayedInit")) {
       settings.LOCAL_PROPERTY_TYPE_ANNOTATION
     } else {
       if (property.isPrivate) settings.PRIVATE_PROPERTY_TYPE_ANNOTATION
       else if (property.isProtected) settings.PROTECTED_PROPERTY_TYPE_ANNOTATION
       else settings.PUBLIC_PROPERTY_TYPE_ANNOTATION
     }
+  }
+
+  def isMemberOf(member: ScMember, fqn: String): Boolean = {
+    val result =
+      for (containtingClass <- Option(member.getContainingClass);
+           module <- Option(ScalaPsiUtil.getModule(member));
+           scope <- Option(GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
+           aClass <- ScalaPsiManager.instance(member.getProject).getCachedClass(scope, fqn))
+        yield containtingClass.isInheritor(aClass, true)
+
+    result.getOrElse(false)
   }
 
   def requirementForMethod(method: ScMember, settings: ScalaCodeStyleSettings): Int = {
@@ -123,6 +140,7 @@ object TypeAnnotationUtil {
       case _: ScNewTemplateDefinition => true
       case ref: ScReferenceExpression if ref.refName == "???" => true
       case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for objects
+      case call: ScGenericCall if isEmptyCollectionFactory(call) => true
       case call: ScMethodCall => call.getInvokedExpr match {
         case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for case classes
         case _ => false
@@ -130,6 +148,12 @@ object TypeAnnotationUtil {
       case _: ScThrowStmt => true
       case _ => false
     }
+  }
+
+  def isEmptyCollectionFactory(e: ScExpression): Boolean = e match {
+    case (_: ScGenericCall) && FirstChild(reference: ScReferenceExpression) =>
+      CollectionClassNames.exists(_ + ".empty" == reference.text)
+    case _ => false
   }
 
   def isLocal(psiElement: PsiElement) = psiElement match {

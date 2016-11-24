@@ -7,11 +7,14 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
   * @since 10.02.2015.
   */
 trait PropSpecGenerator extends ScalaTestTestCase {
-  addSourceFile("PropSpecTest.scala",
-    """
+  val propSpecClassName = "PropSpecTest"
+  val propSpecFileName = propSpecClassName + ".scala"
+
+  addSourceFile(propSpecFileName,
+    s"""
       |import org.scalatest._
       |
-      |class PropSpecTest extends PropSpec {
+      |class $propSpecClassName extends PropSpec {
       |
       |  property("Single tests should run") {
       |    print(">>TEST: OK<<")
@@ -20,7 +23,11 @@ trait PropSpecGenerator extends ScalaTestTestCase {
       |  property("other test should not run") {
       |    print(">>TEST: FAILED<<")
       |  }
+      |
+      |  property("tagged", PropSpecTag) {}
       |}
+      |
+      |object PropSpecTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 }

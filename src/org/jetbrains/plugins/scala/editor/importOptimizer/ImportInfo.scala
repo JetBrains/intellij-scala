@@ -145,26 +145,29 @@ object ImportInfo {
       val importUsed: ImportSelectorUsed = ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
-        val refName: String = selector.reference.refName
-        if (selector.isAliasedImport) {
-          val importedName: String = selector.importedName
-          if (importedName == "_") {
-            hiddenNames += refName
-          } else if (importedName == refName) {
-            singleNames += refName
-            addAllNames(selector.reference, refName)
+        for (reference <- selector.reference;
+             refName = reference.refName) {
+          if (selector.isAliasedImport) {
+            for (importedName <- selector.importedName) {
+              if (importedName == "_") {
+                hiddenNames += refName
+              } else if (importedName == refName) {
+                singleNames += refName
+                addAllNames(reference, refName)
+              } else {
+                renames += ((refName, importedName))
+                addAllNames(reference, importedName)
+              }
+            }
           } else {
-            renames += ((refName, importedName))
-            addAllNames(selector.reference, importedName)
+            singleNames += refName
+            addAllNames(reference, refName)
           }
-        } else {
-          singleNames += refName
-          addAllNames(selector.reference, refName)
         }
       }
     }
 
-    if (imp.selectorSet.isEmpty && !imp.singleWildcard) {
+    if (imp.selectorSet.isEmpty && !imp.isSingleWildcard) {
       val importUsed: ImportExprUsed = ImportExprUsed(imp)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
@@ -175,7 +178,7 @@ object ImportInfo {
           case None => //something is not valid
         }
       }
-    } else if (imp.singleWildcard) {
+    } else if (imp.isSingleWildcard) {
       val importUsed =
         if (imp.selectorSet.isEmpty) ImportExprUsed(imp)
         else ImportWildcardSelectorUsed(imp)

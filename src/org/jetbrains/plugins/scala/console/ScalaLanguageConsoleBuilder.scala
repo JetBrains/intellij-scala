@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.console
 
 import java.io.{IOException, OutputStream}
 
-import com.intellij.execution.console.{LanguageConsoleBuilder, LanguageConsoleImpl, LanguageConsoleView}
+import com.intellij.execution.console.LanguageConsoleImpl
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Condition, TextRange}
+import com.intellij.openapi.util.TextRange
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions
 
@@ -56,10 +56,10 @@ object ScalaLanguageConsoleBuilder {
   def createConsole(project: Project): LanguageConsoleImpl = {
     val consoleView = new ScalaLanguageConsole(project, ScalaLanguageConsoleView.SCALA_CONSOLE)
 
-    LanguageConsoleBuilder.registerExecuteAction(consoleView, new ExecuteScalaConsoleHandler(consoleView),
-        ScalaLanguageConsoleView.SCALA_CONSOLE, ScalaLanguageConsoleView.SCALA_CONSOLE, new Condition[LanguageConsoleView] {
-        override def value(t: LanguageConsoleView): Boolean = true
-      })
+//    LanguageConsoleBuilder.registerExecuteAction(consoleView, new ExecuteScalaConsoleHandler(consoleView),
+//        ScalaLanguageConsoleView.SCALA_CONSOLE, ScalaLanguageConsoleView.SCALA_CONSOLE, new Condition[LanguageConsoleView] {
+//        override def value(t: LanguageConsoleView): Boolean = true
+//      })
 
     ScalaConsoleInfo.setIsConsole(consoleView.getFile, flag = true)
     

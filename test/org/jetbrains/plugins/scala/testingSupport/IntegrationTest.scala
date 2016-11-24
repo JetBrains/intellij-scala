@@ -162,7 +162,6 @@ trait IntegrationTest {
     val semaphore = new Semaphore
     semaphore.down()
 
-
     invokeLater(semaphore.up())
 
     semaphore.waitFor()

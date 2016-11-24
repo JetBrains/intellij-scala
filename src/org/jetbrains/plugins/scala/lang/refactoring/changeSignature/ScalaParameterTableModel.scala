@@ -64,14 +64,15 @@ class ScalaParameterTableModel(typeContext: PsiElement,
 }
 
 object ScalaParameterTableModel {
-  class ScalaTypeColumn(project: Project) extends TypeColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.SCALA_FILE_TYPE) {
+
+  class ScalaTypeColumn(project: Project) extends TypeColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.INSTANCE) {
     override def doCreateEditor(o: ScalaParameterTableModelItem): TableCellEditor = new ScalaCodeFragmentTableCellEditor(project)
   }
 
   class ScalaNameColumn(project: Project) extends NameColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project)
 
   class ScalaDefaultValueColumn(project: Project)
-          extends ParameterTableModelBase.DefaultValueColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.SCALA_FILE_TYPE) {
+    extends ParameterTableModelBase.DefaultValueColumn[ScalaParameterInfo, ScalaParameterTableModelItem](project, ScalaFileType.INSTANCE) {
 
     override def doCreateEditor(item: ScalaParameterTableModelItem): TableCellEditor = new ScalaCodeFragmentTableCellEditor(project)
   }

@@ -51,7 +51,7 @@ class InjectorReviewDialog(project: Project, manifest: LibraryInjectorLoader#Att
   private val highlighterFactory = EditorHighlighterFactory.getInstance
   editors
     .foreach(_.asInstanceOf[EditorEx].setHighlighter(
-      highlighterFactory.createEditorHighlighter(project, ScalaFileType.SCALA_FILE_TYPE))
+      highlighterFactory.createEditorHighlighter(project, ScalaFileType.INSTANCE))
     )
   setTitle(s"Library '${manifest._1.jarPath}' Injectors Source Review")
   setOKButtonText("Accept")

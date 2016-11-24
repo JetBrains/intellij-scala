@@ -31,7 +31,7 @@ trait ScalaInplaceRenameHandler {
     val isScalaElement = element match {
       case null => false
       case _: LightScalaMethod | _: PsiClassWrapper => true
-      case _  => element.getLanguage.isInstanceOf[ScalaLanguage]
+      case _ => element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     }
     val processor = if (isScalaElement) RenamePsiElementProcessor.forElement(element) else null
     if (processor != RenamePsiElementProcessor.DEFAULT) processor else null

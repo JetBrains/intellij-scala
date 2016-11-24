@@ -64,20 +64,20 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       val implicitConversions = { //todo: too complex logic, should be simplified, and moved into one place
         lazy val additionalExpression = expr.getAdditionalExpression
         if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
-          val conv1 = expr.getImplicitConversions(fromUnder = false)
-          val conv2 = expr.getImplicitConversions(fromUnder = true)
+          val conv1 = expr.getImplicitConversions(fromUnderscore = false)
+          val conv2 = expr.getImplicitConversions(fromUnderscore = true)
           if (conv2._2.isDefined) conv2
           else if (conv1._2.isDefined) conv1
           else if (additionalExpression.isDefined) {
-            val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnder = false, expectedOption = Some(additionalExpression.get._2))
+            val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnderscore = false, expectedOption = Some(additionalExpression.get._2))
             if (conv3._2.isDefined) conv3
             else conv1
           } else conv1
         } else if (additionalExpression.isDefined) {
-          val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnder = false, expectedOption = Some(additionalExpression.get._2))
+          val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnderscore = false, expectedOption = Some(additionalExpression.get._2))
           if (conv3._2.isDefined) conv3
-          else expr.getImplicitConversions(fromUnder = false)
-        } else expr.getImplicitConversions(fromUnder = false)
+          else expr.getImplicitConversions(fromUnderscore = false)
+        } else expr.getImplicitConversions(fromUnderscore = false)
       }
       val functions = implicitConversions._1
       if (functions.isEmpty) return true
@@ -173,11 +173,10 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
                 case inf: ScInfixExpr if inf.operation == expr =>
                 case _ => res += expr
               }
-            case expr: ScExpression if guard || expr.getImplicitConversions(fromUnder = false)._2.isDefined ||
+            case expr: ScExpression if guard || expr.getImplicitConversions()._2.isDefined ||
               (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
-                expr.getImplicitConversions(fromUnder = true)._2.isDefined) || (expr.getAdditionalExpression.isDefined &&
-                expr.getAdditionalExpression.get._1.getImplicitConversions(fromUnder = false,
-                  expectedOption = Some(expr.getAdditionalExpression.get._2))._2.isDefined) => res += expr
+                expr.getImplicitConversions(fromUnderscore = true)._2.isDefined) || (expr.getAdditionalExpression.isDefined &&
+              expr.getAdditionalExpression.get._1.getImplicitConversions(expectedOption = Some(expr.getAdditionalExpression.get._2))._2.isDefined) => res += expr
             case _ =>
           }
           parent = parent.getParent

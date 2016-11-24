@@ -61,7 +61,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   @NotNull
   @Override
   protected FileType getFileType() {
-    return ScalaFileType.SCALA_FILE_TYPE;
+      return ScalaFileType.INSTANCE;
   }
 
   @Nullable
@@ -75,7 +75,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     if (!isModified(settings)) return;
 
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.Instance);
+      CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
     scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = enforceFunctionalSyntaxForCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox1.isSelected();
@@ -89,7 +89,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   @Override
   public boolean isModified(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.Instance);
+      CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
 
     if (scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT != enforceFunctionalSyntaxForCheckBox.isSelected())
       return true;
@@ -121,7 +121,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   @Override
   protected void resetImpl(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.Instance);
+      CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
     enforceFunctionalSyntaxForCheckBox.setSelected(scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT);
     replaceWithUnicodeSymbolCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR);
     replaceWithUnicodeSymbolCheckBox1.setSelected(scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR);

@@ -45,7 +45,7 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
 
   override def canMove(elements: Array[PsiElement], targetContainer: PsiElement): Boolean = {
     //sort of hack to save destinations here, need to be sure that it is called
-    val scalaElements = elements.filter(_.getLanguage.isInstanceOf[ScalaLanguage])
+    val scalaElements = elements.filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
     targetContainer match {
       case dir: PsiDirectory => scalaElements.foreach(ScalaMoveUtil.saveMoveDestination(_, dir))
       case _ =>

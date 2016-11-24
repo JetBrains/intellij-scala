@@ -28,7 +28,7 @@ object Dependencies {
   val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   val sbtStructureCore: ModuleID = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
-  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.8"
+  val scalatestFindersPatched: ModuleID = "org.scalatest" % "scalatest-finders-patched" % "0.9.9"
 
 
   val luceneCore: ModuleID = "org.apache.lucene" % "lucene-core" % luceneVersion
@@ -38,7 +38,7 @@ object Dependencies {
   val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
-  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "1.2.0" withSources()
+  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "1.3.0" withSources()
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val compilerInterfaceSources: ModuleID = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"

@@ -176,6 +176,11 @@ class ScProjectionType private(val projected: ScType,
               return Some(element, new ScSubstitutor(projected).followed(p.actualSubst))
             case _ => //continue with processor :(
           }
+        case ScThisType(clazz)
+          if elementClazz.exists(ScEquivalenceUtil.areClassesEquivalent(_, clazz)) =>
+          //for this type we shouldn't put this substitutor because of possible recursions
+          //and we don't need that, because all types are already calculated with proper this type
+          return Some(element, ScSubstitutor.empty)
         case _ => //continue with processor :(
       }
 
@@ -190,8 +195,12 @@ class ScProjectionType private(val projected: ScType,
       processor.candidates match {
         case Array(candidate) => candidate.element match {
           case candidateElement: PsiNamedElement =>
-            val defaultSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
-              .followed(candidate.substitutor)
+            val thisSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
+            val defaultSubstitutor =
+              projected match {
+                case _: ScThisType => candidate.substitutor
+                case _ => thisSubstitutor.followed(candidate.substitutor)
+              }
             if (default) {
               Some(candidateElement, defaultSubstitutor)
             } else {

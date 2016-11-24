@@ -83,7 +83,7 @@ object ScalaPluginUpdater {
   private val updateListener = new DocumentAdapter() {
     override def documentChanged(e: DocumentEvent): Unit = {
       val file = FileDocumentManager.getInstance().getFile(e.getDocument)
-      if (file != null && file.getFileType == ScalaFileType.SCALA_FILE_TYPE)
+      if (file != null && file.getFileType == ScalaFileType.INSTANCE)
         scheduleUpdate()
     }
   }

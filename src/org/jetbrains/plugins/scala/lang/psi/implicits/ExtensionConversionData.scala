@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeSystem, ValType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
@@ -25,95 +25,98 @@ case class ExtensionConversionData(baseExpr: ScExpression,
 
   //TODO! remove this after find a way to improve implicits according to compiler.
   val isHardCoded: Boolean = refName == "+" &&
-    baseExpr.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
+    baseExpr.getTypeWithoutImplicits().exists {
+      _.isInstanceOf[ValType]
+    }
   val kinds: Set[ResolveTargets.Value] = processor.kinds
 
   implicit val typeSystem: TypeSystem = baseExpr.typeSystem
-
 }
 
 object ExtensionConversionHelper {
-  def specialExtractParameterType(rr: ScalaResolveResult)(implicit typeSystem: TypeSystem): (Option[ScType], Seq[TypeParameter]) = {
-    val typeParams = rr.unresolvedTypeParameters match {
-      case Some(tParams) if tParams.nonEmpty => tParams
-      case _ => Seq.empty
-    }
-    val implicitParameterType = InferUtil.extractImplicitParameterType(rr)
-    val funType = ScalaPsiManager.instance(rr.element.getProject).cachedFunction1Type
-    val result = implicitParameterType match {
-      case f@FunctionType(_, _) => Some(f)
-      case _ =>
-        funType match {
-          case Some(ft) =>
-            implicitParameterType.conforms(ft, ScUndefinedSubstitutor()) match {
-              case (true, undefSubst) =>
-                undefSubst.getSubstitutor.map(_.subst(ft).removeUndefines())
-              case _ => None
-            }
-          case _ => None
+  def specialExtractParameterType(resolveResult: ScalaResolveResult)
+                                 (implicit typeSystem: TypeSystem): Option[(ScType, Seq[TypeParameter])] = {
+    val result = InferUtil.extractImplicitParameterType(resolveResult) match {
+      case functionType: FunctionType => Some(functionType)
+      case implicitParameterType =>
+        val maybeFunctionType = ScalaPsiManager.instance(resolveResult.element.getProject).cachedFunction1Type
+        maybeFunctionType.flatMap { functionType =>
+          implicitParameterType.conforms(functionType, ScUndefinedSubstitutor()) match {
+            case (true, substitutor) =>
+              substitutor.getSubstitutor.map {
+                _.subst(functionType).removeUndefines()
+              }
+            case _ => None
+          }
         }
     }
-    (result, typeParams)
+
+    result.collect {
+      case FunctionType(tp, _) => (tp, resolveResult.unresolvedTypeParameters.toSeq.flatten)
+    }
   }
 
   def extensionConversionCheck(data: ExtensionConversionData, candidate: Candidate): Option[Candidate] = {
     ProgressManager.checkCanceled()
     import data._
-    val (rr, subst) = candidate
 
-    specialExtractParameterType(rr) match {
-      case (Some(FunctionType(tp, _)), _) =>
-        if (isHardCoded && tp.isInstanceOf[ValType]) return None
+    val resolveResult = candidate._1
+    specialExtractParameterType(resolveResult).map {
+      _._1
+    }.filter {
+      case _: ValType if isHardCoded => false
+      case _ => true
+    }.filter {
+      checkHasMethodFast(data, _)
+    }.flatMap { tp =>
+      if (!noApplicability && processor.isInstanceOf[MethodResolveProcessor]) {
+        val typeParams = resolveResult match {
+          case ScalaResolveResult(function: ScFunction, _) if function.hasTypeParameters =>
+            function.typeParameters.map {
+              TypeParameter(_)
+            }
+          case _ => Seq.empty
+        }
 
-        val hasMethod = checkHasMethodFast(data, tp)
-
-        if (!noApplicability && hasMethod && processor.isInstanceOf[MethodResolveProcessor]) {
-          val typeParams = candidate match {
-            case (ScalaResolveResult(fun: ScFunction, _), _) if fun.hasTypeParameters => fun.typeParameters.map(TypeParameter(_))
-            case _ => Seq.empty
+        findInType(tp, data, typeParams).map { tp =>
+          typeParams match {
+            case Seq() => candidate
+            case _ => update(candidate, tp)
           }
-          val fromType = findInType(tp, data, typeParams)
-
-          if (fromType.isEmpty) None
-          else if (typeParams.nonEmpty) update(candidate, fromType.get._1)
-          else Some(rr, subst)
         }
-        else if (hasMethod) Some(rr, subst)
-        else None
-      case _ => None
+      }
+      else Some(candidate)
     }
   }
 
-  private def update(candidate: Candidate, foundInType: ScalaResolveResult): Option[Candidate] = {
-    val (rr, subst) = candidate
+  private def update(candidate: Candidate, foundInType: ScalaResolveResult): Candidate = {
+    val (candidateResult, candidateSubstitutor) = candidate
 
-    foundInType.resultUndef match {
-      case Some(undef) =>
-        undef.getSubstitutor match {
-          case Some(uSubst) =>
-            Some(rr.copy(subst = foundInType.substitutor.followed(uSubst),
-              implicitParameterType = rr.implicitParameterType.map(uSubst.subst)),
-              subst.followed(uSubst))
-          case _ => Some(rr, subst)
-        }
-      case _ => Some(rr, subst)
+    foundInType.resultUndef.flatMap {
+      _.getSubstitutor
+    }.map { substitutor =>
+      val result = candidateResult.copy(subst = foundInType.substitutor.followed(substitutor),
+        implicitParameterType = candidateResult.implicitParameterType.map(substitutor.subst))
+
+      (result, candidateSubstitutor.followed(substitutor))
+    }.getOrElse {
+      candidate
     }
   }
 
-  private def findInType(tp: ScType, data: ExtensionConversionData, typeParams: Seq[TypeParameter]): Option[Candidate] = {
+  private def findInType(tp: ScType, data: ExtensionConversionData, typeParams: Seq[TypeParameter]): Option[ScalaResolveResult] = {
     import data._
 
-    def newProcessor(mrp: MethodResolveProcessor) = new MethodResolveProcessor(
-      ref, refName, mrp.argumentClauses, mrp.typeArgElements, typeParams, kinds,
-      mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve,
-      noImplicitsForArgs = withoutImplicitsForArgs)
-
-    processor match {
-      case mrp: MethodResolveProcessor =>
-        val newProc = newProcessor(mrp)
-        newProc.processType(tp, baseExpr, ResolveState.initial)
-        newProc.candidatesS.find(_.isApplicable()).map(x => (x, x.substitutor))
-      case _ => None
+    Option(processor).collect {
+      case processor: MethodResolveProcessor => processor
+    }.map { processor =>
+      new MethodResolveProcessor(
+        ref, refName, processor.argumentClauses, processor.typeArgElements, typeParams, kinds,
+        processor.expectedOption, processor.isUnderscore, processor.isShapeResolve, processor.constructorResolve,
+        noImplicitsForArgs = withoutImplicitsForArgs)
+    }.flatMap { processor =>
+      processor.processType(tp, baseExpr, ResolveState.initial)
+      processor.candidatesS.find(_.isApplicable())
     }
   }
 
@@ -124,6 +127,4 @@ object ExtensionConversionHelper {
     newProc.processType(tp, baseExpr, ResolveState.initial)
     newProc.candidatesS.nonEmpty
   }
-
-
 }

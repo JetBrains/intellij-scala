@@ -8,7 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
  */
 object LazyVal {
   def unapply(pd: ScPatternDefinition): Option[ScPatternDefinition] = {
-    if (isLazyValInner(pd) || isLazyValInner(pd.getNavigationElement)) Some(pd)
+    val element =
+      if (pd.isValid && pd.containingScalaFile.exists(_.isCompiled))
+        pd.getNavigationElement
+      else pd
+
+    if (isLazyValInner(element)) Some(pd)
     else None
   }
 
