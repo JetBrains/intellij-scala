@@ -182,14 +182,18 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
               }
               val newImportsUsed = Set(importsUsed.toSeq: _*) + ImportExprUsed(importExpr)
               val newState = state.put(ScalaCompletionUtil.PREFIX_COMPLETION_KEY, true).put(ImportUsed.key, newImportsUsed)
-              elem.processDeclarations(new BaseProcessor(StdKinds.stableImportSelector) {
+
+              val importsProcessor = new BaseProcessor(StdKinds.stableImportSelector) {
                 def execute(element: PsiElement, state: ResolveState): Boolean = {
                   element match {
                     case elem: PsiNamedElement if isOK(elem.name) => processor.execute(element, state)
                     case _ => true
                   }
                 }
-              }, newState, this, place)
+                override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
+              }
+
+              elem.processDeclarations(importsProcessor, newState, this, place)
             case _ =>
           }
           val subst = state.get(ScSubstitutor.key).toOption.getOrElse(ScSubstitutor.empty).followed(s)

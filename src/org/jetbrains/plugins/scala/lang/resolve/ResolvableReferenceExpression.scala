@@ -120,7 +120,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     val context = ref.getContext
     val contextElement = (context, processor) match {
       case (x: ScAssignStmt, _) if x.getLExpression == ref => Some(context)
-      case (_, _: CompletionProcessor) => Some(ref)
+      case (_, cp: CompletionProcessor) if cp.isIncomplete => Some(ref)
       case _ => None
     }
 
