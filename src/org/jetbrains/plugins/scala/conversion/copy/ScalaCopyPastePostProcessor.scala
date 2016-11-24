@@ -47,6 +47,8 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     if(!file.isInstanceOf[ScalaFile]) return null
 
+    if (startOffsets.length == 1 && startOffsets(0) == 0) return null
+
     val timeBound = System.currentTimeMillis + Timeout
 
     val buffer: mutable.Buffer[Association] = ArrayBuffer.empty
