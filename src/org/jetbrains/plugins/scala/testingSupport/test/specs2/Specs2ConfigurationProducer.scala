@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
 class Specs2ConfigurationProducer extends {
   val confType = new Specs2ConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
+} with TestConfigurationProducer(confType) {
 
   override def suitePaths = List("org.specs2.specification.SpecificationStructure",
     "org.specs2.specification.core.SpecificationStructure")
