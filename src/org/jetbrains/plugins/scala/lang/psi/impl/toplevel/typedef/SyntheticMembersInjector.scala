@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -185,6 +185,10 @@ object SyntheticMembersInjector {
       val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
       member.setSynthetic(context)
       member.syntheticContainingClass = Some(source)
+      context match {
+        case c: ScClass if c.isCase && source != context => member.syntheticCaseClass = Some(c)
+        case _ =>
+      }
       if (!member.hasModifierProperty("override")) buffer += member
     } catch {
       case e: Throwable =>
