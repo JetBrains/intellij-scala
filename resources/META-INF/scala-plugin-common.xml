@@ -150,8 +150,6 @@
                  id="scalaContainingClassWeigher" order="after prefix, before scalaKindWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
                  id="scalaMethodCompletionWeigher" order="after scalaContainingClassWeigher, before proximity"/>
-        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassesCompletionWeigher"
-                 id="scalaClassesCompletionWeigher" order="after prefix, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByTypeWeigher"
                  id="scalaTypeCompletionWeigher" order="before scalaContainingClassWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByNameWeigher"
