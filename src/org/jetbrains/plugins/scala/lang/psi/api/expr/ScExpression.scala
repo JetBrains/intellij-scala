@@ -8,7 +8,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{ElementText, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -58,7 +58,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
 
     if (isShape) {
-      val tp: ScType = getShape()._1
+      val tp: ScType = shape(ScExpression.this).getOrElse(Nothing)
 
       expected.filter {
         !tp.conforms(_)
@@ -361,21 +361,6 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   def getTypeIgnoreBaseType: TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-  def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
-    this match {
-      case assign: ScAssignStmt if !ignoreAssign && assign.assignName.isDefined =>
-        (assign.getRExpression.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), assign.assignName.get)
-      case expr: ScExpression =>
-        ScalaPsiUtil.isAnonymousExpression(expr) match {
-          case (-1, _) => (Nothing, "")
-          case (i, expr: ScFunctionExpr) =>
-            (FunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
-          case (i, _) => (FunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
-        }
-      case _ => (Nothing, "")
-    }
-  }
-
   @volatile
   protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
 
@@ -597,6 +582,32 @@ object ScExpression {
                         fromUnderscore: Boolean = false): TypeResult[ScType] = {
       ProgressManager.checkCanceled()
       expr.getNonValueTypeImpl(ignoreBaseType, fromUnderscore)
+    }
+  }
+
+  private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
+    def shapeIgnoringAssign(maybeExpression: Option[ScExpression]) = maybeExpression.flatMap {
+      shape(_, ignoreAssign = true)
+    }
+
+    expression match {
+      case assign: ScAssignStmt if !ignoreAssign && assign.assignName.isDefined =>
+        shapeIgnoringAssign(assign.getRExpression)
+      case _ =>
+        val arityAndResultType = Option(isAnonymousExpression(expression)).filter {
+          case (-1, _) => false
+          case _ => true
+        }.map {
+          case (i, expr: ScFunctionExpr) => (i, shapeIgnoringAssign(expr.result))
+          case (i, _) => (i, None)
+        }
+
+        arityAndResultType.map {
+          case (i, tp) => (Seq.fill(i)(Any), tp)
+        }.map {
+          case (argumentsTypes, maybeResultType) =>
+            FunctionType(maybeResultType.getOrElse(Nothing), argumentsTypes)(expression.getProject, expression.getResolveScope)
+        }
     }
   }
 }
