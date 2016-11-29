@@ -7,6 +7,6 @@ class TypeExpected {
   def foo2(fiParam: Int) = {
     type fiType = Int
     case class fiTCase()
-    val variable: fiT<caret>
+    val variable: <caret>
   }
 }

@@ -4,8 +4,8 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeighe
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -52,7 +52,13 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
         case _ => null
       }
 
-    weight
+    val isTypedPostion = ScalaCompletionUtil.isTypeDefiniton(position)
+    val isAfterNewPosition = ScalaAfterNewCompletionUtil.isAfterNew(position, location.getProcessingContext)
+
+    ScalaLookupItem.original(element) match {
+      case _ if isTypedPostion || isAfterNewPosition => null
+      case _ => weight
+    }
   }
 
   def inFunction(psiElement: PsiElement): Boolean =

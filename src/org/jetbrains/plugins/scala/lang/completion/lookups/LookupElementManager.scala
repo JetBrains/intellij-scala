@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
@@ -39,28 +40,42 @@ object LookupElementManager {
       def checkIsExpectedClassMember(expectedClassOption: Option[PsiClass]): Boolean = {
         expectedClassOption.exists { expectedClass =>
           ScalaPsiUtil.nameContext(element) match {
-            case m: PsiMember if m.containingClass == expectedClass => true
+            case m: PsiMember =>
+              m.containingClass match {
+                //allow boldness only if current class is package object, not element availiable from package object
+                case packageObject: ScObject if packageObject.isPackageObject && packageObject == expectedClass =>
+                  containingClass.contains(packageObject)
+                case clazz =>
+                  clazz == expectedClass
+              }
             case _ => false
           }
         }
       }
 
-      def usedImportForElement = resolveResult.importsUsed.nonEmpty
-      def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
+      def extractedType: Option[PsiClass] = {
+        def usedImportForElement = resolveResult.importsUsed.nonEmpty
 
-      qualifierType match {
-        case _ if !isPredef && !usedImportForElement =>
-          qualifierType.extractDesignated(withoutAliases = false) match {
-            case Some((named, _)) =>
-              val clazz: Option[PsiClass] = named match {
-                case cl: PsiClass => Some(cl)
-                case tp: Typeable =>
-                  tp.getType(TypingContext.empty).map(_.extractClass()(tp.typeSystem)).getOrElse(None)
-                case _ => None
-              }
-              checkIsExpectedClassMember(clazz)
-            case _ => false
-          }
+        def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
+
+        qualifierType match {
+          case _ if !isPredef && !usedImportForElement =>
+            qualifierType.extractDesignated(withoutAliases = false) match {
+              case Some((named, _)) =>
+                named match {
+                  case cl: PsiClass => Some(cl)
+                  case tp: Typeable =>
+                    tp.getType(TypingContext.empty).map(_.extractClass()(tp.typeSystem)).getOrElse(None)
+                  case _ => None
+                }
+              case _ => None
+            }
+          case _ => None
+        }
+      }
+
+      extractedType match {
+        case Some(_) => checkIsExpectedClassMember(extractedType)
         case _ => checkIsExpectedClassMember(containingClass)
       }
     }
