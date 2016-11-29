@@ -476,39 +476,36 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   }
 
   /**
-   * This method returns following values:
- *
-   * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
-   */
+    * This method returns following values:
+    *
+    * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
+    */
   def getImplicitConversions(fromUnderscore: Boolean = false,
                              expectedOption: => Option[ScType] = smartExpectedType()):
-    (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
+  (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
     val (regularResults, companionResults) = new ScImplicitlyConvertible(this, fromUnderscore)
       .implicitMap(arguments = expectedTypes(fromUnderscore).toSeq)
 
-    val implicitFunction: Option[PsiNamedElement] = getParent match {
-      case ref: ScReferenceExpression =>
-        val resolve = ref.multiResolve(false)
-        if (resolve.length == 1) {
-          resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
-        } else None
-      case inf: ScInfixExpr if (inf.isLeftAssoc && this == inf.rOp) || (!inf.isLeftAssoc && this == inf.lOp) =>
-        val resolve = inf.operation.multiResolve(false)
-        if (resolve.length == 1) {
-          resolve.apply(0).asInstanceOf[ScalaResolveResult].implicitFunction
-        } else None
+    def referenceImplicitFunction(reference: ScReferenceExpression) = reference.multiResolve(false) match {
+      case Array(result: ScalaResolveResult) => result.implicitFunction
+      case _ => None
+    }
+
+    def implicitFunction(element: ScalaPsiElement): Option[PsiNamedElement] = element.getParent match {
+      case reference: ScReferenceExpression =>
+        referenceImplicitFunction(reference)
+      case expression@ScInfixExpr(leftOperand, operation, rightOperand)
+        if (expression.isLeftAssoc && this == rightOperand) || (!expression.isLeftAssoc && this == leftOperand) =>
+        referenceImplicitFunction(operation)
       case call: ScMethodCall => call.getImplicitFunction
-      case gen: ScGenerator => gen.getParent match {
-        case call: ScMethodCall => call.getImplicitFunction
-        case _ => None
-      }
-      case _ => getTypeAfterImplicitConversion(expectedOption = expectedOption,
-        fromUnderscore = fromUnderscore).implicitFunction
+      case generator: ScGenerator => implicitFunction(generator)
+      case _ =>
+        getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitFunction
     }
 
     val regularElements = regularResults.map(_.element)
     val companionElements = companionResults.map(_.element)
-    (regularElements ++ companionElements, implicitFunction, regularElements, companionElements)
+    (regularElements ++ companionElements, implicitFunction(this), regularElements, companionElements)
   }
 
   final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
