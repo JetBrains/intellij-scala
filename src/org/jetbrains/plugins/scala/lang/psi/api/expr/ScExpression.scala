@@ -47,15 +47,15 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
    * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
    *                        this parameter is useful for refactorings (introduce variable)
    */
-  @CachedMappedWithRecursionGuard(this, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion",
-    Some(this)), Set.empty, None), ModCount.getBlockModificationCount)
+  @CachedMappedWithRecursionGuard(this, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(this))), ModCount.getBlockModificationCount)
   def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false,
                                      expectedOption: Option[ScType] = None,
                                      ignoreBaseTypes: Boolean = false,
                                      fromUnderscore: Boolean = false): ExpressionTypeResult = {
     if (isShape) {
       val tp: ScType = getShape()._1
-      def default = ExpressionTypeResult(Success(tp, Some(ScExpression.this)), Set.empty, None)
+
+      def default = ExpressionTypeResult(Success(tp, Some(ScExpression.this)))
       val expectedOpt = expectedOption.orElse(expectedType(fromUnderscore))
       expectedOpt match {
         case Some(expected) if !tp.conforms(expected) =>
@@ -66,10 +66,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     else {
       val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).orNull)
       if (expected == null) {
-        ExpressionTypeResult(getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore), Set.empty, None)
+        ExpressionTypeResult(getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore))
       } else {
         val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
-        def defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
+
+        def defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr)
         if (!checkImplicits) defaultResult //do not try implicit conversions for shape check
         else {
           tr match {
@@ -83,7 +84,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
               val scalaVersion = ScExpression.this.scalaLanguageLevelOrDefault
               if (scalaVersion >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(ScExpression.this)) {
-                return ExpressionTypeResult(Success(expected, Some(ScExpression.this)), Set.empty, None)
+                return ExpressionTypeResult(Success(expected, Some(ScExpression.this)))
               }
 
               val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
@@ -128,7 +129,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
     def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
-      def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
+      def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this))))
       tp match {
         case FunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
           ScalaPsiUtil.toSAMType(expected, getResolveScope, this.scalaLanguageLevelOrDefault) match {
@@ -347,9 +348,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     getTypeAfterImplicitConversion().tr
   }
 
-  def getTypeIgnoreBaseType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
-
-  def getTypeExt(ctx: TypingContext = TypingContext.empty): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
+  def getTypeIgnoreBaseType: TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
     this match {
@@ -574,8 +573,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
 object ScExpression {
   case class ExpressionTypeResult(tr: TypeResult[ScType],
-                                  importsUsed: scala.collection.Set[ImportUsed],
-                                  implicitFunction: Option[PsiNamedElement])
+                                  importsUsed: scala.collection.Set[ImportUsed] = Set.empty,
+                                  implicitFunction: Option[PsiNamedElement] = None)
 
   object Type {
     def unapply(exp: ScExpression): Option[ScType] = exp.getType(TypingContext.empty).toOption

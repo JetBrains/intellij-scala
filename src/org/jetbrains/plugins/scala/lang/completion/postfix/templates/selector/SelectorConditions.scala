@@ -33,7 +33,7 @@ object SelectorConditions {
         val project = t.getProject
         implicit val typeSystem = project.typeSystem
         val manager = ScalaPsiManager.instance(project)
-        expr.getTypeIgnoreBaseType().toOption.flatMap {
+        expr.getTypeIgnoreBaseType.toOption.flatMap {
           _.extractClass(project).map {
             psiClass =>
               val base = manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
@@ -49,7 +49,7 @@ object SelectorConditions {
 
     override def value(t: PsiElement): Boolean = t match {
       case expr: ScExpression =>
-        expr.getTypeIgnoreBaseType().getOrAny.conforms(myType)(t.getProject.typeSystem)
+        expr.getTypeIgnoreBaseType.getOrAny.conforms(myType)(t.getProject.typeSystem)
       case _ => false
     }
   }

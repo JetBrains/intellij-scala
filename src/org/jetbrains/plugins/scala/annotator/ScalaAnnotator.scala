@@ -54,7 +54,7 @@ import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageL
 import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, Set, mutable}
+import scala.collection.{Seq, mutable}
 import scala.meta.intellij.MetaExpansionsManager
 
 /**
@@ -92,7 +92,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         }
 
         if (isAdvancedHighlightingEnabled(element)) {
-          expr.getTypeExt(TypingContext.empty) match {
+          expr.getTypeAfterImplicitConversion() match {
             case ExpressionTypeResult(Success(t, _), _, Some(implicitFunction)) =>
               highlightImplicitView(expr, implicitFunction, t, expr, holder)
             case _ =>
@@ -1088,10 +1088,13 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case Success(tp: ScType, _) if tp equiv api.Unit => return //nothing to check
             case _ =>
           }
-          val ExpressionTypeResult(_, importUsed, _) = ret.expr match {
-            case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
-            case None => ExpressionTypeResult(Success(api.Unit, None), Set.empty, None)
+
+          val importUsed = ret.expr.map { expression =>
+            expression.getTypeAfterImplicitConversion()
+          }.toSet[ScExpression.ExpressionTypeResult].flatMap {
+            _.importsUsed
           }
+
           ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
         case _ =>
       }

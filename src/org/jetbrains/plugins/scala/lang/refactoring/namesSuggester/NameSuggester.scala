@@ -43,7 +43,7 @@ object NameSuggester {
     val typez = expr.getType(TypingContext.empty).getOrElse(null)
     if (typez != null && typez != Unit) types += typez
     expr.getTypeWithoutImplicits().foreach(types += _)
-    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
+    expr.getTypeIgnoreBaseType.foreach(types += _)
     if (typez != null && typez == Unit) types += typez
 
     for (tpe <- types.reverse) {generateNamesByType(tpe)(names, validator)}

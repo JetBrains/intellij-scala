@@ -106,7 +106,7 @@ object ScalaRefactoringUtil {
     val types = new ArrayBuffer[ScType]
     if (scType != null) types += scType
     expr.getTypeWithoutImplicits().foreach(types += _)
-    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
+    expr.getTypeIgnoreBaseType.foreach(types += _)
     expr.expectedType().foreach(types += _)
     if (types.isEmpty) types += Any
     val unit = api.Unit
