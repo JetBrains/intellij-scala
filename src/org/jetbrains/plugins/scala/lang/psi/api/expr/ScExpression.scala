@@ -9,7 +9,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{ElementText, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -48,84 +48,95 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
    *                        this parameter is useful for refactorings (introduce variable)
    */
   @CachedMappedWithRecursionGuard(this, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(this))), ModCount.getBlockModificationCount)
-  def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false,
+  def getTypeAfterImplicitConversion(checkImplicits: Boolean = true,
+                                     isShape: Boolean = false,
                                      expectedOption: Option[ScType] = None,
                                      ignoreBaseTypes: Boolean = false,
                                      fromUnderscore: Boolean = false): ExpressionTypeResult = {
+    val expected = expectedOption.orElse {
+      expectedType(fromUnderscore = fromUnderscore)
+    }
+
     if (isShape) {
       val tp: ScType = getShape()._1
 
-      def default = ExpressionTypeResult(Success(tp, Some(ScExpression.this)))
-      val expectedOpt = expectedOption.orElse(expectedType(fromUnderscore))
-      expectedOpt match {
-        case Some(expected) if !tp.conforms(expected) =>
-          tryConvertToSAM(fromUnderscore, expected, tp).getOrElse(default)
-        case _ => default
-      }
+      expected.filter {
+        !tp.conforms(_)
+      }.flatMap {
+        tryConvertToSAM(fromUnderscore, _, tp)
+      }.getOrElse(ExpressionTypeResult(Success(tp, Some(ScExpression.this))))
     }
     else {
-      val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).orNull)
-      if (expected == null) {
-        ExpressionTypeResult(getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore))
-      } else {
-        val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+      val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
 
-        def defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr)
-        if (!checkImplicits) defaultResult //do not try implicit conversions for shape check
-        else {
-          tr match {
-            //if this result is ok, we do not need to think about implicits
-            case Success(tp, _) if tp.conforms(expected) => defaultResult
-            case Success(tp, _) =>
-              tryConvertToSAM(fromUnderscore, expected, tp) match {
-                case Some(r) => return r
-                case _ =>
-              }
+      val maybeResult: Option[(ScType, ScalaResolveResult)] = expected.filter { _ =>
+        checkImplicits //do not try implicit conversions for shape check
+      }.flatMap { expected =>
+        tr.toOption.filter {
+          !_.conforms(expected) // if this result is ok, we do not need to think about implicits
+        }.flatMap { tp =>
+          tryConvertToSAM(fromUnderscore, expected, tp) match {
+            case Some(r) => return r
+            case _ =>
+          }
 
-              val scalaVersion = ScExpression.this.scalaLanguageLevelOrDefault
-              if (scalaVersion >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(ScExpression.this)) {
-                return ExpressionTypeResult(Success(expected, Some(ScExpression.this)))
-              }
+          val scalaVersion = ScExpression.this.scalaLanguageLevelOrDefault
+          if (scalaVersion >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(ScExpression.this)) {
+            return ExpressionTypeResult(Success(expected, Some(ScExpression.this)))
+          }
 
-              val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
-              val implicitCollector = new ImplicitCollector(ScExpression.this, functionType, functionType, None, isImplicitConversion = true)
-              val results = implicitCollector.collect()
-              if (results.length == 1) {
-                val res = results.head
-                val paramType = InferUtil.extractImplicitParameterType(res)
-                paramType match {
-                  case FunctionType(rt, Seq(_)) =>
-                    ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
-                  case _ =>
-                    ScalaPsiManager.instance(getProject).getCachedClass(
-                      "scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-                    ) match {
-                      case function1: ScTrait =>
-                        ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
-                          UndefinedType(TypeParameterType(tp), 1))) match {
-                          case funTp: ScParameterizedType =>
-                            val secondArg = funTp.typeArguments(1)
-                            paramType.conforms(funTp, ScUndefinedSubstitutor())._2.getSubstitutor match {
-                              case Some(subst) =>
-                                val rt = subst.subst(secondArg)
-                                if (rt.isInstanceOf[UndefinedType]) defaultResult
-                                else {
-                                  ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
-                                }
-                              case None => defaultResult
-                            }
-                          case _ => defaultResult
-                        }
-                      case _ => defaultResult
+          val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
+          new ImplicitCollector(ScExpression.this, functionType, functionType, None, isImplicitConversion = true).collect() match {
+            case Seq(res) =>
+              val `type` = extractImplicitParameterType(res) match {
+                case FunctionType(rt, Seq(_)) => Some(rt)
+                case paramType =>
+                  function1Type.flatMap { funTp =>
+                    val secondArg = funTp.typeArguments(1)
+                    paramType.conforms(funTp, ScUndefinedSubstitutor())._2.getSubstitutor.map {
+                      _.subst(secondArg)
+                    }.filter {
+                      !_.isInstanceOf[UndefinedType]
                     }
-                }
-              } else defaultResult
-            case _ => defaultResult
+                  }
+              }
+
+              `type`.map {
+                (_, res)
+              }
+            case _ => None
           }
         }
       }
+
+      maybeResult.map {
+        case (tp, result) =>
+          ExpressionTypeResult(Success(tp, Some(ScExpression.this)), result.importsUsed, Some(result.getElement))
+      }.getOrElse {
+        ExpressionTypeResult(tr)
+      }
     }
   }
+
+  //  private def temp(maybeType: Option[ScType], expectedType: ScType, fromUnderscore: Boolean) =
+  //    maybeType.filter {
+  //      !_.conforms(expectedType)
+  //    }.flatMap {
+  //      tryConvertToSAM(fromUnderscore, expectedType, _)
+  //    }
+
+  private def function1Type: Option[ScParameterizedType] =
+    Option(ScalaPsiManager.instance(getProject)).map {
+      _.getCachedClass("scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+    }.collect {
+      case function1: ScTrait =>
+        val parameters = function1.typeParameters.map { tp =>
+          UndefinedType(TypeParameterType(tp), 1)
+        }
+        ScParameterizedType(ScalaType.designator(function1), parameters)
+    }.collect {
+      case parameterizedType: ScParameterizedType => parameterizedType
+    }
 
   private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
     def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
