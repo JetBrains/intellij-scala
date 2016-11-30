@@ -14,13 +14,13 @@ import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementTypes}
  * MixinParents ::= AnnotType {'with' AnnotType}
  */
 object MixinParents extends MixinParents {
-  override protected val annotType = AnnotType
+  override protected def annotType = AnnotType
 }
 
 trait MixinParents extends Parents {
-  protected val annotType: AnnotType
+  protected def annotType: AnnotType
 
-  override protected val elementType = ScalaElementTypes.TRAIT_PARENTS
+  override protected def elementType = ScalaElementTypes.TRAIT_PARENTS
 
   override protected def parseFirstParent(builder: ScalaPsiBuilder) = {
     val result = annotType.parse(builder, isPattern = false)

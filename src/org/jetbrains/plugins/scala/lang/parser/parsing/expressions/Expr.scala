@@ -20,13 +20,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * from the Scala Reference does not match the implementation in Parsers.scala.
  */
 object Expr extends Expr {
-  override protected val expr1 = Expr1
-  override protected val bindings = Bindings
+  override protected def expr1 = Expr1
+  override protected def bindings = Bindings
 }
 
 trait Expr {
-  protected val expr1: Expr1
-  protected val bindings: Bindings
+  protected def expr1: Expr1
+  protected def bindings: Bindings
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark

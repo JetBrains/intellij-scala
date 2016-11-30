@@ -19,11 +19,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
  */
 
 object Binding extends Binding {
-  override protected val paramType = ParamType
+  override protected def paramType = ParamType
 }
 
 trait Binding {
-  protected val paramType: ParamType
+  protected def paramType: ParamType
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark

@@ -17,15 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Block
  *  CaseClause ::= 'case' Pattern [Guard] '=>' Block
  */
 object CaseClause extends CaseClause {
-  override protected val block = Block
-  override protected val pattern = Pattern
-  override protected val guard = Guard
+  override protected def block = Block
+  override protected def pattern = Pattern
+  override protected def guard = Guard
 }
 
 trait CaseClause {
-  protected val block: Block
-  protected val guard: Guard
-  protected val pattern: Pattern
+  protected def block: Block
+  protected def guard: Guard
+  protected def pattern: Pattern
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val caseClauseMarker = builder.mark

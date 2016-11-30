@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * @since 01.03.14.
  */
 object InterpolationPattern extends InterpolationPattern {
-  override protected val commonUtils = CommonUtils
+  override protected def commonUtils = CommonUtils
 }
 
 trait InterpolationPattern {
-  protected val commonUtils: CommonUtils
+  protected def commonUtils: CommonUtils
 
   def parse(builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {

@@ -19,11 +19,11 @@ import scala.annotation.tailrec
  * EarlyDef ::= '{' [PatVarDef {semi PatVarDef}] '}' 'with'
  */
 object EarlyDef extends EarlyDef {
-  override protected val patVarDef = PatVarDef
+  override protected def patVarDef = PatVarDef
 }
 
 trait EarlyDef {
-  protected val patVarDef: PatVarDef
+  protected def patVarDef: PatVarDef
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val earlyMarker = builder.mark

@@ -24,13 +24,13 @@ import scala.annotation.tailrec
  *              | '(' Types [','] ')'
  */
 object SimpleType extends SimpleType {
-  override protected val typeArgs = TypeArgs
-  override protected val types = Types
+  override protected def typeArgs = TypeArgs
+  override protected def types = Types
 }
 
 trait SimpleType {
-  protected val typeArgs: TypeArgs
-  protected val types: Types
+  protected def typeArgs: TypeArgs
+  protected def types: Types
 
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     @tailrec

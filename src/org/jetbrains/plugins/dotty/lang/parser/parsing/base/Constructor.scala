@@ -7,7 +7,7 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.types.{AnnotType, SimpleT
   * @author adkozlov
   */
 object Constructor extends org.jetbrains.plugins.scala.lang.parser.parsing.base.Constructor {
-  override protected val argumentExprs = ArgumentExprs
-  override protected val simpleType = SimpleType
-  override protected val annotType = AnnotType
+  override protected def argumentExprs = ArgumentExprs
+  override protected def simpleType = SimpleType
+  override protected def annotType = AnnotType
 }

@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *  ObjectDef ::= id ClassTemplateOpt
  */
 object ObjectDef extends ObjectDef {
-  override protected val classTemplateOpt = ClassTemplateOpt
+  override protected def classTemplateOpt = ClassTemplateOpt
 }
 
 trait ObjectDef {
-  protected val classTemplateOpt: ClassTemplateOpt
+  protected def classTemplateOpt: ClassTemplateOpt
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.top.template.{ClassParent
   * @author adkozlov
   */
 object ClassTemplateOpt extends org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplateOpt {
-  override protected val templateBody = TemplateBody
-  override protected val earlyDef = EarlyDef
-  override protected val classParents = ClassParents
+  override protected def templateBody = TemplateBody
+  override protected def earlyDef = EarlyDef
+  override protected def classParents = ClassParents
 }

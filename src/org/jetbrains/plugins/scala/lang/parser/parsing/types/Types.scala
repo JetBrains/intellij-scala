@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *  Types ::= Type {',' Type}
  */
 object Types extends Types {
-  override protected val `type` = ParamType
+  override protected def `type` = ParamType
 }
 
 trait Types extends ParserNode {
-  protected val `type`: ParamType
+  protected def `type`: ParamType
 
   def parse(builder: ScalaPsiBuilder): (Boolean, Boolean) ={
     var isTuple = false

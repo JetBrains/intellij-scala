@@ -24,23 +24,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  *         | 'type' {nl} TypeDef)
  */
 object Def extends Def {
-  override protected val funDef = FunDef
-  override protected val patDef = PatDef
-  override protected val varDef = VarDef
-  override protected val tmplDef = TmplDef
-  override protected val macroDef = MacroDef
-  override protected val typeDef = TypeDef
-  override protected val annotation = Annotation
+  override protected def funDef = FunDef
+  override protected def patDef = PatDef
+  override protected def varDef = VarDef
+  override protected def tmplDef = TmplDef
+  override protected def macroDef = MacroDef
+  override protected def typeDef = TypeDef
+  override protected def annotation = Annotation
 }
 
 trait Def {
-  protected val funDef: FunDef
-  protected val macroDef: MacroDef
-  protected val tmplDef: TmplDef
-  protected val patDef: PatDef
-  protected val varDef: VarDef
-  protected val typeDef: TypeDef
-  protected val annotation: Annotation
+  protected def funDef: FunDef
+  protected def macroDef: MacroDef
+  protected def tmplDef: TmplDef
+  protected def patDef: PatDef
+  protected def varDef: VarDef
+  protected def typeDef: TypeDef
+  protected def annotation: Annotation
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, isImplicit = false)

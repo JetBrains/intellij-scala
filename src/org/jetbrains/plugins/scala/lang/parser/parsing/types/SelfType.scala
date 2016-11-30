@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *              ['this' | '_'] ':' Type '=>'
  */
 object SelfType extends SelfType {
-  override protected val infixType = InfixType
+  override protected def infixType = InfixType
 }
 
 trait SelfType {
-  protected val infixType: InfixType
+  protected def infixType: InfixType
 
   def parse(builder: ScalaPsiBuilder) {
     val selfTypeMarker = builder.mark

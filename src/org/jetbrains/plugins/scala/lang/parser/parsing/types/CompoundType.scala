@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object CompoundType extends Type {
-  override protected val infixType = InfixType
+  override protected def infixType = InfixType
 
   override def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
     val compoundMarker = builder.mark

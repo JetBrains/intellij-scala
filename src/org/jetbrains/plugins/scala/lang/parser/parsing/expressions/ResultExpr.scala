@@ -19,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, Type
  *              | (Bindings | id ':' CompoundType) '=>' Block
  */
 object ResultExpr extends ResultExpr {
-  override protected val bindings = Bindings
-  override protected val `type` = CompoundType
-  override protected val block = Block
+  override protected def bindings = Bindings
+  override protected def `type` = CompoundType
+  override protected def block = Block
 }
 
 trait ResultExpr {
-  protected val bindings: Bindings
-  protected val `type`: Type
-  protected val block: Block
+  protected def bindings: Bindings
+  protected def `type`: Type
+  protected def block: Block
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val resultMarker = builder.mark

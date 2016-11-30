@@ -19,11 +19,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *        | _ [>: Type] [<: Type]
  */
 object Type extends Type {
-  override protected val infixType = InfixType
+  override protected def infixType = InfixType
 }
 
 trait Type {
-  protected val infixType: InfixType
+  protected def infixType: InfixType
 
   def parse(builder: ScalaPsiBuilder, star: Boolean = false, isPattern: Boolean = false): Boolean = {
     val typeMarker = builder.mark

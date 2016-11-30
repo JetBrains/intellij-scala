@@ -19,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *               {Annotation} {Modifier} 'var' VarDef
  */
 object PatVarDef extends PatVarDef {
-  override protected val patDef = PatDef
-  override protected val varDef = VarDef
-  override protected val annotation = Annotation
+  override protected def patDef = PatDef
+  override protected def varDef = VarDef
+  override protected def annotation = Annotation
 }
 
 trait PatVarDef {
-  protected val patDef: PatDef
-  protected val varDef: VarDef
-  protected val annotation: Annotation
+  protected def patDef: PatDef
+  protected def varDef: VarDef
+  protected def annotation: Annotation
 
   def parse(builder: ScalaPsiBuilder):Boolean = {
     val patVarMarker = builder.mark

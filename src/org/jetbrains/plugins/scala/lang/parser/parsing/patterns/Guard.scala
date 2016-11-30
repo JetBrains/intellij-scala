@@ -13,11 +13,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PostfixExpr
 * Date: 28.02.2008
 */
 object Guard extends Guard {
-  override protected val postfixExpr = PostfixExpr
+  override protected def postfixExpr = PostfixExpr
 }
 
 trait Guard {
-  protected val postfixExpr: PostfixExpr
+  protected def postfixExpr: PostfixExpr
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, noIf = false) //deprecated if true
   def parse(builder: ScalaPsiBuilder, noIf: Boolean): Boolean = {

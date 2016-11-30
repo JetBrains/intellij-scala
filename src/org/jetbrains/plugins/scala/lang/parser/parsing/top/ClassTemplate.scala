@@ -19,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{ClassParent
  *                 | TemplateBody (for 'new' statement)
  */
 object ClassTemplate extends ClassTemplate {
-  override protected val earlyDef = EarlyDef
-  override protected val classParents = ClassParents
-  override protected val templateBody = TemplateBody
+  override protected def earlyDef = EarlyDef
+  override protected def classParents = ClassParents
+  override protected def templateBody = TemplateBody
 }
 
 trait ClassTemplate {
-  protected val earlyDef: EarlyDef
-  protected val templateBody: TemplateBody
-  protected val classParents: ClassParents
+  protected def earlyDef: EarlyDef
+  protected def templateBody: TemplateBody
+  protected def classParents: ClassParents
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, nonEmpty = false)
   def parse(builder: ScalaPsiBuilder, nonEmpty: Boolean): Boolean = {

@@ -18,13 +18,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type]
  */
 object TypeDcl extends TypeDcl {
-  override protected val `type` = Type
-  override protected val typeParamClause = TypeParamClause
+  override protected def `type` = Type
+  override protected def typeParamClause = TypeParamClause
 }
 
 trait TypeDcl {
-  protected val `type`: Type
-  protected val typeParamClause: TypeParamClause
+  protected def `type`: Type
+  protected def typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark

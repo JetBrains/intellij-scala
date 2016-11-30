@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
   * @author adkozlov
   */
 object SimpleType extends org.jetbrains.plugins.scala.lang.parser.parsing.types.SimpleType {
-  override protected val typeArgs = TypeArgs
-  override protected val types = ArgTypes
+  override protected def typeArgs = TypeArgs
+  override protected def types = ArgTypes
 
   override protected def rollbackCase(builder: ScalaPsiBuilder, simpleMarker: Marker) = builder.getTokenType match {
     case _ =>

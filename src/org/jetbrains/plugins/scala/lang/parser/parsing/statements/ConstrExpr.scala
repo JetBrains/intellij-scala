@@ -18,13 +18,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.SelfInvocatio
  *              | '{' SelfInvocation {semi BlockStat} '}'
  */
 object ConstrExpr extends ConstrExpr {
-  override protected val constrBlock = ConstrBlock
-  override protected val selfInvocation = SelfInvocation
+  override protected def constrBlock = ConstrBlock
+  override protected def selfInvocation = SelfInvocation
 }
 
 trait ConstrExpr {
-  protected val constrBlock: ConstrBlock
-  protected val selfInvocation: SelfInvocation
+  protected def constrBlock: ConstrBlock
+  protected def selfInvocation: SelfInvocation
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val constrExprMarker = builder.mark

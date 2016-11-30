@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  * FunDcl ::= FunSig [':' Type]
  */
 object FunDcl extends FunDcl {
-  override protected val funSig = FunSig
-  override protected val `type` = Type
+  override protected def funSig = FunSig
+  override protected def `type` = Type
 }
 
 trait FunDcl {
-  protected val funSig: FunSig
-  protected val `type`: Type
+  protected def funSig: FunSig
+  protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     //val returnMarker = builder.mark
