@@ -23,21 +23,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *
  */
 object TmplDef extends TmplDef {
-  override protected val classDef = ClassDef
-  override protected val objectDef = ObjectDef
-  override protected val traitDef = TraitDef
-  override protected val annotation = Annotation
+  override protected def classDef = ClassDef
+  override protected def objectDef = ObjectDef
+  override protected def traitDef = TraitDef
+  override protected def annotation = Annotation
 
-  override protected val elementTypes = ScalaElementTypes
+  override protected def elementTypes = ScalaElementTypes
 }
 
 trait TmplDef {
-  protected val classDef: ClassDef
-  protected val objectDef: ObjectDef
-  protected val traitDef: TraitDef
-  protected val annotation: Annotation
+  protected def classDef: ClassDef
+  protected def objectDef: ObjectDef
+  protected def traitDef: TraitDef
+  protected def annotation: Annotation
 
-  protected val elementTypes: ElementTypes
+  protected def elementTypes: ElementTypes
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()

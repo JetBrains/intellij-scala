@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * InfixType ::= RefinedType {id [nl] RefinedType}
  */
 object InfixType extends org.jetbrains.plugins.scala.lang.parser.parsing.types.InfixType {
-  override protected val componentType = RefinedType
-  override protected val errorMessage = ScalaBundle.message("refined.type.expected")
+  override protected def componentType = RefinedType
+  override protected def errorMessage = ScalaBundle.message("refined.type.expected")
 
   override protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType) {
     super.parseId(builder, builder.getTokenText match {

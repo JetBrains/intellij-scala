@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  * ValDcl ::= ids ':' Type
  */
 object ValDcl extends ValDcl {
-  override protected val `type` = Type
+  override protected def `type` = Type
 }
 
 trait ValDcl {
-  protected val `type`: Type
+  protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark

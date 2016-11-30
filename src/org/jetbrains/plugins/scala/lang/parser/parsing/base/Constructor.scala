@@ -17,15 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleT
  * Constr ::= AnnotType {ArgumentExprs}
  */
 object Constructor extends Constructor {
-  override protected val argumentExprs = ArgumentExprs
-  override protected val annotType = AnnotType
-  override protected val simpleType = SimpleType
+  override protected def argumentExprs = ArgumentExprs
+  override protected def annotType = AnnotType
+  override protected def simpleType = SimpleType
 }
 
 trait Constructor {
-  protected val argumentExprs: ArgumentExprs
-  protected val annotType: AnnotType
-  protected val simpleType: SimpleType
+  protected def argumentExprs: ArgumentExprs
+  protected def annotType: AnnotType
+  protected def simpleType: SimpleType
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isAnnotation = false)
   

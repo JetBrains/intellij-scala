@@ -12,15 +12,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ObjectDef
  * @author ilyas
  */
 object PackageObject extends PackageObject {
-  override protected val objectDef = ObjectDef
+  override protected def objectDef = ObjectDef
 
-  override protected val elementTypes = ScalaElementTypes
+  override protected def elementTypes = ScalaElementTypes
 }
 
 trait PackageObject {
-  protected val objectDef: ObjectDef
+  protected def objectDef: ObjectDef
 
-  protected val elementTypes: ElementTypes
+  protected def elementTypes: ElementTypes
 
   def parse(builder: ScalaPsiBuilder) : Boolean = {
     val marker = builder.mark

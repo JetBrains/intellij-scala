@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.util.DebugPrint
  * Program parses all content in scala source file
  */
 object Program extends Program {
-  override protected val compilationUnit = CompilationUnit
+  override protected def compilationUnit = CompilationUnit
 }
 
 trait Program {
-  protected val compilationUnit: CompilationUnit
+  protected def compilationUnit: CompilationUnit
 
   def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = 0

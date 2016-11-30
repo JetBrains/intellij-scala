@@ -18,15 +18,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  * TypeParam ::= {Annotation} (id | '_') [TypeParamClause] ['>:' Type] ['<:'Type] {'<%' Type} {':' Type}
  */
 object TypeParam extends TypeParam {
-  override protected val annotation = Annotation
-  override protected val `type` = Type
-  override protected val typeParamClause = TypeParamClause
+  override protected def annotation = Annotation
+  override protected def `type` = Type
+  override protected def typeParamClause = TypeParamClause
 }
 
 trait TypeParam {
-  protected val annotation: Annotation
-  protected val `type`: Type
-  protected val typeParamClause: TypeParamClause
+  protected def annotation: Annotation
+  protected def `type`: Type
+  protected def typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder, mayHaveVariance: Boolean): Boolean = {
     val paramMarker = builder.mark

@@ -18,13 +18,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * AnnotationExpr ::= Constr [[nl] '{' {NameValuePair} '}']
  */
 object AnnotationExpr extends AnnotationExpr {
-  override protected val constructor = Constructor
-  override protected val nameValuePair = NameValuePair
+  override protected def constructor = Constructor
+  override protected def nameValuePair = NameValuePair
 }
 
 trait AnnotationExpr {
-  protected val constructor: Constructor
-  protected val nameValuePair: NameValuePair
+  protected def constructor: Constructor
+  protected def nameValuePair: NameValuePair
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val annotExprMarker = builder.mark

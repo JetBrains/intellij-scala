@@ -18,13 +18,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * Block ::= {BlockStat semi}[ResultExpr]
  */
 object Block extends Block {
-  override protected val blockStat = BlockStat
-  override protected val resultExpr = ResultExpr
+  override protected def blockStat = BlockStat
+  override protected def resultExpr = ResultExpr
 }
 
 trait Block {
-  protected val blockStat: BlockStat
-  protected val resultExpr: ResultExpr
+  protected def blockStat: BlockStat
+  protected def resultExpr: ResultExpr
 
   def parse(builder: ScalaPsiBuilder) {
     if (!resultExpr.parse(builder) && blockStat.parse(builder)) {

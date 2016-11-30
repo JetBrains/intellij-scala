@@ -17,17 +17,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{ClassParent
  * ClassTemplateOpt ::= 'extends' ClassTemplate | [['extends'] TemplateBody]
  */
 object ClassTemplateOpt extends ClassTemplateOpt {
-  override protected val templateBody = TemplateBody
-  override protected val earlyDef = EarlyDef
-  override protected val classParents = ClassParents
+  override protected def templateBody = TemplateBody
+  override protected def earlyDef = EarlyDef
+  override protected def classParents = ClassParents
 }
 
 //May be hard to read. Because written before understanding that before TemplateBody could be nl token
 //So there are fixed it, but may be should be some rewrite.
 trait ClassTemplateOpt extends TemplateOpt {
-  protected val templateBody: TemplateBody
-  protected val earlyDef: EarlyDef
-  protected val classParents: ClassParents
+  protected def templateBody: TemplateBody
+  protected def earlyDef: EarlyDef
+  protected def classParents: ClassParents
 
   def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark

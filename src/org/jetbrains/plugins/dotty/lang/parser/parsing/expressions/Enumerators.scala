@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
   * @author adkozlov
   */
 object Enumerators extends org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Enumerators {
-  override protected val generator = Generator
-  override protected val guard = Guard
-  override protected val enumerator = Enumerator
+  override protected def generator = Generator
+  override protected def guard = Guard
+  override protected def enumerator = Enumerator
 }

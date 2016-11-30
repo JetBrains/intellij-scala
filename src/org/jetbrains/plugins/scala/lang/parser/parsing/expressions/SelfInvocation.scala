@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * SelfInvocation ::= 'this' ArgumentExprs {ArgumentExprs}
  */
 object SelfInvocation extends SelfInvocation {
-  override protected val argumentExprs = ArgumentExprs
+  override protected def argumentExprs = ArgumentExprs
 }
 
 trait SelfInvocation {
-  protected val argumentExprs: ArgumentExprs
+  protected def argumentExprs: ArgumentExprs
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val selfMarker = builder.mark

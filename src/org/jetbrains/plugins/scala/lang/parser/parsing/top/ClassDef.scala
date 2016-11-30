@@ -19,19 +19,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
  * ClassDef ::= id [TypeParamClause] {Annotation} [AcessModifier] [ClassParamClauses] ClassTemplateOpt
  */
 object ClassDef extends ClassDef {
-  override protected val classParamClauses = ClassParamClauses
-  override protected val templateOpt = ClassTemplateOpt
-  override protected val annotation = Annotation
-  override protected val constrMods = ConstrMods
-  override protected val typeParamClause = TypeParamClause
+  override protected def classParamClauses = ClassParamClauses
+  override protected def templateOpt = ClassTemplateOpt
+  override protected def annotation = Annotation
+  override protected def constrMods = ConstrMods
+  override protected def typeParamClause = TypeParamClause
 }
 
 trait ClassDef {
-  protected val classParamClauses: ClassParamClauses
-  protected val templateOpt: TemplateOpt
-  protected val annotation: Annotation
-  protected val constrMods: ConstrMods
-  protected val typeParamClause: TypeParamClause
+  protected def classParamClauses: ClassParamClauses
+  protected def templateOpt: TemplateOpt
+  protected def annotation: Annotation
+  protected def constrMods: ConstrMods
+  protected def typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case ScalaTokenTypes.tIDENTIFIER =>

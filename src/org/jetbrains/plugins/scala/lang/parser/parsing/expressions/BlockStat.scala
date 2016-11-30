@@ -23,19 +23,19 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
  *             | Expr1
  */
 object BlockStat extends BlockStat {
-  override protected val `def` = Def
-  override protected val expr1 = Expr1
-  override protected val dcl = Dcl
-  override protected val tmplDef = TmplDef
-  override protected val emptyDcl = EmptyDcl
+  override protected def `def` = Def
+  override protected def expr1 = Expr1
+  override protected def dcl = Dcl
+  override protected def tmplDef = TmplDef
+  override protected def emptyDcl = EmptyDcl
 }
 
 trait BlockStat {
-  protected val `def`: Def
-  protected val tmplDef: TmplDef
-  protected val expr1: Expr1
-  protected val dcl: Dcl
-  protected val emptyDcl: EmptyDcl
+  protected def `def`: Def
+  protected def tmplDef: TmplDef
+  protected def expr1: Expr1
+  protected def dcl: Dcl
+  protected def emptyDcl: EmptyDcl
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val tokenType = builder.getTokenType

@@ -23,17 +23,17 @@ import scala.annotation.tailrec
 *            | Packaging
 */
 object TopStat extends TopStat {
-  override protected val tmplDef = TmplDef
-  override protected val templateStat = TemplateStat
-  override protected val packaging = Packaging
-  override protected val packageObject = PackageObject
+  override protected def tmplDef = TmplDef
+  override protected def templateStat = TemplateStat
+  override protected def packaging = Packaging
+  override protected def packageObject = PackageObject
 }
 
 trait TopStat {
-  protected val tmplDef: TmplDef
-  protected val templateStat: TemplateStat
-  protected val packageObject: PackageObject
-  protected val packaging: Packaging
+  protected def tmplDef: TmplDef
+  protected def templateStat: TemplateStat
+  protected def packageObject: PackageObject
+  protected def packaging: Packaging
 
   @tailrec
   final def parse(builder: ScalaPsiBuilder, state: Int): Int = {

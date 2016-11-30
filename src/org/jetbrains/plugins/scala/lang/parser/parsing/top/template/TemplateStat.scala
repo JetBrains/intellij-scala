@@ -22,17 +22,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
  *              | Expr
  */
 object TemplateStat extends TemplateStat {
-  override protected val `def` = Def
-  override protected val dcl = Dcl
-  override protected val expr = Expr
-  override protected val emptyDcl = EmptyDcl
+  override protected def `def` = Def
+  override protected def dcl = Dcl
+  override protected def expr = Expr
+  override protected def emptyDcl = EmptyDcl
 }
 
 trait TemplateStat {
-  protected val `def`: Def
-  protected val dcl: Dcl
-  protected val expr: Expr
-  protected val emptyDcl: EmptyDcl
+  protected def `def`: Def
+  protected def dcl: Dcl
+  protected def expr: Expr
+  protected def emptyDcl: EmptyDcl
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {

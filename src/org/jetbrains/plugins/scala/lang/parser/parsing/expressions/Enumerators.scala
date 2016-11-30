@@ -17,15 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
  * Enumerators ::= Generator {semi Enumerator}
  */
 object Enumerators extends Enumerators {
-  override protected val generator = Generator
-  override protected val guard = Guard
-  override protected val enumerator = Enumerator
+  override protected def generator = Generator
+  override protected def guard = Guard
+  override protected def enumerator = Enumerator
 }
 
 trait Enumerators {
-  protected val generator: Generator
-  protected val enumerator: Enumerator
-  protected val guard: Guard
+  protected def generator: Generator
+  protected def enumerator: Enumerator
+  protected def guard: Guard
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumsMarker = builder.mark

@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * PrefixExpr ::= ['-' | '+' | '~' | '!'] SimpleExpr
  */
 object PrefixExpr extends PrefixExpr {
-  override protected val simpleExpr = SimpleExpr
+  override protected def simpleExpr = SimpleExpr
 }
 
 trait PrefixExpr {
-  protected val simpleExpr: SimpleExpr
+  protected def simpleExpr: SimpleExpr
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenText match {

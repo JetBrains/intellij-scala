@@ -16,13 +16,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
  * AnnotType ::= {Annotation} SimpleType
  */
 object AnnotType extends AnnotType {
-  override protected val annotation = Annotation
-  override protected val simpleType = SimpleType
+  override protected def annotation = Annotation
+  override protected def simpleType = SimpleType
 }
 
 trait AnnotType {
-  protected val annotation: Annotation
-  protected val simpleType: SimpleType
+  protected def annotation: Annotation
+  protected def simpleType: SimpleType
 
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     val annotMarker = builder.mark

@@ -14,13 +14,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 * Date: 13.02.2008
 */
 object TypeDef extends TypeDef {
-  override protected val `type` = Type
-  override protected val typeParamClause = TypeParamClause
+  override protected def `type` = Type
+  override protected def typeParamClause = TypeParamClause
 }
 
 trait TypeDef {
-  protected val `type`: Type
-  protected val typeParamClause: TypeParamClause
+  protected def `type`: Type
+  protected def typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark

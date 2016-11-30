@@ -20,13 +20,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *             ids ':' Type '=' '_'
  */
 object VarDef extends VarDef {
-  override protected val patDef = PatDef
-  override protected val `type` = Type
+  override protected def patDef = PatDef
+  override protected def `type` = Type
 }
 
 trait VarDef {
-  protected val patDef: PatDef
-  protected val `type`: Type
+  protected def patDef: PatDef
+  protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     if (patDef parse builder) {

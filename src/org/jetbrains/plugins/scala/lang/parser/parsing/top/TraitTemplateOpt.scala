@@ -17,16 +17,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.{MixinParent
  * TraitTemplateOpt ::= 'extends' TraitTemplate | [['extends'] TemplateBody]
  */
 object TraitTemplateOpt extends TraitTemplateOpt {
-  override protected val templateBody = TemplateBody
-  override protected val earlyDef = EarlyDef
-  override protected val mixinParents = MixinParents
+  override protected def templateBody = TemplateBody
+  override protected def earlyDef = EarlyDef
+  override protected def mixinParents = MixinParents
 }
 
 //It's very similar code to ClassTemplateOpt
 trait TraitTemplateOpt extends TemplateOpt {
-  protected val templateBody: TemplateBody
-  protected val earlyDef: EarlyDef
-  protected val mixinParents: MixinParents
+  protected def templateBody: TemplateBody
+  protected def earlyDef: EarlyDef
+  protected def mixinParents: MixinParents
 
   def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark

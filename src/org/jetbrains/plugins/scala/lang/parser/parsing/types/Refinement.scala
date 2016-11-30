@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * Refinement ::= [nl] '{' Refinestat {semi RefineStat} '}'
  */
 object Refinement extends Refinement {
-  override protected val refineStatSeq = RefineStatSeq
+  override protected def refineStatSeq = RefineStatSeq
 }
 
 trait Refinement {
-  protected val refineStatSeq: RefineStatSeq
+  protected def refineStatSeq: RefineStatSeq
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val refineMarker = builder.mark

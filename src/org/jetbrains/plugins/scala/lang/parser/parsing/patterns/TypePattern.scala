@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{ExistentialClause,
  * TypePattern ::= Type (but it can't be InfixType => Type (because case A => B => C?))
  */
 object TypePattern extends TypePattern {
-  override protected val `type` = Type
-  override protected val infixType = InfixType
+  override protected def `type` = Type
+  override protected def infixType = InfixType
 }
 
 trait TypePattern {
-  protected val `type`: Type
-  protected val infixType: InfixType
+  protected def `type`: Type
+  protected def infixType: InfixType
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
