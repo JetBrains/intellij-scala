@@ -1596,7 +1596,7 @@ object ScalaPsiUtil {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
         case expected if isSAMEnabled(expr) =>
-          toSAMType(expected, expr.getResolveScope, expr.scalaLanguageLevelOrDefault).isDefined
+          toSAMType(expected, expr).isDefined
         case _ => false
       }) {
         return None
@@ -1912,15 +1912,16 @@ object ScalaPsiUtil {
     *
     * @return true if language level and flags are correct
     */
-  def isSAMEnabled(e: PsiElement): Boolean = e.scalaLanguageLevel match {
-    case Some(lang) if lang < Scala_2_11 => false
-    case Some(lang) if lang == Scala_2_11 =>
-      val settings = e.module match {
-        case Some(module) => module.scalaCompilerSettings
-        case None => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings
+  def isSAMEnabled(element: PsiElement): Boolean = element.scalaLanguageLevel.exists {
+    case lang if lang > Scala_2_11 => true // if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
+    case lang if lang == Scala_2_11 =>
+      val settings = element.module.map {
+        _.scalaCompilerSettings
+      }.getOrElse {
+        ScalaCompilerConfiguration.instanceIn(element.getProject).defaultProfile.getSettings
       }
       settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
-    case _ => true //if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
+    case _ => false
   }
 
   /**
@@ -1929,8 +1930,11 @@ object ScalaPsiUtil {
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
     */
-  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope, languageLevel: ScalaLanguageLevel)
+  def toSAMType(expected: ScType, element: PsiElement)
                (implicit typeSystem: TypeSystem): Option[ScType] = {
+    val scalaScope = element.getResolveScope
+    val languageLevel = element.scalaLanguageLevelOrDefault
+
     def constructorValidForSAM(constructor: PsiMethod): Boolean = {
       val isPublicAndParameterless = constructor.getModifierList.hasModifierProperty(PsiModifier.PUBLIC) &&
         constructor.getParameterList.getParametersCount == 0
@@ -1940,83 +1944,89 @@ object ScalaPsiUtil {
       }
     }
 
-    expected.extractClassType() match {
-      case Some((cl, sub)) =>
-        cl match {
-          case templDef: ScTemplateDefinition => //it's a Scala class or trait
-            def selfTypeValid: Boolean = {
-              templDef.selfType match {
-                case Some(selfParam: ScParameterizedType) => templDef.getType(TypingContext.empty) match {
-                  case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
-                  case _ => false
-                }
-                case Some(selfTp) => templDef.getType(TypingContext.empty) match {
-                  case Success(classType, _) => selfTp.conforms(classType)
-                  case _ => false
-                }
-                case _ => true
-              }
-            }
-
-            val abst = templDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
-            abst match {
-              case (Seq(PhysicalSignature(fun: ScFunction, _))) =>
-                val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
-
-                def constructorValid = templDef match {
-                  case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
-                  case _: ScTrait => true
-                  case _ => false
-                }
-
-                def hasOneParamClause = fun.paramClauses.clauses.length == 1
-
-                def selfTypeCorrectIfScala212 = isScala211 || selfTypeValid
-
-                if (constructorValid && hasOneParamClause && !fun.hasTypeParameters && selfTypeCorrectIfScala212) {
-                  fun.getType() match {
-                    case Success(tp, _) =>
-                      val subbed = sub.subst(tp)
-                      val extrapolated = extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel)
-                      extrapolated.orElse(Some(subbed))
-                    case _ => None
-                  }
-                } else None
-              case _ => None
-            }
-          case _ => //it's a Java abstract class or interface
-            def overridesConcreteMethod(method: PsiMethod): Boolean = {
-              method.findSuperMethods().exists(!_.hasAbstractModifier)
-            }
-
-            val abst: Array[PsiMethod] = cl.getMethods.filter {
-              case method if method.hasAbstractModifier => true
+    expected.extractClassType().flatMap {
+      case (templDef: ScTemplateDefinition, substitutor) =>
+        def selfTypeValid: Boolean = {
+          templDef.selfType match {
+            case Some(selfParam: ScParameterizedType) => templDef.getType() match {
+              case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
               case _ => false
-            } match {
-              case array if array.length > 0 => array.filterNot(overridesConcreteMethod)
-              case any => any
             }
-            val constructors: Array[PsiMethod] = cl.getConstructors
-            val constructorValid = constructors.exists(constructorValidForSAM) || constructors.isEmpty
-            //must have exactly one abstract member and SAM must be monomorphic
-            val valid = constructorValid && abst.length == 1 && !abst.head.hasTypeParameters
-            if (valid) {
-              //need to generate ScType for Java method
-              val method = abst.head
-              val project = method.getProject
-              val returnType: ScType = method.getReturnType.toScType()
-              val params: Array[ScType] = method.getParameterList.getParameters.map {
-                param: PsiParameter => param.getTypeElement.getType.toScType()
-              }
-              val fun = FunctionType(returnType, params)(project, scalaScope)
-              val subbed = sub.subst(fun)
-              extrapolateWildcardBounds(subbed, expected, project, scalaScope, languageLevel) match {
-                case s@Some(_) => s
-                case _ => Some(subbed)
-              }
-            } else None
+            case Some(selfTp) => templDef.getType() match {
+              case Success(classType, _) => selfTp.conforms(classType)
+              case _ => false
+            }
+            case _ => true
+          }
         }
-      case None => None
+
+        val abst = templDef.allSignatures.filter {
+          TypeDefinitionMembers.ParameterlessNodes.isAbstract
+        }
+
+        abst match {
+          case Seq(PhysicalSignature(fun: ScFunction, _)) =>
+            val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
+
+            def constructorValid = templDef match {
+              case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
+              case _: ScTrait => true
+              case _ => false
+            }
+
+            def selfTypeCorrectIfScala212 = isScala211 || selfTypeValid
+
+            Option(fun).filter { f =>
+              constructorValid &&
+                fun.paramClauses.clauses.length == 1 && !f.hasTypeParameters &&
+                selfTypeCorrectIfScala212
+            }.flatMap {
+              _.getType().toOption
+            }.map { tp =>
+              val substituted = substitutor.subst(tp)
+              extrapolateWildcardBounds(substituted, expected, fun.getProject, scalaScope, languageLevel).getOrElse {
+                substituted
+              }
+            }
+          case _ => None
+        }
+      case (cl, substitutor) =>
+        val abstractMethods: Array[PsiMethod] = cl.getMethods.filter {
+          _.hasAbstractModifier
+        }.filter {
+          _.findSuperMethods().forall {
+            _.hasAbstractModifier
+          } // overrides abstract methods
+        }
+
+        val maybeAbstractMethod = abstractMethods match {
+          case Array(method) => Some(method)
+          case _ => None
+        }
+
+        val validConstructorExists = cl.getConstructors match {
+          case Array() => true
+          case constructors => constructors.exists(constructorValidForSAM)
+        }
+
+
+        maybeAbstractMethod.filter {
+          !_.hasTypeParameters && validConstructorExists
+          // must have exactly one abstract member and SAM must be monomorphic
+        }.map { method =>
+          val project = method.getProject
+          val returnType = method.getReturnType
+          val parametersTypes = method.getParameterList.getParameters.map {
+            _.getTypeElement.getType
+          }
+
+          val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))(project, scalaScope)
+          val substituted = substitutor.subst(functionType)
+
+          extrapolateWildcardBounds(substituted, expected, project, scalaScope, languageLevel).getOrElse {
+            substituted
+          }
+        }
     }
   }
 

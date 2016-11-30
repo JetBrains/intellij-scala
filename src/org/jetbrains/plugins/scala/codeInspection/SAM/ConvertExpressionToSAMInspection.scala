@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -24,8 +23,8 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition if ScalaPsiUtil.isSAMEnabled(definition) =>
       implicit val typeSystem = holder.typeSystem
-      definition.expectedTypes().toSeq flatMap {
-        ScalaPsiUtil.toSAMType(_, definition.getResolveScope, definition.scalaLanguageLevelOrDefault)
+      definition.expectedTypes().toSeq.flatMap {
+        ScalaPsiUtil.toSAMType(_, definition)
       } match {
         case Seq(expectedMethodType) => inspectAccordingToExpectedType(expectedMethodType, definition, holder)
         case _ =>

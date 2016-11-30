@@ -143,7 +143,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this))))
       tp match {
         case FunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
-          ScalaPsiUtil.toSAMType(expected, getResolveScope, this.scalaLanguageLevelOrDefault) match {
+          ScalaPsiUtil.toSAMType(expected, this) match {
             case Some(methodType) if tp.conforms(methodType) => expectedResult
             case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
               val newTp = FunctionType(Unit, params)(getProject, getResolveScope)
@@ -225,7 +225,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                   case FunctionType(_, _) =>
                   case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
                     val languageLevel = ScExpression.this.scalaLanguageLevelOrDefault
-                    if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, getResolveScope, languageLevel).isEmpty) {
+                    if (languageLevel != Scala_2_11 || ScalaPsiUtil.toSAMType(expect, ScExpression.this).isEmpty) {
                       res = updateType(retType)
                     }
                   case _ => res = updateType(retType)

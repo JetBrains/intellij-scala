@@ -277,7 +277,7 @@ object InferUtil {
           (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
           //we do this to update additional expression, so that implicits work correctly
           //@see SingleAbstractMethodTest.testEtaExpansionImplicit
-          val requiredSAMType = ScalaPsiUtil.toSAMType(tp, expr.getResolveScope, expr.scalaLanguageLevelOrDefault)
+          val requiredSAMType = ScalaPsiUtil.toSAMType(tp, expr)
           applyImplicitViewToResult(mt, requiredSAMType, fromSAM = true)
         case _ => mt
       }
