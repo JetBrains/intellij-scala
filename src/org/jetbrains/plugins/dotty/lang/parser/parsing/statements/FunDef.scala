@@ -8,11 +8,11 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.types.Type
   * @author adkozlov
   */
 object FunDef extends org.jetbrains.plugins.scala.lang.parser.parsing.statements.FunDef {
-  override protected val constrExpr = ConstrExpr
-  override protected val constrBlock = ConstrBlock
-  override protected val `type` = Type
-  override protected val block = Block
-  override protected val funSig = FunSig
-  override protected val expr = Expr
-  override protected val paramClauses = ParamClauses
+  override protected def constrExpr = ConstrExpr
+  override protected def constrBlock = ConstrBlock
+  override protected def `type` = Type
+  override protected def block = Block
+  override protected def funSig = FunSig
+  override protected def expr = Expr
+  override protected def paramClauses = ParamClauses
 }

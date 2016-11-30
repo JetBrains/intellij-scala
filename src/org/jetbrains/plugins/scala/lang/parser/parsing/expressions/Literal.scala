@@ -25,11 +25,11 @@ Literal ::= ['-']integerLiteral
             | javaId"StringLiteral" 
 */
 object Literal extends Literal {
-  override protected val commonUtils = CommonUtils
+  override protected def commonUtils = CommonUtils
 }
 
 trait Literal {
-  protected val commonUtils: CommonUtils
+  protected def commonUtils: CommonUtils
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()

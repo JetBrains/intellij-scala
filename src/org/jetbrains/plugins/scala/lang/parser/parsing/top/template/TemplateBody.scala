@@ -19,13 +19,13 @@ import scala.annotation.tailrec
  *  TemplateBody ::= '{' [SelfType] TemplateStat {semi TemplateStat} '}'
  */
 object TemplateBody extends TemplateBody {
-  override protected val templateStat = TemplateStat
-  override protected val selfType = SelfType
+  override protected def templateStat = TemplateStat
+  override protected def selfType = SelfType
 }
 
 trait TemplateBody {
-  protected val templateStat: TemplateStat
-  protected val selfType: SelfType
+  protected def templateStat: TemplateStat
+  protected def selfType: SelfType
 
   def parse(builder: ScalaPsiBuilder) {
     val templateBodyMarker = builder.mark

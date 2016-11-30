@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *            | SimplePattern { id [nl] SimplePattern}
  */
 object Pattern3 extends Pattern3 {
-  override protected val simplePattern = SimplePattern
+  override protected def simplePattern = SimplePattern
 }
 
 trait Pattern3 {
-  protected val simplePattern: SimplePattern
+  protected def simplePattern: SimplePattern
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     type Stack[X] = _root_.scala.collection.mutable.Stack[X]

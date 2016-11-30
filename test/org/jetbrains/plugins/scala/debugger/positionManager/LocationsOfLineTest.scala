@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
-import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * @author Nikolay.Tropin
@@ -28,31 +28,6 @@ class LocationOfLineTest_212 extends LocationsOfLineTestBase with ScalaVersion_2
       Set(Loc("Multilevel$This$1$$anon$1", "$anonfun$run$1", 9)),
       Set(Loc("Multilevel$", "main", 18))
     )
-  }
-}
-
-class LocationOfLineTest_212_OLD extends LocationsOfLineTestBase with ScalaVersion_2_12_OLD {
-
-  override def testLambdas(): Unit = {
-    checkLocationsOfLine(
-      Set(Loc("Lambdas$", "main", 4), Loc("Lambdas$", "Lambdas$$$anonfun$1", 4)),
-      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "Lambdas$$$anonfun$2", 5), Loc("Lambdas$", "Lambdas$$$anonfun$3", 5)),
-      Set(Loc("Lambdas$", "Lambdas$$$anonfun$4", 6))
-    )
-  }
-
-  override def testMultilevel(): Unit = {
-    checkLocationsOfLine(
-      Set(Loc("Multilevel$This$1", "<init>", 18)),  //location for constructor is customized
-      Set(Loc("Multilevel$This$1", "<init>", 4)),
-      Set(Loc("Multilevel$This$1", "foo", 6)),
-      Set(Loc("Multilevel$This$1$$anon$1", "<init>", 6)),
-      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
-      Set(Loc("Multilevel$This$1$$anon$1", "run", 8)),
-      Set(Loc("Multilevel$This$1$$anon$1", "Multilevel$This$1$$anon$1$$$anonfun$1", 9)),
-      Set(Loc("Multilevel$", "main", 18))
-    )
-
   }
 }
 

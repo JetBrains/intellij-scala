@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * ClassParamClause ::= [nl] '(' [ClassParam {',' ClassParam}] ')'
  */
 object ClassParamClause extends ClassParamClause {
-  override protected val classParam = ClassParam
+  override protected def classParam = ClassParam
 }
 
 trait ClassParamClause {
-  protected val classParam: ClassParam
+  protected def classParam: ClassParam
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark

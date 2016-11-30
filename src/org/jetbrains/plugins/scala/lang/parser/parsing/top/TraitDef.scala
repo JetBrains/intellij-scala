@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
  * TraitDef ::= id [TypeParamClause] TraitTemplateOpt
  */
 object TraitDef extends TraitDef {
-  override protected val templateOpt = TraitTemplateOpt
-  override protected val typeParamClause = TypeParamClause
+  override protected def templateOpt = TraitTemplateOpt
+  override protected def typeParamClause = TypeParamClause
 }
 
 trait TraitDef {
-  protected val templateOpt: TemplateOpt
-  protected val typeParamClause: TypeParamClause
+  protected def templateOpt: TemplateOpt
+  protected def typeParamClause: TypeParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case ScalaTokenTypes.tIDENTIFIER =>

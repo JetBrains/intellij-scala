@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * WithType ::= AnnotType {`with' AnnotType}
  */
 object WithType extends org.jetbrains.plugins.scala.lang.parser.parsing.types.Type {
-  override protected val infixType = InfixType
+  override protected def infixType = InfixType
 
   override def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
     parseList(builder, kWITH, WITH_TYPE, ScalaBundle.message("wrong.type")) {

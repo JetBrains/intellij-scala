@@ -12,11 +12,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 * Date: 06.03.2008
 */
 object NameValuePair extends NameValuePair {
-  override protected val prefixExpr = PrefixExpr
+  override protected def prefixExpr = PrefixExpr
 }
 
 trait NameValuePair {
-  protected val prefixExpr: PrefixExpr
+  protected def prefixExpr: PrefixExpr
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val nameMarker = builder.mark

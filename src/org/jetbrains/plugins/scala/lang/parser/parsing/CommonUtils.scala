@@ -13,13 +13,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * @since 03.03.14.
  */
 object CommonUtils extends CommonUtils {
-  override protected val blockExpr = BlockExpr
-  override protected val pattern = Pattern
+  override protected def blockExpr = BlockExpr
+  override protected def pattern = Pattern
 }
 
 trait CommonUtils {
-  protected val blockExpr: BlockExpr
-  protected val pattern: Pattern
+  protected def blockExpr: BlockExpr
+  protected def pattern: Pattern
 
   def parseInterpolatedString(builder: ScalaPsiBuilder, isPattern: Boolean): Unit = {
     val prefixMarker = builder.mark()

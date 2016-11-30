@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 * Date: 11.02.2008
 */
 object FunSig extends FunSig {
-  override protected val paramClauses = ParamClauses
+  override protected def paramClauses = ParamClauses
 }
 
 //TODO: rewrite this
 trait FunSig {
-  protected val paramClauses: ParamClauses
+  protected def paramClauses: ParamClauses
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {

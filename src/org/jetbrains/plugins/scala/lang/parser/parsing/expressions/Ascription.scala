@@ -13,13 +13,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 * Date: 03.03.2008
 */
 object Ascription extends Ascription {
-  override protected val annotation = Annotation
-  override protected val `type` = Type
+  override protected def annotation = Annotation
+  override protected def `type` = Type
 }
 
 trait Ascription {
-  protected val annotation: Annotation
-  protected val `type`: Type
+  protected def annotation: Annotation
+  protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val ascriptionMarker = builder.mark

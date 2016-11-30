@@ -8,7 +8,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.sun.jdi.{ObjectReference, ReferenceType, Value}
+import com.sun.jdi.{Field, ObjectReference, ReferenceType, Value}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
@@ -397,12 +397,16 @@ object DebuggerUtil {
     lines.toSet
   }
 
-  def unwrapScalaRuntimeObjectRef(evaluated: AnyRef): AnyRef = {
-    unwrapRuntimeRef(evaluated, _ == "scala.runtime.ObjectRef")
-  }
-
   def unwrapScalaRuntimeRef(value: AnyRef): AnyRef = {
-    unwrapRuntimeRef(value, isScalaRuntimeRef)
+    value match {
+      case _ if !ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS => value
+      case objRef: ObjectReference =>
+        val refType = objRef.referenceType()
+        if (isScalaRuntimeRef(refType.name))
+          runtimeRefField(refType).map(objRef.getValue).getOrElse(objRef)
+        else objRef
+      case _ => value
+    }
   }
 
   def isScalaRuntimeRef(typeFqn: String): Boolean = {
@@ -417,17 +421,9 @@ object DebuggerUtil {
     }
   }
 
-  private def unwrapRuntimeRef(value: AnyRef, typeNameCondition: String => Boolean) = value match {
-    case _ if !ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS => value
-    case objRef: ObjectReference =>
-      val refType = objRef.referenceType()
-      if (typeNameCondition(refType.name)) {
-        val elemField = refType.fieldByName("elem")
-        if (elemField != null) objRef.getValue(elemField)
-        else objRef
-      }
-      else objRef
-    case _ => value
+  def runtimeRefField(refType: ReferenceType): Option[Field] = {
+    refType.fieldByName("elem").toOption
+      .orElse(refType.fieldByName("_value").toOption)
   }
 
   def localParamsForFunDef(fun: ScFunctionDefinition, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {

@@ -37,21 +37,21 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
  *                | Path
  */
 object Expr1 extends Expr1 {
-  override protected val block = Block
-  override protected val caseClauses = CaseClauses
-  override protected val expr = Expr
-  override protected val postfixExpr = PostfixExpr
-  override protected val enumerators = Enumerators
-  override protected val ascription = Ascription
+  override protected def block = Block
+  override protected def caseClauses = CaseClauses
+  override protected def expr = Expr
+  override protected def postfixExpr = PostfixExpr
+  override protected def enumerators = Enumerators
+  override protected def ascription = Ascription
 }
 
 trait Expr1 {
-  protected val block: Block
-  protected val expr: Expr
-  protected val postfixExpr: PostfixExpr
-  protected val enumerators: Enumerators
-  protected val caseClauses: CaseClauses
-  protected val ascription: Ascription
+  protected def block: Block
+  protected def expr: Expr
+  protected def postfixExpr: PostfixExpr
+  protected def enumerators: Enumerators
+  protected def caseClauses: CaseClauses
+  protected def ascription: Ascription
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark

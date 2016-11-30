@@ -10,11 +10,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  * @author Alexander Podkhalyuzin
  */
 object EmptyDcl extends EmptyDcl {
-  override protected val annotation = Annotation
+  override protected def annotation = Annotation
 }
 
 trait EmptyDcl {
-  protected val annotation: Annotation
+  protected def annotation: Annotation
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {

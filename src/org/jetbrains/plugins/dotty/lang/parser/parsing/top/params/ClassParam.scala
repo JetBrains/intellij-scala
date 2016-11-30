@@ -7,7 +7,7 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.types.ParamType
   * @author adkozlov
   */
 object ClassParam extends org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParam {
-  override protected val expr = Expr
-  override protected val annotation = Annotation
-  override protected val paramType = ParamType
+  override protected def expr = Expr
+  override protected def annotation = Annotation
+  override protected def paramType = ParamType
 }

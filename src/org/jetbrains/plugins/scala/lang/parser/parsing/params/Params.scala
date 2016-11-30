@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Params ::= Param {',' Param}
  */
 object Params extends Params {
-  override protected val param = Param
+  override protected def param = Param
 }
 
 trait Params {
-  protected val param: Param
+  protected def param: Param
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     if (!param.parse(builder)) {

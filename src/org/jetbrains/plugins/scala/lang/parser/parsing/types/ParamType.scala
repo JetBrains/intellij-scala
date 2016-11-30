@@ -19,11 +19,11 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
  *               Type '*'
  */
 object ParamType extends ParamType {
-  override protected val `type` = Type
+  override protected def `type` = Type
 }
 
 trait ParamType {
-  protected val `type`: Type
+  protected def `type`: Type
 
   def parseInner(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {

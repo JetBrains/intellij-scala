@@ -17,13 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *                 | [nl] BlockExpr
  */
 object ArgumentExprs extends ArgumentExprs {
-  override protected val blockExpr = BlockExpr
-  override protected val expr = Expr
+  override protected def blockExpr = BlockExpr
+  override protected def expr = Expr
 }
 
 trait ArgumentExprs {
-  protected val blockExpr: BlockExpr
-  protected val expr: Expr
+  protected def blockExpr: BlockExpr
+  protected def expr: Expr
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val argMarker = builder.mark

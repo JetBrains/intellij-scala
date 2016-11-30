@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * RefinedType ::= WithType {[nl] Refinement}
  */
 object RefinedType extends org.jetbrains.plugins.scala.lang.parser.parsing.types.Type {
-  override protected val infixType = InfixType
+  override protected def infixType = InfixType
 
   override def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
     val marker = builder.mark()

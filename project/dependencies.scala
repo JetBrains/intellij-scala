@@ -4,7 +4,7 @@ import sbt._
 object Versions {
   val scalaVersion = "2.11.6"
   val sbtVersion = "0.13.13"
-  val ideaVersion = "163.6957.12"
+  val ideaVersion = "163.7743.44"
   val sbtStructureVersion = "6.0.2"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
@@ -140,13 +140,9 @@ object DependencyGroups {
     "org.scala-lang" % "scala-reflect" % "2.11.7",
     "org.scala-lang" % "scala-compiler" % "2.11.7",
 
-    "org.scala-lang" % "scala-library" % "2.12.0-M4" withSources(),
-    "org.scala-lang" % "scala-reflect" % "2.12.0-M4",
-    "org.scala-lang" % "scala-compiler" % "2.12.0-M4",
-
-    "org.scala-lang" % "scala-library" % "2.12.0-M5" withSources(),
-    "org.scala-lang" % "scala-reflect" % "2.12.0-M5",
-    "org.scala-lang" % "scala-compiler" % "2.12.0-M5"
+    "org.scala-lang" % "scala-library" % "2.12.0" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.12.0",
+    "org.scala-lang" % "scala-compiler" % "2.12.0"
   )
 
 

@@ -19,13 +19,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
  *             | '{' Block '}'
  */
 object BlockExpr extends BlockExpr {
-  override protected val block = Block
-  override protected val caseClauses = CaseClauses
+  override protected def block = Block
+  override protected def caseClauses = CaseClauses
 }
 
 trait BlockExpr {
-  protected val block: Block
-  protected val caseClauses: CaseClauses
+  protected def block: Block
+  protected def caseClauses: CaseClauses
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     if (ParserPatcher.getSuitablePatcher(builder).parse(builder)) return true

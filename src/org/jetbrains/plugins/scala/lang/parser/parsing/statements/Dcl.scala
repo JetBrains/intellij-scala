@@ -22,19 +22,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *         | 'type' {nl} TypeDcl)
  */
 object Dcl extends Dcl {
-  override protected val funDcl = FunDcl
-  override protected val annotation = Annotation
-  override protected val typeDcl = TypeDcl
-  override protected val varDcl = VarDcl
-  override protected val valDcl = ValDcl
+  override protected def funDcl = FunDcl
+  override protected def annotation = Annotation
+  override protected def typeDcl = TypeDcl
+  override protected def varDcl = VarDcl
+  override protected def valDcl = ValDcl
 }
 
 trait Dcl {
-  protected val funDcl: FunDcl
-  protected val annotation: Annotation
-  protected val valDcl: ValDcl
-  protected val varDcl: VarDcl
-  protected val typeDcl: TypeDcl
+  protected def funDcl: FunDcl
+  protected def annotation: Annotation
+  protected def valDcl: ValDcl
+  protected def varDcl: VarDcl
+  protected def typeDcl: TypeDcl
 
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {

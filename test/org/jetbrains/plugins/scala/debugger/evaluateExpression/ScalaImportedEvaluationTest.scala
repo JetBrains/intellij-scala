@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
   * Nikolay.Tropin
@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 class ScalaImportedEvaluationTest extends ScalaImportedEvaluationTestBase with ScalaVersion_2_11
 
 class ScalaImportedEvaluationTest_212 extends ScalaImportedEvaluationTestBase with ScalaVersion_2_12
-class ScalaImportedEvaluationTest_212_OLD extends ScalaImportedEvaluationTestBase with ScalaVersion_2_12_OLD
 
 abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImportFromObject.scala",

@@ -19,15 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
  * ClassParam ::= {Annotation} [{Modifier} ('val' | 'var')] id ':' ParamType ['=' Expr]
  */
 object ClassParam extends ClassParam {
-  override protected val expr = Expr
-  override protected val annotation = Annotation
-  override protected val paramType = ParamType
+  override protected def expr = Expr
+  override protected def annotation = Annotation
+  override protected def paramType = ParamType
 }
 
 trait ClassParam {
-  protected val expr: Expr
-  protected val annotation: Annotation
-  protected val paramType: ParamType
+  protected def expr: Expr
+  protected def annotation: Annotation
+  protected def paramType: ParamType
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark

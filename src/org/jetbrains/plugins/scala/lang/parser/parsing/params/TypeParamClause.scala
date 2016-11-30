@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * TypeParamClause ::= '[' VariantTypeParam {',' VariantTypeParam} ']'
  */
 object TypeParamClause extends TypeParamClause {
-  override protected val typeParam = TypeParam
+  override protected def typeParam = TypeParam
 }
 
 trait TypeParamClause {
-  protected val typeParam: TypeParam
+  protected def typeParam: TypeParam
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark

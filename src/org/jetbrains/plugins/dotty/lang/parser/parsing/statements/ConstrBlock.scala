@@ -6,6 +6,6 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.expressions.{BlockStat, S
   * @author adkozlov
   */
 object ConstrBlock extends org.jetbrains.plugins.scala.lang.parser.parsing.statements.ConstrBlock {
-  override protected val selfInvocation = SelfInvocation
-  override protected val blockStat = BlockStat
+  override protected def selfInvocation = SelfInvocation
+  override protected def blockStat = BlockStat
 }

@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object Bindings extends Bindings {
-  override protected val binding = Binding
+  override protected def binding = Binding
 }
 
 trait Bindings {
-  protected val binding: Binding
+  protected def binding: Binding
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val bindingsMarker = builder.mark

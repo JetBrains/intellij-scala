@@ -9,11 +9,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
   * @author adkozlov
   */
 object TraitDef extends org.jetbrains.plugins.scala.lang.parser.parsing.top.TraitDef with org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassDef {
-  override protected val classParamClauses = ClassParamClauses
-  override protected val templateOpt = TraitTemplateOpt
-  override protected val annotation = Annotation
-  override protected val constrMods = ConstrMods
-  override protected val typeParamClause = TypeParamClause
+  override protected def classParamClauses = ClassParamClauses
+  override protected def templateOpt = TraitTemplateOpt
+  override protected def annotation = Annotation
+  override protected def constrMods = ConstrMods
+  override protected def typeParamClause = TypeParamClause
 
   override def parse(builder: ScalaPsiBuilder): Boolean = super.parse(builder)
 }
