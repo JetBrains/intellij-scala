@@ -13,14 +13,14 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       Term.If(Lit(value = true), Lit(42), Lit(()))
     )
   }
-  
+
   def testIfElse() {
     doTest(
       "if (false) 42 else 0",
       Term.If(Lit(value = false), Lit(42), Lit(0))
     )
   }
-  
+
   def testIfElseIfElse() {
     doTest(
       "if (true) 42 else if (false) 999 else 0",
@@ -37,7 +37,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       Term.Apply(Term.Select(Term.Name("Foo"), Term.Name("f")), Nil)
     )
   }
-  
+
   def testNewNoParen() {
     doTest(
       """class Foo
@@ -57,7 +57,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), Nil)), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
-  
+
   def testNewWithArg() {
     doTest(
       """class Foo(a: Int)
@@ -100,7 +100,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         Term.Block(List(Lit(()))))), Some(Term.Block(List(Lit(())))))
     )
   }
-  
+
   def testApplyPostfix() {
     doTest(
       "Seq() tail",
@@ -108,14 +108,14 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       Term.Apply(Term.Select(Term.Apply(Term.Name("Seq"), Nil), Term.Name("tail")), Nil)
     )
   }
-  
+
   def testDoWhile() {
     doTest(
       "do {()} while (true)",
       Term.Do(Term.Block(List(Lit(()))), Lit(true))
     )
   }
-  
+
   def testWhile() {
     doTest(
       "while(true) {()}",
@@ -130,7 +130,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         Term.Apply(Term.Name("Seq"), List(Lit(1))))), Term.Block(List(Lit(42))))
     )
   }
-  
+
   def testForMutiWithGuards() {
     doTest(
       "for (s: Int <- Seq(1); y <- Seq(3) if y == s; z = (s, y)) {}",
@@ -158,7 +158,8 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
             Defn.Trait(Nil, Type.Name("Bar"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
               Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None)),
             Defn.Class(Nil, Type.Name("Baz"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
-              Template(Nil, List(Term.Apply(Ctor.Ref.Select(Term.Name("A"), Ctor.Ref.Name("Foo")), Nil), Ctor.Ref.Name("Bar")),
+              Template(Nil, List(Term.Apply(Ctor.Ref.Select(Term.Name("A"), Ctor.Ref.Name("Foo")), Nil),
+                Term.Apply(Ctor.Ref.Select(Term.Name("A"), Ctor.Ref.Name("Bar")), Nil)),
                 Term.Param(Nil, Name.Anonymous(), None, None),
                 Some(List(Term.Select(Term.Super(Name.Indeterminate("Baz"),
                   Name.Indeterminate("Foo")), Term.Name("hashCode")))))))
