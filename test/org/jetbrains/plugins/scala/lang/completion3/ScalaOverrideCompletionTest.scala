@@ -347,4 +347,23 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       assert(result.isEmpty, "Override is not enable at this place")
     }
   }
+
+  def testNoCompletionAfterColon(): Unit ={
+    TypeAnnotationSettings.set(getProjectAdapter,
+      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
+
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   val test: intV<caret> = 123
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    Option(activeLookup).foreach{ al =>
+      val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
+      assert(result.isEmpty, "Override is not enable at this place")
+    }
+  }
 }

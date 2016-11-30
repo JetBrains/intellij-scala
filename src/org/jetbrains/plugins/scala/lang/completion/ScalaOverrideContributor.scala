@@ -6,7 +6,7 @@ import com.intellij.openapi.util.Iconable._
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.psi.filters._
-import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
+import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour, PositionElementFilter}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
@@ -40,17 +40,26 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       })
   }
 
+  def afterDotFilter: PositionElementFilter = new LeftNeighbour(new TextContainFilter("."))
+
+  def afterColumnFilter: PositionElementFilter = new LeftNeighbour(new TextContainFilter(":"))
+
   /**
     * handle only declarations here
     */
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
-    and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextContainFilter(".")))))), new CompletionProvider[CompletionParameters] {
+    and(new FilterPattern(new AndFilter(new NotFilter(new OrFilter(afterDotFilter, afterColumnFilter))))), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet) {
       val position = positionFromParameters(parameters)
 
       Option(PsiTreeUtil.getContextOfType(position, classOf[ScDeclaration]))
         .collect { case ml: ScModifierListOwner => ml }.foreach { declaration =>
-        Option(PsiTreeUtil.getContextOfType(declaration, classOf[ScTemplateDefinition])).foreach { clazz =>
+        val tempClazz =
+          Option(declaration.getContext)
+            .collect { case templ: ScTemplateBody => templ }
+            .map(PsiTreeUtil.getContextOfType(_, classOf[ScTemplateDefinition]))
+
+        tempClazz.foreach { clazz =>
           addCompletionsAfterOverride(resultSet, declaration, clazz)
         }
       }
@@ -108,10 +117,8 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
 
     def membersToRender = member match {
       case _: PsiMethod => classMembers.filter(_.isInstanceOf[ScMethodMember])
-      case typedDefinition: ScTypedDefinition if typedDefinition.isVal =>
-        classMembers.filter(_.isInstanceOf[ScValueMember])
-      case typedDefinition: ScTypedDefinition if typedDefinition.isVar =>
-        classMembers.filter(_.isInstanceOf[ScVariableMember])
+      case _: ScValueDeclaration => classMembers.filter(_.isInstanceOf[ScValueMember])
+      case _: ScVariableDeclaration => classMembers.filter(_.isInstanceOf[ScVariableMember])
       case _: ScTypeAlias => classMembers.filter(_.isInstanceOf[ScAliasMember])
       case _ => classMembers
     }
