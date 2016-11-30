@@ -18,6 +18,8 @@ class ScalaBreadcrumbsPresentationProvider extends BreadcrumbsPresentationProvid
   override def getCrumbPresentations(element: Array[PsiElement]): Array[CrumbPresentation] = {
     import ScalaBreadcrumbsPresentationProvider._
     
+    if (element.headOption.exists(!_.isInstanceOf[ScalaPsiElement])) return null
+    
     element.map {
       element => MyCrumbPresentation(getColorFor(element))
     }
@@ -34,7 +36,7 @@ object ScalaBreadcrumbsPresentationProvider {
     case _: ScFunction => getOtherColor //Color.GREEN
     case _: ScFunctionExpr => getOtherColor //Color.LIGHT_GRAY
     case _: ScalaPsiElement => getOtherColor
-    case _ => null
+    case _ => getFunctionColor // why not
   }
   
   private def getClassColor = EditorColors.IDENTIFIER_UNDER_CARET_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
