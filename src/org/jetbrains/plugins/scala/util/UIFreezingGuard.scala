@@ -41,11 +41,14 @@ class UIFreezingGuard extends ApplicationComponent {
 
 object UIFreezingGuard {
 
+  private var isGuarded: Boolean = false
+
   //used in macro!
   def withResponsibleUI[T](body: => T): T = {
     if (!isAlreadyGuarded) {
       val start = System.currentTimeMillis()
       try {
+        isGuarded = true
         val progressManager = ProgressManager.getInstance()
         if (!ApplicationManager.getApplication.isWriteAccessAllowed && !progressManager.hasProgressIndicator) {
 
@@ -57,6 +60,7 @@ object UIFreezingGuard {
         else
           body
       } finally {
+        isGuarded = false
         dumpThreads(System.currentTimeMillis() - start)
       }
     }
@@ -66,7 +70,7 @@ object UIFreezingGuard {
   //used in macro to reduce number of `withResponsibleUI` calls in the stacktrace
   def isAlreadyGuarded: Boolean = {
     val edt = ApplicationManager.getApplication.isDispatchThread
-    edt && progress.isRunning || !edt
+    edt && isGuarded || !edt
   }
 
   private def dumpThreads(ms: Long): Unit = {
