@@ -9,6 +9,7 @@ import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{Compilable, DebuggerTestUtil}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.meta.ScalametaUtils
 
@@ -18,6 +19,8 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   override def getMainModule: Module = myModule
   override def getRootDisposable: Disposable = getTestRootDisposable
   override def getTestName: String = getTestName(false)
+
+  override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
 
   override def setUp(): Unit = {
     super.setUp()

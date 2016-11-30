@@ -32,10 +32,18 @@ trait TypeAdapter {
     typeElementCache.getOrElseUpdate(tp, {
       tp match {
         case t: ScSimpleTypeElement if dumbMode =>
-          t.reference.map(toTypeName).getOrElse(m.Type.Name(t.text))
+          t.reference match {
+            case Some(ref) =>
+              ref.qualifier.map(qual=>m.Type.Select(getTypeQualifier(qual.asInstanceOf[ScReferenceElement]), toTypeName(ref)))
+                .getOrElse(toTypeName(ref))
+            case None => m.Type.Name(t.text)
+          }
         case t: ScSimpleTypeElement =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.calcType))
+//        case t: ScReferenceElement if dumbMode =>
+//          t.qualifier.map(qual=>m.Type.Select(getTypeQualifier(qual.asInstanceOf[ScReferenceElement]), toTypeName(t)))
+//            .getOrElse(toTypeName(t))
         case t: ScFunctionalTypeElement =>
           toType(t.paramTypeElement) match {
             case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
@@ -47,6 +55,10 @@ trait TypeAdapter {
           m.Type.Tuple(Seq(t.components.map(toType): _*))
         case t: ScWildcardTypeElement =>
           m.Type.Placeholder(typeBounds(t))
+        case t: ScCompoundTypeElement =>
+          t.components
+            .dropRight(1)
+            .foldLeft(toType(t.components.last))((mtp, stp) => m.Type.With(toType(stp), mtp))
         case t: ScParenthesisedTypeElement =>
           t.typeElement match {
             case Some(t: ScReferenceableInfixTypeElement) => m.Type.ApplyInfix(toType(t.leftTypeElement), toTypeName(t.reference), toType(t.rightTypeElement.get))
@@ -68,6 +80,14 @@ trait TypeAdapter {
         case other => other ?!
       }
     })
+  }
+
+  private def getTypeQualifier(ref: ScReferenceElement): m.Term.Ref = {
+    ref.qualifier match {
+      case Some(r: ScReferenceElement) => m.Term.Select(getTypeQualifier(r), toTermName(ref))
+      case None => toTermName(ref)
+      case _ => unreachable
+    }
   }
 
   def toType(tr: TypeResult[ptype.ScType]): m.Type = {

@@ -192,22 +192,19 @@ trait TreeAdapter {
   }
 
   def template(t: p.toplevel.templates.ScExtendsBlock): m.Template = {
-//    def ctor(tpe: types.ScTypeElement) = m.Ctor.Ref.Name(tpe.calcType.canonicalText)
     val exprs   = t.templateBody map (it => Seq(it.exprs.map(expression): _*))
     val members = t.templateBody map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
     val early   = t.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
-    val parents = t.templateParents
-        .map(it => Seq(it.children.filter(_.isInstanceOf[ScConstructor])
-        .map(x=>toCtor(x.asInstanceOf[ScConstructor])).toSeq:_*))
-        .getOrElse(Seq.empty)
-    val parents2 = t.templateParents
-      .map(it => it.typeElementsWithoutConstructor.flatMap(x=>x.children.find(_.isInstanceOf[ScStableCodeReferenceElement]))
-        .map(c => toCtorName(c.asInstanceOf[ScStableCodeReferenceElement])))
-      .getOrElse(Seq.empty)
+    val ctor = t.templateParents
+      .flatMap(_.children.find(_.isInstanceOf[ScConstructor]))
+      .map(c=>toCtor(c.asInstanceOf[ScConstructor]))
+        .toSeq
+    val mixins = t.templateParents.map(x=>x.typeElementsWithoutConstructor.map(toType).map(toCtor)).getOrElse(Seq.empty)
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
     }
+    m.Ctor.Ref.Function
     // FIXME: preserve expression and member order
     val stats = (exprs, members) match {
       case (Some(exp), Some(hld)) => Some(hld ++ exp)
@@ -215,7 +212,7 @@ trait TreeAdapter {
       case (None, Some(hld))  => Some(hld)
       case (None, None)       => None
     }
-    m.Template(early, parents++parents2, self, stats)
+    m.Template(early, Seq(ctor:_*) ++ mixins, self, stats)
   }
 
   // Java conversion
@@ -243,20 +240,25 @@ trait TreeAdapter {
     m.Template(early, Seq(ctor), self, None)
   }
 
-  def toCtor(c: ScConstructor) = {
-    val ctorRef = c.reference match {
-      case Some(ref) => getCtorRef(ref)
-      case None => die(s"No reference for ctor ${c.getText}")
-    }
-    if (c.arguments.isEmpty) {
-      if (paradiseCompatibilityHacks) {
-        m.Term.Apply(ctorRef, Nil)
-      } else { ctorRef }
-    }
+  def toCtor(c: ScConstructor): m.Ctor.Call = {
+    val ctorCall@m.Term.Apply(ctorRef, _) = toCtor(toType(c.typeElement))
+    if (c.arguments.isEmpty) { ctorCall }
     else {
       val head = m.Term.Apply(ctorRef, Seq(c.arguments.head.exprs.map(callArgs): _*))
       c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)))
     }
+  }
+
+  private def toCtor(tp: m.Type): m.Term.Apply = {
+    def doConvert(tp: m.Type): m.Term = tp match {
+      case m.Type.Name(value) => m.Ctor.Ref.Name(value)
+      case m.Type.Select(qual, name) => m.Ctor.Ref.Select(qual, m.Ctor.Ref.Name(name.value))
+      case m.Type.Project(qual, name) => m.Ctor.Ref.Project(qual, m.Ctor.Ref.Name(name.value))
+      case m.Type.Apply(tpe, args) => m.Term.ApplyType(doConvert(tpe), args)
+      case other => unreachable(s"Unexpected type in constructor type element - $other")
+    }
+    val ctor = doConvert(tp)
+    m.Term.Apply(ctor, Nil)
   }
 
   def toAnnot(annot: ScAnnotation): m.Mod.Annot = {
@@ -409,7 +411,7 @@ trait TreeAdapter {
     }
   }
 
-  def getQualifiedReference(q: ScStableCodeReferenceElement) = {
+  def getQualifiedReference(q: ScStableCodeReferenceElement): m.Term.Ref = {
     q.pathQualifier match {
       case None => toTermName(q)
       case Some(_) => m.Term.Select(getQualifier(q), toTermName(q))
@@ -513,6 +515,7 @@ trait TreeAdapter {
       case None => Seq.empty
     }
     val caseMod = if (t.hasModifierPropertyScala("case")) Seq(m.Mod.Case()) else Nil
+    val finalMod = if (t.hasModifierPropertyScala("final")) Seq(m.Mod.Final()) else Nil
     val implicitMod = if(t.hasModifierPropertyScala("implicit")) Seq(m.Mod.Implicit()) else Nil
     val sealedMod = if (t.hasModifierPropertyScala("sealed")) Seq(m.Mod.Sealed()) else Nil
     val annotations: Seq[m.Mod.Annot] = t match {
@@ -520,7 +523,7 @@ trait TreeAdapter {
       case _ => Seq.empty
     }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
-    annotations ++ implicitMod ++ sealedMod ++ caseMod ++ overrideMod ++ common ++ classParam
+    annotations ++ implicitMod ++ sealedMod ++ finalMod ++ caseMod ++ overrideMod ++ common ++ classParam
   }
 
   // Java conversion
