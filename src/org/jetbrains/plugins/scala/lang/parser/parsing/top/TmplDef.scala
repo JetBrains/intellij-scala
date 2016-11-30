@@ -27,8 +27,6 @@ object TmplDef extends TmplDef {
   override protected def objectDef = ObjectDef
   override protected def traitDef = TraitDef
   override protected def annotation = Annotation
-
-  override protected def elementTypes = ScalaElementTypes
 }
 
 trait TmplDef {
@@ -36,8 +34,6 @@ trait TmplDef {
   protected def objectDef: ObjectDef
   protected def traitDef: TraitDef
   protected def annotation: Annotation
-
-  protected def elementTypes: ElementTypes
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()

@@ -10,6 +10,4 @@ object TmplDef extends org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplD
   override protected def annotation = Annotation
   override protected def objectDef = ObjectDef
   override protected def traitDef = TraitDef
-
-  override protected def elementTypes = DottyElementTypes
 }

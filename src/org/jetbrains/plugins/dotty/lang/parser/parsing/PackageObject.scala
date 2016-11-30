@@ -7,6 +7,4 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.top.ObjectDef
   */
 object PackageObject extends org.jetbrains.plugins.scala.lang.parser.parsing.PackageObject {
   override protected def objectDef = ObjectDef
-
-  override protected def elementTypes = DottyElementTypes
 }
