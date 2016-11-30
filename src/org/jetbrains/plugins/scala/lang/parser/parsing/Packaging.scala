@@ -17,11 +17,11 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'
  */
 object Packaging extends Packaging {
-  override protected val topStatSeq = TopStatSeq
+  override protected def topStatSeq = TopStatSeq
 }
 
 trait Packaging {
-  protected val topStatSeq: TopStatSeq
+  protected def topStatSeq: TopStatSeq
 
   def parse(builder: ScalaPsiBuilder):Boolean = {
     val packMarker = builder.mark

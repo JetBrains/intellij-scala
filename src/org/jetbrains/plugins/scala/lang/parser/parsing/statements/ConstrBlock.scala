@@ -13,13 +13,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{BlockStat, S
 * Date: 13.03.2008
 */
 object ConstrBlock extends ConstrBlock {
-  override protected val selfInvocation = SelfInvocation
-  override protected val blockStat = BlockStat
+  override protected def selfInvocation = SelfInvocation
+  override protected def blockStat = BlockStat
 }
 
 trait ConstrBlock {
-  protected val selfInvocation: SelfInvocation
-  protected val blockStat: BlockStat
+  protected def selfInvocation: SelfInvocation
+  protected def blockStat: BlockStat
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val constrExprMarker = builder.mark

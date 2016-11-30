@@ -140,8 +140,8 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
             if (DebuggerUtil.isScalaRuntimeRef(myEvaluatedVariable.getType.name())) {
               frameProxy.getValue(myEvaluatedVariable) match {
                 case objRef: ObjectReference =>
-                  val field = objRef.referenceType().fieldByName("elem")
-                  objRef.setValue(field, value)
+                  val field = DebuggerUtil.runtimeRefField(objRef.referenceType())
+                  field.foreach(objRef.setValue(_, value))
                 case _ =>
                   frameProxy.setValue(myEvaluatedVariable, value)
               }

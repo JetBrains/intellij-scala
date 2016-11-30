@@ -17,15 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
  * Generator ::= Pattern1 '<-' Expr [Guard]
  */
 object Generator extends Generator {
-  override protected val expr = Expr
-  override protected val guard = Guard
-  override protected val pattern1 = Pattern1
+  override protected def expr = Expr
+  override protected def guard = Guard
+  override protected def pattern1 = Pattern1
 }
 
 trait Generator {
-  protected val expr: Expr
-  protected val guard: Guard
-  protected val pattern1: Pattern1
+  protected def expr: Expr
+  protected def guard: Guard
+  protected def pattern1: Pattern1
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val genMarker = builder.mark

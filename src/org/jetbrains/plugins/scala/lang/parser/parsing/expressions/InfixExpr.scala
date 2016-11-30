@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
  *             | InfixExpr id [TypeArgs] [nl] InfixExpr
  */
 object InfixExpr extends InfixExpr {
-  override protected val prefixExpr = PrefixExpr
+  override protected def prefixExpr = PrefixExpr
 }
 
 trait InfixExpr {
-  protected val prefixExpr: PrefixExpr
+  protected def prefixExpr: PrefixExpr
 
   import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 

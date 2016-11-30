@@ -178,11 +178,12 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def syntheticTypeDefinitions: Seq[ScTypeDefinition] = syntheticTypeDefinitionsImpl
 
+  protected def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty
+
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def syntheticMembers: Seq[ScMember] = syntheticMembersImpl
 
-  def syntheticMembersImpl: Seq[ScMember] = Nil
-
-  def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty
+  protected def syntheticMembersImpl: Seq[ScMember] = Seq.empty
 
   def selfTypeElement: Option[ScSelfTypeElement] = {
     val qual = qualifiedName

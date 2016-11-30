@@ -16,13 +16,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *                       [[nl] '(' 'implicit' ClassParams ')']
  */
 object ClassParamClauses extends ClassParamClauses {
-  override protected val classParamClause = ClassParamClause
-  override protected val implicitClassParamClause = ImplicitClassParamClause
+  override protected def classParamClause = ClassParamClause
+  override protected def implicitClassParamClause = ImplicitClassParamClause
 }
 
 trait ClassParamClauses {
-  protected val classParamClause: ClassParamClause
-  protected val implicitClassParamClause: ImplicitClassParamClause
+  protected def classParamClause: ClassParamClause
+  protected def implicitClassParamClause: ImplicitClassParamClause
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamClausesMarker = builder.mark

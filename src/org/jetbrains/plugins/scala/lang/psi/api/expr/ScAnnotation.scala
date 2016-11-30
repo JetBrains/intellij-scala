@@ -5,11 +5,13 @@ package api
 package expr
 
 import com.intellij.openapi.project.DumbService
-import com.intellij.psi.PsiAnnotation
+import com.intellij.psi.{PsiAnnotation, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
 /**
  * @author Alexander Podkhalyuzin
@@ -34,16 +36,20 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
   def typeElement: ScTypeElement
 
   def isMetaAnnotation: Boolean = {
+    def hasMetaAnnotation(results: Array[ResolveResult]) = results.map(_.getElement).exists {
+      case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
+      case o: ScTypeDefinition => o.isMetaAnnotatationImpl
+      case _ => false
+    }
     // do not resolve anything while the stubs are building to avoid deadlocks
     if (ScTemplateDefinitionElementType.isStubBuilding.get() || DumbService.isDumb(getProject))
       return false
-    val reference = constructor.reference
-    reference.exists { ref =>
-        ref.resolve() match {
-          case c: ScPrimaryConstructor => c.containingClass.isMetaAnnotatationImpl
-          case o: ScTypeDefinition => o.isMetaAnnotatationImpl
-          case _ => false
-        }
+
+    constructor.reference.exists {
+      case stRef: ScStableCodeReferenceElementImpl =>
+        val processor = new ResolveProcessor(stRef.getKinds(incomplete = false), stRef, stRef.refName)
+        hasMetaAnnotation(stRef.doResolve(stRef, processor))
+      case _ => false
     }
   }
 

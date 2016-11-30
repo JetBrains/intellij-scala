@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
   * @author adkozlov
   */
 object ClassParents extends org.jetbrains.plugins.scala.lang.parser.parsing.top.template.ClassParents {
-  override protected val constructor = Constructor
+  override protected def constructor = Constructor
 
   override protected def parseParent(builder: ScalaPsiBuilder): Boolean =
     parseFirstParent(builder)

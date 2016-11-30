@@ -133,7 +133,7 @@ object CompilationData {
       val paths = context.getProjectDescriptor.dataManager.getDataPaths
 
       for ((target, output) <- targetToOutput.toMap)
-      yield (output, new File(paths.getTargetDataRoot(target).getCanonicalFile, "cache.dat"))
+      yield (output.getCanonicalFile, new File(paths.getTargetDataRoot(target).getCanonicalFile, "cache.dat"))
     }
   }
 

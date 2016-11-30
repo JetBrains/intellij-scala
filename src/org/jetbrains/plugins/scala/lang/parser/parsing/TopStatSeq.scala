@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 *  TopStatSeq ::= TopStat {semi TopStat}
 */
 object TopStatSeq extends TopStatSeq {
-  override protected val topStat = TopStat
+  override protected def topStat = TopStat
 }
 
 trait TopStatSeq {
-  protected val topStat: TopStat
+  protected def topStat: TopStat
 
   def parse(builder: ScalaPsiBuilder): Int = parse(builder, waitBrace = false)
   def parse(builder: ScalaPsiBuilder, waitBrace: Boolean): Int = parse(builder, waitBrace, hasPackage = false)

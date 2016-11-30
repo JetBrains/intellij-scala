@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *            | Pattern3
  */
 object Pattern2 extends Pattern2 {
-  override protected val pattern3 = Pattern3
+  override protected def pattern3 = Pattern3
 }
 
 trait Pattern2 {
-  protected val pattern3: Pattern3
+  protected def pattern3: Pattern3
 
   def parse(builder: ScalaPsiBuilder, forDef: Boolean): Boolean = {
 

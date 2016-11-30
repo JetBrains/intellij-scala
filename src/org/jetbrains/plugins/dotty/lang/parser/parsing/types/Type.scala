@@ -8,5 +8,5 @@ package org.jetbrains.plugins.dotty.lang.parser.parsing.types
  * Type ::= FunArgTypes `=>' Type | InfixType
  */
 object Type extends org.jetbrains.plugins.scala.lang.parser.parsing.types.Type {
-  override protected val infixType = InfixType
+  override protected def infixType = InfixType
 }

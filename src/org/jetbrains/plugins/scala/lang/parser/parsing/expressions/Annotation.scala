@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Annmotation ::= '@' AnnotationExpr [nl]
  */
 object Annotation extends Annotation {
-  override protected val annotationExpr = AnnotationExpr
+  override protected def annotationExpr = AnnotationExpr
 }
 
 trait Annotation {
-  protected val annotationExpr: AnnotationExpr
+  protected def annotationExpr: AnnotationExpr
 
   def parse(builder: ScalaPsiBuilder, countLinesAfterAnnotation: Boolean = true): Boolean = {
     val rollbackMarker = builder.mark()

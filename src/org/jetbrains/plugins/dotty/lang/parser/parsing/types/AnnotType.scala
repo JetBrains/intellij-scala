@@ -10,6 +10,6 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.expressions.Annotation
  * AnnotType ::= SimpleType {Annotation}
  */
 object AnnotType extends org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType {
-  override protected val annotation = Annotation
-  override protected val simpleType = SimpleType
+  override protected def annotation = Annotation
+  override protected def simpleType = SimpleType
 }

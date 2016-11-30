@@ -16,15 +16,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
  * MacroDef ::= MacroDef ::= FunSig [‘:’ Type] ‘=’ ‘macro’ QualId [TypeArgs]
  */
 object MacroDef extends MacroDef {
-  override protected val funSig = FunSig
-  override protected val `type` = Type
-  override protected val typeArgs = TypeArgs
+  override protected def funSig = FunSig
+  override protected def `type` = Type
+  override protected def typeArgs = TypeArgs
 }
 
 trait MacroDef {
-  protected val funSig: FunSig
-  protected val `type`: Type
-  protected val typeArgs: TypeArgs
+  protected def funSig: FunSig
+  protected def `type`: Type
+  protected def typeArgs: TypeArgs
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark

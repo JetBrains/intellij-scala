@@ -12,11 +12,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 * Date: 28.02.2008
 */
 object RefineStatSeq extends RefineStatSeq {
-  override protected val refineStat = RefineStat
+  override protected def refineStat = RefineStat
 }
 
 trait RefineStatSeq {
-  protected val refineStat: RefineStat
+  protected def refineStat: RefineStat
 
   def parse(builder: ScalaPsiBuilder) {
     while (true) {

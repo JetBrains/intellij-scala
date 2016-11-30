@@ -6,7 +6,7 @@ import org.jetbrains.plugins.dotty.lang.parser.parsing.expressions.Annotation
   * @author adkozlov
   */
 object PatVarDef extends org.jetbrains.plugins.scala.lang.parser.parsing.statements.PatVarDef {
-  override protected val patDef = PatDef
-  override protected val annotation = Annotation
-  override protected val varDef = VarDef
+  override protected def patDef = PatDef
+  override protected def annotation = Annotation
+  override protected def varDef = VarDef
 }

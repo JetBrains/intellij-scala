@@ -20,11 +20,11 @@ import scala.annotation.tailrec
  *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
  */
 object CompilationUnit extends CompilationUnit {
-  override protected val topStatSeq = TopStatSeq
+  override protected def topStatSeq = TopStatSeq
 }
 
 trait CompilationUnit {
-  protected val topStatSeq: TopStatSeq
+  protected def topStatSeq: TopStatSeq
 
   def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = ParserState.EMPTY_STATE

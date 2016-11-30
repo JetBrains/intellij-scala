@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
   * @author adkozlov
   */
 trait Parents {
-  protected val elementType: IElementType
+  protected def elementType: IElementType
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()

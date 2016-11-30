@@ -23,23 +23,23 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
  *            ('=' ConstrExpr | [nl] ConstrBlock)
  */
 object FunDef extends FunDef {
-  override protected val constrExpr = ConstrExpr
-  override protected val constrBlock = ConstrBlock
-  override protected val block = Block
-  override protected val funSig = FunSig
-  override protected val expr = Expr
-  override protected val paramClauses = ParamClauses
-  override protected val `type` = Type
+  override protected def constrExpr = ConstrExpr
+  override protected def constrBlock = ConstrBlock
+  override protected def block = Block
+  override protected def funSig = FunSig
+  override protected def expr = Expr
+  override protected def paramClauses = ParamClauses
+  override protected def `type` = Type
 }
 
 trait FunDef {
-  protected val constrExpr: ConstrExpr
-  protected val constrBlock: ConstrBlock
-  protected val expr: Expr
-  protected val block: Block
-  protected val paramClauses: ParamClauses
-  protected val funSig: FunSig
-  protected val `type`: Type
+  protected def constrExpr: ConstrExpr
+  protected def constrBlock: ConstrBlock
+  protected def expr: Expr
+  protected def block: Block
+  protected def paramClauses: ParamClauses
+  protected def funSig: FunSig
+  protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark

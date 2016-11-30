@@ -743,10 +743,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val containingClass = getContextClass(obj)
       val name = NameTransformer.encode(obj.name) + "$module"
       if (containingClass == contextClass) {
-        fromVolatileObjectReference(new ScalaLocalVariableEvaluator(name, fileName))
+        new ScalaLocalVariableEvaluator(name, fileName)
       } else {
         val fieldEval = withOuterFieldEvaluator(containingClass, name, ScalaBundle.message("cannot.evaluate.local.object", name))
-        fromVolatileObjectReference(fieldEval)
+        fieldEval
       }
     }
 
@@ -1046,13 +1046,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val ref = createExpressionWithContextFromText(name, elemAt, elemAt)
     val refEval = evaluatorFor(ref)
 
-    if (local.isInstanceOf[ScObject]) {
-      val qual = "scala.runtime.VolatileObjectRef"
-      val typeEvaluator = new TypeEvaluator(JVMNameUtil.getJVMRawText(qual))
-      val signature = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V")
-      new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
-    }
-    else FromLocalArgEvaluator(refEval)
+    FromLocalArgEvaluator(refEval)
   }
 
 

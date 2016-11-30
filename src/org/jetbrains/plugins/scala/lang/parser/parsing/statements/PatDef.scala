@@ -20,16 +20,16 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * PatDef ::= Pattern2 {',' Pattern2} [':' Type] '=' Expr
  */
 object PatDef extends PatDef {
-  override protected val expr = Expr
-  override protected val pattern2 = Pattern2
-  override protected val `type` = Type
+  override protected def expr = Expr
+  override protected def pattern2 = Pattern2
+  override protected def `type` = Type
 }
 
 //TODO: Rewrite this
 trait PatDef {
-  protected val expr: Expr
-  protected val pattern2: Pattern2
-  protected val `type`: Type
+  protected def expr: Expr
+  protected def pattern2: Pattern2
+  protected def `type`: Type
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val someMarker = builder.mark

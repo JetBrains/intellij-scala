@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * @author Nikolay.Tropin
@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion_2_11, ScalaVersion_2_1
 class GetAllClassesTest extends GetAllClassesTestBase with ScalaVersion_2_11
 
 class GetAllClassesTest_212 extends GetAllClassesTest_212_Base with ScalaVersion_2_12
-class GetAllClassesTest_212_OLD extends GetAllClassesTest_212_Base with ScalaVersion_2_12_OLD
 
 abstract class GetAllClassesTest_212_Base extends GetAllClassesTestBase {
 

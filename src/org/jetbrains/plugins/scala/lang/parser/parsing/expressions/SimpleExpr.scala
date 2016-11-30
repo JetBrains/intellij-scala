@@ -34,19 +34,19 @@ import scala.annotation.tailrec
  *               | XmlExpr
  */
 object SimpleExpr extends SimpleExpr {
-  override protected val argumentExprs = ArgumentExprs
-  override protected val classTemplate = ClassTemplate
-  override protected val literal = Literal
-  override protected val blockExpr = BlockExpr
-  override protected val expr = Expr
+  override protected def argumentExprs = ArgumentExprs
+  override protected def classTemplate = ClassTemplate
+  override protected def literal = Literal
+  override protected def blockExpr = BlockExpr
+  override protected def expr = Expr
 }
 
 trait SimpleExpr extends ParserNode with ScalaTokenTypes {
-  protected val argumentExprs: ArgumentExprs
-  protected val expr: Expr
-  protected val blockExpr: BlockExpr
-  protected val classTemplate: ClassTemplate
-  protected val literal: Literal
+  protected def argumentExprs: ArgumentExprs
+  protected def expr: Expr
+  protected def blockExpr: BlockExpr
+  protected def classTemplate: ClassTemplate
+  protected def literal: Literal
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark

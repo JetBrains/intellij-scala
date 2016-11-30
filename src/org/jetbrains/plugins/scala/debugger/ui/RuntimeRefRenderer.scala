@@ -12,6 +12,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiExpression}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
 import com.sun.jdi.{ObjectReference, Type, Value}
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
 /**
@@ -79,9 +80,11 @@ class RuntimeRefRenderer extends NodeRendererImpl {
 
   private def unwrappedValue(ref: Value): Value = {
     ref match {
-      case obj: ObjectReference =>
-        val field = obj.referenceType().fieldByName("elem")
-        obj.getValue(field)
+      case _: ObjectReference =>
+        DebuggerUtil.unwrapScalaRuntimeRef(ref) match {
+          case v: Value => v
+          case _ => ref
+        }
       case _ => throw new Exception("Should not unwrap non reference value")
     }
   }

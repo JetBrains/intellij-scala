@@ -27,17 +27,17 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 | XmlPattern
  */
 object SimplePattern extends SimplePattern {
-  override protected val literal = Literal
-  override protected val interpolationPattern = InterpolationPattern
-  override protected val pattern = Pattern
-  override protected val patterns = Patterns
+  override protected def literal = Literal
+  override protected def interpolationPattern = InterpolationPattern
+  override protected def pattern = Pattern
+  override protected def patterns = Patterns
 }
 
 trait SimplePattern extends ParserNode {
-  protected val literal: Literal
-  protected val pattern: Pattern
-  protected val interpolationPattern: InterpolationPattern
-  protected val patterns: Patterns
+  protected def literal: Literal
+  protected def pattern: Pattern
+  protected def interpolationPattern: InterpolationPattern
+  protected def patterns: Patterns
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
     def isVarId = builder.getTokenText.substring(0, 1).toLowerCase ==
