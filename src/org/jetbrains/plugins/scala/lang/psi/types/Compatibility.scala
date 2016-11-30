@@ -58,7 +58,10 @@ object Compatibility {
         case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
         case Some(expected) =>
           val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
-          val functionType = FunctionType(expected, Seq(typez))(place.getProject, place.getResolveScope)
+          implicit val project = place.getProject
+          implicit val resolveScope = place.getResolveScope
+
+          val functionType = FunctionType(expected, Seq(typez))
           val results = new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect()
           if (results.length == 1) {
             val res = results.head
@@ -66,9 +69,7 @@ object Compatibility {
             paramType match {
               case FunctionType(rt, Seq(_)) => (Success(rt, Some(place)), res.importsUsed)
               case _ =>
-                ScalaPsiManager.instance(place.getProject).getCachedClass(
-                  "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-                ) match {
+                ScalaPsiManager.instance(project).getCachedClass("scala.Function1", resolveScope, ScalaPsiManager.ClassCategory.TYPE) match {
                   case function1: ScTrait =>
                     ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
                       UndefinedType(TypeParameterType(tp), 1))) match {

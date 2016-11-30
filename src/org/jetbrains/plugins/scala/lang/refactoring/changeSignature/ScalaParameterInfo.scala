@@ -51,9 +51,11 @@ class ScalaParameterInfo(@BeanProperty var name: String,
   protected def psiType: PsiType = {
     if (scType == null) return null
 
-    val allScope = GlobalSearchScope.allScope(project)
+    implicit val project = this.project
+    implicit val allScope = GlobalSearchScope.allScope(project)
+
     if (isByName) {
-      val functionType = FunctionType(scType, Seq())(project, allScope)
+      val functionType = FunctionType(scType, Seq())
       functionType.toPsiType(project, allScope)
     }
     else if (isRepeatedParameter) {

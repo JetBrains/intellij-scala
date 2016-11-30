@@ -167,8 +167,8 @@ class ImplicitCollector(place: PsiElement,
 
   private def fromTypeCandidates(): Set[ScalaResolveResult] = {
     val processor = new ImplicitParametersProcessor(withoutPrecedence = true)
-    for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedTp, project, place.getResolveScope)) {
-      processor.processType(obj, place, ResolveState.initial())
+    ScalaPsiUtil.collectImplicitObjects(expandedTp)(project, place.getResolveScope).foreach {
+      processor.processType(_, place, ResolveState.initial())
     }
     processor.candidatesS
   }

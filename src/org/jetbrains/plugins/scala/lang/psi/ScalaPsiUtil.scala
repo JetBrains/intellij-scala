@@ -285,10 +285,13 @@ object ScalaPsiUtil {
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
       val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
+      implicit val project = baseExpr.getProject
+      implicit val scope = baseExpr.getResolveScope
+
       new ImplicitCollector(
         baseExpr,
-        FunctionType(Any, Seq(exprType))(baseExpr.getProject, baseExpr.getResolveScope),
-        FunctionType(exprType, args)(baseExpr.getProject, baseExpr.getResolveScope),
+        FunctionType(Any, Seq(exprType)),
+        FunctionType(exprType, args),
         coreElement = None,
         isImplicitConversion = true,
         extensionData = Some(data)).collect()
@@ -519,8 +522,10 @@ object ScalaPsiUtil {
     else null
   }
 
-  def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
-                            (implicit typeSystem: TypeSystem = project.typeSystem): Seq[ScType] = {
+  def collectImplicitObjects(_tp: ScType)
+                            (implicit project: Project, scope: GlobalSearchScope): Seq[ScType] = {
+    implicit val typeSystem = project.typeSystem
+
     val tp = _tp.removeAliasDefinitions()
     val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
     val cacheKey = (tp, scope)
@@ -1932,7 +1937,7 @@ object ScalaPsiUtil {
     */
   def toSAMType(expected: ScType, element: PsiElement)
                (implicit typeSystem: TypeSystem): Option[ScType] = {
-    val scalaScope = element.getResolveScope
+    implicit val scalaScope = element.getResolveScope
     val languageLevel = element.scalaLanguageLevelOrDefault
 
     def constructorValidForSAM(constructor: PsiMethod): Boolean = {
@@ -1984,7 +1989,8 @@ object ScalaPsiUtil {
               _.getType().toOption
             }.map { tp =>
               val substituted = substitutor.subst(tp)
-              extrapolateWildcardBounds(substituted, expected, fun.getProject, scalaScope, languageLevel).getOrElse {
+              implicit val project = fun.getProject
+              extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
                 substituted
               }
             }
@@ -2014,16 +2020,16 @@ object ScalaPsiUtil {
           !_.hasTypeParameters && validConstructorExists
           // must have exactly one abstract member and SAM must be monomorphic
         }.map { method =>
-          val project = method.getProject
+          implicit val project = method.getProject
           val returnType = method.getReturnType
           val parametersTypes = method.getParameterList.getParameters.map {
             _.getTypeElement.getType
           }
 
-          val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))(project, scalaScope)
+          val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))
           val substituted = substitutor.subst(functionType)
 
-          extrapolateWildcardBounds(substituted, expected, project, scalaScope, languageLevel).getOrElse {
+          extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
             substituted
           }
         }
@@ -2048,8 +2054,10 @@ object ScalaPsiUtil {
     * @see https://github.com/scala/scala/pull/4101
     * @see SCL-8956
     */
-  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope, scalaVersion: ScalaLanguageLevel)
-                                       (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
+                                       (implicit project: Project,
+                                        scope: GlobalSearchScope): Option[ScType] = {
+    implicit val typeSystem = project.typeSystem
     expected match {
       case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {
@@ -2075,7 +2083,7 @@ object ScalaPsiUtil {
             //parameter clauses are contravariant positions, return types are covariant positions
             val newParams = params.map(convertParameter(_, ScTypeParam.Contravariant))
             val newRetTp = convertParameter(retTp, ScTypeParam.Covariant)
-            Some(FunctionType(newRetTp, newParams)(proj, scope))
+            Some(FunctionType(newRetTp, newParams))
           case _ => None
         }
       case _ => None

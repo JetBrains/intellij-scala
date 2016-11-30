@@ -133,16 +133,16 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
     val typez = placeType.getOrElse(return Set.empty)
 
-    val project = expression.getProject
-    val resolveScope = expression.getResolveScope
+    implicit val project = expression.getProject
+    implicit val resolveScope = expression.getResolveScope
+
     val expandedType = arguments match {
       case Seq() => typez
-      case seq =>
-        TupleType(Seq(typez) ++ seq)(project, resolveScope)
+      case seq => TupleType(Seq(typez) ++ seq)
     }
 
     val processor = new CollectImplicitsProcessor(true)
-    ScalaPsiUtil.collectImplicitObjects(expandedType, project, resolveScope).foreach {
+    ScalaPsiUtil.collectImplicitObjects(expandedType).foreach {
       processor.processType(_, expression, ResolveState.initial())
     }
 

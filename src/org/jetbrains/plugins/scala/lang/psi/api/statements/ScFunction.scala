@@ -628,9 +628,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def functionTypeNoImplicits(retType: Option[ScType] = returnType.toOption): Option[ScType] = {
     collectReverseParamTypesNoImplicits match {
       case Some(params) =>
-        val project = getProject
-        val resolveScope = getResolveScope
-        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
+        implicit val project = getProject
+        implicit val resolveScope = getResolveScope
+        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)))
       case None => None
     }
   }

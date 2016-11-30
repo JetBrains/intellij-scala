@@ -24,8 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameter, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -78,18 +78,6 @@ object ResolveUtils {
             case _: PsiParameter => kinds contains VAL //to enable named Parameters resolve in Play 2.0 routing file for java methods
             case _ => false
           })
-
-  def methodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope): ValueType = {
-    implicit val typeSystem = m.typeSystem
-
-    FunctionType(s.subst(m.getReturnType.toScType()),
-      m.getParameterList.getParameters.map({
-        p => val pt = p.getType
-          //scala hack: Objects in java are modelled as Any in scala
-          if (pt.equalsToText("java.lang.Object")) Any
-          else s.subst(pt.toScType())
-      }).toSeq)(m.getProject, scope)
-  }
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
     implicit val typeSystem = m.typeSystem
