@@ -59,7 +59,9 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                 createParameter(None, upper, index)
               } else {
                 def convertTypeParameter(typeParameter: PsiType): ScType = typeParameter match {
-                  case wildcardType: PsiWildcardType => createParameter(wildcardType, index, upper)(visitedRawTypes, paramTopLevel = true)
+                  case wildcardType: PsiWildcardType if !visitedRawTypes.contains(clazz) =>
+                    createParameter(wildcardType, index, upper)(visitedRawTypes, paramTopLevel = true)
+                  case wildcardType: PsiWildcardType => createParameter(wildcardType, index)(visitedRawTypes, paramTopLevel = true)
                   case wildcardType: PsiCapturedWildcardType => convertTypeParameter(wildcardType.getWildcard)
                   case _ => typeParameter.toScType(visitedRawTypes)
                 }

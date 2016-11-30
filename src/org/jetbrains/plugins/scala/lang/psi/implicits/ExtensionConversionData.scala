@@ -37,7 +37,7 @@ object ExtensionConversionHelper {
   def specialExtractParameterType(resolveResult: ScalaResolveResult)
                                  (implicit typeSystem: TypeSystem): Option[(ScType, Seq[TypeParameter])] = {
     val result = InferUtil.extractImplicitParameterType(resolveResult) match {
-      case functionType: FunctionType => Some(functionType)
+      case functionType @ FunctionType(_, _) => Some(functionType)
       case implicitParameterType =>
         val maybeFunctionType = ScalaPsiManager.instance(resolveResult.element.getProject).cachedFunction1Type
         maybeFunctionType.flatMap { functionType =>

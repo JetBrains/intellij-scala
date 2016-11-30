@@ -76,7 +76,7 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     myEvaluatedField = null
     myEvaluatedQualifier = null
-    val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeObjectRef {
+    val obj: AnyRef = DebuggerUtil.unwrapScalaRuntimeRef {
       objectEvaluator.evaluate(context)
     }
     evaluateField(obj, context)

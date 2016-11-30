@@ -37,7 +37,8 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           val collectImplicits: Boolean = false,
                           forName: Option[String] = None,
                           postProcess: ScalaResolveResult => Unit = _ => {},
-                          val includePrefixImports: Boolean = true)
+                          val includePrefixImports: Boolean = true,
+                          val isIncomplete: Boolean = true)
                          (implicit override val typeSystem: TypeSystem)
   extends BaseProcessor(kinds) with PrecedenceHelper[QualifiedName] {
   protected val precedence: mutable.HashMap[QualifiedName, Int] = new mutable.HashMap[QualifiedName, Int]()

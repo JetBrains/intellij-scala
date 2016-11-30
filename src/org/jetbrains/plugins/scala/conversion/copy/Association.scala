@@ -21,5 +21,4 @@ case class Association(kind: DependencyKind, var range: TextRange, path: Path) {
 }
 
 
-case class AssociationHelper(kind: DependencyKind, itype: IntermediateNode, path: Path) {
-}
+case class AssociationHelper(kind: DependencyKind, itype: IntermediateNode, path: Path)

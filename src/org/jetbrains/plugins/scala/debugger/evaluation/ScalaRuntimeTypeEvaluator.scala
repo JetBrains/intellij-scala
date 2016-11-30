@@ -58,7 +58,7 @@ object ScalaRuntimeTypeEvaluator {
   val KEY: Key[ScExpression => ScType] = Key.create("SCALA_RUNTIME_TYPE_EVALUATOR")
 
   def getCastableRuntimeType(project: Project, value: Value): PsiClass = {
-    val unwrapped = DebuggerUtil.unwrapScalaRuntimeObjectRef(value)
+    val unwrapped = DebuggerUtil.unwrapScalaRuntimeRef(value)
     val jdiType: Type = unwrapped.asInstanceOf[Value].`type`
     var psiClass: PsiClass = findPsiClass(project, jdiType)
     if (psiClass != null) {

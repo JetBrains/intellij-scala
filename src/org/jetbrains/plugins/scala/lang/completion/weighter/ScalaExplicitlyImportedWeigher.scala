@@ -1,17 +1,18 @@
 package org.jetbrains.plugins.scala.lang.completion.weighter
 
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.util.ProximityLocation
 import com.intellij.psi.util.proximity.ProximityWeigher
+import com.intellij.psi.util.{ProximityLocation, PsiTreeUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -41,6 +42,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         }
         treeWalkup(place.getContext, place)
       }
+
       buffer = new ArrayBuffer[ScImportStmt]()
       treeWalkup(position.getContext, position)
       position.putUserData(ScalaExplicitlyImportedWeigher.key, (buffer, currentModCount))
@@ -55,9 +57,9 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
           for (resolve <- expr.qualifier.multiResolve(false))
             resolve match {
               case ScalaResolveResult(pack: PsiPackage, _) =>
-                if (qualNoPoint == pack.getQualifiedName) return Some(3)
+                if (qualNoPoint == pack.getQualifiedName) return Some(4)
               case ScalaResolveResult(clazz: PsiClass, _) =>
-                if (qualNoPoint == clazz.qualifiedName) return Some(3)
+                if (qualNoPoint == clazz.qualifiedName) return Some(4)
               case _ =>
             }
         } else if (expr.selectorSet.isDefined) {
@@ -66,7 +68,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
                  resolve <- element.multiResolve(false)) {
               resolve match {
                 case ScalaResolveResult(clazz: PsiClass, _) =>
-                  if (qual == clazz.qualifiedName) return Some(3)
+                  if (qual == clazz.qualifiedName) return Some(4)
                 case _ =>
               }
             }
@@ -77,7 +79,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
               for (resolve <- ref.multiResolve(false))
                 resolve match {
                   case ScalaResolveResult(clazz: PsiClass, _) =>
-                    if (qual == clazz.qualifiedName) return Some(3)
+                    if (qual == clazz.qualifiedName) return Some(4)
                   case _ =>
                 }
             case None =>
@@ -171,6 +173,24 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
         }
       case _ =>
     }
+
+    def packageName(element: PsiElement): Option[String] = {
+      val packageObject = Option(PsiTreeUtil.getContextOfType(element, classOf[ScObject]))
+      val nameAsPackageObject = packageObject.collect { case po: ScObject if po.isPackageObject => po.qualifiedName }
+      if (nameAsPackageObject.isEmpty) {
+        Option(PsiTreeUtil.getContextOfType(element, classOf[ScPackaging])).map(_.fullPackageName)
+      } else {
+        nameAsPackageObject
+      }
+    }
+
+    packageName(position).foreach { pName =>
+      val elementModule = ModuleUtilCore.findModuleForPsiElement(element)
+      if (location.getPositionModule == elementModule && packageName(element).contains(pName)) {
+        return 3
+      }
+    }
+
     0
   }
 }

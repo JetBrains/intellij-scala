@@ -276,7 +276,7 @@ class Test {
       """
         |val ja = new java.util.ArrayList[Int]
         |ja.asSc<caret>
-      """.stripMargin.trim
+      """.stripMargin.replaceAll("\r", "").trim
     configureFromFileTextAdapter("javaConverters.scala", fileText)
     val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 2)
 
@@ -286,7 +286,7 @@ class Test {
         |
         |val ja = new java.util.ArrayList[Int]
         |ja.asScala
-      """.stripMargin.trim
+      """.stripMargin.replaceAll("\r", "").trim
 
     val result2Text =
       """
@@ -294,7 +294,7 @@ class Test {
         |
         |val ja = new java.util.ArrayList[Int]
         |ja.asScala
-      """.stripMargin.trim
+      """.stripMargin.replaceAll("\r", "").trim
 
     val result3Text =
       """
@@ -302,7 +302,7 @@ class Test {
         |
         |val ja = new java.util.ArrayList[Int]
         |ja.asScala
-      """.stripMargin.trim
+      """.stripMargin.replaceAll("\r", "").trim
 
     if (activeLookup != null)
       completeLookupItem(activeLookup.find(le => le.getLookupString == "asScala").get)

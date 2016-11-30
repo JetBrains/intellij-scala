@@ -14,7 +14,7 @@ import scala.annotation.tailrec
 /**
   * @author adkozlov
   */
-sealed trait FunctionType {
+sealed trait FunctionTypeFactory {
   protected val typeName: String
 
   protected def isValid(definition: ScTypeDefinition) = definition.isInstanceOf[ScTrait]
@@ -70,7 +70,7 @@ sealed trait FunctionType {
   }
 }
 
-object FunctionType extends FunctionType {
+object FunctionType extends FunctionTypeFactory {
   override protected val typeName = "scala.Function"
 
   def apply(returnType: ScType, parameters: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType =
@@ -87,7 +87,7 @@ object FunctionType extends FunctionType {
   def isFunctionType(`type`: ScType)(implicit typeSystem: TypeSystem): Boolean = unapply(`type`).isDefined
 }
 
-object PartialFunctionType extends FunctionType {
+object PartialFunctionType extends FunctionTypeFactory {
   override protected val typeName = "scala.PartialFunction"
 
   def apply(returnType: ScType, parameter: ScType)(project: Project, scope: GlobalSearchScope): ValueType =
@@ -100,7 +100,7 @@ object PartialFunctionType extends FunctionType {
     }
 }
 
-object TupleType extends FunctionType {
+object TupleType extends FunctionTypeFactory {
   override protected val typeName = "scala.Tuple"
 
   override protected def isValid(definition: ScTypeDefinition) = definition.isInstanceOf[ScClass]

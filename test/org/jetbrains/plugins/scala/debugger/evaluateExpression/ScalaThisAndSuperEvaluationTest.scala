@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * User: Alefas
@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class ScalaThisAndSuperEvaluationTest extends ScalaThisAndSuperEvaluationTestBaseClass with ScalaVersion_2_11
 class ScalaThisAndSuperEvaluationTest_212 extends ScalaThisAndSuperEvaluationTestBaseClass with ScalaVersion_2_12
-class ScalaThisAndSuperEvaluationTest_212_OLD extends ScalaThisAndSuperEvaluationTestBaseClass with ScalaVersion_2_12_OLD
 
 abstract class ScalaThisAndSuperEvaluationTestBaseClass extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("TraitThis.scala",

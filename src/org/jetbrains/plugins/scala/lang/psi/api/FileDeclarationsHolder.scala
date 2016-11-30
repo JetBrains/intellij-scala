@@ -4,7 +4,7 @@ package lang.psi.api
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
-import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
@@ -81,7 +81,10 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
         else if (defaultPackage != null && !BaseProcessor.isImplicitProcessor(processor)) {
           //we will add only packages
           //only packages resolve, no classes from default package
-          val name = processor match {case rp: ResolveProcessor => rp.ScalaNameHint.getName(state) case _ => null}
+          val name = processor.getHint(NameHint.KEY) match {
+            case null => null
+            case hint => hint.getName(state)
+          }
           if (name == null) {
             val packages = defaultPackage.getSubPackages(scope)
             val iterator = packages.iterator

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.stepInto
 
 import com.intellij.debugger.settings.DebuggerSettings
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12, ScalaVersion_2_12_OLD}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * @author Nikolay.Tropin
@@ -17,16 +17,7 @@ class StepIntoTest extends StepIntoTestBase with ScalaVersion_2_11 {
   }
 }
 
-class StepIntoTest_212 extends StepIntoTestBase with ScalaVersion_2_12 {
-  override def testTraitMethod() {
-    runDebugger() {
-      waitForBreakpoint()
-      doStepInto()
-      checkLocation("RRR.scala", "foo$", 3)
-    }
-  }
-}
-class StepIntoTest_212_OLD extends StepIntoTestBase with ScalaVersion_2_12_OLD
+class StepIntoTest_212 extends StepIntoTestBase with ScalaVersion_2_12
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   def doStepInto(): Unit = {
