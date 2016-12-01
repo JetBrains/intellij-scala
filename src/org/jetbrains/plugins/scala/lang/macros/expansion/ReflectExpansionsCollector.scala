@@ -31,7 +31,6 @@ class ReflectExpansionsCollector(project: Project) extends ProjectComponent {
   private val compilationStatusListener = new CompilationStatusListener {
     override def compilationFinished(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext): Unit = {
       collectedExpansions = deserializeExpansions()
-      println(collectedExpansions)
     }
   }
 
