@@ -2,18 +2,16 @@ package org.jetbrains.sbt
 package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
-import com.intellij.openapi.module.{ModuleManager, ModuleType}
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleType}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.{ResolverException, SbtResolverUtils}
-
-import scala.util.Try
 
 /**
  * @author Nikolay Obedin
@@ -28,18 +26,28 @@ class SbtDependencyAnnotator extends Annotator {
     try {
       doAnnotate(element, holder)
     } catch {
-      case exc: ResolverException =>
+      case _: ResolverException =>
         // TODO: find another way to notify user instead of spamming with notifications
         // NotificationUtil.showMessage(null, exc.getMessage)
     }
 
   private def doAnnotate(element: PsiElement, holder: AnnotationHolder): Unit = {
+    def moduleByName(name: String) = ModuleManager.getInstance(element.getProject).getModules.find(_.getName == name)
+
+    def findBuildModule(module: Option[Module]): Option[Module] = module match {
+      case Some(SbtModuleType(_)) => module
+      case Some(m) => moduleByName(s"${m.getName}${Sbt.BuildModuleSuffix}")
+      case _ => None
+    }
+
+    def findProjectModule(module: Option[Module]): Option[Module] = module match {
+      case Some(SbtModuleType(m)) => moduleByName(m.getName.stripSuffix(Sbt.BuildModuleSuffix))
+      case _ => module
+    }
 
     implicit val p = element.getProject
 
-
-    lazy val module = Option(ScalaPsiUtil.getModule(element))
-    lazy val sbtModule = module.flatMap(m=>ModuleManager.getInstance(p).getModules.find(_.getName == s"${m.getName}-build"))
+    val module = Option(ScalaPsiUtil.getModule(element))
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name &&
         module.exists(m => !ModuleType.get(m).isInstanceOf[SbtModuleType])) return
@@ -58,10 +66,9 @@ class SbtDependencyAnnotator extends Annotator {
       if (!isInRepo) {
         val annotation = holder.createWeakWarningAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
 
-        if (module.exists(ModuleType.get(_).isInstanceOf[SbtModuleType])) {
-          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(module.get))
-        } else if (sbtModule.isDefined) {
-          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(sbtModule.get))
+        val sbtModule = findBuildModule(module)
+        sbtModule.foreach { m =>
+          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix(m))
         }
         annotation.registerFix(new SbtRefreshProjectQuickFix)
       }
@@ -71,12 +78,15 @@ class SbtDependencyAnnotator extends Annotator {
       literal@ScLiteral(_) <- Option(element)
       parentExpr@ScInfixExpr(leftPart, operation, _) <- Option(literal.getParent)
       if isOneOrTwoPercents(operation)
-    } yield leftPart match {
-      case _: ScLiteral =>
-        extractArtifactInfo(parentExpr.getParent).foreach(findDependencyOrAnnotate)
-      case leftExp: ScInfixExpr if isOneOrTwoPercents(leftExp.operation) =>
-        extractArtifactInfo(parentExpr).foreach(findDependencyOrAnnotate)
-      case _ => // do nothing
+    } yield {
+      val scalaVersion = findProjectModule(module).flatMap(_.scalaSdk).map(_.languageLevel.version)
+      leftPart match {
+        case _: ScLiteral =>
+          extractArtifactInfo(parentExpr.getParent, scalaVersion).foreach(findDependencyOrAnnotate)
+        case leftExp: ScInfixExpr if isOneOrTwoPercents(leftExp.operation) =>
+          extractArtifactInfo(parentExpr, scalaVersion).foreach(findDependencyOrAnnotate)
+        case _ => // do nothing
+      }
     }
   }
 
@@ -84,8 +94,7 @@ class SbtDependencyAnnotator extends Annotator {
   private def isOneOrTwoPercents(op: ScReferenceExpression) =
     op.getText == "%" || op.getText == "%%"
 
-  private def extractArtifactInfo(from: PsiElement): Option[ArtifactInfo] = {
-    val scalaVersion = from.scalaLanguageLevel.map(_.version)
+  private def extractArtifactInfo(from: PsiElement, scalaVersion: Option[String]): Option[ArtifactInfo] = {
     for {
       ScInfixExpr(leftPart, _, maybeVersion) <- Option(from)
       ScInfixExpr(maybeGroup, maybePercents, maybeArtifact) <- Option(leftPart)
