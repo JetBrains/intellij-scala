@@ -166,11 +166,16 @@ object CompilationData {
       ChunkExclusionService.isExcluded(chunk)
     }
 
+    def isProductionTargetOfTestModule(target: ModuleBuildTarget): Boolean = {
+      target.getTargetType == JavaModuleBuildTargetType.PRODUCTION &&
+        JpsJavaExtensionService.getInstance.getTestModuleProperties(target.getModule) != null
+    }
+
     val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
     val targets = JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
 
     targets.distinct.filterNot { target =>
-      buildTargetIndex.isDummy(target) || isExcluded(target)
+      buildTargetIndex.isDummy(target) || isExcluded(target) || isProductionTargetOfTestModule(target)
     }
   }
 
