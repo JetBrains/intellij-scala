@@ -57,7 +57,7 @@ abstract class TreeIteratorTestBase extends IteratorTestCase {
   }
   
   final override def createIterator(element: PsiElement) =
-    createIterator(element, DefaultPredicate)
+    createIterator(element, _ => true)
   
   protected def createIterator(element: PsiElement, predicate: PsiElement => Boolean): Iterator[PsiElement]
 }

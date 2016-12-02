@@ -256,10 +256,10 @@ package object extensions {
 
     def children: Iterator[PsiElement] = new ChildrenIterator(element)
 
-    def depthFirst(predicate: PsiElement => Boolean = DefaultPredicate): Iterator[PsiElement] =
+    def depthFirst(predicate: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
       new DepthFirstIterator(element, predicate)
 
-    def breadthFirst(predicate: PsiElement => Boolean = DefaultPredicate): Iterator[PsiElement] =
+    def breadthFirst(predicate: PsiElement => Boolean = _ => true): Iterator[PsiElement] =
       new BreadthFirstIterator(element, predicate)
 
     def prevSibling: Option[PsiElement] = Option(element.getPrevSibling)
