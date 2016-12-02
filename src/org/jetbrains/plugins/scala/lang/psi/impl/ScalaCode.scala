@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFileFactory}
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement

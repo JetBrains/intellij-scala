@@ -83,7 +83,7 @@ class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
 
   def getForbiddenNamesInBlock(commonParent: PsiElement, name: String): ArrayBuffer[(PsiNamedElement, String)] = {
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
-    commonParent.depthFirst.foreach {
+    commonParent.depthFirst().foreach {
       case typeAlias: ScTypeAlias if typeAlias.getName == name =>
         buf += ((typeAlias, messageForTypeAliasMember(name)))
         true

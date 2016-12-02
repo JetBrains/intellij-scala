@@ -191,5 +191,5 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
   }
 
   override def isHigherKindedTypeParameter: Boolean =
-    parent.filter(_.isInstanceOf[ScTypeParamClause]).flatMap(_.parent).exists(_.isInstanceOf[ScTypeParam])
+    this.parent.filter(_.isInstanceOf[ScTypeParamClause]).flatMap(_.parent).exists(_.isInstanceOf[ScTypeParam])
 }

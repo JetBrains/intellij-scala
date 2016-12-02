@@ -4,7 +4,6 @@ package psi
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
@@ -172,7 +171,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
 
     getFirstChild match {
-      case pack: ScPackaging if !pack.isExplicit && children.filterByType(classOf[ScImportStmt]).isEmpty =>
+      case pack: ScPackaging if !pack.isExplicit && this.children.filterByType(classOf[ScImportStmt]).isEmpty =>
         pack.addImportsForPaths(paths, refsContainer)
         return
       case _ =>

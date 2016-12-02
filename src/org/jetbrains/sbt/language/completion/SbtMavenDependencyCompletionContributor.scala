@@ -109,7 +109,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
 
       def isValidOp(operation: String) = operation == "%" || operation == "%%"
 
-      (expr.lOp, expr.operation.text, expr.rOp) match {
+      (expr.lOp, expr.operation.getText, expr.rOp) match {
         case (_, oper, _) if oper == "+=" || oper == "++=" => // empty completion from scratch
           completeGroup(cleanText)
         case (lop, oper, ScLiteralImpl.string(artifact)) if lop == place.getContext && isValidOp(oper) =>
@@ -121,7 +121,7 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
             completeArtifact(group, stripVersion = false)
         case (ScInfixExpr(llop, loper, lrop), oper, rop)
           if rop == place.getContext && oper == "%" && isValidOp(loper.getText) =>
-          val versionSuffix = if (loper.text == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
+          val versionSuffix = if (loper.getText == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
           for {
             ScLiteralImpl.string(group) <- Option(llop)
             ScLiteralImpl.string(artifact) <- Option(lrop)

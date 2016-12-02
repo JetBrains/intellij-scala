@@ -4,6 +4,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.scalastyle._
 
@@ -76,7 +77,7 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
 
       def findPsiElement(line: Int, column: Option[Int]): Option[PsiElement] = {
         (for {
-          element    <- scalaFile.depthFirst
+          element <- scalaFile.depthFirst()
           if element != scalaFile && atPosition(element, line, column)
         } yield element).toList.headOption
       }

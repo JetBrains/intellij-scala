@@ -50,7 +50,7 @@ class ForwardReferenceAnnotatorTest extends SimpleTestCase {
 
     val mock = new AnnotatorHolderMock(parse)
 
-    parse.depthFirst.filterByType(classOf[ScReferenceElement]).foreach { ref =>
+    parse.depthFirst().filterByType(classOf[ScReferenceElement]).foreach { ref =>
       annotator.annotate(ref, mock)
     }
 

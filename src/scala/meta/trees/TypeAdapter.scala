@@ -36,7 +36,7 @@ trait TypeAdapter {
             case Some(ref) =>
               ref.qualifier.map(qual=>m.Type.Select(getTypeQualifier(qual.asInstanceOf[ScReferenceElement]), toTypeName(ref)))
                 .getOrElse(toTypeName(ref))
-            case None => m.Type.Name(t.text)
+            case None => m.Type.Name(t.getText)
           }
         case t: ScSimpleTypeElement =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
@@ -118,7 +118,7 @@ trait TypeAdapter {
         case t: ScFunction =>
           m.Type.Function(Seq(t.paramTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType))//.setTypechecked
         case t: ScParameter if dumbMode =>
-          m.Type.Name(t.text)
+          m.Type.Name(t.getText)
         case t: ScParameter =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.typeElement.get.getType().get))

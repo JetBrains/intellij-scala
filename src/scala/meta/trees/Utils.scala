@@ -2,7 +2,7 @@ package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScSugarCallExpr, ScTypedStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScSugarCallExpr, ScTypedStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
@@ -111,7 +111,7 @@ trait Utils {
     def withSubstitutionCaching[T](context: TypingContext = TypingContext.empty, fun: TypeResult[ScType] => T):T = {
       if (dumbMode) {
         expr match {
-          case ts: ScTypedStmt  => fun(TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.text, expr, null)))
+          case ts: ScTypedStmt => fun(TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null)))
           case _                => fun(TypeResult.fromOption(None))
         }
       } else {
@@ -129,7 +129,7 @@ trait Utils {
     def getTypeWithCachedSubst(context: TypingContext): ScType = {
       if (dumbMode) {
         expr match {
-          case ts: ScTypedStmt  => ScalaPsiElementFactory.createTypeFromText(ts.text, expr, null).getOrElse(StdType.Any)
+          case ts: ScTypedStmt => ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null).getOrElse(StdType.Any)
           case _                => StdType.Any
         }
       } else {
@@ -154,7 +154,7 @@ trait Utils {
     def getTypeWithCachedSubst: TypeResult[ScType] = {
       if (dumbMode) {
         expr match {
-          case ts: ScTypedStmt => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.text, expr, null))
+          case ts: ScTypedStmt => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null))
           case _ => Success(StdType.Any, None)
         }
       } else {

@@ -45,7 +45,7 @@ abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase(scalaVersi
     val mock = new AnnotatorHolderMock(getFile)
     val annotator = new ScalaAnnotator
 
-    getFile.depthFirst.foreach(annotator.annotate(_, mock))
+    getFile.depthFirst().foreach(annotator.annotate(_, mock))
     mock.annotations.filter {
       case Error(_, null) | Error(null, _) => false
       case Error(_, _) => true

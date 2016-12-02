@@ -9,8 +9,8 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
@@ -89,13 +89,15 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (offset > 1){
       val prevPositionElement = file.findElementAt(offset - 2)
       if (ScalaPsiUtil.isLineTerminator(prevPositionElement)) {
-        prevPositionElement.getPrevSiblingCondition(_.getTextLength != 0).foreach(_.getNode.getElementType match {
+        ScalaTypedHandler.getPrevSiblingCondition(prevPositionElement).map {
+          _.getNode.getElementType
+        }.foreach {
           case ScalaTokenTypes.tDOT => myTask = indentRefExprDot(file)
           case ScalaTokenTypes.tCOMMA => myTask = indentParametersComma(file)
           case ScalaTokenTypes.tASSIGN => myTask = indentDefinitionAssign(file)
           case ScalaTokenTypes.tSEMICOLON => myTask = indentForGenerators(file)
           case _ =>
-        })
+        }
       }
     }
 
@@ -450,4 +452,12 @@ object ScalaTypedHandler {
   val unicodeCaseArrow = "⇒"
   val unicodeMapArrow = "→"
   val unicodeForGeneratorArrow = "←"
+
+  private def getPrevSiblingCondition(element: PsiElement): Option[PsiElement] = {
+    var prev: PsiElement = PsiTreeUtil.prevLeaf(element)
+    while (prev != null && prev.getTextLength != 0) {
+      prev = prev.getPrevSibling
+    }
+    Option(prev)
+  }
 }

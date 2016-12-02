@@ -183,7 +183,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean = {
       typeAlias.aliasedTypeElement.toSeq.flatMap {
-        _.depthFirst
+        _.depthFirst()
       }.forall {
         case t: ScTypeElement =>
           t.calcType match {

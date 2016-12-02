@@ -47,7 +47,7 @@ class MetaSupportInjector extends SyntheticMembersInjector {
 
   // theese two implementations must produce identical results on equivalent trees of PSI and scala.meta
   private def hash(member: ScMember): Int = {
-    def paramHash(p: ScParameter) = p.typeElement.map(_.text.hashCode).getOrElse(0)
+    def paramHash(p: ScParameter) = p.typeElement.map(_.getText.hashCode).getOrElse(0)
     def paramClauseHash(pc: ScParameterClause) = pc.parameters.foldLeft(0)((a,b)=>a+paramHash(b))
     member match {
       case td: ScTypeDefinition => td.getName.hashCode
@@ -55,7 +55,7 @@ class MetaSupportInjector extends SyntheticMembersInjector {
       case fu: ScFunction =>
         fu.name.hashCode +
           13*fu.paramClauses.clauses.foldLeft(0)((a,b)=>a+paramClauseHash(b)) +
-          31*fu.returnTypeElement.map(_.text.hashCode).getOrElse(0)
+          31 * fu.returnTypeElement.map(_.getText.hashCode).getOrElse(0)
       case other => other.getName.hashCode
     }
   }

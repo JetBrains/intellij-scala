@@ -16,7 +16,7 @@ class ExpandPlaceholderSyntax extends AbstractTransformer {
     case (e: ScUnderscoreSection) && Parent(_: ScExpression | _: ScArgumentExprList) =>
       val enclosure = e.parents.toStream.takeWhile(e => e.isInstanceOf[ScExpression] || e.isInstanceOf[ScArgumentExprList]).last
 
-      val (placeholders, typeElements) = enclosure.depthFirst.collect {
+      val (placeholders, typeElements) = enclosure.depthFirst().collect {
         case (_: ScUnderscoreSection) && Parent((typed: ScTypedStmt) && Parent(it: ScParenthesisedExpr)) => (it, typed.typeElement)
         case (_: ScUnderscoreSection) && Parent(typed: ScTypedStmt) => (typed, typed.typeElement)
         case it: ScUnderscoreSection => (it, None)
@@ -29,7 +29,7 @@ class ExpandPlaceholderSyntax extends AbstractTransformer {
       placeholders.zip(names).foreach(p => p._1.replace(code"${p._2}"))
 
       val parameters = if (singleParameter && typeElements.head.isEmpty) names.head else {
-        val typedIds = names.zip(typeElements).map(p => p._2.map(p._1 + ": " + _.text).getOrElse(p._1))
+        val typedIds = names.zip(typeElements).map(p => p._2.map(p._1 + ": " + _.getText).getOrElse(p._1))
         typedIds.mkString("(", ", ", ")")
       }
 

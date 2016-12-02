@@ -292,7 +292,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
   private def haveReturnStmts(elems: Seq[PsiElement]): Boolean = {
     for {
       elem <- elems
-      ret @ (r: ScReturnStmt) <- elem.depthFirst
+      ret@(r: ScReturnStmt) <- elem.depthFirst()
     } {
       if (ret.returnFunction.isEmpty || !elem.isAncestorOf(ret.returnFunction.get))
         return true

@@ -28,14 +28,14 @@ trait ApplicationAnnotatorTestBase extends SimpleTestCase{
 
     val mock = new AnnotatorHolderMock(file)
 
-    val seq = file.depthFirst.findByType(classOf[ScClass])
+    val seq = file.depthFirst().findByType(classOf[ScClass])
     Compatibility.seqClass = seq
     try {
-      file.depthFirst.filterByType(classOf[ScReferenceElement]).foreach {
+      file.depthFirst().filterByType(classOf[ScReferenceElement]).foreach {
         annotator.annotateReference(_, mock)
       }
 
-      file.depthFirst.filterByType(classOf[ScMethodCall]).foreach {
+      file.depthFirst().filterByType(classOf[ScMethodCall]).foreach {
         annotator.annotateMethodInvocation(_, mock)
       }
 

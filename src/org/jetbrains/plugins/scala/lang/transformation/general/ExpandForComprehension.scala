@@ -19,7 +19,7 @@ class ExpandForComprehension extends AbstractTransformer {
   }
 
   private def desugarRecursively(e: PsiElement)(implicit project: Project) {
-    e.depthFirst.toVector.reverse.foreach {
+    e.depthFirst().toVector.reverse.foreach {
       case statement: ScForStatement => desugared(statement).foreach { expression =>
         clean(expression)
         desugarRecursively(statement.replace(expression))
@@ -36,7 +36,7 @@ class ExpandForComprehension extends AbstractTransformer {
 
   // TODO use this clean output in the DesugarForIntention
   private def clean(e: PsiElement)(implicit project: Project) {
-    e.depthFirst.toVector.reverse.foreach { it =>
+    e.depthFirst().toVector.reverse.foreach { it =>
       removeRedundantCaseClausesIn(it)
       removeRedundantParenthesesIn(it)
       convertRedundantBlockArgument(it)
@@ -46,7 +46,7 @@ class ExpandForComprehension extends AbstractTransformer {
 
   private def removeRedundantCaseClausesIn(e: PsiElement)(implicit project: Project) = Some(e) collect {
     case clauses @ ScCaseClauses(ScCaseClause(Some(p @ (_: ScReferencePattern | _: ScTypedPattern)), None, Some(ScBlock(expr)))) =>
-      clauses.replace(code"(${p.text}) => $expr")
+      clauses.replace(code"(${p.getText}) => $expr")
   }
 
   private def removeRedundantParenthesesIn(e: PsiElement) = Some(e) collect {

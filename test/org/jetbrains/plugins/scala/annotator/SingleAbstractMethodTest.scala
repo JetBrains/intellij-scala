@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -514,7 +515,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
     val file: ScalaFile = parseText(scalaCode)
     val mock = new AnnotatorHolderMock(file)
 
-    file.depthFirst.foreach(annotator.annotate(_, mock))
+    file.depthFirst().foreach(annotator.annotate(_, mock))
 
     mock.errorAnnotations.filter {
       case Error(_, null) => false

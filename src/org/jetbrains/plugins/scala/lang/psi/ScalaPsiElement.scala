@@ -2,65 +2,60 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import com.intellij.psi.PsiElement
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import org.jetbrains.plugins.scala.extensions.implementation.PsiElementExtTrait
+import com.intellij.psi.{PsiElement, PsiManager}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.intersectScopes
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
-trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTransformer {
-  protected override def repr = this
+trait ScalaPsiElement extends PsiElement with MonadTransformer {
   protected var context: PsiElement = null
   protected var child: PsiElement = null
 
-  implicit lazy val typeSystem = getProject.typeSystem
+  implicit def typeSystem: TypeSystem = getProject.typeSystem
 
-  implicit def manager = getManager
+  implicit def manager: PsiManager = getManager
 
-  def isInCompiledFile: Boolean = getContainingFile match {
-    case file: ScalaFile => file.isCompiled
-    case _ => false
-  }
+  def isInCompiledFile: Boolean =
+    this.containingScalaFile.exists {
+      _.isCompiled
+    }
 
   def setContext(element: PsiElement, child: PsiElement) {
     context = element
     this.child = child
   }
 
-  def getSameElementInContext: PsiElement = {
+  def getSameElementInContext: PsiElement =
     child match {
       case null => this
       case _ => child
     }
-  }
 
-  def getDeepSameElementInContext: PsiElement = {
+  def getDeepSameElementInContext: PsiElement =
     child match {
       case null => this
       case _ if child == context => this
       case child: ScalaPsiElement => child.getDeepSameElementInContext
       case _ => child
     }
-  }
 
-  def startOffsetInParent: Int = {
+  def startOffsetInParent: Int =
     child match {
       case s: ScalaPsiElement => s.startOffsetInParent
       case _ => getStartOffsetInParent
     }
-  }
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]
 
-  protected def findChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] = findChildByClassScala(clazz) match {
-    case null => None
-    case e => Some(e)
-  }
+  protected def findChild[T >: Null <: ScalaPsiElement](clazz: Class[T]): Option[T] =
+    Option(findChildByClassScala(clazz))
 
   def findLastChildByType[T <: PsiElement](t: IElementType): T = {
     var node = getNode.getLastChildNode
@@ -108,22 +103,23 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
   /**
    * Override in inheritors
    */
-  def accept(visitor: ScalaElementVisitor) {
+  def accept(visitor: ScalaElementVisitor): Unit = {
     visitor.visitElement(this)
   }
 
   /**
    * Override in inheritors
    */
-
-  def acceptChildren(visitor: ScalaElementVisitor) {
-    for (c <- getChildren; if c.isInstanceOf[ScalaPsiElement]) {
-      c.asInstanceOf[ScalaPsiElement].accept(visitor)
+  def acceptChildren(visitor: ScalaElementVisitor): Unit =
+    getChildren.collect {
+      case element: ScalaPsiElement => element
+    }.foreach {
+      _.accept(visitor)
     }
-  }
+
 
   abstract override def getUseScope: SearchScope = {
-    val maybeFileScope = containingScalaFile.filter { file =>
+    val maybeFileScope = this.containingScalaFile.filter { file =>
       file.isWorksheetFile || file.isScriptFile()
     }.map {
       new LocalSearchScope(_)

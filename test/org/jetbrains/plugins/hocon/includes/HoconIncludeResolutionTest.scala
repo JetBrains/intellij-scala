@@ -2,7 +2,7 @@ package org.jetbrains.plugins.hocon.includes
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiManager, TokenType}
+import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.{HIncludeTarget, HoconPsiFile}
@@ -31,7 +31,7 @@ trait HoconIncludeResolutionTest {
   protected def checkFile(path: String): Unit = {
     val psiFile = findHoconFile(path)
 
-    psiFile.depthFirst.foreach {
+    psiFile.depthFirst().foreach {
       case it: HIncludeTarget =>
         val prevComments = it.parent.map(_.parent.map(_.nonWhitespaceChildren).getOrElse(Iterator.empty)).getOrElse(Iterator.empty)
           .takeWhile(e => e.getNode.getElementType == HoconTokenType.HashComment)

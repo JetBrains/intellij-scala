@@ -61,7 +61,7 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val file = (Header + code).parse
-    val definition = file.depthFirst.findByType(classOf[ScPatternDefinition]).get
+    val definition = file.depthFirst().findByType(classOf[ScPatternDefinition]).get
     
     val annotator = new PatternDefinitionAnnotator() {}
     val mock = new AnnotatorHolderMock(file)

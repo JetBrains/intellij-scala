@@ -6,6 +6,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Consumer, ProcessingContext}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -123,7 +124,7 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
   extend(CompletionType.BASIC, PlatformPatterns.psiElement().withParent(classOf[ScReferencePattern]).withSuperParent(2, classOf[ScCaseClause]), new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
       def typeIdentifierIn(element: Option[ScPattern]): Option[PsiElement] =
-        element.flatMap(_.depthFirst.find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER))
+        element.flatMap(_.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER))
 
       def createCaseClassPatern(text: String, pattern: PsiElement): Option[ScPattern] = {
         Option(ScalaPsiElementFactory.createCaseClauseFromTextWithContext(text + "()", pattern.getContext.getContext, pattern.getContext)).flatMap(_.pattern)

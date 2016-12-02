@@ -46,7 +46,7 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
   }
 
   implicit class Findable(val element: ScalaFile) {
-    def target: PsiElement = element.depthFirst
+    def target: PsiElement = element.depthFirst()
       .dropWhile(!_.isInstanceOf[PsiComment])
       .drop(1)
       .dropWhile(_.isInstanceOf[PsiWhiteSpace])
@@ -74,7 +74,7 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
       parse(classTag[T].runtimeClass.asInstanceOf[Class[T]])
 
     def parse[T <: PsiElement](aClass: Class[T]): T =
-      parse.depthFirst.findByType(aClass).getOrElse {
+      parse.depthFirst().findByType(aClass).getOrElse {
         throw new RuntimeException("Unable to find PSI element with type " + aClass.getSimpleName)
       }
   }

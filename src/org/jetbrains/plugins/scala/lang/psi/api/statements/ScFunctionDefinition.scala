@@ -97,7 +97,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
     body match {
       case Some(b) =>
-        val possiblyRecursiveRefs = b.depthFirst.filterByType(classOf[ScReferenceElement]).filter(quickCheck).toSeq
+        val possiblyRecursiveRefs = b.depthFirst().filterByType(classOf[ScReferenceElement]).filter(quickCheck).toSeq
         val recursiveRefs = possiblyRecursiveRefs.filter(_.isReferenceTo(this))
         if (recursiveRefs.nonEmpty) {
           val expressions = resultExpressions.flatMap(expandIf)

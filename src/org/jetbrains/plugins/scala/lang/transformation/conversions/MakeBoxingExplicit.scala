@@ -49,7 +49,7 @@ class MakeBoxingExplicit extends AbstractTransformer {
     holder.annotations.exists { it =>
       val name = it.annotationExpr.constr.typeElement.getText
       val arguments = it.annotationExpr.getAnnotationParameters
-      name == "specialized" && (arguments.isEmpty || arguments.exists(_.text == t.presentableText))
+      name == "specialized" && (arguments.isEmpty || arguments.exists(_.getText == t.presentableText))
     }
   }
 }

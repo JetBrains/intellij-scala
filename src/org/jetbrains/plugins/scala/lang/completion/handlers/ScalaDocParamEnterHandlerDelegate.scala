@@ -27,11 +27,10 @@ class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
     val scalaFile = file.asInstanceOf[ScalaFile]
     val caretOffset = editor.getCaretModel.getOffset
 
-    if (scalaFile.elementAt(caretOffset).isEmpty) {
+    var nextParent = scalaFile.findElementAt(caretOffset)
+    if (nextParent == null) {
       return Result.Continue
     }
-
-    var nextParent = scalaFile.elementAt(caretOffset).get
 
     while (!nextParent.isInstanceOf[ScDocTag]) {
       nextParent = nextParent.getParent

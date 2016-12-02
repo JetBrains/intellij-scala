@@ -152,7 +152,7 @@ object TypeAnnotationUtil {
 
   def isEmptyCollectionFactory(e: ScExpression): Boolean = e match {
     case (_: ScGenericCall) && FirstChild(reference: ScReferenceExpression) =>
-      CollectionClassNames.exists(_ + ".empty" == reference.text)
+      CollectionClassNames.exists(_ + ".empty" == reference.getText)
     case _ => false
   }
 
@@ -189,7 +189,7 @@ object TypeAnnotationUtil {
   }
   
   def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement]): Unit = {
-    elements.foreach(_.depthFirst.foreach {
+    elements.foreach(_.depthFirst().foreach {
       case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement)
       case _ =>
     })

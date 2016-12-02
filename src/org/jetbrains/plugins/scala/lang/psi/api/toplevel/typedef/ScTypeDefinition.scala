@@ -10,6 +10,7 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -31,7 +32,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def isObject: Boolean = false
 
-  def isTopLevel: Boolean = !parentsInFile.exists(_.isInstanceOf[ScTypeDefinition])
+  def isTopLevel: Boolean = !this.parentsInFile.exists(_.isInstanceOf[ScTypeDefinition])
 
   def getPath: String = {
     val qualName = qualifiedName

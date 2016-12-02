@@ -46,7 +46,7 @@ class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, Sb
     expressions0.isEmpty || {
       val code = s"import ${expressions0.mkString(", ")};"
       val file = createScalaFileFromText(code)(getManager)
-      file.processDeclarations(processor, state, file.lastChild.get, place)
+      file.processDeclarations(processor, state, file.getLastChild, place)
     }
   }
 

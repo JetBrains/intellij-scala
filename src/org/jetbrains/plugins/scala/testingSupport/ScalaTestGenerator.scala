@@ -53,7 +53,7 @@ class ScalaTestGenerator extends TestGenerator {
       case f: AbstractTestFramework if f.generateObjectTests => "Scala Object"
       case _ => "Scala Class"
     })
-    val typeDefinition = file.depthFirst.filterByType(classOf[ScTypeDefinition]).next()
+    val typeDefinition = file.depthFirst().filterByType(classOf[ScTypeDefinition]).next()
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
     val fqName = d.getSuperClassName
     if (fqName != null) {
@@ -78,7 +78,7 @@ class ScalaTestGenerator extends TestGenerator {
     psiClass match {
       case Some(cls) =>
         val classParents = addExtendsRef(cls.name)
-        classParents.depthFirst.filterByType(classOf[ScStableCodeReferenceElement]).next().bindToElement(cls)
+        classParents.depthFirst().filterByType(classOf[ScStableCodeReferenceElement]).next().bindToElement(cls)
       case None =>
         addExtendsRef(fqName)
     }

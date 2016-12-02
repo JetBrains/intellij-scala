@@ -33,7 +33,7 @@ class OverrideUnapplyTest extends SimpleTestCase {
     val trimmed = m.trim
     val pos = trimmed.indexOf(CARET)
     val psi = trimmed.replaceAll(CARET, "").parse
-    val expr = psi.elementAt(pos).get match {
+    val expr = psi.findElementAt(pos) match {
       case e: LeafPsiElement =>
         Some(e.getParent.asInstanceOf[ScStableCodeReferenceElement].resolve())
       case other =>

@@ -47,7 +47,7 @@ class ExpandEtaExpansion extends AbstractTransformer {
   private def process(e: ScExpression, target: PsiElement, clauses: Seq[ScParameterClause], typed: Boolean)(implicit project: Project): Unit = {
     def formatParameters(clause: ScParameterClause) = {
       val list = clause.parameters
-        .map(p => p.typeElement.filter(const(typed)).map(t => p.name + ": " + t.text).getOrElse(p.name))
+        .map(p => p.typeElement.filter(const(typed)).map(t => p.name + ": " + t.getText).getOrElse(p.name))
       if (list.length == 1 && !typed) list.mkString else list.mkString("(", ", ", ")")
     }
 

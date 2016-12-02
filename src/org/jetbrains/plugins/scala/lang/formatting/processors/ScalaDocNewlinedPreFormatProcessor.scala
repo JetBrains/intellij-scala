@@ -47,7 +47,7 @@ class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
     }.map(range.grown).getOrElse(range)
 
   private def elementsToProcess(psiElement: PsiElement, range: TextRange): Seq[PsiElement] = {
-    psiElement.depthFirst.filter(_.getTextRange.intersects(range)).toVector.collect {
+    psiElement.depthFirst().filter(_.getTextRange.intersects(range)).toVector.collect {
       case comment: ScDocComment => comment
       case tag: ScDocTag => tag
     }.reverse

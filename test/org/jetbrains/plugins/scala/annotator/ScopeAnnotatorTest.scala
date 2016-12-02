@@ -3,6 +3,7 @@ package annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.junit.Assert
 
 /**
@@ -509,7 +510,7 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     val file = (Header + code).parse
     val annotator = new ScopeAnnotator() {}
     val mock = new AnnotatorHolderMock(file)
-    file.depthFirst.foreach {
+    file.depthFirst().foreach {
       annotator.annotateScope(_, mock)  
     }
     

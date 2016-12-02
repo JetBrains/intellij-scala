@@ -280,7 +280,7 @@ object TypeAdjuster extends ApplicationAdapter {
   }
 
   private def collectAdjustableTypeElements(element: PsiElement): Vector[ScTypeElement] = {
-    element.depthFirst.collect {
+    element.depthFirst().collect {
       case s: ScSimpleTypeElement => s
       case p: ScTypeProjection => p
       case p: ScParameterizedTypeElement => p

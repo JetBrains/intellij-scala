@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createRe
 class PartiallyQualifySimpleReference extends AbstractTransformer {
   def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case e: ScReferenceExpression
-      if !e.getParent.isInstanceOf[ScReferenceExpression] && !e.text.contains(".") =>
+      if !e.getParent.isInstanceOf[ScReferenceExpression] && !e.getText.contains(".") =>
 
       e.bind().foreach { result =>
         val paths = targetFor(result).split("\\.").toVector

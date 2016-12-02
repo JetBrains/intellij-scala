@@ -140,7 +140,7 @@ object ScalaRefactoringUtil {
 
   def getTypeParameterOwnerList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
-    typeElement.breadthFirst.foreach {
+    typeElement.breadthFirst().foreach {
       case x: ScTypeElement if x.calcType.isInstanceOf[TypeParameterType] =>
         val owner = getOwner(x)
         if (owner != null) {
@@ -166,7 +166,7 @@ object ScalaRefactoringUtil {
     }
 
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
-    typeElement.breadthFirst.foreach {
+    typeElement.breadthFirst().foreach {
       case te: ScTypeElement =>
         val ta = getTypeAlias(te)
         if (ta != null) {
@@ -332,13 +332,13 @@ object ScalaRefactoringUtil {
         val fileText = intrp.getContainingFile.getText
         val text = fileText.substring(intrp.contentRange.getStartOffset, intrp.contentRange.getEndOffset)
         val refNameToResolved = mutable.HashMap[String, PsiElement]()
-        intrp.depthFirst.foreach {
+        intrp.depthFirst().foreach {
           case ref: ScReferenceExpression => refNameToResolved += ((ref.refName, ref.resolve()))
           case _ =>
         }
         val filter: ScLiteral => Boolean = {
           case toCheck: ScInterpolatedStringLiteral =>
-            toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst.forall {
+            toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst().forall {
               case ref: ScReferenceExpression => refNameToResolved.get(ref.refName).contains(ref.resolve())
               case _ => true
             }

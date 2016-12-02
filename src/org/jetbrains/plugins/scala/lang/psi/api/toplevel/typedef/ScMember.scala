@@ -10,6 +10,7 @@ import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.search.{LocalSearchScope, PackageScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
@@ -204,14 +205,14 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
     val fromModifierOrContext = this match {
       case _ if accessModifier.exists(mod => mod.isPrivate && mod.isThis) =>
-        Option(containingClass).orElse(containingFile).map {
+        Option(containingClass).orElse(this.containingFile).map {
           new LocalSearchScope(_)
         }
       case _ if accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
         Option(containingClass).collect {
           case definition: ScTypeDefinition => withCompanionSearchScope(definition)
         }.orElse {
-          containingFile.map(new LocalSearchScope(_))
+          this.containingFile.map(new LocalSearchScope(_))
         }
       case cp: ScClassParameter =>
         Option(cp.containingClass).map {

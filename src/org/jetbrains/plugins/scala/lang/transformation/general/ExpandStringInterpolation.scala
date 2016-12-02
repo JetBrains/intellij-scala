@@ -25,7 +25,7 @@ class ExpandStringInterpolation extends AbstractTransformer {
           case Injection(expr, _) => expr
         }
 
-        e.replace(code"StringContext(${strings.map(quote).mkString(", ")}).${e.reference.get.text}(${@@(arguments)})")
+        e.replace(code"StringContext(${strings.map(quote).mkString(", ")}).${e.reference.get.getText}(${@@(arguments)})")
       }
   }
 

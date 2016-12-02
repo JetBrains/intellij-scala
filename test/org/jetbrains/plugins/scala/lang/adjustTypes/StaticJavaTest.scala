@@ -49,7 +49,7 @@ class StaticJavaTest extends LightCodeInsightFixtureTestCase {
         |    }
         |}""".stripMargin.replace("\r", ""))
 
-    val hasStablePaths = file.depthFirst.collect {
+    val hasStablePaths = file.depthFirst().collect {
       case named: PsiNamedElement if ScalaPsiUtil.hasStablePath(named) => named.name
     }
 

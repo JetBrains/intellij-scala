@@ -6,6 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle, ProblemsHolderExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
@@ -36,7 +37,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
     definition.members match {
       case Seq(fun: ScFunctionDefinition) =>
         def containsReturn(expr: ScExpression): Boolean = {
-          expr.depthFirst.exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
+          expr.depthFirst().exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
         }
         fun.body match {
           case Some(funBody) if fun.getType().getOrAny.conforms(expected) && !containsReturn(funBody) =>

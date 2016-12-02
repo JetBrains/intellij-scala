@@ -102,7 +102,9 @@ object ScalaMainMethodUtil {
 
   def findObjectWithMain(element: PsiElement): Option[ScObject] = {
     def findTopLevel: Option[ScObject] = element.containingScalaFile.flatMap { file =>
-      file.typeDefinitions.collectFirst { case o: ScObject if hasMainMethod(o) => o }
+      file.typeDefinitions.collectFirst {
+        case o: ScObject if hasMainMethod(o) => o
+      }
     }
 
     stableObject(element).filter(hasMainMethod) orElse findTopLevel

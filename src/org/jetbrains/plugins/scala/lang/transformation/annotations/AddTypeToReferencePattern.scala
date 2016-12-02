@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.transformation.annotations
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{&&, Parent}
+import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScPatternArgumentList, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -18,7 +18,7 @@ class AddTypeToReferencePattern extends AbstractTransformer {
       if !e.nextSibling.exists(_.getText == ":") =>
 
       val annotation = annotationFor(t, e)
-      val typedPattern = ScalaPsiElementFactory.createPatternFromText(e.text + ": " + annotation.text)(e.getManager)
+      val typedPattern = ScalaPsiElementFactory.createPatternFromText(e.getText + ": " + annotation.getText)(e.getManager)
 
       val result = e.replace(typedPattern)
 

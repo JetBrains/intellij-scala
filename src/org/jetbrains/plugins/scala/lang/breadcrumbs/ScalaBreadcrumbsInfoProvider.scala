@@ -104,8 +104,8 @@ object ScalaBreadcrumbsInfoProvider {
     def describeFunction(fun: ScFunctionExpr): String = "λ" + getSignature(fun)
     
     def describeTemplateDef(td: ScTemplateDefinition): String = td match {
-      case newDef: ScNewTemplateDefinition if Option(newDef.extendsBlock).exists(_.isAnonymousClass) => 
-        val s = "new " + newDef.extendsBlock.templateParents.map(_.text).getOrElse("Any")
+      case newDef: ScNewTemplateDefinition if Option(newDef.extendsBlock).exists(_.isAnonymousClass) =>
+        val s = "new " + newDef.extendsBlock.templateParents.map(_.getText).getOrElse("Any")
         if (s.length < MAX_STRING_LENGTH * 2) s else s.substring(0, MAX_STRING_LENGTH * 2 - 4) + "..."
       case other => other.name
     }
@@ -121,16 +121,16 @@ object ScalaBreadcrumbsInfoProvider {
     
     def describeExpression(expr: ScExpression): String = {
       expr match {
-        case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.text).getOrElse(""))}) {...}"
-        case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.text).getOrElse(""), "...")})"
-        case doWhileSt: ScDoStmt => s"do ... while(${limitString(doWhileSt.condition.map(_.text).getOrElse(""), "...")})"
+        case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.getText).getOrElse(""))}) {...}"
+        case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.getText).getOrElse(""), "...")})"
+        case doWhileSt: ScDoStmt => s"do ... while(${limitString(doWhileSt.condition.map(_.getText).getOrElse(""), "...")})"
         case matchSt: ScMatchStmt => limitString(matchSt.expr.map(_.getText).getOrElse("(...)")) + " match {...}"
         case _ => "Expr"
       }
     }
     
     def describeCaseClause(clause: ScCaseClause): String = {
-      s"case ${limitString(clause.pattern.map(_.text).getOrElse(""))} =>"
+      s"case ${limitString(clause.pattern.map(_.getText).getOrElse(""))} =>"
     }
     
     def getTemplateDefTooltip(td: ScTemplateDefinition): String = {

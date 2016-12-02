@@ -10,12 +10,16 @@ import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.implementation._
+import org.jetbrains.plugins.scala.extensions.implementation.iterator._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -50,7 +54,9 @@ import scala.util.{Failure, Success, Try}
   */
 
 package object extensions {
+
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
+
     import org.jetbrains.plugins.scala.extensions.PsiMethodExt._
 
     def isAccessor: Boolean = {
@@ -152,7 +158,7 @@ package object extensions {
     }
   }
 
-  implicit class ObjectExt[T](val v: T) extends AnyVal{
+  implicit class ObjectExt[T](val v: T) extends AnyVal {
     def toOption: Option[T] = Option(v)
 
     def asOptionOf[E: ClassTag]: Option[E] = {
@@ -162,11 +168,11 @@ package object extensions {
 
     def getOrElse[H >: T](default: H): H = if (v == null) default else v
 
-    def collectOption[B](pf : scala.PartialFunction[T, B]): Option[B] = Some(v).collect(pf)
+    def collectOption[B](pf: scala.PartialFunction[T, B]): Option[B] = Some(v).collect(pf)
   }
 
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
-    def option[A](a: => A): Option[A] = if(b) Some(a) else None
+    def option[A](a: => A): Option[A] = if (b) Some(a) else None
 
     def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
 
@@ -179,10 +185,8 @@ package object extensions {
   }
 
   implicit class StringExt(val string: String) extends AnyVal {
-    def parenthesize(needParenthesis: Boolean): String = needParenthesis match {
-      case true => s"($string)"
-      case _ => string
-    }
+    def parenthesize(needParenthesis: Boolean): String =
+      if (needParenthesis) s"($string)" else string
   }
 
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
@@ -190,20 +194,19 @@ package object extensions {
       node.findChildByType(elementType) != null
   }
 
-  implicit class PsiElementExt(override val repr: PsiElement) extends AnyVal with PsiElementExtTrait {
-    def startOffsetInParent: Int = {
-      repr match {
+  implicit class PsiElementExt(val element: PsiElement) extends AnyVal {
+    def startOffsetInParent: Int =
+      element match {
         case s: ScalaPsiElement => s.startOffsetInParent
-        case _ => repr.getStartOffsetInParent
+        case _ => element.getStartOffsetInParent
       }
-    }
 
-    def typeSystem: TypeSystem = repr.getProject.typeSystem
+    implicit def typeSystem: TypeSystem = element.getProject.typeSystem
 
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
-      def lift: PsiType => Option[ScType] = _.toScType()(typeSystem).toOption
+      def lift(`type`: PsiType) = Option(`type`.toScType())
 
-      (repr match {
+      (element match {
         case _: ScPrimaryConstructor => None
         case e: ScFunction if e.isConstructor => None
         case e: ScFunction => e.returnType.toOption
@@ -214,14 +217,95 @@ package object extensions {
         case e: PsiMethod => lift(e.getReturnType)
         case e: PsiVariable => lift(e.getType)
         case _ => None
-      }).map(substitutor.subst)
+      }).map {
+        substitutor.subst
+      }
     }
 
-    def isStub: Boolean = {
-      repr match {
-        case st: StubBasedPsiElement[_] => st.getStub != null
-        case _ => false
-      }
+    def firstChild: Option[PsiElement] = Option(element.getFirstChild)
+
+    def lastChild: Option[PsiElement] = Option(element.getLastChild)
+
+    def containingFile: Option[PsiFile] = Option(element.getContainingFile)
+
+    def containingScalaFile: Option[ScalaFile] = element.containingFile.collect {
+      case file: ScalaFile => file
+    }
+
+    def containingVirtualFile: Option[VirtualFile] = containingFile.flatMap { file =>
+      Option(file.getVirtualFile)
+    }
+
+    def parent: Option[PsiElement] = Option(element.getParent)
+
+    def parents: Iterator[PsiElement] = new ParentsIterator(element)
+
+    def withParents: Iterator[PsiElement] = new ParentsIterator(element, strict = false)
+
+    def isStub: Boolean = element match {
+      case st: StubBasedPsiElement[_] => st.getStub != null
+      case _ => false
+    }
+
+    def parentsInFile: Iterator[PsiElement] = element match {
+      case _: PsiFile | _: PsiDirectory => Iterator.empty
+      case _ => parents.takeWhile(!_.isInstanceOf[PsiFile])
+    }
+
+    def withParentsInFile: Iterator[PsiElement] = Iterator(element) ++ parentsInFile
+
+    def children: Iterator[PsiElement] = new ChildrenIterator(element)
+
+    def depthFirst(predicate: PsiElement => Boolean = DefaultPredicate): Iterator[PsiElement] =
+      new DepthFirstIterator(element, predicate)
+
+    def breadthFirst(predicate: PsiElement => Boolean = DefaultPredicate): Iterator[PsiElement] =
+      new BreadthFirstIterator(element, predicate)
+
+    def prevSibling: Option[PsiElement] = Option(element.getPrevSibling)
+
+    def nextSibling: Option[PsiElement] = Option(element.getNextSibling)
+
+    def prevSiblings: Iterator[PsiElement] = new PrevSiblignsIterator(element)
+
+    def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
+
+    def isAncestorOf(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(element, e, true)
+
+    def contexts: Iterator[PsiElement] = new ContextsIterator(element)
+
+    def withContexts: Iterator[PsiElement] = new ContextsIterator(element, strict = false)
+
+    def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
+
+    def getPrevSiblingNotWhitespace: PsiElement = {
+      var prev: PsiElement = element.getPrevSibling
+      while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
+        prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) prev = prev.getPrevSibling
+      prev
+    }
+
+    def getPrevSiblingNotWhitespaceComment: PsiElement = {
+      var prev: PsiElement = element.getPrevSibling
+      while (prev != null && (prev.isInstanceOf[PsiWhiteSpace] ||
+        prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || prev.isInstanceOf[PsiComment]))
+        prev = prev.getPrevSibling
+      prev
+    }
+
+    def getNextSiblingNotWhitespace: PsiElement = {
+      var next: PsiElement = element.getNextSibling
+      while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
+        next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE)) next = next.getNextSibling
+      next
+    }
+
+    def getNextSiblingNotWhitespaceComment: PsiElement = {
+      var next: PsiElement = element.getNextSibling
+      while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
+        next.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || next.isInstanceOf[PsiComment]))
+        next = next.getNextSibling
+      next
     }
   }
 
@@ -236,17 +320,13 @@ package object extensions {
   implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
     def lower(implicit typeSystem: TypeSystem,
               visitedRawTypes: HashSet[PsiClass],
-              paramTopLevel: Boolean): Option[ScType] = bound(`type`.isSuper match {
-      case true => Some(`type`.getSuperBound)
-      case _ => None
-    })
+              paramTopLevel: Boolean): Option[ScType] =
+      bound(if (`type`.isSuper) Some(`type`.getSuperBound) else None)
 
     def upper(implicit typeSystem: TypeSystem,
               visitedRawTypes: HashSet[PsiClass],
-              paramTopLevel: Boolean): Option[ScType] = bound(`type`.isExtends match {
-      case true => Some(`type`.getExtendsBound)
-      case _ => None
-    })
+              paramTopLevel: Boolean): Option[ScType] =
+      bound(if (`type`.isExtends) Some(`type`.getExtendsBound) else None)
 
     private def bound(maybeBound: Option[PsiType])
                      (implicit typeSystem: TypeSystem,
@@ -258,8 +338,8 @@ package object extensions {
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {
     /**
-     * Second match branch is for Java only.
-     */
+      * Second match branch is for Java only.
+      */
     def containingClass: PsiClass = {
       member match {
         case member: ScMember => member.containingClass
@@ -271,8 +351,8 @@ package object extensions {
 
   implicit class PsiClassExt(val clazz: PsiClass) extends AnyVal {
     /**
-     * Second match branch is for Java only.
-     */
+      * Second match branch is for Java only.
+      */
     def qualifiedName: String = {
       clazz match {
         case t: ScTemplateDefinition => t.qualifiedName
@@ -284,7 +364,7 @@ package object extensions {
       clazz match {
         case c: ScConstructorOwner => c.constructors
         case _ => clazz.getConstructors
-    }
+      }
 
     def isEffectivelyFinal: Boolean = clazz match {
       case scClass: ScClass => scClass.hasFinalModifier
@@ -295,12 +375,14 @@ package object extensions {
 
     def allSupers: Seq[PsiClass] = {
       val res = ArrayBuffer[PsiClass]()
+
       def addWithSupers(c: PsiClass): Unit = {
         if (!res.contains(c)) {
           if (c != clazz) res += c
           c.getSupers.foreach(addWithSupers)
         }
       }
+
       addWithSupers(clazz)
       res.toVector
     }
@@ -374,8 +456,8 @@ package object extensions {
 
   implicit class PsiNamedElementExt(val named: PsiNamedElement) extends AnyVal {
     /**
-     * Second match branch is for Java only.
-     */
+      * Second match branch is for Java only.
+      */
     def name: String = {
       named match {
         case nd: ScNamedElement => nd.name
@@ -384,10 +466,10 @@ package object extensions {
     }
   }
 
-  implicit class PsiModifierListOwnerExt(val member: PsiModifierListOwner) extends AnyVal{
+  implicit class PsiModifierListOwnerExt(val member: PsiModifierListOwner) extends AnyVal {
     /**
-     * Second match branch is for Java only.
-     */
+      * Second match branch is for Java only.
+      */
     def hasAbstractModifier: Boolean = {
       member match {
         case member: ScModifierListOwner => member.hasAbstractModifier
@@ -396,8 +478,8 @@ package object extensions {
     }
 
     /**
-     * Second match branch is for Java only.
-     */
+      * Second match branch is for Java only.
+      */
     def hasFinalModifier: Boolean = {
       member match {
         case member: ScModifierListOwner => member.hasFinalModifier
@@ -406,8 +488,8 @@ package object extensions {
     }
 
     /**
-     * Second match branch is for Java only.
-     */
+      * Second match branch is for Java only.
+      */
     def hasModifierPropertyScala(name: String): Boolean = {
       member match {
         case member: ScModifierListOwner => member.hasModifierPropertyScala(name)
@@ -458,7 +540,7 @@ package object extensions {
   implicit def toCallable[T](action: => T): Callable[T] = new Callable[T] {
     override def call(): T = action
   }
-  
+
   def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
     CommandProcessor.getInstance.executeCommand(project, new Runnable {
       def run() {
@@ -520,7 +602,7 @@ package object extensions {
   def withProgressSynchronouslyTry[T](title: String)(body: ((String => Unit) => T)): Try[T] = {
     val progressManager = ProgressManager.getInstance
 
-    val computable  = new ThrowableComputable[T, Exception] {
+    val computable = new ThrowableComputable[T, Exception] {
       @throws(classOf[Exception])
       def compute: T = {
         val progressIndicator = progressManager.getProgressIndicator
@@ -534,7 +616,7 @@ package object extensions {
   }
 
   def postponeFormattingWithin[T](project: Project)(body: => T): T = {
-    PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(new Computable[T]{
+    PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(new Computable[T] {
       def compute(): T = body
     })
   }

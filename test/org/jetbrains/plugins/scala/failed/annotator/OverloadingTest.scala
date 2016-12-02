@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -30,12 +30,12 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val file = myFixture.getFile
     val mock = new AnnotatorHolderMock(file)
 
-    assertEquals(Nil, file.depthFirst.filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
+    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
 
-    assertEquals(Nil, file.depthFirst.filterByType(classOf[PsiReference])
+    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiReference])
       .filter(_.resolve == null).map(_.getElement.getText).toList)
 
-    file.depthFirst.foreach {
+    file.depthFirst().foreach {
       case it: ScPatternDefinition => annotate(it, mock, typeAware = true)
       case _ => 
     }

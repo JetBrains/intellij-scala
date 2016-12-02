@@ -151,7 +151,7 @@ object ConverterUtil {
     val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
     val addPrefix = (new ReferenceMustBePrefixedInspection).buildVisitor(holder, isOnTheFly = false)
 
-    collectTopElements(offset, endOffset, file).foreach(_.depthFirst.foreach {
+    collectTopElements(offset, endOffset, file).foreach(_.depthFirst().foreach {
       case el: ScFunctionDefinition =>
         removeReturnVisitor.visitElement(el)
       case parentized: ScParenthesisedExpr =>

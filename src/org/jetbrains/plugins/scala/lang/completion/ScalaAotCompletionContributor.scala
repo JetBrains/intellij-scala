@@ -6,6 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.util.{Consumer, ProcessingContext}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.MyConsumer._
 import org.jetbrains.plugins.scala.lang.completion.MyInsertHandler._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor._
@@ -77,10 +78,10 @@ class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
 private object ScalaAotCompletionContributor {
   def typeIdentifierIn(parameter: ScParameter): PsiElement =
-    parameter.paramType.get.depthFirst.find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
+    parameter.paramType.get.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
 
   def typeIdentifierIn(declaration: ScTypedDeclaration): PsiElement =
-    declaration.typeElement.get.depthFirst.find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
+    declaration.typeElement.get.depthFirst().find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER).get
 
   def capitalize(s: String): String =
     if (s.length == 0) s else s.substring(0, 1).toUpperCase + s.substring(1)

@@ -5,6 +5,7 @@ import com.intellij.psi.{PsiElement, PsiFileFactory}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.LibraryTestCase
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert
 
@@ -38,9 +39,9 @@ abstract class TransformationTest(transformation: PsiElement => Unit, @Language(
 
     val file = parse(prefix + before + suffix)
 
-    file.depthFirst.foreach(transformation)
+    file.depthFirst().foreach(transformation)
 
-    Assert.assertEquals(after, file.text.substring(prefix.length, file.text.length - suffix.length))
+    Assert.assertEquals(after, file.getText.substring(prefix.length, file.getText.length - suffix.length))
     Assert.assertEquals(psiToString(parse(prefix + after + suffix), false), psiToString(file, false))
   }
 

@@ -16,8 +16,8 @@ class ExpandVarargArgument extends AbstractTransformer {
   def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
     case e @ ScMethodCall(r @ ReferenceTarget(f: ScFunctionDefinition), as)
       if f.parameters.exists(_.isRepeatedParameter) &&
-        !r.text.contains("Array") &&
-        !e.args.matchedParameters.exists(p => p._2.isRepeated && p._1.text.contains("Array")) =>
+        !r.getText.contains("Array") &&
+        !e.args.matchedParameters.exists(p => p._2.isRepeated && p._1.getText.contains("Array")) =>
 
       val as2 = e.matchedParameters.filter(_._2.isRepeated).map(_._1).sortBy(_.getStartOffsetInParent)
       val as1 = as.take(as.length - as2.length)
