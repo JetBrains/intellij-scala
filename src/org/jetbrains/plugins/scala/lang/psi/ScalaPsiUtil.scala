@@ -646,11 +646,12 @@ object ScalaPsiUtil {
         tp match {
           case Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-            val obj = ScalaPsiManager.instance(project).
-              getCachedClass("scala." + tp.name, scope, ClassCategory.OBJECT)
-            obj match {
-              case o: ScObject => addResult(o.qualifiedName, ScDesignatorType(o))
-              case _ =>
+            ScalaPsiManager.instance(project)
+              .getCachedClass("scala." + tp.name, scope, ClassCategory.OBJECT)
+              .collect {
+                case o: ScObject => o
+              }.foreach { o =>
+              addResult(o.qualifiedName, ScDesignatorType(o))
             }
           case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>

@@ -49,12 +49,16 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         else api.Double
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL =>
-        val sym = ScalaPsiManager.instance(getProject).getCachedClass("scala.Symbol", getResolveScope,
-          ScalaPsiManager.ClassCategory.TYPE)
-        if (sym != null) ScalaType.designator(sym) else Nothing
+        ScalaPsiManager.instance(getProject)
+          .getCachedClass("scala.Symbol", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+          .map {
+            ScalaType.designator
+          }.getOrElse(Nothing)
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING =>
-        val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
-        str.map(ScalaType.designator(_)).getOrElse(Nothing)
+        ScalaPsiManager.instance(getProject)
+          .getCachedClass(getResolveScope, "java.lang.String").map {
+          ScalaType.designator
+        }.getOrElse(Nothing)
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => api.Boolean
       case _ => return Failure("Wrong Psi to get Literal type", Some(this))
     }

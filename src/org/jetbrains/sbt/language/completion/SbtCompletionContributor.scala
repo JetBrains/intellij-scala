@@ -72,9 +72,10 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
 
       def getScopeType: Option[ScType] = {
         if (operator.getText != "in") return None
-        val manager = ScalaPsiManager.instance(place.getProject)
-        val scopeClass = manager.getCachedClass("sbt.Scope", place.getResolveScope, ClassCategory.TYPE)
-        if (scopeClass != null) Some(ScDesignatorType(scopeClass)) else None
+        ScalaPsiManager.instance(place.getProject)
+          .getCachedClass("sbt.Scope", place.getResolveScope, ClassCategory.TYPE).map {
+          ScDesignatorType(_)
+        }
       }
 
       val expectedTypes = Seq(

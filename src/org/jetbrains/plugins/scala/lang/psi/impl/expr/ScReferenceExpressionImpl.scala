@@ -325,15 +325,18 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (result.isDynamic) ResolvableReferenceExpression.getDynamicReturn(functionType)
         else functionType
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter =>
-        val seqClass = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         val result = param.getType(TypingContext.empty)
         val computeType = s.subst(result match {
           case Success(tp, _) => tp
           case _ => return result
         })
-        if (seqClass != null) {
-          ScParameterizedType(ScalaType.designator(seqClass), Seq(computeType))
-        } else computeType
+        ScalaPsiManager.instance(getProject)
+          .getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+          .map {
+            ScalaType.designator
+          }.map {
+          ScParameterizedType(_, Seq(computeType))
+        }.getOrElse(computeType)
       case Some(ScalaResolveResult(obj: ScObject, _)) =>
         def tail = {
           fromType match {
@@ -440,8 +443,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)), List(argument))
           }
 
-          Option(ScalaPsiManager.instance(getProject)
-            .getCachedClass("java.lang.Class", getResolveScope, ScalaPsiManager.ClassCategory.TYPE))
+          ScalaPsiManager.instance(getProject)
+            .getCachedClass("java.lang.Class", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
             .map(convertQualifier)
         }
 

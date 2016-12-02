@@ -78,13 +78,15 @@ object AnnotatorHighlighter {
 
       UsageTrigger.trigger("scala.collection.pack.highlighting")
 
-      def conformsByNames(tp: ScType, qn: List[String]): Boolean = {
-        qn.exists(textName => {
-          val cachedClass = ScalaPsiManager.instance(refElement.getProject).getCachedClass(textName, refElement.getResolveScope, ClassCategory.TYPE)
-          if (cachedClass == null) false
-          else tp.conforms(ScalaType.designator(cachedClass))
-        })
-      }
+      def conformsByNames(tp: ScType, qn: List[String]): Boolean =
+        qn.flatMap {
+          ScalaPsiManager.instance(refElement.getProject)
+            .getCachedClass(_, refElement.getResolveScope, ClassCategory.TYPE)
+        }.map {
+          ScalaType.designator
+        }.exists {
+          tp.conforms
+        }
 
       def simpleAnnotate(annotationText: String, annotationAttributes: TextAttributesKey) {
         if (SCALA_FACTORY_METHODS_NAMES.contains(refElement.nameId.getText)) {

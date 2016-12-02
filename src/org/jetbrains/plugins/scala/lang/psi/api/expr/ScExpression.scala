@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, e
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitResolveResult, ScImplicitlyConvertible}
@@ -91,10 +90,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               val `type` = extractImplicitParameterType(res) match {
                 case FunctionType(rt, Seq(_)) => Some(rt)
                 case paramType =>
-                  function1Type.flatMap { funTp =>
-                    val secondArg = funTp.typeArguments(1)
-                    paramType.conforms(funTp, ScUndefinedSubstitutor())._2.getSubstitutor.map {
-                      _.subst(secondArg)
+                  ScalaPsiManager.instance(getProject)
+                    .cachedFunction1Type(getResolveScope).flatMap { functionType =>
+                    val (_, substitutor) = paramType.conforms(functionType, ScUndefinedSubstitutor())
+                    substitutor.getSubstitutor.map {
+                      _.subst(functionType.typeArguments(1))
                     }.filter {
                       !_.isInstanceOf[UndefinedType]
                     }
@@ -124,19 +124,6 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   //    }.flatMap {
   //      tryConvertToSAM(fromUnderscore, expectedType, _)
   //    }
-
-  private def function1Type: Option[ScParameterizedType] =
-    Option(ScalaPsiManager.instance(getProject)).map {
-      _.getCachedClass("scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-    }.collect {
-      case function1: ScTrait =>
-        val parameters = function1.typeParameters.map { tp =>
-          UndefinedType(TypeParameterType(tp), 1)
-        }
-        ScParameterizedType(ScalaType.designator(function1), parameters)
-    }.collect {
-      case parameterizedType: ScParameterizedType => parameterizedType
-    }
 
   private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
     def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {

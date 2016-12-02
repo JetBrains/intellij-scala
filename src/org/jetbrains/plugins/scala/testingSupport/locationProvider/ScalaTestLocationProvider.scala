@@ -87,9 +87,13 @@ class ScalaTestLocationProvider extends SMTestLocator {
 
   private def searchForClassByUnqualifiedName(project: Project, locationData: String): ArrayList[Location[_ <: PsiElement]] = {
     val res = new ArrayList[Location[_ <: PsiElement]]()
-    val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(locationData,
-      GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
-    if (clazz != null) res.add(PsiLocation.fromPsiElement[PsiClass](project, clazz))
+    ScalaPsiManager.instance(project)
+      .getCachedClass(locationData, GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
+      .map {
+        PsiLocation.fromPsiElement[PsiClass](project, _)
+      }.foreach {
+      res.add(_)
+    }
     res
   }
 

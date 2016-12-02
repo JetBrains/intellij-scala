@@ -159,17 +159,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       //to prevent infinite recursion
       ProgressManager.checkCanceled()
 
-      lazy val funType = Option(
-        ScalaPsiManager.instance(expression.getProject).getCachedClass(
-          "scala.Function1", expression.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-        )
-      ) collect {
-        case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
-          UndefinedType(TypeParameterType(tp), 1)))
-      } flatMap {
-        case p: ScParameterizedType => Some(p)
-        case _ => None
-      }
+      lazy val funType = ScalaPsiManager.instance(expression.getProject).cachedFunction1Type(expression.getResolveScope)
 
       def firstArgType = funType.map(_.typeArguments.head)
 

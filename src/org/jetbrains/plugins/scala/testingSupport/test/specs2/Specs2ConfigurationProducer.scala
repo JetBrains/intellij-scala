@@ -91,8 +91,10 @@ class Specs2ConfigurationProducer extends {
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (parent == null) return false
-    val suiteClasses = suitePaths.map(suite =>
-      ScalaPsiManager.instance(parent.getProject).getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
+    val suiteClasses = suitePaths.flatMap { suite =>
+      ScalaPsiManager.instance(parent.getProject)
+        .getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+    }
     if (suiteClasses.isEmpty) return false
     val suiteClazz = suiteClasses.head
 
@@ -124,8 +126,9 @@ class Specs2ConfigurationProducer extends {
     if (testClassDef == null) return (null, null)
 
     val psiManager = ScalaPsiManager.instance(testClassDef.getProject)
-    val suiteClasses = suitePaths.map(suite =>
-      psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
+    val suiteClasses = suitePaths.flatMap { suite =>
+      psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+    }
     if (suiteClasses.isEmpty) return (null, null)
     val suiteClazz = suiteClasses.head
     if (!ScalaPsiUtil.cachedDeepIsInheritor(testClassDef, suiteClazz)) return (null, null)

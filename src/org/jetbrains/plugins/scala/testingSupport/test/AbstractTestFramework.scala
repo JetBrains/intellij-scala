@@ -47,13 +47,19 @@ abstract class AbstractTestFramework extends JavaTestFramework {
       case _ => clazz
     }, classOf[ScTypeDefinition], false)
     if (parent == null) return false
+
     val project = clazz.getProject
-    val psiManager = ScalaPsiManager.instance(project)
-    def getCachedClass(path: String) = psiManager.getCachedClass(path, GlobalSearchScope.allScope(project),
-      ScalaPsiManager.ClassCategory.TYPE)
-    val markerClass: PsiClass = getCachedClass(getMarkerClassFQName)
-    if (markerClass == null) return false
-    getSuitePaths.exists(path => ScalaPsiUtil.cachedDeepIsInheritor(parent, getCachedClass(path)))
+    val manager = ScalaPsiManager.instance(project)
+    val scope = GlobalSearchScope.allScope(project)
+
+    def getCachedClass(path: String) = manager.getCachedClass(path, scope, ScalaPsiManager.ClassCategory.TYPE)
+
+    getCachedClass(getMarkerClassFQName).isDefined &&
+      getSuitePaths.flatMap {
+        getCachedClass
+      }.exists {
+        ScalaPsiUtil.cachedDeepIsInheritor(parent, _)
+      }
   }
 
   override def getLanguage: Language = ScalaLanguage.INSTANCE

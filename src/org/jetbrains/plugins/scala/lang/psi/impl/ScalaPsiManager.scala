@@ -159,7 +159,7 @@ class ScalaPsiManager(val project: Project) {
 
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory._
 
-  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): PsiClass = {
+  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): Option[PsiClass] = {
     val allClasses = getCachedClasses(scope, fqn)
     val classes =
       classCategory match {
@@ -167,8 +167,7 @@ class ScalaPsiManager(val project: Project) {
         case OBJECT => allClasses.filter(_.isInstanceOf[ScObject])
         case TYPE => allClasses.filter(!_.isInstanceOf[ScObject])
       }
-    if (classes.length == 0) null
-    else classes(0)
+    classes.headOption
   }
 
   def getClasses(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
@@ -218,15 +217,22 @@ class ScalaPsiManager(val project: Project) {
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
-  def cachedFunction1Type: Option[ScType] = {
-    val allScope = GlobalSearchScope.allScope(project)
+  def cachedFunction1Type(scope: GlobalSearchScope = GlobalSearchScope.allScope(project)): Option[ScParameterizedType] = {
     val category = ScalaPsiManager.ClassCategory.TYPE
     implicit val typeSystem = project.typeSystem
-    getCachedClass("scala.Function1", allScope, category) match {
-      case tr: ScTrait =>
-        ScParameterizedType(ScalaType.designator(tr), tr.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
-          .asOptionOf[ScParameterizedType]
-      case _ => None
+
+    getCachedClass("scala.Function1", scope, category).collect {
+      case t: ScTrait => t
+    }.map { t =>
+      val parameters = t.typeParameters.map {
+        TypeParameterType(_)
+      }.map {
+        UndefinedType(_, 1)
+      }
+
+      ScParameterizedType(ScalaType.designator(t), parameters)
+    }.collect {
+      case p: ScParameterizedType => p
     }
   }
 

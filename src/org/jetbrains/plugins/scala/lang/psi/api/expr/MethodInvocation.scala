@@ -222,8 +222,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     def functionParams(params: Seq[ScType]): Seq[Parameter] = {
       val functionName = "scala.Function" + params.length
-      val functionClass = Option(ScalaPsiManager.instance(getProject).getCachedClass(functionName, getResolveScope,
-        ScalaPsiManager.ClassCategory.TYPE)).flatMap {case t: ScTrait => Option(t) case _ => None}
+      val functionClass = ScalaPsiManager.instance(getProject)
+        .getCachedClass(functionName, getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+        .collect {
+          case t: ScTrait => t
+        }
       val applyFunction = functionClass.flatMap(_.functions.find(_.name == "apply"))
       params.mapWithIndex {
         case (tp, i) =>

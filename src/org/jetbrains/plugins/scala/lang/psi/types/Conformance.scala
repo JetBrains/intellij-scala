@@ -286,13 +286,14 @@ object Conformance extends api.Conformance {
           }
           l.extractDesignated(withoutAliases = false) match {
             case Some((el, _)) =>
-              val notNullClass = ScalaPsiManager.instance(el.getProject).getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-              if (notNullClass != null) {
-                val notNullType = ScDesignatorType(notNullClass)
-                result = (!l.conforms(notNullType), undefinedSubst) //todo: think about undefinedSubst
-              } else {
-                result = (true, undefinedSubst)
+              val flag = ScalaPsiManager.instance(el.getProject)
+                .getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+                .map {
+                  ScDesignatorType(_)
+                }.exists {
+                l.conforms(_)
               }
+              result = (!flag, undefinedSubst) // todo: think about undefinedSubst
             case _ => result = (true, undefinedSubst)
           }
         }

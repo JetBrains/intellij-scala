@@ -39,14 +39,13 @@ object ExtensionConversionHelper {
     val result = InferUtil.extractImplicitParameterType(resolveResult) match {
       case functionType @ FunctionType(_, _) => Some(functionType)
       case implicitParameterType =>
-        val maybeFunctionType = ScalaPsiManager.instance(resolveResult.element.getProject).cachedFunction1Type
+        val maybeFunctionType = ScalaPsiManager.instance(resolveResult.element.getProject).cachedFunction1Type()
         maybeFunctionType.flatMap { functionType =>
-          implicitParameterType.conforms(functionType, ScUndefinedSubstitutor()) match {
-            case (true, substitutor) =>
-              substitutor.getSubstitutor.map {
-                _.subst(functionType).removeUndefines()
-              }
-            case _ => None
+          val (_, substitutor) = implicitParameterType.conforms(functionType, ScUndefinedSubstitutor())
+          substitutor.getSubstitutor.map {
+            _.subst(functionType)
+          }.map {
+            _.removeUndefines()
           }
         }
     }

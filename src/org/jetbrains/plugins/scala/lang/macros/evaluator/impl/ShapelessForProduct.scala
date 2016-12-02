@@ -38,9 +38,11 @@ object ShapelessForProduct extends ScalaMacroTypeable {
     implicit val typeSystem = macros.typeSystem
     if (context.expectedType.isEmpty) return None
     val manager = ScalaPsiManager.instance(context.place.getProject)
-    val clazz = manager.getCachedClass("shapeless.Generic", context.place.getResolveScope, ClassCategory.TYPE)
+    val searchScope = context.place.getResolveScope
+
+    val clazz = manager.getCachedClass("shapeless.Generic", searchScope, ClassCategory.TYPE)
     clazz match {
-      case c: ScTypeDefinition =>
+      case Some(c: ScTypeDefinition) =>
         val tpt = c.typeParameters
         if (tpt.isEmpty) return None
         val undef = UndefinedType(TypeParameterType(tpt.head))
@@ -52,10 +54,12 @@ object ShapelessForProduct extends ScalaMacroTypeable {
             val productLikeType = subst.subst(undef)
             val parts = ScPattern.extractProductParts(productLikeType, context.place)
             if (parts.isEmpty) return None
-            val coloncolon = manager.getCachedClass("shapeless.::", context.place.getResolveScope, ClassCategory.TYPE)
-            if (coloncolon == null) return None
-            val hnil = manager.getCachedClass("shapeless.HNil", context.place.getResolveScope, ClassCategory.TYPE)
-            if (hnil == null) return None
+            val coloncolon = manager.getCachedClass("shapeless.::", searchScope, ClassCategory.TYPE).getOrElse {
+              return None
+            }
+            val hnil = manager.getCachedClass("shapeless.HNil", searchScope, ClassCategory.TYPE).getOrElse {
+              return None
+            }
             val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {
               case (part, resultType) => ScParameterizedType(ScDesignatorType(coloncolon), Seq(part, resultType))
             }

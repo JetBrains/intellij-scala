@@ -66,10 +66,15 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     if (!isRepeatedParameter) return getType(ctx)
     getType(ctx) match {
       case f@Success(tp: ScType, elem) =>
-        val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-        if (seq != null) {
-          Success(ScParameterizedType(ScalaType.designator(seq), Seq(tp)), elem)
-        } else f
+        ScalaPsiManager.instance(getProject)
+          .getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+          .map {
+            ScalaType.designator
+          }.map {
+          ScParameterizedType(_, Seq(tp))
+        }.map {
+          Success(_, elem)
+        }.getOrElse(f)
       case f => f
     }
   }

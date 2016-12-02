@@ -25,7 +25,7 @@ object MacroInferUtil {
     def getClass(className: String) = Some(place.getProject).map {
       ScalaPsiManager.instance
     }.flatMap { manager =>
-      Option(manager.getCachedClass(s"shapeless.$className", place.getResolveScope, ClassCategory.TYPE))
+      manager.getCachedClass(s"shapeless.$className", place.getResolveScope, ClassCategory.TYPE)
     }
 
     val maybeGenericClass = getClass("Generic")

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
@@ -32,7 +32,7 @@ package object types {
 
     def conforms(`type`: ScType)
                 (implicit typeSystem: TypeSystem): Boolean = {
-      conforms(`type`, ScUndefinedSubstitutor(), checkWeak = false)._1
+      conforms(`type`, ScUndefinedSubstitutor())._1
     }
 
     def weakConforms(`type`: ScType)

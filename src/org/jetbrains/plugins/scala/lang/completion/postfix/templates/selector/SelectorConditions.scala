@@ -27,22 +27,26 @@ object SelectorConditions {
 
   val THROWABLE = isDescendantCondition("java.lang.Throwable")
 
-  def isDescendantCondition(ancestorFqn: String) = new Condition[PsiElement]{
-    override def value(t: PsiElement): Boolean = t match {
-      case expr: ScExpression =>
-        val project = t.getProject
-        implicit val typeSystem = project.typeSystem
-        val manager = ScalaPsiManager.instance(project)
-        expr.getTypeIgnoreBaseType.toOption.flatMap {
-          _.extractClass(project).map {
-            psiClass =>
-              val base = manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
-              (psiClass != null && base != null && ScEquivalenceUtil.areClassesEquivalent(psiClass, base)) ||
-                manager.cachedDeepIsInheritor(psiClass, base)
+  def isDescendantCondition(ancestorFqn: String) = new Condition[PsiElement] {
+    override def value(element: PsiElement): Boolean =
+      Option(element).collect {
+        case expression: ScExpression => expression
+      }.exists { expression =>
+        val project = expression.getProject
+
+        expression.getTypeIgnoreBaseType.toOption.flatMap { tp =>
+          implicit val typeSystem = project.typeSystem
+          tp.extractClass(project)
+        }.exists { psiClass =>
+          val manager = ScalaPsiManager.instance(project)
+          val scope = GlobalSearchScope.allScope(project)
+
+          manager.getCachedClass(ancestorFqn, scope, ClassCategory.ALL) exists { base =>
+            ScEquivalenceUtil.areClassesEquivalent(psiClass, base) ||
+              manager.cachedDeepIsInheritor(psiClass, base)
           }
-        }.getOrElse(false)
-      case _ => false
-    }
+        }
+      }
   }
 
   def typedCondition(myType: ValType) = new Condition[PsiElement]{
