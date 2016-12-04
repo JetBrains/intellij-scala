@@ -122,7 +122,7 @@ object Compatibility {
       else throw new RuntimeException("Illegal state for seqClass variable")
     }.orElse {
       ScalaPsiManager.instance(expr.getProject)
-        .getCachedClass("scala.collection.Seq", expr.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+        .getCachedClass("scala.collection.Seq", expr.getResolveScope)
     }.map {
       ScalaType.designator
     }

@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
@@ -159,7 +160,7 @@ class ScalaPsiManager(val project: Project) {
 
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory._
 
-  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): Option[PsiClass] = {
+  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory = ClassCategory.TYPE): Option[PsiClass] = {
     val allClasses = getCachedClasses(scope, fqn)
     val classes =
       classCategory match {
@@ -218,10 +219,9 @@ class ScalaPsiManager(val project: Project) {
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def cachedFunction1Type(scope: GlobalSearchScope = GlobalSearchScope.allScope(project)): Option[ScParameterizedType] = {
-    val category = ScalaPsiManager.ClassCategory.TYPE
     implicit val typeSystem = project.typeSystem
 
-    getCachedClass("scala.Function1", scope, category).collect {
+    getCachedClass("scala.Function1", scope).collect {
       case t: ScTrait => t
     }.map { t =>
       val parameters = t.typeParameters.map {

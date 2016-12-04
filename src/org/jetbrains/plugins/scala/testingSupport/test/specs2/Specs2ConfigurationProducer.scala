@@ -93,7 +93,7 @@ class Specs2ConfigurationProducer extends {
     if (parent == null) return false
     val suiteClasses = suitePaths.flatMap { suite =>
       ScalaPsiManager.instance(parent.getProject)
-        .getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+        .getCachedClass(suite, element.getResolveScope)
     }
     if (suiteClasses.isEmpty) return false
     val suiteClazz = suiteClasses.head
@@ -127,7 +127,7 @@ class Specs2ConfigurationProducer extends {
 
     val psiManager = ScalaPsiManager.instance(testClassDef.getProject)
     val suiteClasses = suitePaths.flatMap { suite =>
-      psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+      psiManager.getCachedClass(suite, element.getResolveScope)
     }
     if (suiteClasses.isEmpty) return (null, null)
     val suiteClazz = suiteClasses.head
