@@ -408,7 +408,7 @@ abstract class MixinNodes {
               case syn: ScSyntheticClass =>
                 //it's required to do like this to have possibility mix Synthetic types
                 ScalaPsiManager.instance(syn.getProject)
-                  .getCachedClass(syn.getQualifiedName, GlobalSearchScope.allScope(syn.getProject), ScalaPsiManager.ClassCategory.TYPE)
+                  .getCachedClass(syn.getQualifiedName, GlobalSearchScope.allScope(syn.getProject))
                   .collect {
                     case template: ScTemplateDefinition => template
                   }.foreach {

@@ -67,7 +67,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     getType(ctx) match {
       case f@Success(tp: ScType, elem) =>
         ScalaPsiManager.instance(getProject)
-          .getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+          .getCachedClass("scala.collection.Seq", getResolveScope)
           .map {
             ScalaType.designator
           }.map {

@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -73,7 +72,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       def getScopeType: Option[ScType] = {
         if (operator.getText != "in") return None
         ScalaPsiManager.instance(place.getProject)
-          .getCachedClass("sbt.Scope", place.getResolveScope, ClassCategory.TYPE).map {
+          .getCachedClass("sbt.Scope", place.getResolveScope).map {
           ScDesignatorType(_)
         }
       }

@@ -50,7 +50,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL =>
         ScalaPsiManager.instance(getProject)
-          .getCachedClass("scala.Symbol", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+          .getCachedClass("scala.Symbol", getResolveScope)
           .map {
             ScalaType.designator
           }.getOrElse(Nothing)

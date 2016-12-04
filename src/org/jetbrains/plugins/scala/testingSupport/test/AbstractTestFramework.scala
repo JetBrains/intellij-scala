@@ -52,7 +52,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     val manager = ScalaPsiManager.instance(project)
     val scope = GlobalSearchScope.allScope(project)
 
-    def getCachedClass(path: String) = manager.getCachedClass(path, scope, ScalaPsiManager.ClassCategory.TYPE)
+    def getCachedClass(path: String) = manager.getCachedClass(path, scope)
 
     getCachedClass(getMarkerClassFQName).isDefined &&
       getSuitePaths.flatMap {

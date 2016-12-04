@@ -81,7 +81,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
   override def isAnnotationType: Boolean = {
     val psiManager = ScalaPsiManager.instance(getProject)
     psiManager
-      .getCachedClass("scala.annotation.Annotation", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+      .getCachedClass("scala.annotation.Annotation", getResolveScope)
       .exists {
         psiManager.cachedDeepIsInheritor(this, _)
       }

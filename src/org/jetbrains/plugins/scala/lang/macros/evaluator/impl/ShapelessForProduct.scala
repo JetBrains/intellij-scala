@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
@@ -40,7 +39,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
     val manager = ScalaPsiManager.instance(context.place.getProject)
     val searchScope = context.place.getResolveScope
 
-    val clazz = manager.getCachedClass("shapeless.Generic", searchScope, ClassCategory.TYPE)
+    val clazz = manager.getCachedClass("shapeless.Generic", searchScope)
     clazz match {
       case Some(c: ScTypeDefinition) =>
         val tpt = c.typeParameters
@@ -54,10 +53,10 @@ object ShapelessForProduct extends ScalaMacroTypeable {
             val productLikeType = subst.subst(undef)
             val parts = ScPattern.extractProductParts(productLikeType, context.place)
             if (parts.isEmpty) return None
-            val coloncolon = manager.getCachedClass("shapeless.::", searchScope, ClassCategory.TYPE).getOrElse {
+            val coloncolon = manager.getCachedClass("shapeless.::", searchScope).getOrElse {
               return None
             }
-            val hnil = manager.getCachedClass("shapeless.HNil", searchScope, ClassCategory.TYPE).getOrElse {
+            val hnil = manager.getCachedClass("shapeless.HNil", searchScope).getOrElse {
               return None
             }
             val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {

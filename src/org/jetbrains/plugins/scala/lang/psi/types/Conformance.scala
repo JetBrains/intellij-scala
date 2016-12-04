@@ -287,7 +287,7 @@ object Conformance extends api.Conformance {
           l.extractDesignated(withoutAliases = false) match {
             case Some((el, _)) =>
               val flag = ScalaPsiManager.instance(el.getProject)
-                .getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+                .getCachedClass("scala.NotNull", el.getResolveScope)
                 .map {
                   ScDesignatorType(_)
                 }.exists {

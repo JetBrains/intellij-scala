@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern.extractP
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
@@ -25,7 +24,7 @@ object MacroInferUtil {
     def getClass(className: String) = Some(place.getProject).map {
       ScalaPsiManager.instance
     }.flatMap { manager =>
-      manager.getCachedClass(s"shapeless.$className", place.getResolveScope, ClassCategory.TYPE)
+      manager.getCachedClass(s"shapeless.$className", place.getResolveScope)
     }
 
     val maybeGenericClass = getClass("Generic")
