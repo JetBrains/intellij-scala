@@ -158,28 +158,28 @@ trait SymbolTable {
 
     def convert: PsiElement = sym match {
       case h.Symbol.Local(id) =>
-        val url::pos = id.split(localSymbolDelim).toList
+        val url :: pos = id.split(localSymbolDelim).toList
         findFileByPath(url).findElementAt(pos.head.toInt)
       case h.Symbol.RootPackage => new PsiPackageImpl(PsiManager.getInstance(getCurrentProject), "")
       case h.Symbol.EmptyPackage => new PsiPackageImpl(PsiManager.getInstance(getCurrentProject), "")
       case h.Symbol.Global(owner, name, signature) =>
-        getFqName(sym) match {
-          case (fqn, Some(jvmSig)) =>
-            val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(
-              GlobalSearchScope.projectScope(getCurrentProject), fqn.split('.').drop(1).mkString(".")
-            )
-            clazz match {
+        val manager = ScalaPsiManager.instance(getCurrentProject)
+        val scope = GlobalSearchScope.projectScope(getCurrentProject)
+
+        val (fqn, maybeSignature) = getFqName(sym)
+        val maybeClass = manager.getCachedClass(scope, fqn.split('.').drop(1).mkString("."))
+
+        (maybeSignature match {
+          case Some(jvmSignature) =>
+            maybeClass.collect {
               case sc: ScTemplateDefinition =>
-//                sc.findMethodBySignature()
+                //                sc.findMethodBySignature()
                 sc ???
               case pc: PsiClass =>
                 pc ???
             }
-          case (fqn, None) =>
-            ScalaPsiManager.instance(getCurrentProject).getCachedClass(
-              GlobalSearchScope.projectScope(getCurrentProject), fqn.split('.').drop(1).mkString(".")
-            ).get
-        }
+          case _ => maybeClass
+        }).get
     }
 
     symbolCache.getOrElseUpdate(sym, convert)
