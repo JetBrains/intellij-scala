@@ -5,7 +5,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean, ValType}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -41,7 +40,7 @@ object SelectorConditions {
           val manager = ScalaPsiManager.instance(project)
           val scope = GlobalSearchScope.allScope(project)
 
-          manager.getCachedClass(ancestorFqn, scope, ClassCategory.ALL) exists { base =>
+          manager.getCachedClasses(scope, ancestorFqn).exists { base =>
             ScEquivalenceUtil.areClassesEquivalent(psiClass, base) ||
               manager.cachedDeepIsInheritor(psiClass, base)
           }

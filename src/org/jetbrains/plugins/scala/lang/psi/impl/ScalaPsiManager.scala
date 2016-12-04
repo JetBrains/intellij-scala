@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
@@ -158,18 +157,15 @@ class ScalaPsiManager(val project: Project) {
     buffer
   }
 
-  import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory._
+  def getCachedClass(fqn: String, scope: GlobalSearchScope): Option[PsiClass] =
+    getCachedClasses(scope, fqn).find {
+      !_.isInstanceOf[ScObject]
+    }
 
-  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory = ClassCategory.TYPE): Option[PsiClass] = {
-    val allClasses = getCachedClasses(scope, fqn)
-    val classes =
-      classCategory match {
-        case ALL => allClasses
-        case OBJECT => allClasses.filter(_.isInstanceOf[ScObject])
-        case TYPE => allClasses.filter(!_.isInstanceOf[ScObject])
-      }
-    classes.headOption
-  }
+  def getCachedObject(fqn: String, scope: GlobalSearchScope): Option[ScObject] =
+    getCachedClasses(scope, fqn).collect {
+      case o: ScObject => o
+    }.headOption
 
   def getClasses(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
     if (pack.getQualifiedName == "scala") getClassesCached(pack, scope)
@@ -428,11 +424,6 @@ object ScalaPsiManager {
   val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
 
   def instance(project: Project): ScalaPsiManager = project.getComponent(classOf[ScalaPsiManagerComponent]).instance
-
-  object ClassCategory extends Enumeration {
-    type ClassCategory = Value
-    val ALL, OBJECT, TYPE = Value
-  }
 
   private def subscribeToRootsChange(project: Project) = {
     project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {

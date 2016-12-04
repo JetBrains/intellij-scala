@@ -29,7 +29,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
 
   protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
     ScalaPsiManager.instance(clazz.getProject)
-      .getCachedClass(fqn, clazz.getResolveScope, ScalaPsiManager.ClassCategory.OBJECT)
+      .getCachedObject(fqn, clazz.getResolveScope)
       .exists {
         ScalaPsiUtil.cachedDeepIsInheritor(clazz, _)
       }

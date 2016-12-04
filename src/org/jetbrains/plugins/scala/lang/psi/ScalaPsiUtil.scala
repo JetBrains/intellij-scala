@@ -38,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits._
@@ -647,10 +646,8 @@ object ScalaPsiUtil {
           case Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
             ScalaPsiManager.instance(project)
-              .getCachedClass("scala." + tp.name, scope, ClassCategory.OBJECT)
-              .collect {
-                case o: ScObject => o
-              }.foreach { o =>
+              .getCachedObject("scala." + tp.name, scope)
+              .foreach { o =>
               addResult(o.qualifiedName, ScDesignatorType(o))
             }
           case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
