@@ -45,7 +45,9 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
    */
   private val environmentVariables: java.util.Map[String, String] = new mutable.HashMap[String, String]()
 
-  private var workingDirectory: String = project.getBaseDir.getPath
+  private var workingDirectory: String = defaultWorkingDirectory
+
+  private def defaultWorkingDirectory = Option(project.getBaseDir).fold("")(_.getPath)
 
   override def getValidModules: util.Collection[Module] = List()
 
@@ -93,7 +95,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   def getEnvironmentVariables: util.Map[String, String] = environmentVariables
 
-  def getWorkingDir: String = if (StringUtil.isEmpty(workingDirectory)) project.getBaseDir.getPath else workingDirectory
+  def getWorkingDir: String = if (StringUtil.isEmpty(workingDirectory)) defaultWorkingDirectory else workingDirectory
 
   class SbtComandLineState(configuration: SbtRunConfiguration, envirnoment: ExecutionEnvironment)
           extends JavaCommandLineState(envirnoment) {
