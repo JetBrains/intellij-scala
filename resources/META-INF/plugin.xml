@@ -18,7 +18,7 @@
     xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>org.intellij.scala</id>
     <name>Scala</name>
-    <description>Plugin for Scala language support</description>
+    <description>IntelliJ IDEA is an IDE famous for its ergonomics and intelligent coding assistance it provides for developers coding in Java, Groovy and other languages. The Scala plugin extends IntelliJ IDEA’s toolset with support for Scala, SBT, and Hocon.</description>
     <version>VERSION</version>
     <vendor url="http://www.jetbrains.com" logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png">JetBrains</vendor>
     <idea-version since-build="163.4396" until-build="164.0"/>
