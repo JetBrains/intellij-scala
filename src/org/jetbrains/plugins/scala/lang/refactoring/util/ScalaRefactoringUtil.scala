@@ -241,9 +241,12 @@ object ScalaRefactoringUtil {
       val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
 
       val text = s"$prefix$quote$rangeText$quote"
-      val expr = createExpressionWithContextFromText(text, lit.getContext, lit).asInstanceOf[ScLiteral]
-      val tpe = expr.getNonValueType().getOrAny
-      Some(expr, Array(tpe))
+      createExpressionWithContextFromText(text, lit.getContext, lit) match {
+        case newExpr: ScLiteral =>
+          val tpe = newExpr.getNonValueType().getOrAny
+          Some(newExpr, Array(tpe))
+        case _ => None
+      }
     }
 
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
