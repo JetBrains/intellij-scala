@@ -638,7 +638,10 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         }
 
         val addedClasses = new mutable.HashSet[String]
+
         val newExpr = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
+        if (newExpr == null) return
+
         val types: Array[ScType] = newExpr.expectedTypes().map {
           case ScAbstractType(_, _, upper) => upper
           case tp => tp
