@@ -99,7 +99,9 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   abstract override def getUseScope: SearchScope = {
     val specificScope = getDeclarationScope match {
       case null => GlobalSearchScope.EMPTY_SCOPE
-      case expr: ScFunctionExpr => new LocalSearchScope(expr)
+      case expr: ScFunctionExpr =>
+        if (expr.isValid && expr.getContainingFile != null) new LocalSearchScope(expr)
+        else LocalSearchScope.EMPTY
       case clazz: ScClass if clazz.isCase => clazz.getUseScope
       case clazz: ScClass if this.isInstanceOf[ScClassParameter] => clazz.getUseScope //for named parameters
       case d => d.getUseScope
