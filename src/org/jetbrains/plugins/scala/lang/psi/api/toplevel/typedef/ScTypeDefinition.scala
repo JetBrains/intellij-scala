@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createO
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Seq
 
@@ -86,9 +85,9 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   //Performance critical method
   @Cached(synchronized = true, ModCount.getJavaStructureModificationCount, this)
-  def baseCompanionModule(implicit tokenSets: TokenSets = getProject.tokenSets): Option[ScTypeDefinition] = {
+  def baseCompanionModule: Option[ScTypeDefinition] = {
     Option(this.getContext).flatMap { scope =>
-      val tokenSet = tokenSets.typeDefinitions
+      val tokenSet = TokenSets.TYPE_DEFINITIONS
 
       val arrayOfElements: Array[PsiElement] = scope match {
         case stub: StubBasedPsiElement[_] if stub.getStub != null =>

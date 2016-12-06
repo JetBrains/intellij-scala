@@ -1197,13 +1197,10 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass)
-                        (implicit tokenSets: TokenSets = clazz.getProject.tokenSets): Option[ScTypeDefinition] = {
-    clazz match {
+  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = clazz match {
       case definition: ScTypeDefinition =>
         definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
       case _ => None
-    }
   }
 
   def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
