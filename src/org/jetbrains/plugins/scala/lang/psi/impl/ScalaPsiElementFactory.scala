@@ -780,7 +780,7 @@ object ScalaPsiElementFactory {
     while (!builder.eof()) {
       builder.advanceLexer()
     }
-    marker.done(project.elementTypes.file)
+    marker.done(ScalaElementTypes.FILE)
 
     val fileNode = builder.getTreeBuilt
     val node = fileNode.getFirstChildNode

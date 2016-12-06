@@ -41,7 +41,7 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   def this(node: ASTNode) = {this(null, null, node)}
 
   def this(stub: ScTemplateDefinitionStub) = {
-    this(stub, ScalaElementTypes.traitDefinition, null)
+    this(stub, ScalaElementTypes.TRAIT_DEFINITION, null)
   }
 
   override def toString: String = "ScTrait: " + name
