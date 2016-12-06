@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry Naydanov
@@ -41,6 +42,9 @@ object WorksheetSourceProcessor {
     s"""
       |def $PRINT_ARRAY_NAME(an: Any): String = {
       |  an match {
+      |    case arr: Array[_] => 
+      |      val a = scala.collection.mutable.WrappedArray.make(arr)
+      |      a.toString.stripPrefix("Wrapped")
       |    case null => "null"
       |    case other => other.toString
       |  }}
@@ -157,23 +161,23 @@ object WorksheetSourceProcessor {
   private abstract class SourceBuilderBase(classBuilder: mutable.StringBuilder, objectBuilder: mutable.StringBuilder, iterNumber: Int, srcFile: ScalaFile,
                                            moduleOpt: Option[Module], ifDoc: Option[Document], tpePrinterName: String, 
                                            packOpt: Option[String], objectPrologue: String) {
-    protected val documentOpt = ifDoc
+    protected val documentOpt: Option[Document] = ifDoc
     protected val name = s"A$$A$iterNumber"
     protected val tempVarName = "$$temp$$"
     protected val instanceName = s"inst$$A$$A"
     
-    protected val eraseClassName = ".replace(\"" + instanceName + ".\", \"\")"
-    protected val erasePrefixName = ".stripPrefix(\"" + name + "$" + name + "$\")"
+    protected val eraseClassName: String = ".replace(\"" + instanceName + ".\", \"\")"
+    protected val erasePrefixName: String = ".stripPrefix(\"" + name + "$" + name + "$\")"
     protected val plusInfoDef = " + "
     
     protected var assignCount = 0
     protected var resCount = 0
-    protected val importStmts = mutable.ArrayBuffer[String]()
-    protected val importsProcessed = mutable.HashSet[ScImportStmt]()
+    protected val importStmts: ArrayBuffer[String] = mutable.ArrayBuffer[String]()
+    protected val importsProcessed: mutable.HashSet[ScImportStmt] = mutable.HashSet[ScImportStmt]()
     
     protected def getTypePrinterName: String = tpePrinterName
     
-    protected def prettyPrintType(tpeString: String) = ": \" + " + withTempVar(tpeString)
+    protected def prettyPrintType(tpeString: String): String = ": \" + " + withTempVar(tpeString)
     
     protected def logError(psiElement: PsiElement, message: Option[String] = None) {
       def writeLog(ms: String) {}
@@ -202,7 +206,7 @@ object WorksheetSourceProcessor {
     protected def getObjectPrologue: String = objectPrologue
 
 
-    protected def getPrintMethodName = genericPrintMethodName
+    protected def getPrintMethodName: String = genericPrintMethodName
     
 
     protected def processTypeAlias(tpe: ScTypeAlias) {
