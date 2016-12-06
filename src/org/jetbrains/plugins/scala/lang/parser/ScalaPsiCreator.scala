@@ -5,6 +5,7 @@ package parser
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiUtilCore
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
@@ -13,7 +14,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.ScalaDocPsiCreator
 object ScalaPsiCreator extends ScalaPsiCreator
 
 trait ScalaPsiCreator extends PsiCreator {
-  override def createElement(node: ASTNode): PsiElement = node.getElementType match {
+  override def createElement(node: ASTNode): PsiElement =
+    createElement(node, node.getElementType)
+
+  protected def createElement(node: ASTNode, elementType: IElementType): PsiElement = elementType match {
     case creator: SelfPsiCreator => creator.createElement(node)
     case _: ScalaDocElementType => ScalaDocPsiCreator.createElement(node)
     case _ => types(node)

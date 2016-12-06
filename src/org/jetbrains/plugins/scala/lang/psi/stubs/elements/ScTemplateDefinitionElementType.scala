@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * @author ilyas, alefas
@@ -26,6 +27,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeName(stub.getName)
     dataStream.writeName(stub.getQualifiedName)
     dataStream.writeName(stub.javaQualifiedName)
+    dataStream.writeBoolean(stub.isDotty)
     dataStream.writeBoolean(stub.isPackageObject)
     dataStream.writeBoolean(stub.isScriptFileClass)
     dataStream.writeName(stub.getSourceFileName)
@@ -44,6 +46,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       nameRef = dataStream.readName,
       qualifiedNameRef = dataStream.readName,
       javaQualifiedNameRef = dataStream.readName,
+      isDotty = dataStream.readBoolean,
       isPackageObject = dataStream.readBoolean,
       isScriptFileClass = dataStream.readBoolean,
       sourceFileNameRef = dataStream.readName,
@@ -94,6 +97,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         nameRef = fromString(definition.name),
         qualifiedNameRef = fromString(definition.qualifiedName),
         javaQualifiedNameRef = fromString(definition.getQualifiedName),
+        isDotty = definition.getProject.hasDotty,
         isPackageObject = isPackageObject,
         isScriptFileClass = definition.isScriptFileClass,
         sourceFileNameRef = fromString(fileName),
