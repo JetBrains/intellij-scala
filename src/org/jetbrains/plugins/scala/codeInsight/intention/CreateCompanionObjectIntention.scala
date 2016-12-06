@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions.Parent
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -29,9 +28,10 @@ class CreateCompanionObjectIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  override def isAvailable(project: Project, editor: Editor, psiElement: PsiElement): Boolean = {
-    getClassIfAvailable(psiElement).exists(ScalaPsiUtil.getBaseCompanionModule(_).isEmpty)
-  }
+  override def isAvailable(project: Project, editor: Editor, psiElement: PsiElement): Boolean =
+    getClassIfAvailable(psiElement).exists {
+      _.baseCompanionModule.isEmpty
+    }
 
   private def moveCaret(project: Project, editor: Editor, obj: PsiElement) = {
     val document = editor.getDocument

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
@@ -111,7 +111,7 @@ trait TreeAdapter {
       m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
       template(t.extendsBlock)
     )
-    ScalaPsiUtil.getBaseCompanionModule(t) match {
+    t.baseCompanionModule match {
       case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
       case _      => defn
     }
@@ -125,7 +125,7 @@ trait TreeAdapter {
       ctor(c.constructor),
       template(c.extendsBlock)
     )
-    ScalaPsiUtil.getBaseCompanionModule(c) match {
+    c.baseCompanionModule match {
       case Some(obj: ScObject) => m.Term.Block(Seq(defn, toObject(obj)))
       case _      => defn
     }

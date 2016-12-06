@@ -7,7 +7,6 @@ import com.intellij.find.FindBundle
 import com.intellij.find.findUsages._
 import com.intellij.openapi.project.Project
 import com.intellij.ui.{IdeBorderFactory, StateRestoringCheckBox}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
@@ -55,7 +54,7 @@ class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Projec
     myCbMembersUsages = addCheckboxToPanel(ScalaBundle.message("find.what.members.usages.checkbox"), getFindUsagesOptions.isMembersUsages, findWhatPanel, true)
     myCbImplementingTypeDefinitions = addCheckboxToPanel(ScalaBundle.message("find.what.implementing.type.definitions.checkbox"),
       getFindUsagesOptions.isImplementingTypeDefinitions, findWhatPanel, true)
-    ScalaPsiUtil.getBaseCompanionModule(element).foreach { _ =>
+    element.baseCompanionModule.foreach { _ =>
       myCbCompanionModule = addCheckboxToPanel(ScalaBundle.message("find.what.companion.module.checkbox"), getFindUsagesOptions.isSearchCompanionModule, findWhatPanel, true)
     }
     findWhatPanel

@@ -386,7 +386,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
   }
 
   override def getInnerClasses: Array[PsiClass] = {
-    val inCompanionModule = ScalaPsiUtil.getBaseCompanionModule(this).toSeq.flatMap {
+    val inCompanionModule = baseCompanionModule.toSeq.flatMap {
       case o: ScObject =>
         o.members.flatMap {
           case o: ScObject => Seq(o) ++ o.fakeCompanionClass
