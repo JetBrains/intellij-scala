@@ -15,7 +15,6 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -46,7 +45,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
         val synthetics = method match {
           case ScPrimaryConstructor.ofClass(clazz) if clazz.isCase =>
-            val inExistingClasses = (Seq(clazz) ++ getBaseCompanionModule(clazz)).flatMap {
+            val inExistingClasses = (Seq(clazz) ++ clazz.baseCompanionModule).flatMap {
               _.allSynthetics
             }
             val inFakeCompanion = clazz.fakeCompanionModule.toSeq.flatMap {

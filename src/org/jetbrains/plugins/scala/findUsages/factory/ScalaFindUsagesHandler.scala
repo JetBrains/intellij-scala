@@ -171,7 +171,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
           }
         }
         if (s.isSearchCompanionModule) {
-          ScalaPsiUtil.getBaseCompanionModule(definition).foreach { companion =>
+          definition.baseCompanionModule.foreach { companion =>
             if (!super.processElementUsages(companion, processor, options)) return false
           }
         }

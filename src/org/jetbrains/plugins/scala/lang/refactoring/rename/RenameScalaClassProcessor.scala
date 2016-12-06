@@ -13,7 +13,6 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -127,7 +126,7 @@ class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSugge
     val companion = Option(psiElement).collect {
       case definition: ScTypeDefinition => definition
     }.flatMap {
-      getBaseCompanionModule
+      _.baseCompanionModule
     }
 
     companion.collect {

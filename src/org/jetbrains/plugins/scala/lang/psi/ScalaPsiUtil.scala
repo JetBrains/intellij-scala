@@ -1217,12 +1217,6 @@ object ScalaPsiUtil {
     }
   }
 
-  //Performance critical method
-  def getBaseCompanionModule(definition: ScTypeDefinition)
-                            (implicit tokenSets: TokenSets = definition.getProject.tokenSets): Option[ScTypeDefinition] = {
-    definition.baseCompanionModule
-  }
-
   object FakeCompanionClassOrCompanionClass {
     def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
   }

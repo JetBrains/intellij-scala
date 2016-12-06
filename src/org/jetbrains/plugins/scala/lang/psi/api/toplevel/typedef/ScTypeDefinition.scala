@@ -84,6 +84,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     calcFakeCompanionModule()
   }
 
+  //Performance critical method
   @Cached(synchronized = true, ModCount.getJavaStructureModificationCount, this)
   def baseCompanionModule(implicit tokenSets: TokenSets = getProject.tokenSets): Option[ScTypeDefinition] = {
     Option(this.getContext).flatMap { scope =>
