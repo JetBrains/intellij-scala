@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScInfixTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
@@ -51,6 +52,8 @@ trait TypeAdapter {
           }
         case t: ScParameterizedTypeElement =>
           m.Type.Apply(toType(t.typeElement), t.typeArgList.typeArgs.toStream.map(toType))
+        case t: ScInfixTypeElementImpl =>
+          m.Type.ApplyInfix(toType(t.leftTypeElement), m.Type.Name(t.reference.refName), toType(t.rightTypeElement.get))
         case t: ScTupleTypeElement =>
           m.Type.Tuple(Seq(t.components.map(toType): _*))
         case t: ScWildcardTypeElement =>

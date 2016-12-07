@@ -483,9 +483,9 @@ trait TreeAdapter {
     }
 
     if(t.bindings.exists(_.isVal))
-      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType(_)), expression(t.expr).get)
+      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType(_)), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
-      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType(_)), expression(t.expr))
+      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.typeElement.map(toType(_)), expression(t.expr))
     else unreachable
   }
 
