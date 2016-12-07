@@ -8,8 +8,7 @@ import org.junit.Assert
 
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
   def testSCL10965(): Unit = {
-
-    compileMetaSource(FileUtil.loadFile(new File(getTestDataPath, s"$getTestName.scala")))
+    compileMetaSource()
     myFixture.configureByText("Foo.scala",
       """
         |@repro sealed trait FooOp[A]
@@ -36,5 +35,26 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       case Left(reason) if reason.nonEmpty  => Assert.fail(reason)
       case Left("")                         => Assert.fail("Expansion was empty - did annotation even run?")
     }
+  }
+
+  def testSCL11099(): Unit = {
+    compileMetaSource()
+    val code =
+      """
+        |object App {
+        |  @poly def <caret>fooOpToId[A](fooOp: FooOp[A]): Id[A] = fooOp match {
+        |    case StringOp(string) => Right(string)
+        |    case AOp(a) => Left(())
+        |  }
+        |}""".stripMargin
+    val expansion =
+      """
+        |val fooOpToId: _root_.cats.arrow.FunctionK[FooOp, Id] = new _root_.cats.arrow.FunctionK[FooOp, Id] {
+        |  def apply[A](fooOp: FooOp[A]): Id[A] = fooOp match {
+        |    case StringOp(string) => Right(string)
+        |    case AOp(a) => Left(())
+        |  }
+        |}""".stripMargin.trim
+    checkExpansionEquals(code, expansion)
   }
 }

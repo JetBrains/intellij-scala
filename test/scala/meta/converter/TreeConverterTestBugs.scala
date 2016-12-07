@@ -28,4 +28,15 @@ class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
             Term.Select(Term.This(Name.Indeterminate("Foo")), Term.Name("hashCode")))))))
     )
   }
+
+  def testParametrizedReturnTypeElement(): Unit = {
+    doTest(
+      "trait Foo[A] { def fooOpToId[A](fooOp: FooOp[A]): Id[A] = ??? }",
+      Defn.Trait(Nil, Type.Name("Foo"), Seq(Type.Param(Nil, Type.Name("A"), Nil, Type.Bounds(None, None), Nil, Nil)),
+        Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil), Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
+          Some(Seq(Defn.Def(Nil, Term.Name("fooOpToId"), Seq(Type.Param(Nil, Type.Name("A"), Nil, Type.Bounds(None, None),
+            Nil, Nil)), Seq(Seq(Term.Param(Nil, Term.Name("fooOp"), Some(Type.Apply(Type.Name("FooOp"),
+            Seq(Type.Name("A")))), None))), Some(Type.Apply(Type.Name("Id"), Seq(Type.Name("A")))), Term.Name("???"))))))
+    )
+  }
 }

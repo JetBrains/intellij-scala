@@ -1,15 +1,21 @@
 package scala.meta.annotations
 
+import java.io.File
+
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.debugger.{Compilable, DebuggerTestUtil}
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert
 
 import scala.meta.ScalametaUtils
 
@@ -27,7 +33,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     setUpCompler()
   }
 
-  def compileMetaSource(source: String) = {
+  def compileMetaSource(source: String): List[String] = {
     val root = extensions.inWriteAction {
       Option(myFixture.getProject.getBaseDir.findChild("meta")).getOrElse(myFixture.getProject.getBaseDir.createChildDirectory(null, "meta"))
     }
@@ -54,4 +60,15 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
   }
 
+  def compileMetaSource(): List[String] = compileMetaSource(FileUtil.loadFile(new File(getTestDataPath, s"$getTestName.scala")))
+
+  def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
+    myFixture.configureByText(s"Usage$getTestName.scala", code)
+    val holder = ScalaPsiUtil.getParentOfType(myFixture.getElementAtCaret, classOf[ScAnnotationsHolder]).asInstanceOf[ScAnnotationsHolder]
+    holder.getMetaExpansion match {
+      case Right(tree)                      => Assert.assertEquals(expectedExpansion, tree.toString())
+      case Left(reason) if reason.nonEmpty  => Assert.fail(reason)
+      case Left("")                         => Assert.fail("Expansion was empty - did annotation even run?")
+    }
+  }
 }

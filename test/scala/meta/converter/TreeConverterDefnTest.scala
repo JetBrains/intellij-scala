@@ -87,7 +87,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
   def testDefBrackets() {
     doTest(
       "def proc { return 42 }",
-      Defn.Def(Nil, Term.Name("proc"), Nil, Nil, Some(Type.Name("Unit")), Term.Block(Term.Return(Lit(42)) :: Nil))
+      Defn.Def(Nil, Term.Name("proc"), Nil, Nil, None, Term.Block(Term.Return(Lit(42)) :: Nil))
     )
   }
 
