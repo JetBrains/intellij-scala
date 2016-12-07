@@ -426,12 +426,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
-    val tp = getType(TypingContext.empty).getOrAny
-    def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
-    tp match {
-      case FunctionType(rt, _) => lift(rt)
-      case _ => lift(tp)
+    val resultType = getType(TypingContext.empty).getOrAny match {
+      case FunctionType(rt, _) => rt
+      case tp => tp
     }
+    resultType.toPsiType()
   }
 
   def superMethods: Seq[PsiMethod] = {
@@ -543,7 +542,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             _.getType(TypingContext.empty) match {
               case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                  arg.toPsiType(getProject, getResolveScope) match {
+                  arg.toPsiType() match {
                     case c: PsiClassType => Seq(c)
                     case _ => Seq.empty
                   }

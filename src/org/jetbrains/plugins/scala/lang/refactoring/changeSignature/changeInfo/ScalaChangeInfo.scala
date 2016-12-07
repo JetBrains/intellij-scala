@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature.changeInfo
 
 import com.intellij.lang.Language
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.util.CanonicalTypes
@@ -28,12 +29,10 @@ case class ScalaChangeInfo(newVisibility: String,
         extends ScalaChangeInfoBase(newParams.flatten.toArray)
         with UnsupportedJavaInfo with VisibilityChangeInfo with ParametersChangeInfo {
 
-  val project = function.getProject
+  private val project: Project = function.getProject
+  private implicit val elementScope = (project, GlobalSearchScope.allScope(project))
+
   private var myMethod: PsiMethod = function
-  private def psiType = {
-    if (newType != null) newType.toPsiType(project, GlobalSearchScope.allScope(project))
-    else null
-  }
 
   //used in introduce parameter refactoring
   var introducedParameterData: Option[ScalaIntroduceParameterData] = None
@@ -41,7 +40,12 @@ case class ScalaChangeInfo(newVisibility: String,
   override def getValue(i: Int, callExpression: PsiCallExpression): PsiExpression =
     getNewParameters()(i).getValue(callExpression)
 
-  override def getNewReturnType: Type = if (newType != null) CanonicalTypes.createTypeWrapper(psiType) else null
+  override def getNewReturnType: Type =
+    Option(newType).map {
+      _.toPsiType()
+    }.map {
+      CanonicalTypes.createTypeWrapper
+    }.orNull
 
   override val getOldName: String = function match {
     case fun: ScFunction =>

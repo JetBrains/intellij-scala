@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -284,9 +285,8 @@ object ScalaPsiUtil {
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
       val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
-      implicit val project = baseExpr.getProject
-      implicit val scope = baseExpr.getResolveScope
 
+      implicit val elementScope = baseExpr.elementScope
       new ImplicitCollector(
         baseExpr,
         FunctionType(Any, Seq(exprType)),
@@ -522,7 +522,8 @@ object ScalaPsiUtil {
   }
 
   def collectImplicitObjects(_tp: ScType)
-                            (implicit project: Project, scope: GlobalSearchScope): Seq[ScType] = {
+                            (implicit elementScope: ElementScope): Seq[ScType] = {
+    val (project, scope) = elementScope
     implicit val typeSystem = project.typeSystem
 
     val tp = _tp.removeAliasDefinitions()
@@ -578,7 +579,7 @@ object ScalaPsiUtil {
               args.foreach(collectParts)
           }
         case j: JavaArrayType =>
-          val parameterizedType = j.getParameterizedType(project, scope)
+          val parameterizedType = j.getParameterizedType
           collectParts(parameterizedType.getOrElse(return))
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected)
@@ -1083,7 +1084,9 @@ object ScalaPsiUtil {
         ScalaElementPresentation.getMethodPresentableText(method, fast = false, subst)
       case _ =>
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
-        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst, method.getProject, method.getResolveScope),
+
+        implicit val elementScope = method.elementScope
+        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst),
           PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
     }
   }
@@ -1252,7 +1255,8 @@ object ScalaPsiUtil {
     }
   }
 
-  def getPsiSubstitutor(subst: ScSubstitutor, project: Project, scope: GlobalSearchScope): PsiSubstitutor = {
+  def getPsiSubstitutor(subst: ScSubstitutor)
+                       (implicit elementScope: ElementScope): PsiSubstitutor = {
 
     case class PseudoPsiSubstitutor(substitutor: ScSubstitutor) extends PsiSubstitutor {
       def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
@@ -1264,12 +1268,12 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        implicit val typeSystem = project.typeSystem
-        substitutor.subst(`type`.toScType()).toPsiType(project, scope)
+        implicit val typeSystem = elementScope._1.typeSystem
+        substitutor.subst(`type`.toScType()).toPsiType()
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType(project, scope)
+        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType()
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
@@ -1978,7 +1982,7 @@ object ScalaPsiUtil {
               _.getType().toOption
             }.map { tp =>
               val substituted = substitutor.subst(tp)
-              implicit val project = fun.getProject
+              implicit val elementScope = (fun.getProject, scalaScope)
               extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
                 substituted
               }
@@ -2009,7 +2013,7 @@ object ScalaPsiUtil {
           !_.hasTypeParameters && validConstructorExists
           // must have exactly one abstract member and SAM must be monomorphic
         }.map { method =>
-          implicit val project = method.getProject
+          implicit val elementScope = (method.getProject, scalaScope)
           val returnType = method.getReturnType
           val parametersTypes = method.getParameterList.getParameters.map {
             _.getTypeElement.getType
@@ -2044,9 +2048,8 @@ object ScalaPsiUtil {
     * @see SCL-8956
     */
   private def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
-                                       (implicit project: Project,
-                                        scope: GlobalSearchScope): Option[ScType] = {
-    implicit val typeSystem = project.typeSystem
+                                       (implicit elementScope: ElementScope): Option[ScType] = {
+    implicit val typeSystem = elementScope._1.typeSystem
     expected match {
       case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {

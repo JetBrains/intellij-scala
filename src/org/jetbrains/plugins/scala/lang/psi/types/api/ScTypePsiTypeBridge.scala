@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
@@ -57,11 +57,10 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
   }
 
   def toPsiType(`type`: ScType,
-                project: Project,
-                scope: GlobalSearchScope,
                 noPrimitives: Boolean = false,
-                skolemToWildcard: Boolean = false): PsiType = {
-    def javaObject = createJavaObject(project, scope)
+                skolemToWildcard: Boolean = false)
+               (implicit elementScope: ElementScope): PsiType = {
+    def javaObject = createJavaObject
     def primitiveOrObject(primitive: PsiPrimitiveType) =
       if (noPrimitives) javaObject else primitive
 
@@ -69,7 +68,7 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
       case Any => javaObject
       case AnyRef => javaObject
       case Unit if noPrimitives =>
-        Option(createTypeByFqn(project, scope, "scala.runtime.BoxedUnit"))
+        Option(createTypeByFqn("scala.runtime.BoxedUnit"))
           .getOrElse(javaObject)
       case Unit => PsiType.VOID
       case Boolean => primitiveOrObject(PsiType.BOOLEAN)
@@ -82,7 +81,7 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
       case Double => primitiveOrObject(PsiType.DOUBLE)
       case Null => javaObject
       case Nothing => javaObject
-      case JavaArrayType(arg) => new PsiArrayType(toPsiType(arg, project, scope))
+      case JavaArrayType(arg) => new PsiArrayType(toPsiType(arg))
       case _ => javaObject
     }
   }
@@ -120,15 +119,16 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     else psiType
   }
 
-  protected def createJavaObject(project: Project, scope: GlobalSearchScope) = {
-    createTypeByFqn(project, scope, "java.lang.Object")
-  }
+  protected def createJavaObject(implicit elementScope: ElementScope): PsiType =
+    createTypeByFqn("java.lang.Object")
 
-  private def createTypeByFqn(project: Project, scope: GlobalSearchScope, fqn: String): PsiType = {
+  private def createTypeByFqn(fqn: String)
+                             (implicit elementScope: ElementScope): PsiType = {
+    val (project, scope) = elementScope
     factory(project).createTypeByFQClassName(fqn, scope)
   }
 
-  private def factory(project: Project) =
+  protected def factory(project: Project) =
     JavaPsiFacade.getInstance(project).getElementFactory
 }
 

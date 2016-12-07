@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
@@ -25,9 +24,9 @@ object JavaConversionUtil {
     "scala.volatile" -> "volatile",
     "scala.transient" -> "transient")
 
-  def typeText(tp: ScType, project: Project, scope: GlobalSearchScope): String = {
-    tp.toPsiType(project, scope).getCanonicalText
-  }
+  def typeText(tp: ScType)
+              (implicit elementScope: ElementScope): String =
+    tp.toPsiType().getCanonicalText
 
   def annotationsAndModifiers(s: ScModifierListOwner, isStatic: Boolean): String = {
     val builder = new StringBuilder

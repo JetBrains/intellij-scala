@@ -103,8 +103,9 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
   def javaErasedEquiv(other: Signature): Boolean = {
     (this, other) match {
       case (ps1: PhysicalSignature, ps2: PhysicalSignature) if ps1.isJava && ps2.isJava =>
-        val psiSub1 = ScalaPsiUtil.getPsiSubstitutor(ps1.substitutor, ps1.method.getProject, ps1.method.getResolveScope)
-        val psiSub2 = ScalaPsiUtil.getPsiSubstitutor(ps2.substitutor, ps2.method.getProject, ps2.method.getResolveScope)
+        implicit val elementScope = ps1.method.elementScope
+        val psiSub1 = ScalaPsiUtil.getPsiSubstitutor(ps1.substitutor)
+        val psiSub2 = ScalaPsiUtil.getPsiSubstitutor(ps2.substitutor)
         val psiSig1 = ps1.method.getSignature(psiSub1)
         val psiSig2 = ps2.method.getSignature(psiSub2)
         MethodSignatureUtil.METHOD_PARAMETERS_ERASURE_EQUALITY.equals(psiSig1, psiSig2)

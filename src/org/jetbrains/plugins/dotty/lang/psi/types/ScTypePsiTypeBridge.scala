@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.dotty.lang.psi.types
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -33,32 +32,35 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     case _ => super.toScType(`type`, treatJavaObjectAsAny)
   }
 
-  override def toPsiType(`type`: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean, skolemToWildcard: Boolean): PsiType = {
+  override def toPsiType(`type`: ScType, noPrimitives: Boolean, skolemToWildcard: Boolean)
+                        (implicit elementScope: ElementScope): PsiType = {
     def createComponent: ScType => PsiType =
-      toPsiType(_, project, scope, noPrimitives, skolemToWildcard)
+      toPsiType(_, noPrimitives, skolemToWildcard)
+
+    val project = elementScope._1
 
     `type` match {
       case ScDesignatorType(clazz: PsiClass) => createType(clazz, project)
       case projectionType: ScProjectionType =>
         projectionType.actualElement match {
-          case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.t, project, scope)
+          case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.t)
           case clazz: PsiClass => createType(clazz, project, raw = true)
           case definition: ScTypeAliasDefinition => definition.aliasedType match {
             case Success(result, _) => createComponent(result)
-            case _ => createJavaObject(project, scope)
+            case _ => createJavaObject
           }
         }
       case refinedType@DottyRefinedType(ScDesignatorType(clazz: PsiClass), _, _) if clazz.qualifiedName == "scala.Array" =>
         refinedType.typeArguments match {
           case Seq(designator) => new PsiArrayType(createComponent(designator))
-          case seq => JavaPsiFacade.getInstance(project).getElementFactory.createType(clazz,
+          case seq => factory(project).createType(clazz,
             seq.zip(clazz.getTypeParameters)
               .foldLeft(PsiSubstitutor.EMPTY) {
                 case (substitutor, (scType, typeParameter)) => substitutor.put(typeParameter,
-                  toPsiType(scType, project, scope, noPrimitives = true, skolemToWildcard = true))
+                  toPsiType(scType, noPrimitives = true, skolemToWildcard = true))
               })
         }
-      case _ => super.toPsiType(`type`, project, scope, noPrimitives, skolemToWildcard)
+      case _ => super.toPsiType(`type`, noPrimitives, skolemToWildcard)
     }
   }
 }

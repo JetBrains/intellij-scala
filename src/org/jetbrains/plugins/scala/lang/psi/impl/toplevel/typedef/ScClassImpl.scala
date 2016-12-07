@@ -268,7 +268,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
         param.getType(TypingContext.empty) match {
           case Success(tp: TypeParameterType, _) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
             val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
-            val psiTypeText: String = tp.toPsiType(getProject, getResolveScope).getCanonicalText
+            val psiTypeText: String = tp.toPsiType().getCanonicalText
             val text = s"public final $psiTypeText ${param.name};"
             val elem = new LightField(getManager, factory.createFieldFromText(text, this), this)
             elem.setNavigationElement(param)

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
@@ -60,11 +60,10 @@ package object types {
       case tp: ScType => (false, tp)
     }
 
-    def toPsiType(project: Project,
-                  scope: GlobalSearchScope,
-                  noPrimitives: Boolean = false,
-                  skolemToWildcard: Boolean = false): PsiType = {
-      project.typeSystem.bridge.toPsiType(scType, project, scope, noPrimitives, skolemToWildcard)
+    def toPsiType(noPrimitives: Boolean = false)
+                 (implicit elementScope: ElementScope): PsiType = {
+      val project = elementScope._1
+      project.typeSystem.bridge.toPsiType(scType, noPrimitives = noPrimitives)
     }
 
     def extractClass(project: Project = null)

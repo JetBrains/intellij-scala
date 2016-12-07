@@ -133,9 +133,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
     val typez = placeType.getOrElse(return Set.empty)
 
-    implicit val project = expression.getProject
-    implicit val resolveScope = expression.getResolveScope
-
+    implicit val elementScope = expression.elementScope
     val expandedType = arguments match {
       case Seq() => typez
       case seq => TupleType(Seq(typez) ++ seq)
