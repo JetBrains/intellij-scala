@@ -39,4 +39,12 @@ class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
             Seq(Type.Name("A")))), None))), Some(Type.Apply(Type.Name("Id"), Seq(Type.Name("A")))), Term.Name("???"))))))
     )
   }
+
+  def testSCL11098(): Unit = {
+    doTest(
+      "val x: Foo[Int Or String] = 2",
+      Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, Some(Type.Apply(Type.Name("Foo"),
+        Seq(Type.ApplyInfix(Type.Name("Int"), Type.Name("Or"), Type.Name("String"))))), Lit(2))
+    )
+  }
 }
