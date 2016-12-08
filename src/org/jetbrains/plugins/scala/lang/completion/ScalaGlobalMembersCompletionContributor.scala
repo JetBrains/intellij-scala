@@ -188,7 +188,7 @@ object ScalaGlobalMembersCompletionContributor {
         val lookup = getLookupElement(candidate, isClassName = true,
           shouldImport = shouldImport(candidate.getElement, elements, file, originalFile)).head
         lookup.usedImportStaticQuickfix = true
-        lookup.elementToImport = element
+        lookup.elementToImport = Option(element)
         lookup.objectOfElementToImport = elementObject
         lookup
     }

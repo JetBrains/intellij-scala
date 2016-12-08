@@ -69,7 +69,7 @@ object ScalaPrefixPackageCompletionContributor {
       val resolveResult = new ScalaResolveResult(pckg, prefixCompletion = true)
       val lookupElems = LookupElementManager.getLookupElement(resolveResult, isInImport = false, shouldImport = true)
       lookupElems.foreach { le =>
-        le.elementToImport = pckg
+        le.elementToImport = Option(pckg)
       }
       result.addAllElements(lookupElems.asJava)
     }
