@@ -29,9 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val project = queryParameters.getProject
-    val scope = inReadAction {
-      ScalaSourceFilterScope(queryParameters.getEffectiveSearchScope, project)
-    }
+    val scope = inReadAction(ScalaSourceFilterScope(queryParameters))
     val element = queryParameters.getElementToSearch
     val manager = PsiManager.getInstance(project)
 

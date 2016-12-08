@@ -3,8 +3,8 @@ package findUsages
 
 import com.intellij.openapi.application.QueryExecutorBase
 import com.intellij.psi._
+import com.intellij.psi.search.SearchRequestCollector
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
-import com.intellij.psi.search.{SearchRequestCollector, SearchScope}
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
@@ -18,14 +18,13 @@ class NonMemberMethodUsagesSearcher extends QueryExecutorBase[PsiReference, Meth
     extensions.inReadAction {
       val method: PsiMethod = p.getMethod
       val collector: SearchRequestCollector = p.getOptimizer
-      val searchScope: SearchScope = ScalaSourceFilterScope(p.getEffectiveSearchScope, p.getProject)
       val newConsumer = new Processor[PsiReference] {
         def process(t: PsiReference): Boolean = {
           if (method.isConstructor) return true
           consumer.process(t)
         }
       }
-      ReferencesSearch.searchOptimized(method, searchScope, false, collector, newConsumer)
+      ReferencesSearch.searchOptimized(method, ScalaSourceFilterScope(p), false, collector, newConsumer)
     }
   }
 }

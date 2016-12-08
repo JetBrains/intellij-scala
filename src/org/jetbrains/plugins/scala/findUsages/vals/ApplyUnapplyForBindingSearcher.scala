@@ -22,11 +22,9 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, Res
  */
 class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val project = queryParameters.getProject
-    val scope = inReadAction {
-      ScalaSourceFilterScope(queryParameters.getEffectiveSearchScope, project)
-    }
+    val scope = inReadAction(ScalaSourceFilterScope(queryParameters))
     val element = queryParameters.getElementToSearch
+    val project = queryParameters.getProject
     element match {
       case _ if inReadAction(!element.isValid) => true
       case binding: ScBindingPattern =>
