@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.psi.types.nonvalue
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiParameter
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -59,8 +58,8 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
 }
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
-                       (val project: Project, val scope: GlobalSearchScope) extends NonValueType with TypeInTypeSystem {
-  implicit val typeSystem = project.typeSystem
+                       (implicit val elementScope: ElementScope) extends NonValueType with TypeInTypeSystem {
+  implicit val typeSystem = elementScope._1.typeSystem
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitMethodType(this)
 
@@ -71,16 +70,18 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
       else {
+        val (project, scope) = elementScope
         val seqClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.collection.Seq")
         seqClass.fold(inferredParamType) { inferred =>
             ScParameterizedType(ScDesignatorType(inferred), Seq(inferredParamType))
         }
       }
-    }))(project, scope)
+    }))
   }
 
-  override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
-    params.map(p => p.copy(paramType = p.paramType.removeAbstracts)), isImplicit)(project, scope)
+  override def removeAbstracts = ScMethodType(returnType.removeAbstracts,
+    params.map(p => p.copy(paramType = p.paramType.removeAbstracts)),
+    isImplicit)
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
     if (visited.contains(this)) {
@@ -93,8 +94,9 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     update(this) match {
       case (true, res) => res
       case _ =>
-        new ScMethodType(returnType.recursiveUpdate(update, newVisited),
-          params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update, newVisited))), isImplicit)(project, scope)
+        ScMethodType(returnType.recursiveUpdate(update, newVisited),
+          params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update, newVisited))),
+          isImplicit)
     }
   }
 
@@ -103,9 +105,9 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        new ScMethodType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
+        ScMethodType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
           params.map(p => p.copy(paramType = p.paramType.recursiveVarianceUpdateModifiable(newData, update, -variance))),
-          isImplicit)(project, scope)
+          isImplicit)
     }
   }
 

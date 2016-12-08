@@ -320,9 +320,10 @@ case class ScExistentialType(quantified: ScType,
         updateRecursive(tpt, rejected, variance).asInstanceOf[TypeParameterType]
       )
       case m@ScMethodType(returnType, params, isImplicit) =>
+        implicit val elementScope = m.elementScope
         ScMethodType(updateRecursive(returnType, rejected, variance),
           params.map(param => param.copy(paramType = updateRecursive(param.paramType, rejected, -variance))),
-          isImplicit)(m.project, m.scope)
+          isImplicit)
       case ScAbstractType(tpt, lower, upper) =>
         ScAbstractType(updateRecursive(tpt, rejected, variance).asInstanceOf[TypeParameterType],
           updateRecursive(lower, rejected, -variance),
