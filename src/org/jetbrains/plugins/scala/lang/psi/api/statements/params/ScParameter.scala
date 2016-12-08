@@ -114,7 +114,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     specificScope.intersectWith(super.getUseScope)
   }
 
-  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType(getProject, getResolveScope)
+  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType()
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {

@@ -25,7 +25,7 @@ object ScTypePresentation extends api.ScTypePresentation {
 
   protected override def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     def typeSeqText(ts: Seq[ScType], start: String, sep: String, end: String, checkWildcard: Boolean = false): String = {
-      ts.map(innerTypeText(_, needDotType = true, checkWildcard = checkWildcard)).mkString(start, sep, end)
+      ts.map(innerTypeText(_, checkWildcard = checkWildcard)).mkString(start, sep, end)
     }
 
     def typeTail(need: Boolean) = if (need) ".type" else ""
@@ -236,7 +236,8 @@ object ScTypePresentation extends api.ScTypePresentation {
             tp.name + lowerBound + upperBound
           }).mkString("[", ", ", "] ") + internalType.toString
         case mt@ScMethodType(retType, params, _) =>
-          innerTypeText(FunctionType(retType, params.map(_.paramType))(mt.project, mt.scope), needDotType)
+          implicit val elementScope = mt.elementScope
+          innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
         case _ => ""//todo
       }
     }

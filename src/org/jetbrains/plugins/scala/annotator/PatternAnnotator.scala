@@ -230,11 +230,11 @@ object PatternAnnotatorUtil {
       case inf: ScInfixPattern =>
         constrPatternType(inf.reference)
       case tuple: ScTuplePattern =>
-        implicit val project = pattern.getProject
         val subPat = tuple.subpatterns
         val subTypes = subPat.flatMap(patternType)
         if (subTypes.size == subPat.size) {
-          implicit val scope = GlobalSearchScope.allScope(project)
+          val project = pattern.getProject
+          implicit val elementScope = (project, GlobalSearchScope.allScope(project))
           Some(TupleType(subTypes))
         }
         else None

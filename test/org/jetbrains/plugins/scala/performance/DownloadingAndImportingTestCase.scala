@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.performance
 import java.io.File
 import java.util
 
-import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.javascript.boilerplate.GithubDownloadUtil
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
@@ -13,7 +12,7 @@ import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.platform.templates.github.ZipUtil
-import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope, GlobalSearchScopesCore}
+import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
 import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
 import org.jetbrains.SbtStructureSetup
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
@@ -93,10 +92,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
   def findFile(filename: String): VirtualFile = {
     import scala.collection.JavaConversions._
 
-    val directoryScope = GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true)
-    val searchScope =
-      new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(directoryScope,
-        ScalaFileType.INSTANCE, JavaFileType.INSTANCE), myProject)
+    val searchScope = SourceFilterScope(myProject, GlobalSearchScopesCore.directoryScope(myProject, myProjectRoot, true))
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
     val file = files.filter(_.getName == filename).toList match {

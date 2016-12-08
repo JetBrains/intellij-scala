@@ -190,9 +190,10 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
 
       override def visitMethodType(m: ScMethodType): Unit = {
         val ScMethodType(retType, params, isImplicit) = m
+        implicit val elementScope = m.elementScope
         result = ScMethodType(substInternal(retType),
           params.map(p => p.copy(paramType = substInternal(p.paramType),
-            expectedType = substInternal(p.expectedType), defaultType = p.defaultType.map(substInternal))), isImplicit)(m.project, m.scope)
+            expectedType = substInternal(p.expectedType), defaultType = p.defaultType.map(substInternal))), isImplicit)
       }
 
       override def visitUndefinedType(u: UndefinedType): Unit = {

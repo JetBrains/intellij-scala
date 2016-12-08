@@ -27,7 +27,10 @@ case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
 
   def getParametersToRemove: TIntArrayList = new TIntArrayList()
 
-  def getForcedType: PsiType = tp.toPsiType(getProject, methodLike.getResolveScope)
+  def getForcedType: PsiType = {
+    implicit val elementScope = methodLike.elementScope
+    tp.toPsiType()
+  }
 
   def getScalaForcedType: ScType = tp
 

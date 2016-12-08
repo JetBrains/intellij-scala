@@ -25,11 +25,13 @@ object LightUtil {
                       (implicit typeSystem: TypeSystem = holder.typeSystem): String = {
     val throwAnnotations = holder.annotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
       case (accumulator, annotation) =>
+        implicit val elementScope = holder.elementScope
+
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.getType(TypingContext.empty) match {
             case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                arg.toPsiType(holder.getProject, holder.getResolveScope) match {
+                arg.toPsiType() match {
                   case c: PsiClassType =>
                     c.resolve() match {
                       case clazz: PsiClass => Seq(clazz.getQualifiedName)
@@ -46,7 +48,7 @@ object LightUtil {
           annotation.constructor.typeArgList match {
             case Some(args) =>
               val classes = args.typeArgs.map(_.getType(TypingContext.empty)).filter(_.isDefined).map(_.get).flatMap {
-                _.toPsiType(holder.getProject, holder.getResolveScope) match {
+                _.toPsiType() match {
                   case c: PsiClassType =>
                     c.resolve() match {
                       case clazz: PsiClass => Seq(clazz.getQualifiedName)

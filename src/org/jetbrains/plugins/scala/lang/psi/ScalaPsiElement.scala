@@ -2,21 +2,24 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import com.intellij.openapi.project.Project
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.intersectScopes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
 trait ScalaPsiElement extends PsiElement with MonadTransformer {
   protected var context: PsiElement = null
   protected var child: PsiElement = null
 
-  implicit def typeSystem: TypeSystem = getProject.typeSystem
+  implicit def typeSystem: TypeSystem = PsiElementExt(this).typeSystem
+
+  implicit def elementScope: ElementScope = PsiElementExt(this).elementScope
 
   implicit def manager: PsiManager = getManager
 
@@ -126,4 +129,8 @@ trait ScalaPsiElement extends PsiElement with MonadTransformer {
     }
     intersectScopes(super.getUseScope, maybeFileScope)
   }
+}
+
+object ScalaPsiElement {
+  type ElementScope = (Project, GlobalSearchScope)
 }

@@ -57,8 +57,8 @@ object Compatibility {
         case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
         case Some(expected) =>
           val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
-          implicit val project = place.getProject
-          implicit val resolveScope = place.getResolveScope
+          implicit val elementScope = place.elementScope
+          val (project, resolveScope) = elementScope
 
           val functionType = FunctionType(expected, Seq(typez))
           val results = new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect()

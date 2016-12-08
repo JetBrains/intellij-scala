@@ -5,7 +5,6 @@ import java.util
 
 import com.intellij.codeInspection.InspectionManager
 import com.intellij.codeInspection.ex.InspectionManagerEx
-import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
@@ -16,7 +15,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.impl.PsiManagerEx
-import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
+import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.SbtStructureSetup
@@ -87,11 +86,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
   def doRunHighlighting(): Unit = {
     val inspectionManagerEx: InspectionManagerEx = InspectionManager.getInstance(myProject).asInstanceOf[InspectionManagerEx]
 
-    val searchScope =
-      new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(myProject),
-        ScalaFileType.INSTANCE, JavaFileType.INSTANCE), myProject)
-
-    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, searchScope)
+    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(myProject))
 
     LocalFileSystem.getInstance().refreshFiles(files)
 

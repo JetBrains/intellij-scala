@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -20,7 +19,8 @@ sealed trait FunctionTypeFactory {
   protected def isValid(definition: ScTypeDefinition): Boolean = definition.isInstanceOf[ScTrait]
 
   protected def innerApply(fullyQualifiedName: String, parameters: Seq[ScType])
-                          (implicit project: Project, scope: GlobalSearchScope): ValueType =
+                          (implicit elementScope: ElementScope): ValueType = {
+    val (project, scope) = elementScope
     ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName).collect {
       case definition: ScTypeDefinition if isValid(definition) => definition
     }.map {
@@ -28,6 +28,7 @@ sealed trait FunctionTypeFactory {
     }.map { designator =>
       ScParameterizedType(designator, parameters)
     }.getOrElse(Nothing)
+  }
 
   protected def innerUnapply(`type`: ScType)
                             (implicit typeSystem: TypeSystem): Option[Seq[ScType]] =
@@ -77,7 +78,7 @@ object FunctionType extends FunctionTypeFactory {
   override protected val typeName = "scala.Function"
 
   def apply(returnType: ScType, parameters: Seq[ScType])
-           (implicit project: Project, scope: GlobalSearchScope): ValueType =
+           (implicit elementScope: ElementScope): ValueType =
     innerApply(s"$typeName${parameters.length}", parameters :+ returnType)
 
   def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[(ScType, Seq[ScType])] =
@@ -93,7 +94,7 @@ object PartialFunctionType extends FunctionTypeFactory {
   override protected val typeName = "scala.PartialFunction"
 
   def apply(returnType: ScType, parameter: ScType)
-           (implicit project: Project, scope: GlobalSearchScope): ValueType =
+           (implicit elementScope: ElementScope): ValueType =
     innerApply(typeName, Seq(parameter, returnType))
 
   def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[(ScType, ScType)] =
@@ -110,7 +111,7 @@ object TupleType extends FunctionTypeFactory {
   override protected def isValid(definition: ScTypeDefinition): Boolean = definition.isInstanceOf[ScClass]
 
   def apply(components: Seq[ScType])
-           (implicit project: Project, scope: GlobalSearchScope): ValueType =
+           (implicit elementScope: ElementScope): ValueType =
     innerApply(s"$typeName${components.length}", components)
 
   def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[Seq[ScType]] = innerUnapply(`type`)

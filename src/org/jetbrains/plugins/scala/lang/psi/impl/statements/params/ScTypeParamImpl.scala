@@ -173,16 +173,12 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
     // For Java
     upperBound match {
       case Success(t, _) =>
-        def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
-        val psiType = if (hasTypeParameters) {
-          t match {
-            case ParameterizedType(des, _) => lift(des)
-            case _ => lift(t)
-          }
-        } else {
-          lift(t)
+        val tp = t match {
+          case ParameterizedType(des, _) if hasTypeParameters => des
+          case _ => t
         }
-        psiType match {
+
+        tp.toPsiType() match {
           case x: PsiClassType => Array(x)
           case _ => Array() // TODO
         }
