@@ -49,7 +49,7 @@ trait Compilable {
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
 
-  protected def shutdownCompiler() = {
+  protected def shutdownCompiler(): Unit = {
     CompilerTestUtil.disableExternalCompiler(getCompileableProject)
     CompileServerLauncher.instance.stop()
   }
@@ -63,7 +63,7 @@ trait Compilable {
     }
   }
 
-  def getOrCreateChildDir(name: String) = {
+  def getOrCreateChildDir(name: String): VirtualFile = {
     val file = new File(getBaseDir.getCanonicalPath, name)
     if (!file.exists()) file.mkdir()
     LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
@@ -75,7 +75,7 @@ trait Compilable {
     baseDir
   }
 
-  protected def forceFSRescan() = BuildManager.getInstance.clearState(getCompileableProject)
+  protected def forceFSRescan(): Unit = BuildManager.getInstance.clearState(getCompileableProject)
 
   protected def make(): List[String] = {
     val semaphore: Semaphore = new Semaphore
@@ -84,9 +84,7 @@ trait Compilable {
     EdtTestUtil.runInEdtAndWait(new ThrowableRunnable[Throwable] {
       def run() {
         CompilerTestUtil.saveApplicationSettings()
-//        val ioFile: File = VfsUtilCore.virtualToIoFile(getMainModule.getModuleFile)
         saveProject()
-//        assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
         CompilerManager.getInstance(getCompileableProject).rebuild(callback)
       }
     })
@@ -142,12 +140,20 @@ trait Compilable {
     def getMessages: List[String] = myMessages.toList
   }
 
+  private def refreshVfs(path: String) {
+    val vFile = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(new File(path))
+    if (vFile != null) vFile.refresh(false, false)
+  }
+
   protected def saveProject(): Unit = {
+    refreshVfs(getCompileableProject.getProjectFilePath)
+    refreshVfs(getMainModule.getModuleFilePath)
     val applicationEx = ApplicationManagerEx.getApplicationEx
     val setting = applicationEx.isDoNotSave
     applicationEx.doNotSave(false)
     getCompileableProject.save()
     applicationEx.doNotSave(setting)
+    CompilerTestUtil.saveApplicationSettings()
   }
 
 

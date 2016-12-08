@@ -11,7 +11,7 @@ abstract class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAda
   def fixture = myFixture
 
   val semanticContext = new IDEAContext(fixture.getProject) {
-    override def dumbMode: Boolean = System.getProperty("scala.meta.dumbmode") != null
+    override def dumbMode: Boolean = true
 
     override def getCurrentProject: Project = myFixture.getProject
   }
