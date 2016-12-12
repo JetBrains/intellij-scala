@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType, api}
 
 import scala.collection.immutable.HashSet
@@ -11,14 +10,11 @@ import scala.collection.immutable.HashSet
 case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) extends ValueType with TypeInTypeSystem {
 
   def getParameterizedType(implicit elementScope: ElementScope): Option[ValueType] = {
-    val (project, scope) = elementScope
-    ScalaPsiManager.instance(project).getCachedClasses(scope, "scala.Array")
-      .find {
-        clazz => clazz.isInstanceOf[ScClass] && clazz.getTypeParameters.length == 1
-      }
-      .map {
-        designator => ScParameterizedType(ScalaType.designator(designator), Seq(argument))
-      }
+    elementScope.getCachedClasses("scala.Array").collect {
+      case clazz: ScClass => clazz
+    }.find(_.getTypeParameters.length == 1)
+      .map(ScalaType.designator)
+      .map(ScParameterizedType(_, Seq(argument)))
   }
 
   override def removeAbstracts = JavaArrayType(argument.removeAbstracts)

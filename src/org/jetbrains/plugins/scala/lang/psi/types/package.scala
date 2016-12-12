@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
@@ -62,8 +61,7 @@ package object types {
 
     def toPsiType(noPrimitives: Boolean = false)
                  (implicit elementScope: ElementScope): PsiType = {
-      val project = elementScope._1
-      project.typeSystem.bridge.toPsiType(scType, noPrimitives = noPrimitives)
+      elementScope.typeSystem.bridge.toPsiType(scType, noPrimitives = noPrimitives)
     }
 
     def extractClass(project: Project = null)

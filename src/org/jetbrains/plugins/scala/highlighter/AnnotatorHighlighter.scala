@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
@@ -79,8 +78,7 @@ object AnnotatorHighlighter {
 
       def conformsByNames(tp: ScType, qn: List[String]): Boolean =
         qn.flatMap {
-          ScalaPsiManager.instance(refElement.getProject)
-            .getCachedClass(_, refElement.getResolveScope)
+          refElement.elementScope.getCachedClass(_)
         }.map {
           ScalaType.designator
         }.exists {

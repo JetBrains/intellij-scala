@@ -31,8 +31,8 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         def fun(): TypeResult[ScType] = {
           ref.getNonValueType(TypingContext.empty).map {
             case ScTypePolymorphicType(internalType, typeParameters) =>
-              ScTypePolymorphicType(ScMethodType(internalType, Nil, isImplicit = false)(getProject, getResolveScope), typeParameters)
-            case tp: ScType => ScMethodType(tp, Nil, isImplicit = false)(getProject, getResolveScope)
+              ScTypePolymorphicType(ScMethodType(internalType, Nil, isImplicit = false), typeParameters)
+            case tp: ScType => ScMethodType(tp, Nil, isImplicit = false)
           }
         }
         ref.bind() match {

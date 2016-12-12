@@ -8,9 +8,9 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -138,8 +138,7 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
   def getInnermostComponentReferenceElement: PsiJavaCodeReferenceElement = null
 
   def getType: PsiType = {
-    val project = manager.getProject
-    implicit val elementScope = (project, GlobalSearchScope.allScope(project))
+    implicit val elementScope = ElementScope(manager.getProject)
     tp.toPsiType()
   }
 
@@ -177,8 +176,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, val parameter: P
   def getInitializer: PsiExpression = null
 
   def getType: PsiType = {
-    val project = manager.getProject
-    implicit val elementScope = (project, GlobalSearchScope.allScope(project))
+    implicit val elementScope = ElementScope(manager.getProject)
     parameter.paramType.toPsiType()
   }
 

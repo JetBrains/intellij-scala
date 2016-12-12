@@ -7,7 +7,6 @@ import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.util.classMembers.MemberInfo
 import com.intellij.testIntegration.TestFramework
 import com.intellij.testIntegration.createTest.{CreateTestDialog, TestGenerator}
@@ -16,12 +15,12 @@ import org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ExtractSuperUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
 
@@ -54,10 +53,9 @@ class ScalaTestGenerator extends TestGenerator {
       case _ => "Scala Class"
     })
     val typeDefinition = file.depthFirst().filterByType(classOf[ScTypeDefinition]).next()
-    val scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
     val fqName = d.getSuperClassName
     if (fqName != null) {
-      val psiClass = ScalaPsiManager.instance(project).getCachedClass(fqName, scope)
+      val psiClass = ElementScope(project).getCachedClass(fqName)
       addSuperClass(typeDefinition, psiClass, fqName)
     }
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
@@ -94,8 +92,7 @@ class ScalaTestGenerator extends TestGenerator {
 
     val project = editor.getProject
     implicit val manager = PsiManager.getInstance(project)
-    implicit val scalaManager = ScalaPsiManager.instance(project)
-    implicit val scope = GlobalSearchScope.allScope(project)
+    implicit val elementScope = ElementScope(project)
     implicit val normalIndent = FormatterUtil.getNormalIndentString(project)
 
     import ScalaTestGenerator._
@@ -155,9 +152,8 @@ object ScalaTestGenerator {
 
   private def withAnnotation(annotation: String, typeDef: ScTypeDefinition, body: ScTemplateBody)
                             (generateMethods: PsiElement => Unit)
-                            (implicit manager: ScalaPsiManager,
-                             scope: GlobalSearchScope) =
-    manager.getCachedClass(annotation, scope).collect {
+                            (implicit elementScope: ElementScope) =
+    elementScope.getCachedClass(annotation).collect {
       case definition: ScTypeDefinition => definition
     }.foreach { clazz =>
       ExtractSuperUtil.addExtendsTo(typeDef, clazz)
@@ -167,8 +163,7 @@ object ScalaTestGenerator {
   private def generateScalaTestBeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean,
                                               typeDef: ScTypeDefinition)
                                              (implicit manager: PsiManager,
-                                              scalaManager: ScalaPsiManager,
-                                              scope: GlobalSearchScope): Unit = {
+                                              elementScope: ElementScope): Unit = {
     if (!(generateBefore || generateAfter)) return
     typeDef.extendsBlock.templateBody.foreach { body =>
       withAnnotation("org.scalatest.BeforeAndAfterEach", typeDef, body) { closingBrace =>
@@ -184,8 +179,7 @@ object ScalaTestGenerator {
 
   private def generateSpecs2BeforeAndAfter(generateBefore: Boolean, generateAfter: Boolean, typeDef: ScTypeDefinition)
                                           (implicit manager: PsiManager,
-                                           scalaManager: ScalaPsiManager,
-                                           scope: GlobalSearchScope): Unit = {
+                                           elementScope: ElementScope): Unit = {
     if (!(generateBefore || generateAfter)) return
     typeDef.extendsBlock.templateBody.foreach { body =>
       if (generateBefore) {
@@ -298,8 +292,7 @@ object ScalaTestGenerator {
 
   private def generateSpecs2ScriptSpecificationMethods(methods: List[MemberInfo], templateBody: ScTemplateBody, className: String, typeDef: ScTypeDefinition)
                                                       (implicit manager: PsiManager,
-                                                       scalaManager: ScalaPsiManager,
-                                                       scope: GlobalSearchScope,
+                                                       elementScope: ElementScope,
                                                        normalIndent: String): Unit = {
     withAnnotation("org.specs2.specification.Groups", typeDef, templateBody) { closingBrace =>
       val testNames = methods.map("test" + _.getMember.getName.capitalize)

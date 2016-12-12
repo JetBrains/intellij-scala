@@ -202,8 +202,9 @@ package object extensions {
         case _ => element.getStartOffsetInParent
       }
 
-    implicit def elementScope: ElementScope = (element.getProject, element.getResolveScope)
     implicit def typeSystem: TypeSystem = element.getProject.typeSystem
+
+    implicit def elementScope: ElementScope = ElementScope(element)
 
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
       def lift(`type`: PsiType) = Option(`type`.toScType())

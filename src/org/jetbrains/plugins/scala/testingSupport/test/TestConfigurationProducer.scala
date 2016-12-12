@@ -19,7 +19,6 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author Roman.Shein
@@ -28,8 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 abstract class TestConfigurationProducer(configurationType: ConfigurationType) extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) with AbstractTestConfigurationProducer{
 
   protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
-    ScalaPsiManager.instance(clazz.getProject)
-      .getCachedObject(fqn, clazz.getResolveScope)
+    clazz.elementScope.getCachedObject(fqn)
       .exists {
         ScalaPsiUtil.cachedDeepIsInheritor(clazz, _)
       }

@@ -49,8 +49,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
         else api.Double
       case ScalaTokenTypes.tCHAR => Char
       case ScalaTokenTypes.tSYMBOL =>
-        ScalaPsiManager.instance(getProject)
-          .getCachedClass("scala.Symbol", getResolveScope)
+        elementScope.getCachedClass("scala.Symbol")
           .map {
             ScalaType.designator
           }.getOrElse(Nothing)

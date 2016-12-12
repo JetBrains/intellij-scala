@@ -111,10 +111,10 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     }
 
   protected def createType(psiClass: PsiClass,
-                           project: Project,
                            substitutor: PsiSubstitutor = PsiSubstitutor.EMPTY,
-                           raw: Boolean = false): PsiType = {
-    val psiType = factory(project).createType(psiClass, substitutor)
+                           raw: Boolean = false)
+                          (implicit elementScope: ElementScope): PsiType = {
+    val psiType = factory.createType(psiClass, substitutor)
     if (raw) psiType.rawType
     else psiType
   }
@@ -123,13 +123,11 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     createTypeByFqn("java.lang.Object")
 
   private def createTypeByFqn(fqn: String)
-                             (implicit elementScope: ElementScope): PsiType = {
-    val (project, scope) = elementScope
-    factory(project).createTypeByFQClassName(fqn, scope)
-  }
+                             (implicit elementScope: ElementScope): PsiType =
+    factory.createTypeByFQClassName(fqn, elementScope.scope)
 
-  protected def factory(project: Project) =
-    JavaPsiFacade.getInstance(project).getElementFactory
+  protected def factory(implicit elementScope: ElementScope): PsiElementFactory =
+    JavaPsiFacade.getInstance(elementScope.project).getElementFactory
 }
 
 object ExtractClass {

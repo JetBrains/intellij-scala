@@ -5,12 +5,10 @@ import com.intellij.psi.PsiParameter
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.immutable.{HashMap, HashSet}
 
@@ -59,7 +57,7 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
                        (implicit val elementScope: ElementScope) extends NonValueType with TypeInTypeSystem {
-  implicit val typeSystem = elementScope._1.typeSystem
+  implicit val typeSystem = elementScope.typeSystem
 
   override def visitType(visitor: TypeVisitor): Unit = visitor.visitMethodType(this)
 
@@ -70,8 +68,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
       else {
-        val (project, scope) = elementScope
-        val seqClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.collection.Seq")
+        val seqClass = elementScope.getCachedClass("scala.collection.Seq")
         seqClass.fold(inferredParamType) { inferred =>
             ScParameterizedType(ScDesignatorType(inferred), Seq(inferredParamType))
         }

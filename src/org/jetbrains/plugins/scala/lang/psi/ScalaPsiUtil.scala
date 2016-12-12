@@ -55,7 +55,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -523,8 +523,8 @@ object ScalaPsiUtil {
 
   def collectImplicitObjects(_tp: ScType)
                             (implicit elementScope: ElementScope): Seq[ScType] = {
-    val (project, scope) = elementScope
-    implicit val typeSystem = project.typeSystem
+    val ElementScope(project, scope) = elementScope
+    implicit val typeSystem = elementScope.typeSystem
 
     val tp = _tp.removeAliasDefinitions()
     val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
@@ -646,8 +646,7 @@ object ScalaPsiUtil {
         tp match {
           case Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-            ScalaPsiManager.instance(project)
-              .getCachedObject("scala." + tp.name, scope)
+            elementScope.getCachedObject("scala." + tp.name)
               .foreach { o =>
               addResult(o.qualifiedName, ScDesignatorType(o))
             }
@@ -1268,7 +1267,7 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        implicit val typeSystem = elementScope._1.typeSystem
+        implicit val typeSystem = elementScope.typeSystem
         substitutor.subst(`type`.toScType()).toPsiType()
       }
 
@@ -1982,7 +1981,7 @@ object ScalaPsiUtil {
               _.getType().toOption
             }.map { tp =>
               val substituted = substitutor.subst(tp)
-              implicit val elementScope = (fun.getProject, scalaScope)
+              implicit val elementScope = ElementScope(fun.getProject, scalaScope)
               extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
                 substituted
               }
@@ -2013,7 +2012,7 @@ object ScalaPsiUtil {
           !_.hasTypeParameters && validConstructorExists
           // must have exactly one abstract member and SAM must be monomorphic
         }.map { method =>
-          implicit val elementScope = (method.getProject, scalaScope)
+          implicit val elementScope = ElementScope(method.getProject, scalaScope)
           val returnType = method.getReturnType
           val parametersTypes = method.getParameterList.getParameters.map {
             _.getTypeElement.getType
@@ -2049,7 +2048,7 @@ object ScalaPsiUtil {
     */
   private def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
                                        (implicit elementScope: ElementScope): Option[ScType] = {
-    implicit val typeSystem = elementScope._1.typeSystem
+    implicit val typeSystem = elementScope.typeSystem
     expected match {
       case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {

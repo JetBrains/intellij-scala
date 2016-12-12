@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -84,14 +83,13 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             return ExpressionTypeResult(Success(expected, Some(ScExpression.this)))
           }
 
-          val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
+          val functionType = FunctionType(expected, Seq(tp))
           new ImplicitCollector(ScExpression.this, functionType, functionType, None, isImplicitConversion = true).collect() match {
             case Seq(res) =>
               val `type` = extractImplicitParameterType(res) match {
                 case FunctionType(rt, Seq(_)) => Some(rt)
                 case paramType =>
-                  ScalaPsiManager.instance(getProject)
-                    .cachedFunction1Type(getResolveScope).flatMap { functionType =>
+                  elementScope.cachedFunction1Type.flatMap { functionType =>
                     val (_, substitutor) = paramType.conforms(functionType, ScUndefinedSubstitutor())
                     substitutor.getSubstitutor.map {
                       _.subst(functionType.typeArguments(1))
@@ -133,7 +131,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           ScalaPsiUtil.toSAMType(expected, this) match {
             case Some(methodType) if tp.conforms(methodType) => expectedResult
             case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
-              val newTp = FunctionType(Unit, params)(getProject, getResolveScope)
+              val newTp = FunctionType(Unit, params)
               if (newTp.conforms(methodType)) expectedResult
               else None
             case _ => None
@@ -388,7 +386,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         val methType =
           ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
             fromUnderscore = true).tr.getOrAny,
-            params, isImplicit = false)(getProject, getResolveScope)
+            params, isImplicit = false)
         Success(methType, Some(ScExpression.this))
       }
     }
@@ -593,7 +591,7 @@ object ScExpression {
           case (i, tp) => (Seq.fill(i)(Any), tp)
         }.map {
           case (argumentsTypes, maybeResultType) =>
-            FunctionType(maybeResultType.getOrElse(Nothing), argumentsTypes)(expression.getProject, expression.getResolveScope)
+            FunctionType(maybeResultType.getOrElse(Nothing), argumentsTypes)(expression.elementScope)
         }
     }
   }

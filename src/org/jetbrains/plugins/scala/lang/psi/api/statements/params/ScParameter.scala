@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
@@ -66,8 +65,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     if (!isRepeatedParameter) return getType(ctx)
     getType(ctx) match {
       case f@Success(tp: ScType, elem) =>
-        ScalaPsiManager.instance(getProject)
-          .getCachedClass("scala.collection.Seq", getResolveScope)
+        elementScope.getCachedClass("scala.collection.Seq")
           .map {
             ScalaType.designator
           }.map {

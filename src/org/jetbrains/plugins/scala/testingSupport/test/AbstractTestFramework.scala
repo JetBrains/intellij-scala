@@ -6,14 +6,13 @@ import javax.swing.Icon
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import com.intellij.lang.Language
 import com.intellij.openapi.module.Module
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import com.intellij.testIntegration.JavaTestFramework
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier
 
@@ -48,15 +47,11 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     }, classOf[ScTypeDefinition], false)
     if (parent == null) return false
 
-    val project = clazz.getProject
-    val manager = ScalaPsiManager.instance(project)
-    val scope = GlobalSearchScope.allScope(project)
+    val elementScope = ElementScope(clazz.getProject)
 
-    def getCachedClass(path: String) = manager.getCachedClass(path, scope)
-
-    getCachedClass(getMarkerClassFQName).isDefined &&
+    elementScope.getCachedClass(getMarkerClassFQName).isDefined &&
       getSuitePaths.flatMap {
-        getCachedClass
+        elementScope.getCachedClass
       }.exists {
         ScalaPsiUtil.cachedDeepIsInheritor(parent, _)
       }

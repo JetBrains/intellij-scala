@@ -55,7 +55,7 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       case Some(r) => r.getType(ctx).getOrAny
       case _ => api.Unit
     }
-    collectFailures(paramTypes, Nothing)(FunctionType(resultType, _)(getProject, getResolveScope))
+    collectFailures(paramTypes, Nothing)(FunctionType(resultType, _))
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = result

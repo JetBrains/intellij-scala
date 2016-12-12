@@ -9,6 +9,7 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
@@ -81,21 +82,23 @@ object ResolveUtils {
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
     implicit val typeSystem = m.typeSystem
+    implicit val elementScope = ElementScope(m.getProject, scope)
 
     val retType: ScType = (m, returnType) match {
       case (f: FakePsiMethod, None) => s.subst(f.retType)
       case (_, None) => s.subst(m.getReturnType.toScType())
       case (_, Some(x)) => x
     }
-    new ScMethodType(retType,
+
+    ScMethodType(retType,
       m match {
         case f: FakePsiMethod => f.params.toSeq
         case _ =>
           m.getParameterList.getParameters.map { param =>
             val scType = s.subst(param.paramType())
-            new Parameter("", None, scType, scType, false, param.isVarArgs, false, param.index, Some(param))
+            Parameter("", None, scType, scType, isDefault = false, isRepeated = param.isVarArgs, isByName = false, param.index, Some(param))
           }
-      }, false)(m.getProject, scope)
+      }, isImplicit = false)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {

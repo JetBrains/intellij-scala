@@ -18,6 +18,6 @@ trait ScTuplePattern extends ScPattern {
   def patternList: Option[ScPatterns] = findChild(classOf[ScPatterns])
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = wrap(patternList) flatMap { l =>
-    collectFailures(l.patterns.map(_.getType(ctx)), Any)(TupleType(_)(getProject, getResolveScope))
+    collectFailures(l.patterns.map(_.getType(ctx)), Any)(TupleType(_))
   }
 }

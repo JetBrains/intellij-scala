@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -234,7 +234,7 @@ object PatternAnnotatorUtil {
         val subTypes = subPat.flatMap(patternType)
         if (subTypes.size == subPat.size) {
           val project = pattern.getProject
-          implicit val elementScope = (project, GlobalSearchScope.allScope(project))
+          implicit val elementScope = ElementScope(project)
           Some(TupleType(subTypes))
         }
         else None
