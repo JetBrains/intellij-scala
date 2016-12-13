@@ -23,17 +23,15 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
     import KindWeights._
 
     def handleMember(inMember: PsiMember, position: PsiElement): KindWeights.Value = {
-      val cclass = inMember.getContainingClass
-      val noClass = cclass == null
-
-      if (noClass) return normal
-      inMember match {
-        case _: ScValue => field
-        case _: ScVariable => field
-        case _: PsiField => field
-        case _: PsiMethod => method
-        case _ => member
-      }
+      if (Option(inMember.getContainingClass).isEmpty) normal
+      else
+        inMember match {
+          case _: ScValue => field
+          case _: ScVariable => field
+          case _: PsiField => field
+          case _: PsiMethod => method
+          case _ => member
+        }
     }
 
     def weight =
@@ -52,11 +50,11 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
         case _ => null
       }
 
-    val isTypedPostion = ScalaCompletionUtil.isTypeDefiniton(position)
+    val isTypedPosition = ScalaCompletionUtil.isTypeDefiniton(position)
     val isAfterNewPosition = ScalaAfterNewCompletionUtil.isAfterNew(position, location.getProcessingContext)
 
     ScalaLookupItem.original(element) match {
-      case _ if isTypedPostion || isAfterNewPosition => null
+      case _ if isTypedPosition || isAfterNewPosition => null
       case _ => weight
     }
   }
