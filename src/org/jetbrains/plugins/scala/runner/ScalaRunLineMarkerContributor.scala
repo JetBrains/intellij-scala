@@ -13,12 +13,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
  * Date: 23.10.15.
  */
 class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
-  override def getInfo(element: PsiElement): Info = 
-    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) element.getParent match {
-      case fun: ScFunctionDefinition if ScalaMainMethodUtil.findContainingMainMethod(fun).contains(fun) => createInfo(1)
-      case obj: ScObject if ScalaMainMethodUtil.hasMainMethod(obj) => createInfo(0)
-      case _ => null
-    } else null
-  
-  private def createInfo(order: Int) = new Info(ApplicationConfigurationType.getInstance.getIcon, null, ExecutorAction.getActions(order): _*)
+  override def getInfo(element: PsiElement): Info = {
+    val isIdentifier = element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER
+    val hasMain = element.getParent match {
+      case fun: ScFunctionDefinition => ScalaMainMethodUtil.isMainMethod(fun)
+      case obj: ScObject => ScalaMainMethodUtil.hasMainMethod(obj)
+      case _ => false
+    }
+    if (isIdentifier && hasMain)
+      new Info(ApplicationConfigurationType.getInstance.getIcon, null, ExecutorAction.getActions(0): _*)
+    else null
+  }
 }

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.runner
 
 import com.intellij.execution._
-import com.intellij.execution.actions.ConfigurationContext
-import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
+import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationProducer, ApplicationConfigurationType}
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Ref
@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
@@ -89,6 +90,10 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     }
   }
 
+  override def shouldReplace(self: ConfigurationFromContext, other: ConfigurationFromContext): Boolean = {
+    other.isProducedBy(classOf[ApplicationConfigurationProducer])
+  }
+
   private def nameForConfiguration(c: PsiClass): String = c.qualifiedName
 }
 
@@ -122,14 +127,14 @@ object ScalaMainMethodUtil {
 
     @CachedInsidePsiElement(obj, CachesUtil.enclosingModificationOwner(obj))
     def findMainMethodInner(): Option[PsiMethod] = {
-      declaredMain(obj) orElse Option(PsiMethodUtil.findMainMethod(obj.fakeCompanionClassOrCompanionClass))
+      declaredMain(obj) orElse Option(PsiMethodUtil.findMainMethod(new PsiClassWrapper(obj, obj.qualifiedName, obj.name)))
     }
 
     if (!ScalaPsiUtil.hasStablePath(obj)) None
     else findMainMethodInner()
   }
 
-  private def isMainMethod(funDef: ScFunctionDefinition): Boolean = {
+  def isMainMethod(funDef: ScFunctionDefinition): Boolean = {
     def isInStableObject = stableObject(funDef).contains(funDef.containingClass)
 
     def hasJavaMainWrapper =
