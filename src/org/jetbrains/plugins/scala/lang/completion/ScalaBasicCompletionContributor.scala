@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -46,6 +47,11 @@ import scala.util.Random
  */
 abstract class ScalaCompletionContributor extends CompletionContributor {
   def positionFromParameters(parameters: CompletionParameters): PsiElement = ScalaCompletionUtil.positionFromParameters(parameters)
+
+  override def fillCompletionVariants(parameters: CompletionParameters, _result: CompletionResultSet): Unit = {
+    val result = ScalaCompletionSorting.addScalaSorting(parameters, _result)
+    super.fillCompletionVariants(parameters, result)
+  }
 }
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {

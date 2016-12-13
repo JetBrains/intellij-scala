@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.weighter
 
-import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
-import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher, WeighingContext}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -14,15 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
   * Created by kate
   * on 1/25/16
   */
-class ScalaByTypeWeigher extends CompletionWeigher {
+class ScalaByTypeWeigher(position: PsiElement) extends LookupElementWeigher("scalaTypeCompletionWeigher") {
 
-  override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
+  override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] = {
     import KindWeights._
 
-    val position = ScalaCompletionUtil.positionFromParameters(location.getCompletionParameters)
-    val context = location.getProcessingContext
-
-    val isAfterNew = ScalaAfterNewCompletionUtil.isAfterNew(position, context)
+    val isAfterNew = ScalaAfterNewCompletionUtil.afterNewPattern.accepts(position)
 
     def inFunction(psiElement: PsiElement): Boolean =
       PsiTreeUtil.getParentOfType(psiElement, classOf[ScBlockExpr]) != null
@@ -50,6 +46,7 @@ class ScalaByTypeWeigher extends CompletionWeigher {
   }
 
   object KindWeights extends Enumeration {
-    val normal, typeDefinition, localType, top = Value
+    val top, localType, typeDefinition, normal = Value
   }
+
 }
