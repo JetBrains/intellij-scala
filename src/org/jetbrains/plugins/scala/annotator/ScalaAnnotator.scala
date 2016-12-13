@@ -878,14 +878,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   private def highlightWrongInterpolatedString(l: ScInterpolatedStringLiteral, holder: AnnotationHolder)
                                               (implicit typeSystem: TypeSystem) {
-    val ref = l.findReferenceAt(0)
-    val prefix = l.getFirstChild
-    val injections = l.getInjections
-
-    ref match {
-      case _: ScInterpolatedStringPartReference =>
+    val ref = l.findReferenceAt(0) match {
+      case r: ScInterpolatedStringPartReference => r
       case _ => return
     }
+    val prefix = l.getFirstChild
+    val injections = l.getInjections
 
     def annotateBadPrefix(key: String) {
       val annotation = holder.createErrorAnnotation(prefix.getTextRange,
@@ -893,7 +891,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
     }
 
-    if (ref.resolve() != null) {
+    def annotateDesugared(): Unit = {
       val elementsMap = mutable.HashMap[Int, PsiElement]()
       val params = new mutable.StringBuilder("(")
 
@@ -902,9 +900,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         params.append(i.getText).append(",")
       }
       if (injections.length > 0) params.setCharAt(params.length - 1, ')') else params.append(')')
-      val expr = l.getStringContextExpression.get
-      val shift = expr match {
-        case ScMethodCall(invoked, _) => invoked.getTextRange.getEndOffset
+
+      val (expr, ref, shift) = l.getStringContextExpression match {
+        case Some(mc @ ScMethodCall(invoked: ScReferenceExpression, _)) =>
+          val shift = invoked.getTextRange.getEndOffset
+          (mc, invoked, shift)
         case _ => return
       }
 
@@ -917,9 +917,16 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         }
       }
 
-      annotateReference(expr.asInstanceOf[ScMethodCall].getEffectiveInvokedExpr.
-        asInstanceOf[ScReferenceElement], fakeAnnotator)
-    } else annotateBadPrefix("cannot.resolve.in.StringContext")
+      annotateReference(ref, fakeAnnotator)
+    }
+
+    ref.bind() match {
+      case Some(srr) =>
+        registerUsedImports(ref, srr)
+        annotateDesugared()
+      case None =>
+        annotateBadPrefix("cannot.resolve.in.StringContext")
+    }
   }
 
   private def registerAddImportFix(refElement: ScReferenceElement, annotation: Annotation, actions: IntentionAction*) {
