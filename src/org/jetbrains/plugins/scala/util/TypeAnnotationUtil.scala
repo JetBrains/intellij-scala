@@ -151,8 +151,8 @@ object TypeAnnotationUtil {
   }
 
   def isEmptyCollectionFactory(e: ScExpression): Boolean = e match {
-    case (_: ScGenericCall) && FirstChild(reference: ScReferenceExpression) =>
-      CollectionClassNames.exists(_ + ".empty" == reference.getText)
+    case ScGenericCall(ref @ ScReferenceExpression.withQualifier(qual: ScReferenceExpression), _) =>
+      CollectionClassNames.contains(qual.refName) && ref.refName == "empty"
     case _ => false
   }
 
