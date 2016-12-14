@@ -1005,4 +1005,20 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
        |
        |//IndexedSeq[Future[Int]]
     """.stripMargin)
+
+  def testSCL11142(): Unit = {
+    addFileToProject("Tier1.java",
+      """public final class Tier1 {
+        |    public static final class Tier2 {
+        |        public static final class Tier3
+        |    }
+        |}""".stripMargin)
+
+    doTest(
+      """object SCL11142 {
+        |  /*start*/new Tier1.Tier2.Tier3/*end*/
+        |}
+        |//Tier2.Tier3
+      """.stripMargin)
+  }
 }
