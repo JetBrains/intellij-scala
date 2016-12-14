@@ -194,14 +194,17 @@ private[expr] object ExpectedTypes {
         val exprs = tuple.exprs
         val actExpr = expr.getDeepSameElementInContext
         val index = exprs.indexOf(actExpr)
-        if (index >= 0) {
-          for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
-            tp.removeAbstracts match {
-              case TupleType(comps) if comps.length == exprs.length =>
-                buffer += ((comps(index), None))
-              case _ =>
-            }
+        @tailrec
+        def addType(aType: ScType): Unit = {
+          aType match {
+            case _: ScAbstractType => addType(aType.removeAbstracts)
+            case TupleType(comps) if comps.length == exprs.length =>
+              buffer += ((comps(index), None))
+            case _ =>
           }
+        }
+        if (index >= 0) {
+          for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) addType(tp)
         }
         buffer.toArray
       case infix: ScInfixExpr if ((infix.isLeftAssoc && infix.lOp == expr.getSameElementInContext) ||
