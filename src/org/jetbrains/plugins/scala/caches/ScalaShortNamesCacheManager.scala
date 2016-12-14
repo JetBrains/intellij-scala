@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.Predef._
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -139,9 +138,8 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   }
 
   def getAllMethodNames: Seq[String] = {
-    val classNames = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY, project)
     import scala.collection.JavaConversions._
-    classNames.toSeq
+    StubIndex.getInstance.getAllKeys(ScalaIndexKeys.METHOD_NAME_KEY, project).toSeq
   }
 
   def getMethodsByName(name: String, scope: GlobalSearchScope): Seq[PsiMethod] = {
@@ -189,10 +187,8 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
-    val plainClasses =
-      StubIndex.getElements(ScalaIndexKeys.SHORT_NAME_KEY, name, project, scope, classOf[PsiClass])
     import scala.collection.JavaConversions._
-    plainClasses.toSeq
+    StubIndex.getElements(ScalaIndexKeys.SHORT_NAME_KEY, name, project, scope, classOf[PsiClass]).toSeq
   }
 
   def getPackageObjectByName(fqn: String, scope: GlobalSearchScope): ScTypeDefinition = {
@@ -240,28 +236,22 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   }
 
   def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
-    val otherClassNames = getClassNames(psiPackage, scope)
-    val result: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]()
-    for (clazzName <- otherClassNames) {
-      val qualName =
-        if (psiPackage.getQualifiedName.isEmpty) clazzName
-        else psiPackage.getQualifiedName + "." + clazzName
-      val c = ScalaPsiManager.instance(project).getCachedClasses(scope, qualName)
-      result ++= c
+    val packageName = psiPackage.getQualifiedName match {
+      case "" => ""
+      case qualifiedName => s"$qualifiedName."
     }
-    result.toArray
+
+    getClassNames(psiPackage, scope).toArray.map { className =>
+      packageName + className
+    }.flatMap {
+      psiManager.getCachedClasses(scope, _)
+    }
   }
 
-  def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): mutable.HashSet[String] = {
-    ScalaPsiManager.instance(project).getScalaClassNames(psiPackage, scope)
-  }
+  def getClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] =
+    psiManager.getScalaClassNames(psiPackage, scope)
 
-  def getAllClassNames: Seq[String] = {
-    val classNames = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.SHORT_NAME_KEY, project)
-    import scala.collection.JavaConversions._
-    classNames.toSeq
-  }
-
+  private def psiManager = ScalaPsiManager.instance(project)
 
   def initComponent() {}
 
