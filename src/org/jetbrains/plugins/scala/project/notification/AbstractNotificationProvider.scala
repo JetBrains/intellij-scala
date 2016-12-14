@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootAdapter, ModuleRootEvent}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import com.intellij.psi.PsiManager.getInstance
+import com.intellij.psi.PsiManager
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 abstract class AbstractNotificationProvider(project: Project, notifications: EditorNotifications)
   extends EditorNotifications.Provider[EditorNotificationPanel] {
 
+  import org.jetbrains.plugins.scala.ScalaLanguage
+
   project.getMessageBus.connect(project).subscribe(PROJECT_ROOTS, new ModuleRootAdapter {
     override def rootsChanged(event: ModuleRootEvent) {
       notifications.updateAllNotifications()
@@ -25,28 +27,23 @@ abstract class AbstractNotificationProvider(project: Project, notifications: Edi
   })
 
   override final def createNotificationPanel(file: VirtualFile, fileEditor: FileEditor): EditorNotificationPanel = {
-    val maybeFile = Option(project) map {
-      getInstance
-    } flatMap {
-      _.findFile(file).toOption
-    } filter {
-      isSourceCode
-    }
-
-    val maybeModule = maybeFile flatMap {
-      findModuleForPsiElement(_).toOption
-    } filterNot {
-      hasDeveloperKit
-    }
-
-    maybeModule map {
-      createTask
-    } map {
-      createPanel
-    } orNull
+    val psiManager = PsiManager.getInstance(project)
+    val maybePanel =
+      for {
+        psiFile <- psiManager.findFile(file).toOption
+        if isSourceCode(psiFile)
+        module <- findModuleForPsiElement(psiFile).toOption
+        if !hasDeveloperKit(module)
+      } yield {
+        createPanel(module)
+      }
+    maybePanel.orNull
   }
 
-  protected def isSourceCode(file: PsiFile): Boolean
+  private def isSourceCode(file: PsiFile): Boolean =
+    file.getLanguage.isKindOf(ScalaLanguage.INSTANCE) &&
+      !file.getName.endsWith(".sbt") && // root SBT files belong to main (not *-build) modules
+      file.isWritable
 
   protected def hasDeveloperKit(module: Module): Boolean
 
@@ -56,7 +53,8 @@ abstract class AbstractNotificationProvider(project: Project, notifications: Edi
 
   protected def developerKitTitle: String
 
-  private def createPanel(task: Runnable): EditorNotificationPanel = {
+  private def createPanel(module: Module): EditorNotificationPanel = {
+    val task = createTask(module)
     val panel = new EditorNotificationPanel().text(panelText)
     panel.createActionLabel(s"Setup $developerKitTitle", task)
     panel
