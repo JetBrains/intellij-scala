@@ -4,13 +4,12 @@ package lang.refactoring.changeSignature
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.JavaCodeStyleManager
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.changeSignature.JavaParameterInfo
 import com.intellij.refactoring.util.CanonicalTypes
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -52,15 +51,14 @@ class ScalaParameterInfo(@BeanProperty var name: String,
   protected def psiType: PsiType = {
     if (scType == null) return null
 
-    val allScope = GlobalSearchScope.allScope(project)
-    implicit val elementScope = (project, allScope)
+    implicit val elementScope = ElementScope(project)
 
     val resultType = if (isByName) {
       val functionType = FunctionType(scType, Seq())
       functionType
     }
     else if (isRepeatedParameter) {
-      val seqType = ScalaPsiManager.instance(project).getCachedClass(allScope, "scala.collection.Seq")
+      val seqType = elementScope.getCachedClass("scala.collection.Seq")
         .map(ScalaType.designator(_))
         .getOrElse(Nothing)
       ScParameterizedType(seqType, Seq(scType))

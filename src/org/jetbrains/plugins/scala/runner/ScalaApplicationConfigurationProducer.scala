@@ -6,8 +6,8 @@ import com.intellij.execution.application.{ApplicationConfiguration, Application
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Ref
-import com.intellij.psi.util.PsiMethodUtil
-import com.intellij.psi.{util => _, _}
+import com.intellij.psi.util.{PsiMethodUtil, PsiTreeUtil}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -70,7 +70,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     if (location == null) return false
     val element: PsiElement = location.getPsiElement
     val containingFile = element.getContainingFile
-    if (!containingFile.isInstanceOf[ScalaFile])return false
+    if (!containingFile.isInstanceOf[ScalaFile]) return false
     if (!element.isPhysical) return false
 
     ScalaMainMethodUtil.findContainingMainMethod(element) match {
@@ -83,7 +83,10 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
         ScalaMainMethodUtil.findObjectWithMain(element) match {
           case Some(obj) =>
             createConfiguration(obj, context, location, configuration)
-            sourceElement.set(obj.fakeCompanionClassOrCompanionClass)
+            val sourceElem =
+              if (PsiTreeUtil.isAncestor(obj, element, false)) obj.fakeCompanionClassOrCompanionClass
+              else containingFile
+            sourceElement.set(sourceElem)
             true
           case None => false
         }

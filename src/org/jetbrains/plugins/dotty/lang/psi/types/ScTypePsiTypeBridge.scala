@@ -37,14 +37,12 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     def createComponent: ScType => PsiType =
       toPsiType(_, noPrimitives, skolemToWildcard)
 
-    val project = elementScope._1
-
     `type` match {
-      case ScDesignatorType(clazz: PsiClass) => createType(clazz, project)
+      case ScDesignatorType(clazz: PsiClass) => createType(clazz)
       case projectionType: ScProjectionType =>
         projectionType.actualElement match {
           case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.t)
-          case clazz: PsiClass => createType(clazz, project, raw = true)
+          case clazz: PsiClass => createType(clazz, raw = true)
           case definition: ScTypeAliasDefinition => definition.aliasedType match {
             case Success(result, _) => createComponent(result)
             case _ => createJavaObject
@@ -53,7 +51,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case refinedType@DottyRefinedType(ScDesignatorType(clazz: PsiClass), _, _) if clazz.qualifiedName == "scala.Array" =>
         refinedType.typeArguments match {
           case Seq(designator) => new PsiArrayType(createComponent(designator))
-          case seq => factory(project).createType(clazz,
+          case seq => createType(clazz,
             seq.zip(clazz.getTypeParameters)
               .foldLeft(PsiSubstitutor.EMPTY) {
                 case (substitutor, (scType, typeParameter)) => substitutor.put(typeParameter,

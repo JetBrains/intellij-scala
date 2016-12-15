@@ -6,10 +6,10 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
@@ -91,9 +91,8 @@ class Specs2ConfigurationProducer extends {
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (parent == null) return false
-    val suiteClasses = suitePaths.flatMap { suite =>
-      ScalaPsiManager.instance(parent.getProject)
-        .getCachedClass(suite, element.getResolveScope)
+    val suiteClasses = suitePaths.flatMap {
+      parent.elementScope.getCachedClass(_)
     }
     if (suiteClasses.isEmpty) return false
     val suiteClazz = suiteClasses.head
@@ -125,9 +124,8 @@ class Specs2ConfigurationProducer extends {
     val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (testClassDef == null) return (null, null)
 
-    val psiManager = ScalaPsiManager.instance(testClassDef.getProject)
-    val suiteClasses = suitePaths.flatMap { suite =>
-      psiManager.getCachedClass(suite, element.getResolveScope)
+    val suiteClasses = suitePaths.flatMap {
+      element.elementScope.getCachedClass(_)
     }
     if (suiteClasses.isEmpty) return (null, null)
     val suiteClazz = suiteClasses.head

@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
@@ -121,8 +120,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                          noPrimitives: Boolean,
                          skolemToWildcard: Boolean)
                         (implicit elementScope: ElementScope): PsiType = {
-    val project = elementScope._1
-    implicit val typeSystem = project.typeSystem
+    implicit val typeSystem = elementScope.typeSystem
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       extractClass(proj.projected) match {
@@ -143,9 +141,9 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
         valClass.parameters.head.getRealParameterType(TypingContext.empty) match {
           case Success(tp, _) if !(noPrimitives && ScalaEvaluatorBuilderUtil.isPrimitiveScType(tp)) =>
             toPsiType(tp, noPrimitives, skolemToWildcard)
-          case _ => createType(valClass, project)
+          case _ => createType(valClass)
         }
-      case ScDesignatorType(c: PsiClass) => createType(c, project)
+      case ScDesignatorType(c: PsiClass) => createType(c)
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) =>
         if (c.qualifiedName == "scala.Array" && args.length == 1)
           new PsiArrayType(toPsiType(args.head))
@@ -153,7 +151,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
             case (s, (targ, tp)) => s.put(tp, toPsiType(targ, noPrimitives = true, skolemToWildcard = true))
           }
-          createType(c, project, subst)
+          createType(c, subst)
         }
       case ParameterizedType(proj@ScProjectionType(_, _, _), args) => proj.actualElement match {
         case c: PsiClass =>
@@ -162,7 +160,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
             val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
               case (s, (targ, tp)) => s.put(tp, toPsiType(targ, skolemToWildcard = true))
             }
-            createType(c, project, subst, raw = outerClassHasTypeParameters(proj))
+            createType(c, subst, raw = outerClassHasTypeParameters(proj))
           }
         case a: ScTypeAliasDefinition =>
           a.aliasedType(TypingContext.empty) match {
@@ -177,7 +175,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
         case clazz: PsiClass =>
           clazz match {
             case syn: ScSyntheticClass => toPsiType(syn.t)
-            case _ => createType(clazz, project, raw = outerClassHasTypeParameters(proj))
+            case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
         case elem: ScTypeAliasDefinition =>
           elem.aliasedType(TypingContext.empty) match {
@@ -186,12 +184,12 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           }
         case _ => javaObject
       }
-      case ScThisType(clazz) => createType(clazz, project)
+      case ScThisType(clazz) => createType(clazz)
       case TypeParameterType(_, _, _, typeParameter) => EmptySubstitutor.getInstance().substitute(typeParameter)
       case ex: ScExistentialType => toPsiType(ex.quantified, noPrimitives)
       case argument: ScExistentialArgument =>
         val upper = argument.upper
-        val manager = PsiManager.getInstance(project)
+        val manager = PsiManager.getInstance(elementScope.project)
         if (upper.equiv(Any)) {
           val lower = argument.lower
           if (lower.equiv(Nothing)) PsiWildcardType.createUnbounded(manager)

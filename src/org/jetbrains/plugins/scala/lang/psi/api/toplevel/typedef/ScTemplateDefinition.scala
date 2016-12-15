@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -73,7 +74,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     if (eb != null) {
       val tp = eb.templateParents
 
-      implicit val elementScope = (getProject, GlobalSearchScope.allScope(getProject))
+      implicit val elementScope = ElementScope(getProject)
       tp match {
         case Some(tp1) => (for (te <- tp1.allTypeElements;
                                 t = te.getType(TypingContext.empty).getOrAny;

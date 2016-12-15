@@ -26,8 +26,9 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
@@ -38,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
@@ -157,16 +158,6 @@ class ScalaPsiManager(val project: Project) {
     buffer
   }
 
-  def getCachedClass(fqn: String, scope: GlobalSearchScope): Option[PsiClass] =
-    getCachedClasses(scope, fqn).find {
-      !_.isInstanceOf[ScObject]
-    }
-
-  def getCachedObject(fqn: String, scope: GlobalSearchScope): Option[ScObject] =
-    getCachedClasses(scope, fqn).collect {
-      case o: ScObject => o
-    }.headOption
-
   def getClasses(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
     if (pack.getQualifiedName == "scala") getClassesCached(pack, scope)
     else getClassesImpl(pack, scope)
@@ -214,23 +205,8 @@ class ScalaPsiManager(val project: Project) {
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
-  def cachedFunction1Type(scope: GlobalSearchScope = GlobalSearchScope.allScope(project)): Option[ScParameterizedType] = {
-    implicit val typeSystem = project.typeSystem
-
-    getCachedClass("scala.Function1", scope).collect {
-      case t: ScTrait => t
-    }.map { t =>
-      val parameters = t.typeParameters.map {
-        TypeParameterType(_)
-      }.map {
-        UndefinedType(_, 1)
-      }
-
-      ScParameterizedType(ScalaType.designator(t), parameters)
-    }.collect {
-      case p: ScParameterizedType => p
-    }
-  }
+  def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] =
+    elementScope.function1Type
 
   import java.util.{Set => JSet}
 

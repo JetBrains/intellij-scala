@@ -56,7 +56,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def methodType: ScType = {
     paramClauses.foldRight[ScType](retType) {
-      (params: Seq[Parameter], tp: ScType) => ScMethodType(tp, params, isImplicit = false)(getProject, getResolveScope)
+      (params: Seq[Parameter], tp: ScType) => ScMethodType(tp, params, isImplicit = false)
     }
   }
 
@@ -214,9 +214,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (!hasParameterClause) return resultType
     val res = if (clauses.nonEmpty)
       clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
       }
-      else ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
+    else ScMethodType(resultType, Seq.empty, false)
     res.asInstanceOf[ScMethodType]
   }
 
@@ -566,7 +566,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
           val paramTypes = cl.parameters.map(_.getType(ctx))
           res match {
             case Success(t: ScType, _) =>
-              res = collectFailures(paramTypes, Nothing)(FunctionType(t, _)(getProject, getResolveScope))
+              res = collectFailures(paramTypes, Nothing)(FunctionType(t, _))
             case _ =>
           }
           i = i - 1

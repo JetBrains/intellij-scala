@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
@@ -58,7 +57,6 @@ object Compatibility {
         case Some(expected) =>
           val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
           implicit val elementScope = place.elementScope
-          val (project, resolveScope) = elementScope
 
           val functionType = FunctionType(expected, Seq(typez))
           val results = new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect()
@@ -69,8 +67,7 @@ object Compatibility {
             val maybeType: Option[ScType] = paramType match {
               case FunctionType(rt, Seq(_)) => Some(rt)
               case _ =>
-                ScalaPsiManager.instance(project)
-                  .cachedFunction1Type(resolveScope).flatMap { functionType =>
+                elementScope.cachedFunction1Type.flatMap { functionType =>
                   val (_, substitutor) = paramType.conforms(functionType, ScUndefinedSubstitutor())
                   substitutor.getSubstitutor.map {
                     _.subst(functionType.typeArguments(1))
@@ -121,8 +118,7 @@ object Compatibility {
       if (ApplicationManager.getApplication.isUnitTestMode) clazz
       else throw new RuntimeException("Illegal state for seqClass variable")
     }.orElse {
-      ScalaPsiManager.instance(expr.getProject)
-        .getCachedClass("scala.collection.Seq", expr.getResolveScope)
+      expr.elementScope.getCachedClass("scala.collection.Seq")
     }.map {
       ScalaType.designator
     }

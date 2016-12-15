@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
   */
 class ScalaSourceFilterScope(implicit elementScope: ElementScope) extends SourceFilterScope {
   def this(scope: GlobalSearchScope, project: Project) =
-    this()((project, scope))
+    this()(ElementScope(project, scope))
 
   override protected def isValid(file: VirtualFile): Boolean =
     super.isValid(file) && (FileTypeManager.getInstance().isFileOfType(file, ScalaFileType.INSTANCE) ||
@@ -37,7 +37,7 @@ object ScalaSourceFilterScope {
 
   private def updateScope(search: DumbAwareSearchParameters): SearchScope => SearchScope = {
     case global: GlobalSearchScope =>
-      implicit val elementScope = (search.getProject, global)
+      implicit val elementScope = ElementScope(search.getProject, global)
       new ScalaSourceFilterScope
     case local: LocalSearchScope =>
       val filtered = local.getScope.filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))
@@ -47,10 +47,10 @@ object ScalaSourceFilterScope {
   }
 }
 
-class SourceFilterScope protected(implicit elementScope: ElementScope) extends GlobalSearchScope(elementScope._1) {
-  private val myDelegate = elementScope._2
+class SourceFilterScope protected(implicit elementScope: ElementScope) extends GlobalSearchScope(elementScope.project) {
+  private val myDelegate = elementScope.scope
 
-  protected val myIndex: ProjectFileIndex = ProjectRootManager.getInstance(elementScope._1).getFileIndex
+  protected val myIndex: ProjectFileIndex = ProjectRootManager.getInstance(elementScope.project).getFileIndex
 
   protected def isValid(file: VirtualFile): Boolean =
     myIndex.isInSourceContent(file)
@@ -74,7 +74,7 @@ object SourceFilterScope {
 
   def apply(project: Project, scope: GlobalSearchScope): GlobalSearchScope = {
     val updatedScope = getScopeRestrictedByFileTypes(scope, ScalaFileType.INSTANCE, JavaFileType.INSTANCE)
-    implicit val elementScope = (project, updatedScope)
+    implicit val elementScope = ElementScope(project, updatedScope)
     new SourceFilterScope
   }
 }

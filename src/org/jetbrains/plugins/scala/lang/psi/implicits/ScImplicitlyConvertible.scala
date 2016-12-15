@@ -157,7 +157,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       //to prevent infinite recursion
       ProgressManager.checkCanceled()
 
-      lazy val funType = ScalaPsiManager.instance(expression.getProject).cachedFunction1Type(expression.getResolveScope)
+      lazy val funType = expression.elementScope.cachedFunction1Type
 
       def firstArgType = funType.map(_.typeArguments.head)
 

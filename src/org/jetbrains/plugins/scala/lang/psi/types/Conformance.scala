@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeParameterFromText
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -286,8 +285,7 @@ object Conformance extends api.Conformance {
           }
           l.extractDesignated(withoutAliases = false) match {
             case Some((el, _)) =>
-              val flag = ScalaPsiManager.instance(el.getProject)
-                .getCachedClass("scala.NotNull", el.getResolveScope)
+              val flag = el.elementScope.getCachedClass("scala.NotNull")
                 .map {
                   ScDesignatorType(_)
                 }.exists {

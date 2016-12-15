@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature.changeInfo
 
 import com.intellij.lang.Language
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.util.CanonicalTypes
 import com.intellij.refactoring.util.CanonicalTypes.Type
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -29,8 +28,8 @@ case class ScalaChangeInfo(newVisibility: String,
         extends ScalaChangeInfoBase(newParams.flatten.toArray)
         with UnsupportedJavaInfo with VisibilityChangeInfo with ParametersChangeInfo {
 
-  private val project: Project = function.getProject
-  private implicit val elementScope = (project, GlobalSearchScope.allScope(project))
+  private val project = function.getProject
+  private implicit val elementScope = ElementScope(project)
 
   private var myMethod: PsiMethod = function
 
@@ -55,7 +54,7 @@ case class ScalaChangeInfo(newVisibility: String,
     case _ => newName
   }
 
-  override def getNewNameIdentifier: PsiIdentifier = JavaPsiFacade.getElementFactory(project).createIdentifier(newName)
+  override def getNewNameIdentifier: PsiIdentifier = JavaPsiFacade.getElementFactory(function.getProject).createIdentifier(newName)
 
   override def getMethod: PsiMethod = myMethod
 

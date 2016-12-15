@@ -19,8 +19,6 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * @author Roman.Shein
@@ -29,8 +27,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 abstract class TestConfigurationProducer(configurationType: ConfigurationType) extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) with AbstractTestConfigurationProducer{
 
   protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
-    ScalaPsiManager.instance(clazz.getProject)
-      .getCachedObject(fqn, clazz.getResolveScope)
+    clazz.elementScope.getCachedObject(fqn)
       .exists {
         ScalaPsiUtil.cachedDeepIsInheritor(clazz, _)
       }
@@ -71,11 +68,6 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
     }
   }
 
-  protected def getConfigQualifiedName(aClass: PsiClass): String = aClass match {
-    case typeDef: ScTypeDefinition => ScalaNamesUtil.cleanFqn(typeDef.qualifiedName)
-    case _ => aClass.getQualifiedName
-  }
-
   override def onFirstRun(configuration: ConfigurationFromContext, context: ConfigurationContext, startRunnable: Runnable): Unit = {
     configuration.getConfiguration match {
       case config: AbstractTestRunConfiguration =>
@@ -112,9 +104,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
                   }
                 case _ =>
               }
-              val renderer = new PsiClassListCellRenderer() {
-                override def getElementText(element: PsiClass): String = getConfigQualifiedName(element)
-              }
+              val renderer = new PsiClassListCellRenderer()
               import scala.collection.JavaConversions._
               val classesSorted = classes.sorted(Ordering.comparatorToOrdering(renderer.getComparator))
               val jbList = new JBList(classesSorted:_*)
@@ -134,11 +124,16 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
               true
             }
 
+//            override protected def runForClasses(classes: java.util.List[PsiClass], method: PsiMethod,
+//                                                 context: ConfigurationContext, performRunnable: Runnable) {
+//
+//              performRunnable.run()
+//            }
+
             override protected def runForClass(aClass: PsiClass, psiMethod: PsiMethod, context: ConfigurationContext,
                                                performRunnable: Runnable) {
-              val suiteName = getConfigQualifiedName(aClass)
-              config.setTestClassPath(suiteName)
-              config.setName(StringUtil.getShortName(suiteName) + (if (config.getTestName != "") "." + config.getTestName else ""))
+              config.setTestClassPath(aClass.getQualifiedName)
+              config.setName(StringUtil.getShortName(aClass.getQualifiedName) + (if (config.getTestName != "") "." + config.getTestName else ""))
               Option(ScalaPsiUtil.getModule(aClass)) foreach config.setModule
               performRunnable.run()
             }

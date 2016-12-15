@@ -330,8 +330,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case Success(tp, _) => tp
           case _ => return result
         })
-        ScalaPsiManager.instance(getProject)
-          .getCachedClass("scala.collection.Seq", getResolveScope)
+        elementScope.getCachedClass("scala.collection.Seq")
           .map {
             ScalaType.designator
           }.map {
@@ -443,8 +442,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(argument)), List(argument))
           }
 
-          ScalaPsiManager.instance(getProject)
-            .getCachedClass("java.lang.Class", getResolveScope)
+          elementScope.getCachedClass("java.lang.Class")
             .map(convertQualifier)
         }
 

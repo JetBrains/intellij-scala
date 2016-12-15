@@ -23,8 +23,4 @@ class FailedDecompilerTest extends DecompilerTestBase {
   def testScl8251() = {
     doTest("LinkedEntry.class")
   }
-
-  def testScl10858() = {
-    doTest("LazyValBug.class")
-  }
 }
