@@ -15,7 +15,7 @@ object B {
 }
 
 /*
-import test.A.A
+import test.A
 package test {
 
 object A {
@@ -29,6 +29,6 @@ object A {
 }
 
 object B {
-  val a: A = null
+  val a: A.A = null
 }
 */

@@ -754,7 +754,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
         |package test
         |
-        |import test.A.Nested.Nested2
+        |import test.A.Nested
         |
         |object A {
         |
@@ -771,7 +771,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |}
         |
         |class C extends B {
-        |  def foo(v: Nested2): Unit = <selection>???</selection>
+        |  def foo(v: Nested.Nested2): Unit = <selection>???</selection>
         |}
       """
     val methodName: String = "foo"

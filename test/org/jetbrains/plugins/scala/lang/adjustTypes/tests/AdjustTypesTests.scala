@@ -30,6 +30,8 @@ class AdjustTypesTests extends AdjustTypesTestBase {
   def testThisType() = doTest()
 
   def testPrefixed() = doTest()
+
+  def testImportedInnerClass() = doTest()
 }
 
 class AdjustCatsTypeTest extends AdjustTypesTestBase {
