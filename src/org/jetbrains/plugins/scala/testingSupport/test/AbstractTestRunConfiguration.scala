@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider
+import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
@@ -62,7 +63,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                                             private var addIntegrationTestsClasspath: Boolean = false)
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
-    configurationFactory) {
+    configurationFactory) with ScalaTestingConfiguration {
 
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
