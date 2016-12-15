@@ -5,7 +5,7 @@ object Versions {
   val scalaVersion = "2.11.6"
   val sbtVersion = "0.13.13"
   val ideaVersion = "163.7743.44"
-  val sbtStructureVersion = "7.0.0"
+  val sbtStructureVersion = "7.0.0-1-g746aa2c"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
