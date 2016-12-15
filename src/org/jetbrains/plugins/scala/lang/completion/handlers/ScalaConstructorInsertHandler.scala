@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /**
  * @author Alexander Podkhalyuzin
@@ -134,6 +134,10 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
               element.getParent match {
                 case (_: ScTemplateBody) childOf ((_: ScExtendsBlock) childOf (newTemplateDef: ScNewTemplateDefinition)) =>
                   val members = ScalaOIUtil.getMembersToImplement(newTemplateDef)
+
+                  ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
+                    ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
+
                   ScalaOIUtil.runAction(members.toSeq, isImplement = true, newTemplateDef, editor)
                 case _ => 
               }
