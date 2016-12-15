@@ -3,9 +3,9 @@ object A {
 }
 
 /*
-import java.util.AbstractMap.SimpleEntry
+import java.util.AbstractMap
 
 object A {
-  val simpleEntry: SimpleEntry = null
+  val simpleEntry: AbstractMap.SimpleEntry = null
 }
 */
