@@ -229,6 +229,8 @@
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ScalaTestRunLineMarkerProvider" language="Scala"/>
 
 
+        <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaFilePasteProvider" order="first"/>
+
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
 
