@@ -1,17 +1,18 @@
-package org.jetbrains.sbt
-package project.data
+package org.jetbrains.sbt.project.data
 
-import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
+import java.net.URI
+
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSystemId}
-import org.jetbrains.sbt.resolvers.SbtResolver
+import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 
 /**
- * @author Pavel Fatin
- */
-class SbtModuleData(val owner: ProjectSystemId, val imports: Seq[String], val resolvers: Set[SbtResolver])
-        extends AbstractExternalEntityData(owner)
+  * Created by jast on 2016-12-12.
+  */
+class SbtModuleData(val owner: ProjectSystemId, val id: String, val buildURI: URI)
+  extends AbstractExternalEntityData(owner)
 
 object SbtModuleData {
-  val Key: Key[SbtModuleData] = new Key(classOf[SbtModuleData].getName,
-    ProjectKeys.MODULE.getProcessingWeight + 1)
+  val Key: Key[SbtModuleData] =
+    new Key(classOf[SbtModuleData].getName,
+            ProjectKeys.MODULE.getProcessingWeight + 1)
 }

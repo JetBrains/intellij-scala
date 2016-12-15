@@ -39,7 +39,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 import scala.annotation.tailrec
-import scala.util.Random
 
 /**
  * @author Alexander Podkhalyuzin
@@ -267,14 +266,6 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
       if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
     }
   })
-
-  override def advertise(parameters: CompletionParameters): String = {
-    if (!parameters.getOriginalFile.isInstanceOf[ScalaFile]) return null
-    val messages = Array[String](
-      null
-    )
-    messages apply (new Random).nextInt(messages.length)
-  }
 
   override def beforeCompletion(context: CompletionInitializationContext) {
     addedElements.clear()

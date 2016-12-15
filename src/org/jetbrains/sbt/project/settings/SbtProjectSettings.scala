@@ -30,6 +30,9 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var resolveJavadocs: Boolean = false
 
+  @BeanProperty
+  var useSbtShell: Boolean = false
+
   @Nullable
   @BeanProperty
   var sbtVersion: String = null

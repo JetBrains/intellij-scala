@@ -20,7 +20,8 @@ class SbtModuleType extends ModuleType[EmptyModuleBuilder]("SBT_MODULE") {
 }
 
 object SbtModuleType {
-  val instance = Class.forName("org.jetbrains.sbt.project.module.SbtModuleType").newInstance.asInstanceOf[SbtModuleType]
+  val instance: SbtModuleType =
+    Class.forName("org.jetbrains.sbt.project.module.SbtModuleType").newInstance.asInstanceOf[SbtModuleType]
 
   def unapply(m: Module): Option[Module] =
     if (ModuleType.get(m).isInstanceOf[SbtModuleType]) Some(m)

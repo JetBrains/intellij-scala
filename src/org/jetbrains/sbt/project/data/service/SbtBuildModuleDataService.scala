@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.project.data.SbtModuleData
+import org.jetbrains.sbt.project.data.SbtBuildModuleData
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.sbt.resolvers.SbtResolver
@@ -13,20 +13,20 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 /**
  * @author Pavel Fatin
  */
-class SbtModuleDataService extends AbstractDataService[SbtModuleData, Module](SbtModuleData.Key) {
-  override def createImporter(toImport: Seq[DataNode[SbtModuleData]],
+class SbtBuildModuleDataService extends AbstractDataService[SbtBuildModuleData, Module](SbtBuildModuleData.Key) {
+  override def createImporter(toImport: Seq[DataNode[SbtBuildModuleData]],
                               projectData: ProjectData,
                               project: Project,
-                              modelsProvider: IdeModifiableModelsProvider): Importer[SbtModuleData] =
-    new SbtModuleDataService.Importer(toImport, projectData, project, modelsProvider)
+                              modelsProvider: IdeModifiableModelsProvider): Importer[SbtBuildModuleData] =
+    new SbtBuildModuleDataService.Importer(toImport, projectData, project, modelsProvider)
 }
 
-object SbtModuleDataService {
-  private class Importer(dataToImport: Seq[DataNode[SbtModuleData]],
+object SbtBuildModuleDataService {
+  private class Importer(dataToImport: Seq[DataNode[SbtBuildModuleData]],
                          projectData: ProjectData,
                          project: Project,
                          modelsProvider: IdeModifiableModelsProvider)
-    extends AbstractImporter[SbtModuleData](dataToImport, projectData, project, modelsProvider) {
+    extends AbstractImporter[SbtBuildModuleData](dataToImport, projectData, project, modelsProvider) {
 
     override def importData(): Unit =
       dataToImport.foreach { moduleNode =>

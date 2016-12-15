@@ -340,7 +340,7 @@
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
-	      <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
@@ -1497,10 +1497,23 @@
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
         <action id="Scala.MacroExpand"
-            class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
-            description="Expand macro application under cursor">
+                class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
+                description="Expand macro application under cursor">
             <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>
-      </actions>
+        <action id="Scala.Sbt.StartShell"
+                class="org.jetbrains.sbt.shell.SbtShellStartAction"
+                icon="org.jetbrains.plugins.scala.icons.Icons.SCALA_CONSOLE"
+                description="Start SBT shell">
+            <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Scala.RunConsole" />
+        </action>
+
+        <group>
+          <separator/>
+          <reference id="Scala.Sbt.StartShell"/>
+          <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
+        </group>
+
+    </actions>
 
 </idea-plugin>

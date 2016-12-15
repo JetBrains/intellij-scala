@@ -27,6 +27,7 @@ import scala.util.{Failure, Success}
  */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
+  //noinspection ConvertNullInitializerToUnderscore
   private var runner: SbtRunner = null
 
   protected var taskListener: TaskListener = SilentTaskListener
@@ -74,18 +75,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def convert(root: String, data: sbtStructure.StructureData, settingsJdk: Option[String]): Node[ESProjectData] = {
     val projects = data.projects
-    val project: sbtStructure.ProjectData = data.projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
-      .orElse(data.projects.headOption)
-      .getOrElse(throw new RuntimeException("No root project found"))
+    val project: sbtStructure.ProjectData =
+      projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
+        .orElse(projects.headOption)
+        .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
 
     val basePackages = projects.flatMap(_.basePackages).distinct
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
-    val sbtVersion = data.sbtVersion
 
     val projectJdk = chooseJdk(project, settingsJdk)
 
-    projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
+    projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, data.sbtVersion, root))
 
     val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
     projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))
@@ -95,9 +96,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val moduleFilesDirectory = new File(root + "/" + Sbt.ModulesDirectory)
     val moduleNodes = createModules(projects, libraryNodes, moduleFilesDirectory)
-    projectNode.addAll(moduleNodes)
 
-    createModuleDependencies(projects, moduleNodes)
+    projectNode.addAll(moduleNodes)
 
     val projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode] = projects.zip(moduleNodes).toMap
     val sharedSourceModules = createSharedSourceModules(projectToModuleNode, libraryNodes, moduleFilesDirectory)
@@ -139,13 +139,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   def createModules(projects: Seq[sbtStructure.ProjectData], libraryNodes: Seq[LibraryNode], moduleFilesDirectory: File): Seq[ModuleNode] = {
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
-    projects.map { project =>
+    val modules = projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
       val contentRootNode = createContentRoot(project)
       project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
       moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
+      moduleNode.add(createSbtModuleData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
@@ -155,6 +156,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
       moduleNode
     }
+
+    createModuleDependencies(projects, modules)
+
+    modules
   }
 
   def createLibraries(data: sbtStructure.StructureData, projects: Seq[sbtStructure.ProjectData]): Seq[LibraryNode] = {
@@ -176,13 +181,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
     val scalaVersion = project.scala.map(s => Version(s.version))
-    val scalacClasspath = project.scala.fold(Seq.empty[File])(s => s.compilerJar +: s.libraryJar +: s.extraJars)
+    val scalacClasspath = project.scala.fold(Seq.empty[File])(s => s.jars)
     val scalacOptions = project.scala.fold(Seq.empty[String])(_.options)
     val javacOptions = project.java.fold(Seq.empty[String])(_.options)
     val jdk = project.android.map(android => Android(android.targetVersion))
       .orElse(project.java.flatMap(java => java.home.map(JdkByHome)))
     new ModuleExtNode(scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions)
   }
+
+  private def createSbtModuleData(project: sbtStructure.ProjectData): SbtModuleNode =
+    new SbtModuleNode(project.id, project.buildURI)
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {
     new AndroidFacetNode(android.targetVersion, android.manifest, android.apk,
@@ -277,6 +285,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else List(project.target)
   }
 
+  // TODO where do I add build module cross-dependencies so that code is resolved correctly?
   private def createBuildModule(project: sbtStructure.ProjectData, moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
     val id = project.id + Sbt.BuildModuleSuffix
     val buildRoot = project.base / Sbt.ProjectDirectory
@@ -301,7 +310,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     result.add(library)
 
-    result.add(createSbtModuleData(project, localCachePath))
+    result.add(createSbtBuildModuleData(project, localCachePath))
 
     result
   }
@@ -321,10 +330,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     result
   }
 
-  def createSbtModuleData(project: sbtStructure.ProjectData, localCachePath: Option[String]): SbtModuleNode = {
+  def createSbtBuildModuleData(project: sbtStructure.ProjectData, localCachePath: Option[String]): SbtBuildModuleNode = {
     val imports = project.build.imports.flatMap(_.trim.substring(7).split(", "))
     val resolvers = project.resolvers map { r => new SbtMavenResolver(r.name, r.root).asInstanceOf[SbtResolver] }
-    new SbtModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
+    new SbtBuildModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
   }
 
   private def validRootPathsIn(project: sbtStructure.ProjectData, scope: String)

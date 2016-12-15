@@ -15,7 +15,8 @@ class ModuleExtData(val owner: ProjectSystemId,
                     val scalacClasspath: Seq[File],
                     val scalacOptions: Seq[String],
                     val jdk: Option[Sdk],
-                    val javacOptions: Seq[String]) extends AbstractExternalEntityData(owner)
+                    val javacOptions: Seq[String]
+                   ) extends AbstractExternalEntityData(owner)
 
 object ModuleExtData {
   val Key: Key[ModuleExtData] = new Key(classOf[ModuleExtData].getName,
