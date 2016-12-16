@@ -69,4 +69,18 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
+
+  def testScl11112(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |  object Table {
+        |    def apply[A](heading: String, rows: A*) = ???
+        |    def apply[A, B](heading: (String, String), rows: (A, B)*) = ???
+        |  }
+        |
+        |  object TableUser {
+        |    Table(("One", "Two"), ("A", "B"))
+        |  }
+      """.stripMargin)
+  }
 }
