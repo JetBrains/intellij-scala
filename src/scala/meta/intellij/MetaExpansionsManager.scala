@@ -10,12 +10,15 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
+import com.intellij.openapi.roots.libraries.{Library, LibraryUtil}
+import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator, OrderRootType}
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 import scala.meta.Tree
@@ -63,21 +66,46 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
 
   def invalidateModuleClassloader(module: Module): Option[URLClassLoader] = annotationClassLoaders.remove(module.getName)
 
+  def getMetaLibsForModule(module: Module): Seq[Library] = {
+    module.libraries.filter(_.getName.contains("org.scalameta")).toSeq
+  }
+
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = {
 
     def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
 
-    val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get)
-    val metaModule = annotClass.flatMap(_.module)
-    val classLoader = metaModule.map { m =>
-      annotationClassLoaders.getOrElseUpdate(m.getName, {
-        val cp: List[URL] = OrderEnumerator.orderEntries(m).getClassesRoots.toList.map(toUrl)
-        val outDirs: List[URL] = outputDirs(m).map(str => new File(str).toURI.toURL)
+    def classLoaderForModule(module: Module): URLClassLoader = {
+      annotationClassLoaders.getOrElseUpdate(module.getName, {
+        val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
+        val outDirs: List[URL] = outputDirs(module).map(str => new File(str).toURI.toURL)
         new URLClassLoader(outDirs ++ cp, this.getClass.getClassLoader)
       })
     }
+    def classLoaderForEnclosingLibrary(annotClass: ScClass): URLClassLoader = {
+      def classLoaderForLibrary(lib: Library): URLClassLoader = {
+        annotationClassLoaders.getOrElseUpdate(lib.getName, {
+          val libraryCP: Array[String] = lib.getUrls(OrderRootType.CLASSES)
+          val metaCP: Seq[String] = annot.module
+            .map(getMetaLibsForModule)
+            .map(_.flatMap(_.getUrls(OrderRootType.CLASSES)))
+            .getOrElse(Nil)
+          val fullCP = libraryCP ++ metaCP
+          new URLClassLoader(fullCP.map(u=>new URL("file:"+u.replaceAll("!/$", ""))), this.getClass.getClassLoader)
+        })
+      }
+      annotationClassLoaders.getOrElseUpdate(annotClass.qualifiedName, {
+        val lib = LibraryUtil.findLibraryByClass(annotClass.qualifiedName, project)
+        annotationClassLoaders.getOrElseUpdate(lib.getName, classLoaderForLibrary(lib))
+      })
+    }
+
+    val annotClass = annot.constructor.reference.get.bind().map(_.parentElement.get.asInstanceOf[ScClass])
+    val metaModule = annotClass.flatMap(_.module)
+    val classLoader = metaModule
+      .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
+      .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somwere among current module dependencies
     try {
       classLoader.map(_.loadClass(annotClass.get.asInstanceOf[ScTemplateDefinition].qualifiedName + "$inline$"))
     } catch {
@@ -100,7 +128,8 @@ object MetaExpansionsManager {
     try {
       val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath, s"${clazz.getName.replaceAll("\\.", "/")}.class")
       val sourceFile = new File(annot.constructor.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
-      classFile.exists() && classFile.lastModified() >= sourceFile.lastModified()
+      val isInJar = classFile.getPath.contains(".jar/")
+      isInJar || (classFile.exists() && classFile.lastModified() >= sourceFile.lastModified())
     } catch {
       case pc: ProcessCanceledException => throw pc
       case _:Exception => false
