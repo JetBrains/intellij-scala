@@ -22,4 +22,13 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |}
        |//true
     """.stripMargin)
+
+  def testSCL11060(): Unit = checkTextHasNoErrors(
+    s"""
+       |def foo:Iterator[(Int, Set[Int])] = {
+       |  val tS: (Int, Set[Int]) = (5, Set(12,3))
+       |  if (tS._2.nonEmpty) Some(tS).toIterator else None.toIterator
+       |}
+       |//true
+    """.stripMargin)
 }
