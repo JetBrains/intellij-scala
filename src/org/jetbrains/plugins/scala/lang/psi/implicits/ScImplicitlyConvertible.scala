@@ -220,101 +220,105 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
     result.element match {
       case f: ScFunction if f.hasTypeParameters =>
-        var uSubst = `type`.conforms(substituted, ScUndefinedSubstitutor())._2
-        uSubst.getSubstitutor(notNonable = false) match {
-          case Some(unSubst) =>
-            def hasRecursiveTypeParameters(typez: ScType): Boolean = {
-
-              var hasRecursiveTypeParameters = false
-              typez.recursiveUpdate {
-                case tpt: TypeParameterType =>
-                  f.typeParameters.find(_.nameAndId == tpt.nameAndId) match {
-                    case None => (true, tpt)
-                    case _ =>
-                      hasRecursiveTypeParameters = true
-                      (true, tpt)
-                  }
-                case tp: ScType => (hasRecursiveTypeParameters, tp)
-              }
-              hasRecursiveTypeParameters
-            }
-
-            for (tParam <- f.typeParameters) {
-              val lowerType: ScType = tParam.lowerBound.getOrNothing
-              if (lowerType != api.Nothing) {
-                val substedLower = unSubst.subst(substitutor.subst(lowerType))
-                if (!hasRecursiveTypeParameters(substedLower)) {
-                  uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
-                }
-              }
-              val upperType: ScType = tParam.upperBound.getOrAny
-              if (upperType != Any) {
-                val substedUpper = unSubst.subst(substitutor.subst(upperType))
-                if (!hasRecursiveTypeParameters(substedUpper)) {
-                  uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
-                }
-              }
-            }
-
-            uSubst.getSubstitutor(notNonable = false) match {
-              case Some(unSubst) =>
-                //let's update dependent method types
-                //todo: currently it looks like a hack in the right expression, probably whole this class should be
-                //todo: rewritten in more clean and clear way.
-                val dependentSubst = new ScSubstitutor(() => {
-                  val level = expression.scalaLanguageLevelOrDefault
-                  if (level >= Scala_2_10) {
-                    f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
-                      case (param: ScParameter) => (new Parameter(param), `type`)
-                    }.toMap
-                  } else Map.empty
-                })
-
-                def probablyHasDepententMethodTypes: Boolean = {
-                  if (f.paramClauses.clauses.length != 2 || !f.paramClauses.clauses.last.isImplicit) return false
-                  val implicitClauseParameters = f.paramClauses.clauses.last.parameters
-                  var res = false
-                  f.returnType.foreach(_.recursiveUpdate {
-                    case rtTp if res => (true, rtTp)
-                    case ScDesignatorType(p: ScParameter) if implicitClauseParameters.contains(p) =>
-                      res = true
-                      (true, tp)
-                    case tp: ScType => (false, tp)
-                  })
-                  res
-                }
-
-                val implicitDependentSubst = new ScSubstitutor(() => {
-                  val level = expression.scalaLanguageLevelOrDefault
-                  if (level >= Scala_2_10) {
-                    if (probablyHasDepententMethodTypes) {
-                      val params: Seq[Parameter] = f.paramClauses.clauses.last.effectiveParameters.map(
-                        param => new Parameter(param))
-                      val (inferredParams, expr, _) = InferUtil.findImplicits(params, None,
-                        expression, check = false, abstractSubstitutor = substitutor followed dependentSubst followed unSubst)
-                      inferredParams.zip(expr).map {
-                        case (param: Parameter, expr: Expression) =>
-                          (param, expr.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)._1.get)
-                      }.toMap
-                    } else Map.empty
-                  } else Map.empty
-                })
-
-
-                //todo: pass implicit parameters
-                ScalaPsiUtil.debug(s"Implicit $result is ok for type ${`type`}", LOG)
-                ImplicitMapResult(condition = true, result, tp, dependentSubst.subst(retTp), newSubstitutor, uSubst, implicitDependentSubst)
-              case _ =>
-                ScalaPsiUtil.debug(s"Implicit $result has problems with type parameters bounds for type ${`type`}", LOG)
-                ImplicitMapResult(condition = false, result, tp, retTp, null, null, null)
-            }
+        createSubstitutors(f, `type`, substituted, substitutor, tp) match {
+          case Some((dependentSubst, uSubst, implicitDependentSubst)) =>
+            ScalaPsiUtil.debug(s"Implicit $result is ok for type ${`type`}", LOG)
+            ImplicitMapResult(condition = true, result, tp, dependentSubst.subst(retTp), newSubstitutor, uSubst, implicitDependentSubst)
           case _ =>
             ScalaPsiUtil.debug(s"Implicit $result has problems with type parameters bounds for type ${`type`}", LOG)
             ImplicitMapResult(condition = false, result, tp, retTp, null, null, null)
         }
       case _ =>
         ScalaPsiUtil.debug(s"Implicit $result is ok for type ${`type`}", LOG)
-        ImplicitMapResult(condition = true, result, tp, retTp, newSubstitutor, null: ScUndefinedSubstitutor, ScSubstitutor.empty)
+        ImplicitMapResult(condition = true, result, tp, retTp, newSubstitutor, null, ScSubstitutor.empty)
+    }
+  }
+
+  private def createSubstitutors(f: ScFunction, `type`: ScType, substituted: ScType, substitutor: ScSubstitutor, tp: ScType) = {
+    var uSubst = `type`.conforms(substituted, ScUndefinedSubstitutor())._2
+    uSubst.getSubstitutor(notNonable = false) match {
+      case Some(unSubst) =>
+        def hasRecursiveTypeParameters(`type`: ScType): Boolean = {
+          var result = false
+          `type`.recursiveUpdate {
+            case parameterType: TypeParameterType =>
+              f.typeParameters
+                .find(_.nameAndId == parameterType.nameAndId)
+                .foreach { _ =>
+                  result = true
+                }
+              (true, parameterType)
+            case updated => (result, updated)
+          }
+          result
+        }
+
+        def substitute(maybeType: TypeResult[ScType]) = maybeType
+          .map(substitutor.subst)
+          .map(unSubst.subst)
+          .filter(!hasRecursiveTypeParameters(_))
+
+        f.typeParameters.foreach { typeParameter =>
+          val nameAndId = typeParameter.nameAndId
+
+          substitute(typeParameter.lowerBound).foreach { lower =>
+            uSubst = uSubst.addLower(nameAndId, lower, additional = true)
+          }
+
+          substitute(typeParameter.upperBound).foreach { upper =>
+            uSubst = uSubst.addUpper(nameAndId, upper, additional = true)
+          }
+        }
+
+        uSubst.getSubstitutor(notNonable = false) match {
+          case Some(unSubst) =>
+            //let's update dependent method types
+            //todo: currently it looks like a hack in the right expression, probably whole this class should be
+            //todo: rewritten in more clean and clear way.
+            val dependentSubst = new ScSubstitutor(() => {
+              val level = expression.scalaLanguageLevelOrDefault
+              if (level >= Scala_2_10) {
+                f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
+                  case (param: ScParameter) => (new Parameter(param), `type`)
+                }.toMap
+              } else Map.empty
+            })
+
+            def probablyHasDepententMethodTypes: Boolean = {
+              if (f.paramClauses.clauses.length != 2 || !f.paramClauses.clauses.last.isImplicit) return false
+              val implicitClauseParameters = f.paramClauses.clauses.last.parameters
+              var res = false
+              f.returnType.foreach(_.recursiveUpdate {
+                case rtTp if res => (true, rtTp)
+                case ScDesignatorType(p: ScParameter) if implicitClauseParameters.contains(p) =>
+                  res = true
+                  (true, tp)
+                case tp: ScType => (false, tp)
+              })
+              res
+            }
+
+            val implicitDependentSubst = new ScSubstitutor(() => {
+              val level = expression.scalaLanguageLevelOrDefault
+              if (level >= Scala_2_10) {
+                if (probablyHasDepententMethodTypes) {
+                  val params: Seq[Parameter] = f.paramClauses.clauses.last.effectiveParameters.map(
+                    param => new Parameter(param))
+                  val (inferredParams, expr, _) = InferUtil.findImplicits(params, None,
+                    expression, check = false, abstractSubstitutor = substitutor followed dependentSubst followed unSubst)
+                  inferredParams.zip(expr).map {
+                    case (param: Parameter, expr: Expression) =>
+                      (param, expr.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)._1.get)
+                  }.toMap
+                } else Map.empty
+              } else Map.empty
+            })
+
+            //todo: pass implicit parameters
+            Some(dependentSubst, uSubst, implicitDependentSubst)
+          case _ => None
+        }
+      case _ => None
     }
   }
 
