@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.implicits.{CollectImplicitsProcessor, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
@@ -112,8 +112,7 @@ object ScalaGlobalMembersCompletionContributor {
 
     import scala.collection.JavaConversions._
 
-    val convertible = new ScImplicitlyConvertible(ref)
-    val proc = new convertible.CollectImplicitsProcessor(true)
+    val proc = new CollectImplicitsProcessor(ref, true)
     val processedObjects: mutable.HashSet[String] = mutable.HashSet.empty
 
     def processObject(o: ScObject): Unit = {
@@ -172,7 +171,7 @@ object ScalaGlobalMembersCompletionContributor {
     val elements = elementsSet(ref)
 
     val lookups = proc.candidates.toSeq.flatMap {
-      convertible.forMap(_, originalType)
+      ScImplicitlyConvertible.forMap(ref, _, originalType)
     }.flatMap { result =>
       val processor = new CompletionProcessor(StdKinds.methodRef, ref)
       processor.processType(result.resultType, ref)
