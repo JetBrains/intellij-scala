@@ -444,11 +444,12 @@ object TestNodeProvider {
     case methodCall: ScMethodCall =>
       val literal = methodCall.getEffectiveInvokedExpr
       literal.isInstanceOf[ScLiteral] && {
-        val (_, actualType, _, _) = literal.getImplicitConversions()
-        actualType match {
-          case Some(funDef: ScFunctionDefinition) =>
-            funDef.getName == "TestableSymbol" && funDef.isSynthetic && checkClauses(funDef.getParameterList.clauses, List("scala.Symbol"))
-          case _ => false
+        literal.implicitElement().collect {
+          case definition: ScFunctionDefinition => definition
+        }.filter { definition =>
+          definition.getName == "TestableSymbol" && definition.isSynthetic
+        }.exists { funDef =>
+          checkClauses(funDef.getParameterList.clauses, List("scala.Symbol"))
         }
       }
     case _ => false

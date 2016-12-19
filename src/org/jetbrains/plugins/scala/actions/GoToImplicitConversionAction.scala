@@ -17,7 +17,6 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.util.Alarm
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -61,39 +60,34 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     if (!file.isInstanceOf[ScalaFile]) return
 
     def forExpr(expr: ScExpression): Boolean = {
-      val implicitConversions = { //todo: too complex logic, should be simplified, and moved into one place
-        lazy val additionalExpression = expr.getAdditionalExpression
+      val (implicitElement: Option[PsiNamedElement], fromUnderscore: Boolean) = {
+        def additionalImplicitElement = expr.getAdditionalExpression.flatMap {
+          case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
+        }
+
         if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
-          val conv1 = expr.getImplicitConversions(fromUnderscore = false)
-          val conv2 = expr.getImplicitConversions(fromUnderscore = true)
-          if (conv2._2.isDefined) conv2
-          else if (conv1._2.isDefined) conv1
-          else if (additionalExpression.isDefined) {
-            val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnderscore = false, expectedOption = Some(additionalExpression.get._2))
-            if (conv3._2.isDefined) conv3
-            else conv1
-          } else conv1
-        } else if (additionalExpression.isDefined) {
-          val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnderscore = false, expectedOption = Some(additionalExpression.get._2))
-          if (conv3._2.isDefined) conv3
-          else expr.getImplicitConversions(fromUnderscore = false)
-        } else expr.getImplicitConversions(fromUnderscore = false)
+          expr.implicitElement(fromUnderscore = true) match {
+            case someElement@Some(_) => (someElement, true)
+            case _ => (expr.implicitElement().orElse(additionalImplicitElement), false)
+          }
+        } else (additionalImplicitElement.orElse(expr.implicitElement()), false)
       }
-      val functions = implicitConversions._1
-      if (functions.isEmpty) return true
-      val conversionFun = implicitConversions._2.orNull
+
+      val (regularConversions: Seq[PsiNamedElement], companionConversions: Seq[PsiNamedElement]) =
+        expr.getImplicitConversions(fromUnderscore = fromUnderscore)
+      if (regularConversions.isEmpty && companionConversions.isEmpty) return true
+
+      val conversionFun = implicitElement.orNull
       val model = JListCompatibility.createDefaultListModel()
-      val firstPart = implicitConversions._3.sortBy(_.name)
-      val secondPart = implicitConversions._4.sortBy(_.name)
       var actualIndex = -1
       //todo actualIndex should be another if conversionFun is not one
-      for (element <- firstPart) {
-        val elem = new Parameters(element, expr, editor, firstPart, secondPart)
+      for (element <- regularConversions) {
+        val elem = new Parameters(element, expr, editor, regularConversions, companionConversions)
         JListCompatibility.addElement(model, elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
-      for (element <- secondPart) {
-        val elem = new Parameters(element, expr, editor, firstPart, secondPart)
+      for (element <- companionConversions) {
+        val elem = new Parameters(element, expr, editor, regularConversions, companionConversions)
         JListCompatibility.addElement(model, elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
@@ -140,7 +134,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       GoToImplicitConversionAction.setPopup(popup)
 
       hint = new LightBulbHint(editor, project, expr)
-      hint.createHint(firstPart, secondPart)
+      hint.createHint(regularConversions, companionConversions)
 
       false
     }
@@ -173,10 +167,12 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
                 case inf: ScInfixExpr if inf.operation == expr =>
                 case _ => res += expr
               }
-            case expr: ScExpression if guard || expr.getImplicitConversions()._2.isDefined ||
+            case expr: ScExpression if guard || expr.implicitElement().isDefined ||
               (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
-                expr.getImplicitConversions(fromUnderscore = true)._2.isDefined) || (expr.getAdditionalExpression.isDefined &&
-              expr.getAdditionalExpression.get._1.getImplicitConversions(expectedOption = Some(expr.getAdditionalExpression.get._2))._2.isDefined) => res += expr
+                expr.implicitElement(fromUnderscore = true).isDefined) || expr.getAdditionalExpression.flatMap {
+              case (additional, tp) => additional.implicitElement(expectedOption = Some(tp))
+            }.isDefined =>
+              res += expr
             case _ =>
           }
           parent = parent.getParent

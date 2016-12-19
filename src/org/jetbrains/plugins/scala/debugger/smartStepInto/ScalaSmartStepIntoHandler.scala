@@ -161,12 +161,11 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     override def visitExpression(expr: ScExpression) {
       if (!elementFilter(expr)) return
 
-      val implicits = expr.getImplicitConversions()._2
-      implicits match {
-        case Some(f: PsiMethod) if f.isPhysical => //synthetic conversions are created for implicit classes
-          result += new MethodSmartStepTarget(f, "implicit ", expr, false, noStopAtLines)
-        case _ =>
-      }
+      expr.implicitElement().collect {
+        case method: PsiMethod => method
+      }.filter(_.isPhysical) // synthetic conversions are created for implicit classes
+        .map(new MethodSmartStepTarget(_, "implicit ", expr, false, noStopAtLines))
+        .foreach(result.+=)
 
       expr match {
         case ScalaPsiUtil.MethodValue(m) =>
@@ -181,7 +180,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
               val prefix = s"${ref.refName}."
               result += new MethodSmartStepTarget(fun, prefix, ref.nameId, false, noStopAtLines)
             case Both(f: ScFunctionDefinition, ContainingClass(cl: ScClass)) if cl.getModifierList.hasModifierProperty("implicit") =>
-              val isActuallyImplicit = ref.qualifier.exists(_.getImplicitConversions()._2.nonEmpty)
+              val isActuallyImplicit = ref.qualifier.flatMap(_.implicitElement()).isDefined
               val prefix = if (isActuallyImplicit) "implicit " else null
               result += new MethodSmartStepTarget(f, prefix, ref.nameId, false, noStopAtLines)
             case fun: PsiMethod =>

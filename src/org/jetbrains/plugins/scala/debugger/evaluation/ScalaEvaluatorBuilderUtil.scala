@@ -1436,8 +1436,7 @@ object ScalaEvaluatorBuilderUtil {
 
   object implicitlyConvertedTo {
     def unapply(expr: ScExpression): Option[ScExpression] = {
-      val (_, maybeFunction, _, _) = expr.getImplicitConversions(fromUnderscore = true)
-      maybeFunction.collect {
+      expr.implicitElement(fromUnderscore = true).collect {
         case function: ScFunction => function
       }.map { fun =>
         val callText = s"${fun.name}(${expr.getText})"
