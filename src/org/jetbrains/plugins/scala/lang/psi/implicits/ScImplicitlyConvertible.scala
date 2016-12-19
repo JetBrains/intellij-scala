@@ -286,16 +286,18 @@ class ScImplicitlyConvertible(val expression: ScExpression,
               f.returnType.toOption.flatMap { functionType =>
                 clauses match {
                   case Seq(_, last) if last.isImplicit =>
-                    var result = false
-                    functionType.recursiveUpdate {
-                      case t if result => (true, t)
-                      case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
-                        result = true
-                        (true, tp)
-                      case t => (false, t)
+                    var result: Option[ScParameterClause] = None
+                    functionType.recursiveUpdate { t =>
+                      t match {
+                        case ScDesignatorType(p: ScParameter) if last.parameters.contains(p) =>
+                          result = Some(last)
+                        case _ =>
+                      }
+
+                      (result.isDefined, t)
                     }
 
-                    if (result) Some(last) else None
+                    result
                   case _ => None
                 }
               }
