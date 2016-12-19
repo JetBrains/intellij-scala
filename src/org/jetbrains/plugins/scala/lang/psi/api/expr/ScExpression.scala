@@ -541,7 +541,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       val expr = call.get.getEffectiveInvokedExpr
       ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false).foreach { result =>
         val builder = new ImplicitResolveResult.ResolverStateBuilder(result).withImplicitFunction
-        applyProc.processType(result.getTypeWithDependentSubstitutor, expr, builder.state)
+        applyProc.processType(result.typeWithDependentSubstitutor, expr, builder.state)
         cand = applyProc.candidates
       }
     }

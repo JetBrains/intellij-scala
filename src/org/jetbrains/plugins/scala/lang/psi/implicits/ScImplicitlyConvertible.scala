@@ -68,7 +68,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     (firstBuffer, secondBuffer)
   }
 
-  private def adaptResults(results: Set[ScalaResolveResult], `type`: ScType): Set[(ScType, ImplicitMapResult)] =
+  private def adaptResults(results: Set[ScalaResolveResult], `type`: ScType): Set[(ScalaResolveResult, ScType, ScSubstitutor)] =
     results.flatMap {
       forMap(expression, _, `type`)
     }.flatMap { result =>
@@ -82,7 +82,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       }
 
       maybeType.map { tp =>
-        (tp, result)
+        (result.resolveResult, tp, result.implicitDependentSubstitutor)
       }
     }
 
@@ -113,7 +113,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     if (typez.isInstanceOf[UndefinedType]) return Set.empty
 
     adaptResults(processor.candidatesS, typez).map {
-      case (tp, result) => RegularImplicitResolveResult(tp, result)
+      case (result, tp, substitutor) => RegularImplicitResolveResult(result, tp, substitutor)
     }
   }
 
@@ -135,7 +135,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     }
 
     adaptResults(processor.candidatesS, typez).map {
-      case (tp, result) => CompanionImplicitResolveResult(tp, result)
+      case (result, tp, substitutor) => CompanionImplicitResolveResult(result, tp, substitutor)
     }
   }
 }

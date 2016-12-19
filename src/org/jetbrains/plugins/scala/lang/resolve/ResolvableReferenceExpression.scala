@@ -510,7 +510,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
     ScalaPsiUtil.findImplicitConversion(e, name, this, processor, noImplicitsForArgs).foreach { result =>
       val state = builder(result).withType.state
-      processor.processType(result.getTypeWithDependentSubstitutor, e, state)
+      processor.processType(result.typeWithDependentSubstitutor, e, state)
     }
   }
 }
