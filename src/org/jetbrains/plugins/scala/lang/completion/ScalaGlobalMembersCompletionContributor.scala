@@ -175,7 +175,7 @@ object ScalaGlobalMembersCompletionContributor {
       convertible.forMap(_, originalType)
     }.flatMap { result =>
       val processor = new CompletionProcessor(StdKinds.methodRef, ref)
-      processor.processType(result.rt, ref)
+      processor.processType(result.resultType, ref)
 
       val (element, elementObject) = adaptResolveResult(result.resolveResult)
       processor.candidates.map {

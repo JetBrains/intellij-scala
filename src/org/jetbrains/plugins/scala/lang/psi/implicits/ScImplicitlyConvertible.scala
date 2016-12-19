@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitMapResult
+import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.{DependentImplicitMapResult, ImplicitMapResult, SimpleImplicitMapResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -76,16 +76,13 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     results.flatMap {
       forMap(_, `type`)
     }.flatMap { result =>
-      val returnType = result.rt
-      val resolveResult = result.resolveResult
+      val returnType = result.resultType
 
-      val maybeType = resolveResult.element match {
-        case f: ScFunction if f.hasTypeParameters =>
-          result.maybeUndefinedSubstitutor
-            .flatMap(_.getSubstitutor)
+      val maybeType = result match {
+        case SimpleImplicitMapResult(_, _) => Some(returnType)
+        case DependentImplicitMapResult(_, _, undefinedSubstitutor, _) =>
+          undefinedSubstitutor.getSubstitutor
             .map(_.subst(returnType))
-        case _ =>
-          Some(returnType)
       }
 
       maybeType.map { tp =>
@@ -214,25 +211,29 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       return None
     }
 
-    result.element match {
+    val mapResult = result.element match {
       case f: ScFunction if f.hasTypeParameters =>
-        createSubstitutors(f, `type`, substituted, substitutor, tp) match {
-          case Some((dependentSubst, uSubst, implicitDependentSubst)) =>
-            ScalaPsiUtil.debug(s"Implicit $result is ok for type ${`type`}", LOG)
-            Some(ImplicitMapResult(result, dependentSubst.subst(retTp), Some(uSubst), implicitDependentSubst))
-          case _ =>
-            ScalaPsiUtil.debug(s"Implicit $result has problems with type parameters bounds for type ${`type`}", LOG)
-            None
+        val (_, undefinedSubstitutor) = `type`.conforms(substituted, ScUndefinedSubstitutor())
+        createSubstitutors(f, `type`, substitutor, undefinedSubstitutor).map {
+          case (dependentSubst, uSubst, implicitDependentSubst) =>
+            DependentImplicitMapResult(result, dependentSubst.subst(retTp), uSubst, implicitDependentSubst)
         }
       case _ =>
-        ScalaPsiUtil.debug(s"Implicit $result is ok for type ${`type`}", LOG)
-        Some(ImplicitMapResult(result, retTp))
+        Some(SimpleImplicitMapResult(result, retTp))
     }
+
+    val message = mapResult match {
+      case Some(_) => "is ok"
+      case _ => "has problems with type parameters bounds"
+    }
+
+    ScalaPsiUtil.debug(s"Implicit $result $message for type ${`type`}", LOG)
+
+    mapResult
   }
 
-  private def createSubstitutors(f: ScFunction, `type`: ScType, substituted: ScType,
-                                 substitutor: ScSubstitutor, tp: ScType) = {
-    var uSubst = `type`.conforms(substituted, ScUndefinedSubstitutor())._2
+  private def createSubstitutors(f: ScFunction, `type`: ScType, substitutor: ScSubstitutor, undefinedSubstitutor: ScUndefinedSubstitutor) = {
+    var uSubst = undefinedSubstitutor
     uSubst.getSubstitutor(notNonable = false) match {
       case Some(unSubst) =>
         def hasRecursiveTypeParameters(`type`: ScType): Boolean = {
@@ -480,8 +481,16 @@ object ScImplicitlyConvertible {
     true
   }
 
-  case class ImplicitMapResult(resolveResult: ScalaResolveResult, rt: ScType,
-                               maybeUndefinedSubstitutor: Option[ScUndefinedSubstitutor] = None,
-                               implicitDependentSubst: ScSubstitutor = ScSubstitutor.empty)
+  sealed trait ImplicitMapResult {
+    val resolveResult: ScalaResolveResult
+    val resultType: ScType
+    val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty
+  }
+
+  private case class SimpleImplicitMapResult(resolveResult: ScalaResolveResult, resultType: ScType) extends ImplicitMapResult
+
+  private case class DependentImplicitMapResult(resolveResult: ScalaResolveResult, resultType: ScType,
+                                                undefinedSubstitutor: ScUndefinedSubstitutor,
+                                                override val implicitDependentSubstitutor: ScSubstitutor) extends ImplicitMapResult
 
 }
