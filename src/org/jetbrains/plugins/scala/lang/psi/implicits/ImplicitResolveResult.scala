@@ -35,7 +35,7 @@ sealed trait ImplicitResolveResult {
 case class CompanionImplicitResolveResult(`type`: ScType,
                                           result: ImplicitMapResult) extends ImplicitResolveResult {
   override val resolveResult: ScalaResolveResult = result.resolveResult
-  override protected val implicitDependentSubstitutor: ScSubstitutor = result.implicitDependentSubst
+  override protected val implicitDependentSubstitutor: ScSubstitutor = result.implicitDependentSubstitutor
   override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty
 }
 
@@ -46,7 +46,7 @@ case class RegularImplicitResolveResult(`type`: ScType,
 
 object RegularImplicitResolveResult {
   def apply(`type`: ScType, result: ImplicitMapResult): RegularImplicitResolveResult =
-    RegularImplicitResolveResult(`type`, result.resolveResult, result.implicitDependentSubst)
+    RegularImplicitResolveResult(`type`, result.resolveResult, result.implicitDependentSubstitutor)
 }
 
 object ImplicitResolveResult {
