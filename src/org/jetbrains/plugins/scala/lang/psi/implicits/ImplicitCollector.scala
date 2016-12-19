@@ -241,7 +241,7 @@ class ImplicitCollector(place: PsiElement,
     private def isAccessible(member: ScMember): Boolean = {
       isPredefPriority || (member match {
         case fun: ScFunction =>
-          ScImplicitlyConvertible.checkFucntionIsEligible(fun, getPlace) && ResolveUtils.isAccessible(member, getPlace)
+          CollectImplicitsProcessor.checkFucntionIsEligible(fun, getPlace) && ResolveUtils.isAccessible(member, getPlace)
         case _ => ResolveUtils.isAccessible(member, getPlace)
       })
     }
