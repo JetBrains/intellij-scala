@@ -308,7 +308,7 @@ object ScalaPsiUtil {
       case Seq(resolveResult) =>
         ExtensionConversionHelper.specialExtractParameterType(resolveResult).map {
           case (tp, typeParams) =>
-            RegularImplicitResolveResult(tp, resolveResult, unresolvedTypeParameters = typeParams) //todo: from companion parameter
+            RegularImplicitResolveResult(resolveResult, tp, unresolvedTypeParameters = typeParams) //todo: from companion parameter
         }
       case _ => None
     }
@@ -409,7 +409,7 @@ object ScalaPsiUtil {
           .withImplicitFunction
           .withType
 
-        processor.processType(result.getTypeWithDependentSubstitutor, expr, builder.state)
+        processor.processType(result.typeWithDependentSubstitutor, expr, builder.state)
       }
       candidates = processor.candidatesS
     }

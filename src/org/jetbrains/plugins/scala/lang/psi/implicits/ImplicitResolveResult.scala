@@ -5,7 +5,6 @@ import com.intellij.psi.{PsiClass, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitMapResult
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -15,39 +14,32 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
   * @author adkozlov
   */
 sealed trait ImplicitResolveResult {
+  def element: PsiNamedElement = resolveResult.element
+
   val `type`: ScType
 
-  val resolveResult: ScalaResolveResult
-
-  val unresolvedTypeParameters: Seq[TypeParameter]
-
-  def element: PsiNamedElement =
-    resolveResult.element
+  def typeWithDependentSubstitutor: ScType = implicitDependentSubstitutor.subst(`type`)
 
   def substitutor: ScSubstitutor =
     implicitDependentSubstitutor.followed(resolveResult.substitutor)
 
-  def getTypeWithDependentSubstitutor: ScType = implicitDependentSubstitutor.subst(`type`)
+  protected val resolveResult: ScalaResolveResult
+
+  protected val unresolvedTypeParameters: Seq[TypeParameter]
 
   protected val implicitDependentSubstitutor: ScSubstitutor
 }
 
-case class CompanionImplicitResolveResult(`type`: ScType,
-                                          result: ImplicitMapResult) extends ImplicitResolveResult {
-  override val resolveResult: ScalaResolveResult = result.resolveResult
-  override protected val implicitDependentSubstitutor: ScSubstitutor = result.implicitDependentSubstitutor
+case class CompanionImplicitResolveResult(resolveResult: ScalaResolveResult,
+                                          `type`: ScType,
+                                          implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
   override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty
 }
 
-case class RegularImplicitResolveResult(`type`: ScType,
-                                        resolveResult: ScalaResolveResult,
+case class RegularImplicitResolveResult(resolveResult: ScalaResolveResult,
+                                        `type`: ScType,
                                         implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
                                         unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
-
-object RegularImplicitResolveResult {
-  def apply(`type`: ScType, result: ImplicitMapResult): RegularImplicitResolveResult =
-    RegularImplicitResolveResult(`type`, result.resolveResult, result.implicitDependentSubstitutor)
-}
 
 object ImplicitResolveResult {
 
