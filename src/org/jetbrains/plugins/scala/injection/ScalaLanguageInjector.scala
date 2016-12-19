@@ -175,7 +175,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
   }
 
   def implicitAnnotationOwnerFor(literal: ScLiteral): Option[PsiAnnotationOwner] = {
-    literal.getImplicitConversions()._2.flatMap(_.asOptionOf[ScFunction]).flatMap(_.parameters.headOption)
+    literal.implicitElement().flatMap(_.asOptionOf[ScFunction]).flatMap(_.parameters.headOption)
   }
   
   private def injectInInterpolation(registrar: MultiHostRegistrar, hostElement: PsiElement, 

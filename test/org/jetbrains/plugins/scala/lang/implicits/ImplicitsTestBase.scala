@@ -49,9 +49,9 @@ abstract class ImplicitsTestBase extends ScalaLightPlatformCodeInsightTestCaseAd
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScExpression = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset + addOne, endOffset, classOf[ScExpression])
     assert(expr != null, "Not specified expression in range to infer type.")
-    val (conversions, maybeFunction, _, _) = expr.getImplicitConversions()
-    val res = conversions.map(_.name).sorted.mkString("Seq(", ",\n    ", ")") + ",\n" + (
-      maybeFunction match {
+    val (regularConversions, companionConversions) = expr.getImplicitConversions()
+    val res = (regularConversions ++ companionConversions).map(_.name).mkString("Seq(", ",\n    ", ")") + ",\n" + (
+      expr.implicitElement() match {
         case None => "None"
         case Some(elem: PsiNamedElement) => "Some(" + elem.name + ")"
         case _ => assert(assertion = false, message = "elem is not PsiNamedElement")

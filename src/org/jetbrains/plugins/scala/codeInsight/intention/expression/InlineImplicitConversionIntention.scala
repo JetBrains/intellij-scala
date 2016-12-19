@@ -25,18 +25,17 @@ class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
   override def getText: String = getFamilyName
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    parent(element).map {
-      findConversions
-    }.exists {
-      case (maybeFunction, _) => maybeFunction.nonEmpty
-    }
+    parent(element).flatMap {
+      _.implicitElement(fromUnderscore = true)
+    }.isDefined
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
     parent(element).foreach { expression =>
-      findConversions(expression) match {
-        case (Some(function: ScFunction), conversions) =>
-          replaceWithExplicit(expression, function, project, editor, conversions)
-        case _ =>
+      expression.implicitElement(fromUnderscore = true).collect {
+        case function: ScFunction => function
+      }.foreach { function =>
+        val (regularConversions, companionConversions) = expression.getImplicitConversions(fromUnderscore = true)
+        replaceWithExplicit(expression, function, project, editor, regularConversions ++ companionConversions)
       }
     }
 
@@ -44,9 +43,4 @@ class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
     Option(getParentOfType(element, classOf[ScExpression], false)).filter {
       _.isValid
     }
-
-  private def findConversions(expression: ScExpression) = {
-    val (_, maybeFunction, _, conversions) = expression.getImplicitConversions(fromUnderscore = true)
-    (maybeFunction, conversions)
-  }
 }

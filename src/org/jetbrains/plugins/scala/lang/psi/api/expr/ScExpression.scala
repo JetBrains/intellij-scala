@@ -6,7 +6,7 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ElementText, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ElementText, PsiNamedElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, isAnonymousExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.{SafeCheckException, extractImplicitParameterType}
@@ -455,17 +455,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     additionalExpression
   }
 
-  /**
-    * This method returns following values:
-    *
-    * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
-    */
-  def getImplicitConversions(fromUnderscore: Boolean = false,
-                             expectedOption: => Option[ScType] = smartExpectedType()):
-  (Seq[PsiNamedElement], Option[PsiNamedElement], Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val (regularResults, companionResults) = new ScImplicitlyConvertible(this, fromUnderscore)
-      .implicitMap(arguments = expectedTypes(fromUnderscore).toSeq)
-
+  def implicitElement(fromUnderscore: Boolean = false,
+                      expectedOption: => Option[ScType] = smartExpectedType()): Option[PsiNamedElement] = {
     def referenceImplicitFunction(reference: ScReferenceExpression) = reference.multiResolve(false) match {
       case Array(result: ScalaResolveResult) => result.implicitFunction
       case _ => None
@@ -483,9 +474,23 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         getTypeAfterImplicitConversion(expectedOption = expectedOption, fromUnderscore = fromUnderscore).implicitFunction
     }
 
-    val regularElements = regularResults.map(_.element)
-    val companionElements = companionResults.map(_.element)
-    (regularElements ++ companionElements, implicitFunction(this), regularElements, companionElements)
+    implicitFunction(this)
+  }
+
+  /**
+    * This method returns following values:
+    *
+    * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
+    */
+  def getImplicitConversions(fromUnderscore: Boolean = false): (Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
+    val (regularResults, companionResults) = new ScImplicitlyConvertible(this, fromUnderscore)
+      .implicitMap(arguments = expectedTypes(fromUnderscore).toSeq)
+
+    def sortElements(results: Seq[ImplicitResolveResult]) =
+      results.map(_.element)
+        .sortBy(_.name)
+
+    (sortElements(regularResults), sortElements(companionResults))
   }
 
   final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
