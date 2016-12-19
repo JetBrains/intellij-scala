@@ -171,10 +171,8 @@ object ScalaGlobalMembersCompletionContributor {
 
     val elements = elementsSet(ref)
 
-    val lookups = proc.candidates.toSeq.map {
+    val lookups = proc.candidates.toSeq.flatMap {
       convertible.forMap(_, originalType)
-    }.filter {
-      _.condition
     }.flatMap { result =>
       val processor = new CompletionProcessor(StdKinds.methodRef, ref)
       processor.processType(result.rt, ref)
