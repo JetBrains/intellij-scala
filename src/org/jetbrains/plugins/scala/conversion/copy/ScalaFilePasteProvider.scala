@@ -13,7 +13,7 @@ import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -91,8 +91,12 @@ class ScalaFilePasteProvider extends PasteProvider {
 }
 
 object ScalaFilePasteProvider {
-
-  // TODO: Support some logic here
-  def isValidScalaFile(file: Option[ScalaFile]): Boolean = true
+  def isValidScalaFile(file: Option[ScalaFile], acceptableErrors: Seq[String] = Seq.empty): Boolean = {
+    !file.exists(_.depthFirst().exists {
+      case err: PsiErrorElement if acceptableErrors.contains(err.getErrorDescription) => false
+      case _: PsiErrorElement => true
+      case _ => false
+    })
+  }
 }
 
