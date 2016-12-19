@@ -31,4 +31,27 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |}
        |//true
     """.stripMargin)
+
+  def testSCL11139(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.reflect.Manifest
+       |object App {
+       |  def tryCast[T](o: Any)(implicit manifest: Manifest[T]): Option[T] = {
+       |    val clazz = manifest.runtimeClass.asInstanceOf[Class[T]]
+       |    if (clazz.isAssignableFrom(o.getClass)) {
+       |      Some(o.asInstanceOf[T])
+       |    } else {
+       |      None
+       |    }
+       |  }
+       |
+       |  def main(arg: Array[String]) = {
+       |    val text: String = Seq("a", 1)
+       |      .flatMap(tryCast[String])
+       |      .mkString
+       |    println(text)
+       |  }
+       |}
+       |//true
+    """.stripMargin)
 }
