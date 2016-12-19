@@ -73,19 +73,17 @@ class ScImplicitlyConvertible(val expression: ScExpression,
   }
 
   private def adaptResults(results: Set[ScalaResolveResult], `type`: ScType): Set[(ScType, ImplicitMapResult)] =
-    results.map {
+    results.flatMap {
       forMap(_, `type`)
-    }.filter {
-      _.condition
     }.flatMap { result =>
       val returnType = result.rt
       val resolveResult = result.resolveResult
 
       val maybeType = resolveResult.element match {
         case f: ScFunction if f.hasTypeParameters =>
-          result.subst.getSubstitutor.map {
-            _.subst(returnType)
-          }
+          result.maybeUndefinedSubstitutor
+            .flatMap(_.getSubstitutor)
+            .map(_.subst(returnType))
         case _ =>
           Some(returnType)
       }
@@ -191,11 +189,10 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       }
   }
 
-  def forMap(result: ScalaResolveResult, `type`: ScType): ImplicitMapResult = {
+  def forMap(result: ScalaResolveResult, `type`: ScType): Option[ImplicitMapResult] = {
     ScalaPsiUtil.debug(s"Check implicit: $result for type: ${`type`}", LOG)
 
-    val default = ImplicitMapResult(condition = false, result, null, null, null, null, null)
-    if (PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(result.element), expression, false)) return default
+    if (PsiTreeUtil.isContextAncestor(ScalaPsiUtil.nameContext(result.element), expression, false)) return None
 
     //to prevent infinite recursion
     ProgressManager.checkCanceled()
@@ -203,7 +200,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     val substitutor = result.substitutor
     val (tp: ScType, retTp: ScType) = result.element match {
       case f: ScFunction if f.paramClauses.clauses.nonEmpty => getTypes(substitutor, f)
-      case element => getTypes(substitutor, element).getOrElse(return default)
+      case element => getTypes(substitutor, element).getOrElse(return None)
     }
 
     val newSubstitutor = result.element match {
@@ -214,7 +211,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     val substituted = newSubstitutor.subst(tp)
     if (!`type`.weakConforms(substituted)) {
       ScalaPsiUtil.debug(s"Implicit $result doesn't conform to ${`type`}", LOG)
-      return ImplicitMapResult(condition = false, result, tp, retTp, null, null, null)
+      return None
     }
 
     result.element match {
@@ -222,14 +219,14 @@ class ScImplicitlyConvertible(val expression: ScExpression,
         createSubstitutors(f, `type`, substituted, substitutor, tp) match {
           case Some((dependentSubst, uSubst, implicitDependentSubst)) =>
             ScalaPsiUtil.debug(s"Implicit $result is ok for type ${`type`}", LOG)
-            ImplicitMapResult(condition = true, result, tp, dependentSubst.subst(retTp), newSubstitutor, uSubst, implicitDependentSubst)
+            Some(ImplicitMapResult(result, dependentSubst.subst(retTp), Some(uSubst), implicitDependentSubst))
           case _ =>
             ScalaPsiUtil.debug(s"Implicit $result has problems with type parameters bounds for type ${`type`}", LOG)
-            ImplicitMapResult(condition = false, result, tp, retTp, null, null, null)
+            None
         }
       case _ =>
         ScalaPsiUtil.debug(s"Implicit $result is ok for type ${`type`}", LOG)
-        ImplicitMapResult(condition = true, result, tp, retTp, newSubstitutor, null, ScSubstitutor.empty)
+        Some(ImplicitMapResult(result, retTp))
     }
   }
 
@@ -483,8 +480,8 @@ object ScImplicitlyConvertible {
     true
   }
 
-  case class ImplicitMapResult(condition: Boolean, resolveResult: ScalaResolveResult, tp: ScType, rt: ScType,
-                               newSubst: ScSubstitutor, subst: ScUndefinedSubstitutor,
-                               implicitDependentSubst: ScSubstitutor)
+  case class ImplicitMapResult(resolveResult: ScalaResolveResult, rt: ScType,
+                               maybeUndefinedSubstitutor: Option[ScUndefinedSubstitutor] = None,
+                               implicitDependentSubst: ScSubstitutor = ScSubstitutor.empty)
 
 }
