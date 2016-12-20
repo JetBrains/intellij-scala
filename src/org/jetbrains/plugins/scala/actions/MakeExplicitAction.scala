@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.actions
 
-import java.awt.Rectangle
-
 import com.intellij.openapi.actionSystem._
 import com.intellij.psi.util.PsiUtilBase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.util.IntentionUtils
+import org.jetbrains.plugins.scala.util.IntentionUtils.showMakeExplicitPopup
 
 /**
  * @author Ksenia.Sautina
@@ -28,31 +26,19 @@ class MakeExplicitAction  extends AnAction("Replace implicit conversion action")
       case s: Parameters => s
       case _ => null
     }
-    if (selectedItem == null || selectedItem.getNewExpression == null) return
-    val function = selectedItem.getNewExpression match {
+    if (selectedItem == null || selectedItem.newExpression == null) return
+    val function = selectedItem.newExpression match {
       case f: ScFunction => f
       case _ => null
     }
-    val expression = selectedItem.getOldExpression
-    val editor = selectedItem.getEditor
-    val secondPart = selectedItem.getSecondPart
+    val expression = selectedItem.oldExpression
+    val editor = selectedItem.editor
+    val secondPart = selectedItem.secondPart
 
     if (project == null || editor == null || secondPart == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    IntentionUtils.showMakeExplicitPopup(project, expression, function, editor, secondPart, getCurrentItemBounds _)
-  }
-
-  def getCurrentItemBounds: Rectangle = {
-    val index: Int = GoToImplicitConversionAction.getList.getSelectedIndex
-    if (index < 0) {
-      throw new RuntimeException("Index = " + index + " is less than zero.")
-    }
-    val itemBounds: Rectangle = GoToImplicitConversionAction.getList.getCellBounds(index, index)
-    if (itemBounds == null) {
-      throw new RuntimeException("No bounds for index = " + index + ".")
-    }
-    itemBounds
+    showMakeExplicitPopup(project, expression, function, editor, secondPart)
   }
 }

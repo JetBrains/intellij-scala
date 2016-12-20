@@ -31,9 +31,9 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
     val implicitSecondPart =  if (attrSecondPart == null)
       DefaultHighlighter.IMPLICIT_SECOND_PART.getDefaultAttributes.getForegroundColor else attrSecondPart.getForegroundColor
     val tuple = value.asInstanceOf[Parameters]
-    val item = tuple.getNewExpression
-    val firstPart = tuple.getFirstPart
-    val secondPart = tuple.getSecondPart
+    val item = tuple.newExpression
+    val firstPart = tuple.firstPart
+    val secondPart = tuple.secondPart
     val comp = getSuperListCellRendererComponent(containter.getList, item, index, isSelected, cellHasFocus)
     comp match {
       case container: Container =>
