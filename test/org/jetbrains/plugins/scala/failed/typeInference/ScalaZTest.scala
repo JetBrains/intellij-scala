@@ -86,23 +86,4 @@ class ScalaZTest extends TypeInferenceTestBase {
          |//_G[Option[_B]]
       """.stripMargin)
   }
-
-  def testSCL11085a(): Unit = {
-    doTest(
-      s"""
-         |  import scalaz.{\\/ ⇒ ∨}
-         |  ∨.left(${START}"hello"$END)
-         |//A
-      """.stripMargin)
-  }
-
-  def testSCL11085b(): Unit = {
-    doTest(
-      s"""
-         |  import scalaz.{\\/ ⇒ ∨}
-         |  ∨.right(${START}"hello"$END)
-         |//B
-      """.stripMargin)
-  }
-
 }
