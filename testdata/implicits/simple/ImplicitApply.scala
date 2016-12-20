@@ -9,11 +9,7 @@ object Main {
   a(/*start*/23/*end*/)
 }
 /*
-Seq(any2ArrowAssoc,
-    any2Ensuring,
-    any2stringadd,
-    any2stringfmt,
-    double2Double,
+Seq(double2Double,
     double2DoubleConflict,
     doubleWrapper,
     float2Float,
@@ -28,6 +24,10 @@ Seq(any2ArrowAssoc,
     intWrapper,
     long2Long,
     long2LongConflict,
-    longWrapper),
+    longWrapper,
+    any2ArrowAssoc,
+    any2Ensuring,
+    any2stringadd,
+    any2stringfmt),
 Some(i2s)
 */

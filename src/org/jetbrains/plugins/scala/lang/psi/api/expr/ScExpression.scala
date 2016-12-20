@@ -479,6 +479,24 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     (sortElements(regularResults), sortElements(companionResults))
   }
 
+  def getAllImplicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
+    val (regularConversions, companionConversions) = getImplicitConversions(fromUnderscore = fromUnderscore)
+
+    (regularConversions ++ companionConversions).sortWith {
+      case (first, second) =>
+        val firstName = first.name
+        val secondName = second.name
+
+        def isAnyTo(string: String): Boolean =
+          string.matches("^[a|A]ny(2|To|to).+$")
+
+        val isSecondAnyTo = isAnyTo(secondName)
+
+        if (isAnyTo(firstName) ^ isSecondAnyTo) isSecondAnyTo
+        else firstName.compareTo(secondName) < 0
+    }
+  }
+
   final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {
     val res = new ArrayBuffer[PsiElement]
     def calculateReturns0(el: PsiElement) {

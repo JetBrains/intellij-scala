@@ -15,11 +15,7 @@ object Convert2 {
 	}
 }
 /*
-Seq(any2ArrowAssoc,
-    any2Ensuring,
-    any2stringadd,
-    any2stringfmt,
-    convert,
+Seq(convert,
     double2Double,
     double2DoubleConflict,
     doubleWrapper,
@@ -34,6 +30,10 @@ Seq(any2ArrowAssoc,
     intWrapper,
     long2Long,
     long2LongConflict,
-    longWrapper),
+    longWrapper,
+    any2ArrowAssoc,
+    any2Ensuring,
+    any2stringadd,
+    any2stringfmt),
 Some(convert)
 */

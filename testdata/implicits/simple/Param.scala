@@ -2,12 +2,7 @@ def m(x : String)(implicit anyToString: (Any => String) = (p: Any) => "converted
 	/*start*/2/*end*/.substring(1)
 }
 /*
-Seq(any2ArrowAssoc,
-    any2Ensuring,
-    any2stringadd,
-    any2stringfmt,
-    anyToString,
-    double2Double,
+Seq(double2Double,
     double2DoubleConflict,
     doubleWrapper,
     float2Float,
@@ -21,6 +16,11 @@ Seq(any2ArrowAssoc,
     intWrapper,
     long2Long,
     long2LongConflict,
-    longWrapper),
+    longWrapper,
+    any2ArrowAssoc,
+    any2Ensuring,
+    any2stringadd,
+    any2stringfmt,
+    anyToString),
 Some(anyToString)
 */
