@@ -131,13 +131,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     getSimpleVariants(implicits, filterNotNamedVariants).flatMap {
       case res: ScalaResolveResult =>
         val qualifier = res.fromType.getOrElse(Nothing)
-        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
+        LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier)
       case r => Seq(r.getElement)
     }
   }
 
   def getSimpleVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[ResolveResult] = {
-    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, implicits)).filter(r => {
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this, implicits)).filter(r => {
       if (filterNotNamedVariants) {
         r match {
           case res: ScalaResolveResult => res.isNamedParameter
@@ -147,7 +147,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     })
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
 
   def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {
