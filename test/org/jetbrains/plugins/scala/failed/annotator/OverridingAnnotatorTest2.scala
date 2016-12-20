@@ -50,4 +50,37 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |  def apply(list: => Iterable[String]): ErrorHighlighting = { this ("string") }
       """.stripMargin)
   }
+
+  def testScl11063(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |import scala.collection.mutable
+        |
+        |class DynamicMap[A](val self: mutable.Map[String, A]) extends AnyVal {
+        |  def apply(key: Int): A = self(key.toString)
+        |  def apply(key: Float): A = self(key.toString)
+        |
+        |  def update(key: String, value: A): Unit = self(key) = value
+        |}
+        |
+        |object Example {
+        |  val map = new DynamicMap(new mutable.HashMap[String, Int])
+        |  <caret>map("a") = 5
+        |}
+      """.stripMargin)
+  }
+
+  def testScl11112(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |  object Table {
+        |    def apply[A](heading: String, rows: A*) = ???
+        |    def apply[A, B](heading: (String, String), rows: (A, B)*) = ???
+        |  }
+        |
+        |  object TableUser {
+        |    Table(("One", "Two"), ("A", "B"))
+        |  }
+      """.stripMargin)
+  }
 }

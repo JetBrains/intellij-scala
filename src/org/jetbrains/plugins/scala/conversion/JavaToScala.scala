@@ -952,10 +952,10 @@ object JavaToScala {
     ConverterUtil.runInspections(file, element.getProject, 0, text.length)
 
     TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
-      ConverterUtil.collectTopElements(0, file.text.length, file)
+      ConverterUtil.collectTopElements(0, file.getText.length, file)
     )
 
-    file.text
+    file.getText
   }
 
   private def handleImport(iimport: PsiImportStatementBase): IntermediateNode = {

@@ -167,8 +167,8 @@ class ImplicitCollector(place: PsiElement,
 
   private def fromTypeCandidates(): Set[ScalaResolveResult] = {
     val processor = new ImplicitParametersProcessor(withoutPrecedence = true)
-    for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedTp, project, place.getResolveScope)) {
-      processor.processType(obj, place, ResolveState.initial())
+    ScalaPsiUtil.collectImplicitObjects(expandedTp)(place.elementScope).foreach {
+      processor.processType(_, place, ResolveState.initial())
     }
     processor.candidatesS
   }
@@ -483,8 +483,11 @@ class ImplicitCollector(place: PsiElement,
       val implicitClause = fun.effectiveParameterClauses.lastOption.filter(_.isImplicit)
       if (typeParameters.isEmpty && implicitClause.isEmpty) Some(c.copy(implicitReason = OkResult), subst)
       else {
-        val methodType = implicitClause.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
-        (project, place.getResolveScope))).getOrElse(ret)
+        val methodType = implicitClause.map {
+          li => ScMethodType(ret, li.getSmartParameters, isImplicit = true)(place.elementScope)
+        }.map {
+          subst.subst
+        }.getOrElse(ret)
         val polymorphicTypeParameters = typeParameters.map(TypeParameter(_))
 
         val nonValueType0: ScType =

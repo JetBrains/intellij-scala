@@ -280,7 +280,7 @@ object TypeAdjuster extends ApplicationAdapter {
   }
 
   private def collectAdjustableTypeElements(element: PsiElement): Vector[ScTypeElement] = {
-    element.depthFirst.collect {
+    element.depthFirst().collect {
       case s: ScSimpleTypeElement => s
       case p: ScTypeProjection => p
       case p: ScParameterizedTypeElement => p
@@ -341,7 +341,15 @@ object TypeAdjuster extends ApplicationAdapter {
       }
     }
 
-    private def needPrefix(c: PsiClass) = ScalaCodeStyleSettings.getInstance(origTypeElem.getProject).hasImportWithPrefix(c.qualifiedName)
+    private def needPrefix(c: PsiClass) = {
+      val fromSettings = ScalaCodeStyleSettings.getInstance(origTypeElem.getProject).hasImportWithPrefix(c.qualifiedName)
+      def forInnerClass = {
+        val isExternalRefToInnerClass = Option(c.containingClass).exists(!_.isAncestorOf(origTypeElem))
+        isExternalRefToInnerClass && !alreadyResolves(c.name)
+      }
+
+      fromSettings || forInnerClass
+    }
   }
 
   private case class CompoundInfo(origTypeElem: ScTypeElement, tempTypeElem: ScTypeElement,

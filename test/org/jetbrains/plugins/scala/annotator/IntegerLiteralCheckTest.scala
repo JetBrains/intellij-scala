@@ -3,6 +3,7 @@ package annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
@@ -79,7 +80,7 @@ class IntegerLiteralCheckTest extends SimpleTestCase {
 
     val mock = new AnnotatorHolderMock(parse)
 
-      parse.depthFirst.foreach {
+    parse.depthFirst().foreach {
         case literal: ScLiteral => annotator.annotate(literal, mock)
         case _ =>
       }

@@ -47,7 +47,7 @@ class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, References
     }
     val name: String = ta.name
     if (name == null || StringUtil.isEmptyOrSpaces(name)) return
-    val scope: SearchScope = inReadAction(ScalaSourceFilterScope(parameters.getEffectiveSearchScope, parameters.getProject))
+    val scope: SearchScope = inReadAction(ScalaSourceFilterScope(parameters))
     val collector: SearchRequestCollector = parameters.getOptimizer
     val session: SearchSession = collector.getSearchSession
     collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))

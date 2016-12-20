@@ -59,7 +59,7 @@ object SimpleBooleanMatchUtil {
     getFirstBooleanClauseAndValue(stmt) match {
       case None => stmt
       case Some((clause, value)) =>
-        val exprText = if (value) stmt.expr.get.text else "!" + getParenthesisedText(stmt.expr.get)
+        val exprText = if (value) stmt.expr.get.getText else "!" + getParenthesisedText(stmt.expr.get)
         createExpressionFromText(s"if ($exprText){ ${getTextWithoutBraces(clause)} }")(stmt.manager)
     }
   }
@@ -67,7 +67,7 @@ object SimpleBooleanMatchUtil {
   def simplifyDualBranchedStmt(stmt: ScMatchStmt): ScExpression = {
     getPartitionedClauses(stmt) match {
       case Some((trueClause, falseClause)) if trueClause.expr.nonEmpty && falseClause.expr.nonEmpty =>
-        val exprText = stmt.expr.get.text
+        val exprText = stmt.expr.get.getText
         createExpressionFromText(
           s"""
              |if ($exprText) {
@@ -116,21 +116,21 @@ object SimpleBooleanMatchUtil {
 
   private def getTextWithoutBraces(clause: ScCaseClause): String = clause.expr match {
     case Some(block: ScBlock) =>
-      block.text match {
+      block.getText match {
         case BracedBlockRegex(code) => code.trim
-        case _ => block.text
+        case _ => block.getText
       }
-    case Some(t) => t.text
-    case _ => clause.text
+    case Some(t) => t.getText
+    case _ => clause.getText
   }
 
   private def getParenthesisedText(expr: ScExpression): String = {
     expr match {
       case e: ScInfixExpr => e match {
-        case ScParenthesisedExpr(expr: ScExpression) => expr.text
-        case _ => s"(${e.text})"
+        case ScParenthesisedExpr(expr: ScExpression) => expr.getText
+        case _ => s"(${e.getText})"
       }
-      case _ => expr.text
+      case _ => expr.getText
     }
   }
 

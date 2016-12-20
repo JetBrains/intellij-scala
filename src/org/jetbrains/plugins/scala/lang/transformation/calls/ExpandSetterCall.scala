@@ -20,6 +20,6 @@ class ExpandSetterCall extends AbstractTransformer {
       Parent(Parent((v: ScVariable) && Parent(_: ScTemplateBody)))), r)
       if !v.getModifierList.accessModifier.exists(it => it.isPrivate && it.isThis)=>
 
-      e.replace(code"${l.text + "_="}($r)")
+      e.replace(code"${l.getText + "_="}($r)")
   }
 }

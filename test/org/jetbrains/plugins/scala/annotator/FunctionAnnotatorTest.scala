@@ -410,7 +410,7 @@ class FunctionAnnotatorTest extends SimpleTestCase {
 
     val mock = new AnnotatorHolderMock(parse)
 
-    parse.depthFirst.filterByType(classOf[ScFunctionDefinition]).foreach {
+    parse.depthFirst().filterByType(classOf[ScFunctionDefinition]).foreach {
       annotator.annotateFunction(_, mock, typeAware = true)
     }
 

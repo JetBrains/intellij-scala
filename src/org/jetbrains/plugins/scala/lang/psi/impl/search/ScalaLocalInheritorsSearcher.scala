@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.impl.search
 
 import com.intellij.openapi.application.QueryExecutorBase
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.{LocalSearchScope, PsiSearchScopeUtil, SearchScope}
+import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.searches.ClassInheritorsSearch.SearchParameters
-import com.intellij.psi._
+import com.intellij.psi.search.{LocalSearchScope, PsiSearchScopeUtil, SearchScope}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -34,7 +33,7 @@ class ScalaLocalInheritorsSearcher extends QueryExecutorBase[PsiClass, ClassInhe
         if (continue) {
           val psiFile: PsiFile = PsiManager.getInstance(project).findFile(virtualFile)
           if (psiFile != null) {
-            psiFile.depthFirst.foreach {
+            psiFile.depthFirst().foreach {
               case td: ScTemplateDefinition if continue =>
                 if (td.isInheritor(clazz, deep = true) && checkCandidate(td, params))
                   continue = consumer.process(td)

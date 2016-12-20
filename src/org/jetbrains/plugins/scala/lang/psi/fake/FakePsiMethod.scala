@@ -4,13 +4,13 @@ import java.util.List
 import javax.swing.Icon
 
 import com.intellij.lang.Language
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -31,11 +31,10 @@ class FakePsiMethod(
         val retType: ScType,
         hasModifier: String => Boolean
         ) extends {
-    val project: Project = navElement.getProject
-    val scope: GlobalSearchScope = navElement.getResolveScope
-    val manager = navElement.getManager
-    val language = navElement.getLanguage
-  } with LightElement(manager, language) with PsiMethod {
+  val manager = navElement.getManager
+  val language = navElement.getLanguage
+  implicit val elementScope = navElement.elementScope
+} with LightElement(manager, language) with PsiMethod {
   def this(value: ScTypedDefinition, hasModifier: String => Boolean) = {
     this(value, value.name, Array.empty, value.getType(TypingContext.empty).getOrAny, hasModifier)
   }
@@ -43,7 +42,7 @@ class FakePsiMethod(
 
   def getContainingClass: PsiClass = PsiTreeUtil.getParentOfType(navElement, classOf[ScTypeDefinition])
 
-  def getReturnTypeNoResolve: PsiType = retType.toPsiType(project, scope)
+  def getReturnTypeNoResolve: PsiType = retType.toPsiType()
 
   override def getTextOffset: Int = navElement.getTextOffset
 
@@ -55,9 +54,7 @@ class FakePsiMethod(
 
   def isDeprecated: Boolean = false
 
-  def hasModifierProperty(name: String): Boolean = {
-    hasModifier(name)
-  }
+  def hasModifierProperty(name: String): Boolean = hasModifier(name)
 
   def isExtensionMethod: Boolean = false
 
@@ -104,7 +101,7 @@ class FakePsiMethod(
 
   def findSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def getReturnType: PsiType = retType.toPsiType(project, scope)
+  def getReturnType: PsiType = retType.toPsiType()
 
   def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
@@ -140,7 +137,10 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
 
   def getInnermostComponentReferenceElement: PsiJavaCodeReferenceElement = null
 
-  def getType: PsiType = tp.toPsiType(manager.getProject, GlobalSearchScope.allScope(manager.getProject))
+  def getType: PsiType = {
+    implicit val elementScope = ElementScope(manager.getProject)
+    tp.toPsiType()
+  }
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = null
 
@@ -175,7 +175,10 @@ class FakePsiParameter(manager: PsiManager, language: Language, val parameter: P
 
   def getInitializer: PsiExpression = null
 
-  def getType: PsiType = parameter.paramType.toPsiType(manager.getProject, GlobalSearchScope.allScope(manager.getProject))
+  def getType: PsiType = {
+    implicit val elementScope = ElementScope(manager.getProject)
+    parameter.paramType.toPsiType()
+  }
 
   def isVarArgs: Boolean = false
 

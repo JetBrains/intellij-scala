@@ -1,19 +1,20 @@
 package org.jetbrains.plugins.scala.runner
 
 import com.intellij.execution._
-import com.intellij.execution.actions.ConfigurationContext
-import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
+import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext}
+import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationProducer, ApplicationConfigurationType}
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Ref
-import com.intellij.psi.util.PsiMethodUtil
-import com.intellij.psi.{util => _, _}
+import com.intellij.psi.util.{PsiMethodUtil, PsiTreeUtil}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
@@ -69,7 +70,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     if (location == null) return false
     val element: PsiElement = location.getPsiElement
     val containingFile = element.getContainingFile
-    if (!containingFile.isInstanceOf[ScalaFile])return false
+    if (!containingFile.isInstanceOf[ScalaFile]) return false
     if (!element.isPhysical) return false
 
     ScalaMainMethodUtil.findContainingMainMethod(element) match {
@@ -82,11 +83,18 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
         ScalaMainMethodUtil.findObjectWithMain(element) match {
           case Some(obj) =>
             createConfiguration(obj, context, location, configuration)
-            sourceElement.set(obj.fakeCompanionClassOrCompanionClass)
+            val sourceElem =
+              if (PsiTreeUtil.isAncestor(obj, element, false)) obj.fakeCompanionClassOrCompanionClass
+              else containingFile
+            sourceElement.set(sourceElem)
             true
           case None => false
         }
     }
+  }
+
+  override def shouldReplace(self: ConfigurationFromContext, other: ConfigurationFromContext): Boolean = {
+    other.isProducedBy(classOf[ApplicationConfigurationProducer])
   }
 
   private def nameForConfiguration(c: PsiClass): String = c.qualifiedName
@@ -102,7 +110,9 @@ object ScalaMainMethodUtil {
 
   def findObjectWithMain(element: PsiElement): Option[ScObject] = {
     def findTopLevel: Option[ScObject] = element.containingScalaFile.flatMap { file =>
-      file.typeDefinitions.collectFirst { case o: ScObject if hasMainMethod(o) => o }
+      file.typeDefinitions.collectFirst {
+        case o: ScObject if hasMainMethod(o) => o
+      }
     }
 
     stableObject(element).filter(hasMainMethod) orElse findTopLevel
@@ -120,14 +130,14 @@ object ScalaMainMethodUtil {
 
     @CachedInsidePsiElement(obj, CachesUtil.enclosingModificationOwner(obj))
     def findMainMethodInner(): Option[PsiMethod] = {
-      declaredMain(obj) orElse Option(PsiMethodUtil.findMainMethod(obj.fakeCompanionClassOrCompanionClass))
+      declaredMain(obj) orElse Option(PsiMethodUtil.findMainMethod(new PsiClassWrapper(obj, obj.qualifiedName, obj.name)))
     }
 
     if (!ScalaPsiUtil.hasStablePath(obj)) None
     else findMainMethodInner()
   }
 
-  private def isMainMethod(funDef: ScFunctionDefinition): Boolean = {
+  def isMainMethod(funDef: ScFunctionDefinition): Boolean = {
     def isInStableObject = stableObject(funDef).contains(funDef.containingClass)
 
     def hasJavaMainWrapper =

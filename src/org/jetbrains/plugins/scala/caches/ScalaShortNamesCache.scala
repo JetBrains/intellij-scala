@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package caches
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
@@ -31,67 +30,39 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       }
       res
     }
-    val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
-    var res: ArrayBuffer[PsiClass] = null
-    var size = 0
-    var lastClass: PsiClass = null
 
-    @inline
-    def add(clz: PsiClass): Unit = {
-      if (res == null) res = new ArrayBuffer[PsiClass]()
-      res += clz
-      size += 1
-      lastClass = clz
-    }
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
 
-    val classesIterator = classes.iterator
-    while (classesIterator.hasNext) {
-      val clazz = classesIterator.next()
-      clazz match {
-        case o: ScObject if isOkForJava(o) =>
-          o.fakeCompanionClass match {
-            case Some(clz) => add(clz)
-            case _ =>
-          }
-        case _ =>
-      }
+    val classes = cacheManager.getClassesByName(name, scope)
+    var res = new ArrayBuffer[PsiClass]()
+
+    classes.foreach {
+      case o: ScObject if isOkForJava(o) =>
+        o.fakeCompanionClass.foreach(res.+=)
+      case _ =>
     }
     if (name.endsWith("$")) {
       val nameWithoutDollar = name.substring(0, name.length() - 1)
-      val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
-      val classesIterator = classes.iterator
-      while (classesIterator.hasNext) {
-        val clazz = classesIterator.next()
-        clazz match {
-          case c: ScTypeDefinition if isOkForJava(c) =>
-            c.fakeCompanionModule match {
-              case Some(o) => add(o)
-              case _ =>
-            }
-          case _ =>
-        }
+      val classes = cacheManager.getClassesByName(nameWithoutDollar, scope)
+
+      classes.foreach {
+        case c: ScTypeDefinition if isOkForJava(c) =>
+          c.fakeCompanionModule.foreach(res.+=)
+        case _ =>
       }
     } else if (name.endsWith("$class")) {
       val nameWithoutDollar = name.substring(0, name.length() - 6)
-      val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(nameWithoutDollar, scope)
-      val classesIterator = classes.iterator
-      while (classesIterator.hasNext) {
-        val clazz = classesIterator.next()
-        clazz match {
-          case c: ScTrait if isOkForJava(c) =>
-            add(c.fakeCompanionClass)
-            c.fakeCompanionModule match {
-              case Some(o) => add(o)
-              case _ =>
-            }
-          case _ =>
-        }
+      val classes = cacheManager.getClassesByName(nameWithoutDollar, scope)
+
+      classes.foreach {
+        case c: ScTrait if isOkForJava(c) =>
+          res += c.fakeCompanionClass
+          c.fakeCompanionModule.foreach(res.+=)
+        case _ =>
       }
     }
 
-    if (size == 0) PsiClass.EMPTY_ARRAY
-    else if (size == 1) Array[PsiClass](lastClass)
-    else res.toArray
+    res.toArray
   }
 
   def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[PsiMethod]): Boolean = {

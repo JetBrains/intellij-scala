@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -230,10 +230,13 @@ object PatternAnnotatorUtil {
       case inf: ScInfixPattern =>
         constrPatternType(inf.reference)
       case tuple: ScTuplePattern =>
-        val project = pattern.getProject
         val subPat = tuple.subpatterns
         val subTypes = subPat.flatMap(patternType)
-        if (subTypes.size == subPat.size) Some(TupleType(subTypes)(project, GlobalSearchScope.allScope(project)))
+        if (subTypes.size == subPat.size) {
+          val project = pattern.getProject
+          implicit val elementScope = ElementScope(project)
+          Some(TupleType(subTypes))
+        }
         else None
       case typed: ScTypedPattern =>
         typed.typePattern.map(_.typeElement.calcType)

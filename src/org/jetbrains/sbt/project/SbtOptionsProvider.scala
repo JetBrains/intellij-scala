@@ -12,9 +12,9 @@ abstract class SbtOptionsProvider {
 }
 
 object SbtOptionsProvider { //todo: why we need it?
-  val ExtensioPoint: ExtensionPointName[SbtOptionsProvider] =
+  val ExtensionPoint: ExtensionPointName[SbtOptionsProvider] =
     ExtensionPointName.create("org.intellij.sbt.sbtOptionsProvider")
 
   def vmOptionsFor(project: Project, path: String): Seq[String] =
-    ExtensioPoint.getExtensions.flatMap(_.vmOptionsFor(project, path))
+    ExtensionPoint.getExtensions.flatMap(_.vmOptionsFor(project, path))
 }

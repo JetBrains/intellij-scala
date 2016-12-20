@@ -20,8 +20,11 @@ class ScalaAttributeValueSelectioner extends ExtendWordSelectionHandlerBase {
   override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): util.List[TextRange] = {
     val result = super.select(e, editorText, cursorOffset, editor)
 
-    val start = e.prevElements.toSeq.takeWhile(isPartOfAttributeValue).last
-    val end = e.nextElements.toSeq.takeWhile(isPartOfAttributeValue).last
+    val previous = Seq(e) ++ e.prevSiblings
+    val start = previous.takeWhile(isPartOfAttributeValue).last
+
+    val next = Seq(e) ++ e.nextSiblings
+    val end = next.takeWhile(isPartOfAttributeValue).last
 
     if (start != end) {
       result.add(new TextRange(start.getTextRange.getStartOffset, end.getTextRange.getEndOffset))

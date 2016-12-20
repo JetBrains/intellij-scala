@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.api.base
 
 import com.intellij.psi.{PsiElement, PsiReference}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern

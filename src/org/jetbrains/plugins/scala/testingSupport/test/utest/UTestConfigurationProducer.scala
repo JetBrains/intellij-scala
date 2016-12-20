@@ -6,9 +6,9 @@ import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, R
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTuplePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
@@ -17,12 +17,10 @@ import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
 
-import scala.annotation.tailrec
-
 class UTestConfigurationProducer extends {
   val confType = new UTestConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
+} with TestConfigurationProducer(confType) {
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
     val element = location.getPsiElement
@@ -145,7 +143,8 @@ class UTestConfigurationProducer extends {
     while (!containingObject.isInstanceOf[ScObject] && PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true) != null) {
       containingObject = PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true)
     }
-    if (!containingObject.isInstanceOf[ScObject]) return fail
+    //this is checked once we provide a concrete class for test run
+    //    if (!containingObject.isInstanceOf[ScObject]) return fail
     if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return (null, null)
 
     val nameContainer = ScalaPsiUtil.getParentWithProperty(element, strict = false,

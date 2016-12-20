@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport.test
 
 import java.io.{File, FileOutputStream, IOException, PrintStream}
+import java.util.regex.{Pattern, PatternSyntaxException}
 
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
@@ -18,18 +19,19 @@ import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.options.{SettingsEditor, SettingsEditorGroup}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore}
+import com.intellij.psi.search.searches.AllClassesSearch
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider
@@ -37,9 +39,11 @@ import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
+import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
+import scala.annotation.tailrec
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -53,13 +57,13 @@ import scala.collection.mutable.ArrayBuffer
 abstract class AbstractTestRunConfiguration(val project: Project,
                                             val configurationFactory: ConfigurationFactory,
                                             val name: String,
+                                            val configurationProducer: TestConfigurationProducer,
                                             private var envs: java.util.Map[String, String] =
                                             new mutable.HashMap[String, String](),
                                             private var addIntegrationTestsClasspath: Boolean = false)
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
-    configurationFactory)
-  with ScalaTestingConfiguration {
+    configurationFactory) with ScalaTestingConfiguration {
 
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
@@ -138,6 +142,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   var testKind = TestKind.CLASS
   @BeanProperty
   var showProgressMessages = true
+  @BeanProperty
+  var classRegexps: Array[String] = Array.empty
+  @BeanProperty
+  var testRegexps: Array[String] = Array.empty
 
   def splitTests: Array[String] = testName.split("\n").filter(!_.isEmpty)
 
@@ -171,6 +179,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     setTestName(configuration.getTestName)
     setEnvVariables(configuration.getEnvironmentVariables)
     setShowProgressMessages(configuration.getShowProgressMessages)
+    setClassRegexps(configuration.getClassRegexps)
+    setTestRegexps(configuration.getTestRegexps)
   }
 
   def getClazz(path: String, withDependencies: Boolean): PsiClass = {
@@ -258,7 +268,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     })
   }
 
-  private def getSuiteClass = {
+  protected def getSuiteClass: PsiClass = {
     val suiteClasses = suitePaths.map(suitePath => getClazz(suitePath, withDependencies = true)).filter(_ != null)
 
     if (suiteClasses.isEmpty) {
@@ -275,39 +285,40 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   override def checkConfiguration() {
     super.checkConfiguration()
 
-    val suiteClass = getSuiteClass
+
+    def checkModule() = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
 
     testKind match {
       case TestKind.ALL_IN_PACKAGE =>
         searchTest match {
           case SearchForTest.IN_WHOLE_PROJECT =>
-          case SearchForTest.IN_SINGLE_MODULE | SearchForTest.ACCROSS_MODULE_DEPENDENCIES =>
-            if (getModule == null) {
-              throw new RuntimeConfigurationException("Module is not specified")
-            }
+          case SearchForTest.IN_SINGLE_MODULE | SearchForTest.ACCROSS_MODULE_DEPENDENCIES => checkModule()
         }
         val pack = JavaPsiFacade.getInstance(project).findPackage(getTestPackagePath)
         if (pack == null) {
           throw new RuntimeConfigurationException("Package doesn't exist")
         }
       case TestKind.CLASS | TestKind.TEST_NAME =>
-        if (getModule == null) {
-          throw new RuntimeConfigurationException("Module is not specified")
-        }
+        checkModule()
         if (getTestClassPath == "") {
           throw new RuntimeConfigurationException("Test Class is not specified")
         }
         val clazz = getClassPathClazz
         if (clazz == null || isInvalidSuite(clazz)) {
-          throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".format(getTestClassPath,
-            getModule.getName))
-        }
-        if (!ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) {
-          throw new RuntimeConfigurationException("Class %s is not inheritor of Suite trait".format(getTestClassPath))
+          if (clazz != null && !ScalaPsiUtil.cachedDeepIsInheritor(clazz, getSuiteClass)) {
+            throw new RuntimeConfigurationException("Class %s is not inheritor of Suite trait".format(getTestClassPath))
+          } else {
+            throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".
+              format(getTestClassPath,
+              getModule.getName))
+          }
         }
         if (testKind == TestKind.TEST_NAME && getTestName == "") {
           throw new RuntimeConfigurationException("Test Name is not specified")
         }
+      case TestKind.REGEXP =>
+        checkModule()
+        checkRegexps((e, p) => new RuntimeConfigurationException(s"Failed to compile pattern $p"), new RuntimeConfigurationException("No patterns detected"))
     }
 
     JavaRunConfigurationExtensionManager.checkConfigurationIsValid(this)
@@ -322,7 +333,88 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     group
   }
 
-  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = AbstractTestRunConfiguration.isInvalidSuite(clazz)
+  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = AbstractTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+
+  protected def zippedRegexps: Array[(String, String)] = getClassRegexps.zipAll(getTestRegexps, "", "")
+
+  protected def checkRegexps(compileException: (PatternSyntaxException, String) => Exception, noPatternException: Exception): Unit = {
+    val patterns = zippedRegexps
+    if (patterns.isEmpty) throw noPatternException
+    for ((classString, testString) <- patterns) {
+      try {
+        Pattern.compile(classString)
+      } catch {
+        case e: PatternSyntaxException => throw compileException(e, classString)
+      }
+      try {
+        Pattern.compile(testString)
+      } catch {
+        case e: PatternSyntaxException => throw compileException(e, classString)
+      }
+    }
+  }
+
+  protected def findTestsByFqnCondition(classCondition: String => Boolean, testCondition: String => Boolean,
+                                        classToTests: mutable.Map[String, Set[String]]): Unit = {
+    val suiteClasses = AllClassesSearch.search(getSearchScope.intersectWith(GlobalSearchScopesCore.projectTestScope(project)),
+      project).filter(c => classCondition(c.qualifiedName)).filterNot(isInvalidSuite)
+    //we don't care about linearization here, so can process in arbitrary order
+    @tailrec
+    def getTestNames(classesToVisit: List[ScTypeDefinition], visited: Set[ScTypeDefinition] = Set.empty,
+                     res: Set[String] = Set.empty): Set[String] = {
+      if (classesToVisit.isEmpty) res
+      else if (visited.contains(classesToVisit.head)) getTestNames(classesToVisit.tail, visited, res)
+      else {
+        getTestNames(classesToVisit.head.supers.toList.filter(_.isInstanceOf[ScTypeDefinition]).
+          map(_.asInstanceOf[ScTypeDefinition]).filter(!visited.contains(_)) ++ classesToVisit.tail,
+          visited + classesToVisit.head,
+          res ++ TestNodeProvider.getTestNames(classesToVisit.head, configurationProducer))
+      }
+    }
+
+    suiteClasses.map {
+      case aSuite: ScTypeDefinition =>
+        classToTests += (aSuite.qualifiedName -> getTestNames(List(aSuite)).filter(testCondition))
+      case _ => None
+    }
+  }
+
+  protected def addRegexps(add: String => Unit) {
+    val patterns = zippedRegexps
+    val classToTests = mutable.Map[String, Set[String]]()
+    if (DumbService.getInstance(project).isDumb)
+      throw new ExecutionException("Can't run pattern run configurations while indexes are updating ")
+
+    def getCondition(patternString: String): String => Boolean = {
+      try {
+        val pattern = Pattern.compile(patternString)
+        (input: String) => input != null && pattern.matcher(input).matches
+      } catch {
+        case e: PatternSyntaxException =>
+          throw new ExecutionException(s"Failed to compile pattern $patternString", e)
+      }
+    }
+
+    patterns foreach {
+      case ("", "") => //do nothing, empty patterns are ignored
+      case ("", testPatternString) => //run all tests with names matching the pattern
+        findTestsByFqnCondition(_ => true, getCondition(testPatternString), classToTests)
+      case (classPatternString, "") => //run all tests for all classes matching the pattern
+        findTestsByFqnCondition(getCondition(classPatternString), _ => true, classToTests)
+      case (classPatternString, testPatternString) => //the usual case
+        findTestsByFqnCondition(getCondition(classPatternString), getCondition(testPatternString), classToTests)
+    }
+    for ((className, tests) <- classToTests) {
+      if (tests.nonEmpty) {
+        add("-s")
+        add(className)
+      }
+      for (test <- tests) {
+        add("-testName")
+        add(test)
+      }
+    }
+  }
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     def classNotFoundError() {
@@ -340,38 +432,43 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         case TestKind.TEST_NAME =>
           clazz = getClassPathClazz
           if (getTestName == null || getTestName == "") throw new ExecutionException("Test name not found.")
+        case TestKind.REGEXP =>
+          checkRegexps((e, p) => new ExecutionException(s"Failed to compile pattern $p", e), new ExecutionException("No patterns detected"))
       }
       suiteClass = getSuiteClass
     }
     catch {
       case _ if clazz == null => classNotFoundError()
     }
-    if (clazz == null && pack == null) classNotFoundError()
+    if (clazz == null && pack == null && testKind != TestKind.REGEXP) classNotFoundError()
     if (suiteClass == null)
       throw new ExecutionException(errorMessage)
     val classes = new mutable.HashSet[PsiClass]
-    if (clazz != null) {
-      if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz
-    } else {
-      val scope = getScope(withDependencies = false)
-      def getClasses(pack: ScPackage): Seq[PsiClass] = {
-        val buffer = new ArrayBuffer[PsiClass]
+    testKind match {
+      case TestKind.CLASS | TestKind.TEST_NAME =>
+        //requires explicitly state class
+        if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz else throw new ExecutionException("Not found suite class.")
+      case TestKind.ALL_IN_PACKAGE =>
+        val scope = getScope(withDependencies = false)
+        def getClasses(pack: ScPackage): Seq[PsiClass] = {
+          val buffer = new ArrayBuffer[PsiClass]
 
-        buffer ++= pack.getClasses(scope)
-        for (p <- pack.getSubPackages) {
-          buffer ++= getClasses(ScPackageImpl(p))
+          buffer ++= pack.getClasses(scope)
+          for (p <- pack.getSubPackages) {
+            buffer ++= getClasses(ScPackageImpl(p))
+          }
+          if (configurationFactory.getType.isInstanceOf[UTestConfigurationType])
+            buffer.filter {_.isInstanceOf[ScObject]}
+          else buffer
         }
-        if (configurationFactory.getType.isInstanceOf[UTestConfigurationType])
-          buffer.filter {_.isInstanceOf[ScObject]}
-        else buffer
-      }
-      for (cl <- getClasses(pack)) {
-        if (!isInvalidSuite(cl) && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass))
-          classes += cl
-      }
+        for (cl <- getClasses(pack)) {
+          if (!isInvalidSuite(cl))
+            classes += cl
+        }
+        if (classes.isEmpty) throw new ExecutionException("Not found suite class.")
+      case TestKind.REGEXP =>
+        //actuall addition of suites and tests happens in addPatterns()
     }
-
-    if (classes.isEmpty) throw new ExecutionException("Not found suite class.")
 
     val module = getModule
     if (module == null) throw new ExecutionException("Module is not specified")
@@ -418,53 +515,60 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case SearchForTest.IN_WHOLE_PROJECT =>
             var jdk: Sdk = null
             for (module <- ModuleManager.getInstance(project).getModules if jdk == null) {
-              jdk = JavaParameters.getModuleJdk(module)
+              jdk = JavaParameters.getValidJdkToRunModule(module, false)
             }
             params.configureByProject(project, JavaParameters.JDK_AND_CLASSES_AND_TESTS, jdk)
           case _ =>
-            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, JavaParameters.getModuleJdk(module))
+            params.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS, JavaParameters.getValidJdkToRunModule(module, false))
         }
 
         params.setMainClass(mainClass)
+
+        def addParameters(add: String => Unit) = {
+          if (getFailedTests == null) {
+            if (testKind == TestKind.REGEXP) {
+              addRegexps(add)
+            } else {
+              add("-s")
+              for (cl <- getClasses) {
+                add(cl)
+              }
+              if (testKind == TestKind.TEST_NAME && testName != "") {
+                //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
+                assert(getClasses.size == 1)
+                for (test <- splitTests) {
+                  add("-testName")
+                  add(test)
+                  for (testParam <- getAdditionalTestParams(test)) {
+                    params.getVMParametersList.addParametersString(testParam)
+                  }
+                }
+              }
+            }
+          } else {
+            add("-failedTests")
+            for (failed <- getFailedTests) {
+              add(failed._1)
+              add(failed._2)
+              for (testParam <- getAdditionalTestParams(failed._2)) {
+                params.getVMParametersList.addParametersString(testParam)
+              }
+            }
+          }
+          add("-showProgressMessages")
+          add(showProgressMessages.toString)
+          if (reporterClass != null) {
+            add("-C")
+            add(reporterClass)
+          }
+        }
 
         if (JdkUtil.useDynamicClasspath(getProject)) {
           try {
             val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
             val outputStream = new FileOutputStream(fileWithParams)
             val printer: PrintStream = new PrintStream(outputStream)
-            if (getFailedTests == null) {
-              printer.println("-s")
-              for (cl <- getClasses) {
-                printer.println(cl)
-              }
-              if (testKind == TestKind.TEST_NAME && testName != "") {
-                //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
-                assert(getClasses.size == 1)
-                for (test <- splitTests) {
-                  printer.println("-testName")
-                  printer.println(test)
-                  for (testParam <- getAdditionalTestParams(test)) {
-                    params.getVMParametersList.addParametersString(testParam)
-                  }
-                }
-              }
-            } else {
-              printer.println("-failedTests")
-              for (failed <- getFailedTests) {
-                printer.println(failed._1)
-                printer.println(failed._2)
-                for (testParam <- getAdditionalTestParams(failed._2)) {
-                  params.getVMParametersList.addParametersString(testParam)
-                }
-              }
-            }
-
-            printer.println("-showProgressMessages")
-            printer.println(showProgressMessages.toString)
-            if (reporterClass != null) {
-              printer.println("-C")
-              printer.println(reporterClass)
-            }
+            addParameters(printer.println)
 
             val parms: Array[String] = ParametersList.parse(getTestArgs)
             for (parm <- parms) {
@@ -478,39 +582,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
           }
         } else {
-          if (getFailedTests == null) {
-            params.getProgramParametersList.add("-s")
-            for (cl <- getClasses) params.getProgramParametersList.add(cl)
-            if (testKind == TestKind.TEST_NAME && testName != "") {
-              //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
-              assert(getClasses.size == 1)
-              for (test <- splitTests) {
-                params.getProgramParametersList.add("-testName")
-                params.getProgramParametersList.add(test)
-                for (testParam <- getAdditionalTestParams(test)) {
-                  params.getVMParametersList.addParametersString(testParam)
-                }
-              }
-            }
-          } else {
-            params.getProgramParametersList.add("-failedTests")
-            for (failed <- getFailedTests) {
-              params.getProgramParametersList.add(failed._1)
-              params.getProgramParametersList.add(failed._2)
-              for (testParam <- getAdditionalTestParams(failed._2)) {
-                params.getVMParametersList.addParametersString(testParam)
-              }
-            }
-          }
-
-          params.getProgramParametersList.add("-showProgressMessages")
-          params.getProgramParametersList.add(showProgressMessages.toString)
-
-          if (reporterClass != null) {
-            params.getProgramParametersList.add("-C")
-            params.getProgramParametersList.add(reporterClass)
-          }
-
+          addParameters(params.getProgramParametersList.add)
           params.getProgramParametersList.addParametersString(getTestArgs)
         }
 
@@ -575,11 +647,20 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", if (testKind != null) testKind.toString else TestKind.CLASS.toString)
     JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
+    val classRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map{case ((c, _), i) => (i.toString, c)}:_*)
+    val testRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map{case ((_, t), i) => (i.toString, t)}:_*)
+    JDOMExternalizer.writeMap(element, classRegexps, "classRegexps", "pattern")
+    JDOMExternalizer.writeMap(element, testRegexps, "testRegexps", "pattern")
     JDOMExternalizer.writeMap(element, envs, "envs", "envVar")
     PathMacroManager.getInstance(getProject).collapsePathsRecursively(element)
   }
 
   override def readExternal(element: Element) {
+    def loadRegexps(pMap: mutable.Map[String, String]): Array[String] = {
+      val res = new Array[String](pMap.size)
+      pMap.foreach{case (index, pattern) => res(Integer.parseInt(index)) = pattern}
+      res
+    }
     PathMacroManager.getInstance(getProject).expandPaths(element)
     super.readExternal(element)
     JavaRunConfigurationExtensionManager.getInstance.readExternal(this, element)
@@ -589,6 +670,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     testArgs = JDOMExternalizer.readString(element, "params")
     workingDirectory = JDOMExternalizer.readString(element, "workingDirectory")
+    val classRegexpsMap = mutable.Map[String, String]()
+    JDOMExternalizer.readMap(element, classRegexpsMap, "classRegexps", "pattern")
+    classRegexps = loadRegexps(classRegexpsMap)
+    val testRegexpssMap = mutable.Map[String, String]()
+    JDOMExternalizer.readMap(element, testRegexpssMap, "testRegexps", "pattern")
+    testRegexps = loadRegexps(testRegexpssMap)
     JDOMExternalizer.readMap(element, envs, "envs", "envVar")
     val s = JDOMExternalizer.readString(element, "searchForTest")
     for (search <- SearchForTest.values()) {
@@ -601,11 +688,11 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 }
 
 trait SuiteValidityChecker {
-  protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
+  protected[test] def isInvalidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = {
     !clazz.isInstanceOf[ScClass] || {
       val list: PsiModifierList = clazz.getModifierList
       list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
-    }
+    } || !ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)
   }
 
   protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean
@@ -614,7 +701,7 @@ trait SuiteValidityChecker {
 object AbstractTestRunConfiguration extends SuiteValidityChecker {
 
   private[test] trait TestCommandLinePatcher {
-    private var failedTests: Seq[(String, String)] = null
+    private var failedTests: Seq[(String, String)] = _
 
     def setFailedTests(failedTests: Seq[(String, String)]) {
       this.failedTests = Option(failedTests).map(_.distinct).orNull
@@ -625,7 +712,7 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
     def getClasses: Seq[String]
 
     @BeanProperty
-    var configuration: RunConfigurationBase = null
+    var configuration: RunConfigurationBase = _
   }
 
   private[test] trait PropertiesExtension extends SMTRunnerConsoleProperties{

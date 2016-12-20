@@ -3,6 +3,7 @@ package annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
@@ -179,7 +180,7 @@ class VarianceTest extends SimpleTestCase {
     val file: ScalaFile = (Header + code).parse
     val mock = new AnnotatorHolderMock(file)
 
-    file.depthFirst.foreach {
+    file.depthFirst().foreach {
       case fun: ScFunction => annotator.annotate(fun, mock)
       case varr: ScVariable => annotator.annotate(varr, mock)
       case v: ScValue => annotator.annotate(v, mock)

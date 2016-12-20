@@ -17,7 +17,7 @@ class AddTypeToFunctionParameter extends AbstractTransformer {
 
       val annotation = annotationFor(p.getRealParameterType().get, e)
 
-      val f = code"(${p.text}: ${annotation.text}) => ()"
+      val f = code"(${p.getText}: ${annotation.getText}) => ()"
 
       val result = e.replace(f.getFirstChild.getFirstChild).asInstanceOf[ScParameterClause]
 

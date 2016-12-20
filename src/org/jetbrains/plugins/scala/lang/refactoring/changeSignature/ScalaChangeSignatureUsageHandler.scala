@@ -5,7 +5,7 @@ import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText, PsiElementExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

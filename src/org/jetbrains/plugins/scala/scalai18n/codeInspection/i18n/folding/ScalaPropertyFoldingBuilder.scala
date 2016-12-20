@@ -9,7 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.util.ObjectUtils
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.IteratorExt
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall, ScReferenceExpression}
@@ -30,7 +30,7 @@ class ScalaPropertyFoldingBuilder extends FoldingBuilderEx {
     val file: ScalaFile = element.asInstanceOf[ScalaFile]
     val project: Project = file.getProject
     val result = new java.util.ArrayList[FoldingDescriptor]
-    file.depthFirst
+    file.depthFirst()
       .filterByType(classOf[ScLiteral])
       .foreach(checkLiteral(project, _, result))
 

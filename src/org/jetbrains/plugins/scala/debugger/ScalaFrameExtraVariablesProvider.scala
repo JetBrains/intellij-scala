@@ -191,7 +191,7 @@ private class CollectingProcessor(element: PsiElement)
   val containingBlock = PsiTreeUtil.getParentOfType(element, classOf[ScBlock], classOf[ScTemplateDefinition], classOf[PsiFile])
   val usedNames: Set[String] =
     if (containingBlock != null) {
-      containingBlock.depthFirst.collect {
+      containingBlock.depthFirst().collect {
         case ref: ScReferenceExpression if ref.qualifier.isEmpty => ref.refName
       }.toSet
     }

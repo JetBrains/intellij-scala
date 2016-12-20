@@ -43,9 +43,11 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   /**
    * Environment variables.
    */
-  private val envirnomentVariables: java.util.Map[String, String] = new mutable.HashMap[String, String]()
+  private val environmentVariables: java.util.Map[String, String] = new mutable.HashMap[String, String]()
 
-  private var workingDirectory: String = project.getBaseDir.getPath
+  private var workingDirectory: String = defaultWorkingDirectory
+
+  private def defaultWorkingDirectory = Option(project.getBaseDir).fold("")(_.getPath)
 
   override def getValidModules: util.Collection[Module] = List()
 
@@ -70,15 +72,15 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     tasks = JDOMExternalizer.readString(element, "tasks")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
     workingDirectory = JDOMExternalizer.readString(element, "workingDir")
-    EnvironmentVariablesComponent.readExternal(element, envirnomentVariables)
+    EnvironmentVariablesComponent.readExternal(element, environmentVariables)
   }
 
   def apply(params: SbtRunConfigurationForm): Unit = {
     tasks = params.getTasks
     javaOptions = params.getJavaOptions
     workingDirectory = params.getWorkingDir
-    envirnomentVariables.clear()
-    envirnomentVariables.putAll(params.getEnvironmentVariables)
+    environmentVariables.clear()
+    environmentVariables.putAll(params.getEnvironmentVariables)
   }
 
   def determineMainClass(launcherPath: String): String = {
@@ -91,12 +93,12 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   def getJavaOptions: String = javaOptions
 
-  def getEnvironmentVariables: util.Map[String, String] = envirnomentVariables
+  def getEnvironmentVariables: util.Map[String, String] = environmentVariables
 
-  def getWorkingDir: String = if (StringUtil.isEmpty(workingDirectory)) project.getBaseDir.getPath else workingDirectory
+  def getWorkingDir: String = if (StringUtil.isEmpty(workingDirectory)) defaultWorkingDirectory else workingDirectory
 
-  class SbtComandLineState(configuration: SbtRunConfiguration, envirnoment: ExecutionEnvironment)
-          extends JavaCommandLineState(envirnoment) {
+  class SbtComandLineState(configuration: SbtRunConfiguration, environment: ExecutionEnvironment)
+          extends JavaCommandLineState(environment) {
 
     def createJavaParameters(): JavaParameters = {
       val params: JavaParameters = new JavaParameters
@@ -104,7 +106,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
       try {
         jdk.getSdkType match {
           case _: AndroidSdkType =>
-            envirnomentVariables.put("ANDROID_HOME", jdk.getSdkModificator.getHomePath)
+            environmentVariables.put("ANDROID_HOME", jdk.getSdkModificator.getHomePath)
           case _ => // do nothing
         }
       } catch {
@@ -120,7 +122,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
         params.getClassPath.add(SbtRunner.getDefaultLauncher)
         params.setMainClass(determineMainClass(SbtRunner.getDefaultLauncher.getAbsolutePath))
       }
-      params.setEnv(envirnomentVariables)
+      params.setEnv(environmentVariables)
       params.getVMParametersList.addParametersString(javaOptions)
       params.getProgramParametersList.addParametersString(tasks)
       params

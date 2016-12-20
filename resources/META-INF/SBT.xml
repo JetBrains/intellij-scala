@@ -16,6 +16,9 @@
         <component>
             <implementation-class>org.jetbrains.sbt.resolvers.SbtIndexesManager</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.sbt.shell.SbtProcessManager</implementation-class>
+        </component>
     </project-components>
 
     <application-components>
@@ -30,14 +33,16 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileTypeFactory implementation="org.jetbrains.sbt.language.SbtFileTypeFactory"/>
+        <fileTypeFactory implementation="org.jetbrains.sbt.shell.SbtShellFileTypeFactory"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator" />
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
+        <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition" />
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.ModuleExtDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
         <externalProjectDataService
                 implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>
@@ -70,10 +75,14 @@
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 
         <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.project.SbtNotificationListener"/>
+        <externalSystemTaskNotificationListener
+                implementation="org.jetbrains.plugins.scala.project.migration.MigratorsSbtImportListener"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
             order="first, before liveTemplates" id="sbtCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"
                                 order="first, before sbtCompletionContributor" />
+        <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
+                                order="first"/>
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher, before scalaClassesCompletionWeigher"/>
 
@@ -88,6 +97,9 @@
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtReImportNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.sbt.project.notifications.SbtNoImportNotificationProvider"/>
+
+        <projectTaskRunner implementation="org.jetbrains.sbt.shell.SbtProjectTaskRunner"/>
+
     </extensions>
 
     <extensions defaultExtensionNs="org.intellij.scala">

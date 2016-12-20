@@ -13,7 +13,6 @@ import com.intellij.refactoring.move.moveClassesOrPackages._
 import com.intellij.refactoring.util.{CommonRefactoringUtil, TextOccurrencesUtil}
 import com.intellij.refactoring.{HelpID, JavaRefactoringSettings, MoveDestination}
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -110,7 +109,7 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
     val companionsExist = elements.collect {
       case definition: ScTypeDefinition => definition
     }.exists {
-      getBaseCompanionModule(_).isDefined
+      _.baseCompanionModule.isDefined
     }
 
     if (companionsExist) {

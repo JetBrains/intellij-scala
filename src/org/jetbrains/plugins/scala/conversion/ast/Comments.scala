@@ -117,7 +117,7 @@ object CommentsCollector {
                           (implicit usedComments:
                           mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
     val result = new ArrayBuffer[PsiElement]()
-    element.depthFirst.foreach {
+    element.depthFirst().foreach {
       case c: PsiComment =>
         if (!usedComments.contains(c)) result += c
       case _ =>

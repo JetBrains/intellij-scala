@@ -10,6 +10,7 @@ import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -24,11 +25,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDefinitionImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
 
-import _root_.scala.collection._
+import scala.collection._
 
 /*
 *
@@ -238,11 +238,10 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       case _ =>
     }
 
-    val fileElementType = psi.getProject.elementTypes.file
-    if (node.getTreeParent.getElementType == fileElementType &&
+    if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
             node.getTreePrev == null && node.getElementType != ScalaElementTypes.PACKAGING &&
             ScalaCodeFoldingSettings.getInstance().isCollapseFileHeaders) true
-    else if (node.getTreeParent.getElementType == fileElementType &&
+    else if (node.getTreeParent.getElementType == ScalaElementTypes.FILE &&
             node.getElementType == ScalaElementTypes.IMPORT_STMT &&
             ScalaCodeFoldingSettings.getInstance().isCollapseImports) true
     else if (node.getTreeParent != null &&

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, Unit}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.junit.Assert._
 
 /**
@@ -25,8 +25,8 @@ trait TypeInferenceDoTest {
   protected def doTest(fileText: Option[String], fileName: String = "dummy.scala"): Unit = {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     val expr: ScExpression = findExpression(scalaFile)
-    val typez = expr.getType(TypingContext.empty) match {
-      case Success(Unit, _) => expr.getTypeIgnoreBaseType(TypingContext.empty)
+    val typez = expr.getType() match {
+      case Success(Unit, _) => expr.getTypeIgnoreBaseType
       case x => x
     }
     typez match {

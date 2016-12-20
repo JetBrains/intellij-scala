@@ -9,6 +9,7 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
@@ -24,8 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameter, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -79,35 +80,25 @@ object ResolveUtils {
             case _ => false
           })
 
-  def methodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope): ValueType = {
-    implicit val typeSystem = m.typeSystem
-
-    FunctionType(s.subst(m.getReturnType.toScType()),
-      m.getParameterList.getParameters.map({
-        p => val pt = p.getType
-          //scala hack: Objects in java are modelled as Any in scala
-          if (pt.equalsToText("java.lang.Object")) Any
-          else s.subst(pt.toScType())
-      }).toSeq)(m.getProject, scope)
-  }
-
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
     implicit val typeSystem = m.typeSystem
+    implicit val elementScope = ElementScope(m.getProject, scope)
 
     val retType: ScType = (m, returnType) match {
       case (f: FakePsiMethod, None) => s.subst(f.retType)
       case (_, None) => s.subst(m.getReturnType.toScType())
       case (_, Some(x)) => x
     }
-    new ScMethodType(retType,
+
+    ScMethodType(retType,
       m match {
         case f: FakePsiMethod => f.params.toSeq
         case _ =>
           m.getParameterList.getParameters.map { param =>
             val scType = s.subst(param.paramType())
-            new Parameter("", None, scType, scType, false, param.isVarArgs, false, param.index, Some(param))
+            Parameter("", None, scType, scType, isDefault = false, isRepeated = param.isVarArgs, isByName = false, param.index, Some(param))
           }
-      }, false)(m.getProject, scope)
+      }, isImplicit = false)
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {

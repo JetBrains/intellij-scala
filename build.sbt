@@ -60,7 +60,7 @@ lazy val scalaCommunity: Project =
     testOnly in Test := testOnly.in(Test).dependsOn(setUpTestEnvironment).evaluated
   )
 
-lazy val jpsPlugin  =
+lazy val jpsPlugin =
   newProject("jpsPlugin", file("jps-plugin"))
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)

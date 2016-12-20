@@ -52,7 +52,9 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
       case Some(i) if returnType == null =>
         val param = constr.parameters(i - 1)
         val scalaType = param.getType(TypingContext.empty).getOrAny
-        returnType = scalaType.toPsiType(constr.getProject, constr.getResolveScope)
+
+        implicit val elementScope = constr.elementScope
+        returnType = scalaType.toPsiType()
       case _ =>
     }
     returnType
@@ -151,18 +153,19 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
             new ScSubstitutor(tvs.toMap, Map.empty, None)
           } else ScSubstitutor.empty
         } else ScSubstitutor.empty
-      def lift: ScType => PsiType = _.toPsiType(function.getProject, function.getResolveScope)
-      forDefault match {
+
+      val scalaType = forDefault match {
         case Some(i) =>
           val param = function.parameters(i - 1)
-          val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
+          generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
             subst(param.getType(TypingContext.empty).getOrAny)
-          returnType = lift(scalaType)
         case None =>
-          val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
+          generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
             subst(function.returnType.getOrAny)
-          returnType = lift(scalaType)
       }
+
+      implicit val elementScope = function.elementScope
+      returnType = scalaType.toPsiType()
     }
     returnType
   }
@@ -235,14 +238,17 @@ object ScFunctionWrapper {
       case None => None
     }
 
-    def evalType(typeResult: TypeResult[ScType]) {
-      typeResult match {
-        case Success(tp, _) =>
-          val typeText = JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope)
-          builder.append(typeText)
-        case _ => builder.append("java.lang.Object")
-      }
+    implicit val elementScope = function.elementScope
+
+    def evalType(typeResult: TypeResult[ScType]): Unit = {
+      val text = typeResult.toOption.map {
+        subst.subst
+      }.map {
+        JavaConversionUtil.typeText
+      }.getOrElse("java.lang.Object")
+      builder.append(text)
     }
+
     defaultParam match {
       case Some(param) => evalType(param.getType(TypingContext.empty))
       case _ => function match {
@@ -276,14 +282,17 @@ object ScFunctionWrapper {
       val tt =
         if (varargs) param.getType(TypingContext.empty)
         else param.getRealParameterType(TypingContext.empty)
-      tt match {
+
+      tt.map {
+        subst.subst
+      } match {
         case Success(tp, _) if param.isCallByNameParameter =>
           builder.append("scala.Function0<")
-          val psiType = subst.subst(tp).toPsiType(function.getProject, function.getResolveScope, noPrimitives = true)
+          val psiType = tp.toPsiType(noPrimitives = true)
           builder.append(psiType.getCanonicalText)
           builder.append(">")
         case Success(tp, _) =>
-          builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
+          builder.append(JavaConversionUtil.typeText(tp))
         case _ => builder.append("java.lang.Object")
       }
 

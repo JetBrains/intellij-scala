@@ -6,14 +6,13 @@ import javax.swing.Icon
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import com.intellij.lang.Language
 import com.intellij.openapi.module.Module
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
 import com.intellij.testIntegration.JavaTestFramework
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier
 
@@ -47,13 +46,15 @@ abstract class AbstractTestFramework extends JavaTestFramework {
       case _ => clazz
     }, classOf[ScTypeDefinition], false)
     if (parent == null) return false
-    val project = clazz.getProject
-    val psiManager = ScalaPsiManager.instance(project)
-    def getCachedClass(path: String) = psiManager.getCachedClass(path, GlobalSearchScope.allScope(project),
-      ScalaPsiManager.ClassCategory.TYPE)
-    val markerClass: PsiClass = getCachedClass(getMarkerClassFQName)
-    if (markerClass == null) return false
-    getSuitePaths.exists(path => ScalaPsiUtil.cachedDeepIsInheritor(parent, getCachedClass(path)))
+
+    val elementScope = ElementScope(clazz.getProject)
+
+    elementScope.getCachedClass(getMarkerClassFQName).isDefined &&
+      getSuitePaths.flatMap {
+        elementScope.getCachedClass
+      }.exists {
+        ScalaPsiUtil.cachedDeepIsInheritor(parent, _)
+      }
   }
 
   override def getLanguage: Language = ScalaLanguage.INSTANCE

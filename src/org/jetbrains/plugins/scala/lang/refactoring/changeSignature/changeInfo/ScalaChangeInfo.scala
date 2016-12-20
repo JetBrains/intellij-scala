@@ -3,9 +3,9 @@ package lang.refactoring.changeSignature.changeInfo
 
 import com.intellij.lang.Language
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.util.CanonicalTypes
 import com.intellij.refactoring.util.CanonicalTypes.Type
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -28,12 +28,10 @@ case class ScalaChangeInfo(newVisibility: String,
         extends ScalaChangeInfoBase(newParams.flatten.toArray)
         with UnsupportedJavaInfo with VisibilityChangeInfo with ParametersChangeInfo {
 
-  val project = function.getProject
+  private val project = function.getProject
+  private implicit val elementScope = ElementScope(project)
+
   private var myMethod: PsiMethod = function
-  private def psiType = {
-    if (newType != null) newType.toPsiType(project, GlobalSearchScope.allScope(project))
-    else null
-  }
 
   //used in introduce parameter refactoring
   var introducedParameterData: Option[ScalaIntroduceParameterData] = None
@@ -41,7 +39,12 @@ case class ScalaChangeInfo(newVisibility: String,
   override def getValue(i: Int, callExpression: PsiCallExpression): PsiExpression =
     getNewParameters()(i).getValue(callExpression)
 
-  override def getNewReturnType: Type = if (newType != null) CanonicalTypes.createTypeWrapper(psiType) else null
+  override def getNewReturnType: Type =
+    Option(newType).map {
+      _.toPsiType()
+    }.map {
+      CanonicalTypes.createTypeWrapper
+    }.orNull
 
   override val getOldName: String = function match {
     case fun: ScFunction =>
@@ -51,7 +54,7 @@ case class ScalaChangeInfo(newVisibility: String,
     case _ => newName
   }
 
-  override def getNewNameIdentifier: PsiIdentifier = JavaPsiFacade.getElementFactory(project).createIdentifier(newName)
+  override def getNewNameIdentifier: PsiIdentifier = JavaPsiFacade.getElementFactory(function.getProject).createIdentifier(newName)
 
   override def getMethod: PsiMethod = myMethod
 

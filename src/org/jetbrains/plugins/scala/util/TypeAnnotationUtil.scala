@@ -50,7 +50,7 @@ object TypeAnnotationUtil {
           settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
           settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
           isOverriding(value),
-          value.expr.exists(isSimple))
+          isSimple(value))
 
       case variable: ScVariableDefinition if variable.isSimple =>
 
@@ -58,7 +58,7 @@ object TypeAnnotationUtil {
           settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
           settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
           isOverriding(variable),
-          variable.expr.exists(isSimple))
+          isSimple(variable))
 
       case method: ScFunctionDefinition if method.hasAssign && !method.isSecondaryConstructor =>
 
@@ -66,7 +66,7 @@ object TypeAnnotationUtil {
           settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
           settings.SIMPLE_METHOD_TYPE_ANNOTATION,
           isOverriding(method),
-          method.body.exists(isSimple))
+          isSimple(method))
 
       case _ => true
     }
@@ -134,29 +134,40 @@ object TypeAnnotationUtil {
     }
   }
 
-  def isSimple(exp: ScExpression): Boolean = {
-    exp match {
-      case _: ScLiteral => true
-      case _: ScNewTemplateDefinition => true
-      case ref: ScReferenceExpression if ref.refName == "???" => true
-      case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for objects
-      case call: ScGenericCall if isEmptyCollectionFactory(call) => true
-      case call: ScMethodCall => call.getInvokedExpr match {
-        case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for case classes
+  def isSimple(element: PsiElement): Boolean = {
+    def isSimpleInner(exp: ScExpression) = {
+      exp match {
+        case _: ScLiteral => true
+        case _: ScUnderscoreSection => true
+        case _: ScNewTemplateDefinition => true
+        case ref: ScReferenceExpression if ref.refName == "???" => true
+        case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for objects
+        case call: ScGenericCall if isEmptyCollectionFactory(call) => true
+        case call: ScMethodCall => call.getInvokedExpr match {
+          case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for case classes
+          case _ => false
+        }
+        case _: ScThrowStmt => true
         case _ => false
       }
-      case _: ScThrowStmt => true
-      case _ => false
+    }
+
+    element match {
+      case value: ScPatternDefinition if value.isSimple => value.expr.exists(isSimpleInner)
+      case variable: ScVariableDefinition if variable.isSimple => variable.expr.exists(isSimpleInner)
+      case method: ScFunctionDefinition if method.hasAssign && !method.isSecondaryConstructor => method.body.exists(isSimpleInner)
+      case expr: ScExpression => isSimpleInner(expr)
+      case _ => false //support isSimple for JavaPsi
     }
   }
 
   def isEmptyCollectionFactory(e: ScExpression): Boolean = e match {
-    case (_: ScGenericCall) && FirstChild(reference: ScReferenceExpression) =>
-      CollectionClassNames.exists(_ + ".empty" == reference.text)
+    case ScGenericCall(ref @ ScReferenceExpression.withQualifier(qual: ScReferenceExpression), _) =>
+      CollectionClassNames.contains(qual.refName) && ref.refName == "empty"
     case _ => false
   }
 
-  def isLocal(psiElement: PsiElement) = psiElement match {
+  def isLocal(psiElement: PsiElement): Boolean = psiElement match {
     case member: ScMember => member.isLocal
     case _: PsiLocalVariable => true
     case _ if psiElement.getContext != null => !psiElement.getContext.isInstanceOf[ScTemplateBody]
@@ -189,7 +200,7 @@ object TypeAnnotationUtil {
   }
   
   def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement]): Unit = {
-    elements.foreach(_.depthFirst.foreach {
+    elements.foreach(_.depthFirst().foreach {
       case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement)
       case _ =>
     })

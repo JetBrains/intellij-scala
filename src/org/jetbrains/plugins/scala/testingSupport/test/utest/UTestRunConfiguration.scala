@@ -5,22 +5,22 @@ import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiModifierList}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 import scala.annotation.tailrec
 
 class UTestRunConfiguration(override val project: Project,
                             override val configurationFactory: ConfigurationFactory,
                             override val name: String)
-        extends AbstractTestRunConfiguration(project, configurationFactory, name)
-        with ScalaTestingConfiguration {
+        extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.uTestConfigurationProducer) {
 
   override protected[test] def isInvalidSuite(clazz: PsiClass): Boolean = {
+    if (!clazz.isInstanceOf[ScObject]) return true
     val list: PsiModifierList = clazz.getModifierList
-    list != null && list.hasModifierProperty("abstract")
+    list != null && list.hasModifierProperty("abstract") ||  !ScalaPsiUtil.cachedDeepIsInheritor(clazz, getSuiteClass)
   }
 
   @tailrec

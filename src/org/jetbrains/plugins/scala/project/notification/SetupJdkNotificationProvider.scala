@@ -7,7 +7,6 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModificationUtil.setSdkInherited
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiFile
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider._
@@ -20,22 +19,14 @@ class SetupJdkNotificationProvider(project: Project, notifications: EditorNotifi
 
   override def getKey = ProviderKey
 
-  override protected def isSourceCode(file: PsiFile) = true
-
-  override protected def hasDeveloperKit(module: Module) =
-    Option(module) map {
-      ModuleRootManager.getInstance
-    } flatMap {
-      _.getSdk.toOption
-    } isDefined
+  override protected def hasDeveloperKit(module: Module): Boolean = {
+    module != null && ModuleRootManager.getInstance(module).getSdk != null
+  }
 
   override protected def createTask(module: Module) = new Runnable {
-    override def run() = {
-      Option(project) map {
-        ProjectSettingsService.getInstance
-      } flatMap {
-        _.chooseAndSetSdk.toOption
-      } foreach { _ =>
+    override def run(): Unit = {
+      val chosenSdk = ProjectSettingsService.getInstance(project).chooseAndSetSdk()
+      if (chosenSdk != null) {
         inWriteAction {
           setSdkInherited(module)
         }

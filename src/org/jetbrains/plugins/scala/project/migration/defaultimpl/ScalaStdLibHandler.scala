@@ -37,6 +37,8 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
       
       projectStructure.onEdt {
         sdksModel.reset(project)
+        if (JdkVersionUtil.getVersion(sdksModel.getProjectSdk.getVersionString) == JavaSdkVersion.JDK_1_8) return None
+        
         val sdks = sdksModel.getSdks
 
         sdks.find(sdk => JdkVersionUtil.getVersion(sdk.getVersionString) == JavaSdkVersion.JDK_1_8) match {
@@ -59,7 +61,7 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
 
     override def getName: String = "Std lib migrator"
 
-    override def getDescription: String = "Azaza"
+    override def getDescription: String = "Simple migrator for scala standard library (2.11 -> 2.12)"
   }
 }
 

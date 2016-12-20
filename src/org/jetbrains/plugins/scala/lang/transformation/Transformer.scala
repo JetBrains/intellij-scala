@@ -61,7 +61,7 @@ object Transformer {
   def transform(file: PsiElement, range: Option[RangeMarker] = None, transformers: Set[Transformer] = createFullSet) {
     val resultIterator = Iterator.continually{
       transformers.flatMap { transformer =>
-        val elementIterator = range.map(elementsIn(file, _)).getOrElse(file.depthFirst)
+        val elementIterator = range.map(elementsIn(file, _)).getOrElse(file.depthFirst())
         elementIterator.map(transformer.transform).toVector
       }
     }
@@ -73,7 +73,7 @@ object Transformer {
     val first = file.findElementAt(range.getStartOffset)
     val last = file.findElementAt(range.getEndOffset)
     val parent = PsiTreeUtil.findCommonParent(first, last)
-    parent.depthFirst.filter(e => contains(range, e.getTextRange))
+    parent.depthFirst().filter(e => contains(range, e.getTextRange))
   }
 
   private def contains(marker: RangeMarker, range: TextRange): Boolean =

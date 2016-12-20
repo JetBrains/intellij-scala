@@ -6,6 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle, ProblemsHolderExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScNewTemplateDefinition}
@@ -14,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -24,8 +24,8 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition if ScalaPsiUtil.isSAMEnabled(definition) =>
       implicit val typeSystem = holder.typeSystem
-      definition.expectedTypes().toSeq flatMap {
-        ScalaPsiUtil.toSAMType(_, definition.getResolveScope, definition.scalaLanguageLevelOrDefault)
+      definition.expectedTypes().toSeq.flatMap {
+        ScalaPsiUtil.toSAMType(_, definition)
       } match {
         case Seq(expectedMethodType) => inspectAccordingToExpectedType(expectedMethodType, definition, holder)
         case _ =>
@@ -37,7 +37,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
     definition.members match {
       case Seq(fun: ScFunctionDefinition) =>
         def containsReturn(expr: ScExpression): Boolean = {
-          expr.depthFirst.exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
+          expr.depthFirst().exists(_.getNode.getElementType == ScalaTokenTypes.kRETURN)
         }
         fun.body match {
           case Some(funBody) if fun.getType().getOrAny.conforms(expected) && !containsReturn(funBody) =>

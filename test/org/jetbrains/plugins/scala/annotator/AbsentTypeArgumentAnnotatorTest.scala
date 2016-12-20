@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -23,7 +24,7 @@ class AbsentTypeArgumentAnnotatorTest extends SimpleTestCase {
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock(file)
 
-    file.depthFirst.foreach(annotator.annotate(_, mock))
+    file.depthFirst().foreach(annotator.annotate(_, mock))
     mock.annotations.filter(_.isInstanceOf[ErrorWithRange])
   }
 

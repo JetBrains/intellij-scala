@@ -164,7 +164,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
                   Seq(Parameter(p.getName, None, paramType, paramType, p.getDefaultValue != null, isRepeated = false, isByName = false))
                 case _ => Seq.empty
               }
-              buffer += Success(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false)(getProject, getResolveScope), Some(this))
+              buffer += Success(ScMethodType(ScDesignatorType(clazz), params, isImplicit = false), Some(this))
             case _ =>
           }
           buffer

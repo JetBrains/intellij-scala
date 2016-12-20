@@ -16,11 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -58,36 +56,32 @@ object Compatibility {
         case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
         case Some(expected) =>
           val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
-          val functionType = FunctionType(expected, Seq(typez))(place.getProject, place.getResolveScope)
+          implicit val elementScope = place.elementScope
+
+          val functionType = FunctionType(expected, Seq(typez))
           val results = new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect()
           if (results.length == 1) {
             val res = results.head
             val paramType = InferUtil.extractImplicitParameterType(res)
-            paramType match {
-              case FunctionType(rt, Seq(_)) => (Success(rt, Some(place)), res.importsUsed)
+
+            val maybeType: Option[ScType] = paramType match {
+              case FunctionType(rt, Seq(_)) => Some(rt)
               case _ =>
-                ScalaPsiManager.instance(place.getProject).getCachedClass(
-                  "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
-                ) match {
-                  case function1: ScTrait =>
-                    ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
-                      UndefinedType(TypeParameterType(tp), 1))) match {
-                      case funTp: ScParameterizedType =>
-                        val secondArg = funTp.typeArguments(1)
-                        paramType.conforms(funTp, ScUndefinedSubstitutor())._2.getSubstitutor match {
-                          case Some(subst) =>
-                            val rt = subst.subst(secondArg)
-                            if (rt.isInstanceOf[UndefinedType]) defaultResult
-                            else {
-                              (Success(rt, Some(place)), res.importsUsed)
-                            }
-                          case None => defaultResult
-                        }
-                      case _ => defaultResult
-                    }
-                  case _ => defaultResult
+                elementScope.cachedFunction1Type.flatMap { functionType =>
+                  val (_, substitutor) = paramType.conforms(functionType, ScUndefinedSubstitutor())
+                  substitutor.getSubstitutor.map {
+                    _.subst(functionType.typeArguments(1))
+                  }.filter {
+                    !_.isInstanceOf[UndefinedType]
+                  }
                 }
             }
+
+            maybeType.map {
+              Success(_, Some(place))
+            }.map {
+              (_, res.importsUsed)
+            }.getOrElse(defaultResult)
           } else defaultResult
         case _ => (Success(typez, None), Set.empty)
       }
@@ -119,16 +113,15 @@ object Compatibility {
     }
   }
 
-  def seqClassFor(expr: ScTypedStmt): PsiClass = {
-    seqClass match {
-      case Some(clazz) =>
-        if (ApplicationManager.getApplication.isUnitTestMode) clazz
-        else throw new RuntimeException("Illegal state for seqClass variable")
-      case _ =>
-        ScalaPsiManager.instance(expr.getProject).getCachedClass("scala.collection.Seq",
-          expr.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
+  def seqTypeFor(expr: ScTypedStmt): Option[ScType] =
+    seqClass.map { clazz =>
+      if (ApplicationManager.getApplication.isUnitTestMode) clazz
+      else throw new RuntimeException("Illegal state for seqClass variable")
+    }.orElse {
+      expr.elementScope.getCachedClass("scala.collection.Seq")
+    }.map {
+      ScalaType.designator
     }
-  }
 
   def checkConformance(checkNames: Boolean,
                        parameters: Seq[Parameter],
@@ -243,30 +236,30 @@ object Compatibility {
     while (k < parameters.length.min(exprs.length)) {
       exprs(k) match {
         case Expression(expr: ScTypedStmt) if expr.isSequenceArg =>
-          val seqClass: PsiClass = seqClassFor(expr)
-          if (seqClass != null) {
-            val getIt = used.indexOf(false)
-            used(getIt) = true
-            val param: Parameter = parameters(getIt)
+          seqTypeFor(expr) match {
+            case Some(seqType) =>
+              val getIt = used.indexOf(false)
+              used(getIt) = true
+              val param: Parameter = parameters(getIt)
 
-            if (!param.isRepeated)
-              problems ::= ExpansionForNonRepeatedParameter(expr)
+              if (!param.isRepeated)
+                problems ::= ExpansionForNonRepeatedParameter(expr)
 
-            val tp = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.paramType))
-            val expectedType = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType))
+              val tp = ScParameterizedType(seqType, Seq(param.paramType))
+              val expectedType = ScParameterizedType(seqType, Seq(param.expectedType))
 
-            for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-              val conforms = exprType.weakConforms(tp)
-              if (!conforms) {
-                return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
-              } else {
-                matched ::= (param, expr)
-                matchedTypes ::= (param, exprType)
-                undefSubst += exprType.conforms(tp, ScUndefinedSubstitutor(), checkWeak = true)._2
+              for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
+                val conforms = exprType.weakConforms(tp)
+                if (!conforms) {
+                  return ConformanceExtResult(Seq(TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
+                } else {
+                  matched ::= (param, expr)
+                  matchedTypes ::= (param, exprType)
+                  undefSubst += exprType.conforms(tp, ScUndefinedSubstitutor(), checkWeak = true)._2
+                }
               }
-            }
-          } else {
-            problems :::= doNoNamed(Expression(expr)).reverse
+            case _ =>
+              problems :::= doNoNamed(Expression(expr)).reverse
           }
         case Expression(assign@NamedAssignStmt(name)) =>
           val index = parameters.indexWhere { p =>
@@ -289,21 +282,23 @@ object Compatibility {
             }
 
             assign.getRExpression match {
-              case Some(expr: ScExpression) =>
-                val (paramType, expectedType) = expr match  {
-                  case typedStmt: ScTypedStmt if typedStmt.isSequenceArg =>
-                    val seqClass = seqClassFor(typedStmt)
-                    if (seqClass != null) {
+              case rightExpression@Some(expr: ScExpression) =>
+                val maybeSeqType = rightExpression.collect {
+                  case typedStmt: ScTypedStmt if typedStmt.isSequenceArg => typedStmt
+                }.flatMap {
+                  seqTypeFor
+                }
 
-                      if (!param.isRepeated)
-                        problems ::= ExpansionForNonRepeatedParameter(expr)
+                maybeSeqType.foreach { _ =>
+                  if (!param.isRepeated)
+                    problems ::= ExpansionForNonRepeatedParameter(expr)
+                }
 
-                      (ScParameterizedType(ScalaType.designator(seqClass), Seq(param.paramType)),
-                        ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType)))
-                    } else {
-                      (param.paramType, param.expectedType)
-                    }
-                  case _ => (param.paramType, param.expectedType)
+                val (paramType, expectedType) = maybeSeqType.map { seqType =>
+                  (ScParameterizedType(seqType, Seq(param.paramType)): ScType,
+                    ScParameterizedType(seqType, Seq(param.expectedType)): ScType)
+                }.getOrElse {
+                  (param.paramType, param.expectedType)
                 }
 
                 for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {

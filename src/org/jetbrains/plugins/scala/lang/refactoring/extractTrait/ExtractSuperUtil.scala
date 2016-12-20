@@ -14,6 +14,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.RefactoringMessageUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -148,9 +149,9 @@ object ExtractSuperUtil {
   def declarationScope(m: ScMember): Seq[PsiElement] = {
     m match {
       case decl: ScDeclaration => Seq(decl)
-      case fun: ScFunctionDefinition => fun.children.takeWhile(Some(_) != fun.body).toSeq
-      case patDef: ScPatternDefinition => patDef.children.takeWhile(Some(_) != patDef.expr).toSeq
-      case varDef: ScVariableDefinition => varDef.children.takeWhile(Some(_) != varDef.expr).toSeq
+      case fun: ScFunctionDefinition => fun.children.takeWhile(!fun.body.contains(_)).toSeq
+      case patDef: ScPatternDefinition => patDef.children.takeWhile(!patDef.expr.contains(_)).toSeq
+      case varDef: ScVariableDefinition => varDef.children.takeWhile(!varDef.expr.contains(_)).toSeq
       case _ => Seq(m)
     }
   }

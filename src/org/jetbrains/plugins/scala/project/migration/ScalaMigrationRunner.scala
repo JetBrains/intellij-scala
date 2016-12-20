@@ -26,16 +26,19 @@ class ScalaMigrationRunner(project: Project) {
     def catchRun(migrate: MigrationApiService => Option[MigrationReport]) {
       Try(migrate(projectStructure)) match {
         case Success(report) => report.foreach(projectStructure.showReport)
-        case Failure(exception) => ImportedLibrariesService.showExceptionWarning(projectStructure, exception)
+        case Failure(exception) => BundledCodeStoreComponent.showExceptionWarning(projectStructure, exception)
       }
     }
 
     runWithProgress {
       indicator =>
+        def checkForUserCancel(): Unit = if (indicator.isCanceled) throw new MigrationCanceledException
+        
         indicator setIndeterminate true
 
         migrators.foreach {
           migrator =>
+            checkForUserCancel() 
             catchRun(migrator.migrateGlobal)
         }
 
@@ -45,11 +48,15 @@ class ScalaMigrationRunner(project: Project) {
 
         while (myIterator.hasNext) projectStructure.inReadAction(myIterator.next()) match {
           case scalaFile: ScalaFile if !scalaFile.isCompiled && !scalaFile.isWorksheetFile =>
+            checkForUserCancel()
+            
             val holder = new ProblemsHolder(inspectionManager, scalaFile, false)
             val fixHolder = new MigrationLocalFixHolderImpl(holder)
 
             val myCompoundAction = migrators.flatMap {
-              migrator => migrator.migrateLocal(scalaFile, fixHolder)
+              migrator => 
+                checkForUserCancel()
+                migrator.migrateLocal(scalaFile, fixHolder)
             }
 
             val visitor = new MyRecursiveVisitorWrapper(myCompoundAction)
@@ -57,12 +64,14 @@ class ScalaMigrationRunner(project: Project) {
 
             fixHolder.getFixes.foreach {
               case fix: AbstractFixOnPsiElement[_] =>
+                checkForUserCancel()
+                
                 ApplicationManager.getApplication.invokeLater(new Runnable {
                   override def run(): Unit = CommandProcessor.getInstance().executeCommand(project, new Runnable {
                     override def run(): Unit = {
                       catchRun {
                         service =>
-                          projectStructure.inWriteAction(fix doApplyFix project)
+                          service.inWriteAction(fix doApplyFix project)
                           None
                       }
                     }
@@ -78,15 +87,21 @@ class ScalaMigrationRunner(project: Project) {
   }
 
   private def runWithProgress(action: ProgressIndicator => Unit) {
-    new Task.Modal(project, "Migrating...", false) {
-      override def run(indicator: ProgressIndicator): Unit = action.apply(indicator)
+    new Task.Modal(project, "Migrating...", true) {
+      override def run(indicator: ProgressIndicator): Unit = try {
+        action.apply(indicator)
+      } catch {
+        case _: MigrationCanceledException => 
+      }
     }.queue()
   }
   
   
+  private class MigrationCanceledException extends Exception("Migration was canceled by user")
+  
   //we need our own iterator as there is no way to filter excluded dirs
   private class FilteringFileIterator() {
-    val myCurrentFiles = mutable.Queue[PsiFile]()
+    val myCurrentFiles: mutable.Queue[PsiFile] = mutable.Queue[PsiFile]()
     val (myCurrentDirs, myExcludedDirs) = {
       val startDirs = mutable.Queue[PsiDirectory]()
       val excludedDirs = mutable.HashSet[PsiDirectory]()
@@ -133,8 +148,6 @@ class ScalaMigrationRunner(project: Project) {
       
       val current: PsiFile = myCurrentFiles.dequeue()
       expandDirectoriesUntilFilesNotEmpty()
-      
-      println(current.getName + " in " + current.getContainingDirectory.getName)
       
       current
     }

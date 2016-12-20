@@ -27,7 +27,7 @@ class LoopVariableNotUpdatedInspection extends AbstractInspection("LoopVariableN
   private def isMutatedWithing(scope: ScalaPsiElement, target: PsiElement): Boolean = {
     val Target = target
 
-    scope.breadthFirst.exists {
+    scope.breadthFirst().exists {
       case ScAssignStmt(_, _) => true
       case e@ScInfixExpr(ResolvesTo(Target), _, _) if e.isAssignmentOperator => true
       case _ => false

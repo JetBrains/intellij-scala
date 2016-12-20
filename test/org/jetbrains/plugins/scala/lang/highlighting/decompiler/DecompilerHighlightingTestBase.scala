@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.lang.highlighting.decompiler
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-import scala.tools.scalap.DecompilerTestBase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+
+import scala.tools.scalap.DecompilerTestBase
 
 /**
   * @author Roman.Shein
@@ -25,7 +26,7 @@ abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase(Scala
     val mock = new AnnotatorHolderMock(getFile)
     val annotator = new ScalaAnnotator
 
-    getFile.depthFirst.foreach(annotator.annotate(_, mock))
+    getFile.depthFirst().foreach(annotator.annotate(_, mock))
     mock.annotations.filter {
       case Error(_, null) | Error(null, _) => false
       case Error(_, a) => true

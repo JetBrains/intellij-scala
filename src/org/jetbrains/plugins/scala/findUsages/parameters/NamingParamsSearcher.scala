@@ -22,9 +22,7 @@ import scala.collection.mutable
 class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val project = queryParameters.getProject
-    val scope = inReadAction {
-      ScalaSourceFilterScope(queryParameters.getEffectiveSearchScope, project)
-    }
+    val scope = inReadAction(ScalaSourceFilterScope(queryParameters))
     val element = queryParameters.getElementToSearch
     element match {
       case _ if !inReadAction(element.isValid) => true

@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package project.data
 
 import java.io.File
+import java.net.URI
 
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
@@ -11,8 +12,8 @@ import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 class ProjectNode(val data: ProjectData)
   extends Node[ProjectData] {
   def this(name: String, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) {
@@ -47,7 +48,7 @@ class LibraryNode(val data: LibraryData)
 class ContentRootNode(val data: ContentRootData)
   extends Node[ContentRootData] {
   def this(path: String) {
-   this(new ContentRootData(SbtProjectSystem.Id, path))
+    this(new ContentRootData(SbtProjectSystem.Id, path))
   }
 
   def storePaths(sourceType: ExternalSystemSourceType, paths: Seq[String]) {
@@ -84,6 +85,11 @@ class SbtProjectNode(val data: SbtProjectData)
   protected def key = SbtProjectData.Key
 }
 
+class SbtModuleNode(val data: SbtModuleData) extends Node[SbtModuleData] {
+  def this(id: String, buildURI: URI) { this(new SbtModuleData(SbtProjectSystem.Id, id, buildURI)) }
+  override protected def key: Key[SbtModuleData] = SbtModuleData.Key
+}
+
 class ModuleExtNode(val data: ModuleExtData)
   extends Node[ModuleExtData] {
   def this(scalaVersion: Option[Version], scalacClasspath: Seq[File], scalacOptions: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String]) {
@@ -110,13 +116,13 @@ class Play2ProjectNode(val data: Play2ProjectData) extends Node[Play2ProjectData
   def key = Play2ProjectData.Key
 }
 
-class SbtModuleNode(val data: SbtModuleData)
-        extends Node[SbtModuleData] {
+class SbtBuildModuleNode(val data: SbtBuildModuleData)
+  extends Node[SbtBuildModuleData] {
   def this(imports: Seq[String], resolvers: Set[SbtResolver]) {
-    this(new SbtModuleData(SbtProjectSystem.Id, imports, resolvers))
+    this(new SbtBuildModuleData(SbtProjectSystem.Id, imports, resolvers))
   }
 
-  protected def key = SbtModuleData.Key
+  protected def key = SbtBuildModuleData.Key
 }
 
 abstract class Node[T] {
@@ -144,6 +150,7 @@ abstract class Node[T] {
 }
 
 object Node {
+
   import scala.language.implicitConversions
 
   implicit def node2data[T](node: Node[T]): T = node.data

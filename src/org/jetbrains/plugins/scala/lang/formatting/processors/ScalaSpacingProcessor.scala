@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
@@ -119,7 +118,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     val rightElementType = rightNode.getElementType
     val leftPsi = leftNode.getPsi
     val rightPsi = rightNode.getPsi
-    val elementTypes = leftPsi.getProject.elementTypes
     val fileTextRange = new TextRange(0, fileText.length())
 
     /**
@@ -1191,7 +1189,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         NO_SPACING
       //Imports
       case (ScalaElementTypes.IMPORT_STMT, ScalaElementTypes.IMPORT_STMT, _, _) => IMPORT_BETWEEN_SPACING
-      case (ScalaElementTypes.IMPORT_STMT, _, elementTypes.`file`, _) => DOUBLE_LINE
+      case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.FILE, _) => DOUBLE_LINE
       case (ScalaElementTypes.IMPORT_STMT, _, ScalaElementTypes.PACKAGING, _) => DOUBLE_LINE
       case (ScalaElementTypes.IMPORT_STMT, _, _, _) => IMPORT_BETWEEN_SPACING
       //Dot

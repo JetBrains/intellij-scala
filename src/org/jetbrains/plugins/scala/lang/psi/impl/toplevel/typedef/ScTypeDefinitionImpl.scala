@@ -70,7 +70,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
   override def getSuperTypes: Array[PsiClassType] = {
     superTypes.flatMap {
       case tp =>
-        val psiType = tp.toPsiType(getProject, getResolveScope)
+        val psiType = tp.toPsiType()
         psiType match {
           case c: PsiClassType => Seq(c)
           case _ => Seq.empty
@@ -79,9 +79,11 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
   }
 
   override def isAnnotationType: Boolean = {
-    val annotation = ScalaPsiManager.instance(getProject).getCachedClass("scala.annotation.Annotation",getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-    if (annotation == null) return false
-    ScalaPsiManager.instance(getProject).cachedDeepIsInheritor(this, annotation)
+    val psiManager = ScalaPsiManager.instance(getProject)
+    elementScope.getCachedClass("scala.annotation.Annotation")
+      .exists {
+        psiManager.cachedDeepIsInheritor(this, _)
+      }
   }
 
   def getType(ctx: TypingContext): Success[ScType] = {
@@ -383,7 +385,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
   }
 
   override def getInnerClasses: Array[PsiClass] = {
-    val inCompanionModule = ScalaPsiUtil.getBaseCompanionModule(this).toSeq.flatMap {
+    val inCompanionModule = baseCompanionModule.toSeq.flatMap {
       case o: ScObject =>
         o.members.flatMap {
           case o: ScObject => Seq(o) ++ o.fakeCompanionClass

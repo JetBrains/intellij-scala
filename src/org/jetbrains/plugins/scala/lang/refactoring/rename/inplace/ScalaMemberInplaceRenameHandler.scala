@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, MemberInplaceRenameHandler, MemberInplaceRenamer}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getBaseCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
@@ -37,7 +36,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
       case clazz: PsiClass if elementToRename.isInstanceOf[PsiClassWrapper] =>
         (None, None)
       case definition: ScTypeDefinition =>
-        (Some(definition), getBaseCompanionModule(definition))
+        (Some(definition), definition.baseCompanionModule)
       case clazz: PsiClass =>
         (Some(clazz), None)
       case subst: PsiNamedElement =>

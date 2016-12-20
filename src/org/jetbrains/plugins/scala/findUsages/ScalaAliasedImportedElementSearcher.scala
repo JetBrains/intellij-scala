@@ -32,9 +32,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
       name <- Option(named.name)
       if !StringUtil.isEmptyOrSpaces(name)
     } {
-      val scope: SearchScope = inReadAction {
-        ScalaSourceFilterScope(parameters.getEffectiveSearchScope, parameters.getProject)
-      }
+      val scope: SearchScope = inReadAction(ScalaSourceFilterScope(parameters))
       val collector: SearchRequestCollector = parameters.getOptimizer
       val session: SearchSession = collector.getSearchSession
       collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session))

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
-import com.intellij.psi.PsiComment
+import com.intellij.psi.{PsiComment, PsiElement}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
@@ -13,7 +14,8 @@ trait ScCommentOwner {
   self: ScalaPsiElement =>
 
   def simpleComment: Option[PsiComment] = {
-    self.children.collectFirst {
+    val element: PsiElement = self
+    element.children.collectFirst {
       case c: PsiComment if !c.isInstanceOf[ScDocComment] => c
     }
   }

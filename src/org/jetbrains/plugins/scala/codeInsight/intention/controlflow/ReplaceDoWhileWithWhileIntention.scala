@@ -139,7 +139,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
 
   def declaredNames(element: PsiElement)
                    (implicit typeSystem: TypeSystem): Set[String] = {
-    val firstChild: PsiElement = element.firstChild.get
+    val firstChild: PsiElement = element.getFirstChild
     val processor: CompletionProcessor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, collectImplicits = true)
     element.processDeclarations(processor, ResolveState.initial(), firstChild, firstChild)
     val candidates: Set[ScalaResolveResult] = processor.candidatesS

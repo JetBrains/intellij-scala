@@ -51,7 +51,7 @@ package object transformation {
 
     val variants = variantsOf(target)
 
-    if (!(reference.text == variants.head && isResolvedTo(reference, target))) {
+    if (!(reference.getText == variants.head && isResolvedTo(reference, target))) {
       bindTo0(reference, variants)
     }
   }

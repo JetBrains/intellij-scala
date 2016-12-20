@@ -42,12 +42,15 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         case _ => Nothing
       }, checkWeak = true))
 
+      implicit val resolveScope = getResolveScope
+      implicit val project = getProject
+
       getContext match {
         case _: ScCatchBlock =>
-          val manager = ScalaPsiManager.instance(getProject)
-          val funs = manager.getCachedClasses(getResolveScope, "scala.PartialFunction")
+          val manager = ScalaPsiManager.instance(project)
+          val funs = manager.getCachedClasses(resolveScope, "scala.PartialFunction")
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class", Some(this)))
-          val throwable = manager.getCachedClass(getResolveScope, "java.lang.Throwable").orNull
+          val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
           if (throwable == null) return Failure("Cannot find Throwable class", Some(this))
           return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesType)), Some(this))
         case _ =>
@@ -70,11 +73,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
           return et match {
             case FunctionType(_, params) =>
-              Success(FunctionType(clausesType, params.map(removeVarianceAbstracts))
-                (getProject, getResolveScope), Some(this))
+              Success(FunctionType(clausesType, params.map(removeVarianceAbstracts)), Some(this))
             case PartialFunctionType(_, param) =>
-              Success(PartialFunctionType(clausesType, removeVarianceAbstracts(param))
-                (getProject, getResolveScope), Some(this))
+              Success(PartialFunctionType(clausesType, removeVarianceAbstracts(param)), Some(this))
             case _ =>
               Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
           }

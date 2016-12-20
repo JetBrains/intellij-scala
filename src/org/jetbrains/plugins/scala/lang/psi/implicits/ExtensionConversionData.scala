@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, TypeSystem, ValType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
@@ -39,16 +39,15 @@ object ExtensionConversionHelper {
     val result = InferUtil.extractImplicitParameterType(resolveResult) match {
       case functionType @ FunctionType(_, _) => Some(functionType)
       case implicitParameterType =>
-        val maybeFunctionType = ScalaPsiManager.instance(resolveResult.element.getProject).cachedFunction1Type
-        maybeFunctionType.flatMap { functionType =>
-          implicitParameterType.conforms(functionType, ScUndefinedSubstitutor()) match {
-            case (true, substitutor) =>
-              substitutor.getSubstitutor.map {
-                _.subst(functionType).removeUndefines()
-              }
-            case _ => None
+        ElementScope(resolveResult.element.getProject).cachedFunction1Type
+          .flatMap { functionType =>
+            val (_, substitutor) = implicitParameterType.conforms(functionType, ScUndefinedSubstitutor())
+            substitutor.getSubstitutor.map {
+              _.subst(functionType)
+            }.map {
+              _.removeUndefines()
+            }
           }
-        }
     }
 
     result.collect {

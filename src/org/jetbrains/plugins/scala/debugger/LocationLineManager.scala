@@ -263,7 +263,7 @@ trait LocationLineManager {
         }
       }
 
-      val allCaseClauses = generatingElem.breadthFirst.collect {
+      val allCaseClauses = generatingElem.breadthFirst().collect {
         case cc: ScCaseClauses => cc
       }
       allCaseClauses.foreach(customizeFor)

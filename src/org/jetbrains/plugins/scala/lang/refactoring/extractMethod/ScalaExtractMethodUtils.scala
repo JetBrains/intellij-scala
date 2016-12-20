@@ -219,7 +219,8 @@ object ScalaExtractMethodUtils {
     val retType = definition.getType(TypingContext.empty).getOrNothing
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
-        FunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
+        implicit val elementScope = definition.elementScope
+        FunctionType(retType, Seq.empty)
       case _ => retType
     }
     new ScalaVariableData(definition, isInside, tp)

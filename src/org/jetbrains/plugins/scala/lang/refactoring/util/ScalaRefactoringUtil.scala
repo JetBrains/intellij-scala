@@ -106,7 +106,7 @@ object ScalaRefactoringUtil {
     val types = new ArrayBuffer[ScType]
     if (scType != null) types += scType
     expr.getTypeWithoutImplicits().foreach(types += _)
-    expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
+    expr.getTypeIgnoreBaseType.foreach(types += _)
     expr.expectedType().foreach(types += _)
     if (types.isEmpty) types += Any
     val unit = api.Unit
@@ -140,7 +140,7 @@ object ScalaRefactoringUtil {
 
   def getTypeParameterOwnerList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
-    typeElement.breadthFirst.foreach {
+    typeElement.breadthFirst().foreach {
       case x: ScTypeElement if x.calcType.isInstanceOf[TypeParameterType] =>
         val owner = getOwner(x)
         if (owner != null) {
@@ -166,7 +166,7 @@ object ScalaRefactoringUtil {
     }
 
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
-    typeElement.breadthFirst.foreach {
+    typeElement.breadthFirst().foreach {
       case te: ScTypeElement =>
         val ta = getTypeAlias(te)
         if (ta != null) {
@@ -241,9 +241,12 @@ object ScalaRefactoringUtil {
       val quote = if (lit.isMultiLineString) "\"\"\"" else "\""
 
       val text = s"$prefix$quote$rangeText$quote"
-      val expr = createExpressionWithContextFromText(text, lit.getContext, lit).asInstanceOf[ScLiteral]
-      val tpe = expr.getNonValueType().getOrAny
-      Some(expr, Array(tpe))
+      createExpressionWithContextFromText(text, lit.getContext, lit) match {
+        case newExpr: ScLiteral =>
+          val tpe = newExpr.getNonValueType().getOrAny
+          Some(newExpr, Array(tpe))
+        case _ => None
+      }
     }
 
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScExpression])
@@ -329,13 +332,13 @@ object ScalaRefactoringUtil {
         val fileText = intrp.getContainingFile.getText
         val text = fileText.substring(intrp.contentRange.getStartOffset, intrp.contentRange.getEndOffset)
         val refNameToResolved = mutable.HashMap[String, PsiElement]()
-        intrp.depthFirst.foreach {
+        intrp.depthFirst().foreach {
           case ref: ScReferenceExpression => refNameToResolved += ((ref.refName, ref.resolve()))
           case _ =>
         }
         val filter: ScLiteral => Boolean = {
           case toCheck: ScInterpolatedStringLiteral =>
-            toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst.forall {
+            toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst().forall {
               case ref: ScReferenceExpression => refNameToResolved.get(ref.refName).contains(ref.resolve())
               case _ => true
             }

@@ -37,7 +37,7 @@ class DangerousCatchAllInspection extends LocalInspectionTool {
           case _ => (false, null)
         }
         if (isInspection._1) {
-          val startElement = isInspection._2.firstChild.orNull
+          val startElement = isInspection._2.getFirstChild
           val endElement = isInspection._2.pattern.orNull
           if (startElement == null || endElement == null) return
           holder.registerProblem(holder.getManager.createProblemDescriptor(startElement, endElement,

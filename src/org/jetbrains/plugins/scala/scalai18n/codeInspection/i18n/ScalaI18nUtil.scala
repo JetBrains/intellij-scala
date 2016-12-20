@@ -16,7 +16,7 @@ import com.intellij.openapi.util.{Key, Ref, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator

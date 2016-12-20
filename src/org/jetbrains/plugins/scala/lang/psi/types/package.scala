@@ -2,15 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType}
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
@@ -32,7 +31,7 @@ package object types {
 
     def conforms(`type`: ScType)
                 (implicit typeSystem: TypeSystem): Boolean = {
-      conforms(`type`, ScUndefinedSubstitutor(), checkWeak = false)._1
+      conforms(`type`, ScUndefinedSubstitutor())._1
     }
 
     def weakConforms(`type`: ScType)
@@ -60,11 +59,9 @@ package object types {
       case tp: ScType => (false, tp)
     }
 
-    def toPsiType(project: Project,
-                  scope: GlobalSearchScope,
-                  noPrimitives: Boolean = false,
-                  skolemToWildcard: Boolean = false): PsiType = {
-      project.typeSystem.bridge.toPsiType(scType, project, scope, noPrimitives, skolemToWildcard)
+    def toPsiType(noPrimitives: Boolean = false)
+                 (implicit elementScope: ElementScope): PsiType = {
+      elementScope.typeSystem.bridge.toPsiType(scType, noPrimitives = noPrimitives)
     }
 
     def extractClass(project: Project = null)

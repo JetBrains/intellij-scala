@@ -22,4 +22,23 @@ class PatternResolveTest extends FailedResolveCaretTestBase {
       """.stripMargin)
 
   }
+
+  def testSCL11097(): Unit = {
+    doResolveCaretTest(
+      """
+        |  def pack(ls: List[_]): List[List[_]] = ls.foldRight(Nil: List[List[_]]) {
+        |    (x, packed) => {
+        |      if (packed.isEmpty || x != packed.head.head) List(x) +: packed
+        |      else (x +: packed.head) +: packed.tail
+        |    }
+        |  }
+        |
+        |  def encode(ls: List[_]): List[(Int, _)] = pack(ls).map(l => (l.size, l.head))
+        |
+        |  def encodeModified(ls: List[_]): List[_] = encode(ls).map {
+        |    case (l, elem) if l <caret>== 1 => elem
+        |    case l => l
+        |  }
+      """.stripMargin)
+  }
 }

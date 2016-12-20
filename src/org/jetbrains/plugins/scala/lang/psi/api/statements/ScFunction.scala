@@ -56,7 +56,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def methodType: ScType = {
     paramClauses.foldRight[ScType](retType) {
-      (params: Seq[Parameter], tp: ScType) => ScMethodType(tp, params, isImplicit = false)(getProject, getResolveScope)
+      (params: Seq[Parameter], tp: ScType) => ScMethodType(tp, params, isImplicit = false)
     }
   }
 
@@ -214,9 +214,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (!hasParameterClause) return resultType
     val res = if (clauses.nonEmpty)
       clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)
       }
-      else ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
+    else ScMethodType(resultType, Seq.empty, false)
     res.asInstanceOf[ScMethodType]
   }
 
@@ -249,7 +249,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasExplicitType: Boolean = returnTypeElement.isDefined
 
   def removeExplicitType() {
-    val colon = children.find(_.getNode.getElementType == ScalaTokenTypes.tCOLON)
+    val colon = this.children.find(_.getNode.getElementType == ScalaTokenTypes.tCOLON)
     (colon, returnTypeElement) match {
       case (Some(first), Some(last)) => deleteChildRange(first, last)
       case _ =>
@@ -426,12 +426,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
-    val tp = getType(TypingContext.empty).getOrAny
-    def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
-    tp match {
-      case FunctionType(rt, _) => lift(rt)
-      case _ => lift(tp)
+    val resultType = getType(TypingContext.empty).getOrAny match {
+      case FunctionType(rt, _) => rt
+      case tp => tp
     }
+    resultType.toPsiType()
   }
 
   def superMethods: Seq[PsiMethod] = {
@@ -543,7 +542,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             _.getType(TypingContext.empty) match {
               case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                  arg.toPsiType(getProject, getResolveScope) match {
+                  arg.toPsiType() match {
                     case c: PsiClassType => Seq(c)
                     case _ => Seq.empty
                   }
@@ -567,7 +566,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
           val paramTypes = cl.parameters.map(_.getType(ctx))
           res match {
             case Success(t: ScType, _) =>
-              res = collectFailures(paramTypes, Nothing)(FunctionType(t, _)(getProject, getResolveScope))
+              res = collectFailures(paramTypes, Nothing)(FunctionType(t, _))
             case _ =>
           }
           i = i - 1
@@ -628,9 +627,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def functionTypeNoImplicits(retType: Option[ScType] = returnType.toOption): Option[ScType] = {
     collectReverseParamTypesNoImplicits match {
       case Some(params) =>
-        val project = getProject
-        val resolveScope = getResolveScope
-        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
+        implicit val project = getProject
+        implicit val resolveScope = getResolveScope
+        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)))
       case None => None
     }
   }

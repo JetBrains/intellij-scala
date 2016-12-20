@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.types
 
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiParameterExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass

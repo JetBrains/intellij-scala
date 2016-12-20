@@ -36,11 +36,11 @@ class ConstructorParametersTest extends SimpleTestCase {
     val file: ScalaFile = code.parse
     val mock = new AnnotatorHolderMock(file)
 
-    val seq = file.depthFirst.findByType(classOf[ScClass])
+    val seq = file.depthFirst().findByType(classOf[ScClass])
     Compatibility.seqClass = seq
 
     try {
-      file.depthFirst.filterByType(classOf[ScConstructor]).foreach {
+      file.depthFirst().filterByType(classOf[ScConstructor]).foreach {
         annotator.annotateConstructor(_, mock)
       }
 

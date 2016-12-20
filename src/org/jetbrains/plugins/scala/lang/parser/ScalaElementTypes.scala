@@ -11,7 +11,6 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaElementType, ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator.SelfPsiCreator
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.{ScConstructorImpl, ScInterpolatedStringLiteralImpl, ScLiteralImpl, ScStableCodeReferenceElementImpl}
@@ -27,11 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassPa
   * Date: 02.10.2006
   *
   */
-object ScalaElementTypes extends ElementTypes {
-  override val file = new ScStubFileElementType
-  override val classDefinition = new ScClassDefinitionElementType
-  override val objectDefinition = new ScObjectDefinitionElementType
-  override val traitDefinition = new ScTraitDefinitionElementType
+object ScalaElementTypes {
 
   val COMPOUND_TYPE = new ScalaElementType("compound type") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScCompoundTypeElementImpl(node)
@@ -42,6 +37,8 @@ object ScalaElementTypes extends ElementTypes {
   val EXISTENTIAL_CLAUSE = new ScalaElementType("existential clause") with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScExistentialClauseImpl(node)
   }
+
+  val DUMMY_ELEMENT = new ScalaElementType("Dummy Element")
 
   val IDENTIFIER_LIST = new ScIdListElementType
   val FIELD_ID = new ScFieldIdElementType
@@ -80,18 +77,14 @@ object ScalaElementTypes extends ElementTypes {
   val TYPE_PARAM = new ScTypeParamElementType
   val SELF_TYPE = new ScSelfTypeElementElementType
   val PRIMARY_CONSTRUCTOR = new ScPrimaryConstructorElementType
-}
-
-trait ElementTypes {
-  val DUMMY_ELEMENT = new ScalaElementType("Dummy Element")
-
 
   //Stub element types
-  val file: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]]
+  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] =
+    new ScStubFileElementType
 
-  val classDefinition: ScTemplateDefinitionElementType[ScClass]
-  val objectDefinition: ScTemplateDefinitionElementType[ScObject]
-  val traitDefinition: ScTemplateDefinitionElementType[ScTrait]
+  val CLASS_DEFINITION = new ScClassDefinitionElementType
+  val OBJECT_DEFINITION = new ScObjectDefinitionElementType
+  val TRAIT_DEFINITION = new ScTraitDefinitionElementType
 
   val CONSTRUCTOR = new ScalaElementType("constructor", true) with SelfPsiCreator {
     override def createElement(node: ASTNode): PsiElement = new ScConstructorImpl(node)

@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package editor.smartEnter.fixers
 
 import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.psi.{PsiWhiteSpace, PsiErrorElement, PsiElement}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 

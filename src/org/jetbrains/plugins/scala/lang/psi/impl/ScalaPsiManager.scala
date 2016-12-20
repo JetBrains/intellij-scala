@@ -4,7 +4,6 @@ package psi
 package impl
 
 import java.util
-import java.util.Collections
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicLong
 
@@ -18,7 +17,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
-import com.intellij.psi.stubs.StubIndex
+import com.intellij.psi.stubs.{StubIndex, StubIndexKey}
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.{ContainerUtil, WeakValueHashMap}
@@ -26,8 +25,9 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
@@ -102,9 +102,8 @@ class ScalaPsiManager(val project: Project) {
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
-  private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
-    ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
-  }
+  private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Seq[ScObject] =
+    stubElements(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, fqn, scope, classOf[ScObject])
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedPackage(inFqn: String): Option[PsiPackage] = {
@@ -136,13 +135,8 @@ class ScalaPsiManager(val project: Project) {
     ScProjectionType.create(projected, element, superReference)
   }
 
-  def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] = {
-    val types: util.Collection[ScTypeAlias] =
-      StubIndex.getElements(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, ScalaNamesUtil.cleanFqn(name), project,
-        new ScalaSourceFilterScope(scope, project), classOf[ScTypeAlias])
-    import scala.collection.JavaConversions._
-    types.toSeq
-  }
+  def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] =
+    stubElements(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name, scope, classOf[ScTypeAlias])
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
     val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
@@ -155,20 +149,6 @@ class ScalaPsiManager(val project: Project) {
       buffer += clazz
     }
     buffer
-  }
-
-  import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory._
-
-  def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): PsiClass = {
-    val allClasses = getCachedClasses(scope, fqn)
-    val classes =
-      classCategory match {
-        case ALL => allClasses
-        case OBJECT => allClasses.filter(_.isInstanceOf[ScObject])
-        case TYPE => allClasses.filter(!_.isInstanceOf[ScObject])
-      }
-    if (classes.length == 0) null
-    else classes(0)
   }
 
   def getClasses(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
@@ -210,6 +190,7 @@ class ScalaPsiManager(val project: Project) {
         inJavaPsiFacade.set(false)
       }
     }
+
     if (DumbService.getInstance(project).isDumb) return Array.empty
 
     val classes = getCachedFacadeClasses(scope, ScalaNamesUtil.cleanFqn(fqn))
@@ -218,64 +199,56 @@ class ScalaPsiManager(val project: Project) {
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
-  def cachedFunction1Type: Option[ScType] = {
-    val allScope = GlobalSearchScope.allScope(project)
-    val category = ScalaPsiManager.ClassCategory.TYPE
-    implicit val typeSystem = project.typeSystem
-    getCachedClass("scala.Function1", allScope, category) match {
-      case tr: ScTrait =>
-        ScParameterizedType(ScalaType.designator(tr), tr.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
-          .asOptionOf[ScParameterizedType]
-      case _ => None
-    }
-  }
+  def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] =
+    elementScope.function1Type
 
-  import java.util.{Set => JSet}
-
-  def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): JSet[String] = {
-    if (DumbService.getInstance(project).isDumb) return Collections.emptySet()
-    val qualifier: String = psiPackage.getQualifiedName
-    getJavaPackageClassNamesCached(qualifier, scope)
+  def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+    if (DumbService.getInstance(project).isDumb) return Set.empty
+    getJavaPackageClassNamesCached(psiPackage, scope)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
-  private def getJavaPackageClassNamesCached(packageFQN: String, scope: GlobalSearchScope): JSet[String] = {
-    val classes: util.Collection[PsiClass] =
-      StubIndex.getElements(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, ScalaNamesUtil.cleanFqn(packageFQN), project,
-        new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
-    val strings: util.HashSet[String] = new util.HashSet[String]
-    val classesIterator = classes.iterator()
-    while (classesIterator.hasNext) {
-      val clazz: PsiClass = classesIterator.next()
-      strings add clazz.getName
-      clazz match {
-        case t: ScTemplateDefinition =>
-          for (name <- t.additionalJavaNames) strings add name
-        case _ =>
+  private def getJavaPackageClassNamesCached(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+    val classes = stubClasses(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, psiPackage, scope)
+
+    def names(clazz: PsiClass): Set[String] = {
+      def additionalJavaNames = clazz match {
+        case definition: ScTemplateDefinition => definition.additionalJavaNames
+        case _ => Array.empty
       }
+
+      Set(clazz.getName) ++ additionalJavaNames
     }
-    strings
+
+    classes.flatMap(names).toSet
   }
 
-  def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): mutable.HashSet[String] = {
-    if (DumbService.getInstance(project).isDumb) return mutable.HashSet.empty
-    val qualifier: String = psiPackage.getQualifiedName
-    getScalaClassNamesCached(qualifier, scope)
+  def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+    if (DumbService.getInstance(project).isDumb) return Set.empty
+    getScalaClassNamesCached(psiPackage, scope)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
-  def getScalaClassNamesCached(packageFQN: String, scope: GlobalSearchScope): mutable.HashSet[String] = {
-    val cleanName = ScalaNamesUtil.cleanFqn(packageFQN)
-    val classes: util.Collection[PsiClass] =
-      StubIndex.getElements(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, cleanName, project,
-        new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
-    var strings: mutable.HashSet[String] = new mutable.HashSet[String]
-    val classesIterator = classes.iterator()
-    while (classesIterator.hasNext) {
-      val clazz: PsiClass = classesIterator.next()
-      strings += clazz.name
-    }
-    strings
+  def getScalaClassNamesCached(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
+    val classes = stubClasses(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, psiPackage, scope)
+    classes.map(_.name).toSet
+  }
+
+  private def stubClasses(key: StubIndexKey[String, PsiClass],
+                          psiPackage: PsiPackage,
+                          scope: GlobalSearchScope): Seq[PsiClass] =
+    stubElements(key, psiPackage.getQualifiedName, scope, classOf[PsiClass])
+
+  private def stubElements[C <: PsiElement](key: StubIndexKey[String, C],
+                                            fullyQualifiedName: String,
+                                            scope: GlobalSearchScope,
+                                            clazz: Class[C]): Seq[C] = {
+    import scala.collection.JavaConversions._
+    StubIndex.getElements(key,
+      ScalaNamesUtil.cleanFqn(fullyQualifiedName),
+      project,
+      new ScalaSourceFilterScope(scope, project),
+      clazz).toSeq
   }
 
   private def clearCaches(): Unit = {
@@ -422,11 +395,6 @@ object ScalaPsiManager {
   val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
 
   def instance(project: Project): ScalaPsiManager = project.getComponent(classOf[ScalaPsiManagerComponent]).instance
-
-  object ClassCategory extends Enumeration {
-    type ClassCategory = Value
-    val ALL, OBJECT, TYPE = Value
-  }
 
   private def subscribeToRootsChange(project: Project) = {
     project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {

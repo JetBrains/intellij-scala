@@ -71,7 +71,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
   }
   
   private def setUpTypePanel(): JPanel ={
-    updateSpecifyTypeChb
+    updateSpecifyTypeChb()
     typePanel.add(mySpecifyTypeChb)
     
     val myLinkContainer = new JPanel
@@ -167,8 +167,14 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
     
       case _ => defaults
     }
-  
-    TypeAnnotationUtil.isTypeAnnotationNeeded(requiment, ovPolicy, simplePolicy, !element.isInstanceOf[ScTypedDeclaration], isSimple = false)
+
+    val simple = element match {
+      case _: ScFunctionDeclaration | _: ScVariableDeclaration | _: ScValueDeclaration => true //as will be generated default implementation
+      case _ => TypeAnnotationUtil.isSimple(element)
+    }
+
+    TypeAnnotationUtil.isTypeAnnotationNeeded(requiment, ovPolicy, simplePolicy,
+      !element.isInstanceOf[ScTypedDeclaration], isSimple = simple)
   }
 }
 

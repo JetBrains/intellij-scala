@@ -157,7 +157,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   private def isScriptFileImpl: Boolean = {
     val stub = getStub
     if (stub == null) {
-      val empty = children.forall {
+      val empty = this.children.forall {
         case _: PsiWhiteSpace => true
         case _: PsiComment => true
         case _ => false
@@ -230,7 +230,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       val documentManager = PsiDocumentManager.getInstance(getProject)
       val document = documentManager.getDocument(this)
 
-      val prefixText = children.findByType(classOf[ScPackaging])
+      val prefixText = this.children.findByType(classOf[ScPackaging])
               .map(it => getText.substring(0, it.getTextRange.getStartOffset))
               .filter(!_.isEmpty)
 
@@ -279,7 +279,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
   private def stripPackagings(document: Document) {
-    depthFirst.findByType(classOf[ScPackaging]).foreach { p =>
+    this.depthFirst().findByType(classOf[ScPackaging]).foreach { p =>
       val startOffset = p.getTextOffset
       val endOffset = startOffset + p.getTextLength
       document.replaceString(startOffset, endOffset, p.getBodyText.trim)
@@ -409,7 +409,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
   def packagingRanges: Seq[TextRange] =
-    depthFirst.filterByType(classOf[ScPackaging]).flatMap(_.reference).map(_.getTextRange).toList
+    this.depthFirst().filterByType(classOf[ScPackaging]).flatMap(_.reference).map(_.getTextRange).toList
 
   def getFileResolveScope: GlobalSearchScope = {
     val vFile = getOriginalFile.getVirtualFile

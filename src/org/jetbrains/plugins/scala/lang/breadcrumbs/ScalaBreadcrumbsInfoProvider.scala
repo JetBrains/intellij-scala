@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.breadcrumbs
 
 import com.intellij.lang.Language
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiElement
 import com.intellij.xml.breadcrumbs.BreadcrumbsInfoProvider
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -67,7 +68,7 @@ class ScalaBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
 }
 
 object ScalaBreadcrumbsInfoProvider {
-  val SCALA_LANG = Array[Language](ScalaLanguage.INSTANCE)
+  val SCALA_LANG: Array[Language] = Array[Language](ScalaLanguage.INSTANCE)
   
   val MAX_TEXT_LENGTH = 150
   val MAX_STRING_LENGTH = 25
@@ -81,7 +82,7 @@ object ScalaBreadcrumbsInfoProvider {
     def getSignature(el: Option[ScNamedElement], parameters: Seq[ScParameter], tpe: Option[ScType], needTpe: Boolean = false): String =
       el.map(_.name).getOrElse("") + 
         limitString(parameters.map(p => p.name + ": " +  p.typeElement.map(_.getText).getOrElse("Any")).mkString("(", ", ", ")")) + 
-        (if (needTpe) ": " + tpe.map(_.presentableText).getOrElse("") else "")
+        (if (needTpe && el.exists(e => !DumbService.isDumb(e.getProject))) ": " + tpe.map(_.presentableText).getOrElse("") else "")
 
     def getSignature(fun: ScFunction): String = getSignature(Option(fun), fun.parameters, None)
 
@@ -104,8 +105,8 @@ object ScalaBreadcrumbsInfoProvider {
     def describeFunction(fun: ScFunctionExpr): String = "λ" + getSignature(fun)
     
     def describeTemplateDef(td: ScTemplateDefinition): String = td match {
-      case newDef: ScNewTemplateDefinition if Option(newDef.extendsBlock).exists(_.isAnonymousClass) => 
-        val s = "new " + newDef.extendsBlock.templateParents.map(_.text).getOrElse("Any")
+      case newDef: ScNewTemplateDefinition if Option(newDef.extendsBlock).exists(_.isAnonymousClass) =>
+        val s = "new " + newDef.extendsBlock.templateParents.map(_.getText).getOrElse("Any")
         if (s.length < MAX_STRING_LENGTH * 2) s else s.substring(0, MAX_STRING_LENGTH * 2 - 4) + "..."
       case other => other.name
     }
@@ -121,16 +122,16 @@ object ScalaBreadcrumbsInfoProvider {
     
     def describeExpression(expr: ScExpression): String = {
       expr match {
-        case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.text).getOrElse(""))}) {...}"
-        case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.text).getOrElse(""), "...")})"
-        case doWhileSt: ScDoStmt => s"do ... while(${limitString(doWhileSt.condition.map(_.text).getOrElse(""), "...")})"
+        case ifSt: ScIfStmt => s"if (${limitString(ifSt.condition.map(_.getText).getOrElse(""))}) {...}"
+        case whileSt: ScWhileStmt => s"while(${limitString(whileSt.condition.map(_.getText).getOrElse(""), "...")})"
+        case doWhileSt: ScDoStmt => s"do ... while(${limitString(doWhileSt.condition.map(_.getText).getOrElse(""), "...")})"
         case matchSt: ScMatchStmt => limitString(matchSt.expr.map(_.getText).getOrElse("(...)")) + " match {...}"
         case _ => "Expr"
       }
     }
     
     def describeCaseClause(clause: ScCaseClause): String = {
-      s"case ${limitString(clause.pattern.map(_.text).getOrElse(""))} =>"
+      s"case ${limitString(clause.pattern.map(_.getText).getOrElse(""))} =>"
     }
     
     def getTemplateDefTooltip(td: ScTemplateDefinition): String = {

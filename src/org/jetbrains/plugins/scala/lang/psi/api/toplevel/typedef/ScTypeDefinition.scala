@@ -10,12 +10,12 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Seq
 
@@ -31,7 +31,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
   def isObject: Boolean = false
 
-  def isTopLevel: Boolean = !parentsInFile.exists(_.isInstanceOf[ScTypeDefinition])
+  def isTopLevel: Boolean = !this.parentsInFile.exists(_.isInstanceOf[ScTypeDefinition])
 
   def getPath: String = {
     val qualName = qualifiedName
@@ -83,10 +83,11 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     calcFakeCompanionModule()
   }
 
+  //Performance critical method
   @Cached(synchronized = true, ModCount.getJavaStructureModificationCount, this)
-  def baseCompanionModule(implicit tokenSets: TokenSets = getProject.tokenSets): Option[ScTypeDefinition] = {
+  def baseCompanionModule: Option[ScTypeDefinition] = {
     Option(this.getContext).flatMap { scope =>
-      val tokenSet = tokenSets.typeDefinitions
+      val tokenSet = TokenSets.TYPE_DEFINITIONS
 
       val arrayOfElements: Array[PsiElement] = scope match {
         case stub: StubBasedPsiElement[_] if stub.getStub != null =>

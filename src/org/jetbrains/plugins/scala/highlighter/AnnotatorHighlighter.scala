@@ -18,8 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
@@ -78,13 +76,14 @@ object AnnotatorHighlighter {
 
       UsageTrigger.trigger("scala.collection.pack.highlighting")
 
-      def conformsByNames(tp: ScType, qn: List[String]): Boolean = {
-        qn.exists(textName => {
-          val cachedClass = ScalaPsiManager.instance(refElement.getProject).getCachedClass(textName, refElement.getResolveScope, ClassCategory.TYPE)
-          if (cachedClass == null) false
-          else tp.conforms(ScalaType.designator(cachedClass))
-        })
-      }
+      def conformsByNames(tp: ScType, qn: List[String]): Boolean =
+        qn.flatMap {
+          refElement.elementScope.getCachedClass(_)
+        }.map {
+          ScalaType.designator
+        }.exists {
+          tp.conforms
+        }
 
       def simpleAnnotate(annotationText: String, annotationAttributes: TextAttributesKey) {
         if (SCALA_FACTORY_METHODS_NAMES.contains(refElement.nameId.getText)) {

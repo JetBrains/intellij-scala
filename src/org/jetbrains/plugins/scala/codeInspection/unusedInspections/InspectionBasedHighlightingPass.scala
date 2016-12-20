@@ -14,6 +14,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.collection.JavaConverters._
@@ -61,11 +62,11 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
 
   private def processFile(): Unit = {
     if (isEnabled(file)) {
-      val infos: Iterator[ProblemInfo] = file.depthFirst.filter {
+      val infos: Iterator[ProblemInfo] = file.depthFirst().filter {
         inspection.shouldProcessElement
-      } filter {
+      }.filter {
         isEnabled
-      } flatMap {
+      }.flatMap {
         inspection.invoke(_, isOnTheFly = true)
       }
       highlightInfos ++= infos.map { info =>

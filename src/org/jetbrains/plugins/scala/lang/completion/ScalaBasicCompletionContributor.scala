@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaLookupItem}
+import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaCompletionSorting
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -38,7 +39,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 import scala.annotation.tailrec
-import scala.util.Random
 
 /**
  * @author Alexander Podkhalyuzin
@@ -46,6 +46,11 @@ import scala.util.Random
  */
 abstract class ScalaCompletionContributor extends CompletionContributor {
   def positionFromParameters(parameters: CompletionParameters): PsiElement = ScalaCompletionUtil.positionFromParameters(parameters)
+
+  override def fillCompletionVariants(parameters: CompletionParameters, _result: CompletionResultSet): Unit = {
+    val result = ScalaCompletionSorting.addScalaSorting(parameters, _result)
+    super.fillCompletionVariants(parameters, result)
+  }
 }
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
@@ -261,14 +266,6 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
       if (position.getNode.getElementType == ScalaDocTokenType.DOC_TAG_VALUE_TOKEN) result.stopHere()
     }
   })
-
-  override def advertise(parameters: CompletionParameters): String = {
-    if (!parameters.getOriginalFile.isInstanceOf[ScalaFile]) return null
-    val messages = Array[String](
-      null
-    )
-    messages apply (new Random).nextInt(messages.length)
-  }
 
   override def beforeCompletion(context: CompletionInitializationContext) {
     addedElements.clear()

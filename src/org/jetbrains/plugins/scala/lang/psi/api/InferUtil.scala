@@ -70,18 +70,22 @@ object InferUtil {
         val (updatedType, ps) =
           updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
+        implicit val elementScope = mt.elementScope
+
         updatedType match {
           case tpt: ScTypePolymorphicType =>
-            resInner = t.copy(internalType = mt.copy(returnType = tpt.internalType)(mt.project, mt.scope),
+            resInner = t.copy(internalType = mt.copy(returnType = tpt.internalType),
               typeParameters = tpt.typeParameters)
           case _ => //shouldn't be there
-            resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
+            resInner = t.copy(internalType = mt.copy(returnType = updatedType))
         }
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if impl =>
         val fullAbstractSubstitutor = t.abstractOrLowerTypeSubstitutor
         val coreTypes = params.map(p => fullAbstractSubstitutor.subst(p.paramType))
+        implicit val elementScope = mt.elementScope
+
         val splitMethodType = params.reverse.foldLeft(retType) {
-          case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)(mt.project, mt.scope)
+          case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)
         }
         resInner = ScTypePolymorphicType(splitMethodType, typeParams)
         val paramsForInferBuffer = new ArrayBuffer[Parameter]()
@@ -119,7 +123,9 @@ object InferUtil {
         // See SCL-3516
         val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
-        resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
+        implicit val elementScope = mt.elementScope
+
+        resInner = mt.copy(returnType = updatedType)
       case ScMethodType(retType, params, isImplicit) if isImplicit =>
         val (paramsForInfer, exprs, resolveResults) =
           findImplicits(params, coreElement, element, check, searchImplicitsRecursively)
@@ -261,9 +267,10 @@ object InferUtil {
       expectedType match {
         case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
           && !mt.returnType.conforms(expectedType) =>
+          implicit val elementScope = mt.elementScope
           mt.returnType match {
             case methodType: ScMethodType => return mt.copy(
-              returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))(mt.project, mt.scope)
+              returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
             case _ =>
           }
           val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
@@ -272,12 +279,12 @@ object InferUtil {
 
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
-          new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
+          ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)
         case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) &&
           (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
           //we do this to update additional expression, so that implicits work correctly
           //@see SingleAbstractMethodTest.testEtaExpansionImplicit
-          val requiredSAMType = ScalaPsiUtil.toSAMType(tp, expr.getResolveScope, expr.scalaLanguageLevelOrDefault)
+          val requiredSAMType = ScalaPsiUtil.toSAMType(tp, expr)
           applyImplicitViewToResult(mt, requiredSAMType, fromSAM = true)
         case _ => mt
       }
@@ -386,7 +393,7 @@ object InferUtil {
                         ScParameterizedType(_addLower, typeParameters.map(TypeParameterType(_)))
                       else _addLower
                     if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
-                    else lower = substedLowerType.lub(addLower, checkWeak = true)
+                    else lower = substedLowerType.lub(addLower)
                   case None =>
                     lower = unSubst.subst(lower)
                 }
@@ -412,7 +419,7 @@ object InferUtil {
                   psiTypeParameter)
             })
           } else {
-            typeParams.foreach { case tp =>
+            typeParams.foreach { tp =>
               val nameAndId = tp.nameAndId
               if (un.names.contains(nameAndId) || tp.lowerType.v != Nothing) {
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
@@ -429,6 +436,7 @@ object InferUtil {
                   }
                   hasRecursiveTypeParameters
                 }
+
                 //todo: add only one of them according to variance
                 if (tp.lowerType.v != Nothing) {
                   val substedLowerType = unSubst.subst(tp.lowerType.v)

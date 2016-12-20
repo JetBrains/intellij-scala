@@ -16,13 +16,12 @@
 package org.jetbrains.plugins.scala.lang.macros.evaluator.impl
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroTypeable}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
@@ -37,10 +36,12 @@ object ShapelessForProduct extends ScalaMacroTypeable {
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
     implicit val typeSystem = macros.typeSystem
     if (context.expectedType.isEmpty) return None
-    val manager = ScalaPsiManager.instance(context.place.getProject)
-    val clazz = manager.getCachedClass("shapeless.Generic", context.place.getResolveScope, ClassCategory.TYPE)
+
+    val elementScope = context.place.elementScope
+
+    val clazz = elementScope.getCachedClass("shapeless.Generic")
     clazz match {
-      case c: ScTypeDefinition =>
+      case Some(c: ScTypeDefinition) =>
         val tpt = c.typeParameters
         if (tpt.isEmpty) return None
         val undef = UndefinedType(TypeParameterType(tpt.head))
@@ -52,10 +53,12 @@ object ShapelessForProduct extends ScalaMacroTypeable {
             val productLikeType = subst.subst(undef)
             val parts = ScPattern.extractProductParts(productLikeType, context.place)
             if (parts.isEmpty) return None
-            val coloncolon = manager.getCachedClass("shapeless.::", context.place.getResolveScope, ClassCategory.TYPE)
-            if (coloncolon == null) return None
-            val hnil = manager.getCachedClass("shapeless.HNil", context.place.getResolveScope, ClassCategory.TYPE)
-            if (hnil == null) return None
+            val coloncolon = elementScope.getCachedClass("shapeless.::").getOrElse {
+              return None
+            }
+            val hnil = elementScope.getCachedClass("shapeless.HNil").getOrElse {
+              return None
+            }
             val repr = parts.foldRight(ScDesignatorType(hnil): ScType) {
               case (part, resultType) => ScParameterizedType(ScDesignatorType(coloncolon), Seq(part, resultType))
             }

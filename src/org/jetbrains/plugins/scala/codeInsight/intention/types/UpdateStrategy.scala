@@ -184,7 +184,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
 
   private def simplify(expression: ScExpression): Unit = expression match {
     case call: ScGenericCall if TypeAnnotationUtil.isEmptyCollectionFactory(call) =>
-      val s = call.text
+      val s = call.getText
       implicit val manager = expression.manager
       val newExpression = ScalaPsiElementFactory.createExpressionFromText(s.substring(0, s.indexOf('[')))
       expression.replace(newExpression)

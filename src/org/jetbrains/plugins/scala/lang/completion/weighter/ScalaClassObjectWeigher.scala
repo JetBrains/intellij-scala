@@ -14,12 +14,16 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class ScalaClassObjectWeigher extends ProximityWeigher {
   def weigh(element: PsiElement, location: ProximityLocation): Comparable[_] = {
-    if (!ScalaProjectSettings.getInstance(location.getProject).isScalaPriority) return null
-    element match {
-      case _: ScObject => 1
-      case _: ScTypeDefinition => 3
-      case _: ScTypeAlias => 2
-      case _: PsiClass => 0
+    Option(location.getProject) match {
+      case Some(prj) if !ScalaProjectSettings.getInstance(prj).isScalaPriority => null
+      case Some(_) =>
+        element match {
+          case _: ScObject => 1
+          case _: ScTypeDefinition => 3
+          case _: ScTypeAlias => 2
+          case _: PsiClass => 0
+          case _ => null
+        }
       case _ => null
     }
   }

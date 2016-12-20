@@ -1,11 +1,8 @@
 package org.jetbrains.sbt
 package project
 
-import java.io.File
-
-import ProjectStructureDsl._
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))

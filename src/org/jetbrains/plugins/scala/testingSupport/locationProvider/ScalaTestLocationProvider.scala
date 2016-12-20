@@ -10,6 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
@@ -87,9 +88,12 @@ class ScalaTestLocationProvider extends SMTestLocator {
 
   private def searchForClassByUnqualifiedName(project: Project, locationData: String): ArrayList[Location[_ <: PsiElement]] = {
     val res = new ArrayList[Location[_ <: PsiElement]]()
-    val clazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(locationData,
-      GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
-    if (clazz != null) res.add(PsiLocation.fromPsiElement[PsiClass](project, clazz))
+    ElementScope(project).getCachedClass(locationData)
+      .map {
+        PsiLocation.fromPsiElement[PsiClass](project, _)
+      }.foreach {
+      res.add(_)
+    }
     res
   }
 

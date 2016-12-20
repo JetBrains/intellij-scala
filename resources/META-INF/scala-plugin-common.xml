@@ -146,12 +146,10 @@
         <statistician key="completion" order="first"
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
         <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
-        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
+        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWeigher"
                  id="scalaContainingClassWeigher" order="after prefix, before scalaKindWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
                  id="scalaMethodCompletionWeigher" order="after scalaContainingClassWeigher, before proximity"/>
-        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByTypeWeigher"
-                 id="scalaTypeCompletionWeigher" order="before scalaContainingClassWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByNameWeigher"
                  id="scalaByNameWeigher" order="before stats"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaKindCompletionWeigher"
@@ -231,6 +229,8 @@
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.testingSupport.test.ScalaTestRunLineMarkerProvider" language="Scala"/>
 
 
+        <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaFilePasteProvider" order="first"/>
+
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
 
@@ -252,6 +252,8 @@
         <!--/Handler-->
 
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitTypeEnterHandler" order="first"/>
+
+        <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
 
         <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
@@ -338,13 +340,13 @@
 
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationType"/>
         <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationType"/>
-	      <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
+        <configurationType implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType"/>
 
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer"/>
         <runConfigurationProducer implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer"/>
 
-        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer"/>
+        <runConfigurationProducer implementation="org.jetbrains.plugins.scala.runner.ScalaApplicationConfigurationProducer" order="first"/>
 
         <orderEnumerationHandlerFactory implementation="org.jetbrains.sbt.execution.SbtOrderEnumeratorHandlerFactory"/>
 
@@ -1344,10 +1346,7 @@
           <implementation-class>org.jetbrains.plugins.scala.project.migration.handlers.ArtifactHandlerComponent</implementation-class>
         </component>
         <component>
-          <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionStoreComponent</implementation-class>
+            <implementation-class>org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent</implementation-class>
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scaladev.IdeaSourcesAttach</implementation-class>
@@ -1357,6 +1356,9 @@
         </component>
         <component>
           <implementation-class>org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionsCollector</implementation-class>
+        </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl</implementation-class>
         </component>
     </project-components>
 
@@ -1495,10 +1497,23 @@
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
         <action id="Scala.MacroExpand"
-            class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
-            description="Expand macro application under cursor">
+                class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
+                description="Expand macro application under cursor">
             <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>
-      </actions>
+        <action id="Scala.Sbt.StartShell"
+                class="org.jetbrains.sbt.shell.SbtShellStartAction"
+                icon="org.jetbrains.plugins.scala.icons.Icons.SCALA_CONSOLE"
+                description="Start SBT shell">
+            <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Scala.RunConsole" />
+        </action>
+
+        <group>
+          <separator/>
+          <reference id="Scala.Sbt.StartShell"/>
+          <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
+        </group>
+
+    </actions>
 
 </idea-plugin>

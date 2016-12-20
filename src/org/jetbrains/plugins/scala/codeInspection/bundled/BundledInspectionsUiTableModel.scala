@@ -5,6 +5,7 @@ import javax.swing.table.TableModel
 import java.util
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent
 
 import scala.collection.mutable
 
@@ -17,7 +18,10 @@ class BundledInspectionsUiTableModel(pathToInspections: util.Map[String, util.Ar
   private val rows = {
     val result = mutable.ArrayBuffer[(java.lang.Boolean, String, String, String)]()
 
-    val idsToNames = BundledInspectionStoreComponent.getInstance(project).getLoadedInspections.map(i => (i.getId, i.getName)).toMap
+    val idsToNames: Map[String, String] = Option(BundledCodeStoreComponent.getInstance(project)) match {
+      case Some(sc) => sc.getLoadedInspections.map(i => (i.getId, i.getName)).toMap
+      case _ => Map.empty
+    }
     val it = pathToInspections.entrySet().iterator()
     
     while (it.hasNext) {

@@ -54,7 +54,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       val holders = new util.ArrayList[ScImportsHolder]()
       val users = new util.ArrayList[PsiElement]()
 
-      file.depthFirst.foreach { elem =>
+      file.depthFirst().foreach { elem =>
         elem match {
           case holder: ScImportsHolder => holders.add(holder)
           case _ =>
@@ -837,7 +837,7 @@ object ScalaImportOptimizer {
     val imports = new util.HashSet[ImportUsed]()
     val names = new util.HashSet[UsedName]()
 
-    holder.depthFirst.foreach {
+    holder.depthFirst().foreach {
       case ImportUser(elem) => collectImportsUsed(elem, imports, names)
       case _ =>
     }

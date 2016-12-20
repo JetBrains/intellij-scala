@@ -221,9 +221,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     }
 
     def functionParams(params: Seq[ScType]): Seq[Parameter] = {
-      val functionName = "scala.Function" + params.length
-      val functionClass = Option(ScalaPsiManager.instance(getProject).getCachedClass(functionName, getResolveScope,
-        ScalaPsiManager.ClassCategory.TYPE)).flatMap {case t: ScTrait => Option(t) case _ => None}
+      val functionName = s"scala.Function${params.length}"
+      val functionClass = elementScope.getCachedClass(functionName)
+        .collect {
+          case t: ScTrait => t
+        }
       val applyFunction = functionClass.flatMap(_.functions.find(_.name == "apply"))
       params.mapWithIndex {
         case (tp, i) =>
@@ -239,7 +241,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case ScTypePolymorphicType(FunctionType(retType, params), typeParams) =>
         Some(checkConformanceWithInference(retType, args, typeParams, functionParams(params)))
       case any if ScalaPsiUtil.isSAMEnabled(this) =>
-        ScalaPsiUtil.toSAMType(any, getResolveScope, this.scalaLanguageLevelOrDefault) match {
+        ScalaPsiUtil.toSAMType(any, this) match {
           case Some(FunctionType(retType: ScType, params: Seq[ScType])) =>
             Some(checkConformance(retType, args, functionParams(params)))
           case _ => None
@@ -272,9 +274,12 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
                   case t => t
                 }
                 val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
-                val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
+                implicit val project = getProject
+                implicit val scope = getResolveScope
+
+                val str = ScalaPsiManager.instance(project).getCachedClass(scope, "java.lang.String")
                 val stringType = str.map(ScalaType.designator(_)).getOrElse(Any)
-                (res.map(tp => TupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
+                (res.map(tp => TupleType(Seq(stringType, tp))), imports)
               }
             }
         }

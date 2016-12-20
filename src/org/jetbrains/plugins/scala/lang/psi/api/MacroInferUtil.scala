@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala
 package lang.psi.api
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern.extractProductParts
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
@@ -22,11 +21,8 @@ object MacroInferUtil {
                  expectedType: Option[ScType],
                  place: PsiElement)
                 (implicit typeSystem: TypeSystem): Option[ScType] = {
-    def getClass(className: String) = Some(place.getProject).map {
-      ScalaPsiManager.instance
-    }.flatMap { manager =>
-      Option(manager.getCachedClass(s"shapeless.$className", place.getResolveScope, ClassCategory.TYPE))
-    }
+    def getClass(className: String) =
+      place.elementScope.getCachedClass(s"shapeless.$className")
 
     val maybeGenericClass = getClass("Generic")
     val maybeGenericClassCompanion = maybeGenericClass.flatMap {

@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.data.SbtModuleNode
+import org.jetbrains.sbt.project.data.SbtBuildModuleNode
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
@@ -14,7 +14,7 @@ import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolve
  * @author Nikolay Obedin
  * @since 6/9/15.
  */
-class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
+class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._
 
@@ -27,7 +27,7 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
         name := "Module 1"
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
-        arbitraryNodes += new SbtModuleNode(imports, resolvers)
+        arbitraryNodes += new SbtBuildModuleNode(imports, resolvers)
       }
     }.build.toDataNode
 
@@ -67,7 +67,7 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new SbtModuleNode(Seq("some import"), Set.empty)
+      arbitraryNodes += new SbtBuildModuleNode(Seq("some import"), Set.empty)
     }.build.toDataNode
 
     importProjectData(testProject)

@@ -20,4 +20,13 @@ class CollectionsTest extends TypeInferenceTestBase {
           |//GenSet[Class[_]]""".stripMargin
     doTest(text)
   }
+
+  def testSCL11052(): Unit = {
+    val text =
+      s"""
+         |def second[T]: Seq[T] => Option[T] = _.drop(1).headOption
+         |second(${START}Seq("one", "two")$END)
+         |//Seq[T]""".stripMargin
+    doTest(text)
+  }
 }

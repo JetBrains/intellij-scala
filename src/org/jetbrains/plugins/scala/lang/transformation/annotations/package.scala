@@ -36,7 +36,7 @@ package object annotations {
   def bindTypeElement(e: PsiElement) {
     e match {
       case (t: ScSimpleTypeElement) && FirstChild(r: ScReferenceElement) =>
-        bindTo(r, t.text)
+        bindTo(r, t.getText)
       case _ => // TODO support compound types
     }
   }

@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -38,7 +39,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits._
@@ -55,7 +55,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -285,10 +285,12 @@ object ScalaPsiUtil {
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
       val data = ExtensionConversionData(baseExpr, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
+
+      implicit val elementScope = baseExpr.elementScope
       new ImplicitCollector(
         baseExpr,
-        FunctionType(Any, Seq(exprType))(baseExpr.getProject, baseExpr.getResolveScope),
-        FunctionType(exprType, args)(baseExpr.getProject, baseExpr.getResolveScope),
+        FunctionType(Any, Seq(exprType)),
+        FunctionType(exprType, args),
         coreElement = None,
         isImplicitConversion = true,
         extensionData = Some(data)).collect()
@@ -519,8 +521,11 @@ object ScalaPsiUtil {
     else null
   }
 
-  def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
-                            (implicit typeSystem: TypeSystem = project.typeSystem): Seq[ScType] = {
+  def collectImplicitObjects(_tp: ScType)
+                            (implicit elementScope: ElementScope): Seq[ScType] = {
+    val ElementScope(project, scope) = elementScope
+    implicit val typeSystem = elementScope.typeSystem
+
     val tp = _tp.removeAliasDefinitions()
     val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
     val cacheKey = (tp, scope)
@@ -574,7 +579,7 @@ object ScalaPsiUtil {
               args.foreach(collectParts)
           }
         case j: JavaArrayType =>
-          val parameterizedType = j.getParameterizedType(project, scope)
+          val parameterizedType = j.getParameterizedType
           collectParts(parameterizedType.getOrElse(return))
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected)
@@ -641,11 +646,9 @@ object ScalaPsiUtil {
         tp match {
           case Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
-            val obj = ScalaPsiManager.instance(project).
-              getCachedClass("scala." + tp.name, scope, ClassCategory.OBJECT)
-            obj match {
-              case o: ScObject => addResult(o.qualifiedName, ScDesignatorType(o))
-              case _ =>
+            elementScope.getCachedObject("scala." + tp.name)
+              .foreach { o =>
+              addResult(o.qualifiedName, ScDesignatorType(o))
             }
           case ScDesignatorType(ta: ScTypeAliasDefinition) => collectObjects(ta.aliasedType.getOrAny)
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
@@ -1080,7 +1083,9 @@ object ScalaPsiUtil {
         ScalaElementPresentation.getMethodPresentableText(method, fast = false, subst)
       case _ =>
         val PARAM_OPTIONS: Int = PsiFormatUtilBase.SHOW_NAME | PsiFormatUtilBase.SHOW_TYPE | PsiFormatUtilBase.TYPE_AFTER
-        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst, method.getProject, method.getResolveScope),
+
+        implicit val elementScope = method.elementScope
+        PsiFormatUtil.formatMethod(method, getPsiSubstitutor(subst),
           PARAM_OPTIONS | PsiFormatUtilBase.SHOW_PARAMETERS, PARAM_OPTIONS)
     }
   }
@@ -1194,13 +1199,10 @@ object ScalaPsiUtil {
     el
   }
 
-  def getCompanionModule(clazz: PsiClass)
-                        (implicit tokenSets: TokenSets = clazz.getProject.tokenSets): Option[ScTypeDefinition] = {
-    clazz match {
+  def getCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = clazz match {
       case definition: ScTypeDefinition =>
         definition.baseCompanionModule.orElse(definition.fakeCompanionModule)
       case _ => None
-    }
   }
 
   def getMetaCompanionObject(ah: ScAnnotationsHolder): Option[scala.meta.Defn.Object] = {
@@ -1214,27 +1216,21 @@ object ScalaPsiUtil {
     }
   }
 
-  //Performance critical method
-  def getBaseCompanionModule(definition: ScTypeDefinition)
-                            (implicit tokenSets: TokenSets = definition.getProject.tokenSets): Option[ScTypeDefinition] = {
-    definition.baseCompanionModule
-  }
-
   object FakeCompanionClassOrCompanionClass {
     def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
   }
 
+  def isStaticJava(m: PsiMember): Boolean = m match {
+    case null => false
+    case _ if !m.getLanguage.isInstanceOf[JavaLanguage] => false
+    case _: PsiEnumConstant => true
+    case cl: PsiClass if cl.isInterface | cl.isEnum => true
+    case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
+    case f: PsiField if f.containingClass.isInterface => true
+    case _ => false
+  }
+
   def hasStablePath(o: PsiNamedElement): Boolean = {
-
-    def isStaticJava(m: PsiMember) = m match {
-      case null => false
-      case _: PsiEnumConstant => true
-      case cl: PsiClass if cl.isInterface | cl.isEnum => true
-      case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
-      case f: PsiField if f.containingClass.isInterface => true
-      case _ => false
-    }
-
     @tailrec
     def hasStablePathInner(m: PsiMember): Boolean = {
       m.getContext match {
@@ -1246,7 +1242,7 @@ object ScalaPsiUtil {
         case null => false
         case o: ScObject if o.isPackageObject || o.qualifiedName == "scala.Predef" => true
         case o: ScObject => hasStablePathInner(o)
-        case j if j.getLanguage.isInstanceOf[JavaLanguage] => isStaticJava(m) && hasStablePathInner(j)
+        case j if isStaticJava(m) => hasStablePathInner(j)
         case _ => false
       }
     }
@@ -1258,7 +1254,8 @@ object ScalaPsiUtil {
     }
   }
 
-  def getPsiSubstitutor(subst: ScSubstitutor, project: Project, scope: GlobalSearchScope): PsiSubstitutor = {
+  def getPsiSubstitutor(subst: ScSubstitutor)
+                       (implicit elementScope: ElementScope): PsiSubstitutor = {
 
     case class PseudoPsiSubstitutor(substitutor: ScSubstitutor) extends PsiSubstitutor {
       def putAll(parentClass: PsiClass, mappings: Array[PsiType]): PsiSubstitutor = PsiSubstitutor.EMPTY
@@ -1270,12 +1267,12 @@ object ScalaPsiUtil {
       def getSubstitutionMap: java.util.Map[PsiTypeParameter, PsiType] = new java.util.HashMap[PsiTypeParameter, PsiType]()
 
       def substitute(`type`: PsiType): PsiType = {
-        implicit val typeSystem = project.typeSystem
-        substitutor.subst(`type`.toScType()).toPsiType(project, scope)
+        implicit val typeSystem = elementScope.typeSystem
+        substitutor.subst(`type`.toScType()).toPsiType()
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType(project, scope)
+        substitutor.subst(TypeParameterType(typeParameter, Some(substitutor))).toPsiType()
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY
@@ -1596,7 +1593,7 @@ object ScalaPsiUtil {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
         case expected if isSAMEnabled(expr) =>
-          toSAMType(expected, expr.getResolveScope, expr.scalaLanguageLevelOrDefault).isDefined
+          toSAMType(expected, expr).isDefined
         case _ => false
       }) {
         return None
@@ -1912,15 +1909,16 @@ object ScalaPsiUtil {
     *
     * @return true if language level and flags are correct
     */
-  def isSAMEnabled(e: PsiElement): Boolean = e.scalaLanguageLevel match {
-    case Some(lang) if lang < Scala_2_11 => false
-    case Some(lang) if lang == Scala_2_11 =>
-      val settings = e.module match {
-        case Some(module) => module.scalaCompilerSettings
-        case None => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings
+  def isSAMEnabled(element: PsiElement): Boolean = element.scalaLanguageLevel.exists {
+    case lang if lang > Scala_2_11 => true // if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
+    case lang if lang == Scala_2_11 =>
+      val settings = element.module.map {
+        _.scalaCompilerSettings
+      }.getOrElse {
+        ScalaCompilerConfiguration.instanceIn(element.getProject).defaultProfile.getSettings
       }
       settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
-    case _ => true //if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
+    case _ => false
   }
 
   /**
@@ -1929,8 +1927,11 @@ object ScalaPsiUtil {
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
     */
-  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope, languageLevel: ScalaLanguageLevel)
+  def toSAMType(expected: ScType, element: PsiElement)
                (implicit typeSystem: TypeSystem): Option[ScType] = {
+    implicit val scalaScope = element.getResolveScope
+    val languageLevel = element.scalaLanguageLevelOrDefault
+
     def constructorValidForSAM(constructor: PsiMethod): Boolean = {
       val isPublicAndParameterless = constructor.getModifierList.hasModifierProperty(PsiModifier.PUBLIC) &&
         constructor.getParameterList.getParametersCount == 0
@@ -1940,83 +1941,90 @@ object ScalaPsiUtil {
       }
     }
 
-    expected.extractClassType() match {
-      case Some((cl, sub)) =>
-        cl match {
-          case templDef: ScTemplateDefinition => //it's a Scala class or trait
-            def selfTypeValid: Boolean = {
-              templDef.selfType match {
-                case Some(selfParam: ScParameterizedType) => templDef.getType(TypingContext.empty) match {
-                  case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
-                  case _ => false
-                }
-                case Some(selfTp) => templDef.getType(TypingContext.empty) match {
-                  case Success(classType, _) => selfTp.conforms(classType)
-                  case _ => false
-                }
-                case _ => true
-              }
-            }
-
-            val abst = templDef.allSignatures.filter(TypeDefinitionMembers.ParameterlessNodes.isAbstract)
-            abst match {
-              case (Seq(PhysicalSignature(fun: ScFunction, _))) =>
-                val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
-
-                def constructorValid = templDef match {
-                  case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
-                  case _: ScTrait => true
-                  case _ => false
-                }
-
-                def hasOneParamClause = fun.paramClauses.clauses.length == 1
-
-                def selfTypeCorrectIfScala212 = isScala211 || selfTypeValid
-
-                if (constructorValid && hasOneParamClause && !fun.hasTypeParameters && selfTypeCorrectIfScala212) {
-                  fun.getType() match {
-                    case Success(tp, _) =>
-                      val subbed = sub.subst(tp)
-                      val extrapolated = extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel)
-                      extrapolated.orElse(Some(subbed))
-                    case _ => None
-                  }
-                } else None
-              case _ => None
-            }
-          case _ => //it's a Java abstract class or interface
-            def overridesConcreteMethod(method: PsiMethod): Boolean = {
-              method.findSuperMethods().exists(!_.hasAbstractModifier)
-            }
-
-            val abst: Array[PsiMethod] = cl.getMethods.filter {
-              case method if method.hasAbstractModifier => true
+    expected.extractClassType().flatMap {
+      case (templDef: ScTemplateDefinition, substitutor) =>
+        def selfTypeValid: Boolean = {
+          templDef.selfType match {
+            case Some(selfParam: ScParameterizedType) => templDef.getType() match {
+              case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
               case _ => false
-            } match {
-              case array if array.length > 0 => array.filterNot(overridesConcreteMethod)
-              case any => any
             }
-            val constructors: Array[PsiMethod] = cl.getConstructors
-            val constructorValid = constructors.exists(constructorValidForSAM) || constructors.isEmpty
-            //must have exactly one abstract member and SAM must be monomorphic
-            val valid = constructorValid && abst.length == 1 && !abst.head.hasTypeParameters
-            if (valid) {
-              //need to generate ScType for Java method
-              val method = abst.head
-              val project = method.getProject
-              val returnType: ScType = method.getReturnType.toScType()
-              val params: Array[ScType] = method.getParameterList.getParameters.map {
-                param: PsiParameter => param.getTypeElement.getType.toScType()
-              }
-              val fun = FunctionType(returnType, params)(project, scalaScope)
-              val subbed = sub.subst(fun)
-              extrapolateWildcardBounds(subbed, expected, project, scalaScope, languageLevel) match {
-                case s@Some(_) => s
-                case _ => Some(subbed)
-              }
-            } else None
+            case Some(selfTp) => templDef.getType() match {
+              case Success(classType, _) => selfTp.conforms(classType)
+              case _ => false
+            }
+            case _ => true
+          }
         }
-      case None => None
+
+        val abst = templDef.allSignatures.filter {
+          TypeDefinitionMembers.ParameterlessNodes.isAbstract
+        }
+
+        abst match {
+          case Seq(PhysicalSignature(fun: ScFunction, _)) =>
+            val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
+
+            def constructorValid = templDef match {
+              case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
+              case _: ScTrait => true
+              case _ => false
+            }
+
+            def selfTypeCorrectIfScala212 = isScala211 || selfTypeValid
+
+            Option(fun).filter { f =>
+              constructorValid &&
+                fun.paramClauses.clauses.length == 1 && !f.hasTypeParameters &&
+                selfTypeCorrectIfScala212
+            }.flatMap {
+              _.getType().toOption
+            }.map { tp =>
+              val substituted = substitutor.subst(tp)
+              implicit val elementScope = ElementScope(fun.getProject, scalaScope)
+              extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
+                substituted
+              }
+            }
+          case _ => None
+        }
+      case (cl, substitutor) =>
+        val abstractMethods: Array[PsiMethod] = cl.getMethods.filter {
+          _.hasAbstractModifier
+        }.filter {
+          _.findSuperMethods().forall {
+            _.hasAbstractModifier
+          } // overrides abstract methods
+        }
+
+        val maybeAbstractMethod = abstractMethods match {
+          case Array(method) => Some(method)
+          case _ => None
+        }
+
+        val validConstructorExists = cl.getConstructors match {
+          case Array() => true
+          case constructors => constructors.exists(constructorValidForSAM)
+        }
+
+
+        maybeAbstractMethod.filter {
+          !_.hasTypeParameters && validConstructorExists
+          // must have exactly one abstract member and SAM must be monomorphic
+        }.map { method =>
+          implicit val elementScope = ElementScope(method.getProject, scalaScope)
+          val returnType = method.getReturnType
+          val parametersTypes = method.getParameterList.getParameters.map {
+            _.getTypeElement.getType
+          }
+
+          val functionType = FunctionType(returnType.toScType(), parametersTypes.map(_.toScType()))
+          val substituted = substitutor.subst(functionType)
+
+          extrapolateWildcardBounds(substituted, expected, languageLevel).getOrElse {
+            substituted
+          }
+        }
     }
   }
 
@@ -2038,8 +2046,9 @@ object ScalaPsiUtil {
     * @see https://github.com/scala/scala/pull/4101
     * @see SCL-8956
     */
-  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope, scalaVersion: ScalaLanguageLevel)
-                                       (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, scalaVersion: ScalaLanguageLevel)
+                                       (implicit elementScope: ElementScope): Option[ScType] = {
+    implicit val typeSystem = elementScope.typeSystem
     expected match {
       case ScExistentialType(ParameterizedType(_, _), wildcards) =>
         tp match {
@@ -2065,7 +2074,7 @@ object ScalaPsiUtil {
             //parameter clauses are contravariant positions, return types are covariant positions
             val newParams = params.map(convertParameter(_, ScTypeParam.Contravariant))
             val newRetTp = convertParameter(retTp, ScTypeParam.Covariant)
-            Some(FunctionType(newRetTp, newParams)(proj, scope))
+            Some(FunctionType(newRetTp, newParams))
           case _ => None
         }
       case _ => None

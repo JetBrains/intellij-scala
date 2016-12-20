@@ -20,18 +20,13 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
 
   override def getKey = ProviderKey
 
-  override protected def isSourceCode(file: PsiFile) =
-    file.getLanguage.isKindOf(ScalaLanguage.INSTANCE) &&
-      !file.getName.endsWith(".sbt") && // root SBT files belong to main (not *-build) modules
-      file.isWritable
-
-  override protected def hasDeveloperKit(module: Module) =
+  override protected def hasDeveloperKit(module: Module): Boolean =
     getModuleType(module) != JavaModuleType.getModuleType ||
       module.getName.endsWith("-build") || // gen-idea doesn't use the SBT module type
       module.hasScala
 
   override protected def createTask(module: Module) = new Runnable {
-    override def run() =
+    override def run(): Unit =
       createDialog(module, new ScalaSupportProvider).showAndGet
   }
 

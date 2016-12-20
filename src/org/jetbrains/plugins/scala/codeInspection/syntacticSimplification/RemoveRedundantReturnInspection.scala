@@ -5,6 +5,7 @@ package syntacticSimplification
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturnStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 
@@ -15,7 +16,9 @@ class RemoveRedundantReturnInspection extends AbstractInspection("ScalaRedundant
     case function: ScFunctionDefinition =>
     for (body <- function.body) {
         val returns = body.calculateReturns()
-        body.depthFirst(!_.isInstanceOf[ScFunction]).foreach {
+      body.depthFirst {
+        !_.isInstanceOf[ScFunction]
+      }.foreach {
           case r: ScReturnStmt =>
             if (returns.contains(r)) {
               holder.registerProblem(r.returnKeyword, "Return keyword is redundant",

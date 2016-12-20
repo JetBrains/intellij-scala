@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi._
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
@@ -73,7 +73,7 @@ class ScalaMethodCallFixer extends ScalaFixer {
     }
 
     var endOffset: Int = -1
-    var child = args.firstChild.orNull
+    var child = args.getFirstChild
     var flag = true
 
     while (child != null && flag) {

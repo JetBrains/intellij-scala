@@ -12,6 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2ConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
 /**
  * @author Ksenia.Sautina
@@ -155,4 +158,8 @@ object TestConfigurationUtil {
     getStaticTestName(element, allowSymbolLiterals).getOrElse(default)
 
   def escapeTestName(testName: String): String = testName.replace("\\", "\\\\").replace("\n", "\\n")
+
+  val specs2ConfigurationProducer = new Specs2ConfigurationProducer
+  val uTestConfigurationProducer = new UTestConfigurationProducer
+  val scalaTestConfigurationProducer = new ScalaTestConfigurationProducer
 }

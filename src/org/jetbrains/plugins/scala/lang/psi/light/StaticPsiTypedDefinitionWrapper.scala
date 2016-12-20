@@ -56,9 +56,11 @@ object StaticPsiTypedDefinitionWrapper {
     }
 
     val result = b.getType(TypingContext.empty)
+
+    implicit val elementScope = b.elementScope
     result match {
       case _ if role == SETTER || role == EQ => builder.append("void")
-      case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, b.getProject, b.getResolveScope))
+      case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp))
       case _ => builder.append("java.lang.Object")
     }
 
@@ -80,7 +82,7 @@ object StaticPsiTypedDefinitionWrapper {
     } else {
       builder.append("(").append(paramText).append(", ")
       result match {
-        case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp, b.getProject, b.getResolveScope))
+        case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp))
         case _ => builder.append("java.lang.Object")
       }
       builder.append(" ").append(b.getName).append(")")

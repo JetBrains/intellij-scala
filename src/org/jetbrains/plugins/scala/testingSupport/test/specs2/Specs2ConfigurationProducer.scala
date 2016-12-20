@@ -6,10 +6,10 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
 class Specs2ConfigurationProducer extends {
   val confType = new Specs2ConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
+} with TestConfigurationProducer(confType) {
 
   override def suitePaths = List("org.specs2.specification.SpecificationStructure",
     "org.specs2.specification.core.SpecificationStructure")
@@ -91,8 +91,9 @@ class Specs2ConfigurationProducer extends {
     }
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (parent == null) return false
-    val suiteClasses = suitePaths.map(suite =>
-      ScalaPsiManager.instance(parent.getProject).getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
+    val suiteClasses = suitePaths.flatMap {
+      parent.elementScope.getCachedClass(_)
+    }
     if (suiteClasses.isEmpty) return false
     val suiteClazz = suiteClasses.head
 
@@ -123,9 +124,9 @@ class Specs2ConfigurationProducer extends {
     val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (testClassDef == null) return (null, null)
 
-    val psiManager = ScalaPsiManager.instance(testClassDef.getProject)
-    val suiteClasses = suitePaths.map(suite =>
-      psiManager.getCachedClass(suite, element.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)).filter(_ != null)
+    val suiteClasses = suitePaths.flatMap {
+      element.elementScope.getCachedClass(_)
+    }
     if (suiteClasses.isEmpty) return (null, null)
     val suiteClazz = suiteClasses.head
     if (!ScalaPsiUtil.cachedDeepIsInheritor(testClassDef, suiteClazz)) return (null, null)

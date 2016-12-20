@@ -16,12 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
@@ -67,10 +65,14 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     if (!isRepeatedParameter) return getType(ctx)
     getType(ctx) match {
       case f@Success(tp: ScType, elem) =>
-        val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
-        if (seq != null) {
-          Success(ScParameterizedType(ScalaType.designator(seq), Seq(tp)), elem)
-        } else f
+        elementScope.getCachedClass("scala.collection.Seq")
+          .map {
+            ScalaType.designator
+          }.map {
+          ScParameterizedType(_, Seq(tp))
+        }.map {
+          Success(_, elem)
+        }.getOrElse(f)
       case f => f
     }
   }
@@ -100,7 +102,9 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   abstract override def getUseScope: SearchScope = {
     val specificScope = getDeclarationScope match {
       case null => GlobalSearchScope.EMPTY_SCOPE
-      case expr: ScFunctionExpr => new LocalSearchScope(expr)
+      case expr: ScFunctionExpr =>
+        if (expr.isValid && expr.getContainingFile != null) new LocalSearchScope(expr)
+        else LocalSearchScope.EMPTY
       case clazz: ScClass if clazz.isCase => clazz.getUseScope
       case clazz: ScClass if this.isInstanceOf[ScClassParameter] => clazz.getUseScope //for named parameters
       case d => d.getUseScope
@@ -108,7 +112,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     specificScope.intersectWith(super.getUseScope)
   }
 
-  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType(getProject, getResolveScope)
+  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType()
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
@@ -138,7 +142,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
                 } else result = Some(params(i))
               case any if ScalaPsiUtil.isSAMEnabled(f)=>
                 //infer type if it's a Single Abstract Method
-                ScalaPsiUtil.toSAMType(any, f.getResolveScope, f.scalaLanguageLevelOrDefault) match {
+                ScalaPsiUtil.toSAMType(any, f) match {
                   case Some(FunctionType(_, params)) =>
                     val i = clause.parameters.indexOf(this)
                     if (i < params.length) result = Some(params(i))

@@ -3,23 +3,22 @@ package testingSupport.test
 
 import javax.swing.ListCellRenderer
 
+import com.intellij.execution.Location
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.ConfigurationType
-import com.intellij.execution.Location
 import com.intellij.execution.junit.InheritorChooser
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.util.{Condition, Ref}
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.search.searches.ClassInheritorsSearch
+import com.intellij.openapi.util.{Condition, Ref}
 import com.intellij.psi._
+import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 /**
  * @author Roman.Shein
@@ -27,11 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
  */
 abstract class TestConfigurationProducer(configurationType: ConfigurationType) extends RunConfigurationProducer[AbstractTestRunConfiguration](configurationType) with AbstractTestConfigurationProducer{
 
-  protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean = {
-    val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(fqn, clazz.getResolveScope, ScalaPsiManager.ClassCategory.OBJECT)
-    if (suiteClazz == null) return false
-    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
-  }
+  protected def isObjectInheritor(clazz: ScTypeDefinition, fqn: String): Boolean =
+    clazz.elementScope.getCachedObject(fqn)
+      .exists {
+        ScalaPsiUtil.cachedDeepIsInheritor(clazz, _)
+      }
 
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
 
