@@ -24,7 +24,7 @@ class ImplicitsTest extends TypeInferenceTestBase {
   def testSCL9961(): Unit = doTest()
 
   def testSCL3987(): Unit = doTest()
-  
+
   def testSCL7605(): Unit = doTest()
 
   def testSCL8831(): Unit = doTest()
@@ -65,41 +65,42 @@ class ImplicitsTest extends TypeInferenceTestBase {
   }
 
   def testSCL7658(): Unit = {
-    doTest("""implicit def i2s(i: Int): String = i.toString
-      |
-      |def hoo(x: String): String = {
-      |  println(1)
-      |  x
-      |}
-      |def hoo(x: Int): Int = {
-      |  println(2)
-      |  x
-      |}
-      |
-      |val ss: String = hoo(/*start*/1/*end*/)
-      |//Int
-    """.stripMargin)
+    doTest(
+      """implicit def i2s(i: Int): String = i.toString
+        |
+        |def hoo(x: String): String = {
+        |  println(1)
+        |  x
+        |}
+        |def hoo(x: Int): Int = {
+        |  println(2)
+        |  x
+        |}
+        |
+        |val ss: String = hoo(/*start*/1/*end*/)
+        |//Int
+      """.stripMargin)
   }
 
   def testSCL9903(): Unit = doTest {
     s"""trait Prop extends  {
-      |  def foo(s: String): Prop = ???
-      |}
-      |
+       |  def foo(s: String): Prop = ???
+       |}
+       |
       |object Prop {
-      |  implicit def propBoolean(b: Boolean): Prop = ???
-      |
+       |  implicit def propBoolean(b: Boolean): Prop = ???
+       |
       |  implicit def BooleanOperators(b: => Boolean): ExtendedBoolean = ???
-      |
+       |
       |  class ExtendedBoolean(b: => Boolean) {
-      |    def foo(s: String): Prop = ???
-      |  }
-      |}
-      |
+       |    def foo(s: String): Prop = ???
+       |  }
+       |}
+       |
       |import Prop._
-      |
+       |
       |val x = ${START}true.foo("aaa")$END
-      |//Prop
+       |//Prop
     """.stripMargin
   }
 
@@ -133,41 +134,41 @@ class ImplicitsTest extends TypeInferenceTestBase {
   def testSCL7468(): Unit = {
     doTest(
       s"""
-        |class Container[A](x: A) { def value: A = x }
-        |trait Unboxer[A, B] { def unbox(x: A): B }
-        |trait LowPriorityUnboxer {
-        |  implicit def defaultCase[A, B](implicit fun: A => B) = new Unboxer[A, B] { def unbox(x: A) = fun(x) }
-        |}
-        |object Unboxer extends LowPriorityUnboxer {
-        |  def unbox[A, B](x: A)(implicit f: Unboxer[A, B]) = f.unbox(x)
-        |  implicit def containerCase[A] = new Unboxer[Container[A], A] { def unbox(x: Container[A]) = x.value }
-        |}
-        |implicit def getContained[A](cont: Container[A]): A = cont.value
-        |def container[A] = new Impl[A]
-        |
+         |class Container[A](x: A) { def value: A = x }
+         |trait Unboxer[A, B] { def unbox(x: A): B }
+         |trait LowPriorityUnboxer {
+         |  implicit def defaultCase[A, B](implicit fun: A => B) = new Unboxer[A, B] { def unbox(x: A) = fun(x) }
+         |}
+         |object Unboxer extends LowPriorityUnboxer {
+         |  def unbox[A, B](x: A)(implicit f: Unboxer[A, B]) = f.unbox(x)
+         |  implicit def containerCase[A] = new Unboxer[Container[A], A] { def unbox(x: Container[A]) = x.value }
+         |}
+         |implicit def getContained[A](cont: Container[A]): A = cont.value
+         |def container[A] = new Impl[A]
+         |
         |class Impl[A] { def apply[B](x: => B)(implicit unboxer: Unboxer[B, A]): Container[A] = new Container(Unboxer.unbox(x)) }
-        |
+         |
         |val stringCont = container("SomeString")
-        |val a1 = ${START}stringCont$END
-        |//String
+         |val a1 = ${START}stringCont$END
+         |//String
       """.stripMargin)
   }
 
   def testSCL8214(): Unit = {
     doTest(
       s"""
-        |class A
-        |
+         |class A
+         |
         |class Z[T]
-        |class F[+T]
-        |
+         |class F[+T]
+         |
         |class B
-        |class C extends B
-        |
+         |class C extends B
+         |
         |implicit val z: Z[C] = new Z
-        |implicit def r[S, T](p: S)(implicit x: Z[T]): F[T] = new F[T]
-        |val r: F[B] = ${START}new A$END
-        |//F[B]
+         |implicit def r[S, T](p: S)(implicit x: Z[T]): F[T] = new F[T]
+         |val r: F[B] = ${START}new A$END
+         |//F[B]
       """.stripMargin)
   }
 
@@ -230,6 +231,29 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |  sealed trait Entry[A] { def manifest: Manifest[A] }
          |}
          |//((String, A)) => (String, A)
+      """.stripMargin)
+  }
+
+  def testSCL11119(): Unit = {
+    doTest(
+      s"""
+         |import test._
+         |
+         |object test {
+         |  case class F[T](v: T) {
+         |    def onS[U](pf: PartialFunction[T,U]) : Unit = ???
+         |  }
+         |  implicit class F2[T](val f: F[T]) extends AnyVal {
+         |    final def onS2[U]  = f.onS( _: PartialFunction[T,U])
+         |  }
+         |}
+         |
+         |class test {
+         |
+         |  val f = F("foo")
+         |  f.onS2 ${START}{ case "x" => "baz" }$END
+         |}
+         |//PartialFunction[String,U]
       """.stripMargin)
   }
 }
