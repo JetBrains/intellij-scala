@@ -4,7 +4,7 @@ package resolve
 package processor
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -16,12 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.Set
@@ -59,14 +58,19 @@ class MethodResolveProcessor(override val ref: PsiElement,
       case named: PsiNamedElement => named
       case _ => return true //do not process
     }
-    def implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY).toOption
-    def implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION).toOption
-    def implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE).toOption
-    def isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY).toOption.exists(_.booleanValue)
+
+    def implicitConversionClass: Option[PsiClass] = state.get(IMPLICIT_RESOLUTION).toOption
+
+    def implFunction: Option[PsiNamedElement] = state.get(IMPLICIT_FUNCTION).toOption
+
+    def implType: Option[ScType] = state.get(IMPLICIT_TYPE).toOption
+
+    def isNamedParameter: Boolean = state.get(NAMED_PARAM_KEY).toOption.exists(_.booleanValue)
     def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
     def unresolvedTypeParameters: Option[Seq[TypeParameter]] = state.get(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY).toOption
     def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
     def forwardReference: Boolean = isForwardReference(state)
+
     if (nameAndKindMatch(named, state) || constructorResolve) {
       val accessible = isNamedParameter || isAccessible(named, ref)
       if (accessibility && !accessible) return true

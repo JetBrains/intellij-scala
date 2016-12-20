@@ -5,15 +5,13 @@ package implicits
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.util.{CachedValue, PsiTreeUtil}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible._
@@ -142,23 +140,6 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
 object ScImplicitlyConvertible {
   private implicit val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible")
-
-  val IMPLICIT_RESOLUTION_KEY: Key[PsiClass] = Key.create("implicit.resolution.key")
-  val IMPLICIT_CONVERSIONS_KEY: Key[CachedValue[collection.Map[ScType, Set[(ScFunctionDefinition, Set[ImportUsed])]]]] = Key.create("implicit.conversions.key")
-
-  val IMPLICIT_REFERENCE_NAME = "implicitReferenceName"
-  val IMPLICIT_EXPRESSION_NAME = "implicitExpressionName"
-  val IMPLICIT_CALL_TEXT: String = IMPLICIT_REFERENCE_NAME + "(" + IMPLICIT_EXPRESSION_NAME + ")"
-
-  val FAKE_RESOLVE_RESULT_KEY: Key[ScalaResolveResult] = Key.create("fake.resolve.result.key")
-  val FAKE_EXPRESSION_TYPE_KEY: Key[ScType] = Key.create("fake.expr.type.key")
-  val FAKE_EXPECTED_TYPE_KEY: Key[Option[ScType]] = Key.create("fake.expected.type.key")
-
-  def setupFakeCall(expr: ScMethodCall, rr: ScalaResolveResult, tp: ScType, expected: Option[ScType]) {
-    expr.getInvokedExpr.putUserData(FAKE_RESOLVE_RESULT_KEY, rr)
-    expr.args.exprs.head.putUserData(FAKE_EXPRESSION_TYPE_KEY, tp)
-    expr.putUserData(FAKE_EXPECTED_TYPE_KEY, expected)
-  }
 
   def forMap(expression: ScExpression, result: ScalaResolveResult, `type`: ScType)
             (implicit typeSystem: TypeSystem): Option[ImplicitMapResult] = {

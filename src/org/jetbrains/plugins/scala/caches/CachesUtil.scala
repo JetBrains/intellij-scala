@@ -69,6 +69,7 @@ object CachesUtil {
   //keys for getUserData
   val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
   val IMPLICIT_FUNCTION: Key[PsiNamedElement] = Key.create("implicit.function")
+  val IMPLICIT_RESOLUTION: Key[PsiClass] = Key.create("implicit.resolution")
   val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
   val PROJECT_HAS_DOTTY_KEY: Key[java.lang.Boolean] = Key.create("project.has.dotty")
