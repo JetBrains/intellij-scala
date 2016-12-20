@@ -118,7 +118,7 @@ class MemoryLeakTest extends PlatformTestCase {
     val inspectionManager = InspectionManager.getInstance(project).asInstanceOf[InspectionManagerEx]
     val inspectionProfile = new InspectionProfileImpl("test")
     inspectionProfile.initInspectionTools(getProject)
-    InspectionProjectProfileManager.getInstance(project).fireProfileChanged(inspectionProfile)
+//    InspectionProjectProfileManager.getInstance(project).fireProfileChanged(inspectionProfile)
     InspectionProjectProfileManager.getInstance(project).setRootProfile(inspectionProfile.getName)
 
     val tools = inspectionProfile.getAllEnabledInspectionTools(project).asScala
