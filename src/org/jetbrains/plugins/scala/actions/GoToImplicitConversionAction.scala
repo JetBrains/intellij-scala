@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.actions
 
 import java.awt.event.{MouseAdapter, MouseEvent}
-import java.awt.{Color, Point, Rectangle}
+import java.awt.{Color, Point}
 import javax.swing._
 import javax.swing.border.Border
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.presentation.ScImplicitFunctionListCellRenderer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.util.IntentionUtils.showMakeExplicitPopup
 import org.jetbrains.plugins.scala.util.{IntentionUtils, JListCompatibility}
 
 import scala.collection.mutable.ArrayBuffer
@@ -39,8 +40,6 @@ object GoToImplicitConversionAction {
   def setPopup(p: JBPopup) {
     popup = p
   }
-
-  def getList: JList[_] = JListCompatibility.GoToImplicitConversionAction.getList
 }
 
 class GoToImplicitConversionAction extends AnAction("Go to implicit conversion action") {
@@ -82,12 +81,12 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       var actualIndex = -1
       //todo actualIndex should be another if conversionFun is not one
       for (element <- regularConversions) {
-        val elem = new Parameters(element, expr, editor, regularConversions, companionConversions)
+        val elem = Parameters(element, expr, project, editor, regularConversions, companionConversions)
         JListCompatibility.addElement(model, elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
       for (element <- companionConversions) {
-        val elem = new Parameters(element, expr, editor, regularConversions, companionConversions)
+        val elem = Parameters(element, expr, project, editor, regularConversions, companionConversions)
         JListCompatibility.addElement(model, elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
@@ -102,7 +101,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
           hintAlarm.cancelAllRequests
           val item = list.getSelectedValue.asInstanceOf[Parameters]
           if (item == null) return
-          updateHint(item, project)
+          updateHint(item)
         }
       })
       JListCompatibility.GoToImplicitConversionAction.setList(list)
@@ -113,7 +112,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       setItemChoosenCallback(new Runnable {
         def run() {
           val entity = list.getSelectedValue.asInstanceOf[Parameters]
-          entity.getNewExpression match {
+          entity.newExpression match {
             case f: ScFunction =>
               f.getSyntheticNavigationElement match {
                 case Some(n: NavigatablePsiElement) => n.navigate(true)
@@ -133,8 +132,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
 
       GoToImplicitConversionAction.setPopup(popup)
 
-      hint = new LightBulbHint(editor, project, expr)
-      hint.createHint(regularConversions, companionConversions)
+      hint = new LightBulbHint(editor, project, expr, companionConversions)
 
       false
     }
@@ -202,90 +200,76 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
     }
   }
 
-  private def updateHint(element: Parameters, project: Project) {
-    if (element.getNewExpression == null || !element.getNewExpression.isValid) return
+  private def updateHint(element: Parameters): Unit = {
+    if (element.newExpression == null || !element.newExpression.isValid) return
+    val list = JListCompatibility.GoToImplicitConversionAction.getList
+
     if (hint != null) {
-      GoToImplicitConversionAction.getList.remove(hint)
+      list.remove(hint)
       hint = null
 
-      GoToImplicitConversionAction.getList.revalidate()
-      GoToImplicitConversionAction.getList.repaint()
+      list.revalidate()
+      list.repaint()
     }
 
     hintAlarm.addRequest(new Runnable {
       def run() {
-        hint = new LightBulbHint(element.getEditor, project, element.getOldExpression)
-        hint.createHint(element.getFirstPart, element.getSecondPart)
-        GoToImplicitConversionAction.getList.add(hint, 20, 0)
+        hint = new LightBulbHint(element.editor, element.project, element.oldExpression, element.secondPart)
+        list.add(hint, 20, 0)
         hint.setBulbLayout()
       }
     }, 500)
   }
 
-  class LightBulbHint(editor: Editor, project: Project, expr: ScExpression) extends JLabel {
+  class LightBulbHint(editor: Editor, project: Project, expr: ScExpression, secondPart: Seq[PsiNamedElement]) extends JLabel {
     private final val INACTIVE_BORDER: Border = BorderFactory.createEmptyBorder(4, 4, 4, 4)
     private final val ACTIVE_BORDER: Border =
       BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1),
-      BorderFactory.createEmptyBorder(3, 3, 3, 3))
+        BorderFactory.createEmptyBorder(3, 3, 3, 3))
     private final val INDENT = 20
 
-    def createHint(firstPart: Seq[PsiNamedElement], secondPart: Seq[PsiNamedElement]) {
-      setOpaque(false)
-      setBorder(INACTIVE_BORDER)
-      setIcon(IconLoader.findIcon("/actions/intentionBulb.png"))
+    setOpaque(false)
+    setBorder(INACTIVE_BORDER)
+    setIcon(IconLoader.findIcon("/actions/intentionBulb.png"))
 
-      val toolTipText: String = KeymapUtil.getFirstKeyboardShortcutText(
-        ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS))
+    private val toolTipText: String = KeymapUtil.getFirstKeyboardShortcutText(
+      ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS))
 
-      if (toolTipText.length > 0) {
-        setToolTipText(CodeInsightBundle.message("lightbulb.tooltip", toolTipText))
-      }
-
-      addMouseListener(new MouseAdapter {
-        override def mouseEntered(e: MouseEvent) {
-          setBorder(ACTIVE_BORDER)
-        }
-
-        override def mouseExited(e: MouseEvent) {
-          setBorder(INACTIVE_BORDER)
-        }
-
-        override def mousePressed(e: MouseEvent) {
-          if (!e.isPopupTrigger && e.getButton == MouseEvent.BUTTON1) {
-            val tuple = GoToImplicitConversionAction.getList.getSelectedValue.asInstanceOf[Parameters]
-            val function: ScFunction =
-              tuple.getNewExpression match {
-                case fun: ScFunction => fun
-                case _ => null
-              }
-            if (function == null) return
-
-            IntentionUtils.showMakeExplicitPopup(project, expr, function, editor, secondPart, getCurrentItemBounds _)
-          }
-        }
-      })
+    if (toolTipText.length > 0) {
+      setToolTipText(CodeInsightBundle.message("lightbulb.tooltip", toolTipText))
     }
 
-    def setBulbLayout() {
-      if (this != null && getCurrentItem != null) {
-        val bounds: Rectangle = getCurrentItemBounds
+    addMouseListener(new MouseAdapter {
+      override def mouseEntered(e: MouseEvent): Unit = {
+        setBorder(ACTIVE_BORDER)
+      }
+
+      override def mouseExited(e: MouseEvent): Unit = {
+        setBorder(INACTIVE_BORDER)
+      }
+
+      override def mousePressed(e: MouseEvent): Unit = {
+        if (!e.isPopupTrigger && e.getButton == MouseEvent.BUTTON1) {
+          selectedValue.newExpression match {
+            case function: ScFunction =>
+              showMakeExplicitPopup(project, expr, function, editor, secondPart)
+            case _ =>
+          }
+        }
+      }
+    })
+
+    def setBulbLayout(): Unit = {
+      if (selectedValue.newExpression != null) {
+        val bounds = IntentionUtils.getCurrentItemBounds
         setSize(getPreferredSize)
         setLocation(new Point(bounds.x + bounds.width - getWidth - INDENT, bounds.y))
       }
     }
 
-    def getCurrentItem: PsiNamedElement = GoToImplicitConversionAction.getList.getSelectedValue.asInstanceOf[Parameters].getNewExpression
-
-    def getCurrentItemBounds: Rectangle = {
-      val index: Int = GoToImplicitConversionAction.getList.getSelectedIndex
-      if (index < 0) {
-        throw new RuntimeException("Index = " + index + " is less than zero.")
-      }
-      val itemBounds: Rectangle = GoToImplicitConversionAction.getList.getCellBounds(index, index)
-      if (itemBounds == null) {
-        throw new RuntimeException("No bounds for index = " + index + ".")
-      }
-      itemBounds
-    }
+    private def selectedValue =
+      JListCompatibility.GoToImplicitConversionAction.getList
+        .getSelectedValue.asInstanceOf[Parameters]
   }
+
 }

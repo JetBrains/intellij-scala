@@ -205,9 +205,12 @@ object IntentionUtils {
     }, null, null)
   }
 
+  import JListCompatibility.GoToImplicitConversionAction.getList
+
   def showMakeExplicitPopup(project: Project, expr: ScExpression,
-                            function: ScFunction, editor: Editor, secondPart: scala.Seq[PsiNamedElement],
-                            getCurrentItemBounds: () => Rectangle) {
+                            function: ScFunction,
+                            editor: Editor,
+                            secondPart: Seq[PsiNamedElement]): Unit = {
     val values = new ArrayBuffer[String]
     values += MakeExplicitAction.MAKE_EXPLICIT
     if (secondPart.contains(function)) values += MakeExplicitAction.MAKE_EXPLICIT_STATICALLY
@@ -230,9 +233,21 @@ object IntentionUtils {
     }
 
     val popup = JBPopupFactory.getInstance.createListPopup(base)
-    val bounds: Rectangle = getCurrentItemBounds()
+    val bounds: Rectangle = getCurrentItemBounds
 
-    popup.show(new RelativePoint(GoToImplicitConversionAction.getList, new Point(bounds.x + bounds.width - 20, bounds.y)))
+    popup.show(new RelativePoint(getList, new Point(bounds.x + bounds.width - 20, bounds.y)))
+  }
+
+  def getCurrentItemBounds: Rectangle = {
+    val list = getList
+    list.getSelectedIndex match {
+      case -1 => throw new RuntimeException("Index = -1 is less than zero.")
+      case index =>
+        list.getCellBounds(index, index) match {
+          case null => throw new RuntimeException(s"No bounds for index = $index.")
+          case result => result
+        }
+    }
   }
 
 }
