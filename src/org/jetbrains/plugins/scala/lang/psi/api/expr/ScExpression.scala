@@ -334,15 +334,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     getTypeWithoutImplicitsImpl(ignoreBaseTypes, fromUnderscore)
   }
 
-  override def getType(ctx: TypingContext): TypeResult[ScType] = {
-    this match {
-      case ref: ScReferenceExpression if ref.refName == ScImplicitlyConvertible.IMPLICIT_EXPRESSION_NAME =>
-        val data = getUserData(ScImplicitlyConvertible.FAKE_EXPRESSION_TYPE_KEY)
-        if (data != null) return Success(data, Some(this))
-      case _ =>
-    }
+  override def getType(ctx: TypingContext): TypeResult[ScType] =
     getTypeAfterImplicitConversion().tr
-  }
 
   def getTypeIgnoreBaseType: TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
@@ -414,15 +407,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   }
 
 
-  def expectedType(fromUnderscore: Boolean = true): Option[ScType] = {
-    this match {
-      case ref: ScMethodCall if ref.getText == ScImplicitlyConvertible.IMPLICIT_CALL_TEXT =>
-        val data = getUserData(ScImplicitlyConvertible.FAKE_EXPECTED_TYPE_KEY)
-        if (data != null) return data
-      case _ =>
-    }
+  def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
     expectedTypeEx(fromUnderscore).map(_._1)
-  }
 
   def expectedTypeEx(fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] =
     ExpectedTypes.expectedExprType(this, fromUnderscore)

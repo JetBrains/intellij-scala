@@ -6,7 +6,6 @@ import _root_.com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.psi.{PsiElement, ResolveResult}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -78,12 +77,6 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
 
   def resolve(reference: ResolvableReferenceExpression, incomplete: Boolean): Array[ResolveResult] = {
     val name = if(reference.isUnaryOperator) "unary_" + reference.refName else reference.refName
-
-    if (name == ScImplicitlyConvertible.IMPLICIT_REFERENCE_NAME) {
-      val data = reference.getUserData(ScImplicitlyConvertible.FAKE_RESOLVE_RESULT_KEY)
-      if (data != null) return Array(data)
-    }
-
     val info = getContextInfo(reference, reference)
 
     //expectedOption different for cases

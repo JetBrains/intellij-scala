@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiNamedElement, ResolveState}
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -60,14 +60,14 @@ object ImplicitResolveResult {
     }
 
     def withImplicitType: ResolverStateBuilder = {
-      innerState = innerState.put(CachesUtil.IMPLICIT_TYPE, result.`type`)
+      innerState = innerState.put(IMPLICIT_TYPE, result.`type`)
       this
     }
 
     def withImplicitFunction: ResolverStateBuilder = {
-      innerState = innerState.put(CachesUtil.IMPLICIT_FUNCTION, result.element)
+      innerState = innerState.put(IMPLICIT_FUNCTION, result.element)
       elementParent.foreach { parent =>
-        innerState = innerState.put(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY, parent)
+        innerState = innerState.put(IMPLICIT_RESOLUTION, parent)
       }
       this
     }
