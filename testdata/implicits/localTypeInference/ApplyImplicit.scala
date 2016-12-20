@@ -7,12 +7,12 @@ object tedfdst {
   val y: Option[Int] = thiss(/*start*/""/*end*/)
 }
 /*
-Seq(any2ArrowAssoc,
+Seq(augmentString,
+    s2i,
+    wrapString,
+    any2ArrowAssoc,
     any2Ensuring,
     any2stringadd,
-    any2stringfmt,
-    augmentString,
-    s2i,
-    wrapString),
+    any2stringfmt),
 Some(s2i)
 */

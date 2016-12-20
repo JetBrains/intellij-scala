@@ -18,12 +18,12 @@ object FromDependentObject {
   }
 }
 /*
-Seq(any2ArrowAssoc,
+Seq(augmentString,
+    srt2E,
+    wrapString,
+    any2ArrowAssoc,
     any2Ensuring,
     any2stringadd,
-    any2stringfmt,
-    augmentString,
-    srt2E,
-    wrapString),
+    any2stringfmt),
 Some(srt2E)
 */

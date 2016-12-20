@@ -34,8 +34,8 @@ class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
       expression.implicitElement(fromUnderscore = true).collect {
         case function: ScFunction => function
       }.foreach { function =>
-        val (regularConversions, companionConversions) = expression.getImplicitConversions(fromUnderscore = true)
-        replaceWithExplicit(expression, function, project, editor, regularConversions ++ companionConversions)
+        val conversions = expression.getAllImplicitConversions(fromUnderscore = true)
+        replaceWithExplicit(expression, function, project, editor, conversions)
       }
     }
 

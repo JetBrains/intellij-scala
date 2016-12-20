@@ -11,12 +11,12 @@ object Outer {
 	}
 }
 /*
-Seq(any2ArrowAssoc,
+Seq(augmentString,
+    convert,
+    wrapString,
+    any2ArrowAssoc,
     any2Ensuring,
     any2stringadd,
-    any2stringfmt,
-    augmentString,
-    convert,
-    wrapString),
+    any2stringfmt),
 Some(convert)
 */
