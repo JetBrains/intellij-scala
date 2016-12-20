@@ -7,8 +7,6 @@ package types
  * @author ilyas
  */
 
-import java.util.concurrent.ConcurrentMap
-
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -17,11 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
- import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType, TypeParameterType, TypeVisitor, UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
-import scala.collection.immutable.{HashSet, ListMap, Map}
+import scala.collection.concurrent
+import scala.collection.immutable.{HashSet, ListMap}
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
   override protected def isAliasTypeInner: Option[AliasType] = {
@@ -227,30 +226,29 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 }
 
 object ScParameterizedType {
-  val cache: ConcurrentMap[(ScType, Seq[ScType]), ValueType] =
+
+  import scala.collection.JavaConversions._
+
+  val cache: concurrent.Map[(ScType, Seq[ScType]), ValueType] =
     ContainerUtil.createConcurrentWeakMap[(ScType, Seq[ScType]), ValueType]()
 
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
-    val key = (designator, typeArgs)
-    Option(cache.get(key)).getOrElse {
-      val result = create(designator, typeArgs)
-      cache.put(key, result)
-      result
-    }
-  }
+    def create: ValueType = {
+      val parameterizedType = new ScParameterizedType(designator, typeArgs)
 
-  private def create(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
-    val res = new ScParameterizedType(designator, typeArgs)
-    designator match {
-      case ScProjectionType(_: ScCompoundType, _, _) =>
-        res.isAliasType match {
-          case Some(AliasType(_: ScTypeAliasDefinition, _, upper)) => upper.getOrElse(res) match {
-            case v: ValueType => v
-            case _ => res
+      val maybeResult = designator match {
+        case ScProjectionType(_: ScCompoundType, _, _) =>
+          parameterizedType.isAliasType.flatMap {
+            case AliasType(_: ScTypeAliasDefinition, _, upper) => upper.toOption
+            case _ => None
+          }.collect {
+            case valueType: ValueType => valueType
           }
-          case _ => res
-        }
-      case _ => res
+        case _ => None
+      }
+      maybeResult.getOrElse(parameterizedType)
     }
+
+    cache.getOrElseUpdate((designator, typeArgs), create)
   }
 }
