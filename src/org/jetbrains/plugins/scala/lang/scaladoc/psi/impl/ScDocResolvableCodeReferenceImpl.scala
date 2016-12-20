@@ -7,7 +7,7 @@ package impl
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocLinkValue
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
@@ -42,13 +42,13 @@ class ScDocResolvableCodeReferenceImpl(node: ASTNode) extends ScStableCodeRefere
     if (is2_10plus) super.createReplacingElementWithClassName(true, clazz)
     else createDocLinkValue(clazz.qualifiedName)(clazz.element.getManager)
 
-  override protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {
-    if (is2_10plus) super.processQualifier(ref, processor) else pathQualifier match {
+  override protected def processQualifier(processor: BaseProcessor): Unit = {
+    if (is2_10plus) super.processQualifier(processor) else pathQualifier match {
       case None =>
         val defaultPackage = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(""))
-        defaultPackage.processDeclarations(processor, ResolveState.initial(), null, ref)
+        defaultPackage.processDeclarations(processor, ResolveState.initial(), null, this)
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolve(true).foreach(processQualifierResolveResult(_, processor, ref))
+        q.multiResolve(true).foreach(processQualifierResolveResult(_, processor))
       case _ =>
     }
   }
