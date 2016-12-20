@@ -80,7 +80,7 @@ object Dependency {
 
     val results = ref match {
       case rExpr: ScReferenceExpressionImpl => rExpr.doResolve(processor)
-      case stRef: ScStableCodeReferenceElementImpl => stRef.doResolve(stRef, processor)
+      case stRef: ScStableCodeReferenceElementImpl => stRef.doResolve(processor)
       case _ => Array.empty
     }
 

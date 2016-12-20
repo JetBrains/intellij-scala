@@ -214,7 +214,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           }
 
           ref match {
-            case refImpl: ScStableCodeReferenceElementImpl => refImpl.doResolve(refImpl, completionProcessor(refImpl))
+            case refImpl: ScStableCodeReferenceElementImpl => refImpl.doResolve(completionProcessor(refImpl))
             case refImpl: ScReferenceExpressionImpl =>
               refImpl.doResolve(completionProcessor(refImpl, collectImplicit = true))
               if (ScalaCompletionUtil.completeThis(refImpl))

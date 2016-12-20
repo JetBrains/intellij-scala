@@ -102,7 +102,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
         val resolve = ref match {
           case refImpl: ScStableCodeReferenceElementImpl =>
-            refImpl.doResolve(refImpl, new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
+            refImpl.doResolve(new ExpandedExtractorResolveProcessor(ref, ref.refName, ref.getKinds(incomplete = false), ref.getContext match {
               case inf: ScInfixPattern => inf.expectedType
               case constr: ScConstructorPattern => constr.expectedType
               case _ => None

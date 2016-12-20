@@ -42,7 +42,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   def getVariants: Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
-    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
         import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
@@ -52,7 +52,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
   }
 
   def getResolveResultVariants: Array[ScalaResolveResult] = {
-    doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
+    doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult => Seq(res)
       case _ => Seq.empty
     }
@@ -249,7 +249,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
          |$contextText""".stripMargin)
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))
 
   override def delete() {
     getContext match {

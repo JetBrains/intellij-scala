@@ -313,7 +313,7 @@ object ImportInfo {
       .asInstanceOf[ScStableCodeReferenceElementImpl]
     val processor = new CompletionProcessor(StdKinds.stableImportSelector, reference, collectImplicits = true, includePrefixImports = false)
 
-    reference.doResolve(reference, processor).foreach {
+    reference.doResolve(processor).foreach {
       case rr: ScalaResolveResult if shouldAddName(rr) =>
         val element = rr.element
         val nameToAdd = fixName(element.name)

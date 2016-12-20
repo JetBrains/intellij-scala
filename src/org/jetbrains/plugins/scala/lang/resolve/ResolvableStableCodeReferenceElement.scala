@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
@@ -89,7 +89,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
   private def multiResolveCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
 
-  protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
+  protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor): Unit = {
     res match {
       case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
         td match {
@@ -116,7 +116,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
             if (processor.candidatesS.isEmpty) {
               //check implicit conversions
               val expr =
-                ScalaPsiElementFactory.createExpressionWithContextFromText(ref.getText, ref.getContext, ref)
+                ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
               //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
               expr match {
                 case ref: ResolvableReferenceExpression =>
@@ -140,9 +140,8 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     }
   }
 
-  def doResolve(ref: ScStableCodeReferenceElement, processor: BaseProcessor,
-                accessibilityCheck: Boolean = true): Array[ResolveResult] = {
-    val importStmt = PsiTreeUtil.getContextOfType(ref, true, classOf[ScImportStmt])
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
+    val importStmt = PsiTreeUtil.getContextOfType(this, true, classOf[ScImportStmt])
 
     if (importStmt != null) {
       val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
@@ -162,18 +161,18 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
     var x = false
     //performance improvement
-    ScalaPsiUtil.fileContext(ref) match {
+    ScalaPsiUtil.fileContext(this) match {
       case s: ScalaFile if s.isCompiled =>
         x = true
         //todo: improve checking for this and super
-        val refText: String = ref.getText
+        val refText: String = getText
         if (!refText.contains("this") && !refText.contains("super") && (
-          refText.contains(".") || ref.getContext.isInstanceOf[ScStableCodeReferenceElement]
+          refText.contains(".") || getContext.isInstanceOf[ScStableCodeReferenceElement]
           )) {
           //so this is full qualified reference => findClass, or findPackage
           val facade = JavaPsiFacade.getInstance(getProject)
           val manager = ScalaPsiManager.instance(getProject)
-          val classes = manager.getCachedClasses(ref.getResolveScope, refText)
+          val classes = manager.getCachedClasses(getResolveScope, refText)
           val pack = facade.findPackage(refText)
           if (pack != null) processor.execute(pack, ResolveState.initial)
           for (clazz <- classes) processor.execute(clazz, ResolveState.initial)
@@ -186,15 +185,15 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
       case _ =>
     }
 
-    processQualifier(ref, processor)
+    processQualifier(processor)
 
     val candidates = processor.candidatesS
     val filtered = candidates.filter(candidatesFilter)
-    if (accessibilityCheck && filtered.isEmpty) return doResolve(ref, processor, accessibilityCheck = false)
+    if (accessibilityCheck && filtered.isEmpty) return doResolve(processor, accessibilityCheck = false)
     filtered.toArray
   }
 
-  protected def processQualifier(ref: ScStableCodeReferenceElement, processor: BaseProcessor) {
+  protected def processQualifier(processor: BaseProcessor): Unit = {
     _qualifier() match {
       case None =>
         def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
@@ -208,7 +207,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
             case p =>
               if (!p.processDeclarations(processor,
                 ResolveState.initial,
-                lastParent, ref)) return
+                lastParent, this)) return
               place match {
                 case (_: ScTemplateBody | _: ScExtendsBlock) => // template body and inherited members are at the same level.
                 case _ => if (!processor.changedLevel) return
@@ -216,20 +215,21 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
               treeWalkUp(place.getContext, place)
           }
         }
-        treeWalkUp(ref, null)
+
+        treeWalkUp(this, null)
       case Some(p: ScInterpolationPattern) =>
         val expr =
-          ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, ref)
+          ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, this)
         expr match {
           case ref: ResolvableReferenceExpression =>
             ref.doResolve(processor)
           case _ =>
         }
       case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolve(incomplete = true).foreach(processQualifierResolveResult(_, processor, ref))
+        q.multiResolve(incomplete = true).foreach((res: ResolveResult) => processQualifierResolveResult(res, processor))
       case Some(q: ScStableCodeReferenceElement) =>
         q.bind() match {
-          case Some(res) => processQualifierResolveResult(res, processor, ref)
+          case Some(res) => processQualifierResolveResult(res, processor)
           case _ =>
         }
       case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)

@@ -38,7 +38,7 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
       case _ => new ResolveProcessor(kinds, ref, reference.refName)
     }
 
-    reference.doResolve(ref, proc)
+    reference.doResolve(proc)
   }
 
   protected def getKindsFor(ref: ScStableCodeReferenceElement) = ref.getKinds(incomplete = false)

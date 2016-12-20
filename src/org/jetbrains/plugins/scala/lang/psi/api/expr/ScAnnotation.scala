@@ -48,7 +48,7 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
     constructor.reference.exists {
       case stRef: ScStableCodeReferenceElementImpl =>
         val processor = new ResolveProcessor(stRef.getKinds(incomplete = false), stRef, stRef.refName)
-        hasMetaAnnotation(stRef.doResolve(stRef, processor))
+        hasMetaAnnotation(stRef.doResolve(processor))
       case _ => false
     }
   }
