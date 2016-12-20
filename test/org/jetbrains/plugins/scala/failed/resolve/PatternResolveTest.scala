@@ -41,4 +41,37 @@ class PatternResolveTest extends FailedResolveCaretTestBase {
         |  }
       """.stripMargin)
   }
+
+  def testSCL11155(): Unit = {
+    doResolveCaretTest(
+      """
+        |import java.security.MessageDigest
+        |
+        |import scala.math.max
+        |
+        |object D17 {
+        |
+        |  val md: MessageDigest = MessageDigest.getInstance("MD5")
+        |  val input: Array[Byte] = "udskfozm".getBytes
+        |
+        |  def main(args: Array[String]) {
+        |    println(find(0, 0, ""))
+        |  }
+        |
+        |  implicit def find(curr: (Int, Int, String)): Int = curr match {
+        |    case (3, 3, d) => d.length
+        |    case (x, y, d) => md.digest(input ++ d.getBytes).take(2).map("%02x" format _).mkString.zipWithIndex
+        |      .filter(_._1 > 'a')
+        |      .foldLeft(0)((m, i) => <caret>max(m, i._2 match {
+        |        case 0 if x > 0 => (x - 1, y, d + 'U')
+        |        case 1 if x < 3 => (x + 1, y, d + 'D')
+        |        case 2 if y > 0 => (x, y - 1, d + 'L')
+        |        case 3 if y < 3 => (x, y + 1, d + 'R')
+        |        case _ => 0
+        |      }))
+        |  }
+        |
+        |}
+      """.stripMargin)
+  }
 }
