@@ -531,17 +531,13 @@ object MethodResolveProcessor {
     def expand(r: ScalaResolveResult): Set[(ScalaResolveResult, Boolean)] = {
       def applyMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
         val (substitutor: ScSubstitutor, cleanTypeArguments) = {
-          if (typeArgElements.nonEmpty) {
             r.element match {
               case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-                (ScalaPsiUtil.genericCallSubstitutor(owner.typeParameters.map(_.nameAndId), typeArgElements).followed(r.substitutor), true)
+                (undefinedSubstitutor(owner, r.substitutor, false, typeArgElements), true)
               case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
-                (ScalaPsiUtil.genericCallSubstitutor(owner.getTypeParameters.map(_.nameAndId), typeArgElements).followed(r.substitutor), true)
+                (undefinedSubstitutor(owner, r.substitutor, false, typeArgElements), true)
               case _ => (r.substitutor, false)
             }
-          } else {
-            (r.substitutor, false)
-          }
         }
 
         val processor = new CollectMethodsProcessor(ref, "apply")
