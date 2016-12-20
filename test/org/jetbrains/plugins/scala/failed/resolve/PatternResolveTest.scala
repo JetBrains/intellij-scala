@@ -74,4 +74,32 @@ class PatternResolveTest extends FailedResolveCaretTestBase {
         |}
       """.stripMargin)
   }
+
+  def testSCL11156a(): Unit = {
+    doResolveCaretTest(
+      """
+        |trait Parser[T] extends Function[String, Option[(T, String)]]
+        |
+        |object Parser {
+        |  val item: Parser[Char] = {
+        |    case "" => None
+        |    case v => Some((v.<caret>charAt(0), v.substring(1)))
+        |  }
+        |}
+      """.stripMargin)
+  }
+
+  def testSCL11156b(): Unit = {
+    doResolveCaretTest(
+      """
+        |trait Parser[T] extends Function[String, Option[(T, String)]]
+        |
+        |object Parser {
+        |  val item: Parser[Char] = {
+        |    case "" => None
+        |    case v => Some((v.charAt(0), v.<caret>substring(1)))
+        |  }
+        |}
+      """.stripMargin)
+  }
 }

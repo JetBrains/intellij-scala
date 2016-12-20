@@ -42,4 +42,14 @@ class RelatedGenericsTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |  }
       |}
     """.stripMargin)
+
+  def testSCL11156() = checkTextHasNoErrors(
+    """
+      |trait Parser[T] extends Function[String, Option[(T, String)]]
+      |
+      |val item: Parser[Char] = {
+      |  case v => Some((v.charAt(0), v.substring(1)))
+      |  case "" => None
+      |}
+    """.stripMargin)
 }
