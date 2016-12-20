@@ -216,7 +216,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           ref match {
             case refImpl: ScStableCodeReferenceElementImpl => refImpl.doResolve(refImpl, completionProcessor(refImpl))
             case refImpl: ScReferenceExpressionImpl =>
-              refImpl.doResolve(refImpl, completionProcessor(refImpl, collectImplicit = true))
+              refImpl.doResolve(completionProcessor(refImpl, collectImplicit = true))
               if (ScalaCompletionUtil.completeThis(refImpl))
                 addThisAndSuper(refImpl)
             case refImpl: ScTypeProjectionImpl => refImpl.doResolve(completionProcessor(refImpl))
@@ -257,7 +257,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             val newRef = createReferenceWithQualifierType(runtimeQualifierType, ref.getContext, ref)
             newRef match {
               case refImpl: ScReferenceExpressionImpl =>
-                refImpl.doResolve(refImpl, completionProcessor(refImpl, collectImplicit = true, postProcess))
+                refImpl.doResolve(completionProcessor(refImpl, collectImplicit = true, postProcess))
               case _ =>
             }
           }

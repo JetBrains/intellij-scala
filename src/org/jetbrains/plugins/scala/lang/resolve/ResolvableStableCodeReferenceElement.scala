@@ -120,7 +120,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
               //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
               expr match {
                 case ref: ResolvableReferenceExpression =>
-                  ref.doResolve(ref, processor, accessibilityCheck = true)
+                  ref.doResolve(processor)
                 case _ =>
               }
             }
@@ -222,7 +222,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, ref)
         expr match {
           case ref: ResolvableReferenceExpression =>
-            ref.doResolve(ref, processor, accessibilityCheck = true)
+            ref.doResolve(processor)
           case _ =>
         }
       case Some(q: ScDocResolvableCodeReference) =>
