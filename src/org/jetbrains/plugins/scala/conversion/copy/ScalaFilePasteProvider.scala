@@ -38,7 +38,7 @@ class ScalaFilePasteProvider extends PasteProvider {
 
     if (optScalaFile.isEmpty || optTargetDir.isEmpty) return
 
-    extensions.inWriteAction {
+    extensions.inWriteCommandAction(project) {
       try {
         val scalaFile = optScalaFile.get
         val directory = optTargetDir.get
