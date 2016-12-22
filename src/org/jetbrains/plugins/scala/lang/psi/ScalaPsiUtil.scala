@@ -2053,7 +2053,12 @@ object ScalaPsiUtil {
                   wildcards.find(_.name == tpArg.canonicalText) match {
                     case Some(wildcard) =>
                       (wildcard.lower, wildcard.upper) match {
-                        case (lo, Any) if variance == ScTypeParam.Contravariant => lo
+                        // todo: Produces Bad code is green
+                        // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
+                        // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
+                        // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
+                        // I has no idea how yet...
+                        case (lo, _) if variance == ScTypeParam.Contravariant => lo
                         case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
                         case _ => tpArg
                       }
