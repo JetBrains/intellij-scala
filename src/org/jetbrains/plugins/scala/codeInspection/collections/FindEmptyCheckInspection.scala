@@ -18,7 +18,7 @@ object FindIsDefined extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case CheckIsDefined(qual`.find`(cond), s, e) if qual != null =>
+      case CheckIsDefined(qual`.find`(cond), s, e) =>
         val start = Math.min(s, qual.end)
         val end = Math.max(e, expr.end)
         val existsText = invocationText(qual, "exists", cond)
@@ -33,7 +33,7 @@ object FindIsEmpty extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case CheckIsEmpty(qual`.find`(cond), s, e) if qual != null =>
+      case CheckIsEmpty(qual`.find`(cond), s, e) =>
         val start = Math.min(s, qual.end)
         val end = Math.max(e, expr.end)
         val notExistsText = invocationText(negation = true, qual, "exists", cond)

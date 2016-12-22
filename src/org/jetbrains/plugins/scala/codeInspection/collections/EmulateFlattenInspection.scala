@@ -25,19 +25,30 @@ object FlattenSimplification extends SimplificationType {
 
   private object identityOperation {
     def unapply(expr: ScExpression): Boolean = stripped(expr) match {
-      case _ `.identity` (underscore()) => true
-      case _ `.identity` () => true
+      case identity(underscore()) => true
+      case identity() => true
       case undSect: ScUnderscoreSection =>
         undSect.bindingExpr match {
-          case Some(_ `.identity` ()) => true
+          case Some(identity()) => true
           case _ => false
         }
       case ScFunctionExpr(Seq(x), Some(ResolvesTo(param))) if x == param => true
-      case ScFunctionExpr(Seq(x), Some(`.identity`(_, ResolvesTo(param)))) if x == param => true
+      case ScFunctionExpr(Seq(x), Some(identity(ResolvesTo(param)))) if x == param => true
       case _ => false
     }
   }
 
-  private val `.identity` = invocation("identity").from(Array("scala.Predef"))
+  object identity {
+    private val qualIdentity = invocation("identity").from(Array("scala.Predef"))
+    private val unqualIdentity = unqualifed("identity").from(Array("scala.Predef"))
+
+    def unapplySeq(expr: ScExpression): Option[Seq[ScExpression]] = expr match {
+      case _ qualIdentity(arg) => Some(Seq(arg))
+      case _ qualIdentity() => Some(Nil)
+      case unqualIdentity(arg) => Some(Seq(arg))
+      case unqualIdentity() => Some(Nil)
+      case _ => None
+    }
+  }
 
 }

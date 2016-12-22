@@ -38,8 +38,10 @@ package object collections {
   val foldMethodNames = Set("foldLeft", "/:", "foldRight", ":\\", "fold")
   val reduceMethodNames = Set("reduce", "reduceLeft", "reduceRight")
 
-  def invocation(methodName: String) = new InvocationTemplate(methodName == _)
-  def invocation(methodNames: Set[String]) = new InvocationTemplate(methodNames.contains)
+  def invocation(methodName: String) = new Qualified(methodName == _)
+  def invocation(methodNames: Set[String]) = new Qualified(methodNames.contains)
+
+  def unqualifed(methodName: String) = new Unqualified(methodName == _)
 
   private[collections] val `.exists` = invocation("exists").from(likeCollectionClasses)
   private[collections] val `.forall` = invocation("forall").from(likeCollectionClasses)
@@ -91,7 +93,7 @@ package object collections {
   private[collections] val `-` = invocation("-")
   private[collections] val `+` = invocation("+")
 
-  private[collections] val `.toCollection` = new InvocationTemplate(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
+  private[collections] val `.toCollection` = new Qualified(name => name.startsWith("to") && name != "toString").from(likeCollectionClasses)
   private[collections] val `.toSet` = invocation("toSet").from(likeCollectionClasses)
   private[collections] val `.toIterator` = invocation("toIterator").from(likeCollectionClasses)
 

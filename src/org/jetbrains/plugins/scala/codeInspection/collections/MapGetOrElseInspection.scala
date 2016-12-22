@@ -21,7 +21,7 @@ object MapGetOrElse extends SimplificationType() {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     import expr.typeSystem
     expr match {
-      case qual`.mapOnOption`(fun)`.getOrElse`(default) if qual != null =>
+      case qual`.mapOnOption`(fun)`.getOrElse`(default) =>
         replacementText(qual, fun, default) match {
           case Some(newText) if checkTypes(qual, fun, newText) =>
             val simplification = replace(expr).withText(newText).highlightFrom(qual)
