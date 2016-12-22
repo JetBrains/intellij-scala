@@ -1655,11 +1655,8 @@ object ScalaPsiUtil {
               case _ => false
             }
             val elementText = typeElement.getText.parenthesize(needParenthesis)
-            s"${
-              typeParameter.name
-            } ${
-              functionArrow(typeElement.getProject)
-            } $elementText"
+            val arrow = functionArrow(typeElement.getProject)
+            s"${typeParameter.name} $arrow $elementText"
         }
 
         def bounds(typeParameter: ScTypeParam) = typeParameter.contextBoundTypeElement.map {
