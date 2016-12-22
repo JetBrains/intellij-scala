@@ -1661,18 +1661,12 @@ object ScalaPsiUtil {
 
         def bounds(typeParameter: ScTypeParam) = typeParameter.contextBoundTypeElement.map {
           typeElement =>
-            s"${
-              typeElement.getText
-            }[${
-              typeParameter.name
-            }]"
+            s"${typeElement.getText}[${typeParameter.name}]"
         }
 
         val typeParameters = parameterOwner.typeParameters
         val maybeText = (typeParameters.flatMap(views) ++ typeParameters.flatMap(bounds)).zipWithIndex.map {
-          case (text, index) => s"ev$$${
-            index + 1
-          }: $text"
+          case (text, index) => s"ev$$${index + 1}: $text"
         } match {
           case Seq() => None
           case seq => Some(seq.mkString("(implicit ", ", ", ")"))
