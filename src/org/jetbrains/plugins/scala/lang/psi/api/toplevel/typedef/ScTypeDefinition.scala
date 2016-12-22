@@ -84,32 +84,45 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   }
 
   //Performance critical method
-  @Cached(synchronized = true, ModCount.getJavaStructureModificationCount, this)
+  //And it is REALLY SO!
   def baseCompanionModule: Option[ScTypeDefinition] = {
-    Option(this.getContext).flatMap { scope =>
-      val tokenSet = TokenSets.TYPE_DEFINITIONS
+    val scope = getContext
+    if (scope == null) return None
 
-      val arrayOfElements: Array[PsiElement] = scope match {
-        case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-          stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        case file: PsiFileImpl if file.getStub != null =>
-          file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-        case c => c.getChildren
-      }
-
-      val name = this.name
-      this match {
-        case _: ScClass | _: ScTrait =>
-          arrayOfElements.collectFirst {
-            case o: ScObject if o.name == name => o
+    val thisName: String = name
+    val tokenSet = TokenSets.TYPE_DEFINITIONS
+    val arrayOfElements: Array[PsiElement] = scope match {
+      case stub: StubBasedPsiElement[_] if stub.getStub != null =>
+        stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+      case file: PsiFileImpl if file.getStub != null =>
+        file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
+      case c => c.getChildren
+    }
+    val length  = arrayOfElements.length
+    this match {
+      case _: ScClass | _: ScTrait =>
+        var i = 0
+        while (i < length) {
+          arrayOfElements(i) match {
+            case obj: ScObject if obj.name == thisName => return Some(obj)
+            case _ =>
           }
-        case _: ScObject =>
-          arrayOfElements.collectFirst {
-            case c: ScClass if c.name == name => c
-            case t: ScTrait if t.name == name => t
+          i = i + 1
+        }
+        None
+      case _: ScObject =>
+        var i = 0
+        val length  = arrayOfElements.length
+        while (i < length) {
+          arrayOfElements(i) match {
+            case c: ScClass if c.name == thisName => return Some(c)
+            case t: ScTrait if t.name == thisName => return Some(t)
+            case _ =>
           }
-        case _ => None
-      }
+          i = i + 1
+        }
+        None
+      case _ => None
     }
   }
 
