@@ -1,0 +1,20 @@
+<html>
+<body>
+Replaces sorting and taking <code>head</code> or <code>last</code> element with <code>max</code> or <code>min</code>
+<p>
+Before:
+<pre>
+Seq("abc", "defg", "h").sorted.head
+Seq("abc", "defg", "h").sortBy(_.length).last
+</pre>
+
+<br>
+After:
+<pre>
+Seq("abc", "defg", "h").min
+Seq("abc", "defg", "h").maxBy(_.length)
+</pre>
+</p>
+
+</body>
+</html>

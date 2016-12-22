@@ -1166,6 +1166,10 @@
                          displayName="Replace with flatten" groupPath="Scala, Collections" groupName="Simplifications: other"
                          shortName="ReplaceWithFlatten" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortedMaxMinInspection"
+                         displayName="Sorted and head/last to max/min" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="SortedHeadLast" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
@@ -1180,10 +1184,10 @@
                          displayName="Extracting values manually" groupPath="Scala, Collections" groupName="Maps"
                          shortName="MapValues" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetGetInspection"
-                       displayName="Redundant get when getting a value from Map" groupPath="Scala, Collections" groupName="Maps"
-                       shortName="MapGetGet" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetGetInspection"
+                         displayName="Redundant get when getting a value from Map" groupPath="Scala, Collections" groupName="Maps"
+                         shortName="MapGetGet" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--options-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
                          displayName="Redundant headOption or lastOption" groupPath="Scala, Collections" groupName="Options"
@@ -1255,7 +1259,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
                          displayName="Missing tag parameter description" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
                          level="WARNING" enabledByDefault="true" language="Scala" />
-        <!-- end of scaladoc inspections -->
+      <!-- end of scaladoc inspections -->
         <!-- end of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
