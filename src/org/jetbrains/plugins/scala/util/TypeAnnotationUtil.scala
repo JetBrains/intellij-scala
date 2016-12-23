@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel
-import org.jetbrains.plugins.scala.extensions._
 
 /**
   * Created by kate on 7/14/16.
@@ -138,9 +137,7 @@ object TypeAnnotationUtil {
     def isSimpleInner(exp: ScExpression) = {
       exp match {
         case _: ScLiteral => true
-        case _: ScUnderscoreSection => true
         case _: ScNewTemplateDefinition => true
-        case ref: ScReferenceExpression if ref.refName == "???" => true
         case ref: ScReferenceExpression if ref.refName(0).isUpper => true //heuristic for objects
         case call: ScGenericCall if isEmptyCollectionFactory(call) => true
         case call: ScMethodCall => call.getInvokedExpr match {

@@ -168,13 +168,8 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
       case _ => defaults
     }
 
-    val simple = element match {
-      case _: ScFunctionDeclaration | _: ScVariableDeclaration | _: ScValueDeclaration => true //as will be generated default implementation
-      case _ => TypeAnnotationUtil.isSimple(element)
-    }
-
     TypeAnnotationUtil.isTypeAnnotationNeeded(requiment, ovPolicy, simplePolicy,
-      !element.isInstanceOf[ScTypedDeclaration], isSimple = simple)
+      !element.isInstanceOf[ScTypedDeclaration], isSimple = TypeAnnotationUtil.isSimple(element))
   }
 }
 
