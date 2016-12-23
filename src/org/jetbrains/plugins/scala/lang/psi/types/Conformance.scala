@@ -1567,9 +1567,14 @@ object Conformance extends api.Conformance {
   }
 
   def extractParams(des: ScType): Option[Iterator[PsiTypeParameter]] = {
-    des.extractClass().map {
-      case td: ScTypeDefinition => td.typeParameters.iterator
-      case other => other.getTypeParameters.iterator
+    des match {
+      case undef: UndefinedType =>
+        Option(undef.parameterType.psiTypeParameter).map(_.getTypeParameters.iterator)
+      case _ =>
+        des.extractClass().map {
+          case td: ScTypeDefinition => td.typeParameters.iterator
+          case other => other.getTypeParameters.iterator
+        }
     }
   }
 
