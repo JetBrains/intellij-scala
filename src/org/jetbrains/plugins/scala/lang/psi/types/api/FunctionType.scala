@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -19,9 +20,11 @@ sealed trait FunctionTypeFactory {
 
   protected def innerApply(fullyQualifiedName: String, parameters: Seq[ScType])
                           (implicit elementScope: ElementScope): ValueType = {
-    elementScope.getCachedClass(fullyQualifiedName).collect {
-      case definition: ScTypeDefinition => definition
-    }.filter(isValid)
+    ScalaPsiManager.instance(elementScope.project)
+      .getCachedClass(elementScope.scope, fullyQualifiedName)
+      .collect {
+        case definition: ScTypeDefinition => definition
+      }.filter(isValid)
       .map(ScalaType.designator)
       .map(ScParameterizedType(_, parameters))
       .getOrElse(Nothing)

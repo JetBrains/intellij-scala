@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -58,7 +59,7 @@ class ScalaParameterInfo(@BeanProperty var name: String,
       functionType
     }
     else if (isRepeatedParameter) {
-      val seqType = elementScope.getCachedClass("scala.collection.Seq")
+      val seqType = ScalaPsiManager.instance(project).getCachedClass(elementScope.scope, "scala.collection.Seq")
         .map(ScalaType.designator(_))
         .getOrElse(Nothing)
       ScParameterizedType(seqType, Seq(scType))
