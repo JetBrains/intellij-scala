@@ -233,27 +233,4 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |//((String, A)) => (String, A)
       """.stripMargin)
   }
-
-  def testSCL11119(): Unit = {
-    doTest(
-      s"""
-         |import test._
-         |
-         |object test {
-         |  case class F[T](v: T) {
-         |    def onS[U](pf: PartialFunction[T,U]) : Unit = ???
-         |  }
-         |  implicit class F2[T](val f: F[T]) extends AnyVal {
-         |    final def onS2[U]  = f.onS( _: PartialFunction[T,U])
-         |  }
-         |}
-         |
-         |class test {
-         |
-         |  val f = F("foo")
-         |  f.onS2 ${START}{ case "x" => "baz" }$END
-         |}
-         |//PartialFunction[String,U]
-      """.stripMargin)
-  }
 }

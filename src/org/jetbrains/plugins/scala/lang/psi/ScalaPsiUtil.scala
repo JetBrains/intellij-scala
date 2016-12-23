@@ -1655,27 +1655,18 @@ object ScalaPsiUtil {
               case _ => false
             }
             val elementText = typeElement.getText.parenthesize(needParenthesis)
-            s"${
-              typeParameter.name
-            } ${
-              functionArrow(typeElement.getProject)
-            } $elementText"
+            val arrow = functionArrow(typeElement.getProject)
+            s"${typeParameter.name} $arrow $elementText"
         }
 
         def bounds(typeParameter: ScTypeParam) = typeParameter.contextBoundTypeElement.map {
           typeElement =>
-            s"${
-              typeElement.getText
-            }[${
-              typeParameter.name
-            }]"
+            s"${typeElement.getText}[${typeParameter.name}]"
         }
 
         val typeParameters = parameterOwner.typeParameters
         val maybeText = (typeParameters.flatMap(views) ++ typeParameters.flatMap(bounds)).zipWithIndex.map {
-          case (text, index) => s"ev$$${
-            index + 1
-          }: $text"
+          case (text, index) => s"ev$$${index + 1}: $text"
         } match {
           case Seq() => None
           case seq => Some(seq.mkString("(implicit ", ", ", ")"))
@@ -2062,7 +2053,12 @@ object ScalaPsiUtil {
                   wildcards.find(_.name == tpArg.canonicalText) match {
                     case Some(wildcard) =>
                       (wildcard.lower, wildcard.upper) match {
-                        case (lo, Any) if variance == ScTypeParam.Contravariant => lo
+                        // todo: Produces Bad code is green
+                        // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
+                        // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
+                        // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
+                        // I has no idea how yet...
+                        case (lo, _) if variance == ScTypeParam.Contravariant => lo
                         case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
                         case _ => tpArg
                       }
