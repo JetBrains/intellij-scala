@@ -59,9 +59,10 @@ object ScalaStubsUtil {
     inheritors.toVector
   }
 
-  def getSelfTypeInheritors(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
+  def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {
     @CachedInsidePsiElement(clazz, CachesUtil.enclosingModificationOwner(clazz))
-    def selfTypeInheritorsInner(scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
+    def selfTypeInheritorsInner(): Seq[ScTemplateDefinition] = {
+      val scope = clazz.getResolveScope
       val inheritors = new ArrayBuffer[ScTemplateDefinition]
       val project = clazz.getProject
       val name = clazz.name
@@ -112,7 +113,7 @@ object ScalaStubsUtil {
     }
 
     if (clazz.isEffectivelyFinal) Seq.empty
-    else selfTypeInheritorsInner(scope)
+    else selfTypeInheritorsInner()
   }
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil")

@@ -39,6 +39,9 @@ object CachedInsidePsiElement {
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
+        if (paramss.flatten.nonEmpty) {
+          abort("CachedInsidePsiElement annotation works for functions without parameters only")
+        }
 
         //generated names
         val cachedFunName = generateTermName("cachedFun")
