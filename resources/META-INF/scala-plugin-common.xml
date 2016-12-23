@@ -1255,7 +1255,13 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
                          displayName="Missing tag parameter description" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
                          level="WARNING" enabledByDefault="true" language="Scala" />
-        <!-- end of scaladoc inspections -->
+        <!--simplifications: sorted and head/last -->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortedMaxMinInspection"
+                       displayName="Sorted and head/last to max/min" groupPath="Scala, Collections" groupName="Simplifications: sorted and head/last"
+                       shortName="SortedHeadLast" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+
+      <!-- end of scaladoc inspections -->
         <!-- end of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
