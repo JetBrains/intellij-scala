@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.presentation
 
-import java.awt.{BorderLayout, Color, Component, Container}
+import java.awt.{BorderLayout, Component, Container}
 import javax.swing._
 
 import com.intellij.openapi.editor.colors.EditorColorsManager
@@ -24,16 +24,14 @@ import org.jetbrains.plugins.scala.util.JListCompatibility
 class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImplicitFunctionListCellRendererAdapter {
   def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
                                           value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-    val attrFirstPart = EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_FIRST_PART)
-    val attrSecondPart =  EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_SECOND_PART)
-    val implicitFirstPart =  if (attrFirstPart == null)
-      DefaultHighlighter.IMPLICIT_FIRST_PART.getDefaultAttributes.getForegroundColor else attrFirstPart.getForegroundColor
-    val implicitSecondPart =  if (attrSecondPart == null)
-      DefaultHighlighter.IMPLICIT_SECOND_PART.getDefaultAttributes.getForegroundColor else attrSecondPart.getForegroundColor
+    val foregroundColor = Option(EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS))
+      .getOrElse(DefaultHighlighter.IMPLICIT_CONVERSIONS.getDefaultAttributes)
+      .getForegroundColor
+
     val tuple = value.asInstanceOf[Parameters]
     val item = tuple.newExpression
-    val firstPart = tuple.firstPart
-    val secondPart = tuple.secondPart
+    val firstPart = tuple.elements
+
     val comp = getSuperListCellRendererComponent(containter.getList, item, index, isSelected, cellHasFocus)
     comp match {
       case container: Container =>
@@ -44,31 +42,30 @@ class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement) extends ScImpl
           colored.append(getElementText(actual), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
         }
 
-        if (firstPart.contains(item)) {
-          colored.setBackground(if (isSelected) UIUtil.getListSelectionBackground else implicitFirstPart)
-        } else if (secondPart.contains(item)) {
-          colored.setBackground(if (isSelected) UIUtil.getListSelectionBackground else implicitSecondPart)
+        val color = if (firstPart.contains(item)) {
+          if (isSelected) UIUtil.getListSelectionBackground else foregroundColor
         } else {
           throw new RuntimeException("Implicit conversions list contains unknown value: " + item)
         }
 
-        val rightRenderer: DefaultListCellRenderer = getRightCellRenderer(item)
-        if (rightRenderer != null) {
-          val rightCellRendererComponent: Component =
-            DefaultListCellRendererAdapter.getListCellRendererComponent(rightRenderer, containter.getList, item, index, isSelected, cellHasFocus)
-          val color: Color = isSelected match {
-            case true => UIUtil.getListSelectionBackground
-            case false if firstPart.contains(item) => implicitFirstPart
-            case false if secondPart.contains(item) => implicitSecondPart
-            case _ => throw new RuntimeException("Implicit conversions list contains unknown value: " + item)
+        colored.setBackground(color)
+
+        val maybeRenderer = Option(getRightCellRenderer(item))
+
+        maybeRenderer
+          .map(DefaultListCellRendererAdapter.getListCellRendererComponent(_, containter.getList, item, index, isSelected, cellHasFocus))
+          .foreach { component =>
+            component.setBackground(color)
+            add(component, BorderLayout.EAST)
           }
-          rightCellRendererComponent.setBackground(color)
-          add(rightCellRendererComponent, BorderLayout.EAST)
-          val spacer: JPanel = new JPanel
-          spacer.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2))
-          spacer.setBackground(color)
-          add(spacer, BorderLayout.CENTER)
-        }
+
+        maybeRenderer
+          .map(_ => new JPanel)
+          .foreach { spacer =>
+            spacer.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2))
+            spacer.setBackground(color)
+            add(spacer, BorderLayout.CENTER)
+          }
       case _ =>
     }
     comp

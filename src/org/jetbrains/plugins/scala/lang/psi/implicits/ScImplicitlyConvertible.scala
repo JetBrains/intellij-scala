@@ -45,25 +45,24 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
   import ScImplicitlyConvertible.LOG
 
-  def implicitMap(arguments: Seq[ScType] = Seq.empty): (Seq[RegularImplicitResolveResult], Seq[CompanionImplicitResolveResult]) = {
+  def implicitMap(arguments: Seq[ScType] = Seq.empty): Seq[ImplicitResolveResult] = {
     val seen = new mutable.HashSet[PsiNamedElement]
-    val firstBuffer = new ArrayBuffer[RegularImplicitResolveResult]
+    val buffer = new ArrayBuffer[ImplicitResolveResult]
     for (elem <- collectRegulars) {
       if (!seen.contains(elem.element)) {
         seen += elem.element
-        firstBuffer += elem
+        buffer += elem
       }
     }
 
-    val secondBuffer = new ArrayBuffer[CompanionImplicitResolveResult]
     for (elem <- collectCompanions(arguments = arguments)) {
       if (!seen.contains(elem.element)) {
         seen += elem.element
-        secondBuffer += elem
+        buffer += elem
       }
     }
 
-    (firstBuffer, secondBuffer)
+    buffer
   }
 
   private def adaptResults(results: Set[ScalaResolveResult], `type`: ScType): Set[(ScalaResolveResult, ScType, ScSubstitutor)] =

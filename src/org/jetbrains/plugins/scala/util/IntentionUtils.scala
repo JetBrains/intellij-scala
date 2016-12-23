@@ -158,20 +158,20 @@ object IntentionUtils {
   }
 
   def replaceWithExplicit(expr: ScExpression, f: ScFunction, project: Project, editor: Editor,
-                          secondPart: Seq[PsiNamedElement]) {
-    if (expr == null || f == null || secondPart == null) return
+                          elements: Seq[PsiNamedElement]) {
+    if (expr == null || f == null || elements == null) return
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       def run() {
         val buf = new StringBuilder
         val clazz = f.containingClass
-        if (clazz != null && secondPart.contains(f)) buf.append(clazz.name).append(".")
+        if (clazz != null && elements.contains(f)) buf.append(clazz.name).append(".")
 
         buf.append(f.name).append("(").append(expr.getText).append(")")
         inWriteAction {
           val replaced = expr.replace(createExpressionFromText(buf.toString())(expr.getManager))
           val ref = replaced.asInstanceOf[ScMethodCall].deepestInvokedExpr.asInstanceOf[ScReferenceExpression]
           val qualRef = ref.qualifier.orNull
-          if (clazz!= null && qualRef != null && secondPart.contains(f)) qualRef.asInstanceOf[ScReferenceExpression].bindToElement(clazz)
+          if (clazz != null && qualRef != null && elements.contains(f)) qualRef.asInstanceOf[ScReferenceExpression].bindToElement(clazz)
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }
       }
@@ -179,13 +179,13 @@ object IntentionUtils {
   }
 
   def replaceWithExplicitStatically(expr: ScExpression, f: ScFunction, project: Project, editor: Editor,
-                          secondPart: Seq[PsiNamedElement]) {
-    if (expr == null || f == null || secondPart == null) return
+                                    elements: Seq[PsiNamedElement]) {
+    if (expr == null || f == null || elements == null) return
     CommandProcessor.getInstance().executeCommand(project, new Runnable {
       def run() {
         val buf = new StringBuilder
         val clazz = f.containingClass
-        if (clazz != null && secondPart.contains(f)) buf.append(clazz.qualifiedName).append(".")
+        if (clazz != null && elements.contains(f)) buf.append(clazz.qualifiedName).append(".")
 
         val bufExpr = new StringBuilder
         bufExpr.append(f.name).append("(").append(expr.getText).append(")")
@@ -198,7 +198,7 @@ object IntentionUtils {
         inWriteAction {
           val replaced = expr.replace(newExpr)
           val ref = replaced.asInstanceOf[ScMethodCall].deepestInvokedExpr.asInstanceOf[ScReferenceExpression]
-          if (clazz != null && fullRef != null && secondPart.contains(f)) ref.bindToElement(fullRef, Some(clazz))
+          if (clazz != null && fullRef != null && elements.contains(f)) ref.bindToElement(fullRef, Some(clazz))
           PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
         }
       }
@@ -210,10 +210,10 @@ object IntentionUtils {
   def showMakeExplicitPopup(project: Project, expr: ScExpression,
                             function: ScFunction,
                             editor: Editor,
-                            secondPart: Seq[PsiNamedElement]): Unit = {
+                            elements: Seq[PsiNamedElement]): Unit = {
     val values = new ArrayBuffer[String]
     values += MakeExplicitAction.MAKE_EXPLICIT
-    if (secondPart.contains(function)) values += MakeExplicitAction.MAKE_EXPLICIT_STATICALLY
+    if (elements.contains(function)) values += MakeExplicitAction.MAKE_EXPLICIT_STATICALLY
     val base = new BaseListPopupStep[String](null, values.toArray : _*) {
       override def getTextFor(value: String): String = value
 
@@ -223,9 +223,9 @@ object IntentionUtils {
           PsiDocumentManager.getInstance(project).commitAllDocuments()
           GoToImplicitConversionAction.getPopup.dispose()
           if (selectedValue == MakeExplicitAction.MAKE_EXPLICIT)
-            IntentionUtils.replaceWithExplicit(expr, function, project, editor, secondPart)
+            IntentionUtils.replaceWithExplicit(expr, function, project, editor, elements)
           if (selectedValue == MakeExplicitAction.MAKE_EXPLICIT_STATICALLY)
-            IntentionUtils.replaceWithExplicitStatically(expr, function, project, editor, secondPart)
+            IntentionUtils.replaceWithExplicitStatically(expr, function, project, editor, elements)
           return PopupStep.FINAL_CHOICE
         }
         super.onChosen(selectedValue, finalChoice)

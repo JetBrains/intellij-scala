@@ -72,24 +72,20 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         } else (additionalImplicitElement.orElse(expr.implicitElement()), false)
       }
 
-      val (regularConversions: Seq[PsiNamedElement], companionConversions: Seq[PsiNamedElement]) =
-        expr.getImplicitConversions(fromUnderscore = fromUnderscore)
-      if (regularConversions.isEmpty && companionConversions.isEmpty) return true
+      val conversions = expr.getAllImplicitConversions(fromUnderscore = fromUnderscore)
+      if (conversions.isEmpty) return true
 
       val conversionFun = implicitElement.orNull
       val model = JListCompatibility.createDefaultListModel()
       var actualIndex = -1
       //todo actualIndex should be another if conversionFun is not one
-      for (element <- regularConversions) {
-        val elem = Parameters(element, expr, project, editor, regularConversions, companionConversions)
+
+      for (element <- conversions) {
+        val elem = Parameters(element, expr, project, editor, conversions)
         JListCompatibility.addElement(model, elem)
         if (element == conversionFun) actualIndex = model.indexOf(elem)
       }
-      for (element <- companionConversions) {
-        val elem = Parameters(element, expr, project, editor, regularConversions, companionConversions)
-        JListCompatibility.addElement(model, elem)
-        if (element == conversionFun) actualIndex = model.indexOf(elem)
-      }
+
       val list = JListCompatibility.createJListFromModel(model)
       val renderer = new ScImplicitFunctionListCellRenderer(conversionFun)
       val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
@@ -132,7 +128,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
 
       GoToImplicitConversionAction.setPopup(popup)
 
-      hint = new LightBulbHint(editor, project, expr, companionConversions)
+      hint = new LightBulbHint(editor, project, expr, conversions)
 
       false
     }
@@ -214,14 +210,14 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
 
     hintAlarm.addRequest(new Runnable {
       def run() {
-        hint = new LightBulbHint(element.editor, element.project, element.oldExpression, element.secondPart)
+        hint = new LightBulbHint(element.editor, element.project, element.oldExpression, element.elements)
         list.add(hint, 20, 0)
         hint.setBulbLayout()
       }
     }, 500)
   }
 
-  class LightBulbHint(editor: Editor, project: Project, expr: ScExpression, secondPart: Seq[PsiNamedElement]) extends JLabel {
+  class LightBulbHint(editor: Editor, project: Project, expr: ScExpression, elements: Seq[PsiNamedElement]) extends JLabel {
     private final val INACTIVE_BORDER: Border = BorderFactory.createEmptyBorder(4, 4, 4, 4)
     private final val ACTIVE_BORDER: Border =
       BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 1),
@@ -252,7 +248,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         if (!e.isPopupTrigger && e.getButton == MouseEvent.BUTTON1) {
           selectedValue.newExpression match {
             case function: ScFunction =>
-              showMakeExplicitPopup(project, expr, function, editor, secondPart)
+              showMakeExplicitPopup(project, expr, function, editor, elements)
             case _ =>
           }
         }

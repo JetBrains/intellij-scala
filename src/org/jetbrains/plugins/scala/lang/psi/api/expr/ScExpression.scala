@@ -463,38 +463,23 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     implicitFunction(this)
   }
 
-  /**
-    * This method returns following values:
-    *
-    * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
-    */
-  def getImplicitConversions(fromUnderscore: Boolean = false): (Seq[PsiNamedElement], Seq[PsiNamedElement]) = {
-    val (regularResults, companionResults) = new ScImplicitlyConvertible(this, fromUnderscore)
-      .implicitMap(arguments = expectedTypes(fromUnderscore).toSeq)
-
-    def sortElements(results: Seq[ImplicitResolveResult]) =
-      results.map(_.element)
-        .sortBy(_.name)
-
-    (sortElements(regularResults), sortElements(companionResults))
-  }
-
   def getAllImplicitConversions(fromUnderscore: Boolean = false): Seq[PsiNamedElement] = {
-    val (regularConversions, companionConversions) = getImplicitConversions(fromUnderscore = fromUnderscore)
+    new ScImplicitlyConvertible(this, fromUnderscore)
+      .implicitMap(arguments = expectedTypes(fromUnderscore).toSeq)
+      .map(_.element)
+      .sortWith {
+        case (first, second) =>
+          val firstName = first.name
+          val secondName = second.name
 
-    (regularConversions ++ companionConversions).sortWith {
-      case (first, second) =>
-        val firstName = first.name
-        val secondName = second.name
+          def isAnyTo(string: String): Boolean =
+            string.matches("^[a|A]ny(2|To|to).+$")
 
-        def isAnyTo(string: String): Boolean =
-          string.matches("^[a|A]ny(2|To|to).+$")
+          val isSecondAnyTo = isAnyTo(secondName)
 
-        val isSecondAnyTo = isAnyTo(secondName)
-
-        if (isAnyTo(firstName) ^ isSecondAnyTo) isSecondAnyTo
-        else firstName.compareTo(secondName) < 0
-    }
+          if (isAnyTo(firstName) ^ isSecondAnyTo) isSecondAnyTo
+          else firstName.compareTo(secondName) < 0
+      }
   }
 
   final def calculateReturns(withBooleanInfix: Boolean = false): Seq[PsiElement] = {

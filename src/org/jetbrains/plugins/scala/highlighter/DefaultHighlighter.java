@@ -16,7 +16,6 @@
 package org.jetbrains.plugins.scala.highlighter;
 
 import com.intellij.codeInsight.daemon.impl.JavaHighlightInfoTypes;
-import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.XmlHighlighterColors;
@@ -313,9 +312,6 @@ public class DefaultHighlighter {
   public static TextAttributesKey XML_ATTRIBUTE_NAME = createKey(XML_ATTRIBUTE_NAME_ID, XmlHighlighterColors.XML_ATTRIBUTE_NAME);
   public static TextAttributesKey XML_ATTRIBUTE_VALUE = createKey(XML_ATTRIBUTE_VALUE_ID, XmlHighlighterColors.XML_ATTRIBUTE_VALUE);
   public static TextAttributesKey XML_COMMENT = createKey(XML_COMMENT_ID, XmlHighlighterColors.XML_COMMENT);
-
-  public static TextAttributesKey IMPLICIT_FIRST_PART = createKey(IMPLICIT_FIRST_PART_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
-  public static TextAttributesKey IMPLICIT_SECOND_PART = createKey(IMPLICIT_SECOND_PART_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
 
   public static TextAttributesKey SCALATEST_KEYWORD = createKey(SCALATEST_KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
 

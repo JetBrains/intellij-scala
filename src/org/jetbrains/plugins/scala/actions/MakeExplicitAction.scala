@@ -33,12 +33,12 @@ class MakeExplicitAction  extends AnAction("Replace implicit conversion action")
     }
     val expression = selectedItem.oldExpression
     val editor = selectedItem.editor
-    val secondPart = selectedItem.secondPart
+    val elements = selectedItem.elements
 
-    if (project == null || editor == null || secondPart == null) return
+    if (project == null || editor == null || elements == null) return
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    showMakeExplicitPopup(project, expression, function, editor, secondPart)
+    showMakeExplicitPopup(project, expression, function, editor, elements)
   }
 }

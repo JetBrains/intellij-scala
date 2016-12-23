@@ -9,5 +9,4 @@ case class Parameters(newExpression: PsiNamedElement,
                       oldExpression: ScExpression,
                       project: Project,
                       editor: Editor,
-                      firstPart: Seq[PsiNamedElement],
-                      secondPart: Seq[PsiNamedElement])
+                      elements: Seq[PsiNamedElement])
