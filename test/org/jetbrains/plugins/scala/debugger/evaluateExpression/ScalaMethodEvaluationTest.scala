@@ -867,4 +867,38 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       evalEquals("ref + text", "reftext")
     }
   }
+
+  addFileWithBreakpoints("DefaultArgsInTrait.scala",
+    s"""object DefaultArgsInTrait extends SomeTrait {
+       |  def main(args: Array[String]): Unit = {
+       |    traitMethod("", true)
+       |  }
+       |
+       |}
+       |
+       |trait SomeTrait {
+       |  def traitMethod(s: String, firstArg: Boolean = false): String = {
+       |    def local(firstArg: Boolean = false, secondArg: Boolean = false): String = {
+       |      if (firstArg) "1"
+       |      else if (secondArg) "2"
+       |      else "0"
+       |    }
+       |    "stop here"$bp
+       |    local(firstArg)
+       |  }
+       |}
+   """.stripMargin.trim)
+  def testDefaultArgsInTrait(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("local()", "0")
+      evalEquals("local(false)", "0")
+      evalEquals("local(false, true)", "2")
+      evalEquals("local(secondArg = true)", "2")
+      evalEquals("local(firstArg = firstArg)", "1")
+      evalEquals("""traitMethod("")""", "0")
+      evalEquals("""traitMethod("", true)""", "1")
+      evalEquals("""traitMethod("", firstArg = false)""", "0")
+    }
+  }
 }

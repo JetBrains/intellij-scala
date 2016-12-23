@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.IntentionFilterOwner.IntentionActionsFilter
 import com.intellij.psi.JavaCodeFragment.{ExceptionHandler, VisibilityChecker}
 import com.intellij.psi._
+import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.scope.PsiScopeProcessor

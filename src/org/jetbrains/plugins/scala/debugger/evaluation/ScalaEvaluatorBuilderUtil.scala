@@ -603,7 +603,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               val localParamRefs =
                 localParams.map(td => createExpressionWithContextFromText(td.name, call.getContext, call))
               val localEvals = localParamRefs.map(evaluatorFor(_))
-              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators ++ localEvals)
+              functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators ++ localEvals, isDefaultArg = true)
             }
             else throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", p.name))
 
@@ -619,7 +619,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def functionEvaluator(qualOption: Option[ScExpression], ref: ScReferenceExpression,
-                        funName: String, argEvaluators: Seq[Evaluator])
+                        funName: String, argEvaluators: Seq[Evaluator], isDefaultArg: Boolean = false)
                        (implicit typeSystem: TypeSystem): Evaluator = {
 
     def qualEvaluator(r: ScalaResolveResult) = {
@@ -635,7 +635,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     ref.bind() match {
       case Some(r) if r.tuplingUsed => throw EvaluationException(ScalaBundle.message("tupling.not.supported"))
       case None => throw EvaluationException(ScalaBundle.message("cannot.evaluate.method", funName))
-      case Some(r @ privateTraitMethod(tr, fun)) =>
+      case Some(r @ traitMethod(tr, fun)) if fun.isPrivate || fun.isLocal || isDefaultArg =>
         val traitTypeEval = new ScalaTypeEvaluator(DebuggerUtil.getClassJVMName(tr, withPostfix = true))
         val qualEval = qualEvaluator(r)
         val withTraitImpl = ScalaMethodEvaluator(traitTypeEval, name, null, qualEval +: argEvaluators)
@@ -1635,10 +1635,14 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  object privateTraitMethod {
+  object traitMethod {
     def unapply(r: ScalaResolveResult): Option[(ScTrait, ScFunctionDefinition)] = {
       r.getElement match {
-        case Both(fun: ScFunctionDefinition, ContainingClass(tr: ScTrait)) => Some(tr, fun)
+        case fun: ScFunctionDefinition =>
+          fun.getContainingClassLoose match {
+            case tr: ScTrait => Some(tr, fun)
+            case _ => None
+          }
         case _ => None
       }
     }
