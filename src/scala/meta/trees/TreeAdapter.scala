@@ -87,7 +87,9 @@ trait TreeAdapter {
   }
 
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
-    m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toTypeParams: _*), Seq(t.paramClauses.clauses.map(convertParamClause): _*), returnType(t.returnType))
+    m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toTypeParams: _*),
+      Seq(t.paramClauses.clauses.map(convertParamClause): _*),
+      t.typeElement.map(toType(_)).getOrElse(toStdTypeName(ptype.api.Unit)))
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
