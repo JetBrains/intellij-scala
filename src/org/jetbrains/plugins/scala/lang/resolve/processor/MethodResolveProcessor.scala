@@ -7,6 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -593,6 +594,7 @@ object MethodResolveProcessor {
     val onlyValues = mapped.forall { r =>
       r.element match {
         case _: ScFunction => false
+        case _: ScReferencePattern if r.innerResolveResult.exists(_.element.getName == "apply") => true
         case _: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
         case _ => false
       }
