@@ -281,6 +281,8 @@ trait TreeAdapter {
         m.Lit(())
       case t: ScReturnStmt =>
         m.Term.Return(expression(t.expr).get)
+      case t: ScBlockExpr if t.hasCaseClauses =>
+        m.Term.PartialFunction(Seq(t.caseClauses.get.caseClauses.map(caseClause):_*))
       case t: ScBlock =>
         m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*))
       case t: ScMethodCall =>
