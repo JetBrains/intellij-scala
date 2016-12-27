@@ -177,4 +177,11 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   }
 
 
+  def testPatrialFunction(): Unit = {
+    doTest(
+      "foo {case x => x}",
+      Term.Apply(Term.Name("foo"), Seq(Term.PartialFunction(Seq(Case(Pat.Var.Term(Term.Name("x")), None, Term.Name("x"))))))
+    )
+  }
+
 }
