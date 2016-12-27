@@ -28,7 +28,7 @@ trait Namer {
 
   class SyntheticException extends Throwable
 
-  def toTermName(elem: PsiElement, insertExpansions: Boolean = true): m.Term.Name = {
+  def toTermName(elem: PsiElement, insertExpansions: Boolean = false): m.Term.Name = {
     ProgressManager.checkCanceled()
     elem match {
       // TODO: what to resolve apply/update methods to?

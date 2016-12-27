@@ -47,4 +47,13 @@ class TreeConverterTestBugs extends TreeConverterTestBaseWithLibrary {
         Seq(Type.ApplyInfix(Type.Name("Int"), Type.Name("Or"), Type.Name("String"))))), Lit(2))
     )
   }
+
+  // object with apply method has incorrect name
+  def testSCL11024(): Unit = {
+    doTest(
+      "object Foo { def apply() = 42 }",
+      Defn.Object(Nil, Term.Name("Foo"), Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
+        Some(Seq(Defn.Def(Nil, Term.Name("apply"), Nil, Seq(Seq()), None, Lit(42))))))
+    )
+  }
 }
