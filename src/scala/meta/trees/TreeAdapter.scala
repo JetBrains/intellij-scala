@@ -343,7 +343,7 @@ trait TreeAdapter {
         }
         res
       case t: ScGenericCall =>
-        t ???
+        m.Term.ApplyType(ideaToMeta(t.referencedExpr).asInstanceOf[m.Term], Seq(t.arguments.map(toType):_*))
       case t: ScConstrExpr =>
         t ???
       case t: ScInterpolatedStringLiteral =>
@@ -353,7 +353,7 @@ trait TreeAdapter {
       case t: ScTypedStmt =>
         t ???
       case t: ScUnderscoreSection =>
-        t ???
+        m.Term.Placeholder()
       case t: ScXmlExpr =>
         t ???
 
