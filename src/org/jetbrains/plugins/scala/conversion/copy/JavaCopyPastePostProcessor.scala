@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package conversion
 package copy
 
-import java.awt.datatransfer.{DataFlavor, Transferable}
+import java.awt.datatransfer.Transferable
 import java.lang.Boolean
 import java.util.Collections.singletonList
 
@@ -14,7 +14,7 @@ import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, TextPart}
 import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
@@ -94,7 +94,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         }
 
       val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
-      new ConvertedCode(text, updatedAssociations.toArray, ConverterUtil.compareTextNEq(oldText, text))
+      new ConverterUtil.ConvertedCode(text, updatedAssociations.toArray, ConverterUtil.compareTextNEq(oldText, text))
     } catch {
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
@@ -104,10 +104,9 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     }
   }
 
-
   protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
-    if (content.isDataFlavorSupported(ConvertedCode.Flavor))
-      content.getTransferData(ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
+    if (content.isDataFlavorSupported(ConverterUtil.ConvertedCode.Flavor))
+      content.getTransferData(ConverterUtil.ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
     else
       null
   }
@@ -117,17 +116,19 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     if (value == null) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
-    val dialog = new ScalaPasteFromJavaDialog(project)
-    val (text, associations, showDialog: Boolean) = value match {
-      case code: ConvertedCode => (code.data, code.associations, code.showDialog)
+
+    val dialog = new ScalaPasteFromJavaDialog(project, ScalaBundle.message("scala.copy.from.java"))
+    val (text, associations, showDialog) = value match {
+      case code: ConverterUtil.ConvertedCode => (code.data, code.associations, code.showDialog)
       case _ => ("", Array.empty[Association], true)
     }
-    if (text == "") return //copy as usually
+    if (text == "") return
+    //copy as usually
     val needShowDialog = (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) && showDialog
     if (needShowDialog) dialog.show()
     if (!needShowDialog || dialog.isOK) {
       val shiftedAssociations = inWriteAction {
-        replaceByConvertedCode(editor, bounds, text)
+        ConverterUtil.replaceByConvertedCode(editor, bounds, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
 
@@ -135,7 +136,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
         }
 
-        withSpecialStyleIn(project) {
+        ConverterUtil.withSpecialStyleIn(project) {
           val manager = CodeStyleManager.getInstance(project)
           manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
         }
@@ -159,70 +160,4 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       }
     }
   }
-
-  private def withSpecialStyleIn(project: Project)(block: => Unit) {
-    val settings = CodeStyleSettingsManager.getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE)
-
-    val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
-    val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
-    val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
-
-    settings.KEEP_BLANK_LINES_IN_CODE = 0
-    settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
-    settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
-
-    try {
-      block
-    }
-    finally {
-      settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
-      settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
-      settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
-    }
-  }
-
-  def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String): Unit = {
-    val document = editor.getDocument
-    def hasQuoteAt(offset: Int) = {
-      val chars = document.getCharsSequence
-      offset >= 0 && offset <= chars.length() && chars.charAt(offset) == '\"'
-    }
-    val start = bounds.getStartOffset
-    val end = bounds.getEndOffset
-    val isInsideStringLiteral = hasQuoteAt(start - 1) && hasQuoteAt(end)
-    if (isInsideStringLiteral && text.startsWith("\"") && text.endsWith("\""))
-      document.replaceString(start - 1, end + 1, text)
-    else document.replaceString(start, end, text)
-  }
-
-  class ConvertedCode(val data: String, val associations: Array[Association], val showDialog: Boolean = false) extends TextBlockTransferableData {
-    def setOffsets(offsets: Array[Int], _index: Int) = {
-      var index = _index
-      for (association <- associations) {
-        association.range = new TextRange(offsets(index), offsets(index + 1))
-        index += 2
-      }
-      index
-    }
-
-    def getOffsets(offsets: Array[Int], _index: Int): Int = {
-      var index = _index
-      for (association <- associations) {
-        offsets(index) = association.range.getStartOffset
-        index += 1
-        offsets(index) = association.range.getEndOffset
-        index += 1
-      }
-      index
-    }
-
-    def getOffsetCount: Int = associations.length * 2
-
-    def getFlavor: DataFlavor = ConvertedCode.Flavor
-  }
-
-  object ConvertedCode {
-    lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
-  }
-
 }

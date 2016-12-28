@@ -1,15 +1,21 @@
 package org.jetbrains.plugins.scala.conversion
 
+import java.awt.datatransfer.DataFlavor
+
+import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemDescriptor, ProblemsHolder}
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleSettingsManager
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
+import org.jetbrains.plugins.scala.conversion.copy.Association
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -80,7 +86,7 @@ object ConverterUtil {
         }
       }
     }
-    (buffer.toSeq, dropElements)
+    (buffer, dropElements)
   }
 
   def canDropElement(element: PsiElement): Boolean = {
@@ -123,7 +129,7 @@ object ConverterUtil {
   def collectTopElements(startOffset: Int, endOffset: Int, javaFile: PsiFile): Array[PsiElement] = {
     val buf = new ArrayBuffer[PsiElement]
     var elem: PsiElement = javaFile.findElementAt(startOffset)
-    assert(elem.getTextRange.getStartOffset == startOffset)
+
     while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
       elem.getParent.getTextRange.getStartOffset == startOffset) {
       elem = elem.getParent
@@ -189,5 +195,70 @@ object ConverterUtil {
       else text
     }
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
+  }
+
+  class ConvertedCode(val data: String, val associations: Array[Association], val showDialog: Boolean = false) extends TextBlockTransferableData {
+    def setOffsets(offsets: Array[Int], _index: Int): Int = {
+      var index = _index
+      for (association <- associations) {
+        association.range = new TextRange(offsets(index), offsets(index + 1))
+        index += 2
+      }
+      index
+    }
+
+    def getOffsets(offsets: Array[Int], _index: Int): Int = {
+      var index = _index
+      for (association <- associations) {
+        offsets(index) = association.range.getStartOffset
+        index += 1
+        offsets(index) = association.range.getEndOffset
+        index += 1
+      }
+      index
+    }
+
+    def getOffsetCount: Int = associations.length * 2
+
+    def getFlavor: DataFlavor = ConvertedCode.Flavor
+  }
+
+  def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String): Unit = {
+    val document = editor.getDocument
+    def hasQuoteAt(offset: Int) = {
+      val chars = document.getCharsSequence
+      offset >= 0 && offset <= chars.length() && chars.charAt(offset) == '\"'
+    }
+    val start = bounds.getStartOffset
+    val end = bounds.getEndOffset
+    val isInsideStringLiteral = hasQuoteAt(start - 1) && hasQuoteAt(end)
+    if (isInsideStringLiteral && text.startsWith("\"") && text.endsWith("\""))
+      document.replaceString(start - 1, end + 1, text)
+    else document.replaceString(start, end, text)
+  }
+
+  object ConvertedCode {
+    lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
+  }
+
+  def withSpecialStyleIn(project: Project)(block: => Unit) {
+    val settings = CodeStyleSettingsManager.getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE)
+
+    val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
+    val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
+    val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
+
+    settings.KEEP_BLANK_LINES_IN_CODE = 0
+    settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
+    settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
+
+    try {
+      block
+    }
+    finally {
+      settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
+      settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
+      settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
+    }
   }
 }

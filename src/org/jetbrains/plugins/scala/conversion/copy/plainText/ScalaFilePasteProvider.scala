@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import java.awt.datatransfer.DataFlavor
 
@@ -11,9 +11,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -23,8 +22,6 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 
 class ScalaFilePasteProvider extends PasteProvider {
 
-  import ScalaFilePasteProvider._
-
   override def performPaste(dataContext: DataContext): Unit = {
 
     def fileName(scalaFile: ScalaFile): String =
@@ -33,7 +30,7 @@ class ScalaFilePasteProvider extends PasteProvider {
     val text: String = CopyPasteManager.getInstance.getContents(DataFlavor.stringFlavor)
     val project = CommonDataKeys.PROJECT.getData(dataContext)
 
-    val optScalaFile = Option(project).flatMap((project: Project) => createScalaFileFromString(text, project))
+    val optScalaFile = Option(project).flatMap((project: Project) => PlainTextCopyUtil.createScalaFile(text, project))
     val optTargetDir = Option(LangDataKeys.IDE_VIEW.getData(dataContext)).flatMap(_.getOrChooseDirectory.toOption)
 
     if (optScalaFile.isEmpty || optTargetDir.isEmpty) return
@@ -79,24 +76,10 @@ class ScalaFilePasteProvider extends PasteProvider {
   override def isPasteEnabled(dataContext: DataContext): Boolean = {
     Option(LangDataKeys.IDE_VIEW.getData(dataContext)).nonEmpty &&
       Option(LangDataKeys.MODULE.getData(dataContext)).exists(_.hasScala) && //don't affect NON scala projects even when scala plugin is turn on
-      Option(CommonDataKeys.PROJECT.getData(dataContext))
-        .flatMap(createScalaFileFromString(CopyPasteManager.getInstance.getContents(DataFlavor.stringFlavor), _)).nonEmpty
-  }
-
-  private def createScalaFileFromString(text: String, project: Project) = {
-    val optFile = Option(text).flatMap(new ScalaCodeFragment(project, _).asOptionOf[ScalaFile])
-
-    if (isValidScalaFile(optFile)) optFile else None
-  }
-}
-
-object ScalaFilePasteProvider {
-  def isValidScalaFile(file: Option[ScalaFile], acceptableErrors: Seq[String] = Seq.empty): Boolean = {
-    !file.exists(_.depthFirst().exists {
-      case err: PsiErrorElement if acceptableErrors.contains(err.getErrorDescription) => false
-      case _: PsiErrorElement => true
-      case _ => false
-    })
+      PlainTextCopyUtil.isValidScalaFile(
+        CopyPasteManager.getInstance.getContents(DataFlavor.stringFlavor),
+        CommonDataKeys.PROJECT.getData(dataContext)
+      )
   }
 }
 

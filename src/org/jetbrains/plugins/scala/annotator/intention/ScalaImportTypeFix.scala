@@ -316,7 +316,7 @@ object ScalaImportTypeFix {
   }
 
   @tailrec
-  private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
+  def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
     def parent(t: ScTypeDefinition): PsiElement = {
       val stub = t.asInstanceOf[ScTypeDefinitionImpl].getStub
       if (stub != null) stub.getParentStub.getPsi
