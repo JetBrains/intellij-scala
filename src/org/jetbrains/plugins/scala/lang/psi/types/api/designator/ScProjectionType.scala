@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -38,44 +38,42 @@ class ScProjectionType private(val projected: ScType,
                                val element: PsiNamedElement,
                                val superReference: Boolean /* todo: find a way to remove it*/) extends DesignatorOwner {
   override protected def isAliasTypeInner: Option[AliasType] = {
-    if (actualElement.isInstanceOf[ScTypeAlias]) {
-      actualElement match {
-        case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
-          val subst: ScSubstitutor = actualSubst
-          Some(AliasType(ta, ta.lowerBound.map(subst.subst), ta.upperBound.map(subst.subst)))
-        case ta: ScTypeAlias => //higher kind case
-          ta match {
-            case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
-              ta.aliasedType match {
-                case Success(tp, _) =>
-                  actualSubst.subst(tp) match {
-                    case ParameterizedType(des, typeArgs) =>
-                      val taArgs = ta.typeParameters
-                      if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
-                        case (tParam: ScTypeParam, TypeParameterType(_, _, _, param)) if tParam == param => true
-                        case _ => false
-                      }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
-                    case _ =>
-                  }
-                case _ =>
-              }
-            case _ =>
-          }
-          val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
-          val genericSubst = ScalaPsiUtil.
-            typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
-            ta.typeParameters.map(tp => {
-              val name = tp.name + "$$"
-              val ex = ScExistentialArgument(name, Nil, Nothing, Any)
-              args += ex
-              ex
-            }))
-          val s = actualSubst.followed(genericSubst)
-          Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), args.toList)),
-            ta.upperBound.map(scType => ScExistentialType(s.subst(scType), args.toList))))
-        case _ => None
-      }
-    } else None
+    actualElement match {
+      case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
+        val subst: ScSubstitutor = actualSubst
+        Some(AliasType(ta, ta.lowerBound.map(subst.subst), ta.upperBound.map(subst.subst)))
+      case ta: ScTypeAlias => //higher kind case
+        ta match {
+          case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
+            ta.aliasedType match {
+              case Success(tp, _) =>
+                actualSubst.subst(tp) match {
+                  case ParameterizedType(des, typeArgs) =>
+                    val taArgs = ta.typeParameters
+                    if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
+                      case (tParam: ScTypeParam, TypeParameterType(_, _, _, param)) if tParam == param => true
+                      case _ => false
+                    }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
+                  case _ =>
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+        val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
+        val genericSubst = ScalaPsiUtil.
+          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
+          ta.typeParameters.map(tp => {
+            val name = tp.name + "$$"
+            val ex = ScExistentialArgument(name, Nil, Nothing, Any)
+            args += ex
+            ex
+          }))
+        val s = actualSubst.followed(genericSubst)
+        Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), args.toList)),
+          ta.upperBound.map(scType => ScExistentialType(s.subst(scType), args.toList))))
+      case _ => None
+    }
   }
 
   override def isStable: Boolean = (projected match {
@@ -366,15 +364,11 @@ class ScProjectionType private(val projected: ScType,
 }
 
 object ScProjectionType {
-  def create(projected: ScType, element: PsiNamedElement,
+  def create(projected: ScCompoundType, element: PsiNamedElement,
              superReference: Boolean /* todo: find a way to remove it*/): ScType = {
     val res = new ScProjectionType(projected, element, superReference)
-    projected match {
-      case _: ScCompoundType =>
-        res.isAliasType match {
-          case Some(AliasType(td: ScTypeAliasDefinition, _, upper)) if td.typeParameters.isEmpty => upper.getOrElse(res)
-          case _ => res
-        }
+    res.isAliasType match {
+      case Some(AliasType(td: ScTypeAliasDefinition, _, upper)) if td.typeParameters.isEmpty => upper.getOrElse(res)
       case _ => res
     }
   }
@@ -382,8 +376,12 @@ object ScProjectionType {
   def apply(projected: ScType, element: PsiNamedElement,
             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
 
-    val manager = ScalaPsiManager.instance(element.getProject)
-    manager.getProjectionTypeCached(projected, element, superReference)
+    projected match {
+      case c: ScCompoundType =>
+        val manager = ScalaPsiManager.instance(element.getProject)
+        manager.getCompoundProjectionType(c, element, superReference)
+      case _ => new ScProjectionType(projected, element, superReference)
+    }
   }
 
   def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement, Boolean)] = {

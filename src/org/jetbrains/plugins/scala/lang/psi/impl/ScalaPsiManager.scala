@@ -63,8 +63,10 @@ class ScalaPsiManager(val project: Project) {
 
   val implicitCollectorCache: ImplicitCollectorCache = new ImplicitCollectorCache(project)
 
+  private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
+
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
     else getParameterlessSignaturesCached(tp, compoundTypeThisType)
   }
 
@@ -74,7 +76,7 @@ class ScalaPsiManager(val project: Project) {
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
     else getTypesCached(tp, compoundTypeThisType)
   }
 
@@ -84,13 +86,27 @@ class ScalaPsiManager(val project: Project) {
   }
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) return SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
     SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+  }
+
+  def getCompoundProjectionType(projected: ScCompoundType,
+                                element: PsiNamedElement,
+                                superReference: Boolean): ScType = {
+    if (dontCacheCompound) ScProjectionType.create(projected, element, superReference)
+    else getCompoundProjectionTypeCached(projected, element, superReference)
+  }
+
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
+  private def getCompoundProjectionTypeCached(projected: ScCompoundType,
+                                              element: PsiNamedElement,
+                                              superReference: Boolean): ScType = {
+    ScProjectionType.create(projected, element, superReference)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
@@ -127,12 +143,6 @@ class ScalaPsiManager(val project: Project) {
 
     val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
     Option(res).orElse(getCachedFacadeClass(scope, fqn))
-  }
-
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
-  def getProjectionTypeCached(projected: ScType, element: PsiNamedElement,
-                              superReference: Boolean /* todo: find a way to remove it*/): ScType = {
-    ScProjectionType.create(projected, element, superReference)
   }
 
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] =

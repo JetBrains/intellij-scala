@@ -7,6 +7,8 @@ package types
  * @author ilyas
  */
 
+import java.util.concurrent.ConcurrentMap
+
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -19,25 +21,25 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
-import scala.collection.concurrent
 import scala.collection.immutable.{HashSet, ListMap}
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
+
   override protected def isAliasTypeInner: Option[AliasType] = {
-    this match {
-      case ParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) =>
+    designator match {
+      case ScDesignatorType(ta: ScTypeAlias) =>
         val existingWildcards = ta.lowerBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty) ++
           (if (ta.isDefinition) HashSet.empty else ta.upperBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty))
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
-            args.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
+            typeArguments.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
         val lowerBound = ta.lowerBound.map(genericSubst.subst)
         val upperBound =
           if (ta.isDefinition) lowerBound
           else ta.upperBound.map(genericSubst.subst)
         Some(AliasType(ta, lowerBound, upperBound))
-      case ParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAlias] =>
+      case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
 
@@ -46,7 +48,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
-            args.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
+            typeArguments.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
         val s = subst.followed(genericSubst)
         val lowerBound = ta.lowerBound.map(s.subst)
         val upperBound =
@@ -227,28 +229,23 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 
 object ScParameterizedType {
 
-  import scala.collection.JavaConversions._
-
-  val cache: concurrent.Map[(ScType, Seq[ScType]), ValueType] =
+  val cache: ConcurrentMap[(ScType, Seq[ScType]), ValueType] =
     ContainerUtil.createConcurrentWeakMap[(ScType, Seq[ScType]), ValueType]()
 
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
-    def create: ValueType = {
-      val parameterizedType = new ScParameterizedType(designator, typeArgs)
-
-      val maybeResult = designator match {
-        case ScProjectionType(_: ScCompoundType, _, _) =>
-          parameterizedType.isAliasType.flatMap {
-            case AliasType(_: ScTypeAliasDefinition, _, upper) => upper.toOption
-            case _ => None
-          }.collect {
-            case valueType: ValueType => valueType
-          }
-        case _ => None
+    def createCompoundProjectionParameterized(pt: ScParameterizedType): ValueType = {
+      pt.isAliasType match {
+        case Some(AliasType(_: ScTypeAliasDefinition, _, Success(upper: ValueType, _))) => upper
+        case _ => pt
       }
-      maybeResult.getOrElse(parameterizedType)
     }
 
-    cache.getOrElseUpdate((designator, typeArgs), create)
+    val simple = new ScParameterizedType(designator, typeArgs)
+    designator match {
+      case ScProjectionType(_: ScCompoundType, _, _) =>
+        cache.atomicGetOrElseUpdate((designator, typeArgs),
+          createCompoundProjectionParameterized(simple))
+      case _ => simple
+    }
   }
 }
