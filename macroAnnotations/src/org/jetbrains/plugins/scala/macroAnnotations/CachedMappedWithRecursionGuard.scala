@@ -165,7 +165,7 @@ object CachedMappedWithRecursionGuard {
 
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
-          private val $key = $cachesUtilFQN.getOrCreateKey[$mappedKeyTypeFQN[(..$parameterTypes), $retTp]]($keyId)
+          private def $key = $cachesUtilFQN.getOrCreateKey[$mappedKeyTypeFQN[(..$parameterTypes), $retTp]]($keyId)
           ..$cacheStatsField
 
           ..$updatedDef

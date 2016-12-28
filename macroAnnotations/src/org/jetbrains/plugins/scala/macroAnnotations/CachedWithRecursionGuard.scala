@@ -60,7 +60,7 @@ object CachedWithRecursionGuard {
           """
         val updatedDef = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         val res = q"""
-          private val $keyVarName = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
+          private def $keyVarName = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
 
           ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 

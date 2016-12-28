@@ -68,7 +68,7 @@ object CachedInsidePsiElement {
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
-          private val $key = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
+          private def $key = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
           ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 
           ..$updatedDef

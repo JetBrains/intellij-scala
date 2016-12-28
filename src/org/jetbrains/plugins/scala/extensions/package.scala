@@ -9,7 +9,7 @@ import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Computable, ThrowableComputable}
+import com.intellij.openapi.util.{Computable, Key, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
@@ -17,6 +17,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.caches.CachesUtil.keys
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
@@ -515,6 +516,22 @@ package object extensions {
     def headOption: Option[A] = {
       if (delegate.hasNext) Some(delegate.next())
       else None
+    }
+  }
+
+  implicit class ConcurrentMapExt[K, V](val map: java.util.concurrent.ConcurrentMap[K, V]) extends AnyVal {
+
+    //getOrElseUpdate in JConcurrentMapWrapper is not atomic!
+    def atomicGetOrElseUpdate(key: K, update: => V): V = {
+      Option(map.get(key)) match {
+        case Some(v) => v
+        case None =>
+          val newValue = update
+          val race = map.putIfAbsent(key, newValue) != null
+
+          if (race) map.get(key)
+          else newValue
+      }
     }
   }
 

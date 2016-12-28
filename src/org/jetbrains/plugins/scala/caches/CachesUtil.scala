@@ -3,6 +3,7 @@ package caches
 
 
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.atomic.{AtomicInteger, AtomicReferenceArray}
 
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
@@ -11,6 +12,7 @@ import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
+import org.jetbrains.plugins.scala.extensions.ConcurrentMapExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -42,7 +44,7 @@ object CachesUtil {
     * @see [[CachesUtil.getOrCreateKey]] for more info
    */
   type MappedKey[Data, Result] = Key[CachedValue[ConcurrentMap[Data, Result]]]
-  private val keys = ContainerUtil.newConcurrentMap[String, Any]()
+  private val keys = ContainerUtil.newConcurrentMap[String, Key[_]]()
 
   /**
    * IMPORTANT:
@@ -53,18 +55,7 @@ object CachesUtil {
    *
    * Do not use this method directly. You should use annotations instead
    */
-  def getOrCreateKey[T](id: String): T = Option(keys.get(id)) match {
-    case Some(key) => key.asInstanceOf[T]
-    case None => synchronized {
-      Option(keys.get(id)) match {
-        case Some(key) => key.asInstanceOf[T]
-        case None =>
-          val res: T = Key.create[T](id).asInstanceOf[T]
-          keys.put(id, res)
-          res
-      }
-    }
-  }
+  def getOrCreateKey[T](id: String): T = keys.atomicGetOrElseUpdate(id, Key.create[T](id)).asInstanceOf[T]
 
   //keys for getUserData
   val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
