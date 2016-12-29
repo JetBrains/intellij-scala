@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryPa
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
-import org.jetbrains.plugins.scala.conversion.copy.Association
+import org.jetbrains.plugins.scala.conversion.copy.{Association, ScalaPasteFromJavaDialog}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -140,7 +140,7 @@ object ConverterUtil {
       elem = elem.getNextSibling
       buf += elem
     }
-    buf.filter(el => el!= null && el.isValid).toArray
+    buf.filter(el => el != null && el.isValid).toArray
   }
 
   def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
@@ -260,5 +260,11 @@ object ConverterUtil {
       settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
       settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
     }
+  }
+
+  def shownDialog(msg: String, project: Project): ScalaPasteFromJavaDialog = {
+    val dialog = new ScalaPasteFromJavaDialog(project, msg)
+    dialog.show()
+    dialog
   }
 }

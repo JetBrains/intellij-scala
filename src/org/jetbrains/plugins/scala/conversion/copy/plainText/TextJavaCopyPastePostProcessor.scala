@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.plugins.scala.conversion.copy.{Association, ScalaPasteFromJavaDialog, SingularCopyPastePostProcessor}
+import org.jetbrains.plugins.scala.conversion.copy.{Association, SingularCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -56,14 +56,9 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
     // TODO: Collect available imports in current scope. Use them while converting
     computejavaContext(text, project).foreach { javaCodeWithContext =>
-      val dialog = new ScalaPasteFromJavaDialog(project, ScalaBundle.message("scala.copy.from.text"))
       val needShowDialog = !ScalaProjectSettings.getInstance(project).isDontShowConversionDialog
 
-      if (needShowDialog) {
-        dialog.show()
-      }
-
-      if (!needShowDialog || dialog.isOK) {
+      if (!needShowDialog || ConverterUtil.shownDialog(ScalaBundle.message("scala.copy.from.text"), project).isOK) {
         extensions.inWriteAction {
           val project = javaCodeWithContext.project
 

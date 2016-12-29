@@ -117,7 +117,6 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
 
-    val dialog = new ScalaPasteFromJavaDialog(project, ScalaBundle.message("scala.copy.from.java"))
     val (text, associations, showDialog) = value match {
       case code: ConverterUtil.ConvertedCode => (code.data, code.associations, code.showDialog)
       case _ => ("", Array.empty[Association], true)
@@ -125,8 +124,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     if (text == "") return
     //copy as usually
     val needShowDialog = (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) && showDialog
-    if (needShowDialog) dialog.show()
-    if (!needShowDialog || dialog.isOK) {
+    if (!needShowDialog || ConverterUtil.shownDialog(ScalaBundle.message("scala.copy.from.java"), project).isOK) {
       val shiftedAssociations = inWriteAction {
         ConverterUtil.replaceByConvertedCode(editor, bounds, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
