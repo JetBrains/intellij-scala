@@ -388,7 +388,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     def getCondition(patternString: String): String => Boolean = {
       try {
         val pattern = Pattern.compile(patternString)
-        (input: String) => input != null && pattern.matcher(input).matches
+        (input: String) => input != null && (pattern.matcher(input).matches ||
+          input.startsWith("_root_.") && pattern.matcher(input.substring("_root_.".length)).matches)
       } catch {
         case e: PatternSyntaxException =>
           throw new ExecutionException(s"Failed to compile pattern $patternString", e)
