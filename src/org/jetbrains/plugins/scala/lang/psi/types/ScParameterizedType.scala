@@ -79,7 +79,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         builder += ((p1.nameAndId, p2))
         //res = res bindT ((p1.name, p1.getId), p2)
       }
-      val subst = new ScSubstitutor(builder.result(), Map.empty, None)
+      val subst = ScSubstitutor(builder.result())
       initial followed subst
     }
     designator match {
@@ -126,9 +126,9 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
       case (ParameterizedType(Nothing, _), ParameterizedType(Nothing, _)) => (true, uSubst)
       case (ParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
         if (falseUndef) return (false, uSubst)
-        val subst = new ScSubstitutor(Map(tpt.arguments.zip(args).map {
+        val subst = ScSubstitutor(tpt.arguments.zip(args).map {
           case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
-        }: _*), Map.empty, None)
+        }.toMap)
         var conformance = r.conforms(subst.subst(upper), uSubst)
         if (!conformance._1) return (false, uSubst)
         conformance = subst.subst(lower).conforms(r, conformance._2)

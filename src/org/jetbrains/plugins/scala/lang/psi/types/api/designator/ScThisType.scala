@@ -38,7 +38,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
   override private[types] def designatorSingletonType = None
 
   override private[types] def classType(project: Project, visitedAlias: HashSet[ScTypeAlias]) =
-    Some(element, new ScSubstitutor(this))
+    Some(element, ScSubstitutor(this))
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
@@ -60,7 +60,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
       case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, _)) if elem.isStable =>
         elem.getType(TypingContext.empty) match {
           case Success(singleton: DesignatorOwner, _) if singleton.isSingleton =>
-            val newSubst = p.actualSubst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+            val newSubst = p.actualSubst.followed(ScSubstitutor(tp))
             this.equiv(newSubst.subst(singleton), substitutor, falseUndef)
           case _ => (false, substitutor)
         }

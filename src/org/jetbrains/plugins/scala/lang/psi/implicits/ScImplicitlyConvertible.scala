@@ -280,7 +280,7 @@ object ScImplicitlyConvertible {
               .flatMap(_.parameters)
               .map(new Parameter(_))
 
-            val dependentSubstitutor = new ScSubstitutor(() => {
+            val dependentSubstitutor = ScSubstitutor(() => {
               parameters.map((_, `type`)).toMap
             })
 
@@ -308,7 +308,7 @@ object ScImplicitlyConvertible {
               .flatMap(_.effectiveParameters)
               .map(new Parameter(_))
 
-            val implicitDependentSubstitutor = new ScSubstitutor(() => {
+            val implicitDependentSubstitutor = ScSubstitutor(() => {
               val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, check = false,
                 abstractSubstitutor = substitutor.followed(dependentSubstitutor).followed(unSubst))
 
@@ -320,7 +320,7 @@ object ScImplicitlyConvertible {
 
             (dependentSubstitutor, implicitDependentSubstitutor)
           case _ =>
-            (new ScSubstitutor(() => Map.empty), new ScSubstitutor(() => Map.empty))
+            (ScSubstitutor(() => Map.empty), ScSubstitutor(() => Map.empty))
         }
 
         uSubst.getSubstitutor(notNonable = false)

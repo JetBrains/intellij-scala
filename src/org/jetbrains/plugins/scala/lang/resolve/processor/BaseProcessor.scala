@@ -179,7 +179,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             processElement(clazz, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           } else if (selfType.conforms(clazzType)) {
             processType(selfType, place, state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)).
-              put(ScSubstitutor.key, new ScSubstitutor(ScThisType(clazz))), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
+              put(ScSubstitutor.key, ScSubstitutor(ScThisType(clazz))), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           } else if (clazzType.conforms(selfType)) {
             processElement(clazz, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           } else {
@@ -226,7 +226,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           case tpt@TypeParameterType(_, _, upper, _) =>
             if (visitedTypeParameter.contains(tpt)) return true
             processType(p.substitutor.subst(upper.v), place,
-              state.put(ScSubstitutor.key, new ScSubstitutor(p)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter + tpt)
+              state.put(ScSubstitutor.key, ScSubstitutor(p)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter + tpt)
           case _ => p.extractDesignated(withoutAliases = false) match {
             case Some((designator, subst)) =>
               processElement(designator, subst, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
@@ -241,7 +241,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           visitedAliases = visitedAliases + ta, visitedTypeParameter = visitedTypeParameter)
       case proj@ScProjectionType(_, _, _) =>
         val s: ScSubstitutor = if (updateWithProjectionSubst)
-          new ScSubstitutor(Map.empty, Map.empty, Some(proj)) followed proj.actualSubst
+          ScSubstitutor(proj) followed proj.actualSubst
         else proj.actualSubst
         processElement(proj.actualElement, s, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case StdType(name, tSuper) =>

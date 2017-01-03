@@ -150,7 +150,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
                 case (param: ScTypeParam, parameter: PsiTypeParameter) =>
                   (param.nameAndId, ScDesignatorType(parameter))
               }
-            new ScSubstitutor(tvs.toMap, Map.empty, None)
+            ScSubstitutor(tvs.toMap)
           } else ScSubstitutor.empty
         } else ScSubstitutor.empty
 

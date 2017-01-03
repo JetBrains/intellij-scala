@@ -182,7 +182,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
           val clazz = ScalaPsiUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
           clazz match {
             case clazz: ScTemplateDefinition =>
-              undefSubst = undefSubst.followed(new ScSubstitutor(ScThisType(clazz)))
+              undefSubst = undefSubst.followed(ScSubstitutor(ScThisType(clazz)))
             case _ =>
           }
           val firstParameterType = fun.parameters.head.getType(TypingContext.empty) match {
@@ -255,7 +255,7 @@ trait ScPattern extends ScalaPsiElement with Typeable {
         }
       case Some(ScalaResolveResult(FakeCompanionClassOrCompanionClass(cl: ScClass), subst: ScSubstitutor))
         if cl.isCase && cl.tooBigForUnapply =>
-        val undefSubst = subst.followed(new ScSubstitutor(ScThisType(cl)))
+        val undefSubst = subst.followed(ScSubstitutor(ScThisType(cl)))
         val params: Seq[ScParameter] = cl.parameters
         val types = params.map(_.getType(TypingContext.empty).getOrAny).map(undefSubst.subst)
         val args = if (types.nonEmpty && params.last.isVarArgs) {

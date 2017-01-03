@@ -133,7 +133,7 @@ trait Utils {
           case _                => StdType.Any
         }
       } else {
-        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        val s = ScSubstitutor(ScSubstitutor.cache.toMap)
         s.subst(expr.getType(context).get)
       }
     }
@@ -144,7 +144,7 @@ trait Utils {
       if (dumbMode) {
         expr.definedReturnType.getOrElse(StdType.Any)
       } else {
-        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        val s = ScSubstitutor(ScSubstitutor.cache.toMap)
         s.subst(expr.getType().get)
       }
     }
@@ -158,7 +158,7 @@ trait Utils {
           case _ => Success(StdType.Any, None)
         }
       } else {
-        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        val s = ScSubstitutor(ScSubstitutor.cache.toMap)
         expr.getType() match {
           case Success(res, elem) => Success(s.subst(res), elem)
           case other => other

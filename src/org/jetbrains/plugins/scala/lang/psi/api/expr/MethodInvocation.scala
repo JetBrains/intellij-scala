@@ -193,7 +193,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       def tail: ScType = {
         problemsLocal = c._2
         matchedParamsLocal = c._3
-        val dependentSubst = new ScSubstitutor(() => {
+        val dependentSubst = ScSubstitutor(() => {
           this.scalaLanguageLevel match {
             case Some(level) if level < Scala_2_10 => Map.empty
             case _ => c._4.toMap
@@ -208,7 +208,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           else {
             problemsLocal = cd._2
             matchedParamsLocal = cd._3
-            val dependentSubst = new ScSubstitutor(() => {
+            val dependentSubst = ScSubstitutor(() => {
               this.scalaLanguageLevel match {
                 case Some(level) if level < Scala_2_10 => Map.empty
                 case _ => cd._4.toMap

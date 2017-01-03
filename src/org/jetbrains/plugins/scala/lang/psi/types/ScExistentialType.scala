@@ -88,9 +88,9 @@ case class ScExistentialType(quantified: ScType,
     if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
     (quantified, r) match {
       case (ParameterizedType(ScAbstractType(parameterType, lowerBound, upperBound), args), _) if !falseUndef =>
-        val subst = new ScSubstitutor(Map(parameterType.arguments.zip(args).map {
+        val subst = ScSubstitutor(parameterType.arguments.zip(args).map {
           case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
-        }: _*), Map.empty, None)
+        }.toMap)
         val upper: ScType =
           subst.subst(upperBound) match {
             case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
@@ -135,7 +135,7 @@ case class ScExistentialType(quantified: ScType,
                 ((arg.name, -1L), arg.lower)
               //TODO: here we should check variantness for rArg and substitute args with lower/upper bound according to variantness
             } :_*)
-            val subst = new ScSubstitutor(myMap, Map.empty, None)
+            val subst = ScSubstitutor(myMap)
             return subst.subst(quantified).equiv(r, undefinedSubst, falseUndef)
           case _ =>
         }

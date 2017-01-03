@@ -12,17 +12,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor.LazyDepMethodTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
+import scala.language.implicitConversions
+
 /**
 * @author ven
 */
 object ScSubstitutor {
-  val empty: ScSubstitutor = new ScSubstitutor() {
+  val empty: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, None) {
     override def toString: String = "Empty substitutor"
+
+    override def subst(t: ScType): ScType = t
+    override def substInternal(t: ScType): ScType = t
   }
 
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
@@ -32,64 +38,54 @@ object ScSubstitutor {
   var cacheSubstitutions = false
 
   val cache: scala.collection.mutable.Map[(String, Long), ScType] = scala.collection.mutable.Map()
+
+  def apply(updateThisType: ScType): ScSubstitutor = {
+    new ScSubstitutor(Map.empty, Map.empty, Some(updateThisType))
+  }
+
+  def apply(tvMap: Map[(String, Long), ScType],
+            aliasesMap: Map[String, Suspension] = Map.empty,
+            updateThisType: Option[ScType] = None,
+            follower: Option[ScSubstitutor] = None,
+            depMethodTypes: Option[LazyDepMethodTypes] = None): ScSubstitutor = {
+    new ScSubstitutor(tvMap, aliasesMap, updateThisType, follower, depMethodTypes)
+  }
+
+  def apply(dependentMethodTypes: () => Map[Parameter, ScType]): ScSubstitutor = {
+    new ScSubstitutor(Map.empty, Map.empty, None, None, Some(dependentMethodTypes))
+  }
+
+  class LazyDepMethodTypes(private var fun: () => Map[Parameter, ScType]) {
+    lazy val value: Map[Parameter, ScType] = {
+      val res = fun()
+      fun = null
+      res
+    }
+  }
+
+  object LazyDepMethodTypes {
+    implicit def toValue(lz: LazyDepMethodTypes): Map[Parameter, ScType] = lz.value
+    implicit def toLazy(fun: () => Map[Parameter, ScType]): LazyDepMethodTypes = new LazyDepMethodTypes(fun)
+  }
 }
 
-class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
-                    val aliasesMap: Map[String, Suspension],
-                    val updateThisType: Option[ScType]) {
-  //use ScSubstitutor.empty instead
-  private[ScSubstitutor] def this() = this(Map.empty, Map.empty, None)
+class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
+                             val aliasesMap: Map[String, Suspension],
+                             val updateThisType: Option[ScType],
+                             val follower: Option[ScSubstitutor] = None,
+                             val depMethodTypes: Option[LazyDepMethodTypes] = None) {
 
-  def this(updateThisType: ScType) {
-    this(Map.empty, Map.empty, Some(updateThisType))
+  override def toString: String = {
+    val followerText = if (follower.nonEmpty) " >> " + follower.get.toString else ""
+    s"ScSubstitutor($tvMap, $aliasesMap, $updateThisType)$followerText"
   }
-
-  def this(tvMap: Map[(String, Long), ScType],
-           aliasesMap: Map[String, Suspension],
-           updateThisType: Option[ScType],
-           follower: ScSubstitutor) = {
-    this(tvMap, aliasesMap, updateThisType)
-    this.follower = follower
-  }
-
-  //todo: this is excluded from constructor, can cause lots of bugs, probably it should be rewritten in more appropriate way
-  private var myDependentMethodTypesFun: () => Map[Parameter, ScType] = () => Map.empty
-  private var myDependentMethodTypesFunDefined: Boolean = false
-  private var myDependentMethodTypes: Map[Parameter, ScType] = null
-  private def getDependentMethodTypes: Map[Parameter, ScType] = {
-    if (myDependentMethodTypes == null) {
-      myDependentMethodTypes = myDependentMethodTypesFun()
-    }
-    myDependentMethodTypes
-  }
-
-  def this(dependentMethodTypes: () => Map[Parameter, ScType]) {
-    this()
-    myDependentMethodTypesFun = dependentMethodTypes
-    myDependentMethodTypesFunDefined = true
-  }
-
-  private var follower: ScSubstitutor = null
-
-  def getFollower: ScSubstitutor = follower
-
-  override def toString: String =
-    s"ScSubstitutor($tvMap, $aliasesMap, $updateThisType)${ if (follower != null) " >> " + follower.toString else "" }"
 
   def bindT(name : (String, Long), t: ScType): ScSubstitutor = {
-    val res = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
-    res.myDependentMethodTypesFun = myDependentMethodTypesFun
-    res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
-    res.myDependentMethodTypes = myDependentMethodTypes
-    res
+    ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower, depMethodTypes)
   }
 
   def bindA(name: String, f: () => ScType): ScSubstitutor = {
-    val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension(f))), updateThisType, follower)
-    res.myDependentMethodTypesFun = myDependentMethodTypesFun
-    res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
-    res.myDependentMethodTypes = myDependentMethodTypes
-    res
+    ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension(f))), updateThisType, follower, depMethodTypes)
   }
 
   def putAliases(template: ScTemplateDefinition): ScSubstitutor = {
@@ -107,46 +103,44 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
   def followUpdateThisType(tp: ScType): ScSubstitutor = {
     tp match {
       case ScThisType(template) =>
-        var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
+        var zSubst = ScSubstitutor(ScThisType(template))
         var placer = template.getContext
         while (placer != null) {
           placer match {
             case t: ScTemplateDefinition => zSubst = zSubst.followed(
-              new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
+              ScSubstitutor(ScThisType(t))
             )
             case _ =>
           }
           placer = placer.getContext
         }
         zSubst.followed(this)
-      case _ => new ScSubstitutor(Map.empty, Map.empty, Some(tp)).followed(this)
+      case _ => ScSubstitutor(tp).followed(this)
     }
   }
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
 
   def isUpdateThisSubst: Option[ScType] = {
-    if (tvMap.size + aliasesMap.size == 0 && !myDependentMethodTypesFunDefined) updateThisType
+    if (tvMap.size + aliasesMap.size == 0 && depMethodTypes.isEmpty) updateThisType
     else None
   }
 
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
-    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType.isEmpty && !myDependentMethodTypesFunDefined) s
-    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType.isEmpty && !s.myDependentMethodTypesFunDefined) this
+    if (this.isEmpty) s
+    else if (s.isEmpty) this
     else {
-      val res = new ScSubstitutor(tvMap, aliasesMap, updateThisType,
-        if (follower != null) follower followed (s, level + 1) else s)
-      res.myDependentMethodTypesFun = myDependentMethodTypesFun
-      res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
-      res.myDependentMethodTypes = myDependentMethodTypes
-      res
+      val newFollower = Option(if (follower.nonEmpty) follower.get followed(s, level + 1) else s)
+      ScSubstitutor(tvMap, aliasesMap, updateThisType, newFollower, depMethodTypes)
     }
   }
 
+  private def isEmpty: Boolean = (this eq ScSubstitutor.empty) || this == ScSubstitutor.empty
+
   def subst(t: ScType): ScType = try {
     if (ScSubstitutor.cacheSubstitutions) ScSubstitutor.cache ++= this.tvMap
-    if (follower != null) follower.subst(substInternal(t)) else substInternal(t)
+    if (follower.nonEmpty) follower.get.subst(substInternal(t)) else substInternal(t)
   } catch {
     case s: StackOverflowError =>
       throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
@@ -214,18 +208,10 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
       }
 
       override def visitDesignatorType(d: ScDesignatorType): Unit = {
-        if (getDependentMethodTypes.nonEmpty) {
-          result = getDependentMethodTypes.find {
-            case (parameter: Parameter, _: ScType) =>
-              parameter.paramInCode match {
-                case Some(p) if p == d.element => true
-                case _ => false
-              }
-          } match {
-            case Some((_, res)) => res
-            case _ => t
-          }
-        }
+        val depMethodType = depMethodTypes.flatMap(_.value.collectFirst {
+          case (parameter: Parameter, tp: ScType) if parameter.paramInCode.contains(d.element) => tp
+        })
+        result = depMethodType.getOrElse(d)
       }
 
       override def visitThisType(th: ScThisType): Unit = {
@@ -346,10 +332,7 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
         val ScExistentialType(q, wildcards) = ex
         //remove bound names
         val trunc = aliasesMap -- ex.boundNames
-        val substCopy = new ScSubstitutor(tvMap, trunc, updateThisType, follower)
-        substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
-        substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
-        substCopy.myDependentMethodTypes = myDependentMethodTypes
+        val substCopy = ScSubstitutor(tvMap, trunc, updateThisType, follower, depMethodTypes)
         result = new ScExistentialType(substCopy.substInternal(q),
           wildcards.map(ex => substInternal(ex).asInstanceOf[ScExistentialArgument]))
       }
@@ -426,10 +409,6 @@ class ScSubstitutor(val tvMap: Map[(String, Long), ScType],
 
       override def visitCompoundType(comp: ScCompoundType): Unit = {
         val ScCompoundType(comps, signatureMap, typeMap) = comp
-        val substCopy = new ScSubstitutor(tvMap, aliasesMap, updateThisType)
-        substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
-        substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
-        substCopy.myDependentMethodTypes = myDependentMethodTypes
         def substTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
@@ -699,7 +678,7 @@ private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[S
                 }
               }
               if (set.nonEmpty) {
-                val subst = if (res) new ScSubstitutor(tvMap, Map.empty, None) else ScSubstitutor.empty
+                val subst = if (res) ScSubstitutor(tvMap) else ScSubstitutor.empty
                 var lower: ScType = Nothing
                 val setIterator = set.iterator
                 while (setIterator.hasNext) {
@@ -755,7 +734,7 @@ private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[S
               }
               if (set.nonEmpty) {
                 var uType: ScType = Nothing
-                val subst = if (res) new ScSubstitutor(tvMap, Map.empty, None) else ScSubstitutor.empty
+                val subst = if (res) ScSubstitutor(tvMap) else ScSubstitutor.empty
                 val size: Int = set.size
                 if (size == 1) {
                   uType = subst.subst(set.iterator.next())
@@ -801,7 +780,7 @@ private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[S
         case _ =>
       }
     }
-    val subst = new ScSubstitutor(tvMap, Map.empty, None)
+    val subst = ScSubstitutor(tvMap)
     Some((subst, lMap, uMap))
   }
 

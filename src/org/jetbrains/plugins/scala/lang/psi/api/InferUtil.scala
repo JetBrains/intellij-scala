@@ -107,7 +107,7 @@ object InferUtil {
             }
         }
         implicitParameters = Some(resolveResultsBuffer)
-        val dependentSubst = new ScSubstitutor(() => {
+        val dependentSubst = ScSubstitutor(() => {
           val level = element.scalaLanguageLevelOrDefault
           if (level >= Scala_2_10) {
             paramsForInferBuffer.zip(exprsBuffer).map {
@@ -132,7 +132,7 @@ object InferUtil {
 
         implicitParameters = Some(resolveResults)
         resInner = retType
-        val dependentSubst = new ScSubstitutor(() => {
+        val dependentSubst = ScSubstitutor(() => {
           val level = element.scalaLanguageLevelOrDefault
           if (level >= Scala_2_10) {
             paramsForInfer.zip(exprs).map {
@@ -362,9 +362,9 @@ object InferUtil {
       subst.getSubstitutorWithBounds(!safeCheck) match {
         case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
-            val undefiningSubstitutor = new ScSubstitutor(typeParams.map(typeParam => {
+            val undefiningSubstitutor = ScSubstitutor(typeParams.map(typeParam => {
               (typeParam.nameAndId, UndefinedType(TypeParameterType(typeParam.psiTypeParameter)))
-            }).toMap, Map.empty, None)
+            }).toMap)
             ScTypePolymorphicType(retType, typeParams.map {
               case tp@TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                 var lower = lowerType.v

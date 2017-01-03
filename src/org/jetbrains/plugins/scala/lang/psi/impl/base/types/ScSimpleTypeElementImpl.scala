@@ -105,10 +105,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           constr match {
             case method: ScMethodLike =>
               val params = method.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
-              val subst = new ScSubstitutor(s.typeParameters.zip(params).map {
+              val subst = ScSubstitutor(s.typeParameters.zip(params).map {
                 case (tpClass: ScTypeParam, tpConstr: ScTypeParam) =>
                   (tpClass.nameAndId, TypeParameterType(tpConstr))
-              }.toMap, Map.empty, None)
+              }.toMap)
               (params, subst)
             case _ => (Seq.empty, ScSubstitutor.empty)
           }
@@ -141,10 +141,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       getContext match {
         case p: ScParameterizedTypeElement =>
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, Long), ScType] ++ zipped.map{
+          val appSubst = ScSubstitutor(zipped.map {
             case (arg, typeParam) =>
               (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
-          }, Map.empty, None)
+          }.toMap)
           val newRes = appSubst.subst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
           return newRes
@@ -248,10 +248,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
 
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, Long), ScType] ++ zipped.map {
+          val appSubst = ScSubstitutor(zipped.map {
             case (arg, typeParam) =>
               (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
-          }, Map.empty, None)
+          }.toMap)
           (appSubst.subst(res), appSubst)
         }
         val constrRef = ref.isConstructorReference && !noConstructor

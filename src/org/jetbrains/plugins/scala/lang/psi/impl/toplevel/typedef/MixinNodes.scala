@@ -329,8 +329,8 @@ abstract class MixinNodes {
       case cp: ScCompoundType =>
         processRefinement(cp, map, place)
         val thisTypeSubst = compoundThisType match {
-          case Some(_) => new ScSubstitutor(Map.empty, Map.empty, compoundThisType)
-          case _ => new ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(tp))
+          case Some(_) => ScSubstitutor(Map.empty, Map.empty, compoundThisType)
+          case _ => ScSubstitutor(Predef.Map.empty, Predef.Map.empty, Some(tp))
         }
         (MixinNodes.linearization(cp), ScSubstitutor.empty, thisTypeSubst)
       case _ =>
@@ -347,12 +347,12 @@ abstract class MixinNodes {
               place = Option(template.extendsBlock)
               processScala(template, ScSubstitutor.empty, map, place, base = true)
               val lin = MixinNodes.linearization(template)
-              var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
+              var zSubst = ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
+                    ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
                   )
                   case _ =>
                 }
@@ -362,12 +362,12 @@ abstract class MixinNodes {
             case template: ScTemplateDefinition =>
               place = Option(template.asInstanceOf[ScalaStubBasedElementImpl[_]].getLastChildStub)
               processScala(template, ScSubstitutor.empty, map, place, base = true)
-              var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
+              var zSubst = ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
               var placer = template.getContext
               while (placer != null) {
                 placer match {
                   case t: ScTemplateDefinition => zSubst = zSubst.followed(
-                    new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
+                    ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(t)))
                   )
                   case _ =>
                 }
@@ -396,8 +396,8 @@ abstract class MixinNodes {
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
             val dependentSubst = superType match {
-              case p@ScProjectionType(proj, _, _) => new ScSubstitutor(proj).followed(p.actualSubst)
-              case ParameterizedType(p@ScProjectionType(proj, _, _), _) => new ScSubstitutor(proj).followed(p.actualSubst)
+              case p@ScProjectionType(proj, _, _) => ScSubstitutor(proj).followed(p.actualSubst)
+              case ParameterizedType(p@ScProjectionType(proj, _, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
               case _ => ScSubstitutor.empty
             }
             val newSubst = combine(s, subst, superClass).followed(thisTypeSubst).followed(dependentSubst)
@@ -445,7 +445,7 @@ abstract class MixinNodes {
             case None =>
           }
         }
-        res = new ScSubstitutor(res.tvMap, aliasesMap, None)
+        res = ScSubstitutor(res.tvMap, aliasesMap, None)
       case _ => ()
     }
     res

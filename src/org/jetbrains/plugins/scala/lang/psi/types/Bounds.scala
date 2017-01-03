@@ -129,7 +129,7 @@ object Bounds extends api.Bounds {
 
     def getSuperOptions: Seq[Options] = {
       val subst = this.projectionOption match {
-        case Some(proj) => new ScSubstitutor(Map.empty, Map.empty, Some(proj))
+        case Some(proj) => ScSubstitutor(proj)
         case None => ScSubstitutor.empty
       }
       getNamedElement match {
