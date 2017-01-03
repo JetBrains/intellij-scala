@@ -359,8 +359,8 @@ object InferUtil {
     val tpe = if (c.problems.isEmpty) {
       var un: ScUndefinedSubstitutor = c.undefSubst
       val subst = c.undefSubst
-      subst.getSubstitutor(!safeCheck) match {
-        case Some(unSubst) =>
+      subst.getSubstitutorWithBounds(!safeCheck) match {
+        case Some((unSubst, lMap, uMap)) =>
           if (!filterTypeParams) {
             val undefiningSubstitutor = new ScSubstitutor(typeParams.map(typeParam => {
               (typeParam.nameAndId, UndefinedType(TypeParameterType(typeParam.psiTypeParameter)))
@@ -384,7 +384,7 @@ object InferUtil {
                   hasRecursiveTypeParameters
                 }
                 val nameAndId = tp.nameAndId
-                subst.getLowerBound(nameAndId) match {
+                lMap.get(nameAndId) match {
                   case Some(_addLower) =>
                     val substedLowerType = unSubst.subst(lower)
                     val addLower =
@@ -397,7 +397,7 @@ object InferUtil {
                   case None =>
                     lower = unSubst.subst(lower)
                 }
-                subst.getUpperBound(nameAndId) match {
+                uMap.get(nameAndId) match {
                   case Some(_addUpper) =>
                     val substedUpperType = unSubst.subst(upper)
                     val addUpper =

@@ -5,6 +5,7 @@ package types
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -15,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-
-import scala.collection.immutable.{HashMap, HashSet, Map}
 
 /**
 * @author ven
@@ -474,41 +473,56 @@ sealed trait ScUndefinedSubstitutor {
 
   type Name = (String, Long)
 
+  case class SubstitutorWithBounds(subst: ScSubstitutor, lowers: Map[Name, ScType], upper: Map[Name, ScType])
+
   def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor
   def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor
-  def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor]
+  def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] = getSubstitutorWithBounds(notNonable).map(_._1)
   def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
-  def filter(fun: (((String, Long), HashSet[ScType])) => Boolean): ScUndefinedSubstitutor
+  def filter(fun: (((String, Long), Set[ScType])) => Boolean): ScUndefinedSubstitutor
   def addSubst(added: ScUndefinedSubstitutor): ScUndefinedSubstitutor
   def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
   def isEmpty: Boolean
   def names: Set[Name]
-  def getLowerBound(nameAndId: Name): Option[ScType]
-  def getUpperBound(nameAndId: Name): Option[ScType]
+
+  //subst, lowers, uppers
+  def getSubstitutorWithBounds(notNonable: Boolean): Option[(ScSubstitutor, Map[Name, ScType], Map[Name, ScType])]
 }
 
 object ScUndefinedSubstitutor {
-  def apply(upperMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-            lowerMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-            upperAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-            lowerAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty)
-           (implicit typeSystem: TypeSystem): ScUndefinedSubstitutor =
+  def apply(upperMap: Map[(String, Long), Set[ScType]] = Map.empty,
+            lowerMap: Map[(String, Long), Set[ScType]] = Map.empty,
+            upperAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty,
+            lowerAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty)
+           (implicit typeSystem: TypeSystem): ScUndefinedSubstitutor = {
+
     new ScUndefinedSubstitutorImpl(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)(typeSystem)
+  }
+
+  def apply()(implicit typeSystem: TypeSystem): ScUndefinedSubstitutor = {
+    if (typeSystem eq ScalaTypeSystem) emptyScala
+    else if (typeSystem eq DottyTypeSystem) emptyDotty
+    else new ScUndefinedSubstitutorImpl()
+  }
 
   def multi(subs: Seq[ScUndefinedSubstitutor]) = new ScMultiUndefinedSubstitutor(subs)
+
+  private val emptyScala = new ScUndefinedSubstitutorImpl()(ScalaTypeSystem)
+  private val emptyDotty = new ScUndefinedSubstitutorImpl()(DottyTypeSystem)
 }
 
-class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-                             private val lowerMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-                             private val upperAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty,
-                             private val lowerAdditionalMap: Map[(String, Long), HashSet[ScType]] = HashMap.empty)
-                            (implicit val typeSystem: TypeSystem) extends ScUndefinedSubstitutor {
+private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[ScType]] = Map.empty,
+                                         val lowerMap: Map[(String, Long), Set[ScType]] = Map.empty,
+                                         val upperAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty,
+                                         val lowerAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty)
+                                        (implicit typeSystem: TypeSystem)
+  extends ScUndefinedSubstitutor {
 
-  def copy(upperMap: Map[(String, Long), HashSet[ScType]] = upperMap,
-           lowerMap: Map[(String, Long), HashSet[ScType]] = lowerMap,
-           upperAdditionalMap: Map[(String, Long), HashSet[ScType]] = upperAdditionalMap,
-           lowerAdditionalMap: Map[(String, Long), HashSet[ScType]] = lowerAdditionalMap): ScUndefinedSubstitutor = {
-    new ScUndefinedSubstitutorImpl(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)
+  def copy(upperMap: Map[(String, Long), Set[ScType]] = upperMap,
+           lowerMap: Map[(String, Long), Set[ScType]] = lowerMap,
+           upperAdditionalMap: Map[(String, Long), Set[ScType]] = upperAdditionalMap,
+           lowerAdditionalMap: Map[(String, Long), Set[ScType]] = lowerAdditionalMap): ScUndefinedSubstitutor = {
+    ScUndefinedSubstitutor(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)
   }
 
   def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty && upperAdditionalMap.isEmpty && lowerAdditionalMap.isEmpty
@@ -553,7 +567,7 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
         if (absLower.equiv(Nothing)) return this
         absLower //upper will be added separately
       case _ =>
-        _lower.recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+        _lower.recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
           case (ScAbstractType(_, absLower, upper), i, data) =>
             i match {
               case -1 => (true, absLower, data)
@@ -572,12 +586,12 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
     }).unpackedType
     val lMap = if (additional) lowerAdditionalMap else lowerMap
     lMap.get(name) match {
-      case Some(set: HashSet[ScType]) =>
+      case Some(set: Set[ScType]) =>
         if (additional) copy(lowerAdditionalMap = lMap.updated(name, set + lower))
         else copy(lowerMap = lMap.updated(name, set + lower))
       case None =>
-        if (additional) copy(lowerAdditionalMap = lMap + ((name, HashSet(lower))))
-        else copy(lowerMap = lMap + ((name, HashSet(lower))))
+        if (additional) copy(lowerAdditionalMap = lMap + ((name, Set(lower))))
+        else copy(lowerMap = lMap + ((name, Set(lower))))
     }
   }
 
@@ -590,7 +604,7 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
           absUpper // lower will be added separately
         case ScAbstractType(_, _, absUpper) if variance == 1 && absUpper.equiv(Any) => return this
         case _ =>
-          _upper.recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+          _upper.recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
               case (ScAbstractType(_, lower, absUpper), i, data) =>
                 i match {
                   case -1 => (true, lower, data)
@@ -609,49 +623,31 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
       }).unpackedType
     val uMap = if (additional) upperAdditionalMap else upperMap
     uMap.get(name) match {
-      case Some(set: HashSet[ScType]) =>
+      case Some(set: Set[ScType]) =>
         if (additional) copy(upperAdditionalMap = uMap.updated(name, set + upper))
         else copy(upperMap = uMap.updated(name, set + upper))
       case None =>
-        if (additional) copy(upperAdditionalMap = uMap + ((name, HashSet(upper))))
-        else copy(upperMap = uMap + ((name, HashSet(upper))))
+        if (additional) copy(upperAdditionalMap = uMap + ((name, Set(upper))))
+        else copy(upperMap = uMap + ((name, Set(upper))))
     }
   }
 
-  private var additionalNamesInner: Set[Name] = _
-
-  def additionalNames: Set[Name] = {
-    if (additionalNamesInner != null) additionalNamesInner
-    else {
-      //We need to exclude Nothing names from this set, see SCL-5736
-      val res = lowerAdditionalMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ upperAdditionalMap.keySet
-      additionalNamesInner = res
-      res
-    }
+  lazy val additionalNames: Set[Name] = {
+    //We need to exclude Nothing names from this set, see SCL-5736
+    lowerAdditionalMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ upperAdditionalMap.keySet
   }
 
-  private var namesInner: Set[Name] = _
-
-  def names: Set[Name] = {
-    if (namesInner != null) namesInner
-    else {
-      //We need to exclude Nothing names from this set, see SCL-5736
-      val res = upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
-      namesInner = res
-      res
-    }
+  lazy val names: Set[Name] = {
+    //We need to exclude Nothing names from this set, see SCL-5736
+    upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
   }
 
-  import scala.collection.immutable.{HashMap => IHashMap}
-  import scala.collection.mutable.{HashMap => MHashMap}
-  val lMap = new MHashMap[Name, ScType]
-  val rMap = new MHashMap[Name, ScType]
+  def getSubstitutorWithBounds(notNonable: Boolean): Option[(ScSubstitutor, Map[Name, ScType], Map[Name, ScType])] = {
+    var tvMap = Map.empty[Name, ScType]
+    var lMap = Map.empty[Name, ScType]
+    var uMap = Map.empty[Name, ScType]
 
-  def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] = {
-    import scala.collection.immutable.HashSet
-    val tvMap = new MHashMap[Name, ScType]
-
-    def solve(name: Name, visited: HashSet[Name]): Option[ScType] = {
+    def solve(name: Name, visited: Set[Name]): Option[ScType] = {
       if (visited.contains(name)) {
         tvMap += ((name, Nothing))
         return None
@@ -703,7 +699,7 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
                 }
               }
               if (set.nonEmpty) {
-                val subst = if (res) new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None) else ScSubstitutor.empty
+                val subst = if (res) new ScSubstitutor(tvMap, Map.empty, None) else ScSubstitutor.empty
                 var lower: ScType = Nothing
                 val setIterator = set.iterator
                 while (setIterator.hasNext) {
@@ -758,20 +754,20 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
                 }
               }
               if (set.nonEmpty) {
-                var rType: ScType = Nothing
-                val subst = if (res) new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None) else ScSubstitutor.empty
+                var uType: ScType = Nothing
+                val subst = if (res) new ScSubstitutor(tvMap, Map.empty, None) else ScSubstitutor.empty
                 val size: Int = set.size
                 if (size == 1) {
-                  rType = subst.subst(set.iterator.next())
-                  rMap += ((name, rType))
+                  uType = subst.subst(set.iterator.next())
+                  uMap += ((name, uType))
                 } else if (size > 1) {
                   var upper: ScType = Any
                   val setIterator = set.iterator
                   while (setIterator.hasNext) {
                     upper = upper.glb(subst.subst(setIterator.next()), checkWeak = false)
                   }
-                  rType = upper
-                  rMap += ((name, rType))
+                  uType = upper
+                  uMap += ((name, uType))
                 }
                 tvMap.get(name) match {
                   case Some(lower) =>
@@ -784,7 +780,7 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
                         }
                       }
                     }
-                  case None => tvMap += ((name, rType))
+                  case None => tvMap += ((name, uType))
                 }
               }
             case None =>
@@ -799,25 +795,23 @@ class ScUndefinedSubstitutorImpl(private val upperMap: Map[(String, Long), HashS
     val namesIterator = names.iterator
     while (namesIterator.hasNext) {
       val name = namesIterator.next()
-      solve(name, HashSet.empty) match {
+      solve(name, Set.empty) match {
         case Some(_) => // do nothing
         case None if !notNonable => return None
         case _ =>
       }
     }
-    val subst = new ScSubstitutor(IHashMap.empty ++ tvMap, Map.empty, None)
-    Some(subst)
+    val subst = new ScSubstitutor(tvMap, Map.empty, None)
+    Some((subst, lMap, uMap))
   }
 
-  def filter(fun: (((String, Long), HashSet[ScType])) => Boolean): ScUndefinedSubstitutor = {
-    new ScUndefinedSubstitutorImpl(
-      upperMap.filter(fun), lowerMap.filter(fun),
-      upperAdditionalMap.filter(fun), lowerAdditionalMap.filter(fun))
+  def filter(fun: (((String, Long), Set[ScType])) => Boolean): ScUndefinedSubstitutor = {
+    ScUndefinedSubstitutor(
+      upperMap.filter(fun),
+      lowerMap.filter(fun),
+      upperAdditionalMap.filter(fun),
+      lowerAdditionalMap.filter(fun))
   }
-
-  override def getLowerBound(nameAndId: (String, Long)): Option[ScType] = lMap.get(nameAndId)
-
-  override def getUpperBound(nameAndId: (String, Long)): Option[ScType] = rMap.get(nameAndId)
 }
 
 class ScMultiUndefinedSubstitutor(val subs: Seq[ScUndefinedSubstitutor]) extends ScUndefinedSubstitutor {
@@ -829,10 +823,10 @@ class ScMultiUndefinedSubstitutor(val subs: Seq[ScUndefinedSubstitutor]) extends
   override def addUpper(name: (String, Long), _upper: ScType, additional: Boolean, variance: Int): ScUndefinedSubstitutor =
     copy(subs.map(_.addUpper(name, _upper, additional, variance)))
 
-  override def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] =
-    subs.map(_.getSubstitutor(notNonable)).find(_.isDefined).getOrElse(None)
+  override def getSubstitutorWithBounds(notNonable: Boolean): Option[(ScSubstitutor, Map[Name, ScType], Map[Name, ScType])] =
+    subs.map(_.getSubstitutorWithBounds(notNonable)).find(_.isDefined).getOrElse(None)
 
-  override def filter(fun: (((String, Long), HashSet[ScType])) => Boolean): ScUndefinedSubstitutor =
+  override def filter(fun: (((String, Long), Set[ScType])) => Boolean): ScUndefinedSubstitutor =
     copy(subs.map(_.filter(fun)))
 
   override def addSubst(added: ScUndefinedSubstitutor): ScUndefinedSubstitutor = copy(subs.map(_.addSubst(added)))
@@ -841,8 +835,4 @@ class ScMultiUndefinedSubstitutor(val subs: Seq[ScUndefinedSubstitutor]) extends
 
   override def names: Set[(String, Long)] = if (subs.isEmpty) Set.empty else subs.tail.map(_.names).
     foldLeft(subs.head.names){case (a, b) => a.intersect(b)}
-
-  override def getLowerBound(nameAndId: (String, Long)): Option[ScType] = subs.headOption.flatMap(_.getLowerBound(nameAndId))
-
-  override def getUpperBound(nameAndId: (String, Long)): Option[ScType] = subs.headOption.flatMap(_.getUpperBound(nameAndId))
 }

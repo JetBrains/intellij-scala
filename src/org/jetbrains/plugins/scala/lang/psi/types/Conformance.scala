@@ -1204,8 +1204,8 @@ object Conformance extends api.Conformance {
               undefinedSubst = t._2
             }
             if (result == null) {
-              val filterFunction: (((String, Long), HashSet[ScType])) => Boolean = {
-                case (id: (String, Long), _: HashSet[ScType]) =>
+              val filterFunction: (((String, Long), Set[ScType])) => Boolean = {
+                case (id: (String, Long), _: Set[ScType]) =>
                   !tptsMap.values.exists(_.nameAndId == id)
               }
               val newUndefSubst = unSubst.filter(filterFunction)
