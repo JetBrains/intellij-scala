@@ -238,8 +238,8 @@ case class ScExistentialType(quantified: ScType,
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              new Suspension(updateRecursive(lowerType.v, newSet, variance)),
-              new Suspension(updateRecursive(upperType.v, newSet, -variance)),
+              Suspension(updateRecursive(lowerType.v, newSet, variance)),
+              Suspension(updateRecursive(upperType.v, newSet, -variance)),
               psiTypeParameter)
         }
 
@@ -334,8 +334,8 @@ case class ScExistentialType(quantified: ScType,
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // todo: is it important here to update?
-                new Suspension(updateRecursive(lowerType.v, rejected, variance)),
-                new Suspension(updateRecursive(upperType.v, rejected, variance)),
+                Suspension(updateRecursive(lowerType.v, rejected, variance)),
+                Suspension(updateRecursive(upperType.v, rejected, variance)),
                 psiTypeParameter)
           })
       case _ => tp

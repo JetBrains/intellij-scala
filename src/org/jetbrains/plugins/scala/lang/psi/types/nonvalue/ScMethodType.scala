@@ -225,8 +225,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     typeParameters.map {
       case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
         TypeParameter(parameters, // todo: ?
-          new Suspension(lowerType.v.removeAbstracts),
-          new Suspension(upperType.v.removeAbstracts),
+          Suspension(lowerType.v.removeAbstracts),
+          Suspension(upperType.v.removeAbstracts),
           psiTypeParameter)
     })
 
@@ -248,8 +248,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // TODO: ?
-                new Suspension(innerUpdate(lowerType.v)),
-                new Suspension(innerUpdate(upperType.v)),
+                Suspension(innerUpdate(lowerType.v)),
+                Suspension(innerUpdate(upperType.v)),
                 psiTypeParameter)
           })
     }
@@ -267,8 +267,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           typeParameters.map {
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(parameters, // TODO: ?
-                new Suspension(innerUpdate(lowerType.v, -variance)),
-                new Suspension(innerUpdate(upperType.v, variance)),
+                Suspension(innerUpdate(lowerType.v, -variance)),
+                Suspension(innerUpdate(upperType.v, variance)),
                 psiTypeParameter)
           })
     }

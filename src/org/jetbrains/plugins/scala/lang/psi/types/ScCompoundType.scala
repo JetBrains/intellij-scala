@@ -57,8 +57,8 @@ case class ScCompoundType(components: Seq[ScType],
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              new Suspension(lowerType.v.removeAbstracts),
-              new Suspension(upperType.v.removeAbstracts),
+              Suspension(lowerType.v.removeAbstracts),
+              Suspension(upperType.v.removeAbstracts),
               psiTypeParameter)
         }
 
@@ -92,8 +92,8 @@ case class ScCompoundType(components: Seq[ScType],
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              new Suspension(lowerType.v.recursiveUpdate(update, visited + this)),
-              new Suspension(upperType.v.recursiveUpdate(update, visited + this)),
+              Suspension(lowerType.v.recursiveUpdate(update, visited + this)),
+              Suspension(upperType.v.recursiveUpdate(update, visited + this)),
               psiTypeParameter)
         }
         new ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), signatureMap.map {
@@ -126,8 +126,8 @@ case class ScCompoundType(components: Seq[ScType],
         def updateTypeParam: TypeParameter => TypeParameter = {
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(typeParameters.map(updateTypeParam),
-              new Suspension(lowerType.v.recursiveVarianceUpdateModifiable(newData, update, 1)),
-              new Suspension(upperType.v.recursiveVarianceUpdateModifiable(newData, update, 1)),
+              Suspension(lowerType.v.recursiveVarianceUpdateModifiable(newData, update, 1)),
+              Suspension(upperType.v.recursiveVarianceUpdateModifiable(newData, update, 1)),
               psiTypeParameter)
         }
         new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), signatureMap.map {

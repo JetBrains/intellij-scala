@@ -11,10 +11,24 @@ import scala.collection.Seq
 /**
   * @author ven
   */
-class Suspension(fun: () => ScType) {
-  def this(`type`: ScType) = this({ () => `type` })
+sealed trait Suspension {
+  def v: ScType
+}
 
-  lazy val v = fun()
+object Suspension {
+  private class Lazy(private var fun: () => ScType) extends Suspension {
+    def this(`type`: ScType) = this({ () => `type` })
+
+    lazy val v: ScType = {
+      val res = fun()
+      fun = null
+      res
+    }
+  }
+  private class Strict(val v: ScType) extends Suspension
+
+  def apply(fun: () => ScType): Suspension = new Lazy(fun)
+  def apply(v: ScType): Suspension = new Strict(v)
 }
 
 /**
@@ -34,14 +48,14 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
 
   def update(function: ScType => ScType): TypeParameter = TypeParameter(
     typeParameters.map(_.update(function)),
-    new Suspension(function(lowerType.v)),
-    new Suspension(function(upperType.v)),
+    Suspension(function(lowerType.v)),
+    Suspension(function(upperType.v)),
     psiTypeParameter)
 
   def updateWithVariance(function: (ScType, Int) => ScType, variance: Int): TypeParameter = TypeParameter(
     typeParameters.map(_.updateWithVariance(function, variance)),
-    new Suspension(function(lowerType.v, variance)),
-    new Suspension(function(upperType.v, -variance)),
+    Suspension(function(lowerType.v, variance)),
+    Suspension(function(upperType.v, -variance)),
     psiTypeParameter)
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[TypeParameter]
@@ -73,8 +87,8 @@ object TypeParameter {
     }
     TypeParameter(
       typeParameters.map(TypeParameter(_)),
-      new Suspension(lazyLower),
-      new Suspension(lazyUpper),
+      Suspension(lazyLower),
+      Suspension(lazyUpper),
       typeParameter)
   }
 }
@@ -132,7 +146,7 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
 
 object TypeParameterType {
   def apply(typeParameter: PsiTypeParameter, maybeSubstitutor: Option[ScSubstitutor] = Some(ScSubstitutor.empty)): TypeParameterType = {
-    def lift(function: () => ScType) = new Suspension(maybeSubstitutor match {
+    def lift(function: () => ScType) = Suspension(maybeSubstitutor match {
       case Some(substitutor) => () => substitutor.subst(function())
       case _ => function
     })

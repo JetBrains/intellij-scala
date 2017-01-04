@@ -1164,7 +1164,7 @@ object Conformance extends api.Conformance {
             e.wildcards.find(_.name == name) match {
               case Some(ScExistentialArgument(thatName, args, lower, upper)) if !rejected.contains(thatName) =>
                 val tpt = tptsMap.getOrElseUpdate(thatName,
-                  TypeParameterType(args, new Suspension(lower), new Suspension(upper),
+                  TypeParameterType(args, Suspension(lower), Suspension(upper),
                     createTypeParameterFromText(name)(PsiManager.getInstance(DecompilerUtil.obtainProject))) //todo: remove obtainProject?
                 )
                 (true, tpt)

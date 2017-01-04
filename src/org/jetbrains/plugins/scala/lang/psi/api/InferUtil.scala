@@ -414,8 +414,8 @@ object InferUtil {
                 if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
                   throw new SafeCheckException
                 TypeParameter(typeParameters, /* doesn't important here */
-                  new Suspension(lower),
-                  new Suspension(upper),
+                  Suspension(lower),
+                  Suspension(upper),
                   psiTypeParameter)
             })
           } else {
@@ -504,8 +504,8 @@ object InferUtil {
               }.map {
                 case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
                   TypeParameter(typeParameters, /* doesn't important here */
-                    new Suspension(sub.subst(lowerType.v)),
-                    new Suspension(sub.subst(upperType.v)),
+                    Suspension(sub.subst(lowerType.v)),
+                    Suspension(sub.subst(upperType.v)),
                     psiTypeParameter)
               })
             }

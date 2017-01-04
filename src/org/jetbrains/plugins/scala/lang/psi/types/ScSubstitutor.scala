@@ -85,7 +85,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
   }
 
   def bindA(name: String, f: () => ScType): ScSubstitutor = {
-    ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension(f))), updateThisType, follower, depMethodTypes)
+    ScSubstitutor(tvMap, aliasesMap + ((name, Suspension(f))), updateThisType, follower, depMethodTypes)
   }
 
   def putAliases(template: ScTemplateDefinition): ScSubstitutor = {
@@ -164,8 +164,8 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
             case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
               TypeParameter(
                 parameters, // todo: is it important here to update?
-                new Suspension(substInternal(lowerType.v)),
-                new Suspension(substInternal(upperType.v)),
+                Suspension(substInternal(lowerType.v)),
+                Suspension(substInternal(upperType.v)),
                 psiTypeParameter)
           })(t.typeSystem)
       }
@@ -413,8 +413,8 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
           case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
               typeParameters.map(substTypeParam),
-              new Suspension(substInternal(lowerType.v)),
-              new Suspension(substInternal(upperType.v)),
+              Suspension(substInternal(lowerType.v)),
+              Suspension(substInternal(upperType.v)),
               psiTypeParameter)
         }
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {

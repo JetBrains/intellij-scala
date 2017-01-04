@@ -484,8 +484,8 @@ object ScalaPsiUtil {
           case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
             TypeParameter(
               clearBadLinks(parameters),
-              new Suspension(hasBadLinks(lowerType.v, psiTypeParameter).getOrElse(Nothing)),
-              new Suspension(hasBadLinks(upperType.v, psiTypeParameter).getOrElse(Any)),
+              Suspension(hasBadLinks(lowerType.v, psiTypeParameter).getOrElse(Nothing)),
+              Suspension(hasBadLinks(upperType.v, psiTypeParameter).getOrElse(Any)),
               psiTypeParameter)
         }
 
