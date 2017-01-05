@@ -11,6 +11,7 @@ package typedef
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -28,6 +29,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.collection.generic.FilterMonadic
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -66,31 +68,22 @@ abstract class MixinNodes {
       supersList = list
     }
 
-    private val calculatedNames: mutable.HashSet[String] = new mutable.HashSet
-    private val calculated: mutable.HashMap[String, AllNodes] = new mutable.HashMap
-    private val calculatedSupers: mutable.HashMap[String, AllNodes] = new mutable.HashMap
+    private val thisAndSupersMap = ContainerUtil.newConcurrentMap[String, (AllNodes, AllNodes)]()
 
     def forName(name: String): (AllNodes, AllNodes) = {
       val convertedName = ScalaNamesUtil.clean(name)
-      synchronized {
-        if (calculatedNames.contains(convertedName)) {
-          return (calculated(convertedName), calculatedSupers(convertedName))
-        }
+      def calculate: (AllNodes, AllNodes) = {
+        val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
+        val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
+        val supers = mergeWithSupers(thisMap, mergeSupers(maps))
+        val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]))
+        val supersPrivates = toNodesSeq(list)
+        val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]).toList ::: list)
+        val thisAllNodes = new AllNodes(thisMap, thisPrivates)
+        val supersAllNodes = new AllNodes(supers, supersPrivates)
+        (thisAllNodes, supersAllNodes)
       }
-      val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
-      val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
-      val supers = mergeWithSupers(thisMap, mergeSupers(maps))
-      val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]))
-      val supersPrivates = toNodesSeq(list)
-      val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]).toList ::: list)
-      val thisAllNodes = new AllNodes(thisMap, thisPrivates)
-      val supersAllNodes = new AllNodes(supers, supersPrivates)
-      synchronized {
-        calculatedNames.add(convertedName)
-        calculated.+=((convertedName, thisAllNodes))
-        calculatedSupers.+=((convertedName, supersAllNodes))
-      }
-      (thisAllNodes, supersAllNodes)
+      thisAndSupersMap.atomicGetOrElseUpdate(convertedName, calculate)
     }
 
     @volatile
@@ -108,7 +101,7 @@ abstract class MixinNodes {
       forImplicitsCache
     }
 
-    def allNames(): mutable.Set[String] = {
+    def allNames(): Set[String] = {
       val names = new mutable.HashSet[String]
       names ++= keySet
       names ++= privatesMap.keySet
@@ -116,22 +109,19 @@ abstract class MixinNodes {
         names ++= sup.keySet
         names ++= sup.privatesMap.keySet
       }
-      names
+      names.toSet
     }
 
-    private def forAll(): (mutable.HashMap[String, AllNodes], mutable.HashMap[String, AllNodes]) = {
-      for (name <- allNames()) forName(name)
-      synchronized {
-        (calculated, calculatedSupers)
-      }
-    }
+    private def computeForAllNames(): Unit = allNames().foreach(forName)
 
     def allFirstSeq(): Seq[AllNodes] = {
-      forAll()._1.toSeq.map(_._2)
+      computeForAllNames()
+      thisAndSupersMap.values().asScala.map(_._1).toSeq
     }
 
     def allSecondSeq(): Seq[AllNodes] = {
-      forAll()._1.toSeq.map(_._2)
+      computeForAllNames()
+      thisAndSupersMap.values().asScala.map(_._2).toSeq
     }
 
     private def toNodesSeq(seq: List[(T, Node)]): NodesSeq = {
