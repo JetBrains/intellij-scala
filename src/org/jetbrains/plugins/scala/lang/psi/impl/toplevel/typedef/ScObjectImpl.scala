@@ -144,7 +144,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.setSynthetic(this)
-            method.syntheticCaseClass = Some(c)
+            method.setSyntheticCaseClass(c)
             res += method
           }
           catch {

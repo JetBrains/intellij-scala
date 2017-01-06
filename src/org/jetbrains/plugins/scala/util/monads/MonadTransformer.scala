@@ -28,7 +28,7 @@ trait MonadTransformer { self : PsiElement =>
     }
   }
 
-  implicit val DEFAULT_ERROR_MESSAGE = "No element found"
+  implicit def DEFAULT_ERROR_MESSAGE = "No element found"
 
   def wrap[T](opt: Option[T])(implicit msg: String): MonadLike[T] = new MonadLike[T](opt)(msg)
 

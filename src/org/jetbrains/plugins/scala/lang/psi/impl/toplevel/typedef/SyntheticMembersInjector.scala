@@ -103,7 +103,7 @@ object SyntheticMembersInjector {
       }
       val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
       function.setSynthetic(context)
-      function.syntheticContainingClass = Some(source)
+      function.setSyntheticContainingClass(source)
       if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
     } catch {
       case e: Throwable =>
@@ -123,7 +123,7 @@ object SyntheticMembersInjector {
         case _ => source
       }).extendsBlock
       val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
-      td.syntheticContainingClass = Some(source)
+      td.setSyntheticContainingClass(source)
       def updateSynthetic(element: ScMember): Unit = {
         element match {
           case td: ScTypeDefinition =>
@@ -184,9 +184,9 @@ object SyntheticMembersInjector {
       }
       val member = ScalaPsiElementFactory.createDefinitionWithContext(template, context, source)
       member.setSynthetic(context)
-      member.syntheticContainingClass = Some(source)
+      member.setSyntheticContainingClass(source)
       context match {
-        case c: ScClass if c.isCase && source != context => member.syntheticCaseClass = Some(c)
+        case c: ScClass if c.isCase && source != context => member.setSyntheticCaseClass(c)
         case _ =>
       }
       if (!member.hasModifierProperty("override")) buffer += member

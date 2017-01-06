@@ -5,6 +5,7 @@ package api
 package toplevel
 package typedef
 
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.search.{LocalSearchScope, PackageScope, SearchScope}
@@ -16,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 
@@ -36,12 +38,14 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   def isInstance: Boolean = !isLocal
 
-  protected var synthNavElement: Option[PsiElement] = None
-  var syntheticCaseClass: Option[ScClass] = None
-  var syntheticContainingClass: Option[ScTypeDefinition] = None
-  def setSynthetic(navElement: PsiElement) {
-    synthNavElement = Some(navElement)
-  }
+  protected def synthNavElement: Option[PsiElement] = Option(getUserData(synthNavElemKey))
+  def syntheticCaseClass: Option[ScClass] = Option(getUserData(synthCaseClassKey))
+  def syntheticContainingClass: Option[ScTypeDefinition] = Option(getUserData(synthContainingClassKey))
+
+  def setSynthetic(navElement: PsiElement): Unit = putUserData(synthNavElemKey, navElement)
+  def setSyntheticCaseClass(cl: ScClass): Unit = putUserData(synthCaseClassKey, cl)
+  def setSyntheticContainingClass(td: ScTypeDefinition): Unit = putUserData(synthContainingClassKey, td)
+
   def isSynthetic: Boolean = synthNavElement.nonEmpty
   def getSyntheticNavigationElement: Option[PsiElement] = synthNavElement
 
@@ -230,4 +234,10 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
     ScalaPsiUtil.intersectScopes(super.getUseScope, fromModifierOrContext)
   }
+}
+
+object ScMember {
+  private val synthNavElemKey: Key[PsiElement] = Key.create("ScMember.synthNavElem")
+  private val synthCaseClassKey: Key[ScClass] = Key.create("ScMember.synthCaseClass")
+  private val synthContainingClassKey: Key[ScTypeDefinition] = Key.create("ScMember.synthContainingClass")
 }
