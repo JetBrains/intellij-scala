@@ -12,11 +12,12 @@ import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.getNextSiblingOfType
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tLOWER_BOUND, tUPPER_BOUND}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.TYPE_DECLARATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -34,8 +35,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 
 class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDeclaration {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTypeAliasStub) = {this(stub, ScalaElementTypes.TYPE_DECLARATION, null)}
+
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScTypeAliasStub) =
+    this(stub, TYPE_DECLARATION, null)
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
@@ -52,35 +57,34 @@ class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeTy
   override def toString: String = "ScTypeAliasDeclaration: " + name
 
   def lowerBound: TypeResult[ScType] = lowerTypeElement match {
-      case Some(te) => te.getType(TypingContext.empty)
+      case Some(te) => te.getType()
       case None => Success(Nothing, Some(this))
   }
 
   def upperBound: TypeResult[ScType] = upperTypeElement match {
-      case Some(te) => te.getType(TypingContext.empty)
+      case Some(te) => te.getType()
       case None => Success(Any, Some(this))
   }
 
-  override def upperTypeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeAliasStub].upperBoundTypeElement
+  override def upperTypeElement: Option[ScTypeElement] =
+    getStub match {
+      case stub: ScTypeAliasStub => stub.upperBoundTypeElement
+      case _ => boundElement(tUPPER_BOUND)
     }
-    Option(findLastChildByType[PsiElement](tUPPER_BOUND)).map {
-      PsiTreeUtil.getNextSiblingOfType(_, classOf[ScTypeElement])
-    }
-  }
 
-  override def lowerTypeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeAliasStub].lowerBoundTypeElement
+  override def lowerTypeElement: Option[ScTypeElement] =
+    getStub match {
+      case stub: ScTypeAliasStub => stub.lowerBoundTypeElement
+      case _ => boundElement(tLOWER_BOUND)
     }
-    Option(findLastChildByType[PsiElement](tLOWER_BOUND)).map {
-      PsiTreeUtil.getNextSiblingOfType(_, classOf[ScTypeElement])
-    }
-  }
 
+  private def boundElement(elementType: IElementType) = {
+    val result = findLastChildByType[PsiElement](elementType) match {
+      case null => null
+      case element => getNextSiblingOfType(element, classOf[ScTypeElement])
+    }
+    Option(result)
+  }
 
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
