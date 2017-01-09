@@ -154,14 +154,14 @@ object ScalaPsiElement {
     def cachedFunction1Type: Option[ScParameterizedType] =
       manager.cachedFunction1Type(this)
 
-    def function1Type: Option[ScParameterizedType] =
+    def function1Type(level: Int = 1): Option[ScParameterizedType] =
       getCachedClass("scala.Function1").collect {
         case t: ScTrait => t
       }.map { t =>
         val parameters = t.typeParameters.map {
           TypeParameterType(_)
         }.map {
-          UndefinedType(_, 1)(project.typeSystem)
+          UndefinedType(_, level = level)(project.typeSystem)
         }
 
         ScParameterizedType(ScalaType.designator(t), parameters)

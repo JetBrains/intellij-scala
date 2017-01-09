@@ -210,7 +210,7 @@ class ScalaPsiManager(val project: Project) {
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def cachedFunction1Type(elementScope: ElementScope): Option[ScParameterizedType] =
-    elementScope.function1Type
+    elementScope.function1Type()
 
   def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): Set[String] = {
     if (DumbService.getInstance(project).isDumb) return Set.empty

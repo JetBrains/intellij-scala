@@ -22,19 +22,15 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boolean)
                                (implicit override val typeSystem: TypeSystem)
   extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
-  //can be null (in Unit tests or without library)
-  private val funType: ScType = {
-    val funClass: PsiClass = ScalaPsiManager.instance(getPlace.getProject).getCachedClass(getPlace.getResolveScope, "scala.Function1").orNull
-    funClass match {
-      case cl: ScTrait => ScParameterizedType(ScalaType.designator(funClass), cl.typeParameters.map(tp =>
-        UndefinedType(TypeParameterType(tp))))
-      case _ => null
-    }
-  }
 
   protected def getPlace: PsiElement = expression
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
+    val functionType = expression.elementScope.function1Type(level = 0).getOrElse {
+      //can be null (in Unit tests or without library)
+      return true
+    }
+
     lazy val subst: ScSubstitutor = state.get(BaseProcessor.FROM_TYPE_KEY) match {
       case null => getSubst(state)
       case tp => getSubst(state).followUpdateThisType(tp)
@@ -74,7 +70,7 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
           }
           if (clauses.isEmpty) {
             val rt = subst.subst(f.returnType.getOrElse(return true))
-            if (funType == null || !rt.conforms(funType)) return true
+            if (!rt.conforms(functionType)) return true
           } else if (clauses.head.parameters.length != 1 || clauses.head.isImplicit) return true
           addResult(new ScalaResolveResult(f, subst, getImports(state)))
         case b: ScBindingPattern =>
@@ -83,7 +79,7 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
               d.asInstanceOf[ScModifierListOwner].hasModifierProperty("implicit") =>
               if (!ResolveUtils.isAccessible(d.asInstanceOf[ScMember], getPlace)) return true
               val tp = subst.subst(b.getType(TypingContext.empty).getOrElse(return true))
-              if (funType == null || !tp.conforms(funType)) return true
+              if (!tp.conforms(functionType)) return true
               addResult(new ScalaResolveResult(b, subst, getImports(state)))
             case _ => return true
           }
@@ -94,12 +90,12 @@ class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boo
             case _ =>
           }
           val tp = subst.subst(param.getType(TypingContext.empty).getOrElse(return true))
-          if (funType == null || !tp.conforms(funType)) return true
+          if (!tp.conforms(functionType)) return true
           addResult(new ScalaResolveResult(param, subst, getImports(state)))
         case obj: ScObject if obj.hasModifierProperty("implicit") =>
           if (!ResolveUtils.isAccessible(obj, getPlace)) return true
           val tp = subst.subst(obj.getType(TypingContext.empty).getOrElse(return true))
-          if (funType == null || !tp.conforms(funType)) return true
+          if (!tp.conforms(functionType)) return true
           addResult(new ScalaResolveResult(obj, subst, getImports(state)))
         case _ =>
       }
