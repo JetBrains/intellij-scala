@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -82,11 +83,23 @@ package object transformation {
   }
 
   def targetFor(result: ScalaResolveResult): String = {
-    result.substitutor.updateThisType.collect {
+    updateThisTypeDeep(result.substitutor).collect {
       case t: ScThisType => t.element.qualifiedName + "." + result.element.name
       case t: ScDesignatorType => qualifiedNameOf(t.element) + "." + result.element.name
     } getOrElse {
       qualifiedNameOf(result.element)
+    }
+  }
+
+  @scala.annotation.tailrec
+  private def updateThisTypeDeep(subst: ScSubstitutor): Option[ScType] = {
+    subst.updateThisType match {
+      case s if s.isDefined => s
+      case _ =>
+        val follower = subst.follower
+
+        if (follower.nonEmpty) updateThisTypeDeep(follower.get)
+        else None
     }
   }
 
