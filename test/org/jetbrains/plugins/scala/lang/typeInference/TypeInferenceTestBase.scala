@@ -7,9 +7,12 @@ import java.io.File
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.CharsetToolkit
+import com.intellij.openapi.vfs.{CharsetToolkit, VfsUtil}
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.testFramework.LightPlatformTestCase
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -46,6 +49,19 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     }
     configureFromFileTextAdapter(fileName, StringUtil.convertLineSeparators(text.trim))
     getFileAdapter.asInstanceOf[ScalaFile]
+  }
+
+  protected def addFileToProject(fileName: String, text: String): PsiFile = {
+    inWriteAction {
+      val vFile = LightPlatformTestCase.getSourceRoot.createChildData(null, fileName)
+      VfsUtil.saveText(vFile, text)
+      val psiFile = LightPlatformTestCase.getPsiManager.findFile(vFile)
+      assertNotNull("Can't create PsiFile for '" + fileName + "'. Unknown file type most probably.", vFile)
+      assertTrue(psiFile.isPhysical)
+      vFile.setCharset(CharsetToolkit.UTF8_CHARSET)
+      PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
+      psiFile
+    }
   }
 
   protected def doTest(): Unit = doTest(None, getTestName(false) + ".scala")

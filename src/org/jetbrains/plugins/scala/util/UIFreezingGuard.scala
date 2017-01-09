@@ -41,32 +41,48 @@ class UIFreezingGuard extends ApplicationComponent {
 
 object UIFreezingGuard {
 
+  //used only from EDT
+  private var isGuarded: Boolean = false
+
   //used in macro!
   def withResponsibleUI[T](body: => T): T = {
     if (!isAlreadyGuarded) {
       val start = System.currentTimeMillis()
       try {
+        isGuarded = true
         val progressManager = ProgressManager.getInstance()
         if (!ApplicationManager.getApplication.isWriteAccessAllowed && !progressManager.hasProgressIndicator) {
 
           if (hasPendingUserInput)
-            throw pceInstance
+            throw UnfreezeException
 
           progressManager.runProcess(body, progress)
         }
         else
           body
       } finally {
+        isGuarded = false
         dumpThreads(System.currentTimeMillis() - start)
       }
     }
     else body
   }
 
+  //body should have withResponsibleUI call inside
+  def withDefaultValue[T](default: T)(body: T): T = {
+    if (ApplicationManager.getApplication.isDispatchThread && hasPendingUserInput) default
+    else {
+      try body
+      catch {
+        case UnfreezeException => default
+      }
+    }
+  }
+
   //used in macro to reduce number of `withResponsibleUI` calls in the stacktrace
   def isAlreadyGuarded: Boolean = {
     val edt = ApplicationManager.getApplication.isDispatchThread
-    edt && progress.isRunning || !edt
+    edt && isGuarded || !edt
   }
 
   private def dumpThreads(ms: Long): Unit = {
@@ -81,10 +97,6 @@ object UIFreezingGuard {
     val userEventIds = Seq(Event.KEY_ACTION, Event.KEY_PRESS, MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_WHEEL)
 
     userEventIds.exists(queue.peekEvent(_) != null)
-  }
-
-  private val pceInstance = new ProcessCanceledException() with NoStackTrace {
-    override def getMessage: String = "Long scala calculation on UI thread canceled"
   }
 
   private object progress extends StandardProgressIndicator {
@@ -106,7 +118,7 @@ object UIFreezingGuard {
     //to avoid long stacktraces in log and keep write actions
     def checkCanceled(): Unit = {
       if (isCanceled && !ApplicationManager.getApplication.isWriteAccessAllowed)
-        throw pceInstance
+        throw UnfreezeException
     }
 
     //EmptyProgressIndicator is good enough, but it has final `checkCanceled()` method
@@ -133,4 +145,7 @@ object UIFreezingGuard {
     def isShowing: Boolean = delegate.isShowing
   }
 
+  object UnfreezeException extends ProcessCanceledException with NoStackTrace {
+    override def getMessage: String = "Long scala calculation on UI thread canceled"
+  }
 }

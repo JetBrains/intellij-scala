@@ -4,7 +4,6 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test._
 
 
@@ -16,8 +15,7 @@ import org.jetbrains.plugins.scala.testingSupport.test._
 class Specs2RunConfiguration(override val project: Project,
                              override val configurationFactory: ConfigurationFactory,
                              override val name: String)
-        extends AbstractTestRunConfiguration(project, configurationFactory, name)
-        with ScalaTestingConfiguration {
+        extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.specs2ConfigurationProducer) {
 
   override def getAdditionalTestParams(testName: String): Seq[String] = Seq("-Dspecs2.ex=\"\\A" + testName + "\\Z\"")
 
@@ -31,7 +29,7 @@ class Specs2RunConfiguration(override val project: Project,
 
   override def currentConfiguration: Specs2RunConfiguration = Specs2RunConfiguration.this
 
-  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz)
+  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz, getSuiteClass)
 }
 
 object Specs2RunConfiguration extends SuiteValidityChecker {

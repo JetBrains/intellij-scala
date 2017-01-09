@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test._
 
 /**
@@ -22,8 +21,7 @@ import org.jetbrains.plugins.scala.testingSupport.test._
 class ScalaTestRunConfiguration(override val project: Project,
                                 override val configurationFactory: ConfigurationFactory,
                                 override val name: String)
-    extends AbstractTestRunConfiguration(project, configurationFactory, name)
-    with ScalaTestingConfiguration {
+    extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
 
   override def suitePaths: List[String] = ScalaTestUtil.suitePaths
 
@@ -35,7 +33,7 @@ class ScalaTestRunConfiguration(override val project: Project,
 
   override def currentConfiguration: ScalaTestRunConfiguration = ScalaTestRunConfiguration.this
 
-  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz)
+  protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
 }
 
 object ScalaTestRunConfiguration extends SuiteValidityChecker {

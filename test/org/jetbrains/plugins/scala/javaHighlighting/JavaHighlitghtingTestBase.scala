@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   * @author Alefas
   * @since 23/03/16
   */
-abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase(scalaVersion = ScalaSdkVersion._2_11) with AssertMatches {
+abstract class JavaHighlitghtingTestBase(private val scalaVersion: ScalaSdkVersion = ScalaSdkVersion._2_11)
+  extends ScalaFixtureTestCase(scalaVersion = scalaVersion) with AssertMatches {
   private var filesCreated: Boolean = false
 
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {

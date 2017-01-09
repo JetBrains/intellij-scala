@@ -17,19 +17,19 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement, ScStableCodeReferenceElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelectors, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createReferenceFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings._
+import org.jetbrains.plugins.scala.util.UIFreezingGuard
 
 import scala.annotation.tailrec
 
@@ -53,7 +53,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var isInImport: Boolean = false
   var isInStableCodeReference: Boolean = false
   var usedImportStaticQuickfix: Boolean = false
-  var elementToImport: PsiNamedElement = null
+  var elementToImport: Option[PsiNamedElement] = None
   var objectOfElementToImport: Option[ScObject] = None
   var someSmartCompletion: Boolean = false
   var typeParametersProblem: Boolean = false
@@ -69,7 +69,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
 
   def isNamedParameterOrAssignment: Boolean = isNamedParameter || isAssignment
 
-  val containingClass = containingClass0.getOrElse(ScalaPsiUtil.nameContext(element) match {
+  val containingClass: PsiClass = containingClass0.getOrElse(ScalaPsiUtil.nameContext(element) match {
     case memb: PsiMember => memb.containingClass
     case _ => null
   })
@@ -84,115 +84,118 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   }
 
   override def renderElement(presentation: LookupElementPresentation) {
-    val tailText: String = element match {
-      case t: ScFun =>
-        if (t.typeParameters.nonEmpty) t.typeParameters.map(param => presentationString(param, substitutor)).
-          mkString("[", ", ", "]")
-        else ""
-      case t: ScTypeParametersOwner =>
-        t.typeParametersClause match {
-          case Some(tp) => presentationString(tp, substitutor)
-          case None => ""
-        }
-      case p: PsiTypeParameterListOwner if p.getTypeParameters.nonEmpty =>
-        p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
-      case p: PsiPackage => s"    (${p.getQualifiedName})"
-      case _ => ""
+    if (isNamedParameter) {
+      presentation.setTailText(s" = $typeText")
+    } else {
+      val greyed = element match {
+        case _: PsiPackage | _: PsiClass => true
+        case _ => false
+      }
+      presentation.setTailText(tailText, greyed)
+      presentation.setTypeText(typeText)
     }
-    element match {
-      //scala
-      case fun: ScFunction =>
-        val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType(TypingContext.empty).getOrAny
-        presentation.setTypeText(presentationString(scType, substitutor))
-        val tailText1 = if (isAssignment) {
-          " = " + presentationString(fun.paramClauses, substitutor)
-        } else {
-          tailText + (
-            if (!isOverloadedForClassName) presentationString(fun.paramClauses, substitutor)
-            else "(...)"
-            ) + (
-            if (shouldImport && isClassName && containingClass != null)
-              " " + containingClass.getPresentation.getLocationString
-            else if (isClassName && containingClass != null)
-              " in " + containingClass.name + " " + containingClass.getPresentation.getLocationString
-            else ""
-            )
-        }
-        if (!etaExpanded)
-          presentation.setTailText(tailText1)
-        else presentation.setTailText(" _")
-      case fun: ScFun =>
-        presentation.setTypeText(presentationString(fun.retType, substitutor))
-        val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).
-          mkString("(", ", ", ")")).mkString
-        presentation.setTailText(tailText + paramClausesText)
-      case bind: ScBindingPattern =>
-        presentation.setTypeText(presentationString(bind.getType(TypingContext.empty).getOrAny, substitutor))
-      case f: ScFieldId =>
-        presentation.setTypeText(presentationString(f.getType(TypingContext.empty).getOrAny, substitutor))
-      case param: ScParameter =>
-        val str: String =
-          presentationString(param.getRealParameterType(TypingContext.empty).getOrAny, substitutor)
-        if (isNamedParameter) {
-          presentation.setTailText(" = " + str)
-        } else {
-          presentation.setTypeText(str)
-        }
-      case clazz: PsiClass =>
-        val location: String = clazz.getPresentation.getLocationString
-        presentation.setTailText(tailText + " " + location, true)
-        if (name == "this" || name.endsWith(".this")) {
-          clazz match {
-            case t: ScTemplateDefinition =>
-              t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
-                case Success(tp, _) =>
-                  presentation.setTypeText(tp.presentableText)
-                case _ =>
-              }
-            case _ =>
-          }
-        }
-      case alias: ScTypeAliasDefinition =>
-        presentation.setTypeText(presentationString(alias.aliasedType.getOrAny, substitutor))
-      case method: PsiMethod =>
-        val str: String = presentationString(method.getReturnType, substitutor)
-        if (isNamedParameter) {
-          presentation.setTailText(" = " + str)
-        } else {
-          presentation.setTypeText(str)
-          val params =
-            if (!isOverloadedForClassName) presentationString(method.getParameterList, substitutor)
-            else "(...)"
-          val tailText1 = tailText + params + (
-            if (shouldImport && isClassName && containingClass != null)
-              " " + containingClass.getPresentation.getLocationString
-            else if (isClassName && containingClass != null)
-              " in " + containingClass.name + " " + containingClass.getPresentation.getLocationString
-            else ""
-            )
-          presentation.setTailText(tailText1)
-        }
-      case f: PsiField =>
-        presentation.setTypeText(presentationString(f.getType, substitutor))
-      case _: PsiPackage => presentation.setTailText(tailText, /*grayed*/ true)
-      case _ =>
-    }
-    if (presentation.isReal)
-      presentation.setIcon(element.getIcon(0))
+    if (presentation.isReal) presentation.setIcon(element.getIcon(0))
     else presentation.setIcon(IconUtil.getEmptyIcon(false))
+
     var itemText: String =
-      if (isRenamed.isEmpty) if (isClassName && shouldImport) {
-        if (containingClass != null) containingClass.name + "." + name
-        else name
-      } else name
-      else name + " <= " + element.name
+      if (isRenamed.nonEmpty)
+        s"$name <= ${element.name}"
+      else if (isClassName && shouldImport && containingClass != null)
+        s"${containingClass.name}.$name"
+      else name
+
     if (someSmartCompletion) itemText = "Some(" + itemText + ")"
+
     presentation.setItemText(itemText)
     presentation.setStrikeout(isDeprecated)
     presentation.setItemTextBold(bold)
     if (ScalaProjectSettings.getInstance(element.getProject).isShowImplisitConversions) {
       presentation.setItemTextUnderlined(isUnderlined)
     }
+  }
+
+  private lazy val typeText: String = {
+    UIFreezingGuard.withDefaultValue("") {
+      element match {
+        case fun: ScFunction =>
+          val scType = if (!etaExpanded) fun.returnType.getOrAny else fun.getType(TypingContext.empty).getOrAny
+          presentationString(scType, substitutor)
+        case fun: ScFun =>
+          presentationString(fun.retType, substitutor)
+        case alias: ScTypeAliasDefinition =>
+          presentationString(alias.aliasedType.getOrAny, substitutor)
+        case param: ScParameter =>
+          presentationString(param.getRealParameterType(TypingContext.empty).getOrAny, substitutor)
+        case t: ScTemplateDefinition if name == "this" || name.endsWith(".this") =>
+          t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
+            case Success(tp, _) =>
+              tp.presentableText
+            case _ => ""
+          }
+        case f: PsiField =>
+          presentationString(f.getType, substitutor)
+        case m: PsiMethod =>
+          presentationString(m.getReturnType, substitutor)
+        case t: Typeable =>
+          presentationString(t.getType(TypingContext.empty).getOrAny, substitutor)
+        case _ => ""
+      }
+    }
+  }
+
+  private lazy val tailText: String = {
+    UIFreezingGuard.withDefaultValue("") {
+      element match {
+        //scala
+        case fun: ScFunction =>
+          if (etaExpanded) " _"
+          else if (isAssignment) " = " + presentationString(fun.paramClauses, substitutor)
+          else textForMethod(fun)
+        case fun: ScFun =>
+          val paramClausesText = fun.paramClauses.map(_.map(presentationString(_, substitutor)).mkString("(", ", ", ")")).mkString
+          withTypeParamsText + paramClausesText
+        case clazz: PsiClass =>
+          val location: String = clazz.getPresentation.getLocationString
+          s"$withTypeParamsText $location"
+        case method: PsiMethod =>
+          textForMethod(method)
+        case p: PsiPackage =>
+          s"    (${p.getQualifiedName})"
+        case _ => ""
+      }
+    }
+  }
+
+  private def withTypeParamsText: String = element match {
+    case t: ScFun =>
+      if (t.typeParameters.nonEmpty) t.typeParameters.map(param => presentationString(param, substitutor)).
+        mkString("[", ", ", "]")
+      else ""
+    case t: ScTypeParametersOwner =>
+      t.typeParametersClause match {
+        case Some(tp) => presentationString(tp, substitutor)
+        case None => ""
+      }
+    case p: PsiTypeParameterListOwner if p.getTypeParameters.nonEmpty =>
+      p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
+    case _ => ""
+  }
+
+  private def textForMethod(m: PsiMethod): String = {
+    val params = m match {
+      case fun: ScFunction => fun.paramClauses
+      case _ => m.getParameterList
+    }
+    val paramsText =
+      if (!isOverloadedForClassName) presentationString(params, substitutor)
+      else "(...)"
+    val containingClassText: String = {
+      if (isClassName && containingClass != null) {
+        if (shouldImport) " " + containingClass.getPresentation.getLocationString
+        else " in " + containingClass.name + " " + containingClass.getPresentation.getLocationString
+      } else ""
+    }
+    withTypeParamsText + paramsText + containingClassText
   }
 
   private def simpleInsert(context: InsertionContext) {
@@ -311,18 +314,12 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                   case ref: ScReferenceExpression =>
                     if (!shouldImport) qualifyReference(ref)
                     else {
-                      if (elementToImport == null) {
-                        //import static
-                        ref.bindToElement(element, Some(containingClass))
-                      } else {
-                        ScalaPsiUtil.nameContext(elementToImport) match {
-                          case member: PsiMember =>
-                            val containingClass = member.containingClass
-                            if (containingClass != null && containingClass.qualifiedName != null) {
-                              ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null, objectOfElementToImport)
-                            }
-                          case _ =>
-                        }
+                      elementToImport match {
+                        case None => ref.bindToElement(element, Some(containingClass))
+                        case Some(named @ ScalaPsiUtil.inNameContext(ContainingClass(clazz))) =>
+                          if (clazz.qualifiedName != null) {
+                            ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(named, null, objectOfElementToImport)
+                          }
                       }
                     }
                   case _ =>
