@@ -16,6 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{CLASS_DEFINITION, PRIMARY_CONSTRUCTOR}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -39,6 +40,15 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+
+  def this(node: ASTNode) =
+    this(null, null, node)
+
+  def this(stub: ScTemplateDefinitionStub) =
+    this(stub, CLASS_DEFINITION, null)
+
+  override def toString: String = "ScClass: " + name
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => visitor.visitClass(this)
@@ -52,23 +62,12 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     else Array.empty
   }
 
-  def this(node: ASTNode) = {this(null, null, node)}
-
-  def this(stub: ScTemplateDefinitionStub) = {
-    this(stub, ScalaElementTypes.CLASS_DEFINITION, null)
-  }
-
-  override def toString: String = "ScClass: " + name
-
   override def getIconInner = Icons.CLASS
 
   override def constructor: Option[ScPrimaryConstructor] =
-    Option(getStub).toSeq flatMap {
-      _.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR,
-        JavaArrayFactoryUtil.ScPrimaryConstructorFactory).toSeq
-    } match {
-      case Seq(constructor) => Some(constructor)
-      case _ => super.constructor
+    getStub match {
+      case null => super.constructor
+      case stub => stub.getChildrenByType(PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory).headOption
     }
 
   import com.intellij.psi.scope.PsiScopeProcessor
