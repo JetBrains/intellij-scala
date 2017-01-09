@@ -15,7 +15,8 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.CLASS_DEFINITION
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{CLASS_DEFINITION, PRIMARY_CONSTRUCTOR}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -45,6 +46,8 @@ class ScClassImpl private(stub: StubElement[ScTemplateDefinition], nodeType: IEl
   def this(stub: ScTemplateDefinitionStub) =
     this(stub, CLASS_DEFINITION, null)
 
+  override def toString: String = "ScClass: " + name
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => visitor.visitClass(this)
@@ -52,20 +55,19 @@ class ScClassImpl private(stub: StubElement[ScTemplateDefinition], nodeType: IEl
     }
   }
 
-  override def constructor: Option[ScPrimaryConstructor] =
-    super.constructor.orElse {
-      findChild(classOf[ScPrimaryConstructor])
-    }
-
   override def additionalJavaNames: Array[String] = {
     //do not add all cases with fakeCompanionModule, it will be used in Stubs.
     if (isCase) fakeCompanionModule.map(_.getName).toArray
     else Array.empty
   }
 
-  override def toString: String = "ScClass: " + name
-
   override def getIconInner = Icons.CLASS
+
+  override def constructor: Option[ScPrimaryConstructor] =
+    getStub match {
+      case null => super.constructor
+      case stub => stub.getChildrenByType(PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory).headOption
+    }
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
