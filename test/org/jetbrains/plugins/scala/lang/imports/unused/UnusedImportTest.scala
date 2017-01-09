@@ -18,4 +18,41 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
     }
   }
 
+  def testUsedImportFromInterpolatedString(): Unit = {
+    val text =
+      """
+        |object theObj {
+        |  implicit class StringConversion(val sc: StringContext) {
+        |    def zzz(args: Any*): String = {
+        |      "blabla"
+        |    }
+        |  }
+        |}
+        |
+        |class MainTest {
+        |  import theObj._
+        |  def main(args: Array[String]): Unit = {
+        |    val s: String = zzz"blblablas"
+        |  }
+        |}
+      """.stripMargin
+    assertMatches(messages(text)) {
+      case Nil =>
+    }
+  }
+
+  def testMethodCallImplicitParameter(): Unit = {
+    val text = """import scala.concurrent.ExecutionContext
+      |import scala.concurrent.ExecutionContext.Implicits.global
+      |
+      |object Test {
+      |  def foo(implicit ec: ExecutionContext): Unit = {}
+      |
+      |  foo
+      |}""".stripMargin
+    assertMatches(messages(text)) {
+      case Nil =>
+    }
+  }
+
 }

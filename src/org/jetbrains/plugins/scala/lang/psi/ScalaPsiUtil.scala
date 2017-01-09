@@ -1183,17 +1183,17 @@ object ScalaPsiUtil {
     def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
   }
 
+  def isStaticJava(m: PsiMember): Boolean = m match {
+    case null => false
+    case _ if !m.getLanguage.isInstanceOf[JavaLanguage] => false
+    case _: PsiEnumConstant => true
+    case cl: PsiClass if cl.isInterface | cl.isEnum => true
+    case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
+    case f: PsiField if f.containingClass.isInterface => true
+    case _ => false
+  }
+
   def hasStablePath(o: PsiNamedElement): Boolean = {
-
-    def isStaticJava(m: PsiMember) = m match {
-      case null => false
-      case _: PsiEnumConstant  => true
-      case cl: PsiClass if cl.isInterface | cl.isEnum => true
-      case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
-      case f: PsiField if f.containingClass.isInterface => true
-      case _ => false
-    }
-
     @tailrec
     def hasStablePathInner(m: PsiMember): Boolean = {
       m.getContext match {
@@ -1205,7 +1205,7 @@ object ScalaPsiUtil {
         case null => false
         case o: ScObject if o.isPackageObject || o.qualifiedName == "scala.Predef" => true
         case o: ScObject => hasStablePathInner(o)
-        case j if j.getLanguage.isInstanceOf[JavaLanguage] => isStaticJava(m) && hasStablePathInner(j)
+        case j if isStaticJava(m) => hasStablePathInner(j)
         case _ => false
       }
     }
@@ -1983,7 +1983,12 @@ object ScalaPsiUtil {
                   wildcards.find(_.name == tpArg.canonicalText) match {
                     case Some(wildcard) =>
                       (wildcard.lower, wildcard.upper) match {
-                        case (lo, Any) if variance == ScTypeParam.Contravariant => lo
+                        // todo: Produces Bad code is green
+                        // Problem is in Java wildcards. How to convert them if it's _ >: Lower, when generic has Upper.
+                        // Earlier we converted with Any upper type, but then it was changed because of type incompatibility.
+                        // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
+                        // I has no idea how yet...
+                        case (lo, _) if variance == ScTypeParam.Contravariant => lo
                         case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
                         case _ => tpArg
                       }

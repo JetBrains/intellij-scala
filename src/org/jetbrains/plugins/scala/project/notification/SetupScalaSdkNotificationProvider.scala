@@ -6,7 +6,6 @@ import com.intellij.openapi.module.ModuleUtil.getModuleType
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.psi.PsiFile
 import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider._
@@ -20,18 +19,13 @@ class SetupScalaSdkNotificationProvider(project: Project, notifications: EditorN
 
   override def getKey = ProviderKey
 
-  override protected def isSourceCode(file: PsiFile) =
-    file.getLanguage == ScalaLanguage.Instance &&
-      !file.getName.endsWith(".sbt") && // root SBT files belong to main (not *-build) modules
-      file.isWritable
-
-  override protected def hasDeveloperKit(module: Module) =
+  override protected def hasDeveloperKit(module: Module): Boolean =
     getModuleType(module) != JavaModuleType.getModuleType ||
       module.getName.endsWith("-build") || // gen-idea doesn't use the SBT module type
       module.hasScala
 
   override protected def createTask(module: Module) = new Runnable {
-    override def run() =
+    override def run(): Unit =
       createDialog(module, new ScalaSupportProvider).showAndGet
   }
 

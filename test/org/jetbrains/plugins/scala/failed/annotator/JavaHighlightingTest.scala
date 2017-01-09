@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   * @since 23/03/16
   */
 @Category(Array(classOf[PerfCycleTests]))
-class JavaHighlightingTest extends JavaHighlitghtingTestBase {
+class JavaHighlightingTest extends JavaHighlitghtingTestBase() {
 
   def testSCL8982() = {
     val scala =

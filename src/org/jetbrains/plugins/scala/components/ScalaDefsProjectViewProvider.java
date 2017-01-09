@@ -34,9 +34,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*;
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper;
 import scala.collection.Iterator;
 import scala.collection.Seq;
 
@@ -182,6 +181,17 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
           String text = namedElement.name();
           data.setPresentableText(text);
         }
+      }
+    }
+
+    @Override
+    public PsiClass getPsiClass() {
+      PsiClass psiClass = super.getPsiClass();
+      if (psiClass instanceof ScObject) {
+        ScObject obj = (ScObject) psiClass;
+        return new PsiClassWrapper(obj, obj.qualifiedName(), obj.name());
+      } else {
+        return psiClass;
       }
     }
   }

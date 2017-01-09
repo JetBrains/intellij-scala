@@ -64,18 +64,28 @@ object ScTypePresentation extends api.ScTypePresentation {
       val ScProjectionType(p, _, _) = projType
       val e = projType.actualElement
       val refName = e.name
-      def checkIfStable(e: PsiElement): Boolean = {
-        e match {
+      def checkIfStable(elem: PsiElement): Boolean = {
+        elem match {
           case _: ScObject | _: ScBindingPattern | _: ScParameter | _: ScFieldId => true
           case _ => false
         }
       }
       val typeTailForProjection = typeTail(checkIfStable(e) && needDotType)
-      def isInnerStaticJavaClassForParent(clazz: PsiClass): Boolean = {
-        clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
-          e.isInstanceOf[PsiModifierListOwner] &&
-          e.asInstanceOf[PsiModifierListOwner].getModifierList.hasModifierProperty("static")
+
+      object StaticJavaClassHolder {
+        def unapply(t: ScType): Option[PsiClass] = t match {
+          case ScDesignatorType(clazz: PsiClass) if isStaticJavaClass(e) => Some(clazz)
+          case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) if isStaticJavaClass(e) => Some(clazz)
+          case ScProjectionType(_, clazz: PsiClass, _) if isStaticJavaClass(e) => Some(clazz)
+          case _ => None
+        }
+
+        private def isStaticJavaClass(elem: PsiElement): Boolean = elem match {
+          case c: PsiClass => ScalaPsiUtil.isStaticJava(c)
+          case _ => false
+        }
       }
+
       p match {
         case ScDesignatorType(pack: PsiPackage) =>
           nameWithPointFun(pack) + refName
@@ -87,9 +97,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           s"${innerTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
         case p: ScProjectionType if checkIfStable(p.actualElement) =>
           s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
-        case ScDesignatorType(clazz: PsiClass) if isInnerStaticJavaClassForParent(clazz) =>
-          nameWithPointFun(clazz) + refName
-        case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) if isInnerStaticJavaClassForParent(clazz) =>
+        case StaticJavaClassHolder(clazz) =>
           nameWithPointFun(clazz) + refName
         case _: ScCompoundType | _: ScExistentialType =>
           s"(${innerTypeText(p)})#$refName"

@@ -134,6 +134,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         def fixArguments(): Seq[Value] = {
           def correctArgType(arg: AnyRef, typeName: String) = arg match {
             case objRef: ObjectReference => DebuggerUtilsEx.isAssignableFrom(typeName, objRef.referenceType())
+            case primValue: PrimitiveValue => primValue.`type`().name() == typeName
             case _ => true
           }
           val paramTypeNames = jdiMethod.argumentTypeNames()

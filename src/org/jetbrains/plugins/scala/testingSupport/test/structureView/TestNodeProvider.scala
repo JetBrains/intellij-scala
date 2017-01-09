@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.structureView
 
 import java.util
 
+import com.intellij.execution.PsiLocation
 import com.intellij.ide.util.FileStructureNodeProvider
 import com.intellij.ide.util.treeView.smartTree.{ActionPresentation, ActionPresentationData, TreeElement}
 import com.intellij.openapi.actionSystem.Shortcut
@@ -19,9 +20,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
-import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.{ScalaTypeDefinitionStructureViewElement, _}
+import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
+import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
+
+import scala.annotation.tailrec
 
 /**
  * @author Roman.Shein
@@ -494,6 +499,36 @@ object TestNodeProvider {
         case _ => None
       }
     case _ => None
+  }
+
+  def getTestNames(aSuite: ScTypeDefinition, configurationProducer: TestConfigurationProducer): Seq[String] = {
+    @tailrec
+    def getTestLeaves(elements: Iterable[TreeElement], res: List[TestStructureViewElement] = List()): List[TestStructureViewElement] = {
+      if (elements.isEmpty) res else {
+        val head = elements.head
+        (head, head.getChildren) match {
+          case (testHead: TestStructureViewElement, e) if e.isEmpty => getTestLeaves(elements.tail, testHead :: res)
+          case (_, children) => getTestLeaves(children ++ elements.tail, res)
+        }
+      }
+    }
+    val suiteName = aSuite.getQualifiedName
+    import scala.collection.JavaConversions._
+    val nodeProvider = new TestNodeProvider
+    getTestLeaves(configurationProducer match {
+      case _: UTestConfigurationProducer =>
+        new ScalaTypeDefinitionStructureViewElement(aSuite).getChildren.toList flatMap {
+          case scVal: ScalaValueStructureViewElement if !scVal.isInherited => nodeProvider.provideNodes(scVal).toList
+          case _ => List.empty
+        }
+      case _ =>
+        nodeProvider.provideNodes(new ScalaTypeDefinitionStructureViewElement(aSuite))
+    }).map { e =>
+      Option(configurationProducer.getLocationClassAndTest(new PsiLocation(e.psiElement))) filter {
+        case (suite, testName) =>
+          suite != null && suite.getQualifiedName == suiteName && testName != null
+      }
+    }.filter(_.isDefined).map(_.get._2)
   }
 }
 

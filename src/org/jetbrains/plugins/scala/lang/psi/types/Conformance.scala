@@ -961,14 +961,12 @@ object Conformance extends api.Conformance {
               if (des1 equiv des2) {
                 if (args1.length != args2.length) {
                   result = (false, undefinedSubst)
-                  return
+                } else {
+                  result = checkParameterizedType(owner1.arguments.map(_.psiTypeParameter).iterator, args1, args2,
+                    undefinedSubst, visited, checkWeak)
                 }
-                result = checkParameterizedType(owner1.arguments.map(_.psiTypeParameter).iterator, args1, args2,
-                  undefinedSubst, visited, checkWeak)
-                return
               } else {
                 result = (false, undefinedSubst)
-                return
               }
             case (_: UndefinedType, UndefinedType(parameterType, _)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
@@ -979,7 +977,6 @@ object Conformance extends api.Conformance {
                 case _ =>
                   result = (false, undefinedSubst)
               }
-              return
             case (UndefinedType(parameterType, _), _) =>
               (if (args1.length != args2.length) findDiffLengthArgs(r, args1.length) else Some((args2, des2))) match {
                 case Some((aArgs, aType)) =>
@@ -989,7 +986,6 @@ object Conformance extends api.Conformance {
                 case _ =>
                   result = (false, undefinedSubst)
               }
-              return
             case (_, UndefinedType(parameterType, _)) =>
               (if (args1.length != args2.length) findDiffLengthArgs(l, args2.length) else Some((args1, des1))) match {
                 case Some((aArgs, aType)) =>
@@ -999,45 +995,52 @@ object Conformance extends api.Conformance {
                 case _ =>
                   result = (false, undefinedSubst)
               }
-              return
             case _ if des1 equiv des2 =>
               if (args1.length != args2.length) {
                 result = (false, undefinedSubst)
-                return
+              } else {
+                result = extractParams(des1).map(checkParameterizedType(_, args1, args2, undefinedSubst, visited, checkWeak)).
+                  getOrElse((false, undefinedSubst))
               }
-              result = extractParams(des1).map(checkParameterizedType(_, args1, args2, undefinedSubst, visited, checkWeak)).
-                getOrElse((false, undefinedSubst))
             case (_, t: TypeParameterType) if t.arguments.length == p2.typeArguments.length =>
               val subst = new ScSubstitutor(Map(t.arguments.zip(p.typeArguments).map {
                 case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
               }: _*), Map.empty, None)
               result = conformsInner(des1, subst.subst(t.upperType.v), visited, undefinedSubst, checkWeak)
-              return
             case (proj1: ScProjectionType, proj2: ScProjectionType)
               if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement) =>
               val t = conformsInner(proj1, proj2, visited, undefinedSubst)
               if (!t._1) {
                 result = (false, undefinedSubst)
-                return
-              }
-              undefinedSubst = t._2
-              if (args1.length != args2.length) {
-                result = (false, undefinedSubst)
-                return
-              }
-              val parametersIterator = proj1.actualElement match {
-                case td: ScTypeParametersOwner => td.typeParameters.iterator
-                case td: PsiTypeParameterListOwner => td.getTypeParameters.iterator
-                case _ =>
+              } else {
+                undefinedSubst = t._2
+                if (args1.length != args2.length) {
                   result = (false, undefinedSubst)
-                  return
+                } else {
+                  proj1.actualElement match {
+                    case td: ScTypeParametersOwner =>
+                      result = checkParameterizedType(td.typeParameters.iterator, args1, args2, undefinedSubst, visited, checkWeak)
+                    case td: PsiTypeParameterListOwner =>
+                      result = checkParameterizedType(td.getTypeParameters.iterator, args1, args2, undefinedSubst, visited, checkWeak)
+                    case _ =>
+                      result = (false, undefinedSubst)
+                  }
+                }
               }
-              result = checkParameterizedType(parametersIterator, args1, args2,
-                undefinedSubst, visited, checkWeak)
-              return
             case _ =>
           }
         case _ =>
+      }
+
+      if (result != null) {
+        //sometimes when the above part has failed, we still have to check for alias
+        if (!result._1) r.isAliasType match {
+          case Some(aliasType) =>
+            rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
+            r.visitType(rightVisitor)
+          case _ =>
+        }
+        return
       }
 
       rightVisitor = new ParameterizedAliasVisitor with TypeParameterTypeVisitor {}
@@ -1568,9 +1571,14 @@ object Conformance extends api.Conformance {
   }
 
   def extractParams(des: ScType): Option[Iterator[PsiTypeParameter]] = {
-    des.extractClass().map {
-      case td: ScTypeDefinition => td.typeParameters.iterator
-      case other => other.getTypeParameters.iterator
+    des match {
+      case undef: UndefinedType =>
+        Option(undef.parameterType.psiTypeParameter).map(_.getTypeParameters.iterator)
+      case _ =>
+        des.extractClass().map {
+          case td: ScTypeDefinition => td.typeParameters.iterator
+          case other => other.getTypeParameters.iterator
+        }
     }
   }
 

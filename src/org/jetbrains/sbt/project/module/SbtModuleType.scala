@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 package project.module
 
 import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
-import com.intellij.openapi.module.ModuleType
+import com.intellij.openapi.module.{Module, ModuleType}
 
 /**
  * @author Pavel Fatin
@@ -21,4 +21,8 @@ class SbtModuleType extends ModuleType[EmptyModuleBuilder]("SBT_MODULE") {
 
 object SbtModuleType {
   val instance = Class.forName("org.jetbrains.sbt.project.module.SbtModuleType").newInstance.asInstanceOf[SbtModuleType]
+
+  def unapply(m: Module): Option[Module] =
+    if (ModuleType.get(m).isInstanceOf[SbtModuleType]) Some(m)
+    else None
 }

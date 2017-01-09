@@ -990,4 +990,35 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |
       | //Int""".stripMargin
   )
+
+  // wrong highlighting in scala lang 2.10.
+  // 2.11, 2.12 - ok
+  def testSCL9677(): Unit = doTest(
+    s"""
+       |import scala.concurrent.Future
+       |
+       |
+       |val s = for (i <- 1 to 100) yield Future.successful(0)  // infers IndexedSeq[Future[Int]] correctly
+       |
+       |//Future.sequence(s) //correct
+       |Future.sequence{${START}s$END}
+       |
+       |//IndexedSeq[Future[Int]]
+    """.stripMargin)
+
+  def testSCL11142(): Unit = {
+    addFileToProject("Tier1.java",
+      """public final class Tier1 {
+        |    public static final class Tier2 {
+        |        public static final class Tier3
+        |    }
+        |}""".stripMargin)
+
+    doTest(
+      """object SCL11142 {
+        |  /*start*/new Tier1.Tier2.Tier3/*end*/
+        |}
+        |//Tier2.Tier3
+      """.stripMargin)
+  }
 }

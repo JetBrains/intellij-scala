@@ -87,4 +87,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testSelfType(): Unit = {
     doTest("ResultExtractors.class")
   }
+
+  def testScl10858() = {
+    doTest("LazyValBug.class")
+  }
 }

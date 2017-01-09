@@ -213,7 +213,7 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
             isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).head
           lookup.usedImportStaticQuickfix = true
           val element = next.resolveResult.getElement
-          lookup.elementToImport = element
+          lookup.elementToImport = Option(element)
           ScalaPsiUtil.nameContext(element) match {
             case memb: ScMember =>
               val clazz = memb.containingClass

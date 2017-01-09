@@ -578,7 +578,8 @@ object TypeDefinitionMembers {
                            (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
 
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
-    def selfTypeSignaturesInner(implicit typeSystem : TypeSystem = clazz.typeSystem): SMap = {
+    def selfTypeSignaturesInner(): SMap = {
+      implicit val typeSystem = clazz.typeSystem
       clazz match {
         case td: ScTypeDefinition =>
           td.selfType match {
