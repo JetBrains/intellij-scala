@@ -25,7 +25,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
   private def createShellProcessHandler(): ColoredProcessHandler = {
     val sdk: Sdk = ProjectRootManager.getInstance(project).getProjectSdk
-    assert(sdk != null) // TODO user feedback
+    assert(sdk != null) // TODO user feedback, this gets reported only as assertion error
     val sdkType: SdkTypeId = sdk.getSdkType
     assert(sdkType.isInstanceOf[JavaSdkType])
     val exePath: String = sdkType.asInstanceOf[JavaSdkType].getVMExecutablePath(sdk)

@@ -16,6 +16,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.util.ui.UIUtil
 
 import scala.collection.JavaConverters._
 
@@ -62,6 +63,16 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
   override def createProcess(): Process = myProcessHandler.getProcess
 
+  override def initAndRun(): Unit = {
+    super.initAndRun()
+    UIUtil.invokeLaterIfNeeded(new Runnable {
+      override def run(): Unit = {
+        val promptChanger = new SbtProcessPromptListener(myConsoleView, ">", "X")
+        new SbtShellCommunication(project).attachListener(promptChanger)
+      }
+    })
+  }
+
 
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
 
@@ -80,7 +91,8 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     val myToolbarActions = List(
       new RestartAction(this, defaultExecutor, contentDescriptor),
       new CloseAction(defaultExecutor, contentDescriptor, project),
-      new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile))
+      new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile)),
+      new DummyAction(this)
     )
 
     val allActions = List(
@@ -145,8 +157,8 @@ class RestartAction(runner: SbtShellRunner, executor: Executor, contentDescripto
 }
 
 class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
-  extends ProcessBackedConsoleExecuteActionHandler(processHandler, true) {
-}
+  extends ProcessBackedConsoleExecuteActionHandler(processHandler, true)
+
 
 class ExecuteTaskAction(task: String, icon: Option[Icon]) extends DumbAwareAction {
 
@@ -155,5 +167,13 @@ class ExecuteTaskAction(task: String, icon: Option[Icon]) extends DumbAwareActio
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     new SbtShellCommunication(e.getProject).task(task)
+  }
+}
+
+class DummyAction(runner: SbtShellRunner) extends DumbAwareAction {
+  getTemplatePresentation.setIcon(AllIcons.Actions.IntentionBulb)
+
+  override def actionPerformed(anActionEvent: AnActionEvent) = {
+    println(s"dummy action performed in ${runner.getConsoleTitle}")
   }
 }
