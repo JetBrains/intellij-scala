@@ -39,7 +39,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     val elements: Seq[PsiElement] = element match {
       case caseClause: ScCaseClause => caseClause.pattern.toSeq.flatMap(_.bindings).filterNot(_.isWildcard)
       case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements
-      case fun: ScFunctionExpr => fun.parameters.filterNot(_.isWildcard)
+      case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement
       case _ => Seq.empty
     }
