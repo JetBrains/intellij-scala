@@ -414,5 +414,17 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
       """.stripMargin
     checkTextHasNoErrors(code)
   }
-}
 
+  def testImplicitParamter(): Unit = {
+    val code =
+      """
+        |class Bar
+        |class Baz
+        |class Moo {
+        |  def foo(x: Bar => Baz) = ???
+        |  foo { implicit bar => new Baz  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
+}
