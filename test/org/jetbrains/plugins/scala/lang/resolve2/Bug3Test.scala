@@ -89,4 +89,6 @@ class Bug3Test extends ResolveTestBase {
   def testAccessiblePattern() {doTest()}
   def testConstructorNamedParameters() {doTest()}
   def testSCL9926() {doTest()}
+  def testSCL11119(): Unit = { doTest() }
+  def testSCL10839(): Unit = { doTest() }
 }

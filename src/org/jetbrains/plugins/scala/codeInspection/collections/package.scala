@@ -305,7 +305,8 @@ package object collections {
   }
 
   def implicitParameterExistsFor(expr: ScExpression): Boolean = {
-    expr.findImplicitParameters match {
+    if (expr == null) false
+    else expr.findImplicitParameters match {
       case Some(Seq(srr: ScalaResolveResult)) if srr.element.name == InferUtil.notFoundParameterName => false
       case Some(Seq(_: ScalaResolveResult, _*)) => true
       case _ => false

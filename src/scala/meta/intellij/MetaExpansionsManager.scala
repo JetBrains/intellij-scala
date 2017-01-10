@@ -32,19 +32,24 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
   import scala.collection.convert.decorateAsScala._
 
   override def getComponentName = "MetaExpansionsManager"
-  override def projectOpened() = installCompilationListener()
-  override def projectClosed() = {
+  override def projectOpened(): Unit = installCompilationListener()
+  override def projectClosed(): Unit = {
     uninstallCompilationListener()
     annotationClassLoaders.clear()
   }
-  override def initComponent() = ()
-  override def disposeComponent() = ()
+  override def initComponent(): Unit = ()
+  override def disposeComponent(): Unit = ()
 
   private val annotationClassLoaders = new java.util.concurrent.ConcurrentHashMap[String, URLClassLoader]().asScala
 
   private val compilationStatusListener = new CompilationStatusListener {
     override def compilationFinished(aborted: Boolean, errors: Int, warnings: Int, context: CompileContext): Unit = {
-      context.getCompileScope.getAffectedModules.map(invalidateModuleClassloader)
+      for {
+        scope <- Option(context.getCompileScope)
+        module <- scope.getAffectedModules
+      } {
+        invalidateModuleClassloader(module)
+      }
     }
   }
 
@@ -56,7 +61,7 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
     CompilerManager.getInstance(project).removeCompilationStatusListener(compilationStatusListener)
   }
 
-  def invalidateModuleClassloader(module: Module) = annotationClassLoaders.remove(module.getName)
+  def invalidateModuleClassloader(module: Module): Option[URLClassLoader] = annotationClassLoaders.remove(module.getName)
 
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = {
 
@@ -85,7 +90,7 @@ object MetaExpansionsManager {
 
   private val LOG = Logger.getInstance(getClass)
 
-  def getInstance(project: Project) = project.getComponent(classOf[MetaExpansionsManager]).asInstanceOf[MetaExpansionsManager]
+  def getInstance(project: Project): MetaExpansionsManager = project.getComponent(classOf[MetaExpansionsManager]).asInstanceOf[MetaExpansionsManager]
 
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = getInstance(annot.getProject).getCompiledMetaAnnotClass(annot)
 

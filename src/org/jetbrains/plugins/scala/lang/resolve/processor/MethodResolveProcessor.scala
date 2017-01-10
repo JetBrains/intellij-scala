@@ -7,6 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -531,17 +532,13 @@ object MethodResolveProcessor {
     def expand(r: ScalaResolveResult): Set[(ScalaResolveResult, Boolean)] = {
       def applyMethodsFor(tp: ScType): Set[(ScalaResolveResult, Boolean)] = {
         val (substitutor: ScSubstitutor, cleanTypeArguments) = {
-          if (typeArgElements.nonEmpty) {
             r.element match {
               case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-                (ScalaPsiUtil.genericCallSubstitutor(owner.typeParameters.map(_.nameAndId), typeArgElements).followed(r.substitutor), true)
+                (undefinedSubstitutor(owner, r.substitutor, false, typeArgElements), true)
               case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
-                (ScalaPsiUtil.genericCallSubstitutor(owner.getTypeParameters.map(_.nameAndId), typeArgElements).followed(r.substitutor), true)
+                (undefinedSubstitutor(owner, r.substitutor, false, typeArgElements), true)
               case _ => (r.substitutor, false)
             }
-          } else {
-            (r.substitutor, false)
-          }
         }
 
         val processor = new CollectMethodsProcessor(ref, "apply")
@@ -594,6 +591,7 @@ object MethodResolveProcessor {
     val onlyValues = mapped.forall { r =>
       r.element match {
         case _: ScFunction => false
+        case _: ScReferencePattern if r.innerResolveResult.exists(_.element.getName == "apply") => true
         case _: ScTypedDefinition => r.innerResolveResult.isEmpty && r.problems.size == 1
         case _ => false
       }
