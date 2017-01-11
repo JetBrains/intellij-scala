@@ -31,7 +31,7 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
       """.stripMargin
     assert(messages(code).isEmpty)
   }
-  
+
   def testSCL9686() = assert(
     messages {
       """
@@ -62,6 +62,40 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
         |}""".stripMargin
     }.isEmpty
   )
+
+  def testSCL11227() = {
+    val code =
+      """
+        |object Demo1b {
+        |  class Foo[T, F[_]]
+        |
+        |  def meh[M[_[_]], F[_]](x: M[F]): M[F] = x
+        |
+        |  meh(new Foo[Int, List])
+        |}
+        |
+        |object Demo1c {
+        |  trait TC[T]
+        |  class Foo[F[_], G[_]]
+        |
+        |  def meh[M[_[_]]](x: M[TC]): M[TC] = x
+        |
+        |  meh(new Foo[TC, TC])
+        |}
+        |
+        |object Demo1d {
+        |  trait TC[F[_]]
+        |  trait TC2[F[_]]
+        |  class Foo[F[_[_]], G[_[_]]]
+        |  new Foo[TC, TC2]
+        |
+        |  def meh[M[_[_[_]]]](x: M[TC2]): M[TC2] = x
+        |
+        |  meh(new Foo[TC, TC2])
+        |}
+      """.stripMargin
+    assert(messages(code).isEmpty)
+  }
 
   def messages(@Language(value = "Scala") code: String) = {
     val annotator = new ApplicationAnnotator {}
