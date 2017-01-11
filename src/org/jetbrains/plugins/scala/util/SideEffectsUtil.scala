@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
   * @author Nikolay.Tropin
@@ -129,7 +130,7 @@ object SideEffectsUtil {
     methodClazzName match {
       case Some(fqn) =>
         val name = fqn + "." + m.name
-        if (ScalaCodeStyleSettings.nameFitToPatterns(name, methodsFromObjectWithSideEffects))
+        if (ScalaNamesUtil.nameFitToPatterns(name, methodsFromObjectWithSideEffects, strict = false))
           return false
       case _ =>
     }
@@ -140,7 +141,7 @@ object SideEffectsUtil {
     }
 
     clazzName.map(_ + "." + m.name) match {
-      case Some(name) => ScalaCodeStyleSettings.nameFitToPatterns(name, immutableClasses)
+      case Some(name) => ScalaNamesUtil.nameFitToPatterns(name, immutableClasses, strict = false)
       case None => false
     }
   }

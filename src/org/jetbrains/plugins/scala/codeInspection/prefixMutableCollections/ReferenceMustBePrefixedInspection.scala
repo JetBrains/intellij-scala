@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiElement}
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
@@ -15,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
- * @author Alefas
- * @since 26.05.12
- */
+  * @author Alefas
+  * @since 26.05.12
+  */
 
 class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayName) {
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
@@ -27,7 +28,8 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayNa
           r.getActualElement match {
             case clazz: PsiClass if ScalaPsiUtil.hasStablePath(clazz) =>
               val qualName = clazz.qualifiedName
-              if (ScalaCodeStyleSettings.getInstance(holder.getProject).hasImportWithPrefix(qualName)) {
+              val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
+              if (settings.hasImportWithPrefix(qualName) && !inContainingClass(ref, clazz)) {
                 holder.registerProblem(ref, getDisplayName, new AddPrefixFix(ref, clazz))
               }
             case _ =>
@@ -35,6 +37,8 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayNa
         case _ =>
       }
   }
+
+  private def inContainingClass(ref: ScReferenceElement, c: PsiClass) = Option(c.containingClass).exists(_.isAncestorOf(ref))
 }
 
 object ReferenceMustBePrefixedInspection {
@@ -43,27 +47,45 @@ object ReferenceMustBePrefixedInspection {
 }
 
 class AddPrefixFix(ref: ScReferenceElement, clazz: PsiClass)
-        extends AbstractFixOnTwoPsiElements(AddPrefixFix.hint, ref, clazz) {
+  extends AbstractFixOnTwoPsiElements(AddPrefixFix.hint, ref, clazz) {
   def doApplyFix(project: Project) {
     val refElem = getFirstElement
     val cl = getSecondElement
     if (!refElem.isValid || !cl.isValid) return
     val parts = cl.qualifiedName.split('.')
-    val packageName = parts.dropRight(1).mkString(".")
-    val pckg = JavaPsiFacade.getInstance(cl.getProject).findPackage(packageName)
     if (parts.length < 2) return
+
+    val fqn = parts.dropRight(1).mkString(".")
+    val element = findPackage(project, fqn) orElse findClass(ref, fqn) match {
+      case Some(named: PsiNamedElement) => named
+      case _ => return
+    }
+
     val newRefText = parts.takeRight(2).mkString(".")
     refElem match {
       case stRef: ScStableCodeReferenceElement =>
-        stRef.replace(createReferenceFromText(newRefText)(stRef.getManager)) match {
-          case r: ScStableCodeReferenceElement => r.qualifier.foreach(_.bindToPackage(pckg, addImport = true))
-          case _ =>
-        }
+        val replaced = stRef.replace(createReferenceFromText(newRefText)(stRef.getManager))
+        bindQualifier(replaced, element)
       case ref: ScReferenceExpression =>
-        ref.replace(createExpressionWithContextFromText(newRefText, ref.getContext, ref)) match {
-          case ScReferenceExpression.withQualifier(q: ScReferenceExpression) => q.bindToPackage(pckg, addImport = true)
-          case _ =>
-        }
+        val replaced = ref.replace(createExpressionWithContextFromText(newRefText, ref.getContext, ref))
+        bindQualifier(replaced, element)
+      case _ =>
+    }
+  }
+
+  private def findPackage(project: Project, fqn: String) = Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
+  private def findClass(ref: ScReferenceElement, fqn: String) = {
+    val elemScope = ref.elementScope
+    ScalaShortNamesCacheManager.getInstance(elemScope.project).getClassByFQName(fqn, elemScope.scope).toOption
+  }
+  private def bindQualifier(ref: PsiElement, target: PsiNamedElement): Unit = {
+    val qual = ref match {
+      case ScReferenceElement.withQualifier(q: ScReferenceElement) => q
+      case _ => return
+    }
+    target match {
+      case pckg: PsiPackage => qual.bindToPackage(pckg, addImport = true)
+      case cl: PsiClass if ScalaPsiUtil.hasStablePath(cl) => qual.bindToElement(cl)
       case _ =>
     }
   }

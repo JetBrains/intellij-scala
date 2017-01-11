@@ -4,6 +4,7 @@ package codeInspection.prefix
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.{AddPrefixFix, ReferenceMustBePrefixedInspection}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * Nikolay.Tropin
@@ -127,4 +128,59 @@ class ReferenceMustBePrefixedInspectionTest extends ScalaLightInspectionFixtureT
       |  val hm: mutable.HashMap = null
       |}"""
   )
+
+  def testInnerClass(): Unit = {
+    val settings = ScalaCodeStyleSettings.getInstance(getProject)
+    val patterns = settings.getImportsWithPrefix
+    settings.setImportsWithPrefix(patterns :+ "bar.Outer._")
+    doTest(
+      s"""package bar
+         |
+         |object Outer {
+         | class Inner
+         |}
+         |
+         |import Outer.Inner
+         |
+         |object Test {
+         |  val i: ${START}Inner$END = null
+         |}""",
+      s"""package bar
+         |
+         |object Outer {
+         | class Inner
+         |}
+         |
+         |import Outer.Inner
+         |
+         |object Test {
+         |  val i: ${CARET_MARKER}Inner = null
+         |}""",
+      """
+        |package bar
+        |
+        |object Outer {
+        | class Inner
+        |}
+        |
+        |import Outer.Inner
+        |
+        |object Test {
+        |  val i: Outer.Inner = null
+        |}"""
+    )
+    settings.setImportsWithPrefix(patterns)
+  }
+
+  def testInnerClassFromContaining(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |package bar
+        |
+        |object Outer {
+        |  class Inner
+        |
+        |  val i: Inner = null
+        |}""")
+  }
 }

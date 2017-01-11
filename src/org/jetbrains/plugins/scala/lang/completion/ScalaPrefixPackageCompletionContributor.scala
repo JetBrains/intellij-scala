@@ -77,7 +77,8 @@ object ScalaPrefixPackageCompletionContributor {
     val prefixMatcher = result.getPrefixMatcher
     for {
       fqn <- prefixPackages(project)
-      name = fqn.substring(fqn.lastIndexOf('.'))
+      dotIdx = fqn.lastIndexOf('.')
+      name = if (dotIdx < 0) fqn else fqn.substring(dotIdx)
       if prefixMatcher.prefixMatches(name)
     } {
       addPackageForCompletion(fqn)
@@ -85,11 +86,11 @@ object ScalaPrefixPackageCompletionContributor {
 
   }
 
-  def prefixPackages(project: Project): Seq[String] = {
+  private def prefixPackages(project: Project): Seq[String] = {
     def stripLastWord(pattern: String) = pattern.split('.').dropRight(1).mkString(".")
     
     val settings = ScalaCodeStyleSettings.getInstance(project)
     val patterns = settings.getImportsWithPrefix.filter(!_.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX))
-    patterns.toSeq.map(stripLastWord).distinct
+    patterns.toSeq.map(stripLastWord).filter(!_.isEmpty).distinct
   }
 }

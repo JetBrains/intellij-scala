@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
@@ -11,6 +13,7 @@ import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -302,11 +305,6 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     this.IMPORT_LAYOUT = importLayout;
   }
 
-  private static boolean fitToUnderscorePattern(String pattern, String qualName) {
-    return pattern.endsWith("._") && qualName.contains(".") && qualName.startsWith(pattern.substring(0, pattern.lastIndexOf('.'))) &&
-            !qualName.equals(pattern.substring(0, pattern.lastIndexOf('.')));
-  }
-
   public static String EXCLUDE_PREFIX = "exclude:";
 
   public static String BLANK_LINE = "_______ blank line _______";
@@ -321,23 +319,12 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
    * Expamples of patterns:
    * "java.util.ArrayList"                              java.util.ArrayList added
    * "scala.collection.mutable._"                       all classes from package scala.collection.mutable added
+   * "scala.collection.mutable._._"                     all classes from subpackages and inner classes of scala.collection.mutable
    * "exclude:scala.Option"                             scala.Option excluded
    * "exclude:scala.collection.immutable._"             all classes from package scala.collection.immutable excluded
-   * */
+   **/
   public static boolean nameFitToPatterns(String qualName, String[] patterns) {
-    boolean res = false;
-    for (String pattern : patterns) {
-      if (pattern.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX)) {
-        String s = pattern.substring(ScalaCodeStyleSettings.EXCLUDE_PREFIX.length());
-        if (fitToUnderscorePattern(s, qualName) || s.equals(qualName))
-          return false;
-      }
-      else {
-        if (fitToUnderscorePattern(pattern, qualName) || pattern.equals(qualName))
-          res = true;
-      }
-    }
-    return res;
+    return ScalaNamesUtil.nameFitToPatterns(qualName, patterns, true);
   }
 
   public boolean isDoNotChangeLocalImportsOnOptimize() {

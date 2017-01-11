@@ -7,7 +7,6 @@ import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil.isExpressionOfType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.nameFitToPatterns
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
@@ -366,7 +366,7 @@ package object collections {
   private def qualifiedNameFitToPatterns(clazz: PsiClass, patterns: Array[String]) = Option(clazz).flatMap {
     _.qualifiedName.toOption
   }.exists {
-    nameFitToPatterns(_, patterns)
+    ScalaNamesUtil.nameFitToPatterns(_, patterns, strict = false)
   }
 
   def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)

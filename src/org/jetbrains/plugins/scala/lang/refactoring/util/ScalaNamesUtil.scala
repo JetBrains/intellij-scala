@@ -6,6 +6,8 @@ package util
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.EXCLUDE_PREFIX
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -125,4 +127,36 @@ object ScalaNamesUtil {
 
   def escapeKeyword(s: String): String =
     if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
+
+  def nameFitToPatterns(qualName: String, patterns: Array[String], strict: Boolean): Boolean = {
+    val (exclude, include) = patterns.toSeq.partition(_.startsWith(EXCLUDE_PREFIX))
+
+    !exclude.exists(excl => fitToPattern(excl.stripPrefix(EXCLUDE_PREFIX), qualName, strict)) &&
+      include.exists(fitToPattern(_, qualName, strict))
+  }
+
+  private def fitToPattern(pattern: String, qualName: String, strict: Boolean): Boolean = {
+
+    @scala.annotation.tailrec
+    def fitToUnderscorePattern(pattern: String, qualName: String, strict: Boolean): Boolean = {
+      val subPattern = pattern.stripSuffix("._")
+      val dotIdx = qualName.lastIndexOf('.')
+
+      if (dotIdx <= 0) false
+      else {
+        val subName = qualName.substring(0, dotIdx)
+
+        if (subPattern.endsWith("._"))
+          fitToUnderscorePattern(subPattern, subName, strict = true)
+        else if (strict)
+          subName == subPattern
+        else
+          subName.startsWith(subPattern)
+      }
+    }
+
+    if (pattern.endsWith("._"))
+      fitToUnderscorePattern(pattern, qualName, strict)
+    else qualName == pattern
+  }
 }
