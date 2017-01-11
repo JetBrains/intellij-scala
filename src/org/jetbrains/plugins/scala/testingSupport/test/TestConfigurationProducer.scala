@@ -34,34 +34,38 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
 
   def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String)
 
-  override def setupConfigurationFromContext(configuration: AbstractTestRunConfiguration, context: ConfigurationContext, sourceElement: Ref[PsiElement]): Boolean = {
+  override def setupConfigurationFromContext(configuration: AbstractTestRunConfiguration, context: ConfigurationContext,
+                                             sourceElement: Ref[PsiElement]): Boolean = {
     if (sourceElement.isNull) {
       false
     }
     else {
       createConfigurationByElement(context.getLocation, context) match {
-        case Some((testElement, resConfig)) if testElement != null && resConfig != null &&
-          runPossibleFor(configuration, testElement) =>
-          sourceElement.set(testElement)
+        case Some((testElement, resConfig)) if testElement != null && resConfig != null =>
+          val configWithModule = configuration.clone.asInstanceOf[AbstractTestRunConfiguration]
           val cfg = resConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration]
-          configuration.setTestClassPath(cfg.getTestClassPath)
-          configuration.setGeneratedName(cfg.suggestedName)
-          configuration.setJavaOptions(cfg.getJavaOptions)
-          configuration.setTestArgs(cfg.getTestArgs)
-          configuration.setTestPackagePath(cfg.getTestPackagePath)
-          configuration.setWorkingDirectory(cfg.getWorkingDirectory)
-          configuration.setTestName(cfg.getTestName)
-          configuration.setSearchTest(cfg.getSearchTest)
-          configuration.setShowProgressMessages(cfg.getShowProgressMessages)
-          configuration.setFileOutputPath(cfg.getOutputFilePath)
-          configuration.setModule(cfg.getModule)
-          configuration.setName(cfg.getName)
-          configuration.setNameChangedByUser(!cfg.isGeneratedName)
-          configuration.setSaveOutputToFile(cfg.isSaveOutputToFile)
-          configuration.setShowConsoleOnStdErr(cfg.isShowConsoleOnStdErr)
-          configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
-          configuration.setTestKind(cfg.getTestKind)
-          true
+          configWithModule.setModule(cfg.getModule)
+          runPossibleFor(configWithModule, testElement) && {
+            sourceElement.set(testElement)
+            configuration.setTestClassPath(cfg.getTestClassPath)
+            configuration.setGeneratedName(cfg.suggestedName)
+            configuration.setJavaOptions(cfg.getJavaOptions)
+            configuration.setTestArgs(cfg.getTestArgs)
+            configuration.setTestPackagePath(cfg.getTestPackagePath)
+            configuration.setWorkingDirectory(cfg.getWorkingDirectory)
+            configuration.setTestName(cfg.getTestName)
+            configuration.setSearchTest(cfg.getSearchTest)
+            configuration.setShowProgressMessages(cfg.getShowProgressMessages)
+            configuration.setFileOutputPath(cfg.getOutputFilePath)
+            configuration.setModule(cfg.getModule)
+            configuration.setName(cfg.getName)
+            configuration.setNameChangedByUser(!cfg.isGeneratedName)
+            configuration.setSaveOutputToFile(cfg.isSaveOutputToFile)
+            configuration.setShowConsoleOnStdErr(cfg.isShowConsoleOnStdErr)
+            configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
+            configuration.setTestKind(cfg.getTestKind)
+            true
+          }
         case _ =>
           false
       }
@@ -160,6 +164,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
 
   protected def runPossibleFor(configuration: AbstractTestRunConfiguration, testElement: PsiElement): Boolean = {
     import scala.collection.JavaConversions._
+
     testElement match {
       case cl: PsiClass => !configuration.isInvalidSuite(cl) || ClassInheritorsSearch.search(cl).iterator().exists(!configuration.isInvalidSuite(_))
       case _ => true
