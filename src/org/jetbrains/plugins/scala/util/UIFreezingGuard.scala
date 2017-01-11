@@ -11,6 +11,7 @@ import com.intellij.ide.IdeEventQueue
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.progress._
+import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard._
 
@@ -85,6 +86,28 @@ object UIFreezingGuard {
     edt && isGuarded || !edt
   }
 
+  //Use with care! Can cause bugs if result is cached upper in the stack.
+  def withTimeout[T](timeoutMs: Long, default: => T)(computation: => T): T = {
+    val application = ApplicationManager.getApplication
+    if (!application.isDispatchThread || application.isUnitTestMode) return computation
+
+    val startTime = System.currentTimeMillis()
+    try {
+      ProgressManager.getInstance().runProcess(computation, new AbstractProgressIndicatorBase {
+        override def isCanceled: Boolean = {
+          System.currentTimeMillis() - startTime > timeoutMs || super.isCanceled
+        }
+
+        override def checkCanceled(): Unit = if (isCanceled && isCancelable) throw new TimeoutException
+      })
+    } catch {
+      case _: TimeoutException => default
+    }
+  }
+
+  //throws TimeoutException!
+  def withTimeout[T](timeoutMs: Long)(computation: => T): T = withTimeout(timeoutMs, throw new TimeoutException)(computation)
+
   private def dumpThreads(ms: Long): Unit = {
     val threshold = 1000
     if (ms > threshold) {
@@ -147,5 +170,9 @@ object UIFreezingGuard {
 
   object UnfreezeException extends ProcessCanceledException with NoStackTrace {
     override def getMessage: String = "Long scala calculation on UI thread canceled"
+  }
+
+  class TimeoutException extends ProcessCanceledException with NoStackTrace {
+    override def getMessage: String = "Computation cancelled with timeout"
   }
 }

@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.util.UIFreezingGuard
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import scala.collection.JavaConverters._
@@ -79,29 +80,31 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     }
     val line = position.getLine
 
-    if (ScalaPositionManager.positionsOnLine(file, line).size <= 1) return emptyList
+    val timeoutMs = 100
 
-    val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
+    val lambdas: Seq[PsiElement] = UIFreezingGuard.withTimeout[Seq[PsiElement]](timeoutMs, Nil) {
+      ScalaPositionManager.lambdasOnLine(file, line)
+    }
     if (lambdas.isEmpty) return emptyList
 
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
 
     var res: List[JavaLineBreakpointType#JavaBreakpointVariant] = List()
 
-    DebuggerUtil.getContainingMethod(elementAtLine) match {
-      case Some(startMethod) if !lambdas.contains(startMethod) =>
-        res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
-      case _ =>
+    val method = UIFreezingGuard.withTimeout[Option[PsiElement]](timeoutMs, None) {
+      DebuggerUtil.getContainingMethod(elementAtLine)
     }
 
-    var ordinal: Int = 0
-    for ((lambda, ord) <- lambdas.zipWithIndex) {
+    for (startMethod <- method; if !lambdas.contains(startMethod)) {
+      res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
+    }
+
+    for ((lambda, ordinal) <- lambdas.zipWithIndex) {
       res = res :+ new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, ordinal)
-      ordinal += 1
     }
 
-    if (res.size == 1) return emptyList
-    (new JavaBreakpointVariant(position) +: res).asJava //adding all variants
+    if (res.size == 1) emptyList
+    else (new JavaBreakpointVariant(position) +: res).asJava //adding all variants
   }
 
   override def matchesPosition(@NotNull breakpoint: LineBreakpoint[_], @NotNull position: SourcePosition): Boolean = {
