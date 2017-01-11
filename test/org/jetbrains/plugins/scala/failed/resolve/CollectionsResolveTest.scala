@@ -42,4 +42,13 @@ class CollectionsResolveTest extends FailedResolveCaretTestBase {
        |    }
        |  }
     """.stripMargin)
+
+  def testSCL11222(): Unit = doResolveCaretTest(
+    s"""
+       |  def get(id: Long)(implicit x: Int = 10): Option[Int] = ???
+       |
+       |  def getAll(ids: Set[Long]): Set[Int] = {
+       |    ids.<caret>flatMap(get)
+       |  }
+    """.stripMargin)
 }
