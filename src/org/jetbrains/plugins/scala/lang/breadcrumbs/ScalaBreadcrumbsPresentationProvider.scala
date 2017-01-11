@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.breadcrumbs
 
 import java.awt.Color
 
-import com.intellij.openapi.editor.colors.EditorColors
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, TextAttributesKey}
 import com.intellij.psi.PsiElement
 import com.intellij.xml.breadcrumbs.{BreadcrumbsPresentationProvider, CrumbPresentation}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -32,14 +32,17 @@ object ScalaBreadcrumbsPresentationProvider {
   }
   
   def getColorFor(el: PsiElement): Color = el match {
-    case _: ScTemplateDefinition => getClassColor //Color.CYAN
-    case _: ScFunction => getOtherColor //Color.GREEN
-    case _: ScFunctionExpr => getOtherColor //Color.LIGHT_GRAY
+    case _: ScTemplateDefinition => getClassColor 
+    case _: ScFunction => getOtherColor 
+    case _: ScFunctionExpr => getOtherColor
     case _: ScalaPsiElement => getOtherColor
     case _ => getFunctionColor // why not
   }
   
-  private def getClassColor = EditorColors.IDENTIFIER_UNDER_CARET_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
-  private def getFunctionColor = EditorColors.WRITE_IDENTIFIER_UNDER_CARET_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
-  private def getOtherColor = EditorColors.FOLDED_TEXT_ATTRIBUTES.getDefaultAttributes.getBackgroundColor
+  private def getClassColor = getColorByKey(EditorColors.IDENTIFIER_UNDER_CARET_ATTRIBUTES)
+  private def getFunctionColor = getColorByKey(EditorColors.WRITE_IDENTIFIER_UNDER_CARET_ATTRIBUTES)
+  private def getOtherColor = getColorByKey(EditorColors.FOLDED_TEXT_ATTRIBUTES)
+  
+  private def getColorByKey(attributesKey: TextAttributesKey) = 
+    EditorColorsManager.getInstance.getGlobalScheme.getAttributes(attributesKey).getBackgroundColor
 }
