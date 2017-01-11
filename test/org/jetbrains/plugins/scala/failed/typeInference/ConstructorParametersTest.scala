@@ -30,6 +30,21 @@ class ConstructorParametersTest extends SimpleTestCase {
       """.stripMargin))
   }
 
+  def testSCL11201() = {
+    assertNothing(messages(
+      """
+        |object A extends Enumeration {
+        |  val EXAMPLE = Value("example")
+        |}
+        |
+        |class C[T](val enum: Enumeration { type Value = T } ) {
+        |  def show(s: String): T = enum.withName(s).asInstanceOf[T]
+        |}
+        |
+        |val b = new C(A)
+      """.stripMargin))
+  }
+
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
     val annotator = new ConstructorAnnotator {}
