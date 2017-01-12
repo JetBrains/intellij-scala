@@ -92,7 +92,6 @@ class SbtShellRunner(project: Project, consoleTitle: String)
       new RestartAction(this, defaultExecutor, contentDescriptor),
       new CloseAction(defaultExecutor, contentDescriptor, project),
       new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile)),
-      new DummyAction(this)
     )
 
     val allActions = List(
@@ -166,14 +165,6 @@ class ExecuteTaskAction(task: String, icon: Option[Icon]) extends DumbAwareActio
   getTemplatePresentation.setText(s"Execute $task")
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    new SbtShellCommunication(e.getProject).task(task)
-  }
-}
-
-class DummyAction(runner: SbtShellRunner) extends DumbAwareAction {
-  getTemplatePresentation.setIcon(AllIcons.Actions.IntentionBulb)
-
-  override def actionPerformed(anActionEvent: AnActionEvent) = {
-    println(s"dummy action performed in ${runner.getConsoleTitle}")
+    SbtShellCommunication.forProject(e.getProject).command(task)
   }
 }

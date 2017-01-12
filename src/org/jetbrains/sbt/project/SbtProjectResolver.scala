@@ -111,7 +111,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     * More specific settings from sbt are preferred over IDE settings, on the assumption that the sbt project definition
     * is what is more likely to be under source control.
     */
-  private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]) = {
+  private def chooseJdk(project: sbtStructure.ProjectData, defaultJdk: Option[String]): Option[Sdk] = {
     // TODO put some of this logic elsewhere in resolving process?
     val androidSdk = project.android.map(android => Android(android.targetVersion))
     val jdkHomeInSbtProject = project.java.flatMap(_.home).map(JdkByHome)

@@ -8,8 +8,10 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ProjectRootManager
+import org.jetbrains.sbt.project.SbtExternalSystemManager
+import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.structure.SbtRunner
-
+import scala.collection.JavaConverters._
 /**
   * Manages the sbt shell process instance for the project.
   * Instantiates an sbt instance when initially requested.
@@ -24,25 +26,25 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
 
   private def createShellProcessHandler(): ColoredProcessHandler = {
-    val sdk: Sdk = ProjectRootManager.getInstance(project).getProjectSdk
-    assert(sdk != null) // TODO user feedback, this gets reported only as assertion error
-    val sdkType: SdkTypeId = sdk.getSdkType
-    assert(sdkType.isInstanceOf[JavaSdkType])
-    val exePath: String = sdkType.asInstanceOf[JavaSdkType].getVMExecutablePath(sdk)
     val workingDir = project.getBaseDir.getCanonicalPath
 
-    // TODO get this from configuration
-    val launcherJar: File = SbtRunner.getDefaultLauncher
+    val sbtSettings = SbtExternalSystemManager.executionSettingsFor(project, workingDir)
+
+    val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
+    val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
+    val sdk = configuredSdk.getOrElse(projectSdk)
+    assert(sdk != null, "Setup a project JDK to run the SBT shell with")
+    val launcherJar: File = sbtSettings.customLauncher.getOrElse(SbtRunner.getDefaultLauncher)
 
     val javaParameters: JavaParameters = new JavaParameters
     javaParameters.setJdk(sdk)
     javaParameters.configureByProject(project, 1, sdk)
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcherJar.getCanonicalPath)
-    // TODO get from configuration, correct java 6/7/8-appropriate args
-    javaParameters.getVMParametersList.addAll("-XX:MaxPermSize=128M", "-Xmx2G", "-Dsbt.log.noformat=false")
+    // TODO make sure jvm also gets proxy settings
+    javaParameters.getVMParametersList.addAll(sbtSettings.vmOptions.asJava)
 
-    val commandLine: GeneralCommandLine = JdkUtil.setupJVMCommandLine(exePath, javaParameters, false)
+    val commandLine: GeneralCommandLine = JdkUtil.setupJVMCommandLine(sbtSettings.vmExecutable.getAbsolutePath, javaParameters, false)
     new ColoredProcessHandler(commandLine)
   }
 

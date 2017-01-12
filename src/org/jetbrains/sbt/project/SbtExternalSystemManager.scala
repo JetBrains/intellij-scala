@@ -152,7 +152,7 @@ object SbtExternalSystemManager {
       }.getOrElse(Map.empty)
 
   private def getVmOptions(settings: SbtSystemSettings): Seq[String] = {
-    val userOptions = settings.getVmParameters.split("\\s+").toSeq
+    val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
     val ideaProxyOptions = proxyOptionsFor(HttpConfigurable.getInstance).filterNot { opt =>
       val optName = opt.split('=').head + "="
       userOptions.exists(_.startsWith(optName))

@@ -20,7 +20,7 @@ import scala.xml.{Elem, XML}
 class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[String, String],
                 customLauncher: Option[File], customStructureFile: Option[File]) {
   private val LauncherDir = getSbtLauncherDir
-  private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
+  private val SbtLauncher = customLauncher.getOrElse(getDefaultLauncher)
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
