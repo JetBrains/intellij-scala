@@ -96,6 +96,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
     }
 
     private HashSet<LibraryOrderEntry> getIntellijJars() {
+        if (myProject.isDisposed()) return new HashSet<LibraryOrderEntry>(0);
         VirtualFile[] all = PackageIndex.getInstance(myProject).getDirectoriesByPackageName("com.intellij", false);
         ArrayList<VirtualFile> jars = new ArrayList<VirtualFile>();
         for (VirtualFile f : all) {
