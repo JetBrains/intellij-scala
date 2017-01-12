@@ -38,7 +38,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   /**
    * Extra java options.
    */
-  private var javaOptions = "-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
+  private var javaOptions = "-Xms512M -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled"
 
   /**
    * Environment variables.
