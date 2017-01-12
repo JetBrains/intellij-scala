@@ -67,8 +67,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     super.initAndRun()
     UIUtil.invokeLaterIfNeeded(new Runnable {
       override def run(): Unit = {
-        val promptChanger = new SbtProcessPromptListener(myConsoleView, ">", "X")
-        new SbtShellCommunication(project).attachListener(promptChanger)
+        SbtShellCommunication.forProject(project).initCommunication(myConsoleView)
       }
     })
   }
@@ -91,7 +90,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     val myToolbarActions = List(
       new RestartAction(this, defaultExecutor, contentDescriptor),
       new CloseAction(defaultExecutor, contentDescriptor, project),
-      new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile)),
+      new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile))
     )
 
     val allActions = List(

@@ -19,6 +19,9 @@
         <component>
             <implementation-class>org.jetbrains.sbt.shell.SbtProcessManager</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.sbt.shell.SbtShellCommunication</implementation-class>
+        </component>
     </project-components>
 
     <application-components>

@@ -62,7 +62,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
                    tasks: util.Collection[_ <: ProjectTask]): Unit = {
 
     val callbackOpt = Option(callback)
-    val shell = new SbtShellCommunication(project)
+    val shell = SbtShellCommunication.forProject(project)
 
     // the "build" button in IDEA always runs the build for all individual modules,
     // and may work differently than just calling the products task from the main module in sbt
@@ -101,7 +101,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
     // TODO consider running module build tasks separately
     // may require collecting results individually and aggregating
     // and shell communication should do proper queueing
-    shell.task(command)
+    shell.command(command)
       .onComplete {
       case Success(taskResult) =>
         callbackOpt.foreach(_.finished(taskResult))

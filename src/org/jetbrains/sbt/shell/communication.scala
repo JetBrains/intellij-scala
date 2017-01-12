@@ -1,25 +1,35 @@
 package org.jetbrains.sbt.shell
 
 import java.io.{OutputStreamWriter, PrintWriter}
+import java.util.concurrent._
+import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.console.LanguageConsoleView
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskResult
+import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.sbt.shell.SbtProcessUtil._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.{Duration, DurationLong}
 import scala.concurrent.{Future, Promise}
 import scala.util.Success
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import SbtProcessListener._
 
 /**
   * Created by jast on 2016-11-06.
   */
-class SbtShellCommunication(project: Project) {
+class SbtShellCommunication(project: Project) extends AbstractProjectComponent(project) {
 
   private lazy val process = SbtProcessManager.forProject(project)
+
+  private val shellPromptReady = new AtomicBoolean(false)
+  private val queueProcessingActive = new AtomicBoolean(false)
+  private val shellQueueReady = new Semaphore(1)
+  private val commands = new LinkedBlockingQueue[(String, CommandListener)]()
+
 
   // TODO ask sbt to provide completions for a line via its parsers
   def completion(line: String): List[String] = List.empty
@@ -27,24 +37,12 @@ class SbtShellCommunication(project: Project) {
   /**
     * Execute an sbt task.
     */
-  def task(task: String): Future[ProjectTaskResult] = {
+  def command(cmd: String): Future[ProjectTaskResult] = {
 
-    val handler = process.acquireShellProcessHandler
-    val listener = new SbtProcessTaskCompletionListener
-    handler.addProcessListener(listener)
+    val listener = new CommandListener
+    commands.put((cmd, listener))
 
-    // TODO more robust way to get the writer? cf createOutputStreamWriter.createOutputStreamWriter
-    val shell = new PrintWriter(new OutputStreamWriter(handler.getProcessInput))
-
-    // TODO queue the task instead of direct execution.
-    // we want to avoid registering multiple callbacks to the same output and having whatever side effects
-    // TODO build selected module?
-    shell.println(task)
-    shell.flush()
-
-    listener.future.andThen {
-      case _ => handler.removeProcessListener(listener)
-    }.recover {
+    listener.future.recover {
       case _ =>
         // TODO some kind of feedback / rethrow
         new ProjectTaskResult(true, 1, 0)
@@ -55,9 +53,72 @@ class SbtShellCommunication(project: Project) {
     val handler = process.acquireShellProcessHandler
     handler.addProcessListener(listener)
   }
+
+  def startQueueProcessing(): Unit = {
+    if (!queueProcessingActive.getAndSet(true)) {
+      // is it ok for this executor to run a queue processor?
+      PooledThreadExecutor.INSTANCE.submit(new Runnable {
+        override def run(): Unit = {
+          val handler = process.acquireShellProcessHandler
+          // make sure there is exactly one permit available
+          shellQueueReady.drainPermits()
+          shellQueueReady.release()
+          while (!handler.isProcessTerminating && !handler.isProcessTerminated) {
+            nextQueuedCommand(1.second)
+          }
+          queueProcessingActive.set(false)
+        }
+      })
+    }
+  }
+
+  private def nextQueuedCommand(timeout: Duration) = {
+    // TODO exception handling
+    if (shellQueueReady.tryAcquire(timeout.toMillis, TimeUnit.MILLISECONDS)) {
+      val next = commands.poll(timeout.toMillis, TimeUnit.MILLISECONDS)
+      if (next != null) {
+        val (cmd, listener) = next
+
+        val handler = process.acquireShellProcessHandler
+        handler.addProcessListener(listener)
+
+        // TODO more robust way to get the writer? cf createOutputStreamWriter
+        val shell = new PrintWriter(new OutputStreamWriter(handler.getProcessInput))
+
+        // we want to avoid registering multiple callbacks to the same output and having whatever side effects
+        shell.println(cmd)
+        shell.flush()
+
+        listener.future.onComplete { _ =>
+          handler.removeProcessListener(listener)
+          shellQueueReady.release()
+        }
+      } else shellQueueReady.release()
+    }
+  }
+
+  /**
+    * To be called when the process is reinitialized externally
+    */
+  def initCommunication(consoleView: LanguageConsoleView): Unit = {
+    val promptReadyStateChanger = new SbtShellReadyListener(
+      whenReady = shellPromptReady.set(true),
+      whenWorking = shellPromptReady.set(false)
+    )
+    attachListener(promptReadyStateChanger)
+
+    val promptChanger = new SbtShellReadyListener(
+      whenReady = consoleView.setPrompt(">"),
+      whenWorking = consoleView.setPrompt("X")
+    )
+    attachListener(promptChanger)
+
+    startQueueProcessing()
+  }
+
 }
 
-class SbtProcessTaskCompletionListener extends ProcessAdapter {
+class CommandListener extends ProcessAdapter {
 
   private var success = false
   private var errors = 0
@@ -91,21 +152,29 @@ class SbtProcessTaskCompletionListener extends ProcessAdapter {
 
 }
 
-/** Monitor sbt prompt status, react to it. */
-class SbtProcessPromptListener(consoleView: LanguageConsoleView, readyPrompt: String, workingPrompt: String) extends ProcessAdapter {
+object SbtShellCommunication {
+  def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
+}
+
+/** Monitor sbt prompt status, do something when state changes */
+class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends ProcessAdapter {
+
+  private var readyState: Boolean = false
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
     val sbtReady = promptReady(event.getText)
-    val prompt = consoleView.getPrompt.trim
-
-    if (sbtReady && prompt == workingPrompt)
-      consoleView.setPrompt(readyPrompt)
-    else if (!sbtReady && prompt != workingPrompt)
-      consoleView.setPrompt(workingPrompt)
+    if (sbtReady && !readyState) {
+      readyState = true
+      whenReady
+    }
+    else if (!sbtReady && readyState) {
+      readyState = false
+      whenWorking
+    }
   }
 }
 
-object SbtProcessListener {
+object SbtProcessUtil {
 
   def promptReady(line: String): Boolean =
     line match {
