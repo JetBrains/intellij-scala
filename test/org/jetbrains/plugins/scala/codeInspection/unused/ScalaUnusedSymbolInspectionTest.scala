@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{DeleteUnusedElementFix, ScalaUnusedSymbolInspection}
 
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{DeleteUnuse
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
 class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaUnusedSymbolInspection]
 
   override protected def annotation: String = ScalaUnusedSymbolInspection.Annotation

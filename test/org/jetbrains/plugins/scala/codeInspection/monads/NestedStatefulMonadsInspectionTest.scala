@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.monads
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTes
  * @since 29.09.15
  */
 class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   val annotation = NestedStatefulMonadsInspection.Annotation
   protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[NestedStatefulMonadsInspection]
 

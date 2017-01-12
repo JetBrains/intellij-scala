@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  * 1/24/14
  */
 class SortFilterTest extends OperationsOnCollectionInspectionTest {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override def hint: String = InspectionBundle.message("sort.filter.hint")
 
   def testWithoutParams() {

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
@@ -9,6 +10,9 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTes
  * 9/27/13
  */
 class MatchToPartialFunctionInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[MatchToPartialFunctionInspection]
   protected val annotation: String = MatchToPartialFunctionInspection.inspectionName
 

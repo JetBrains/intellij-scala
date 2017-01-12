@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
  */
-class MapKeysTest extends OperationsOnCollectionInspectionTest{
+class MapKeysTest extends OperationsOnCollectionInspectionTest {
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[MapKeysInspection]
 
   override val hint: String = InspectionBundle.message("replace.with.keys")

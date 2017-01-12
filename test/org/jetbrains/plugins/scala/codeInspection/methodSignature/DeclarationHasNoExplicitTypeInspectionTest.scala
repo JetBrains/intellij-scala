@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightI
 class DeclarationHasNoExplicitTypeInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
 
   import CodeInsightTestFixture.CARET_MARKER
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DeclarationHasNoExplicitTypeInspection]
   protected def annotation: String = InspectionBundle.message("declaration.has.no.explicit.type.name")

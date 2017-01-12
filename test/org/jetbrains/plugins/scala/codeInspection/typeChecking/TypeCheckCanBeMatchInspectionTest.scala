@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTes
 class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
 
   import CodeInsightTestFixture.CARET_MARKER
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   val annotation = TypeCheckCanBeMatchInspection.inspectionName
   val hint = TypeCheckCanBeMatchInspection.inspectionName

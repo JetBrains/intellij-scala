@@ -206,9 +206,3 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 
   override def getFixture: CodeInsightTestFixture = myFixture
 }
-
-object ScalaLightCodeInsightFixtureTestAdapter {
-  val SELECTION_START = "<selection>"
-  val SELECTION_END = "</selection>"
-}
-

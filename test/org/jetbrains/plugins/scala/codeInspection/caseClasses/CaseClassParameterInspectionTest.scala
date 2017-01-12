@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.caseClasses
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection
@@ -9,6 +10,9 @@ import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseC
   * @author Nikolay.Tropin
   */
 class CaseClassParameterInspectionTest extends ScalaLightInspectionFixtureTestAdapter  {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override protected def annotation: String = ScalaBundle.message("val.on.case.class.param.redundant")
 
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[CaseClassParamInspection]

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -11,6 +12,9 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
  * Date: 6/30/15
  */
 class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override protected def setUp(): Unit = {
     super.setUp()
 

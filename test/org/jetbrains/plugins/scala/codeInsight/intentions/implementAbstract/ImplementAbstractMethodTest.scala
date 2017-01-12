@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInsight.intentions.implementAbstract
 
 import com.intellij.codeInsight.intention.impl.ImplementAbstractMethodAction
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
  * 12/27/13
  */
 class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
-  def familyName: String = new ImplementAbstractMethodAction().getFamilyName
 
-  val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
+  def familyName: String = new ImplementAbstractMethodAction().getFamilyName
 
   def testFromTrait() {
     val text =

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 
 /**
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightI
  * 6/3/13
  */
 class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   val annotation = InspectionBundle.message("convertible.to.method.value.name")
   val hintAnon = InspectionBundle.message("convertible.to.method.value.anonymous.hint")
   val hintEta = InspectionBundle.message("convertible.to.method.value.eta.hint")

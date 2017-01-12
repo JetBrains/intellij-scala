@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
 /**
  * @author Nikolay.Tropin
  */
-class RedundantHeadOptionTest extends OperationsOnCollectionInspectionTest{
+class RedundantHeadOptionTest extends OperationsOnCollectionInspectionTest {
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[RedundantHeadOrLastOptionInspection]
 
   override def hint: String = RedundantHeadOption.hint

@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
  */
 class HeadOptionTest extends OperationsOnCollectionInspectionTest {
+
+
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[HeadOrLastOptionInspection]
 
   override def hint: String = InspectionBundle.message("replace.with.headOption")

@@ -2,13 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInspection.parentheses
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
  * Nikolay.Tropin
  * 4/29/13
  */
-class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTestAdapter{
+class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   val annotation = "Unnecessary parentheses"
   val hintBeginning = "Remove unnecessary parentheses"

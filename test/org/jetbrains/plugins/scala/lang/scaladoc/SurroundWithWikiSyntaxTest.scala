@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory
@@ -11,12 +12,12 @@ import org.jetbrains.plugins.scala.util.ScalaToolsFactory
  */
 
 class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
   import org.jetbrains.plugins.scala.lang.scaladoc.SurroundWithWikiSyntaxTest._
-  val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 
   private def getAssumedText(text: String, tag: String) =
-    text.replace(s, tag).replace(e, tag)
+    text.replace(START, tag).replace(END, tag)
 
   private def checkAllSurrounders(text: String) {
     val actualText = text.stripMargin.replace("\r", "")
@@ -31,7 +32,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * b${s}lah b${e}lah
+         |  * b${START}lah b${END}lah
          |  * blah blah blah
          |  */""".stripMargin.replace("\r", "")
     }
@@ -40,9 +41,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
   def testSurroundMultilineData() {
     checkAllSurrounders {
       s"""
-         |/** blah lb${s}lah akfhsdhfsadhf
+         |/** blah lb${START}lah akfhsdhfsadhf
          |  * skjgh dfsg shdfa hsdaf jhsad fsd
-         |  * dfgas dfhgsajdf sad${e}jfjsd
+         |  * dfgas dfhgsajdf sad${END}jfjsd
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -53,7 +54,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
          |/**
          |  * __blah blah
          |  * dfgasdhgfjk ^ashgdfkjgds|   * ''aaaaaa''  sdkfhsadjkh^ ll
-         |  * sd${s}hfkhsa${e}dl__
+         |  * sd${START}hfkhsa${END}dl__
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -63,8 +64,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
       s"""
          |/**
          |  * __blah blah
-         |  * blkjhsd${s}asdhajs ''sdfsddlk''
-         |  * shfg`sad`jhg${e}f__
+         |  * blkjhsd${START}asdhajs ''sdfsddlk''
+         |  * shfg`sad`jhg${END}f__
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -73,7 +74,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * $s      datadatad${e}atadata
+         |  * $START      datadatad${END}atadata
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -82,7 +83,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * ${s}comment_data$e
+         |  * ${START}comment_data$END
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -91,8 +92,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * @param a aaa${s}aa
-         |  *          aaaaa${e}aaa
+         |  * @param a aaa${START}aa
+         |  *          aaaaa${END}aaa
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -101,7 +102,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * @todo blah ${s}blah b${e}lah
+         |  * @todo blah ${START}blah b${END}lah
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -110,8 +111,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * blah $s^blah blah
-         |  * jhsdbjbhsafd^$e dajsdgf
+         |  * blah $START^blah blah
+         |  * jhsdbjbhsafd^$END dajsdgf
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -120,8 +121,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * blah ,,${s}blah blha
-         |  * blah blah$e,, blah
+         |  * blah ,,${START}blah blha
+         |  * blah blah$END,, blah
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -130,8 +131,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * aa${s}aa__sahdkljahskdhasd
-         |  * dajs${e}kjhd__kas
+         |  * aa${START}aa__sahdkljahskdhasd
+         |  * dajs${END}kjhd__kas
          |  */""".stripMargin.replace("\r", "")
 
     checkAfterSurroundWith(text, "", surrounders(0), canSurround = false)
@@ -141,9 +142,9 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * b${s}lah blah
+         |  * b${START}lah blah
          |  *
-         |  * blah blah$e blah
+         |  * blah blah$END blah
          |  */""".stripMargin.replace("\r", "")
 
     checkAfterSurroundWith(text, "", surrounders(0), canSurround = false)
@@ -153,8 +154,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * bla${s}h blah blah
-         |  * @see   some${e}thing
+         |  * bla${START}h blah blah
+         |  * @see   some${END}thing
          |  */""".stripMargin.replace("\r", "")
 
     checkAfterSurroundWith(text, "", surrounders(0), canSurround = false)
@@ -164,7 +165,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * blah${s}__blah${e}blah__
+         |  * blah${START}__blah${END}blah__
          |  */""".stripMargin.replace("\r", "")
 
     checkAfterSurroundWith(text, "", surrounders(0), canSurround = false)
@@ -174,8 +175,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     val text =
       s"""
          |/**
-         |  * blah blah ${s}__blah blah
-         |  *     blah bl${e}ah blah __
+         |  * blah blah ${START}__blah blah
+         |  *     blah bl${END}ah blah __
          |  */""".stripMargin.replace("\r", "")
 
     checkAfterSurroundWith(text, "", surrounders(0), canSurround = false)

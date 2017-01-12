@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  * 2014-05-08
  */
 class GetGetOrElseTest extends OperationsOnCollectionInspectionTest {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   val hint = InspectionBundle.message("get.getOrElse.hint")
   override val inspectionClass = classOf[GetGetOrElseInspection]
 

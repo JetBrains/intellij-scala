@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.controlFlow
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
@@ -9,6 +10,9 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTes
  * 2014-09-23
  */
 class UselessExpressionInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaUselessExpressionInspection]
   override protected def annotation: String = "Useless expression"
 

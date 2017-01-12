@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
@@ -59,6 +60,8 @@ class FilterIsEmptyCheckTest extends OperationsOnCollectionInspectionTest {
 }
 
 class FilterNonEmptyCheckTest extends OperationsOnCollectionInspectionTest {
+
+
   override val inspectionClass = classOf[FilterEmptyCheckInspection]
   override val hint = InspectionBundle.message("filter.nonempty.check.hint")
 

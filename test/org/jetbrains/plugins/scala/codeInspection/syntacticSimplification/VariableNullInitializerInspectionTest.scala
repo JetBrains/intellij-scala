@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection
 
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.Variabl
   * Created by a.tsukanov on 27.05.2016.
   */
 class VariableNullInitializerInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override protected def annotation: String = VariableNullInitializerInspection.inspectionName
 
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]

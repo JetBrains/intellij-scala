@@ -7,8 +7,6 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
  * 5/21/13
  */
 abstract class OperationsOnCollectionInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
   val inspectionClass: Class[_ <: OperationOnCollectionInspection]
   def hint: String
   def description: String = hint

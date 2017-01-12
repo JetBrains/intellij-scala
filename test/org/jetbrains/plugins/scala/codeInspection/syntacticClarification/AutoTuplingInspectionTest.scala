@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTes
   * Date: 10/14/15.
   */
 class AutoTuplingInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AutoTuplingInspection]
 
   override protected def annotation: String = AutoTuplingInspection.message

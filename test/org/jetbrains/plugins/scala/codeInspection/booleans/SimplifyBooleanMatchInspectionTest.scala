@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.booleans
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   val annotation = "Trivial match can be simplified"
   val quickFixHint = "Simplify match to if statement"
 
@@ -24,7 +26,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
     val selectedText =
       s"""
          |val a = true
-         |val b = a ${s}match$e {
+         |val b = a ${START}match$END {
          |  case true => 1
          |}
        """.stripMargin
@@ -52,7 +54,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
     val selectedText =
       s"""
          |val a = true
-         |val b = a ${s}match$e {
+         |val b = a ${START}match$END {
          |  case true => {
          |    1
          |  }
@@ -84,7 +86,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
     val selectedText =
       s"""
          |val a = true
-         |val b = a ${s}match$e {
+         |val b = a ${START}match$END {
          |  case false => 1
          |}
        """.stripMargin
@@ -112,7 +114,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
     val selectedText =
       s"""
          |val a = true
-         |val b = a ${s}match$e {
+         |val b = a ${START}match$END {
          |  case false => 1
          |  case true => 4
          |}
@@ -144,7 +146,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
     val selectedText =
       s"""
          |val a = true
-         |val b = a ${s}match$e {
+         |val b = a ${START}match$END {
          |  case true => 1
          |  case _ => 4
          |}
@@ -176,7 +178,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
     val selectedText =
       s"""
          |val a = true
-         |val b = a ${s}match$e {
+         |val b = a ${START}match$END {
          |  case false => 1
          |  case _ => 4
          |}
@@ -208,7 +210,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
     val selectedText =
       s"""
          |val a = true
-         |val b = a ${s}match$e {
+         |val b = a ${START}match$END {
          |  case true => {
          |    1
          |  }
@@ -250,7 +252,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
   def test_SingleTrueWithParenthesisedPatternSimpleBranches() {
     val selectedText =
       s"""
-         |val b = 1 + 2 == 3 ${s}match$e {
+         |val b = 1 + 2 == 3 ${START}match$END {
          |  case true => 1
          |}
        """.stripMargin
@@ -275,7 +277,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
   def test_SingleFalseWithParenthesisedPatternSimpleBranches() {
     val selectedText =
       s"""
-         |val b = 1 + 2 == 3 ${s}match$e {
+         |val b = 1 + 2 == 3 ${START}match$END {
          |  case false => 1
          |}
        """.stripMargin

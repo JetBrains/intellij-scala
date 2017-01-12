@@ -9,8 +9,6 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class HigherKindedTypesTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 
   def testSCL10432(): Unit = {
     checkTextHasError(

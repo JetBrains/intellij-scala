@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
  */
-class RedundantConversionTest extends OperationsOnCollectionInspectionTest{
+class RedundantConversionTest extends OperationsOnCollectionInspectionTest {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[RedundantCollectionConversionInspection]
 
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")

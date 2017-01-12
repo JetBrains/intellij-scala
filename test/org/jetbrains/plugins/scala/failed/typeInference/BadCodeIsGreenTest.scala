@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
@@ -10,9 +11,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
-  
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   def testScl7139_1() {
     checkTextHasError(
       s"""

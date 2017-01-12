@@ -1,9 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil
+
 /**
  * @author Nikolay.Tropin
  */
 class IfElseToOptionTest extends OperationsOnCollectionInspectionTest {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[IfElseToOptionInspection]
 
   override def hint: String = "Replace with Option(x)"

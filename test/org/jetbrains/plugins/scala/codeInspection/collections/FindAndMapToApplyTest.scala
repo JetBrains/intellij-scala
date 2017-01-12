@@ -1,10 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil
+
 /**
   * mattfowler
   * 4/28/16
   */
 class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   def test_inline_map() {
 

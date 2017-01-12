@@ -3,15 +3,13 @@ package codeInspection
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.codeInspection.booleans.DoubleNegationInspection
 
 /**
  * Nikolay.Tropin
  * 6/3/13
  */
-abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsightFixtureTestAdapter{
-  protected val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  protected val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
+abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsightFixtureTestAdapter {
+
   protected def classOfInspection: Class[_ <: LocalInspectionTool]
   protected def annotation: String
   protected def normalize(str: String): String = str.stripMargin.replace("\r", "").trim

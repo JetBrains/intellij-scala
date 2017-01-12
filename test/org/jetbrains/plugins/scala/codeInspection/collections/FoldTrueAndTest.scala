@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  * 5/30/13
  */
 class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   val hint = InspectionBundle.message("fold.true.and.hint")
   def test_1() {
     val selected = s"List(false).${START}foldLeft(true){_ && _}$END"

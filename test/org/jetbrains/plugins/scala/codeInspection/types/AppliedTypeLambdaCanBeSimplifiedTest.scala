@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.types
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -10,6 +11,9 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
  * Date: 7/6/15
  */
 class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
 
   def quickFixAnnotation: String = InspectionBundle.message("simplify.type")

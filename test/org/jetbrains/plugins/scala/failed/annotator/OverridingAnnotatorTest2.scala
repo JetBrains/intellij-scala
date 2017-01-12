@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
@@ -10,6 +11,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   //TODO: the issue does not reproduce when test is performed  using OverridingAnnotatorTest
   def testSCL3807(): Unit = {
     checkTextHasNoErrors(
@@ -23,9 +27,6 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin)
   }
-
-  val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 
   def testScl7536() {
     checkTextHasError(

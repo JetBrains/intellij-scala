@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
   * @author Lukasz Piepiora
   */
 class EmulateFlattenTest extends OperationsOnCollectionInspectionTest {
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] =
     classOf[EmulateFlattenInspection]

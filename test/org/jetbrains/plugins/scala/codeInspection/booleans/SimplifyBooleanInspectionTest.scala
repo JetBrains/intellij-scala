@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
@@ -8,8 +9,9 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
  * 4/24/13
  */
 class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   val annotation = "Simplify boolean expression"
 
   private def check(text: String) {
@@ -25,7 +27,7 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
   }
 
   def test_NotTrue() {
-    val selectedText = s"$s!true$e"
+    val selectedText = s"$START!true$END"
     check(selectedText)
 
     val text = "!true"
@@ -37,7 +39,7 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
   def test_TrueEqualsA() {
     val selectedText =
       s"""val a = true
-          |${s}true == a$e""".stripMargin
+         |${START}true == a$END""".stripMargin
     check(selectedText)
 
     val text =
@@ -52,7 +54,7 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
   def test_TrueAndA() {
     val selectedText =
       s"""val a = true
-          |${s}true && a$e""".stripMargin
+         |${START}true && a$END""".stripMargin
     check(selectedText)
 
     val text =
@@ -66,7 +68,7 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
   def test_AOrFalse() {
     val selectedText = s"""val a = true
-                          |${s}a | false$e""".stripMargin
+                          |${START}a | false$END""".stripMargin
     check(selectedText)
 
     val text = """val a = true
@@ -79,8 +81,8 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
   def test_ExternalExpression() {
     val selectedText = s"""
-        |val a = true
-        |${s}true && (a || false)$e
+                          |val a = true
+                          |${START}true && (a || false)$END
       """.stripMargin
     check(selectedText)
 
@@ -97,8 +99,8 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
   def test_InternalExpression() {
     val selectedText =
       s"""
-        |val a = true
-        |true && ($s<caret>a || false$e)
+         |val a = true
+         |true && ($START<caret>a || false$END)
       """.stripMargin
     check(selectedText)
 
@@ -116,7 +118,7 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
   def test_TrueNotEqualsA() {
     val selectedText =  s"""val a = true
-                            |val flag: Boolean = ${s}true != a$e""".stripMargin
+                           |val flag: Boolean = ${START}true != a$END""".stripMargin
     check(selectedText)
 
     val text = s"""val a = true
@@ -129,7 +131,7 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
   def test_SimplifyInParentheses() {
     val selectedText = s"""val a = true
-                            |!(${s}true != a$e)""".stripMargin
+                          |!(${START}true != a$END)""".stripMargin
     check(selectedText)
 
     val text = """val a = true

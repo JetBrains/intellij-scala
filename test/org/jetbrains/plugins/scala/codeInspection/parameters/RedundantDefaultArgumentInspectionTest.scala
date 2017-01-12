@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.parameters
 
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
-  val s = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
-  val e = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
+
+  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+
   val annotation = "Argument duplicates corresponding parameter default value"
   val quickFixHint = "Delete redundant default argument"
 
@@ -24,7 +26,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
     val selectedText =
       s"""
          |def f(x: Int = 0) {}
-         |f(${s}0$e)
+         |f(${START}0$END)
        """.stripMargin
     check(selectedText)
 
@@ -64,7 +66,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
     val selectedText =
       s"""
          |def f(x: Int, y: Int = 0, z: Int) {}
-         |f(1, ${s}y=0$e, z=1)
+         |f(1, ${START}y=0$END, z=1)
        """.stripMargin
     check(selectedText)
 
@@ -104,7 +106,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
     val selectedText =
       s"""
          |def f(x: Int, y: Int = 0) {}
-         |f(1, ${s}0$e)
+         |f(1, ${START}0$END)
       """.stripMargin
     check(selectedText)
 
@@ -126,7 +128,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
     val selectedText =
       s"""
          |def f(x: Int, y: Int = 0, z: Int, t: Int) {}
-         |f(1, ${s}0$e, z = 1, t = 2)
+         |f(1, ${START}0$END, z = 1, t = 2)
       """.stripMargin
     check(selectedText)
 
@@ -148,7 +150,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
     val selectedText =
       s"""
          |def f(x: Int = 0)
-         |f(${s}0$e)
+         |f(${START}0$END)
        """.stripMargin
     check(selectedText)
 
