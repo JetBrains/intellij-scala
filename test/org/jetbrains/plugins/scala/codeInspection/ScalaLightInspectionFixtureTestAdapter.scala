@@ -12,7 +12,6 @@ abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsi
 
   protected def classOfInspection: Class[_ <: LocalInspectionTool]
   protected def annotation: String
-  protected def normalize(str: String): String = str.stripMargin.replace("\r", "").trim
 
   protected def check(text: String): Unit = {
     checkTextHasError(normalize(text), normalize(annotation), classOfInspection)

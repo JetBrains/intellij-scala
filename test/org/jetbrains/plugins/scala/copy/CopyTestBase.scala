@@ -19,9 +19,9 @@ abstract class CopyTestBase(fromLang: Lang, toLang: Lang) extends ScalaLightCode
   }
 
   def doTest(fromText: String, toText: String, expectedText: String): Unit = {
-    myFixture.configureByText("from" + langToName(fromLang), fromText)
+    myFixture.configureByText("from" + langToName(fromLang), normalize(fromText))
     myFixture.performEditorAction(IdeActions.ACTION_COPY)
-    myFixture.configureByText("to" + langToName(toLang), toText)
+    myFixture.configureByText("to" + langToName(toLang), normalize(toText))
     myFixture.performEditorAction(IdeActions.ACTION_PASTE)
     myFixture.checkResult(expectedText)
   }
