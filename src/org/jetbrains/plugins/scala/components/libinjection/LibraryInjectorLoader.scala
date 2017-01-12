@@ -32,7 +32,12 @@ import scala.util.control.NonFatal
 
 @SerialVersionUID(-8361292897316544896L)
 case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest]) {
+  def ensurePathExists() = {
+   if (!LibraryInjectorLoader.myInjectorCacheDir.exists())
+     FileUtil.createDirectory(LibraryInjectorLoader.myInjectorCacheDir)
+  }
   def saveJarCache() = {
+    ensurePathExists()
     val stream = new ObjectOutputStream(
       new BufferedOutputStream(
         new FileOutputStream(LibraryInjectorLoader.myInjectorCacheIndex)
