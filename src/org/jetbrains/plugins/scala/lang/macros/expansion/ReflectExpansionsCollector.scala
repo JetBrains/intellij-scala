@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.macros.expansion
 
-import java.io.{BufferedInputStream, File, FileInputStream, ObjectInputStream}
+import java.io._
 
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerManager}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
 
@@ -48,9 +48,15 @@ class ReflectExpansionsCollector(project: Project) extends ProjectComponent {
     val fs = new BufferedInputStream(new FileInputStream(file))
     val os = new ObjectInputStream(fs)
     val res = mutable.Map[String, Seq[MacroExpansion]]()
-    while (fs.available() > 0) {
-      val expansion = os.readObject().asInstanceOf[MacroExpansion]
-      res.update(expansion.place.sourceFile, res.getOrElse(expansion.place.sourceFile, Seq.empty) :+ expansion)
+    try {
+      while (fs.available() > 0) {
+        val expansion = os.readObject().asInstanceOf[MacroExpansion]
+        res.update(expansion.place.sourceFile, res.getOrElse(expansion.place.sourceFile, Seq.empty) :+ expansion)
+      }
+    } catch {
+      case _: InvalidClassException => FileUtil.delete(file) // signatures have changed, simply drop the caches
+    } finally {
+      os.close()
     }
     res
   }
