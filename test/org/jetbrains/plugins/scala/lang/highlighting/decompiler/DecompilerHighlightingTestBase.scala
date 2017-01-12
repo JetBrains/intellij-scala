@@ -12,7 +12,11 @@ import scala.tools.scalap.DecompilerTestBase
   * @author Roman.Shein
   * @since 31.05.2016.
   */
-abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase(ScalaSdkVersion._2_11, true) with DecompilerTestBase with AssertMatches {
+abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with DecompilerTestBase with AssertMatches {
+
+  override protected val scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override protected val loadReflect: Boolean = true
+
   override def basePath(separator: Char) = s"${super.basePath(separator)}highlighting$separator"
 
   override def doTest(fileName: String) = {
@@ -20,7 +24,7 @@ abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase(Scala
   }
 
   def getMessages(fileName: String, scalaFileText: String): List[Message] = {
-    myFixture.configureByText(fileName.substring(0, fileName.lastIndexOf('.')) + ".scala", scalaFileText.replace("{ /* compiled code */ }", "???"))
+    fixture.configureByText(fileName.substring(0, fileName.lastIndexOf('.')) + ".scala", scalaFileText.replace("{ /* compiled code */ }", "???"))
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
     val mock = new AnnotatorHolderMock(getFile)

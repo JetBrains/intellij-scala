@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   * Author: Svyatoslav Ilinskiy
   * Date: 6/15/15
   */
-abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION)
-  extends ScalaFixtureTestCase(scalaSdk) with AssertMatches {
+abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with AssertMatches {
+
   def testBasicGenerics() {
     val code =
       """
@@ -507,7 +507,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
 
   def messages(@Language("Scala") scalaCode: String, javaCode: Option[String] = None): List[Message] = {
     javaCode match {
-      case Some(s) => myFixture.addFileToProject("dummy.java", s)
+      case Some(s) => fixture.addFileToProject("dummy.java", s)
       case _ =>
     }
 
@@ -524,8 +524,8 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
   }
 
   def parseText(@Language("Scala") s: String): ScalaFile = {
-    myFixture.configureByText("foo.scala", s)
-    myFixture.getFile.asInstanceOf[ScalaFile]
+    fixture.configureByText("foo.scala", s)
+    fixture.getFile.asInstanceOf[ScalaFile]
   }
 
   val cannotResolveSymbol = ContainsPattern("Cannot resolve symbol")
@@ -541,7 +541,10 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
 
 }
 
-class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_12) {
+class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
+
+  override protected val scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_12
+
   def testFunctionSAM() {
     val code =
       """
@@ -705,11 +708,14 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
   }
 }
 
-class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_11) {
+class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
+
+  override protected val scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+
   protected override def setUp() {
     super.setUp()
 
-    val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(fixture.getProject).defaultProfile
     val newSettings = defaultProfile.getSettings
     newSettings.experimental = true
     defaultProfile.setSettings(newSettings)

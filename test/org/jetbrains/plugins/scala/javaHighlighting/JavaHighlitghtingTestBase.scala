@@ -12,17 +12,19 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   * @author Alefas
   * @since 23/03/16
   */
-abstract class JavaHighlitghtingTestBase(private val scalaVersion: ScalaSdkVersion = ScalaSdkVersion._2_11)
-  extends ScalaFixtureTestCase(scalaVersion = scalaVersion) with AssertMatches {
+abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase with AssertMatches {
+
+  override protected val scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+
   private var filesCreated: Boolean = false
 
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
 
-    myFixture.addFileToProject("dummy.scala", scalaFileText)
-    val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
-    myFixture.openFileInEditor(myFile.getVirtualFile)
-    val allInfo = myFixture.doHighlighting()
+    fixture.addFileToProject("dummy.scala", scalaFileText)
+    val myFile: PsiFile = fixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
+    fixture.openFileInEditor(myFile.getVirtualFile)
+    val allInfo = fixture.doHighlighting()
 
     filesCreated = true
 
@@ -36,8 +38,8 @@ abstract class JavaHighlitghtingTestBase(private val scalaVersion: ScalaSdkVersi
   def errorsFromScalaCode(scalaFileText: String, javaFileText: String): List[Message] = {
     if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
 
-    myFixture.addFileToProject("dummy.java", javaFileText)
-    myFixture.configureByText("dummy.scala", scalaFileText)
+    fixture.addFileToProject("dummy.java", javaFileText)
+    fixture.configureByText("dummy.scala", scalaFileText)
 
     filesCreated = true
 

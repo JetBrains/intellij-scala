@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.util.TestUtils
 
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
   def doTest(text: String, TIMEOUT: Int) {
-    val file = PsiFileFactory.getInstance(myFixture.getProject)
+    val file = PsiFileFactory.getInstance(fixture.getProject)
       .createFileFromText("dummy.scala", ScalaLanguage.INSTANCE, text, true, false)
     TestUtils.assertTiming("Failed highlighting performance test", TIMEOUT,
       new Runnable {
         def run() {
           try {
-            getFixture.allowTreeAccessForAllFiles()
-            myFixture.testHighlighting(false, false, false, file.getVirtualFile)
+            fixture.allowTreeAccessForAllFiles()
+            fixture.testHighlighting(false, false, false, file.getVirtualFile)
           }
           catch {
             case e: RuntimeException =>

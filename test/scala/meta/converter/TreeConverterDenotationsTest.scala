@@ -5,8 +5,9 @@ import scala.meta.prettyprinters.Structure
 
 class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
 
+  import TreeConverterTestUtils._
+
   def doTest(text: String, expected: String) = {
-    implicit val c = semanticContext
     val converted = convert(text)
     val got = converted.show[Structure].trim.replaceAll("local#.+\\n", "(LOCAL)\n")
     org.junit.Assert.assertEquals(expected.trim, got)

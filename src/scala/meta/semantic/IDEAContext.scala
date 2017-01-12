@@ -13,7 +13,7 @@ import scala.{meta => m, Seq => _}
 
 class IDEAContext(project: =>Project) extends TreeConverter with semantic.Context {
 
-  override def getCurrentProject = project
+  override def getCurrentProject: Project = project
 
   override def dialect: Dialect = dialects.Scala211
 

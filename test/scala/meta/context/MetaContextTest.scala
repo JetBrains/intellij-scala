@@ -10,6 +10,9 @@ import scala.meta._
 
 class MetaContextTest extends TreeConverterTestBaseWithLibrary {
 
+  import scala.meta._
+  import TreeConverterTestUtils._
+
   def extractClass(t: Tree): Defn.Class = {
     t match {
       case c@Defn.Class(_, name, _, _, Template(_, _, _, Some(stats))) =>
@@ -19,9 +22,7 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
     }
   }
 
-  def doTest: Unit = {
-    import scala.meta._
-    implicit val sc:scala.meta.semantic.Context = semanticContext
+  def doTest(): Unit = {
     val text =
       """
         | class A {
@@ -42,8 +43,6 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
 
     return
 
-    import scala.meta._
-    implicit val c = semanticContext
     val body =
       """
         |val txt = "hello, world"

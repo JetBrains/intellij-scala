@@ -1,29 +1,42 @@
 package scala.meta
 
-import com.intellij.openapi.project.Project
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.junit.Assert.{assertEquals, assertTrue}
 
 import scala.meta.semantic.IDEAContext
 
-abstract class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TreeConverterTestUtils {
+abstract class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  def fixture = myFixture
-
-  val semanticContext = new IDEAContext(fixture.getProject) {
+  implicit protected def implicitFixture: CodeInsightTestFixture = fixture
+  implicit protected val semanticContext = new IDEAContext(fixture.getProject) {
     override def dumbMode: Boolean = true
-
-    override def getCurrentProject: Project = myFixture.getProject
   }
-//  def testOk() = () // to get rid of no tests found spam in IDEA junit runner
+
+  def doTest(text: String, tree: Tree) = {
+    import TreeConverterTestUtils._
+
+    val converted = convert(text)
+
+    if (!structuralEquals(converted, tree)) {
+      assertEquals("Trees not equal", tree.toString(), converted.toString())
+      assertTrue(false)
+    }
+
+    assertEquals("Text comparison failure", tree.toString(), converted.toString())
+  }
+
+  //  def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }
 
 abstract class TreeConverterTestBaseNoLibrary extends TreeConverterTestBase {
   override def loadScalaLibrary = false
-//  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
+
+  //  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }
 
 abstract class TreeConverterTestBaseWithLibrary extends TreeConverterTestBase {
-  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
-//  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
+  override protected val scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  //  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }

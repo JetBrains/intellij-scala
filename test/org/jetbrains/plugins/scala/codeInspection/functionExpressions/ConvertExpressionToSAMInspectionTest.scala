@@ -24,8 +24,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     defaultProfile.setSettings(newSettings)
   }
 
-
-  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override protected val scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
 

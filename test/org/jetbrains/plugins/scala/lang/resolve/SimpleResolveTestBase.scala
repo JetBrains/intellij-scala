@@ -39,9 +39,9 @@ trait SimpleResolveTestBase {
       if (tgt == null)
         tgt = PsiTreeUtil.getParentOfType(psiFile.findElementAt(tgtOffset), classOf[PsiElement])
     }
-    sources.dropRight(1).foreach(configureFile(_, getFixture.addFileToProject)) // add additional files first
+    sources.dropRight(1).foreach(configureFile(_, fixture.addFileToProject)) // add additional files first
     sources.lastOption match {
-      case Some(file) => configureFile(file, getFixture.configureByText)  // last file is the one to be opened in editor
+      case Some(file) => configureFile(file, fixture.configureByText)  // last file is the one to be opened in editor
       case None => Assert.fail("No testdata provided")
     }
     Assert.assertNotNull("Failed to locate source element", src)

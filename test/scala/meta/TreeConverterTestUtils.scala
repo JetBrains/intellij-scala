@@ -12,22 +12,27 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
 import scala.meta.semantic.IDEAContext
 
-trait TreeConverterTestUtils {
+object TreeConverterTestUtils {
 
-  def fixture: CodeInsightTestFixture // we need to go deeper
+  private val START_TOKEN = "//start"
 
-  val semanticContext: IDEAContext
+  def convert(text: String)
+             (implicit fixture: CodeInsightTestFixture,
+              semanticContext: IDEAContext): Tree = {
+    val psi = psiFromText(text)
+    semanticContext.ideaToMeta(psi)
+  }
 
-  val startToken = "//start"
-
-  def psiFromText(text: String): ScalaPsiElement = {
+  def psiFromText(text: String)
+                 (implicit fixture: CodeInsightTestFixture): ScalaPsiElement = {
     def nextScalaPsiElement(current: PsiElement): ScalaPsiElement = current match {
       case _: PsiWhiteSpace => nextScalaPsiElement(current.getNextSibling)
       case sce: ScalaPsiElement => sce
       case _: PsiElement => nextScalaPsiElement(current.getNextSibling)
     }
+
     val file: ScalaFile = parseTextToFile(text)
-    val startPos = file.getText.indexOf(startToken)
+    val startPos = file.getText.indexOf(START_TOKEN)
     if (startPos < 0)
       file.typeDefinitions.headOption.getOrElse(file.getImportStatements.head)
     else {
@@ -45,47 +50,34 @@ trait TreeConverterTestUtils {
     def loop(x1: Any, x2: Any): Boolean = (x1, x2) match {
       case (x1: Tree, x2: Tree) => structuralEquals(x1, x2)
       case (Some(x1), Some(x2)) => loop(x1, x2)
-      case (Seq(xs1@_*), Seq(xs2@_*)) => xs1.zip(xs2).forall { case (x1, x2) => loop(x1, x2)}
+      case (Seq(xs1@_*), Seq(xs2@_*)) => xs1.zip(xs2).forall { case (x1, x2) => loop(x1, x2) }
       case (x1, x2) => x1 == x2
     }
+
     def tagsEqual = true
-    def fieldsEqual = tree1.productIterator.toList.zip(tree2.productIterator.toList).forall { case (x1, x2) => loop(x1, x2)}
-    (tagsEqual && fieldsEqual) || {println(s"${tree1.show[scala.meta.Structure]} <=> ${tree2.show[scala.meta.Structure]}"); false}
+
+    def fieldsEqual = tree1.productIterator.toList.zip(tree2.productIterator.toList).forall { case (x1, x2) => loop(x1, x2) }
+
+    (tagsEqual && fieldsEqual) || {
+      println(s"${tree1.show[scala.meta.Structure]} <=> ${tree2.show[scala.meta.Structure]}");
+      false
+    }
     true
   }
 
-  def doTest(text: String, tree: Tree) = {
-//    try {
-      val converted = convert(text)
-      if (!structuralEquals(converted, tree)) {
-        org.junit.Assert.assertEquals("Trees not equal", tree.toString(), converted.toString())
-        org.junit.Assert.assertTrue(false)
-      }
-      org.junit.Assert.assertEquals("Text comparison failure", tree.toString(), converted.toString())
-//    }
-//    catch {
-//      case ex: Exception =>
-//        ex.printStackTrace()
-//        org.junit.Assert.fail(ex.getMessage)
-//    }
-  }
+  private def parseTextToFile(@Language("Scala") string: String)
+                             (implicit fixture: CodeInsightTestFixture): ScalaFile = {
+    def isTopLevel = Pattern.compile("^\\s*(class|trait|object|import|package).*", Pattern.DOTALL).matcher(string).matches()
 
-  protected def convert(text: String): Tree = {
-    val psi = psiFromText(text)
-    semanticContext.ideaToMeta(psi)
-  }
-
-  def parseTextToFile(@Language("Scala") str: String): ScalaFile = {
-    def isTopLevel = Pattern.compile("^\\s*(class|trait|object|import|package).*", Pattern.DOTALL).matcher(str).matches()
     val text = if (!isTopLevel)
       s"""
-        |object Dummy {
-        |${if (!str.contains(startToken)) startToken else ""}
-        |$str
-        |}
+         |object Dummy {
+         |${if (!string.contains(START_TOKEN)) START_TOKEN else ""}
+         |$string
+         |}
       """.stripMargin
-    else str
+    else string
     fixture.configureByText(ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-//    fixture.checkHighlighting()
+    //    fixture.checkHighlighting()
   }
 }
