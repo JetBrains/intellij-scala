@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.junit.experimental.categories.Category
 
@@ -8,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class TypeArgInferenceTest extends BadCodeGreenTestBase {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   def testScl9402(): Unit = {
     val text =
       s"""object ErrorHighlightingExample extends App {

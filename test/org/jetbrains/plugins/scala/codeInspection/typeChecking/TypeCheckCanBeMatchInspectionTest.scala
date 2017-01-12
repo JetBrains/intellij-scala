@@ -2,13 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
  * Nikolay.Tropin
  * 5/15/13
  */
-class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestAdapter{
+class TypeCheckCanBeMatchInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import CodeInsightTestFixture.CARET_MARKER
 
   val annotation = TypeCheckCanBeMatchInspection.inspectionName
   val hint = TypeCheckCanBeMatchInspection.inspectionName

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.prefix
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.{AddPrefixFix, ReferenceMustBePrefixedInspection}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -11,6 +12,9 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
  * 2/25/14
  */
 class ReferenceMustBePrefixedInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   override protected def annotation: String = ReferenceMustBePrefixedInspection.displayName
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ReferenceMustBePrefixedInspection]
 

@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/27/12
  */
-
 class WikiPairedTagBackspaceTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import CodeInsightTestFixture.CARET_MARKER
   
   def testDeleteUnderlinedTag() {
     checkGeneratedTextAfterBackspace("/** __" + CARET_MARKER + "blah blah__ */", "/** _blah blah */")

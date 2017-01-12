@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.comprehension
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
-import org.junit.Assert._
 
 class ConvertToParenthesesIntentionTest extends ScalaIntentionTestBase {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   override def familyName = ConvertToParenthesesIntention.FamilyName
 
   def testIntentionAvailableInSimpleForYieldStatement(): Unit = {

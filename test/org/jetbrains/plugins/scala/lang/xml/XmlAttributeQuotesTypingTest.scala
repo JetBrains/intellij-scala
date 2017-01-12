@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.xml
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
  * User: Dmitry Naydanov
  * Date: 3/5/12
  */
-
 class XmlAttributeQuotesTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import CodeInsightTestFixture.CARET_MARKER
 
   def testQuotesAfterFirstAttribute() {
     val text = "class A { val xml = <aaa attr" + CARET_MARKER + "\n}"

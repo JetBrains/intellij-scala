@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.junit.experimental.categories.Category
 
@@ -8,6 +9,8 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ConstructorTest extends BadCodeGreenTestBase {
+
+  import CodeInsightTestFixture.CARET_MARKER
 
   def testScl7255(): Unit = {
     val text =

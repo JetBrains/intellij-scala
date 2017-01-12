@@ -3,6 +3,7 @@ package codeInsight.generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.psi.PsiFile
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
@@ -10,6 +11,9 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
  * 8/23/13
  */
 abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAdapter{
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   val handler: LanguageCodeInsightActionHandler
 
   def testInvoke(text: String, assumedText: String, checkCaret: Boolean): Unit = {

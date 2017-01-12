@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
 import com.intellij.openapi.editor.impl.EditorImpl
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**
@@ -12,6 +13,9 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
  * Date: 29.07.14.
  */
 class IncrementalLexerHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   private def genericTestHighlighting(startText: String, typed: Char*) {
     val caretIndex = startText indexOf CARET_MARKER
 

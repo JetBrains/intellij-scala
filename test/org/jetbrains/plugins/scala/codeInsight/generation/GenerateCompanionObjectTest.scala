@@ -1,12 +1,16 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
  * Nikolay.Tropin
  * 8/23/13
  */
 class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   val handler = new ScalaGenerateCompanionObjectHandler
 
   def testInCaseClass() {

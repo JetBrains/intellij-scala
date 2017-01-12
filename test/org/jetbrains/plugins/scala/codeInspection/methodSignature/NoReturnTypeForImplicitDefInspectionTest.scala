@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection
 
@@ -8,6 +9,9 @@ import org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImpli
   * @author Nikolay.Tropin
   */
 class NoReturnTypeForImplicitDefInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[NoReturnTypeForImplicitDefInspection]
 
   override protected def annotation: String = NoReturnTypeForImplicitDefInspection.description

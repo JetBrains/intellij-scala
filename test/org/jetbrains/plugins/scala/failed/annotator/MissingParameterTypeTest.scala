@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.junit.experimental.categories.Category
 
@@ -8,6 +9,9 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class MissingParameterTypeTest extends BadCodeGreenTestBase {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   def testScl4692(): Unit = {
     val text =
      s"""object Test {
@@ -23,7 +27,7 @@ class MissingParameterTypeTest extends BadCodeGreenTestBase {
   def testScl10539(): Unit = {
     val text =
       s"""class Foo(x: Int)(y: Int)
-          |val foo = new Foo${CARET_MARKER}(1)
+         |val foo = new Foo$CARET_MARKER(1)
       """.stripMargin
     doTest(text)
   }

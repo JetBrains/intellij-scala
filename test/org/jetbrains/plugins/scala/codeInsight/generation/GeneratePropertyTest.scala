@@ -2,12 +2,16 @@ package org.jetbrains.plugins.scala
 package codeInsight.generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
  * Nikolay.Tropin
  * 2014-09-22
  */
 class GeneratePropertyTest extends ScalaGenerateTestBase {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   override val handler: LanguageCodeInsightActionHandler = new ScalaGeneratePropertyHandler
 
   def testSimple() {

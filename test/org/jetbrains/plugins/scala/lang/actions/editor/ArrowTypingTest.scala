@@ -4,6 +4,7 @@ package lang.actions.editor
 import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -14,6 +15,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
  * Date: 10.07.14.
  */
 class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import CodeInsightTestFixture.CARET_MARKER
+
   private var settings: ScalaCodeStyleSettings = null
 
   private def convertLoadedString(str: String) =

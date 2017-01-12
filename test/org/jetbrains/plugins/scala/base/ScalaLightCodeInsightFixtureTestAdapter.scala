@@ -23,7 +23,8 @@ import scala.collection.mutable.ListBuffer
  */
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with TestFixtureProvider {
-  protected val CARET_MARKER = ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
+
+  import CodeInsightTestFixture.CARET_MARKER
 
   private var libLoader: ScalaLibraryLoader = _
 
@@ -207,7 +208,6 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {
-  val CARET_MARKER = CodeInsightTestFixture.CARET_MARKER
   val SELECTION_START = "<selection>"
   val SELECTION_END = "</selection>"
 }
