@@ -10,6 +10,7 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
+import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
@@ -91,13 +92,15 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     val thisName: String = name
     val tokenSet = TokenSets.TYPE_DEFINITIONS
-    val arrayOfElements: Array[PsiElement] = scope match {
-      case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-        stub.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl if file.getStub != null =>
-        file.getStub.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory)
-      case c => c.getChildren
+    val stub: Option[StubElement[_]] = scope match {
+      case stub: StubBasedPsiElement[_] => Option(stub.getStub)
+      case file: PsiFileImpl => Option(file.getStub)
+      case _ => None
     }
+    val arrayOfElements: Array[PsiElement] =
+      stub.map(_.getChildrenByType(tokenSet, JavaArrayFactoryUtil.PsiElementFactory))
+        .getOrElse(scope.getChildren)
+
     val length  = arrayOfElements.length
     this match {
       case _: ScClass | _: ScTrait =>
