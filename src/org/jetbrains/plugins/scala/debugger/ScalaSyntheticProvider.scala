@@ -23,7 +23,7 @@ object ScalaSyntheticProvider {
 
     typeComponent match {
       case m: Method if m.isConstructor && ScalaPositionManager.isAnonfunType(m.declaringType()) => true
-      case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) && !isMacroDefined(m) => true
+      case m: Method if hasSpecializationMethod(m) && !isMacroDefined(m) => true
       case m: Method if isDefaultArg(m) => true
       case m: Method if isTraitForwarder(m) => true
       case m: Method if m.name().endsWith("$adapted") => true
@@ -36,12 +36,16 @@ object ScalaSyntheticProvider {
     }
   }
 
-  private def hasSpecializationMethod(refType: ReferenceType): Boolean = {
-    refType.methods().asScala.exists(isSpecialization)
-  }
-
-  private def isSpecialization(method: Method): Boolean = {
-    method.name.contains("$mc") && method.name.endsWith("$sp")
+  private def hasSpecializationMethod(method: Method): Boolean = {
+    val methods = method.declaringType().methods().asScala
+    val name = method.name()
+    def checkName(cand: Method): Boolean = {
+      val candName = cand.name()
+      candName.takeWhile(_ != '$') == name && candName.contains("$mc") && candName.endsWith("$sp")
+    }
+    methods.exists { m =>
+      method.signature() == m.signature() && checkName(m)
+    }
   }
 
   private val defaultArgPattern = """\$default\$\d+""".r
