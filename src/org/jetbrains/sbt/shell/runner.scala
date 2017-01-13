@@ -15,6 +15,8 @@ import com.intellij.execution.{ExecutionManager, Executor}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.project.{DumbAwareAction, Project}
+import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ui.UIUtil
 
@@ -47,7 +49,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     cv
   }
 
-  private lazy val processComponent = SbtProcessManager.forProject(project)
+  private lazy val processManager = SbtProcessManager.forProject(project)
 
   // lazy so that getProcessHandler will return something initialized when this is first accessed
   private lazy val myConsoleExecuteActionHandler: SbtShellExecuteActionHandler =
@@ -55,7 +57,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
   // the process handler should only be used to access the running process!
   // SbtProcessComponent is solely responsible for destroying/respawning
-  private lazy val myProcessHandler = processComponent.acquireShellProcessHandler
+  private lazy val myProcessHandler = processManager.acquireShellProcessHandler
 
   override def createProcessHandler(process: Process): OSProcessHandler = myProcessHandler
 
@@ -64,12 +66,21 @@ class SbtShellRunner(project: Project, consoleTitle: String)
   override def createProcess(): Process = myProcessHandler.getProcess
 
   override def initAndRun(): Unit = {
-    super.initAndRun()
-    UIUtil.invokeLaterIfNeeded(new Runnable {
-      override def run(): Unit = {
-        SbtShellCommunication.forProject(project).initCommunication(myConsoleView)
-      }
-    })
+    // if already startNotified, there should already be a console running, so don't init this one.
+    if (! myProcessHandler.isStartNotified) {
+      super.initAndRun()
+      UIUtil.invokeLaterIfNeeded(new Runnable {
+        override def run(): Unit = {
+          SbtShellCommunication.forProject(project).initCommunication(myConsoleView)
+        }
+      })
+    } else {
+      // just open it and focus instead
+      val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
+      toolWindow.activate(null, true)
+      val content = toolWindow.getContentManager.findContent(consoleTitle)
+      toolWindow.getContentManager.setSelectedContent(content, true)
+    }
   }
 
 
@@ -81,7 +92,6 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
     myConsoleExecuteActionHandler
   }
-
 
   override def fillToolBarActions(toolbarActions: DefaultActionGroup,
                                   defaultExecutor: Executor,
@@ -102,6 +112,8 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     allActions.asJava
   }
 
+  override def getConsoleIcon: Icon = SbtShellRunner.ICON
+
 
   def createAutoCompleteAction(): AnAction = {
     val action = new AutoCompleteAction
@@ -112,13 +124,16 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
   /** A new instance of the runner with the same constructor params as this one, but fresh state. */
   def respawn: SbtShellRunner = {
-    processComponent.restartProcess()
+    processManager.restartProcess()
     new SbtShellRunner(project, consoleTitle)
   }
 
 }
 
 object SbtShellRunner {
+
+  // TODO migrate sbt icons to where all the other icons are
+  val ICON: Icon = IconLoader.getIcon("/sbt.png")
 
   /** Initialize and run an sbt shell window. */
   def run(project: Project): Unit = {
@@ -133,7 +148,6 @@ class AutoCompleteAction extends DumbAwareAction {
     // TODO call code completion (ctrl+space by default)
   }
 }
-
 
 class RestartAction(runner: SbtShellRunner, executor: Executor, contentDescriptor: RunContentDescriptor) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_RERUN))
