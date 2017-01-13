@@ -7,19 +7,19 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 
 /**
  * User: Alefas
  * Date: 18.02.12
  */
 class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean,
-                                role: PsiTypedDefinitionWrapper.DefinitionRole.DefinitionRole,
+                                role: DefinitionRole.DefinitionRole,
                                 cClass: Option[PsiClass] = None) extends {
-  val elementFactory = JavaPsiFacade.getInstance(typedDefinition.getProject).getElementFactory
-  val containingClass = {
-    val result = if (cClass != None) cClass.get
-    else
+  val containingClass: PsiClass = {
+    val result = cClass.getOrElse {
       typedDefinition.nameContext match {
         case s: ScMember =>
           val res = Option(s.containingClass).orElse(s.syntheticContainingClass).orNull
@@ -31,6 +31,8 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
           } else res
         case _ => null
       }
+    }
+
     if (result == null) {
       val message = "Containing class is null: " + typedDefinition.getContainingFile.getText + "\n" +
         "typed Definition: " + typedDefinition.getTextRange.getStartOffset
@@ -38,14 +40,12 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
     }
     result
   }
-  val methodText = PsiTypedDefinitionWrapper.methodText(typedDefinition, isStatic, isInterface, role)
+
   val method: PsiMethod = {
-    try {
-      elementFactory.createMethodFromText(methodText, containingClass)
-    } catch {
-      case _: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
-    }
+    val methodText = PsiTypedDefinitionWrapper.methodText(typedDefinition, isStatic, isInterface, role)
+    LightUtil.createJavaMethod(methodText, containingClass, typedDefinition.getProject)
   }
+
 } with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
 
   override def getNavigationElement: PsiElement = this
@@ -78,15 +78,21 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
   override def isWritable: Boolean = getContainingFile.isWritable
 
   override def setName(name: String): PsiElement = {
-    if (role == PsiTypedDefinitionWrapper.DefinitionRole.SIMPLE_ROLE) typedDefinition.setName(name)
+    if (role == DefinitionRole.SIMPLE_ROLE) typedDefinition.setName(name)
     else this
   }
+
+  override protected def returnType: ScType = PsiTypedDefinitionWrapper.typeFor(typedDefinition, role)
+
+  override protected def parameterListText: String = PsiTypedDefinitionWrapper.parameterListText(typedDefinition, role, None)
 }
 
 object PsiTypedDefinitionWrapper {
   object DefinitionRole extends Enumeration {
     type DefinitionRole = Value
     val SIMPLE_ROLE, GETTER, IS_GETTER, SETTER, EQ = Value
+
+    def isSetter(role: DefinitionRole): Boolean = role == SETTER || role == EQ
   }
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
@@ -99,13 +105,7 @@ object PsiTypedDefinitionWrapper {
       case _ =>
     }
 
-    val result = b.getType(TypingContext.empty)
-    implicit val elementScope = b.elementScope
-    result match {
-      case _ if role == SETTER || role == EQ => builder.append("void")
-      case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp))
-      case _ => builder.append("java.lang.Object")
-    }
+    builder.append("java.lang.Object")
 
     builder.append(" ")
     val name = role match {
@@ -116,16 +116,7 @@ object PsiTypedDefinitionWrapper {
       case EQ => b.getName + "_$eq"
     }
     builder.append(name)
-    if (role != SETTER && role != EQ) {
-      builder.append("()")
-    } else {
-      builder.append("(")
-      result match {
-        case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp))
-        case _ => builder.append("java.lang.Object")
-      }
-      builder.append(" ").append(b.getName).append(")")
-    }
+    builder.append("()")
 
     val holder = PsiTreeUtil.getContextOfType(b, classOf[ScAnnotationsHolder])
     if (holder != null) {
@@ -175,5 +166,28 @@ object PsiTypedDefinitionWrapper {
         }
       case _ =>
     }
+  }
+
+  private[light] def parameterListText(td: ScTypedDefinition, role: DefinitionRole, staticTrait: Option[PsiClassWrapper]): String = {
+    val thisParam = staticTrait.map { trt =>
+      val qualName = trt.getQualifiedName
+      qualName.stripSuffix("$class") + " This"
+    }
+
+    val params =
+      if (!DefinitionRole.isSetter(role)) Nil
+      else {
+        val paramType = typeFor(td, DefinitionRole.SIMPLE_ROLE)
+        val typeText = JavaConversionUtil.typeText(paramType)(td.elementScope)
+        val name = td.getName
+        Seq(s"$typeText $name")
+      }
+
+    (thisParam ++: params).mkString("(", ", ", ")")
+  }
+
+  def typeFor(typedDefinition: ScTypedDefinition, role: DefinitionRole): ScType = {
+    if (role == SETTER || role == EQ) StdType.Unit
+    else typedDefinition.getType().getOrElse(StdType.AnyRef)
   }
 }

@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiMethod}
+import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
@@ -9,14 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
  * @since 28.02.12
  */
 class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: PsiClassWrapper) extends {
-  val elementFactory = JavaPsiFacade.getInstance(function.getProject).getElementFactory
-  val methodText = StaticTraitScFunctionWrapper.methodText(function, containingClass: PsiClassWrapper)
   val method: PsiMethod = {
-    try {
-      elementFactory.createMethodFromText(methodText, containingClass)
-    } catch {
-      case _: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
-    }
+    val methodText = StaticTraitScFunctionWrapper.methodText(function, containingClass: PsiClassWrapper)
+    LightUtil.createJavaMethod(methodText, containingClass, function.getProject)
   }
 } with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
   override def getNavigationElement: PsiElement = function
@@ -26,47 +24,41 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
   override def canNavigateToSource: Boolean = function.canNavigateToSource
 
   override def getParent: PsiElement = containingClass
+
+  override protected def returnType: ScType = {
+    if (!function.isConstructor) function.returnType.getOrElse(StdType.AnyRef)
+    else null
+  }
+
+  override protected def parameterListText: String = {
+    val qualName = containingClass.getQualifiedName
+    val thisParam = qualName.stripSuffix("$class") + " This"
+    (thisParam +: function.parameters.map(paramText)).mkString("(", ", ", ")")
+  }
+
+  private def paramText(param: ScParameter): String = {
+    val paramAnnotations = JavaConversionUtil.annotations(param).mkString("", " ", " ")
+    val typeText = param.getRealParameterType(TypingContext.empty) match {
+      case Success(tp, _) =>
+        val simple = JavaConversionUtil.typeText(tp)
+        if (param.isCallByNameParameter) s"scala.Function0<$simple>"
+        else simple
+      case _ => "java.lang.Object"
+    }
+    val name = param.getName
+    s"$paramAnnotations$typeText $name"
+  }
 }
 
 object StaticTraitScFunctionWrapper {
   def methodText(function: ScFunction, containingClass: PsiClassWrapper): String = {
-    val builder = new StringBuilder
+    val annotationsAndModifiers = JavaConversionUtil.annotationsAndModifiers(function, isStatic = true)
+    val (retType, name) =
+      if (!function.isConstructor) ("java.lang.Object", function.getName)
+      else ("", function.containingClass.getName)
 
-    builder.append(JavaConversionUtil.annotationsAndModifiers(function, true))
+    val throwsSection = LightUtil.getThrowsSection(function)
 
-    implicit val elementScope = function.elementScope
-    if (!function.isConstructor) {
-      function.returnType match {
-        case Success(tp, _) => builder.append(JavaConversionUtil.typeText(tp))
-        case _ => builder.append("java.lang.Object")
-      }
-    }
-
-    builder.append(" ")
-    val name = if (!function.isConstructor) function.getName else function.containingClass.getName
-    builder.append(name)
-
-    val qualName = containingClass.getQualifiedName
-    builder.append(((qualName.substring(0, qualName.length() - 6) + " This") +: function.parameters.map { case param =>
-      val builder = new StringBuilder
-      val paramAnnotations = JavaConversionUtil.annotations(param).mkString(" ")
-      if (!paramAnnotations.isEmpty)
-        builder.append(paramAnnotations).append(" ")
-      param.getRealParameterType(TypingContext.empty) match {
-        case Success(tp, _) =>
-          if (param.isCallByNameParameter) builder.append("scala.Function0<")
-          builder.append(JavaConversionUtil.typeText(tp))
-          if (param.isCallByNameParameter) builder.append(">")
-        case _ => builder.append("java.lang.Object")
-      }
-      builder.append(" ").append(param.getName)
-      builder.toString()
-    }).mkString("(", ", ", ")"))
-
-    builder.append(LightUtil.getThrowsSection(function))
-
-    builder.append(" {}")
-
-    builder.toString()
+    s"$annotationsAndModifiers$retType $name()$throwsSection {}"
   }
 }

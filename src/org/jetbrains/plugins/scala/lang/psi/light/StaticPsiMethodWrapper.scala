@@ -2,17 +2,18 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.light.LightModifierList
-import com.intellij.psi.{PsiClass, PsiMethod, PsiModifierList}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import _root_.scala.collection.immutable.HashMap
 
 /**
- * @author Alefas
- * @since 27.02.12
- */
-class StaticPsiMethodWrapper private (val method: PsiMethod, containingClass: PsiClass)
+  * @author Alefas
+  * @since 27.02.12
+  */
+class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: PsiClass)
   extends LightMethodAdapter(method.getManager, method, containingClass) with LightScalaMethod {
   setNavigationElement(method)
 
@@ -40,6 +41,16 @@ class StaticPsiMethodWrapper private (val method: PsiMethod, containingClass: Ps
   }
 
   override def isWritable: Boolean = getContainingFile.isWritable
+
+  override protected def returnType: ScType = ???
+
+  override protected def parameterListText: String = ???
+
+  override lazy val getReturnType: PsiType = method.getReturnType
+
+  override lazy val getReturnTypeElement: PsiTypeElement = method.getReturnTypeElement
+
+  override lazy val getParameterList: PsiParameterList = method.getParameterList
 }
 
 object StaticPsiMethodWrapper {

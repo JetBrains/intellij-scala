@@ -1,11 +1,16 @@
 package org.jetbrains.plugins.scala
 package lang.psi.light
 
-import com.intellij.psi.{PsiClass, PsiClassType}
+import com.intellij.openapi.project.Project
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, StdType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -65,5 +70,19 @@ object LightUtil {
       case _ => ArrayBuffer()
     }
     throwAnnotations.mkString(start = " throws ", sep = ", ", end = " ")
+  }
+
+  def createJavaMethod(methodText: String, containingClass: PsiClass, project: Project): PsiMethod = {
+    val elementFactory = JavaPsiFacade.getInstance(project).getElementFactory
+
+    try elementFactory.createMethodFromText(methodText, containingClass)
+    catch {
+      case _: Exception => elementFactory.createMethodFromText("public void FAILED_TO_DECOMPILE_METHOD() {}", containingClass)
+    }
+  }
+
+  def javaTypeElement(tp: PsiType, context: PsiElement, project: Project): PsiTypeElement = {
+    val elementFactory = JavaPsiFacade.getInstance(project).getElementFactory
+    elementFactory.createTypeElementFromText(tp.getCanonicalText, context)
   }
 }
