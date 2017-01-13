@@ -60,7 +60,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       val sbtCommands = Seq(
         s"""set shellPrompt := { _ => "" }""",
-        s"""set SettingKey[Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := Some(file("${path(structureFile)}"))""",
+        s"""set SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
         s"""set SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$options" """,
         s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.CreateTasks""",
         s"""*/*:dump-structure""",
