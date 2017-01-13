@@ -387,11 +387,11 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     indent()
     printModifiers(m)
     if (m.isAccessor) {
-      val hasSetter = m.parent.get.children.exists {
-        case ms: MethodSymbol => ms.name == n + "$_eq"
+      val indexOfSetter = m.parent.get.children.indexWhere {
+        case ms: MethodSymbol => ms.name == n + "_$eq"
         case _ => false
       }
-      val keywords = if (hasSetter) "var " else if (m.isLazy) "lazy val " else "val "
+      val keywords = if (indexOfSetter > 0) "var " else if (m.isLazy) "lazy val " else "val "
       print(keywords)
     } else {
       print("def ")
