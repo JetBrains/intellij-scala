@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.transformation
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
+import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -41,5 +42,9 @@ class DesugarCodeAction extends AnAction {
           }
         }
     }
+  }
+
+  override def update(e: AnActionEvent): Unit = {
+    ScalaActionUtil.enableAndShowIfInScalaFile(e)
   }
 }
