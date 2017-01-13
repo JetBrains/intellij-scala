@@ -11,7 +11,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -81,17 +80,15 @@ object ScSyntheticPackage {
     import com.intellij.psi.stubs.StubIndex
 
     import scala.collection.JavaConversions._
-    val packages = StubIndex.getElements(
-      ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackaging]],
-      cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackaging]).toSeq
+    val allScope = GlobalSearchScope.allScope(project)
+    val key: Integer = cleanName.hashCode()
+
+    val packages = StubIndex.getElements(ScalaIndexKeys.PACKAGE_FQN_KEY, key, project, allScope, classOf[ScPackaging]).toSeq
 
     if (packages.isEmpty) {
-      StubIndex.getElements(
-        ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
-        cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
-        find(pc => {
-          ScalaNamesUtil.equivalentFqn(pc.qualifiedName, fqn)
-      }) match {
+      StubIndex.getElements(ScalaIndexKeys.PACKAGE_OBJECT_KEY, key, project, allScope, classOf[PsiClass]).toSeq
+        .map(_.qualifiedName)
+        .find(ScalaNamesUtil.equivalentFqn(_, fqn)) match {
         case Some(_) =>
           val pname = if (i < 0) "" else fqn.substring(0, i)
           new ScSyntheticPackage(name, PsiManager.getInstance(project)) {
