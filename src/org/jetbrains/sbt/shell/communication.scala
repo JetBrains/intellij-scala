@@ -101,17 +101,19 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     * To be called when the process is reinitialized externally
     */
   def initCommunication(consoleView: LanguageConsoleView): Unit = {
+
+    // TODO update icon with ready/working state
     val promptReadyStateChanger = new SbtShellReadyListener(
-      whenReady = shellPromptReady.set(true),
-      whenWorking = shellPromptReady.set(false)
+      whenReady = {
+        shellPromptReady.set(true)
+        consoleView.setPrompt(">")
+      },
+      whenWorking = {
+        shellPromptReady.set(false)
+        consoleView.setPrompt("X")
+      }
     )
     attachListener(promptReadyStateChanger)
-
-    val promptChanger = new SbtShellReadyListener(
-      whenReady = consoleView.setPrompt(">"),
-      whenWorking = consoleView.setPrompt("X")
-    )
-    attachListener(promptChanger)
 
     startQueueProcessing()
   }
