@@ -406,5 +406,43 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
     }
   }
 
+  addFileWithBreakpoints("Specialization.scala",
+    s"""class FunctionA extends Function[Int, Int] {
+       |  override def apply(v1: Int): Int = {
+       |    "stop"
+       |    v1
+       |  }
+       |}
+       |
+       |class FunctionB extends Function[String, Int] {
+       |  override def apply(v1: String): Int = {
+       |    "stop"
+       |    v1.length
+       |  }
+       |}
+       |
+       |object Specialization {
+       |  def main(args: Array[String]): Unit = {
+       |    println("Hello, world!")
+       |
+       |    val a = new FunctionA
+       |    val b = new FunctionB
+       |    a(1)$bp
+       |    b("2")$bp
+       |  }
+       |}
+      """.stripMargin)
+  def testSpecialization(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      doStepInto()
+      checkLocation("Specialization.scala", "apply$mcII$sp", 3)
+
+      resume()
+      waitForBreakpoint()
+      doStepInto()
+      checkLocation("Specialization.scala", "apply", 10)
+    }
+  }
 
 }
