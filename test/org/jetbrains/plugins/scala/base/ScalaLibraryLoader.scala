@@ -25,9 +25,9 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Nikolay.Tropin
- * 5/29/13
- */
+  * Nikolay.Tropin
+  * 5/29/13
+  */
 class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isIncludeReflectLibrary: Boolean = false,
                          javaSdk: Option[Sdk] = None, additionalLibraries: Array[String] = Array.empty) {
 
@@ -47,7 +47,11 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isI
 
     addScalaSdk(module, libVersion, isIncludeReflectLibrary)
 
-    additionalLibraries.foreach(name => addLibrary(module, CommonLibrary(name, libVersion)))
+    additionalLibraries
+      .map(name => (name, ScalaLibraryLoader.path(name, libVersion)))
+      .foreach {
+        case (name, path) => addLibrary(module, name, path)
+      }
 
     javaSdk.foreach { sdk =>
       val rootModel = ModuleRootManager.getInstance(module).getModifiableModel
@@ -72,7 +76,7 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isI
       val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
       PsiTestUtil.removeSourceRoot(module, testDataRoot)
     }
-    disposeLibraries
+    disposeLibraries()
   }
 
   def disposeLibraries(): Unit = {
@@ -101,10 +105,10 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isI
       addedLibraries += scalaSdkLib
     }
 
-    VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
+    VirtualFilePointerManager.getInstance match {
+      case manager: VirtualFilePointerManagerImpl => manager.storePointers()
+    }
   }
-
-  private def addLibrary(module: Module, lib: CommonLibrary): Unit = addLibrary(module, lib.name, lib.path)
 
   private def addLibrary(module: Module, libraryName: String, mockLib: String): Unit = {
     if (module.libraries.exists(_.getName == libraryName)) return
@@ -125,36 +129,37 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isI
       rootModel.commit()
     }
 
-    VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
-  }
-}
-
-object ScalaLibraryLoader {
-  def getSdkNone: Option[Sdk] = None
-
-  def withMockJdk(project: Project, module: Module, rootPath: String, isIncludeReflectLibrary: Boolean = false,
-                  additionalLibraries: Array[String] = Array.empty): ScalaLibraryLoader = {
-
-    val mockJdk = TestUtils.getDefaultJdk
-    VfsRootAccess.allowRootAccess(mockJdk)
-    val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
-    new ScalaLibraryLoader(project, module, rootPath, isIncludeReflectLibrary, javaSdk, additionalLibraries)
-  }
-}
-
-private object CommonLibrary {
-  def apply(name: String, version: TestUtils.ScalaSdkVersion): CommonLibrary = {
-    name match {
-      case "scalaz" => CommonLibrary("scalaz", TestUtils.getMockScalazLib(version))
-      case "slick" => CommonLibrary("slick", TestUtils.getMockSlickLib(version))
-      case "spray" => CommonLibrary("spray", TestUtils.getMockSprayLib(version))
-      case "cats" => CommonLibrary("cats", TestUtils.getCatsLib(version))
-      case "specs2" => CommonLibrary("specs2", TestUtils.getSpecs2Lib(version))
-      case "scalacheck" => CommonLibrary("scalacheck", TestUtils.getScalacheckLib(version))
-      case "postgresql" => CommonLibrary("postgresql", TestUtils.getPostgresLib(version))
-      case _ => throw new IllegalArgumentException(s"Unknown library: $name")
+    VirtualFilePointerManager.getInstance match {
+      case manager: VirtualFilePointerManagerImpl => manager.storePointers()
     }
   }
 }
 
-private case class CommonLibrary(name: String, path: String)
+object ScalaLibraryLoader {
+
+  import TestUtils._
+
+  def withMockJdk(project: Project, module: Module, rootPath: String, isIncludeReflectLibrary: Boolean = false,
+                  additionalLibraries: Array[String] = Array.empty): ScalaLibraryLoader = {
+    val mockJdk = getDefaultJdk
+    VfsRootAccess.allowRootAccess(mockJdk)
+
+    val javaSdk = JavaSdk.getInstance.createJdk("java sdk", mockJdk, false)
+    new ScalaLibraryLoader(project, module, rootPath, isIncludeReflectLibrary, Some(javaSdk), additionalLibraries)
+  }
+
+  private def path(name: String, version: ScalaSdkVersion): String = {
+    val function = name match {
+      case "scalaz" => getMockScalazLib _
+      case "slick" => getMockSlickLib _
+      case "spray" => getMockSprayLib _
+      case "cats" => getCatsLib _
+      case "specs2" => getSpecs2Lib _
+      case "scalacheck" => getScalacheckLib _
+      case "postgresql" => getPostgresLib _
+      case _ => throw new IllegalArgumentException(s"Unknown library: $name")
+    }
+
+    function(version)
+  }
+}
