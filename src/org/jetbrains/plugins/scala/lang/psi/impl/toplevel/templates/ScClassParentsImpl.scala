@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
   */
 class ScClassParentsImpl private(stub: StubElement[ScClassParents], nodeType: IElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScClassParents {
+
   def this(node: ASTNode) =
     this(null, null, node)
 
@@ -28,23 +29,19 @@ class ScClassParentsImpl private(stub: StubElement[ScClassParents], nodeType: IE
   override def toString: String = "ClassParents"
 
   def superTypes: Seq[ScType] = {
-    val stub = getStub
-    val elements = if (stub != null) {
-      stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements ++ syntheticTypeElements
-    } else allTypeElements
-
-    elements.map {
-      _.getType().getOrAny
+    val elements = getStub match {
+      case stub: ScTemplateParentsStub[ScClassParents] => stub.parentTypeElements ++ syntheticTypeElements
+      case _ => allTypeElements
     }
+
+    elements.map(_.getType().getOrAny)
   }
 
-  def typeElements: Seq[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements
+  def typeElements: Seq[ScTypeElement] =
+    getStub match {
+      case stub: ScTemplateParentsStub[ScClassParents] => stub.parentTypeElements
+      case _ =>
+        constructor.flatMap(method => Option(method.typeElement)).toSeq ++
+          findChildrenByClassScala(classOf[ScTypeElement])
     }
-    constructor.toSeq.map {
-      _.typeElement
-    } ++ findChildrenByClassScala(classOf[ScTypeElement])
-  }
 }
