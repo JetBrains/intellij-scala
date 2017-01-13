@@ -260,7 +260,7 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     mySimpleMethodComboBox = new JComboBox();
     contentPanel.add(mySimpleMethodComboBox, new GridConstraints(13, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label13 = new JLabel();
-    label13.setText("<html><body>\n<br>\n<sup>*</sup>Add - specify type explicity in refactorings.<br>\n<sup>*</sup>Check - display a waring when explicit type annotation is required.<br>\n<br>\n</body></html>");
+    label13.setText("<html><body>\n<br>\n<sup>*</sup>Add - specify type explicity in refactorings.<br>\n<sup>*</sup>Check - display a warning when explicit type annotation is required.<br>\n<br>\n</body></html>");
     contentPanel.add(label13, new GridConstraints(14, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer3 = new Spacer();
     contentPanel.add(spacer3, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_NONE, 1, GridConstraints.SIZEPOLICY_FIXED, new Dimension(-1, 10), null, new Dimension(-1, 10), 0, false));

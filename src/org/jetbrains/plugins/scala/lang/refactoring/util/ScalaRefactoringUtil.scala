@@ -377,22 +377,31 @@ object ScalaRefactoringUtil {
     occurrences.toArray
   }
 
-  def getTypeElementOccurrences(element: ScTypeElement, enclosingContainer: PsiElement): Array[ScTypeElement] = {
-    val occurrences: ArrayBuffer[ScTypeElement] = new ArrayBuffer[ScTypeElement]()
-    if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScTypeElement]
-    else
-      for (child <- enclosingContainer.getChildren) {
-        if (PsiEquivalenceUtil.areElementsEquivalent(child, element)) {
-          child match {
-            case typeElement: ScTypeElement if !inTemplateParents(typeElement) =>
-              occurrences += typeElement
-            case _ =>
+  def getTypeElementOccurrences(inElement: ScTypeElement, inEnclosingContainer: PsiElement): Array[ScTypeElement] = {
+
+    def getTypeElementOccurrencesHelper(element: ScTypeElement, enclosingContainer: PsiElement): Array[ScTypeElement] = {
+      val occurrences: ArrayBuffer[ScTypeElement] = new ArrayBuffer[ScTypeElement]()
+      if (enclosingContainer == element)
+        occurrences += enclosingContainer.asInstanceOf[ScTypeElement]
+      else
+        for (child <- enclosingContainer.getChildren) {
+          if (PsiEquivalenceUtil.areElementsEquivalent(child, element)) {
+            child match {
+              case typeElement: ScTypeElement if !inTemplateParents(typeElement) =>
+                occurrences += typeElement
+              case _ =>
+            }
+          } else {
+            occurrences ++= getTypeElementOccurrencesHelper(element, child)
           }
-        } else {
-          occurrences ++= getTypeElementOccurrences(element, child)
         }
-      }
-    occurrences.toArray
+
+
+      occurrences.toArray
+    }
+
+    val result = getTypeElementOccurrencesHelper(inElement, inEnclosingContainer)
+    if (result.isEmpty) Array(inElement) else result
   }
 
   def getOccurrencesInInheritors(typeElement: ScTypeElement,

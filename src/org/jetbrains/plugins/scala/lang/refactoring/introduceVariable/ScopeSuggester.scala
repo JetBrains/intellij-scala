@@ -98,7 +98,7 @@ object ScopeSuggester {
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)
         .map(validator.validateName(_, increaseNumber = true))
 
-      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toArray)
+      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames)
       parent = getParent(parent, isScriptFile)
     }
 

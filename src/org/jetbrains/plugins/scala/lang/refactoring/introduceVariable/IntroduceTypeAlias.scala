@@ -88,10 +88,8 @@ trait IntroduceTypeAlias {
             val mainScopeIdx = currentDataObject.possibleScopes.indexOf(mainScope)
             currentDataObject.possibleScopes(mainScopeIdx) = newScope
             newScope
-          case _: SimpleScopeItem =>
-            mainScope
-          case _: PackageScopeItem =>
-            mainScope
+          case _: SimpleScopeItem | _ : PackageScopeItem => mainScope
+          case _ => currentDataObject.possibleScopes.apply(0)
         }
 
         val dialog = getDialogForTypes(project, editor, typeElementHelper,
