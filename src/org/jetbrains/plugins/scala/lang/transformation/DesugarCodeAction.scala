@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 /**
   * @author Pavel Fatin
   */
-class ExplainCodeAction extends AnAction {
+class DesugarCodeAction extends AnAction {
   // TODO support read-only files (create duplicate scratch buffer)
   def actionPerformed(event: AnActionEvent) {
     val project = event.getProject
@@ -18,7 +18,7 @@ class ExplainCodeAction extends AnAction {
 
     val selection = editor.getSelectionModel
 
-    val title = s"Explain Scala code (${selection.hasSelection.fold("selection", "file")})"
+    val title = s"Desugar Scala code (${selection.hasSelection.fold("selection", "file")})"
 
     new SelectionDialog().show(title).filter(_.nonEmpty).foreach { transformers =>
         inWriteCommandAction(project, title) {
