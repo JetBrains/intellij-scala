@@ -9,10 +9,12 @@ import _root_.java.util
 
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -31,16 +33,35 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
-  private val alignmentsMap = scala.collection.mutable.Map[SmartPsiElementPointer[ScInterpolatedStringLiteral], Alignment]()
-  private val multiLevelAlignment = scala.collection.mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]()
+  type InterpolatedPointer = SmartPsiElementPointer[ScInterpolatedStringLiteral]
+
+  private val alignmentsMapKey: Key[mutable.Map[InterpolatedPointer, Alignment]] = Key.create("alingnments.map")
+  private val multiLevelAlignmentKey: Key[mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]] = Key.create("multilevel.alignment")
+
+  private def alignmentsMap(project: Project): mutable.Map[InterpolatedPointer, Alignment] = {
+    project.getOrUpdateUserData(alignmentsMapKey, mutable.Map[InterpolatedPointer, Alignment]())
+  }
+
+  private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[Alignment] = {
+    alignmentsMap(literal.getProject).collectFirst {
+      case (pointer, alignment) if pointer.getElement == literal => alignment
+    }
+  }
+
+  private def multiLevelAlignmentMap(project: Project): mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]] = {
+    project.getOrUpdateUserData(multiLevelAlignmentKey,
+      mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]())
+  }
 
   def apply(firstNode: ASTNode, lastNode: ASTNode, block: ScalaBlock): util.ArrayList[Block] =
     if (lastNode != null) applyInner(firstNode, lastNode, block) else applyInner(firstNode, block)
@@ -174,8 +195,10 @@ object getDummyBlocks {
         return subBlocks
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interploated strings (SCL-8665)
-        alignmentsMap.put(SmartPointerManager.getInstance(interpolated.getProject).
-            createSmartPsiElementPointer(interpolated), Alignment.createAlignment())
+        val project = interpolated.getProject
+        val pointerManager = SmartPointerManager.getInstance(project)
+        val pointer = pointerManager.createSmartPsiElementPointer(interpolated)
+        alignmentsMap(project).put(pointer, Alignment.createAlignment())
       case _: ScValue | _: ScVariable | _: ScFunction if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
         val childrenFiltered = children.filter(isCorrectBlock(_))
         subBlocks.add(getSubBlock(block, scalaSettings, childrenFiltered.head))
@@ -248,16 +271,18 @@ object getDummyBlocks {
           case _: ScParameter =>
             child.getElementType match {
               case ScalaTokenTypes.tCOLON if scalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS =>
-                Option(child.getPsi).flatMap(p => Option(p.getParent)).flatMap(p => Option(p.getParent)).map(rootPsi =>
-                  multiLevelAlignment.get(ScalaTokenTypes.tCOLON).flatMap(_.find(_.shouldAlign(child))) match {
+                Option(child.getPsi).flatMap(p => Option(p.getParent)).flatMap(p => Option(p.getParent)).map(rootPsi => {
+                  val map = multiLevelAlignmentMap(rootPsi.getProject)
+                  map.get(ScalaTokenTypes.tCOLON).flatMap(_.find(_.shouldAlign(child))) match {
                     case Some(multiAlignment) => multiAlignment.getAlignment
                     case None =>
                       val multiAlignment = ElementPointerAlignmentStrategy.typeMultiLevelAlignment(rootPsi)
                       assert(multiAlignment.shouldAlign(child))
-                      multiLevelAlignment.update(ScalaTokenTypes.tCOLON,
-                        multiAlignment :: multiLevelAlignment.getOrElse(ScalaTokenTypes.tCOLON, List()))
+                      map.update(ScalaTokenTypes.tCOLON,
+                        multiAlignment :: map.getOrElse(ScalaTokenTypes.tCOLON, List()))
                       multiAlignment.getAlignment
-                  }).getOrElse(alignment)
+                  }
+                }).getOrElse(alignment)
               case _ => alignment
             }
           case _ => alignment
@@ -662,10 +687,10 @@ object getDummyBlocks {
     val subBlocks = new util.ArrayList[Block]
 
     val alignment = null
-    val validAlignment = Option(ScalaPsiUtil.getParentOfType(node.getPsi, classOf[ScInterpolatedStringLiteral])).
-      map(_.asInstanceOf[ScInterpolatedStringLiteral]).flatMap(literal => alignmentsMap.find { case (pointer, _) =>
-        pointer.getElement == literal
-      }.map(_._2)).getOrElse(Alignment.createAlignment(true))
+    val interpolatedOpt = Option(PsiTreeUtil.getParentOfType(node.getPsi, classOf[ScInterpolatedStringLiteral]))
+    val validAlignment = interpolatedOpt
+      .flatMap(cachedAlignment)
+      .getOrElse(Alignment.createAlignment(true))
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val marginChar = "" + MultilineStringUtil.getMarginChar(node.getPsi)

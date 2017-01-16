@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.collection.mutable
 
@@ -39,11 +40,7 @@ object ScalaLightKeyword {
   private val key = Key.create[mutable.HashMap[String, ScalaLightKeyword]]("scala.light.keywords")
 
   def apply(manager: PsiManager, text: String): ScalaLightKeyword = {
-    val map = Option(manager.getUserData(key)).getOrElse {
-      val newMap = mutable.HashMap[String, ScalaLightKeyword]()
-      manager.putUserData(key, newMap)
-      newMap
-    }
+    val map = manager.getOrUpdateUserData(key, mutable.HashMap[String, ScalaLightKeyword]())
     map.getOrElseUpdate(text, new ScalaLightKeyword(manager, text))
   }
 }

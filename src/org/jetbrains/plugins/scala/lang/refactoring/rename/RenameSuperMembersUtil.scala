@@ -8,6 +8,7 @@ import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
@@ -20,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.collection.mutable
 
@@ -29,7 +31,15 @@ import scala.collection.mutable
  */
 object RenameSuperMembersUtil {
 
-  val superMembersToRename = mutable.Set[PsiElement]()
+  private val superMembersToRename: mutable.Set[PsiElement] = mutable.Set.empty
+
+  private val renameAllKey: Key[ScObject] = Key.create("rename.all.marker")
+  private def renameAllMarker(element: PsiElement): ScObject = {
+    val project = element.getProject
+    project.getOrUpdateUserData(renameAllKey,
+      ScalaPsiElementFactory.createScalaFileFromText("object RenameAll", project).typeDefinitions.head.asInstanceOf[ScObject]
+    )
+  }
 
   def chooseSuper(named: ScNamedElement): PsiNamedElement = {
     var chosen: PsiNamedElement = null
@@ -79,14 +89,13 @@ object RenameSuperMembersUtil {
     val allElements = superMembers :+ element
     val classes: Seq[PsiClass] = allElements.map(PsiTreeUtil.getParentOfType(_, classOf[PsiClass], false))
     val oneSuperClass = superMembers.size == 1
-    val renameAllMarkerObject = ScalaPsiElementFactory.createObjectWithContext("object RenameAll", classes.last.getContainingFile, classes.last)
-    val additional = if (oneSuperClass) Nil else Seq((renameAllMarkerObject, null)) //option for rename all
+    val additional = if (oneSuperClass) Nil else Seq((renameAllMarker(element), null)) //option for rename all
     val classesToNamed = additional ++: Map(classes.zip(allElements): _*)
     val selection = classesToNamed.keys.head
 
     val processor = new PsiElementProcessor[PsiClass] {
       def execute(aClass: PsiClass): Boolean = {
-        if (aClass != renameAllMarkerObject) action(classesToNamed(aClass))
+        if (aClass != renameAllMarker(aClass)) action(classesToNamed(aClass))
         else {
           val mainOne = classesToNamed(classes(0))
           superMembersToRename.clear()
@@ -96,6 +105,12 @@ object RenameSuperMembersUtil {
         false
       }
     }
+
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      processor.execute(if (oneSuperClass) classes(0) else renameAllMarker(element)) //in unit tests uses base member or all base members
+      return
+    }
+
     val renameAllText = ScalaBundle.message("rename.all.base.members")
     val renameBase = ScalaBundle.message("rename.base.member")
     val renameOnlyCurrent = ScalaBundle.message("rename.only.current.member")
@@ -116,12 +131,12 @@ object RenameSuperMembersUtil {
 
     val popup = NavigationUtil.getPsiElementPopup(classesToNamed.keys.toArray, new PsiClassListCellRenderer() {
       override def getIcon(element: PsiElement): Icon = {
-        if (element == renameAllMarkerObject || oneSuperClass) null
+        if (element == renameAllMarker(element) || oneSuperClass) null
         else super.getIcon(element)
       }
 
       override def getElementText(clazz: PsiClass): String = {
-        if (clazz == renameAllMarkerObject) return renameAllText
+        if (clazz == renameAllMarker(clazz)) return renameAllText
         def classKind = clazz match {
           case _: ScObject => "object"
           case _: ScTrait => "trait"
@@ -133,15 +148,11 @@ object RenameSuperMembersUtil {
       }
 
       override def getContainerText(clazz: PsiClass, name: String): String = {
-        if (clazz == renameAllMarkerObject || clazz == classes.last || oneSuperClass) null //don't show package name
+        if (clazz == renameAllMarker(clazz) || clazz == classes.last || oneSuperClass) null //don't show package name
         else super.getContainerText(clazz, name)
       }
     }, title, processor, selection)
 
-    if (ApplicationManager.getApplication.isUnitTestMode) {
-      processor.execute(if (oneSuperClass) classes(0) else renameAllMarkerObject) //in unit tests uses base member or all base members
-      return
-    }
     if (editor != null) popup.showInBestPositionFor(editor)
     else popup.showInFocusCenter()
   }
