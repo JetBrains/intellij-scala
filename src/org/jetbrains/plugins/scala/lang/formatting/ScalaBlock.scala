@@ -120,7 +120,7 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
       case _: ScDocComment =>
         new ChildAttributes(Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1), null)
       case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
-        new ChildAttributes(Indent.getNormalIndent, null)
+        new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), null)
       case p: ScParameterClause if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS && isConstructorArgOrMemberFunctionParameter(p) =>
         new ChildAttributes(
           Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false), null)

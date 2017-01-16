@@ -21,6 +21,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.ScalaLoader;
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
 public abstract class ScalaFileSetTestCase extends FileSetTestCase {
   @NonNls
@@ -33,6 +34,10 @@ public abstract class ScalaFileSetTestCase extends FileSetTestCase {
 
   protected CommonCodeStyleSettings getSettings() {
       return CodeStyleSettingsManager.getSettings(getProject()).getCommonSettings(ScalaLanguage.INSTANCE);
+  }
+
+  protected ScalaCodeStyleSettings getScalaSettings() {
+    return CodeStyleSettingsManager.getSettings(getProject()).getCustomSettings(ScalaCodeStyleSettings.class);
   }
 
   protected void setSettings() {
