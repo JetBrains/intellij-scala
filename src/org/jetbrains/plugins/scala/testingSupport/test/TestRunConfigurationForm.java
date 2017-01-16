@@ -269,7 +269,7 @@ public class TestRunConfigurationForm {
     myShowProgressMessagesCheckBox.setSelected(configuration.getShowProgressMessages());
 
     for (TestKind testKind : TestKind.values()) {
-      kindComboBox.addItem(testKind);
+      if (testKind != TestKind.REGEXP) kindComboBox.addItem(testKind);
     }
 
     switch (configuration.getTestKind()) {
@@ -344,9 +344,9 @@ public class TestRunConfigurationForm {
   }
 
   private void setRegexpVisible(boolean visible) {
-    regexpLabel.setVisible(visible);
-    regexpTable.setVisible(visible);
-    regexpPanel.setVisible(visible);
+    regexpLabel.setVisible(false);
+    regexpTable.setVisible(false);
+    regexpPanel.setVisible(false);
   }
 
   private void disableAll() {
