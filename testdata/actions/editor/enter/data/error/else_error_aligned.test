@@ -1,0 +1,8 @@
+class C {
+  val myValue = if (true)<caret>
+}
+-----
+class C {
+  val myValue = if (true)
+                  <caret>
+}
