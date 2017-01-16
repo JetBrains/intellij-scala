@@ -9,7 +9,6 @@ import com.intellij.lang.refactoring.InlineHandler
 import com.intellij.lang.refactoring.InlineHandler.Settings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
@@ -43,8 +42,6 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaInlineHandler extends InlineHandler {
-
-  private var occurrenceHighlighters: Seq[RangeHighlighter] = Seq.empty
 
   def removeDefinition(element: PsiElement, settings: InlineHandler.Settings) {
     def removeElementWithNonSignificantSibilings(value: PsiElement) = {
@@ -123,7 +120,7 @@ class ScalaInlineHandler extends InlineHandler {
 
           val project = newValue.getProject
           val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
-          occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newValue), editor)
+          ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newValue), editor)
           CodeStyleManager.getInstance(project).reformatRange(newValue.getContainingFile, newValue.getTextRange.getStartOffset - 1,
             newValue.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
         }
@@ -147,7 +144,7 @@ class ScalaInlineHandler extends InlineHandler {
     def getSettings(psiNamedElement: PsiNamedElement, inlineTitleSuffix: String, inlineDescriptionSuffix: String): InlineHandler.Settings = {
       val refs = ReferencesSearch.search(psiNamedElement, psiNamedElement.getUseScope).findAll.asScala
       val inlineTitle = title(inlineTitleSuffix)
-      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(element.getProject, refs.map(_.getElement).toArray, editor)
+      val occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(element.getProject, refs.map(_.getElement).toArray, editor)
       val settings = new InlineHandler.Settings {
         def isOnlyOneReferenceToInline: Boolean = false
       }
@@ -175,7 +172,6 @@ class ScalaInlineHandler extends InlineHandler {
         dialog.show()
         if (!dialog.isOK) {
           occurrenceHighlighters.foreach(_.dispose())
-          occurrenceHighlighters = Seq.empty
           InlineHandler.Settings.CANNOT_INLINE_SETTINGS
         } else settings
       } else settings

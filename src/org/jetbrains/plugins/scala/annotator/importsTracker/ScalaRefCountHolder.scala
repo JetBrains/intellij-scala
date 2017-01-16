@@ -6,6 +6,7 @@ import com.intellij.openapi.util.{Key, TextRange, UserDataHolderEx}
 import com.intellij.psi._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
 /**
@@ -127,13 +128,7 @@ object ScalaRefCountHolder {
   private val SCALA_REF_COUNT_HOLDER_IN_FILE_KEY: Key[ScalaRefCountHolder] = Key.create("scala.ref.count.holder.in.file.key")
 
   def getInstance(file: PsiFile): ScalaRefCountHolder = {
-    val myFile = /*Option(file.getViewProvider getPsi ScalaFileType.SCALA_LANGUAGE) getOrElse file
-    val file2 = */Option(ScalaLanguageDerivative getScalaFileOnDerivative file) getOrElse file
-    
-    Option(myFile getUserData SCALA_REF_COUNT_HOLDER_IN_FILE_KEY) getOrElse {
-      myFile.asInstanceOf[UserDataHolderEx] putUserDataIfAbsent (
-        SCALA_REF_COUNT_HOLDER_IN_FILE_KEY, new ScalaRefCountHolder
-      )
-    }
+    val myFile = Option(ScalaLanguageDerivative.getScalaFileOnDerivative(file)).getOrElse(file)
+    myFile.getOrUpdateUserData(SCALA_REF_COUNT_HOLDER_IN_FILE_KEY, new ScalaRefCountHolder)
   }
 }

@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala
 
 import java.io.File
 
+import com.intellij.formatting.Alignment
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.{ExistingLibraryEditor, NewLibraryEditor}
+import com.intellij.openapi.util.{Key, UserDataHolder}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
@@ -20,6 +22,7 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration,
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
@@ -171,6 +174,16 @@ package object project {
     }
 
     def typeSystem: TypeSystem = typeSystemIn(project)
+  }
+
+  implicit class UserDataHolderExt(val holder: UserDataHolder) extends AnyVal {
+    def getOrUpdateUserData[T](key: Key[T], update: => T): T = {
+      Option(holder.getUserData(key)).getOrElse {
+        val newValue = update
+        holder.putUserData(key, newValue)
+        newValue
+      }
+    }
   }
 
   def typeSystemIn(project: Project): TypeSystem = if (project.hasDotty) DottyTypeSystem else ScalaTypeSystem
