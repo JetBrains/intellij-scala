@@ -14,14 +14,12 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 abstract class ScalaFixtureTestCase(private val scalaVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION,
                                     private val loadReflect: Boolean = false) extends CodeInsightFixtureTestCase with TestFixtureProvider {
 
-  protected def rootPath = TestUtils.getTestDataPath + "/"
-
   var libLoader: ScalaLibraryLoader = _
 
   override protected def setUp(): Unit = {
     super.setUp()
 
-    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath, loadReflect)
+    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null, loadReflect)
     libLoader.loadScala(scalaVersion)
   }
 

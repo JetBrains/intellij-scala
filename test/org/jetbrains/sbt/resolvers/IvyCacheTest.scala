@@ -2,12 +2,14 @@ package org.jetbrains.sbt
 package resolvers
 
 import com.intellij.openapi.util.SystemInfo
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * @author Nikolay Obedin
  * @since 8/22/14.
  */
 class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
+  private val rootPath = TestUtils.getTestDataPath + "/"
 
   def testIndexUpdate(): Unit = {
     implicit val p = getProject
