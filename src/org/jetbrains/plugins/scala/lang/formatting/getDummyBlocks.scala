@@ -683,6 +683,14 @@ object getDummyBlocks {
   }
 
   private def getMultilineStringBlocks(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
+    def interpolatedRefLength(node: ASTNode): Int = {
+      if (node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING) {
+        node.getPsi().getParent match {
+          case l: ScInterpolatedStringLiteral => l.reference.map(_.refName.length).getOrElse(0)
+          case _ => 0
+        }
+      } else 0
+    }
     val settings = block.getSettings
     val subBlocks = new util.ArrayList[Block]
 
@@ -698,8 +706,7 @@ object getDummyBlocks {
 
     val indent = Indent.getNoneIndent
     val simpleIndent = Indent.getAbsoluteNoneIndent
-    val prefixIndent = Indent.getSpaceIndent(marginIndent +
-      (if (node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING) 1 else 0), true)
+    val prefixIndent = Indent.getSpaceIndent(marginIndent + interpolatedRefLength(node), true)
 
     val lines = node.getText.split("\n")
     var acc = 0
