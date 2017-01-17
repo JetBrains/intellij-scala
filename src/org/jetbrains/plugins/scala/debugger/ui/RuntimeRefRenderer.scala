@@ -65,7 +65,12 @@ class RuntimeRefRenderer extends NodeRendererImpl {
   }
 
   private def autoRenderer(debugProcess: DebugProcess, valueDescriptor: ValueDescriptor) = {
-    debugProcess.asInstanceOf[DebugProcessImpl].getAutoRenderer(valueDescriptor).asInstanceOf[NodeRendererImpl]
+    val unwrappedType = valueDescriptor.getType
+
+    if (isApplicable(unwrappedType))
+      DebugProcessImpl.getDefaultRenderer(unwrappedType).asInstanceOf[NodeRendererImpl]
+    else
+      debugProcess.asInstanceOf[DebugProcessImpl].getAutoRenderer(valueDescriptor).asInstanceOf[NodeRendererImpl]
   }
   
   private def unwrappedDescriptor(ref: Value, project: Project) = {
