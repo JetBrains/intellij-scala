@@ -6,6 +6,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import com.intellij.util.text.EditDistance
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -68,7 +69,8 @@ class ScalaByNameWeigher extends CompletionWeigher {
         result
       }
 
-      Option(originalPostion.getUserData(textForPositionKey))
+      Option(originalPostion)
+        .flatMap(_.getUserData(textForPositionKey).toOption)
         .orElse(asBindingPattern)
         .orElse(afterColonType)
         .orElse(afterNew)
