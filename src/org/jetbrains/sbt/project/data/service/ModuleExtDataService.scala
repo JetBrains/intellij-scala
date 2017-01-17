@@ -4,7 +4,8 @@ package service
 import java.io.File
 
 import com.intellij.compiler.CompilerConfiguration
-import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -97,7 +98,13 @@ object ModuleExtDataService {
     private def showWarning(message: String): Unit = {
       val notification = new NotificationData(SbtBundle("sbt.notificationGroupTitle"), message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
       notification.setBalloonGroup(SbtBundle("sbt.notificationGroupName"))
-      ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notification)
+      if (ApplicationManager.getApplication.isUnitTestMode) {
+        throw NotificationException(notification, SbtProjectSystem.Id)
+      } else {
+        ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notification)
+      }
     }
+
   }
+  case class NotificationException(data: NotificationData, id: ProjectSystemId) extends Exception
 }

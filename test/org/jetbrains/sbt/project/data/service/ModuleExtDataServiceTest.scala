@@ -6,6 +6,7 @@ import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -16,10 +17,13 @@ import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
 import org.jetbrains.sbt.UsefulTestCaseHelper
+import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.data.service.ModuleExtDataService.NotificationException
 import org.junit.Assert._
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Try}
 
 /**
  * @author Nikolay Obedin
@@ -38,9 +42,21 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
     importProjectData(generateScalaProject("2.11.5", None, Seq.empty))
 
   def testWithIncompatibleScalaLibrary(): Unit = {
-    importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))
-    // FIXME: fix notifications on Windows
-    //assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, SbtProjectSystem.Id, 1)
+    @scala.annotation.tailrec
+    def checkFailure(t: Throwable): Boolean = {
+      t match {
+        case null => false
+        case NotificationException(data, SbtProjectSystem.Id)
+          if data.getNotificationSource == NotificationSource.PROJECT_SYNC &&
+            data.getNotificationCategory == NotificationCategory.WARNING => true
+        case _ if t.getCause != t => checkFailure(t.getCause)
+      }
+    }
+
+    Try(importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))) match {
+      case Failure(t) if checkFailure(t) =>
+      case _ => fail("Warning notification is expected")
+    }
   }
 
   def testWithCompatibleScalaLibrary(): Unit = {
