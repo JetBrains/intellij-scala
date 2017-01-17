@@ -34,9 +34,9 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import _root_.scala.collection.mutable.ArrayBuffer
 import scala.annotation.tailrec
 import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -258,10 +258,13 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             if (seq.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
-                case (t, paramIndex) =>
-                  (new Parameter(t._1, None, t._2, t._3 != null, false, false, paramIndex),
-                    t._1 + ": " + t._2.presentableText + (
-                          if (t._3 != null) " = " + t._3.getText else ""))
+                case ((name, tp, value), paramIndex) =>
+                  val valueText = Option(value).map(_.getText)
+                    .map(" = " + _)
+                    .getOrElse("")
+
+                  (new Parameter(name, None, tp, tp, value != null, false, false, paramIndex),
+                    s"$name: ${tp.presentableText}$valueText")
               }
               applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)
             }
@@ -276,7 +279,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   val length = clause.effectiveParameters.length
                   val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
                   applyToParameters(parameters.map(param =>
-                    (new Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
+                    (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
                 }
               case method: FakePsiMethod =>
                 if (method.params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
@@ -345,7 +348,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             else {
               val clause: ScParameterClause = clauses(i)
               applyToParameters(clause.effectiveParameters.map(param =>
-                (new Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
+                (Parameter(param), paramText(param, subst))), subst, canBeNaming = true, isImplicit = clause.isImplicit)
             }
           case _ =>
         }

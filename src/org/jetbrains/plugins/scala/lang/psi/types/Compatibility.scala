@@ -504,9 +504,8 @@ object Compatibility {
         if (shortage > 0)
           return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p))))
 
-        checkConformanceExt(checkNames = false, parameters = parameters.map {
-          case param: PsiParameter => new Parameter("", None, substitutor.subst(param.paramType()),
-            false, param.isVarArgs, false, -1)
+        checkConformanceExt(checkNames = false, parameters = parameters.map { param =>
+          Parameter(substitutor.subst(param.paramType()), isRepeated = param.isVarArgs, index = -1)
         }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
 
       case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))

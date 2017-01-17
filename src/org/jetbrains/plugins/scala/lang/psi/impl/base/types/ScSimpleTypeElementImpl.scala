@@ -30,8 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Type
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
-import scala.collection.immutable.HashMap
-
 /**
  * @author Alexander Podkhalyuzin
  * Date: 22.02.2008
@@ -77,7 +75,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
           (Seq(m.getParameterList.getParameters.map { p =>
-            new Parameter("", None, p.paramType(), false, p.isVarArgs, false, p.index)
+            Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)
           }), false)
       }
     }
@@ -172,7 +170,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case Some(expected) if withExpected =>
                 def updateRes(expected: ScType) {
                   nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
-                    Seq(new Parameter("", None, expected, false, false, false, 0)),
+                    Seq(Parameter(expected, isRepeated = false, index = 0)),
                       Seq(new Expression(InferUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
                     nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }

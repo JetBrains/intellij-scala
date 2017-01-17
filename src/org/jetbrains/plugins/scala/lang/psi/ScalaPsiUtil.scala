@@ -1501,7 +1501,7 @@ object ScalaPsiUtil {
     }
 
     exp match {
-      case ScAssignStmt(ResolvesTo(p: ScParameter), Some(_)) => Some(new Parameter(p))
+      case ScAssignStmt(ResolvesTo(p: ScParameter), Some(_)) => Some(Parameter(p))
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
@@ -1509,10 +1509,10 @@ object ScalaPsiUtil {
           case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
-              case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(p => new Parameter(p))
+              case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(Parameter(_))
               case ResolvesTo(method: PsiMethod) =>
                 method.getParameterList.getParameters match {
-                  case Array(p) => Some(new Parameter(p))
+                  case Array(p) => Some(Parameter(p))
                   case _ => None
                 }
               case _ => None

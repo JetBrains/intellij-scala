@@ -578,7 +578,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                         (implicit typeSystem: TypeSystem): Seq[Evaluator] = {
 
     val clauses = fun.effectiveParameterClauses
-    val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
+    val parameters = clauses.flatMap(_.effectiveParameters).map(Parameter(_))
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
       def isDefaultExpr(expr: ScExpression) = expr match {
@@ -587,7 +587,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
       previousClausesEvaluators ++ clause.effectiveParameters.map {
         param =>
-          val p = new Parameter(param)
+          val p = Parameter(param)
           val exprsForP = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
           if (p.isByName) throw new NeedCompilationException(ScalaBundle.message("method.with.by-name.parameters"))
 

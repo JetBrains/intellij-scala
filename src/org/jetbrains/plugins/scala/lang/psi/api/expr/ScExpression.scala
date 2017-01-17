@@ -362,7 +362,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         val params = unders.zipWithIndex.map {
           case (u, index) =>
             val tpe = u.getNonValueType(TypingContext.empty, ignoreBaseType).getOrAny.inferValueType.unpackedType
-            new Parameter("", None, tpe, false, false, false, index)
+            Parameter(tpe, isRepeated = false, index = index)
         }
         val methType =
           ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,

@@ -32,7 +32,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 
-  def getSmartParameters: Seq[Parameter] = effectiveParameters.map(new Parameter(_))
+  def getSmartParameters: Seq[Parameter] = effectiveParameters.map(Parameter(_))
 
   /**
     * add parameter as last parameter in clause
