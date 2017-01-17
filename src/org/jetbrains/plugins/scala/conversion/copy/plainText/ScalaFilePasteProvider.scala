@@ -25,12 +25,12 @@ class ScalaFilePasteProvider extends PasteProvider {
   override def performPaste(dataContext: DataContext): Unit = {
 
     def fileName(scalaFile: ScalaFile): String =
-      scalaFile.getClasses.headOption.map(_.name + ".scala").getOrElse("scriptFile.scala")
+      scalaFile.typeDefinitions.headOption.map(_.name + ".scala").getOrElse("scriptFile.scala")
 
     val text: String = CopyPasteManager.getInstance.getContents(DataFlavor.stringFlavor)
     val project = CommonDataKeys.PROJECT.getData(dataContext)
 
-    val optScalaFile = Option(project).flatMap((project: Project) => PlainTextCopyUtil.createScalaFile(text, project))
+    val optScalaFile = Option(project).flatMap(PlainTextCopyUtil.createScalaFile(text, _))
     val optTargetDir = Option(LangDataKeys.IDE_VIEW.getData(dataContext)).flatMap(_.getOrChooseDirectory.toOption)
 
     if (optScalaFile.isEmpty || optTargetDir.isEmpty) return

@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.lang.completion.weighter
 
 import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeigher}
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.openapi.util.Key
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiNamedElement}
 import com.intellij.util.text.EditDistance
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
@@ -13,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAlias, ScTypedDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-import scala.collection.mutable
-
 
 /**
   * Created by kate
@@ -23,8 +22,8 @@ import scala.collection.mutable
   * on 3/2/16
   */
 class ScalaByNameWeigher extends CompletionWeigher {
-  val MAX_DISTANCE = 4
-  val textForPosition = new mutable.HashMap[PsiElement, String]
+  private val MAX_DISTANCE = 4
+  private val textForPositionKey: Key[String] = Key.create("text.for.position")
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
     val position = ScalaCompletionUtil.positionFromParameters(location.getCompletionParameters)
@@ -37,7 +36,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
         result match {
           case typedDeclaration: ScTypedDeclaration =>
             val result = typedDeclaration.declaredElements.headOption.map(_.name)
-            if (result.isDefined) textForPosition.put(position, result.get)
+            if (result.isDefined) position.putUserData(textForPositionKey, result.get)
             result
           case _ => None
         }
@@ -49,7 +48,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
         result match {
           case bp: ScBindingPattern =>
             val name = bp.name
-            textForPosition.put(position, name)
+            position.putUserData(textForPositionKey, name)
             Some(name)
           case _ => None
         }
@@ -65,12 +64,14 @@ class ScalaByNameWeigher extends CompletionWeigher {
           case _ => None
         }
 
-        if (result.isDefined) textForPosition.put(originalPostion, result.get)
+        if (result.isDefined) position.putUserData(textForPositionKey, result.get)
         result
       }
 
-      Option(textForPosition.getOrElse(originalPostion,
-        asBindingPattern.getOrElse(afterColonType.getOrElse(afterNew.orNull))))
+      Option(originalPostion.getUserData(textForPositionKey))
+        .orElse(asBindingPattern)
+        .orElse(afterColonType)
+        .orElse(afterNew)
     }
 
 
