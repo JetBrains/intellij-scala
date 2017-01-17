@@ -45,6 +45,7 @@ trait Compilable {
       }
     })
     CompilerTestUtil.enableExternalCompiler()
+    DebuggerTestUtil.enableCompileServer(true)
     addRoots()
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
