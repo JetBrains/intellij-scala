@@ -158,7 +158,7 @@ class ScSyntheticFunction(val name: String, val retType: ScType, val paramClause
   def this(name: String, retType: ScType, paramTypes: Seq[Seq[ScType]])
           (implicit manager: PsiManager) =
     this(name, retType, paramTypes.mapWithIndex {
-      case (p, index) => p.map(new Parameter("", None, _, false, false, false, index))
+      case (p, index) => p.map(Parameter(_, isRepeated = false, index = index))
     }, Seq.empty)
 
   val typeParams: Seq[ScSyntheticTypeParameter] =
@@ -256,8 +256,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     anyRef.addMethod(new ScSyntheticFunction("eq", Boolean, Seq(Seq(api.AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction("ne", Boolean, Seq(Seq(api.AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction("synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
-      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", None,
-        TypeParameterType(typeParams.head, None), false, false, false, 0)))
+      override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(Parameter(
+        TypeParameterType(typeParams.head, None), isRepeated = false, index = 0)))
       override val retType: ScType = TypeParameterType(typeParams.head, None)
     })
 

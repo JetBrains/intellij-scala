@@ -35,7 +35,7 @@ private[changeSignature] trait ScalaNamedElementUsageInfo {
     case _ => None
   }
   val scParams: Seq[ScParameter] = paramClauses.toSeq.flatMap(_.params)
-  val parameters: Seq[Parameter] = scParams.map(new Parameter(_))
+  val parameters: Seq[Parameter] = scParams.map(Parameter(_))
   val defaultValues: Seq[Option[String]] = scParams.map(_.getActualDefaultExpression.map(_.getText))
 }
 

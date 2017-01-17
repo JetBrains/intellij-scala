@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.Seq
-import scala.collection.immutable.HashMap
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -136,7 +135,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case Some(expected) =>
               try {
                 nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
-                  Seq(new Parameter("", None, expected, false, false, false, 0)),
+                  Seq(Parameter(expected, isRepeated = false, index = 0)),
                   Seq(new Expression(InferUtil.undefineSubstitutor(nonValueType.typeParameters).
                     subst(subst.subst(tp).inferValueType))),
                   nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
@@ -216,10 +215,10 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
         case ScAssignStmt(refToParam: ScReferenceExpression, Some(expr)) =>
           val param = paramClause.find(_.getName == refToParam.refName)
             .orElse(refToParam.resolve().asOptionOf[ScParameter])
-          param.map(p => (expr, new Parameter(p))).toSeq
+          param.map(p => (expr, Parameter(p))).toSeq
         case expr =>
           val paramIndex = Math.min(idx, paramClause.size - 1)
-          paramClause.lift(paramIndex).map(p => (expr, new Parameter(p))).toSeq
+          paramClause.lift(paramIndex).map(p => (expr, Parameter(p))).toSeq
       }
     }).flatten
   }

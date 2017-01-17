@@ -16,7 +16,7 @@ class ScalaVariableData(val element: ScTypedDefinition,
                         val isInsideOfElements: Boolean,
                         val scType: ScType) 
         extends {
-          private val parameter = new Parameter("", None, scType, false, false, false, -1)
+          private val parameter = Parameter(scType, isRepeated = false, index = -1)
           private val fakeParam = new FakePsiParameter(element.getManager, ScalaLanguage.INSTANCE, parameter, element.name)
 
         } with VariableData(fakeParam, new FakePsiType(scType)) {

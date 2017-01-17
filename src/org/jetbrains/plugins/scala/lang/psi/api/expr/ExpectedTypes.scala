@@ -398,7 +398,7 @@ private[expr] object ExpectedTypes {
         if (params.length == 1 && !params.head.isRepeated && exprs.length > 1) {
           params.head.paramType.removeAbstracts match {
             case TupleType(args) => applyForParams(args.zipWithIndex.map {
-              case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
+              case (tpe, index) => Parameter(tpe, isRepeated = false, index = index)
             })
             case _ =>
           }
@@ -409,7 +409,7 @@ private[expr] object ExpectedTypes {
         if (newParams.length == 1 && !newParams.head.isRepeated && exprs.length > 1) {
           newParams.head.paramType.removeAbstracts match {
             case TupleType(args) => applyForParams(args.zipWithIndex.map {
-              case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
+              case (tpe, index) => Parameter(tpe, isRepeated = false, index = index)
             })
             case _ =>
           }

@@ -59,10 +59,9 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     val types = typeStrings.map(ScalaPsiElementFactory.createTypeFromText(_, stringContextApplicationRef, null))
     val treeType = ScalaPsiElementFactory.createTypeFromText("scala.meta.Tree", stringContextApplicationRef, null)
     types.zipWithIndex.map {
-      case (Some(tp), i) =>
-        new Parameter(s"__meta$i", None, tp, isDefault = false, isRepeated = false, isByName = false, index = i)
-      case (None, i) =>
-        new Parameter(s"__meta$i", None, treeType.get, isDefault = false, isRepeated = false, isByName = false, index = i)
+      case (maybeType, i) =>
+        val tp = maybeType.orElse(treeType).get
+        new Parameter(s"__meta$i", None, tp, tp, isDefault = false, isRepeated = false, isByName = false, index = i)
     }
   }
 

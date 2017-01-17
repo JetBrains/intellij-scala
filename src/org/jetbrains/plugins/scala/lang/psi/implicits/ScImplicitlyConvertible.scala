@@ -278,7 +278,7 @@ object ScImplicitlyConvertible {
 
             val parameters = clauses.headOption.toSeq
               .flatMap(_.parameters)
-              .map(new Parameter(_))
+              .map(Parameter(_))
 
             val dependentSubstitutor = ScSubstitutor(() => {
               parameters.map((_, `type`)).toMap
@@ -306,7 +306,7 @@ object ScImplicitlyConvertible {
 
             val effectiveParameters = dependentMethodTypes.toSeq
               .flatMap(_.effectiveParameters)
-              .map(new Parameter(_))
+              .map(Parameter(_))
 
             val implicitDependentSubstitutor = ScSubstitutor(() => {
               val (inferredParameters, expressions, _) = findImplicits(effectiveParameters, None, expression, check = false,
