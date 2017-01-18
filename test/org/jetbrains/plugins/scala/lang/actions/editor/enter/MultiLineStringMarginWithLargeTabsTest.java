@@ -13,11 +13,11 @@ import org.junit.runners.AllTests;
  * Date: 10/1/12
  */
 @RunWith(AllTests.class)
-public class MultiLineStringMarginWithTabsTest extends AbstractEnterActionTestBase {
-  private static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/withTabs/indentAndMargin/2tabs";
-  
-  public MultiLineStringMarginWithTabsTest() {
-      super(TestUtils.getTestDataPath() + DATA_PATH);
+public class MultiLineStringMarginWithLargeTabsTest extends AbstractEnterActionTestBase {
+  private static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/withTabs/indentAndMargin/4tabs";
+
+  public MultiLineStringMarginWithLargeTabsTest() {
+    super(TestUtils.getTestDataPath() + DATA_PATH);
   }
 
   @Override
@@ -30,12 +30,12 @@ public class MultiLineStringMarginWithTabsTest extends AbstractEnterActionTestBa
     scalaSettings.MULTI_LINE_STRING_MARGIN_INDENT = 2;
     settings.ALIGN_MULTILINE_BINARY_OPERATION = true;
     settings.getIndentOptions().USE_TAB_CHARACTER = true;
-    settings.getIndentOptions().TAB_SIZE = 2;
-    settings.getIndentOptions().INDENT_SIZE = 2;
-    settings.getIndentOptions().CONTINUATION_INDENT_SIZE = 2;
+    settings.getIndentOptions().TAB_SIZE = 4;
+    settings.getIndentOptions().INDENT_SIZE = 4;
+    settings.getIndentOptions().CONTINUATION_INDENT_SIZE = 4;
   }
   
   public static Test suite() {
-    return new MultiLineStringMarginWithTabsTest();
+    return new MultiLineStringMarginWithLargeTabsTest();
   }
 }

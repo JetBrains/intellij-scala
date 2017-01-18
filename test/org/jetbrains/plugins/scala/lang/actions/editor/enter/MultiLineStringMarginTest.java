@@ -21,8 +21,8 @@ public class MultiLineStringMarginTest extends AbstractEnterActionTestBase {
   }
 
   @Override
-  protected void setUp(Project project) {
-    super.setUp(project);
+  protected void setSettings() {
+    super.setSettings();
     final CommonCodeStyleSettings settings = getSettings();
     final ScalaCodeStyleSettings scalaSettings = settings.getRootSettings().getCustomSettings(ScalaCodeStyleSettings.class);
 
