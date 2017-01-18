@@ -30,6 +30,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean SEARCH_ALL_SYMBOLS = false;
 
   private boolean ENABLE_JAVA_TO_SCALA_CONVERSION = true;
+  private boolean ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER = true;
   private boolean DONT_SHOW_CONVERSION_DIALOG = false;
   private boolean SHOW_IMPLICIT_CONVERSIONS = true;
 
@@ -141,6 +142,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setEnableJavaToScalaConversion(boolean value) {
     ENABLE_JAVA_TO_SCALA_CONVERSION = value;
+  }
+
+  public boolean isAddOverrideToImplementInConverter() {
+    return ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER;
+  }
+
+  public void setAddOverrideToImplementInConverter(boolean value) {
+    ADD_OVERRIDE_TO_IMPLEMENT_IN_CONVERTER = value;
   }
 
   public boolean isDontShowConversionDialog() {

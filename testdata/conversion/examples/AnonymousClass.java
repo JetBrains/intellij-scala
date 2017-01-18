@@ -11,7 +11,7 @@ public class AnonymousClass {
 class AnonymousClass {
   def foo() {
     new Runnable() {
-      def run() {
+      override def run() {
       }
     }
   }
