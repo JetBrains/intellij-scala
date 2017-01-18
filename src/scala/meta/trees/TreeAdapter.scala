@@ -190,6 +190,7 @@ trait TreeAdapter {
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
       case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), toTermName(t.reference), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
+      case t: ScStableReferenceElementPattern => toTermName(t.refElement.get)
       case t: ScPattern => t ?!
     }
   }
@@ -277,7 +278,7 @@ trait TreeAdapter {
       case t: ScUnitExpr =>
         m.Lit(())
       case t: ScReturnStmt =>
-        m.Term.Return(expression(t.expr).get)
+        m.Term.Return(expression(t.expr).getOrElse(m.Lit(())))
       case t: ScBlockExpr if t.hasCaseClauses =>
         m.Term.PartialFunction(Seq(t.caseClauses.get.caseClauses.map(caseClause):_*))
       case t: ScBlock =>
@@ -348,7 +349,7 @@ trait TreeAdapter {
       case t: ScInterpolatedStringLiteral =>
         t ???
       case t: ScParenthesisedExpr =>
-        t ???
+        t.expr.map(expression).getOrElse(unreachable)
       case t: ScTypedStmt =>
         t ???
       case t: ScUnderscoreSection =>
