@@ -219,16 +219,17 @@ object Compatibility {
         val expectedType = param.expectedType
         val typeResult =
           expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1
-        typeResult.toOption.toList.flatMap { exprType =>
-          val conforms = exprType.weakConforms(paramType)
-          matched ::=(param, expr.expr)
-          matchedTypes ::=(param, exprType)
-          if (!conforms) {
-            List(TypeMismatch(expr.expr, paramType))
-          } else {
-            undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
-            List.empty
-          }
+        typeResult.toOption match {
+          case None => Nil
+          case Some(exprType) =>
+            val conforms = exprType.weakConforms(paramType)
+            matched ::=(param, expr.expr)
+            matchedTypes ::=(param, exprType)
+            if (!conforms) List(TypeMismatch(expr.expr, paramType))
+            else {
+              undefSubst += exprType.conforms(paramType, ScUndefinedSubstitutor(), checkWeak = true)._2
+              List.empty
+            }
         }
       }
     }

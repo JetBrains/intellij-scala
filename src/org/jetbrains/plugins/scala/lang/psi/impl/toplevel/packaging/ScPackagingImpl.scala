@@ -125,12 +125,13 @@ class ScPackagingImpl private(stub: StubElement[ScPackaging], nodeType: IElement
     if (getStub != null || !reference.contains(lastParent)) {
       ProgressManager.checkCanceled()
 
-      Option(JavaPsiFacade.getInstance(getProject).findPackage(fullPackageName)).map {
-        ScPackageImpl(_)
-      }.foreach { p =>
-        if (!p.processDeclarations(processor, state, lastParent, place)) {
-          return false
-        }
+      val scPackageImpl = Option(JavaPsiFacade.getInstance(getProject)
+        .findPackage(fullPackageName))
+        .map(ScPackageImpl(_))
+
+      scPackageImpl match {
+        case Some(p) if !p.processDeclarations(processor, state, lastParent, place) => return false
+        case _ =>
       }
 
       findPackageObject(place.getResolveScope).foreach { definition =>

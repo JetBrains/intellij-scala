@@ -994,12 +994,12 @@ object Conformance extends api.Conformance {
                   result = (false, undefinedSubst)
               }
             case _ if des1 equiv des2 =>
-              if (args1.length != args2.length) {
-                result = (false, undefinedSubst)
-              } else {
-                result = extractParams(des1).map(checkParameterizedType(_, args1, args2, undefinedSubst, visited, checkWeak)).
-                  getOrElse((false, undefinedSubst))
-              }
+              result =
+                if (args1.length != args2.length) (false, undefinedSubst)
+                else extractParams(des1) match {
+                  case Some(params) => checkParameterizedType(params, args1, args2, undefinedSubst, visited, checkWeak)
+                  case _ => (false, undefinedSubst)
+                }
             case (_, t: TypeParameterType) if t.arguments.length == p2.typeArguments.length =>
               val subst = ScSubstitutor(t.arguments.zip(p.typeArguments).map {
                 case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)

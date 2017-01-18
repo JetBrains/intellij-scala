@@ -66,25 +66,23 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
     else {
       val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+      val maybeResult: Option[(ScType, ScalaResolveResult)] = (expected, tr.toOption) match {
+        case (Some(expType), Some(tp))
+          if checkImplicits && !tp.conforms(expType) => //do not try implicit conversions for shape check or already correct type
 
-      val maybeResult: Option[(ScType, ScalaResolveResult)] = expected.filter { _ =>
-        checkImplicits //do not try implicit conversions for shape check
-      }.flatMap { expected =>
-        tr.toOption.filter {
-          !_.conforms(expected) // if this result is ok, we do not need to think about implicits
-        }.flatMap { tp =>
-          tryConvertToSAM(fromUnderscore, expected, tp) match {
+          tryConvertToSAM(fromUnderscore, expType, tp) match {
             case Some(r) => return r
             case _ =>
           }
 
           val scalaVersion = ScExpression.this.scalaLanguageLevelOrDefault
           if (scalaVersion >= Scala_2_11 && ScalaPsiUtil.isJavaReflectPolymorphicSignature(ScExpression.this)) {
-            return ExpressionTypeResult(Success(expected, Some(ScExpression.this)))
+            return ExpressionTypeResult(Success(expType, Some(ScExpression.this)))
           }
 
-          val functionType = FunctionType(expected, Seq(tp))
-          new ImplicitCollector(ScExpression.this, functionType, functionType, None, isImplicitConversion = true).collect() match {
+          val functionType = FunctionType(expType, Seq(tp))
+          val implicitCollector = new ImplicitCollector(ScExpression.this, functionType, functionType, None, isImplicitConversion = true)
+          implicitCollector.collect() match {
             case Seq(res) =>
               val `type` = extractImplicitParameterType(res) match {
                 case FunctionType(rt, Seq(_)) => Some(rt)
@@ -99,14 +97,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                   }
               }
 
-              `type`.map {
-                (_, res)
-              }
+              `type`.map((_, res))
             case _ => None
           }
-        }
+        case _ => None
       }
-
       maybeResult.map {
         case (tp, result) =>
           ExpressionTypeResult(Success(tp, Some(ScExpression.this)), result.importsUsed, Some(result.getElement))
@@ -115,13 +110,6 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       }
     }
   }
-
-  //  private def temp(maybeType: Option[ScType], expectedType: ScType, fromUnderscore: Boolean) =
-  //    maybeType.filter {
-  //      !_.conforms(expectedType)
-  //    }.flatMap {
-  //      tryConvertToSAM(fromUnderscore, expectedType, _)
-  //    }
 
   private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
     def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {

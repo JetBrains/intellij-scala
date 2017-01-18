@@ -386,9 +386,10 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     }
 
     //if it's ordinary case
-    e.getType().map {
-      processType(_, e, processor)
-    }.getOrElse(processor)
+    e.getType().toOption match {
+      case Some(tp) => processType(tp, e, processor)
+      case _ => processor
+    }
   }
 
   private def processType(aType: ScType, e: ScExpression, processor: BaseProcessor): BaseProcessor = {

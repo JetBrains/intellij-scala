@@ -273,14 +273,16 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         val children = parent match {
           case stub: ScalaStubBasedElementImpl[_] if stub.getStub != null =>
             import scala.collection.JavaConverters._
-            stub.getStub.getChildrenStubs.asScala.map(_.getPsi)
-          case _ => parent.getChildren.toSeq
+            stub.getStub.getChildrenStubs.asScala.map(_.getPsi).iterator
+          case _ => parent.getChildren.iterator
         }
-        children.foreach {
-          case fun: ScFunction if fun.importantOrderFunction() =>
-            ProgressManager.checkCanceled()
-            fun.returnTypeInner
-          case _ =>
+        while (children.hasNext) {
+          children.next() match {
+            case fun: ScFunction if fun.importantOrderFunction() =>
+              ProgressManager.checkCanceled()
+              fun.returnTypeInner
+            case _ =>
+          }
         }
         parent.putUserData(ScFunction.calculatedBlockKey, java.lang.Boolean.TRUE)
         returnTypeInner

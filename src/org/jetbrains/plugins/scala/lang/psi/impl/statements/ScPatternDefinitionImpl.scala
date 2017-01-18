@@ -53,7 +53,8 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition
   def getType(ctx: TypingContext): TypeResult[ScType] = {
     typeElement match {
       case Some(te) => te.getType(ctx)
-      case None => expr.map(_.getType(ctx)).getOrElse(Failure("Cannot infer type without an expression", Some(this)))
+      case None if expr.nonEmpty => expr.get.getType(ctx)
+      case _ => Failure("Cannot infer type without an expression", Some(this))
     }
   }
 

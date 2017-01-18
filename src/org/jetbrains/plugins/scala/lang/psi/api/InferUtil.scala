@@ -91,21 +91,25 @@ object InferUtil {
         val paramsForInferBuffer = new ArrayBuffer[Parameter]()
         val exprsBuffer = new ArrayBuffer[Compatibility.Expression]()
         val resolveResultsBuffer = new ArrayBuffer[ScalaResolveResult]()
-        coreTypes.foreach {
-          case _ =>
-            resInner match {
-              case t@ScTypePolymorphicType(ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
-                val polymorphicSubst = t.polymorphicTypeSubstitutor
-                val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
-                val (paramsForInfer, exprs, resolveResults) =
-                  findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
-                resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
-                  safeCheck = check || fullInfo)
-                paramsForInferBuffer ++= paramsForInfer
-                exprsBuffer ++= exprs
-                resolveResultsBuffer ++= resolveResults
-            }
+
+        //todo: do we need to execute this loop several times?
+        var i = 0
+        while (i < coreTypes.size) {
+          i += 1
+          resInner match {
+            case t@ScTypePolymorphicType(ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
+              val polymorphicSubst = t.polymorphicTypeSubstitutor
+              val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
+              val (paramsForInfer, exprs, resolveResults) =
+                findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
+              resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
+                safeCheck = check || fullInfo)
+              paramsForInferBuffer ++= paramsForInfer
+              exprsBuffer ++= exprs
+              resolveResultsBuffer ++= resolveResults
+          }
         }
+
         implicitParameters = Some(resolveResultsBuffer)
         val dependentSubst = ScSubstitutor(() => {
           val level = element.scalaLanguageLevelOrDefault
@@ -290,10 +294,12 @@ object InferUtil {
       }
     }
 
-    nonValueType.map {
-      case tpt@ScTypePolymorphicType(mt: ScMethodType, _) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
-      case mt: ScMethodType => applyImplicitViewToResult(mt, expectedType)
-      case tp => tp
+    nonValueType match {
+      case Success(tpt@ScTypePolymorphicType(mt: ScMethodType, _), elem) =>
+        Success(tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType)), elem)
+      case Success(mt: ScMethodType, elem) =>
+        Success(applyImplicitViewToResult(mt, expectedType), elem)
+      case tr => tr
     }
   }
 
