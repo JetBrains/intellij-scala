@@ -476,20 +476,22 @@ object ResolveUtils {
             if (base.getClassKindInner) {
               val manager = ScalaPsiManager.instance(pack.getProject)
               val qName = pack.getQualifiedName
-              def calcForName(name: String): Boolean = {
+
+              val calcForName = {
                 val fqn = if (qName.length() > 0) qName + "." + name else name
                 val scope = base match {
                   case r: ResolveProcessor => r.getResolveScope
                   case _ => place.getResolveScope
                 }
-                val classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
-
-                for (clazz <- classes if clazz.containingClass == null) {
-                  if (!processor.execute(clazz, state)) return false
+                val classes = manager.getCachedClasses(scope, fqn).iterator
+                var stop = false
+                while (classes.hasNext && !stop) {
+                  val clazz = classes.next()
+                  stop = clazz.containingClass == null && !processor.execute(clazz, state)
                 }
-                true
+                !stop
               }
-              if (!calcForName(name)) return false
+              if (!calcForName) return false
             }
 
             //process subpackages

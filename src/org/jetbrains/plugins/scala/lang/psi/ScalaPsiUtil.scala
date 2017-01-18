@@ -944,8 +944,10 @@ object ScalaPsiUtil {
 
   def genericCallSubstitutor(tp: Seq[(String, Long)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
     val map = new collection.mutable.HashMap[(String, Long), ScType]
-    for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
+    var i = 0
+    while (i < Math.min(tp.length, typeArgs.length)) {
       map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType(TypingContext.empty).getOrAny))
+      i += 1
     }
     ScSubstitutor(map.toMap)
   }

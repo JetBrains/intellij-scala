@@ -146,15 +146,18 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     if (importStmt != null) {
       val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
       if (importHolder != null) {
-        importHolder.getImportStatements.takeWhile(_ != importStmt).foreach {
-          case stmt: ScImportStmt =>
-            stmt.importExprs.foreach {
-              case expr: ScImportExpr if expr.isSingleWildcard => expr.reference match {
-                case Some(reference) => reference.resolve()
-                case None => expr.qualifier.resolve()
-              }
-              case _ =>
-            }
+        val importExprs = importHolder.getImportStatements
+          .takeWhile(_ != importStmt)
+          .flatMap(_.importExprs)
+          .filter(_.isSingleWildcard)
+          .iterator
+
+        while (importExprs.hasNext) {
+          val expr = importExprs.next()
+          expr.reference match {
+            case Some(reference) => reference.resolve()
+            case None => expr.qualifier.resolve()
+          }
         }
       }
     }

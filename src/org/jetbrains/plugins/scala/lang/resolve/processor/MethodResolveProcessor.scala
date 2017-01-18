@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
-import scala.collection.Set
+import scala.collection.{Set, mutable}
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
@@ -193,21 +193,22 @@ object MethodResolveProcessor {
     val element = realResolveResult.element
     val s = realResolveResult.substitutor
 
-    def calcSubstitutor: ScSubstitutor = {
-      val elementsForUndefining = element match {
-        case f: ScMethodLike if f.isConstructor && !selfConstructorResolve => Seq(realResolveResult.getActualElement)
-        case m: PsiMethod if m.isConstructor =>
-          Seq(realResolveResult.getActualElement, element).distinct
-        case _ => Seq(element) //do not
-      }
-
-      elementsForUndefining.foldLeft(ScSubstitutor.empty) { case (subst, elementForUndefining) =>
-        subst.followed(undefinedSubstitutor(elementForUndefining, s, selfConstructorResolve, typeArgElements))
-      }.followed(InferUtil.undefineSubstitutor(prevTypeInfo))
+    val elementsForUndefining = element match {
+      case f: ScMethodLike if f.isConstructor && !selfConstructorResolve => Seq(realResolveResult.getActualElement)
+      case m: PsiMethod if m.isConstructor =>
+        Seq(realResolveResult.getActualElement, element).distinct
+      case _ => Seq(element) //do not
+    }
+    val iterator = elementsForUndefining.iterator
+    var tempSubstitutor: ScSubstitutor = ScSubstitutor.empty
+    while (iterator.hasNext) {
+      val element = iterator.next()
+      tempSubstitutor = tempSubstitutor.followed(
+        undefinedSubstitutor(element, s, selfConstructorResolve, typeArgElements)
+      )
     }
 
-    val substitutor: ScSubstitutor = calcSubstitutor
-
+    val substitutor = tempSubstitutor.followed(InferUtil.undefineSubstitutor(prevTypeInfo))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -216,23 +217,24 @@ object MethodResolveProcessor {
     })
 
     def addExpectedTypeProblems(eOption: Option[ScType] = expectedOption()): Unit = {
-      for (expected <- eOption) {
-        val retType: ScType = element match {
-          case f: ScFunction if f.paramClauses.clauses.length > 1 &&
-            !f.paramClauses.clauses.apply(1).isImplicit =>
-            problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
-            Nothing
-          case f: ScFunction => substitutor.subst(f.returnType.getOrNothing)
-          case f: ScFun => substitutor.subst(f.retType)
-          case m: PsiMethod =>
-            Option(m.getReturnType).map { rt =>
-              substitutor.subst(rt.toScType())
-            }.getOrElse(Nothing)
-          case _ => Nothing
-        }
-        if (!retType.conforms(expected) && !expected.equiv(api.Unit)) {
-          problems += ExpectedTypeMismatch
-        }
+      if (eOption.isEmpty) return
+
+      val expected = eOption.get
+      val retType: ScType = element match {
+        case f: ScFunction if f.paramClauses.clauses.length > 1 &&
+          !f.paramClauses.clauses.apply(1).isImplicit =>
+          problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
+          Nothing
+        case f: ScFunction => substitutor.subst(f.returnType.getOrNothing)
+        case f: ScFun => substitutor.subst(f.retType)
+        case m: PsiMethod =>
+          Option(m.getReturnType).map { rt =>
+            substitutor.subst(rt.toScType())
+          }.getOrElse(Nothing)
+        case _ => Nothing
+      }
+      if (!retType.conforms(expected) && !expected.equiv(api.Unit)) {
+        problems += ExpectedTypeMismatch
       }
     }
 
@@ -550,36 +552,43 @@ object MethodResolveProcessor {
         if (cands.isEmpty) HashSet((r, false)) else cands
       }
 
-      r.element match {
-        case f: ScFunction if f.hasParameterClause => HashSet((r, false))
-        case b: ScTypedDefinition if argumentClauses.nonEmpty =>
-          applyMethodsFor(b.getType(TypingContext.empty).getOrElse(return HashSet.empty))
-        case b: PsiField => // See SCL-3055
-          applyMethodsFor(b.getType.toScType())
-        case _ => HashSet((r, false))
+      if (argumentClauses.isEmpty) Set((r, false))
+      else {
+        r.element match {
+          case f: ScFunction if f.hasParameterClause => HashSet((r, false))
+          case b: ScTypedDefinition if argumentClauses.nonEmpty =>
+            val tpe = b.getType().toOption
+            tpe.map(applyMethodsFor).getOrElse(HashSet.empty)
+          case b: PsiField => // See SCL-3055
+            applyMethodsFor(b.getType.toScType())
+          case _ => HashSet((r, false))
+        }
       }
     }
 
     def mapper(applicationImplicits: Boolean): Set[ScalaResolveResult] = {
-      if (argumentClauses.nonEmpty) {
-        input.flatMap(expand).map {
-          case (r, cleanTypeArguments) =>
-            val pr = problemsFor(r, applicationImplicits, ref, argumentClauses,
-              if (cleanTypeArguments) Seq.empty else typeArgElements,
-              selfConstructorResolve, prevTypeInfo, expectedOption, isUnderscore, isShapeResolve)
-            r.innerResolveResult match {
-              case Some(rr) =>
-                r.copy(innerResolveResult = Some(rr.copy(problems = pr.problems,
-                  defaultParameterUsed = pr.defaultParameterUsed)))
-              case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
-            }
-        }
-      } else input.map(r => {
-        val pr = problemsFor(r, applicationImplicits, ref, argumentClauses, typeArgElements, selfConstructorResolve,
+      val expanded = input.flatMap(expand).iterator
+      var results = ArrayBuffer.empty[ScalaResolveResult]
+
+      //problemsFor make all the work, wrapping it in scala collection API adds 9 unnecessary methods to the stacktrace
+      while (expanded.hasNext) {
+        val (r, cleanTypeArguments) = expanded.next()
+        val typeArgElems = if (cleanTypeArguments) Seq.empty else typeArgElements
+        val pr = problemsFor(r, applicationImplicits, ref, argumentClauses, typeArgElems, selfConstructorResolve,
           prevTypeInfo, expectedOption, isUnderscore, isShapeResolve)
-        r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
-      })
+
+        val result = r.innerResolveResult match {
+          case Some(rr) if argumentClauses.nonEmpty =>
+            val innerCopy = rr.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed)
+            r.copy(innerResolveResult = Some(innerCopy))
+          case _ => r.copy(problems = pr.problems, defaultParameterUsed = pr.defaultParameterUsed, resultUndef = Some(pr.undefSubst))
+        }
+        results += result
+      }
+
+      results.toSet
     }
+
     var mapped = mapper(applicationImplicits = false)
     var filtered = mapped.filter(_.isApplicableInternal(withExpectedType = true))
     if (filtered.isEmpty) filtered = mapped.filter(_.isApplicableInternal(withExpectedType = false))

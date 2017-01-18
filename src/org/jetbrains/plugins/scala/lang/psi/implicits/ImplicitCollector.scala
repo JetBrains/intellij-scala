@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
-import org.jetbrains.plugins.scala.caches.ScalaRecursionManager.RecursionMap
+import org.jetbrains.plugins.scala.caches.ScalaRecursionManager.{RecursionMap, recursionMap}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
@@ -137,8 +137,12 @@ class ImplicitCollector(place: PsiElement,
 
     previousRecursionState match {
       case Some(m) =>
-        ScalaRecursionManager.usingPreviousRecursionMap(m) {
+        val currentMap = recursionMap.get()
+        try {
+          recursionMap.set(m)
           calc()
+        } finally {
+          recursionMap.set(currentMap)
         }
       case _ => calc()
     }
@@ -306,10 +310,15 @@ class ImplicitCollector(place: PsiElement,
   }
 
   def collectCompatibleCandidates(candidates: Set[ScalaResolveResult], withLocalTypeInference: Boolean): Set[Candidate] = {
-    def isPlausible(c: ScalaResolveResult, withLocalTypeInference: Boolean) =
-      checkCompatible(c, withLocalTypeInference, checkFast = true).isDefined
+    var filteredCandidates = Set.empty[ScalaResolveResult]
 
-    var filteredCandidates = candidates.filter(c => isPlausible(c, withLocalTypeInference))
+    val iterator = candidates.iterator
+    while (iterator.hasNext) {
+      val c = iterator.next()
+      val plausible = checkCompatible(c, withLocalTypeInference, checkFast = true).isDefined
+      if (plausible) filteredCandidates += c
+    }
+
     var results: Set[Candidate] = Set()
 
     while (filteredCandidates.nonEmpty) {
@@ -591,14 +600,13 @@ class ImplicitCollector(place: PsiElement,
       }
     }
 
-    def applicableParameters(): Boolean = checkFunctionByTypeInner(noReturnType = true).isDefined
-    def checkFullType() = checkFunctionByTypeInner(noReturnType = false)
-
     if (isExtensionConversion && !fullInfo) {
-      if (applicableParameters()) checkFullType()
+      val applicableParameters = checkFunctionByTypeInner(noReturnType = true).isDefined
+
+      if (applicableParameters) checkFunctionByTypeInner(noReturnType = false)
       else None
     }
-    else checkFullType()
+    else checkFunctionByTypeInner(noReturnType = false)
   }
 
   private def applyExtensionPredicate(cand: Candidate): Option[Candidate] = {
