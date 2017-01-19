@@ -349,7 +349,7 @@ object ScalaPsiUtil {
                                            (implicit typeSystem: TypeSystem): Array[ScalaResolveResult] = {
     val isUpdate = call.isUpdateCall
     val methodName =
-      if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
+      if (isDynamic) DynamicResolveProcessor.getDynamicNameForMethodInvocation(call)
       else if (isUpdate) "update"
       else "apply"
 
@@ -425,7 +425,7 @@ object ScalaPsiUtil {
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
           def update(tp: ScType): ScType = {
-            if (r.isDynamic) ResolvableReferenceExpression.getDynamicReturn(tp)
+            if (r.isDynamic) DynamicResolveProcessor.getDynamicReturn(tp)
             else tp
           }
 

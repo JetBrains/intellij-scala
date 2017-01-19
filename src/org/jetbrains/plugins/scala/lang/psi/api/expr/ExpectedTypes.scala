@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -80,7 +81,7 @@ private[expr] object ExpectedTypes {
     def mapResolves(resolves: Array[ResolveResult], types: Array[TypeResult[ScType]]): Array[(TypeResult[ScType], Boolean)] = {
       resolves.zip(types).map {
         case (r: ScalaResolveResult, tp) =>
-          val isNamedDynamic = r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+          val isNamedDynamic = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
           (tp, isNamedDynamic)
         case (_, tp) => (tp, false)
       }
@@ -418,9 +419,9 @@ private[expr] object ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case r@ScalaResolveResult(fun: ScFunction, s) =>
-              val isDynamicNamed = r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+              val isDynamicNamed = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
               def update(tp: ScType): ScType = {
-                if (r.isDynamic) ResolvableReferenceExpression.getDynamicReturn(tp)
+                if (r.isDynamic) getDynamicReturn(tp)
                 else tp
               }
               var polyType: TypeResult[ScType] = Success(s.subst(fun.polymorphicType()) match {
@@ -438,9 +439,9 @@ private[expr] object ExpectedTypes {
         if (cand.length == 1) {
           cand(0) match {
             case r@ScalaResolveResult(fun: ScFunction, subst) =>
-              val isDynamicNamed = r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+              val isDynamicNamed = r.isDynamic && r.name == APPLY_DYNAMIC_NAMED
               def update(tp: ScType): ScType = {
-                if (r.isDynamic) ResolvableReferenceExpression.getDynamicReturn(tp)
+                if (r.isDynamic) getDynamicReturn(tp)
                 else tp
               }
               var polyType: TypeResult[ScType] = Success(update(subst.subst(fun.polymorphicType())), Some(expr))

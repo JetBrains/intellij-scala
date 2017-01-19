@@ -7,6 +7,7 @@ package expr
 import com.intellij.psi.{PsiElement, PsiField}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
 
@@ -88,11 +89,11 @@ trait ScAssignStmt extends ScExpression {
               case r: ScReferenceExpression =>
                 r.bind() match {
                   case Some(resolveResult) if resolveResult.isDynamic &&
-                    resolveResult.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED => return true
+                    resolveResult.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED => return true
                   case _ =>
                     m.applyOrUpdateElement match {
                       case Some(innerResult) if innerResult.isDynamic &&
-                        innerResult.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED => return true
+                        innerResult.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED => return true
                       case _ =>
                     }
                 }
