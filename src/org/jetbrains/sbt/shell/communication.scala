@@ -137,6 +137,7 @@ class CommandListener extends ProcessAdapter {
 
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
     val text = event.getText
+    // TODO make sure this works with colored output
     if (text startsWith "[error]") {
       success = false
       errors += 1

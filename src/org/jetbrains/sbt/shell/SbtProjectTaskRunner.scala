@@ -104,6 +104,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
     shell.command(command)
       .onComplete {
       case Success(taskResult) =>
+        // TODO progress monitoring
         callbackOpt.foreach(_.finished(taskResult))
       case Failure(x) =>
         // TODO some kind of feedback / rethrow

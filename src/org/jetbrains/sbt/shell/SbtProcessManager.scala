@@ -18,7 +18,6 @@ import scala.collection.JavaConverters._
   *
   * Created by jast on 2016-11-27.
   */
-// TODO try to make sure there is only one shell or server running. Connect to externally running shell if practical
 // TODO transparently support shell or server process
 class SbtProcessManager(project: Project) extends AbstractProjectComponent(project) {
 
