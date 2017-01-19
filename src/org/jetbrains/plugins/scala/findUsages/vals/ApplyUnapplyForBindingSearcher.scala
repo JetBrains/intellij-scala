@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
@@ -95,7 +95,7 @@ class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, Referen
   private class Apply(binding: ScBindingPattern) {
     def unapply(ref: PsiReference): Option[ScReferenceElement] = {
       (ref, ref.getElement.getContext) match {
-        case (sref: ResolvableReferenceExpression, x: ScMethodCall) if x.getInvokedExpr == ref.getElement =>
+        case (sref: ScReferenceExpression, x: ScMethodCall) if x.getInvokedExpr == ref.getElement =>
           sref.bind() match {
             case Some(ScalaResolveResult(fun: ScFunctionDefinition, _))
               if fun.name == "apply" && sref.isReferenceTo(binding) => Some(sref)

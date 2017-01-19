@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
 /**
  * Pavel.Fatin, 31.05.2010
@@ -29,7 +30,7 @@ trait AssignmentAnnotator {
       case _: ScMethodCall =>
       case ref: ScReferenceExpression =>
         ref.bind() match {
-          case Some(r) if r.isDynamic && r.name == ResolvableReferenceExpression.UPDATE_DYNAMIC => //ignore
+          case Some(r) if r.isDynamic && r.name == DynamicResolveProcessor.UPDATE_DYNAMIC => //ignore
           case Some(r) if !r.isNamedParameter =>
             def checkVariable() {
               left.getType(TypingContext.empty).foreach { lType =>

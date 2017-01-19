@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
 import com.intellij.psi.{PsiClass, ResolveResult}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -26,6 +27,30 @@ class DynamicResolveProcessor(referenceExpression: ScReferenceExpression) {
 }
 
 object DynamicResolveProcessor {
+
+  val APPLY_DYNAMIC_NAMED = "applyDynamicNamed"
+  val APPLY_DYNAMIC = "applyDynamic"
+  val SELECT_DYNAMIC = "selectDynamic"
+  val UPDATE_DYNAMIC = "updateDynamic"
+  val NAMED = "Named"
+
+  def getDynamicReturn(tp: ScType): ScType = {
+    tp match {
+      case pt@ScTypePolymorphicType(mt: ScMethodType, typeArgs) => ScTypePolymorphicType(mt.returnType, typeArgs)(pt.typeSystem)
+      case mt: ScMethodType => mt.returnType
+      case _ => tp
+    }
+  }
+
+  def getDynamicNameForMethodInvocation(call: MethodInvocation): String =
+    if (call.argumentExpressions.collect {
+      case statement: ScAssignStmt => statement.getLExpression
+    }.exists {
+      case r: ScReferenceExpression => r.qualifier.isEmpty
+      case _ => false
+    }) APPLY_DYNAMIC_NAMED else APPLY_DYNAMIC
+
+
   def isDynamicReference(referenceExpression: ScReferenceExpression): Boolean = {
     implicit val typeSystem: TypeSystem = referenceExpression.getProject.typeSystem
 

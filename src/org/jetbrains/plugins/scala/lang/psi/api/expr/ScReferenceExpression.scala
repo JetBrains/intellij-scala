@@ -11,13 +11,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
 
-trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement {
+trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScReferenceElement with ResolvableReferenceExpression {
   def isQualified: Boolean = qualifier.isDefined
 
   def qualifier: Option[ScExpression] = getFirstChild match {case e: ScExpression => Some(e) case _ => None}
@@ -30,6 +32,8 @@ trait ScReferenceExpression extends ScalaPsiElement with ScExpression with ScRef
     this.resolveFunction = resolveFunction
     this.shapeResolveFunction = shapeResolveFunction
   }
+
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult]
 
   /**
    * Includes qualifier for Infix, Postfix and Prefix expression

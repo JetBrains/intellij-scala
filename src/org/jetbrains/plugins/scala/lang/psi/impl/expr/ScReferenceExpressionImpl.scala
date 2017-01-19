@@ -5,6 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
@@ -32,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve._
-import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, MethodResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, DynamicResolveProcessor, MethodResolveProcessor}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -40,7 +41,7 @@ import scala.collection.mutable.ArrayBuffer
   * @author AlexanderPodkhalyuzin
   *         Date: 06.03.2008
   */
-class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ResolvableReferenceExpression {
+class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ScReferenceExpression {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => accept(visitor)
@@ -55,6 +56,20 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitReferenceExpression(this)
   }
+
+  def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+    if (resolveFunction != null) resolveFunction()
+    else this.multiResolveImpl(incomplete)
+  }
+
+  def shapeResolve: Array[ResolveResult] = {
+    ProgressManager.checkCanceled()
+    if (shapeResolveFunction != null) shapeResolveFunction()
+    else this.shapeResolveImpl
+  }
+
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] =
+    ReferenceExpressionResolver.doResolve(this, processor, accessibilityCheck)
 
   def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
 
@@ -149,7 +164,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
     })
   }
 
-  def getSameNameVariants: Array[ResolveResult] = doResolve(new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
+  def getSameNameVariants: Array[ResolveResult] = this.doResolve(
+    new CompletionProcessor(getKinds(incomplete = true), this, true, Some(refName)))
 
   def getKinds(incomplete: Boolean, completion: Boolean = false): _root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.ValueSet = {
     getContext match {
@@ -341,7 +357,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         s.subst(fun.polymorphicType(optionResult))
       case result@ScalaResolveResult(fun: ScFunction, s) =>
         val functionType = s.subst(fun.polymorphicType())
-        if (result.isDynamic) ResolvableReferenceExpression.getDynamicReturn(functionType)
+        if (result.isDynamic) DynamicResolveProcessor.getDynamicReturn(functionType)
         else functionType
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.getType(TypingContext.empty)

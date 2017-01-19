@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -289,7 +290,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     def isApplyDynamicNamed: Boolean = {
       getEffectiveInvokedExpr match {
         case ref: ScReferenceExpression =>
-          ref.bind().exists(result => result.isDynamic && result.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED)
+          ref.bind().exists(result => result.isDynamic && result.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED)
         case _ => false
       }
     }
@@ -307,7 +308,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       implicitFunctionLocal = implicitFunction
       val isNamedDynamic: Boolean =
         applyOrUpdateResult.exists(result => result.isDynamic &&
-          result.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED)
+          result.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED)
       checkApplication(processedType, args(includeUpdateCall = true, isNamedDynamic)).getOrElse {
         applyOrUpdateElemLocal = None
         problemsLocal = Seq(new DoesNotTakeParameters)

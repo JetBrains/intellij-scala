@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
@@ -119,7 +119,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
                 ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
               //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
               expr match {
-                case ref: ResolvableReferenceExpression =>
+                case ref: ScReferenceExpression =>
                   ref.doResolve(processor)
                 case _ =>
               }
@@ -224,7 +224,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         val expr =
           ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, this)
         expr match {
-          case ref: ResolvableReferenceExpression =>
+          case ref: ScReferenceExpression =>
             ref.doResolve(processor)
           case _ =>
         }
