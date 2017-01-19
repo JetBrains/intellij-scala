@@ -5,6 +5,7 @@ package resolve
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
+import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -254,6 +255,10 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     result.element match {
       case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {
         case _: ScalaFile => true // scala classes are available from default package
+        /**in completion in [[ScalaFile]] [[JavaDummyHolder]] usually used as file */
+        case dummyHolder: JavaDummyHolder
+          if Option(dummyHolder.getContext).map(_.getContainingFile).exists(_.isInstanceOf[ScalaFile]) =>
+          true
         // Other classes from default package are available only for top-level Scala statements
         case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
       }
