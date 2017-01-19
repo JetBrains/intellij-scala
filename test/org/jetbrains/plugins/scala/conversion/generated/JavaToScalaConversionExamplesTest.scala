@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.conversion
 package generated
 
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
@@ -39,6 +40,13 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testSCL9369() = doTest()
 
   def testNeedConstructorsSorting() = doTest()
+
+  def testNoOverrideToImplement() = {
+    val oldValue = ScalaProjectSettings.getInstance(getProjectAdapter).isAddOverrideToImplementInConverter
+    ScalaProjectSettings.getInstance(getProjectAdapter).setAddOverrideToImplementInConverter(false)
+    doTest()
+    ScalaProjectSettings.getInstance(getProjectAdapter).setAddOverrideToImplementInConverter(oldValue)
+  }
 
 //  def testSCL9434() = doTest()
 

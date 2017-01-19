@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
@@ -395,8 +396,7 @@ object JavaToScala {
 
         val iType = convertTypePsiToIntermediate(n.getType, n.getClassReference, n.getProject)
         if (n.getArrayInitializer != null) {
-          NewExpression(iType, n.getArrayInitializer.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)),
-            withArrayInitalizer = true)
+          NewExpression(iType, n.getArrayInitializer.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)))
         } else if (n.getArrayDimensions.nonEmpty) {
           NewExpression(iType, n.getArrayDimensions.map(convertPsiToIntermdeiate(_, externalProperties)),
             withArrayInitalizer = false)
@@ -513,7 +513,7 @@ object JavaToScala {
     def extendList: Seq[(PsiClassType, PsiJavaCodeReferenceElement)] = {
       val typez = new ArrayBuffer[(PsiClassType,  PsiJavaCodeReferenceElement)]
       if (inClass.getExtendsList != null) typez ++= inClass.getExtendsList.getReferencedTypes.zip(inClass.getExtendsList.getReferenceElements)
-      if (inClass.getImplementsList != null) typez ++= inClass.getImplementsList.getReferencedTypes.zip(inClass.getExtendsList.getReferenceElements)
+      if (inClass.getImplementsList != null) typez ++= inClass.getImplementsList.getReferencedTypes.zip(inClass.getImplementsList.getReferenceElements)
       typez
     }
     def collectClassObjectMembers(): (Seq[PsiMember], Seq[PsiMember]) = {
@@ -887,8 +887,10 @@ object JavaToScala {
             modifiers.append(ModifierWithExpression(ModifierType.THROW, convertPsiToIntermdeiate(ref, null)))
           }
 
-          if (method.findSuperMethods.exists(!_.hasModifierProperty("abstract")))
+          if (method.findSuperMethods.exists(!_.hasModifierProperty("abstract")
+            || ScalaProjectSettings.getInstance(method.getProject).isAddOverrideToImplementInConverter)) {
             modifiers.append(SimpleModifier(ModifierType.OVERRIDE))
+          }
 
         case c: PsiClass =>
           serialVersion(c) match {

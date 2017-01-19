@@ -22,4 +22,6 @@ class CompletionBasicTest extends CompletionTestBase {
   def testToString = doTest()
 
   def testTuple = doTest()
+
+  def testLocalClassInPackage() = doTest()
 }
