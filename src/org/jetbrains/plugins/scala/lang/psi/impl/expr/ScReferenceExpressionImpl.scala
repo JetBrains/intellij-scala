@@ -40,7 +40,7 @@ import scala.collection.mutable.ArrayBuffer
   * @author AlexanderPodkhalyuzin
   *         Date: 06.03.2008
   */
-class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableReferenceExpression {
+class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ResolvableReferenceExpression {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => accept(visitor)

@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolve.aux1;
 import com.intellij.psi.*;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
 import scala.Option;
@@ -46,7 +45,7 @@ public class DependenciesFromJavaResolveTest extends ScalaResolveTestCase {
   public void testSCL6402() throws Exception {
     final PsiReference ref = findReferenceAtCaret();
     final ScReferenceElement refElement = (ScReferenceElement) ref.getElement();
-    final Option<ScalaResolveResult> bind = new ResolvableReferenceElement.ResolvableReferenceElementExt(refElement).bind();
+    final Option<ScalaResolveResult> bind = refElement.bind();
     assertTrue(bind.isDefined() && bind.get().isAccessible());
   }
 

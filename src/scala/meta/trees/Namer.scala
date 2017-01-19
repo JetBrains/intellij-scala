@@ -14,14 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.language.postfixOps
 //import scala.meta.internal.ast.Type
 import scala.meta.internal.{semantic => h}
-import scala.{meta=>m}
 import scala.meta.trees.error._
-import scala.{Seq => _}
+import scala.{meta => m, Seq => _}
 
 trait Namer {
   self: TreeConverter =>
@@ -40,7 +38,7 @@ trait Namer {
         m.Term.Name(ne.name)
       case cr: ScReferenceElement if dumbMode =>
         m.Term.Name(cr.refName)
-      case cr: ResolvableReferenceElement  =>
+      case cr: ScReferenceElement  =>
         cr.bind()  match {
           case Some(x) => try {
             toTermName(x.element)
@@ -73,7 +71,7 @@ trait Namer {
       m.Type.Name(ne.name)
     case re: ScReferenceElement if dumbMode =>
       m.Type.Name(re.refName)
-    case re: ResolvableReferenceElement =>
+    case re: ScReferenceElement =>
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
       m.Type.Name(sc.className)

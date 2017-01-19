@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.collection.JavaConversions._
 
@@ -32,7 +31,7 @@ object ScalaRenameUtil {
   }
 
   def isAliased(ref: PsiReference): Boolean = ref match {
-    case resolvableReferenceElement: ResolvableReferenceElement =>
+    case resolvableReferenceElement: ScReferenceElement =>
       resolvableReferenceElement.bind() match {
         case Some(result) =>
           val renamed = result.isRenamed
@@ -129,7 +128,7 @@ object ScalaRenameUtil {
         if (usagez.isEmpty) Nil
         else {
           val needDollarSign: UsageInfo => Boolean = { u =>
-            !u.getReference.isInstanceOf[ResolvableReferenceElement]
+            !u.getReference.isInstanceOf[ScReferenceElement]
           }
           val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
           Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))

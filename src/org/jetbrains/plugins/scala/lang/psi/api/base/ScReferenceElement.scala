@@ -7,6 +7,7 @@ package base
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.extensions._
@@ -32,7 +33,7 @@ import scala.collection.{Set, mutable}
  * Date: 22.02.2008
  */
 
-trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement {
+trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   override def getReference: ScReferenceElement = this
 
   def nameId: PsiElement
@@ -41,6 +42,11 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     assert(nameId != null, s"nameId is null for reference with text $getText; parent: ${getParent.getText}")
     nameId.getText
   }
+
+  def bind(): Option[ScalaResolveResult]
+
+  @TestOnly
+  def advancedResolve: Option[ScalaResolveResult]
 
   private def isBackQuoted = {
     val id: PsiElement = nameId

@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroD
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 
@@ -32,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
  *         Date: 22.02.2008
  */
 
-class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableStableCodeReferenceElement {
+class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElementImpl(node) with ResolvableStableCodeReferenceElement {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)

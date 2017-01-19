@@ -9,12 +9,13 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiMethod, ResolveResult}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScReferenceExpression, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -84,7 +85,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
       val targets = ref match {
         case expression: ScReferenceExpression if DynamicResolveProcessor.isDynamicReference(expression) =>
           handleDynamicResolveResult(new DynamicResolveProcessor(expression).resolve())
-        case resRef: ResolvableReferenceElement =>
+        case resRef: ScReferenceElement =>
           resRef.bind() match {
             case Some(x)  => handleScalaResolveResult(x)
             case None => return null
