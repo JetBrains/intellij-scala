@@ -4,7 +4,6 @@ package gutter
 
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.EditSourceUtil
-import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -12,7 +11,6 @@ import com.intellij.psi.search.PsiElementProcessor
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaMarkerType.ScCellRenderer
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -25,10 +23,8 @@ import scala.collection.mutable
   * User: Alexander Podkhalyuzin
   * Date: 08.11.2008
   */
-class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
-  def startInWriteAction = false
-
-  override def isValidFor(editor: Editor, file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
+class ScalaGoToSuperActionHandler extends ScalaCodeInsightActionHandler {
+  override def startInWriteAction: Boolean = false
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     val offset = editor.getCaretModel.getOffset
@@ -61,7 +57,7 @@ class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
 }
 
 private object ScalaGoToSuperActionHandler {
-  val empty = Array[PsiElement]()
+  val empty: Array[PsiElement] = Array[PsiElement]()
 
   def findSuperElements(file: PsiFile, offset: Int)
                        (implicit typeSystem: TypeSystem): (Seq[PsiElement], Seq[PsiElement]) = {
