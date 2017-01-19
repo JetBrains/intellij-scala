@@ -10,6 +10,7 @@ import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.TextRange
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import org.jetbrains.plugins.scala.util.{ScalaToolsFactory, TestUtils}
@@ -18,13 +19,13 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
- * User: Dmitry Naydanov
- * Date: 3/5/12
- */
+  * User: Dmitry Naydanov
+  * Date: 3/5/12
+  */
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with TestFixtureProvider {
 
-  import CodeInsightTestFixture.CARET_MARKER
+  import ScalaLightCodeInsightFixtureTestAdapter.findCaretOffset
 
   private var libLoader: ScalaLibraryLoader = _
 
@@ -84,25 +85,26 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     assert(highlights.isEmpty, "Highlights with this errors at " + ranges.mkString("", ", ", "."))
   }
 
-  protected def performTest(text: String, assumedText: String)(testBody: () => Unit) {
-    val cleanedText =  text.replace("\r", "")
-    val cleanedAssumed =  assumedText.replace("\r", "")
-    val caretIndex = cleanedText.indexOf(CARET_MARKER)
-    myFixture.configureByText("dummy.scala", cleanedText.replace(CARET_MARKER, ""))
-    myFixture.getEditor.getCaretModel.moveToOffset(caretIndex)
+  private def performTest(text: String, expectedText: String)(testBody: () => Unit): Unit = {
+    val stripTrailingSpaces = false
+    val (actual, actualOffset) = findCaretOffset(text, stripTrailingSpaces)
+
+    getFixture.configureByText("dummy.scala", actual)
+    getFixture.getEditor.getCaretModel.moveToOffset(actualOffset)
 
     testBody()
 
-    myFixture.checkResult(cleanedAssumed)
+    val (expected, _) = findCaretOffset(expectedText, stripTrailingSpaces)
+    getFixture.checkResult(expected, stripTrailingSpaces)
   }
 
   /**
-   * Checks file text and caret position after type action
-   *
-   * @param text            Initial text. Must contain CARET_MARKER substring to specify caret position
-   * @param assumedText     Reference text. May not contain CARET_MARKER (in this case caret position won't be checked)
-   * @param charTyped       Char typed
-   */
+    * Checks file text and caret position after type action
+    *
+    * @param text        Initial text. Must contain CARET_MARKER substring to specify caret position
+    * @param assumedText Reference text. May not contain CARET_MARKER (in this case caret position won't be checked)
+    * @param charTyped   Char typed
+    */
   protected def checkGeneratedTextAfterTyping(text: String, assumedText: String, charTyped: Char) {
     performTest(text, assumedText) {
       () => myFixture.`type`(charTyped)
@@ -132,12 +134,12 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   }
 
   /**
-   * Checks selected text has error
-   *
-   * @param text                File text, must contain SELECTION_START and SELECTION_END markers.
-   * @param annotation          Error message
-   * @param inspectionsEnabled  Enabled inspections
-   */
+    * Checks selected text has error
+    *
+    * @param text               File text, must contain SELECTION_START and SELECTION_END markers.
+    * @param annotation         Error message
+    * @param inspectionsEnabled Enabled inspections
+    */
   protected def checkTextHasError(text: String, annotation: String, inspectionsEnabled: Class[_ <: LocalInspectionTool]*) {
     import scala.collection.JavaConversions._
 
@@ -157,13 +159,13 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   }
 
   /**
-   * Checks quick fix's result. If caret position is specified, chooses only appropriate fix.
-   *
-   * @param text                 File text before fix invocation
-   * @param assumedStub          File text after fix invocation
-   * @param quickFixHint         Fix's to perform hint
-   * @param inspectionsEnabled   Enabled inspections
-   */
+    * Checks quick fix's result. If caret position is specified, chooses only appropriate fix.
+    *
+    * @param text               File text before fix invocation
+    * @param assumedStub        File text after fix invocation
+    * @param quickFixHint       Fix's to perform hint
+    * @param inspectionsEnabled Enabled inspections
+    */
   protected def testQuickFix(text: String, assumedStub: String, quickFixHint: String, inspectionsEnabled: Class[_ <: LocalInspectionTool]*) {
     import scala.collection.JavaConversions._
 
@@ -172,10 +174,12 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 
     val actions = new ListBuffer[IntentionAction]
     val caretIndex = text.indexOf(CARET_MARKER)
+
     def checkCaret(startOffset: Int, endOffset: Int): Boolean = {
       if (caretIndex < 0) true
       else startOffset <= caretIndex && endOffset >= caretIndex
     }
+
     myFixture.doHighlighting().foreach(info =>
       if (info != null && info.quickFixActionRanges != null && checkCaret(info.getStartOffset, info.getEndOffset))
         actions ++= (for (pair <- info.quickFixActionRanges if pair != null) yield pair.getFirst.getAction))
@@ -191,7 +195,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
             }
           }
         }, "", null)
-        myFixture.checkResult(assumedStub, /*stripTrailingSpaces = */true)
+
+        myFixture.checkResult(assumedStub, /*stripTrailingSpaces = */ true)
       case _ => assert(assertion = false, "There is no fixes with such hint.")
     }
   }
@@ -208,6 +213,14 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {
-  def normalize(text: String): String =
-    text.stripMargin.replace("\r", "").trim
+  def normalize(text: String, stripTrailingSpaces: Boolean = true): String =
+    text.stripMargin.replace("\r", "") match {
+      case result if stripTrailingSpaces => result.trim
+      case result => result
+    }
+
+  def findCaretOffset(text: String, stripTrailingSpaces: Boolean): (String, Int) = {
+    val normalized = normalize(text, stripTrailingSpaces)
+    (normalized.replace(CARET_MARKER, ""), normalized.indexOf(CARET_MARKER))
+  }
 }

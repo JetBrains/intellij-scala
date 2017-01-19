@@ -2,48 +2,51 @@ package org.jetbrains.plugins.scala
 package codeInsight.generation
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
-import com.intellij.psi.PsiFile
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.startCommand
+import org.junit.Assert._
 
 /**
  * Nikolay.Tropin
  * 8/23/13
  */
-abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAdapter{
+abstract class ScalaGenerateTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import CodeInsightTestFixture.CARET_MARKER
+  import ScalaLightCodeInsightFixtureTestAdapter._
 
-  val handler: LanguageCodeInsightActionHandler
+  protected val handler: LanguageCodeInsightActionHandler
 
-  def testInvoke(text: String, assumedText: String, checkCaret: Boolean): Unit = {
-    val (nText, nResult) = (text.stripMargin.replace("\r", "").trim, assumedText.stripMargin.replace("\r", "").trim)
-    val caretIndex = nText.indexOf(CARET_MARKER)
-    myFixture.configureByText("dummy.scala", nText.replace(CARET_MARKER, ""))
-    val caretModel = myFixture.getEditor.getCaretModel
-    caretModel.moveToOffset(caretIndex)
-    val file: PsiFile = myFixture.getFile
-    extensions.startCommand(getProject, "Generate Action Test") {
-      handler.invoke(getProject, myFixture.getEditor, file)
+  protected def performTest(text: String, expectedText: String,
+                  checkAvailability: Boolean = false, checkCaretOffset: Boolean = false): Unit = {
+    val stripTrailingSpaces = true
+    configureByText(text, stripTrailingSpaces)
+
+    if (checkAvailability) {
+      assertTrue("Generate action is not available", handlerIsValid)
     }
-    if (checkCaret) {
-      val resultCaretIndex = nResult.indexOf(CARET_MARKER)
-      val actualCaretIndex = caretModel.getOffset
-      assert(resultCaretIndex == actualCaretIndex, "Wrong caret position after generating")
+
+    startCommand(getProject, "Generate Action Test") {
+      handler.invoke(getProject, getEditor, getFile)
     }
-    myFixture.checkResult(nResult.replace(CARET_MARKER, ""), true)
+
+    val (expected, expectedOffset) = findCaretOffset(expectedText, stripTrailingSpaces)
+    if (checkCaretOffset) {
+      assertEquals("Wrong caret offset", expectedOffset, getEditor.getCaretModel.getOffset)
+    }
+    getFixture.checkResult(expected, stripTrailingSpaces)
   }
 
-  def checkIsAvailable(text: String, assumedResult: Boolean = true): Unit = {
-    val nText = text.stripMargin.replace("\r", "").trim
-    val caretIndex = nText.indexOf(CARET_MARKER)
-    myFixture.configureByText("dummy.scala", nText.replace(CARET_MARKER, ""))
-    myFixture.getEditor.getCaretModel.moveToOffset(caretIndex)
-
-    val file: PsiFile = myFixture.getFile
-    val message = s"Generate action is${if (assumedResult) " not" else ""} available"
-    assert(handler.isValidFor(myFixture.getEditor, file) == assumedResult, message)
+  protected def checkIsNotAvailable(text: String): Unit = {
+    configureByText(text, stripTrailingSpaces = true)
+    assertFalse("Generate action is available", handlerIsValid)
   }
 
-  def checkIsNotAvailable(text: String) = checkIsAvailable(text, assumedResult = false)
+  private def configureByText(text: String, stripTrailingSpaces: Boolean): Unit = {
+    val (normalizedText, offset) = findCaretOffset(text, stripTrailingSpaces)
+
+    getFixture.configureByText("dummy.scala", normalizedText)
+    getEditor.getCaretModel.moveToOffset(offset)
+  }
+
+  private def handlerIsValid: Boolean = handler.isValidFor(getEditor, getFile)
 }

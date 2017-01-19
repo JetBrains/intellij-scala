@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
+import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
@@ -11,7 +12,8 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
-  val handler = new ScalaGenerateEqualsHandler
+  override protected val handler: LanguageCodeInsightActionHandler =
+    new ScalaGenerateEqualsHandler
 
   def testFindAllFields() {
     val text = s"""class A (i: Int, val j: Int) {
@@ -41,7 +43,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
                    |    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
                    |  }
                    |}"""
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 
   def testInFinalClass() {
@@ -63,7 +65,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
                    |    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
                    |  }
                    |}"""
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 
   def testInAbstract() {
@@ -90,7 +92,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
                    |    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
                    |  }
                    |}"""
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 
   def testInInheritor() {
@@ -152,7 +154,7 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
                    |    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
                    |  }
                    |}"""
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 
   def testInheritsMethodsFromJavaLangObject() = {
@@ -185,6 +187,6 @@ class GenerateEqualsTest extends ScalaGenerateTestBase {
                    |    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
                    |  }
                    |}"""
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 }

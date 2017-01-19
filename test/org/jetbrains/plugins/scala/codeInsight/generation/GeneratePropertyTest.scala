@@ -12,7 +12,8 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
-  override val handler: LanguageCodeInsightActionHandler = new ScalaGeneratePropertyHandler
+  override protected val handler: LanguageCodeInsightActionHandler =
+    new ScalaGeneratePropertyHandler
 
   def testSimple() {
     val text = s"""class A {
@@ -28,8 +29,7 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
                    |    _a = value
                    |  }
                    |}"""
-    checkIsAvailable(text)
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result, checkAvailability = true)
   }
 
   def testWithoutType() {
@@ -46,8 +46,7 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
                    |    _a = value
                    |  }
                    |}"""
-    checkIsAvailable(text)
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result, checkAvailability = true)
   }
 
   def testWithModifiers(): Unit = {
@@ -64,7 +63,6 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
                    |    _a = value
                    |  }
                    |}"""
-    checkIsAvailable(text)
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result, checkAvailability = true)
   }
 }

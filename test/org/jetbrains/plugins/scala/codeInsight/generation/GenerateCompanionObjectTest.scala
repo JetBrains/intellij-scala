@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInsight.generation
 
+import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
@@ -11,7 +12,8 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
-  val handler = new ScalaGenerateCompanionObjectHandler
+  override protected val handler: LanguageCodeInsightActionHandler =
+    new ScalaGenerateCompanionObjectHandler
 
   def testInCaseClass() {
     val text = s"""case class A(x: Int, s: String) {
@@ -63,8 +65,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
                    |object A {
                    |  $CARET_MARKER
                    |}"""
-    checkIsAvailable(text)
-    testInvoke(text, result, checkCaret = true)
+    performTest(text, result, checkAvailability = true, checkCaretOffset = true)
   }
 
   def testTrait() {
@@ -81,8 +82,7 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
                    |object A {
                    |  $CARET_MARKER
                    |}"""
-    checkIsAvailable(text)
-    testInvoke(text, result, checkCaret = true)
+    performTest(text, result, checkAvailability = true, checkCaretOffset = true)
   }
 
   def testInnerClass() {
@@ -103,7 +103,6 @@ class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
                    |  }
                    |
                    |}"""
-    checkIsAvailable(text)
-    testInvoke(text, result, checkCaret = true)
+    performTest(text, result, checkAvailability = true, checkCaretOffset = true)
   }
 }

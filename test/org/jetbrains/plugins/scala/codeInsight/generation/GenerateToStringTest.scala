@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.generation
 
+import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
@@ -10,7 +11,8 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
-  override val handler = new ScalaGenerateToStringHandler
+  override protected val handler: LanguageCodeInsightActionHandler =
+    new ScalaGenerateToStringHandler
 
   def testFindAllFields(): Unit = {
     val text = s"""class A (i: Int, val j: Int) {
@@ -40,7 +42,7 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                    |  override def toString = s"A(x=$x, y=$y, z=$z, j=$j, v=$v, u=$u)"
                    |}"""
 
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 
   def testEmptyClass(): Unit = {
@@ -52,7 +54,7 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                    |  override def toString = s"A()"
                    |}"""
 
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 
   def testObject(): Unit = {
@@ -70,7 +72,7 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                  |  override def toString = s"Obj(a=$a, b=$b)"
                  |}"""
 
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 
   def testTrait(): Unit = {
@@ -88,6 +90,6 @@ class GenerateToStringTest extends ScalaGenerateTestBase {
                  |  override def toString = s"T(a=$a, b=$b)"
                  |}"""
 
-    testInvoke(text, result, checkCaret = false)
+    performTest(text, result)
   }
 }
