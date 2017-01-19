@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.extensions
 import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ResolvableStableCodeReferenceElement, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Pavel Fatin
@@ -32,5 +32,5 @@ object ResolvesTo {
 }
 
 object Resolved {
-  def unapply(e: ResolvableReferenceElement): Option[ScalaResolveResult] = e.bind()
+  def unapply(e: ScReferenceElement): Option[ScalaResolveResult] = e.bind()
 }

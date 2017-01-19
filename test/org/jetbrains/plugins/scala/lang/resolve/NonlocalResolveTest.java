@@ -175,7 +175,7 @@ public class NonlocalResolveTest extends ScalaResolveTestCase{
     if (ref instanceof ScReferenceElement) {
       ScReferenceElement refElement = (ScReferenceElement) ref;
       assertNotNull(ref.resolve());
-      assertTrue(new ResolvableReferenceElement.ResolvableReferenceElementExt(refElement).bind().get().isApplicable(false));
+      assertTrue(refElement.bind().get().isApplicable(false));
     }
   }
 

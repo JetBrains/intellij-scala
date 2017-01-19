@@ -2,7 +2,7 @@ package scala.meta.intellij
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.meta.parsers.{ParseException, Parsed}
 
@@ -23,7 +23,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
 
   import scala.{meta => m}
 
-  def isMetaQQ(ref: ResolvableReferenceElement): Boolean = {
+  def isMetaQQ(ref: ScReferenceElement): Boolean = {
     ref.bind() match {
       case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" || fun.name == "apply" && isMetaQQ(fun) => true
       case _ => false

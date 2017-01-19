@@ -12,9 +12,8 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 
 /**
@@ -58,7 +57,7 @@ class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, References
       ScalaPsiUtil.getParentOfType(element, classOf[ScConstructor]) match {
         case cons: ScConstructor if PsiTreeUtil.isAncestor(cons.typeElement, element, false) =>
           element match {
-            case resRef: ResolvableReferenceElement => resRef.bind().flatMap(_.parentElement) match {
+            case resRef: ScReferenceElement => resRef.bind().flatMap(_.parentElement) match {
               case Some(`myTarget`) =>
                 consumer.process(resRef)
               case _ => true
