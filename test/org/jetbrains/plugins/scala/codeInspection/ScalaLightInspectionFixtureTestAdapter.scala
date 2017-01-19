@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
  */
 abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  import ScalaLightCodeInsightFixtureTestAdapter._
+
   protected def classOfInspection: Class[_ <: LocalInspectionTool]
   protected def annotation: String
 

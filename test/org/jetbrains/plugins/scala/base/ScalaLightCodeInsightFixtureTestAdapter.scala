@@ -25,7 +25,6 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with TestFixtureProvider {
 
   import CodeInsightTestFixture.CARET_MARKER
-  protected def normalize(str: String): String = str.stripMargin.replace("\r", "").trim
 
   private var libLoader: ScalaLibraryLoader = _
 
@@ -206,4 +205,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   }
 
   override def getFixture: CodeInsightTestFixture = myFixture
+}
+
+object ScalaLightCodeInsightFixtureTestAdapter {
+  def normalize(text: String): String =
+    text.stripMargin.replace("\r", "").trim
 }

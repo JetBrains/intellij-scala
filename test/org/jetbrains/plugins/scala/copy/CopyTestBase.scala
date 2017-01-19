@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
   * Created by Kate Ustyuzhanina on 12/28/16.
   */
 abstract class CopyTestBase(fromLang: Lang, toLang: Lang) extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import ScalaLightCodeInsightFixtureTestAdapter._
+
   var oldSettings: ScalaCodeStyleSettings = _
 
   override protected def setUp(): Unit = {
