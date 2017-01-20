@@ -5,11 +5,13 @@ package api
 package base
 
 import com.intellij.psi.ResolveResult
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ScalaResolveResult}
 
-trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement {
+trait ScStableCodeReferenceElement extends ScReferenceElement with ResolvableStableCodeReferenceElement with ScPathElement {
   def qualifier: Option[ScStableCodeReferenceElement] =
     getFirstChild match {case s: ScStableCodeReferenceElement => Some(s) case _ => None}
+
   def pathQualifier: Option[ScPathElement] = getFirstChild match {case s: ScPathElement => Some(s) case _ => None}
 
   def qualName: String = {
@@ -22,12 +24,13 @@ trait ScStableCodeReferenceElement extends ScReferenceElement with ScPathElement
   def isConstructorReference: Boolean
   def getConstructor: Option[ScConstructor]
 
-  def resolveNoConstructor: Array[ResolveResult]
-  def resolveAllConstructors: Array[ResolveResult]
-  def shapeResolve: Array[ResolveResult]
-  def shapeResolveConstr: Array[ResolveResult]
-
   def getResolveResultVariants: Array[ScalaResolveResult]
+
+  protected def processQualifier(processor: BaseProcessor): Unit
+
+  protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor): Unit
+
+  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult]
 }
 
 object ScStableCodeReferenceElement {

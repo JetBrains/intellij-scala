@@ -3,7 +3,6 @@ package lang
 package resolve
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
@@ -19,291 +18,79 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDe
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReferenceElement.EMPTY_ARRAY
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
 
-trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
-  private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
-  private object ResolverAllConstructors extends StableCodeReferenceElementResolver(this, false, true, false)
-  private object NoConstructorResolver extends StableCodeReferenceElementResolver(this, false, false, true)
-  private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false, false)
-  private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
-  private object ImportResolverNoMethods extends StableCodeReferenceElementResolver(this, false, false, false) {
-    override protected def getKindsFor(ref: ScStableCodeReferenceElement) = {
-      ref.getKinds(incomplete = false) -- StdKinds.methodRef
-    }
-  }
-  private object ImportResolverNoTypes extends StableCodeReferenceElementResolver(this, false, false, false) {
-    override protected def getKindsFor(ref: ScStableCodeReferenceElement) = {
-      ref.getKinds(incomplete = false) -- StdKinds.stableClass
-    }
-  }
+import scala.collection.Set
 
-  @volatile
-  private var resolveResult: Array[ResolveResult] = Array.empty
-  @volatile
-  private var resolveResultCount: Long = -1L
-
-  def resolveTypesOnly(incomplete: Boolean): Array[ResolveResult] = {
-
-    @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoMethods.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
-
-    resolveWithCompiled(incomplete, ImportResolverNoMethods, doResolve)
-  }
-
-  def resolveMethodsOnly(incomplete: Boolean): Array[ResolveResult] = {
-
-    @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoTypes.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
-
-    resolveWithCompiled(incomplete, ImportResolverNoTypes, doResolve)
-  }
-
-  def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    resolveWithCompiled(incomplete, Resolver, multiResolveCached)
-  }
-
-  private def resolveWithCompiled(incomplete: Boolean,
-                                  resolver: StableCodeReferenceElementResolver,
-                                  elsebr: Boolean => Array[ResolveResult]) = {
-    ScalaPsiUtil.fileContext(this) match {
-      case s: ScalaFile if s.isCompiled =>
-        val count = ProjectRootManager.getInstance(getProject).getModificationCount
-        if (count == resolveResultCount) resolveResult
-        else {
-          val res = resolver.resolve(this, incomplete)
-          resolveResult = res
-          resolveResultCount = count
-          res
-        }
-      case _=>
-        elsebr(incomplete)
-    }
-  }
-
-  @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-  private def multiResolveCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
-
-  protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor): Unit = {
-    res match {
-      case r@ScalaResolveResult(td: ScTypeDefinition, substitutor) =>
-        td match {
-          case obj: ScObject =>
-            val fromType = r.fromType match {
-              case Some(fType) => Success(ScProjectionType(fType, obj, superReference = false), Some(this))
-              case _ => td.getType(TypingContext.empty).map(substitutor.subst)
-            }
-            var state = ResolveState.initial.put(ScSubstitutor.key, substitutor)
-            if (fromType.isDefined) {
-              state = state.put(BaseProcessor.FROM_TYPE_KEY, fromType.get)
-              processor.processType(fromType.get, ResolvableStableCodeReferenceElement.this, state)
-            } else {
-              td.processDeclarations(processor, state, null, ResolvableStableCodeReferenceElement.this)
-            }
-          case _: ScClass | _: ScTrait =>
-            td.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, substitutor), null, ResolvableStableCodeReferenceElement.this)
-        }
-      case ScalaResolveResult(typed: ScTypedDefinition, s) =>
-        val fromType = s.subst(typed.getType(TypingContext.empty).getOrElse(return))
-        processor.processType(fromType, this, ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, fromType))
-        processor match {
-          case _: ExtractorResolveProcessor =>
-            if (processor.candidatesS.isEmpty) {
-              //check implicit conversions
-              val expr =
-                ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
-              //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
-              expr match {
-                case ref: ScReferenceExpression =>
-                  ref.doResolve(processor)
-                case _ =>
-              }
-            }
-          case _ => //do nothing
-        }
-      case ScalaResolveResult(field: PsiField, s) =>
-        processor.processType(s.subst(field.getType.toScType()), this)
-      case ScalaResolveResult(clazz: PsiClass, _) =>
-        processor.processType(new ScDesignatorType(clazz, true), this) //static Java import
-      case ScalaResolveResult(pack: ScPackage, s) =>
-        pack.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, s),
-          null, ResolvableStableCodeReferenceElement.this)
-      case other: ScalaResolveResult =>
-        other.element.processDeclarations(processor, ResolveState.initial.put(ScSubstitutor.key, other.substitutor),
-          null, ResolvableStableCodeReferenceElement.this)
-      case _ =>
-    }
-  }
-
-  def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
-    val importStmt = PsiTreeUtil.getContextOfType(this, true, classOf[ScImportStmt])
-
-    if (importStmt != null) {
-      val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
-      if (importHolder != null) {
-        val importExprs = importHolder.getImportStatements
-          .takeWhile(_ != importStmt)
-          .flatMap(_.importExprs)
-          .filter(_.isSingleWildcard)
-          .iterator
-
-        while (importExprs.hasNext) {
-          val expr = importExprs.next()
-          expr.reference match {
-            case Some(reference) => reference.resolve()
-            case None => expr.qualifier.resolve()
-          }
-        }
-      }
-    }
-    if (!accessibilityCheck) processor.doNotCheckAccessibility()
-    var x = false
-    //performance improvement
-    ScalaPsiUtil.fileContext(this) match {
-      case s: ScalaFile if s.isCompiled =>
-        x = true
-        //todo: improve checking for this and super
-        val refText: String = getText
-        if (!refText.contains("this") && !refText.contains("super") && (
-          refText.contains(".") || getContext.isInstanceOf[ScStableCodeReferenceElement]
-          )) {
-          //so this is full qualified reference => findClass, or findPackage
-          val facade = JavaPsiFacade.getInstance(getProject)
-          val manager = ScalaPsiManager.instance(getProject)
-          val classes = manager.getCachedClasses(getResolveScope, refText)
-          val pack = facade.findPackage(refText)
-          if (pack != null) processor.execute(pack, ResolveState.initial)
-          for (clazz <- classes) processor.execute(clazz, ResolveState.initial)
-          val candidates = processor.candidatesS
-          val filtered = candidates.filter(candidatesFilter)
-
-          if (filtered.nonEmpty) return filtered.toArray
-        }
-
-      case _ =>
-    }
-
-    processQualifier(processor)
-
-    val candidates = processor.candidatesS
-    val filtered = candidates.filter(candidatesFilter)
-    if (accessibilityCheck && filtered.isEmpty) return doResolve(processor, accessibilityCheck = false)
-    filtered.toArray
-  }
-
-  protected def processQualifier(processor: BaseProcessor): Unit = {
-    _qualifier() match {
-      case None =>
-        def treeWalkUp(place: PsiElement, lastParent: PsiElement) {
-          ProgressManager.checkCanceled()
-          place match {
-            case null =>
-            case p: ScTypeElement if p.analog.isDefined =>
-              // this allows the type elements in a context or view bound to be path-dependent types, based on parameters.
-              // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
-              treeWalkUp(p.analog.get, lastParent)
-            case p =>
-              if (!p.processDeclarations(processor,
-                ResolveState.initial,
-                lastParent, this)) return
-              place match {
-                case (_: ScTemplateBody | _: ScExtendsBlock) => // template body and inherited members are at the same level.
-                case _ => if (!processor.changedLevel) return
-              }
-              treeWalkUp(place.getContext, place)
-          }
-        }
-
-        treeWalkUp(this, null)
-      case Some(p: ScInterpolationPattern) =>
-        val expr =
-          ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, this)
-        expr match {
-          case ref: ScReferenceExpression =>
-            ref.doResolve(processor)
-          case _ =>
-        }
-      case Some(q: ScDocResolvableCodeReference) =>
-        q.multiResolve(incomplete = true).foreach((res: ResolveResult) => processQualifierResolveResult(res, processor))
-      case Some(q: ScStableCodeReferenceElement) =>
-        q.bind() match {
-          case Some(res) => processQualifierResolveResult(res, processor)
-          case _ =>
-        }
-      case Some(thisQ: ScThisReference) => for (ttype <- thisQ.getType(TypingContext.empty)) processor.processType(ttype, this)
-      case Some(superQ: ScSuperReference) => ResolveUtils.processSuperReference(superQ, processor, this)
-      case Some(qual) => assert(assertion = false, s"Weird qualifier: ${qual.getClass}")
-    }
-  }
-
-  private def _qualifier() = {
-    getContext match {
-      case p: ScInterpolationPattern => Some(p)
-      case sel: ScImportSelector =>
-        sel.getContext /*ScImportSelectors*/.getContext.asInstanceOf[ScImportExpr].reference
-      case _ => pathQualifier
-    }
-  }
-
-  private def candidatesFilter(result: ScalaResolveResult) = {
-    result.element match {
-      case c: PsiClass if c.name == c.qualifiedName => c.getContainingFile match {
-        case _: ScalaFile => true // scala classes are available from default package
-        /**in completion in [[ScalaFile]] [[JavaDummyHolder]] usually used as file */
-        case dummyHolder: JavaDummyHolder
-          if Option(dummyHolder.getContext).map(_.getContainingFile).exists(_.isInstanceOf[ScalaFile]) =>
-          true
-        // Other classes from default package are available only for top-level Scala statements
-        case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
-      }
-      case _ => true
-    }
-  }
-
-  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
-  private def resolveNoConstructorImpl(): Array[ResolveResult] = NoConstructorResolver.resolve(this, incomplete = false)
-
-
-
-  def resolveNoConstructor: Array[ResolveResult] = {
-    ProgressManager.checkCanceled()
-    resolveNoConstructorImpl()
-  }
-
-  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
-  private def resolveAllConstructorsImpl(): Array[ResolveResult] = ResolverAllConstructors.resolve(this, incomplete = false)
-
-  def resolveAllConstructors: Array[ResolveResult] = {
-    ProgressManager.checkCanceled()
-    resolveAllConstructorsImpl()
-  }
-
-
-  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
-  private def shapeResolveImpl(): Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
-
-  def shapeResolve: Array[ResolveResult] = {
-    ProgressManager.checkCanceled()
-
-    shapeResolveImpl()
-  }
-
-
-  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
-  private def shapeResolveConstrImpl(): Array[ResolveResult] = ShapesResolverAllConstructors.resolve(this, incomplete = false)
-
-  def shapeResolveConstr: Array[ResolveResult] = {
-    ProgressManager.checkCanceled()
-    shapeResolveConstrImpl()
-  }
-}
+trait ResolvableStableCodeReferenceElement
 
 object ResolvableStableCodeReferenceElement {
+
+  implicit class Ext(val stableRef: ScStableCodeReferenceElement) extends AnyVal {
+
+    private def getProject = stableRef.getProject
+
+    private def getContext = stableRef.getContext
+
+    private def getText = stableRef.getText
+
+    private implicit def typeSystem: TypeSystem = stableRef.typeSystem
+
+    @CachedMappedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
+    def resolveTypesOnly(incomplete: Boolean): Array[ResolveResult] = {
+      val importResolverNoMethods = new StableCodeReferenceElementResolver(stableRef, false, false, false) {
+        override protected def getKindsFor(ref: ScStableCodeReferenceElement): Set[ResolveTargets.Value] = {
+          ref.getKinds(incomplete = false) -- StdKinds.methodRef
+        }
+      }
+      importResolverNoMethods.resolve(stableRef, incomplete)
+    }
+
+    @CachedMappedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
+    def resolveMethodsOnly(incomplete: Boolean): Array[ResolveResult] = {
+      val importResolverNoTypes = new StableCodeReferenceElementResolver(stableRef, false, false, false) {
+        override protected def getKindsFor(ref: ScStableCodeReferenceElement): Set[ResolveTargets.Value] = {
+          ref.getKinds(incomplete = false) -- StdKinds.stableClass
+        }
+      }
+
+      importResolverNoTypes.resolve(stableRef, incomplete)
+    }
+
+    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    def resolveNoConstructor: Array[ResolveResult] = {
+      ProgressManager.checkCanceled()
+      val noConstructorResolver = new StableCodeReferenceElementResolver(stableRef, false, false, true)
+      noConstructorResolver.resolve(stableRef, incomplete = false)
+    }
+
+    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    def resolveAllConstructors: Array[ResolveResult] = {
+      ProgressManager.checkCanceled()
+      val resolverAllConstructors = new StableCodeReferenceElementResolver(stableRef, false, true, false)
+      resolverAllConstructors.resolve(stableRef, incomplete = false)
+    }
+
+    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    def shapeResolve: Array[ResolveResult] = {
+      ProgressManager.checkCanceled()
+      val shapesResolver = new StableCodeReferenceElementResolver(stableRef, true, false, false)
+      shapesResolver.resolve(stableRef, incomplete = false)
+    }
+
+    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    def shapeResolveConstr: Array[ResolveResult] = {
+      ProgressManager.checkCanceled()
+      val shapesResolverAllConstructors = new StableCodeReferenceElementResolver(stableRef, true, true, false)
+      shapesResolverAllConstructors.resolve(stableRef, incomplete = false)
+    }
+  }
+
   val EMPTY_ARRAY: Array[ResolveResult] = Array.empty[ResolveResult]
 }

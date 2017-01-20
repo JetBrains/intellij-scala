@@ -94,12 +94,12 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
           case p:ResolveProcessor=>
             ref match {
               // do not process methodrefs when importing a type from a type
-              case ref: ResolvableStableCodeReferenceElement
+              case ref: ScStableCodeReferenceElement
                 if p.kinds.contains(ResolveTargets.CLASS) &&
                   ref.getKinds(incomplete = false).contains(ResolveTargets.CLASS) &&
                   ref.getKinds(incomplete = false).contains(ResolveTargets.METHOD) =>
                 ref.resolveTypesOnly(false)
-              case ref: ResolvableStableCodeReferenceElement if p.kinds.contains(ResolveTargets.METHOD) =>
+              case ref: ScStableCodeReferenceElement if p.kinds.contains(ResolveTargets.METHOD) =>
                 ref.resolveMethodsOnly(false)
               case _ => ref.multiResolve(false)
             }

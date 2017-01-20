@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, 
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 
-class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenceElement, shapeResolve: Boolean,
-                                          allConstructorResults: Boolean, noConstructorResolve: Boolean)
+class StableCodeReferenceElementResolver(reference: ScStableCodeReferenceElement, shapeResolve: Boolean,
+                                         allConstructorResults: Boolean, noConstructorResolve: Boolean)
         extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean): Array[ResolveResult] = {
     implicit val typeSystem = ref.typeSystem

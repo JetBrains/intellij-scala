@@ -51,8 +51,8 @@ object ResolvableReferenceExpression {
   }
 
   implicit class Ext(val ref: ScReferenceExpression) extends AnyVal {
-    implicit def manager: PsiManager = ref.getManager
-    implicit def typeSystem: TypeSystem = ref.typeSystem
+    private implicit def manager: PsiManager = ref.getManager
+    private implicit def typeSystem: TypeSystem = ref.typeSystem
 
     def isAssignmentOperator: Boolean = {
       val context = ref.getContext

@@ -27,7 +27,7 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
       
       if (dummyRef == null) return //can happen in invalid code, e.g. if ')' is absent in case pattern
       val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
-      val results = dummyRef.asInstanceOf[ResolvableStableCodeReferenceElement].doResolve(proc)
+      val results = dummyRef.asInstanceOf[ScStableCodeReferenceElement].doResolve(proc)
       def isAccessible(rr: ResolveResult): Boolean = rr.getElement match {
         case named: PsiNamedElement => proc.isAccessible(named, refPat)
         case _ => false
