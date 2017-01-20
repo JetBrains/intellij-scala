@@ -60,82 +60,29 @@ object Cached {
           abort("You must specify return type")
         }
         //generated names
-        val cacheVarName = c.freshName(name)
-        val modCountVarName = c.freshName(name)
-        val mapName = c.freshName(name)
         val cachedFunName = generateTermName("cachedFun")
         val cacheStatsName = generateTermName("cacheStats")
-        val keyId = c.freshName(name.toString + "cacheKey")
+        val keyId = c.freshName(name.toString + "$cacheKey")
+        val mapAndCounterName = generateTermName(name.toString + "$mapAndCounter")
+        val valueAndCounterName = generateTermName(name.toString + "$valueAndCounter")
+
+
         val analyzeCaches = analyzeCachesEnabled(c)
         val defdefFQN = thisFunctionFQN(name.toString)
+
 
         //DefDef parameters
         val flatParams = paramss.flatten
         val paramNames = flatParams.map(_.name)
         val hasParameters: Boolean = flatParams.nonEmpty
 
+        val lockFieldName = generateTermName("lock")
+        def lockField = if (synchronized) q"private val $lockFieldName = new _root_.java.lang.Object()" else EmptyTree
+
+
         val analyzeCachesField =
           if(analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
           else EmptyTree
-        val fields = if (hasParameters) {
-          q"""
-            private val $mapName = _root_.com.intellij.util.containers.ContainerUtil.
-                newConcurrentMap[(..${flatParams.map(_.tpt)}), ($retTp, _root_.scala.Long)]()
-
-            ..$analyzeCachesField
-          """
-        } else {
-          q"""
-            new _root_.scala.volatile()
-            private var $cacheVarName: _root_.scala.Option[$retTp] = _root_.scala.None
-            new _root_.scala.volatile()
-            private var $modCountVarName: _root_.scala.Long = 0L
-
-            ..$analyzeCachesField
-          """
-        }
-
-        def getValuesFromMap: c.universe.Tree = q"""
-            var ($cacheVarName, $modCountVarName) = _root_.scala.Option($mapName.get(..$paramNames)) match {
-              case _root_.scala.Some((res, count)) => (_root_.scala.Some(res), count)
-              case _ => (_root_.scala.None, 0L)
-            }
-          """
-        def putValuesIntoMap: c.universe.Tree = q"$mapName.put((..$paramNames), ($cacheVarName.get, $modCountVarName))"
-
-        val getValuesIfHasParams =
-          if (hasParameters) {
-            q"""
-              ..$getValuesFromMap
-            """
-          } else q""
-
-        val functionContents = q"""
-            ..$getValuesIfHasParams
-            if (cacheHasExpired($cacheVarName, $modCountVarName)) {
-              val cacheFunResult = $cachedFunName()
-              $cacheVarName = _root_.scala.Some(cacheFunResult)
-              $modCountVarName = currModCount
-              ..${if (hasParameters) putValuesIntoMap else EmptyTree}
-            }
-            $cacheVarName.get
-          """
-        val functionContentsInSynchronizedBlock =
-          if (synchronized) { //double checked locking
-            q"""
-              ..$getValuesIfHasParams
-              if (!cacheHasExpired($cacheVarName, $modCountVarName)) {
-                return $cacheVarName.get
-              }
-              synchronized {
-                $functionContents
-              }
-            """
-          } else {
-            q"""
-              $functionContents
-            """
-          }
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
 
@@ -147,16 +94,120 @@ object Cached {
           case _ =>
             q"val currModCount = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
         }
-        val updatedRhs = q"""
-          def $cachedFunName(): $retTp = {
-            if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
-            else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
+
+        val (fields, updatedRhs) = if (hasParameters) {
+
+          //wrap type of value in Some to avoid unboxing in putIfAbsent for primitive types
+          def createNewMap = q"_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap[(..${flatParams.map(_.tpt)}), _root_.scala.Some[$retTp]]()"
+
+          val fields = q"""
+              new _root_.scala.volatile()
+              private var $mapAndCounterName = ($createNewMap, 0L)
+              ..$lockField
+
+              ..$analyzeCachesField
+           """
+
+          val getOrUpdateMapDef = {
+            if (synchronized) q"""
+              def getOrUpdateMap() = {
+                if ($mapAndCounterName._2 < currModCount) {
+                  $lockFieldName.synchronized {
+                    if ($mapAndCounterName._2 < currModCount) { //double checked locking
+                      $mapAndCounterName = ($createNewMap, currModCount)
+                    }
+                  }
+                }
+                $mapAndCounterName._1
+              }
+            """
+            else q"""
+              def getOrUpdateMap() = {
+                if ($mapAndCounterName._2 < currModCount) {
+                  $mapAndCounterName = ($createNewMap, currModCount)
+                }
+                $mapAndCounterName._1
+              }
+            """
           }
-          ..$currModCount
-          def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
-          ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
-          $functionContentsInSynchronizedBlock
-        """
+
+          def updatedRhs = q"""
+             def $cachedFunName(): $retTp = {
+               $actualCalculation
+             }
+
+             ..$currModCount
+
+             $getOrUpdateMapDef
+
+             val map = getOrUpdateMap()
+             val key = (..$paramNames)
+
+             map.get(key) match {
+               case Some(v) => v
+               case null =>
+                 //wrap type of value in Some to avoid unboxing in putIfAbsent for primitive types
+                 val computed = _root_.scala.Some($cachedFunName())
+                 val race = map.putIfAbsent(key, computed)
+                 if (race != null) race.get
+                 else computed.get
+             }
+          """
+          (fields, updatedRhs)
+        } else {
+          val fields = q"""
+              new _root_.scala.volatile()
+              private var $valueAndCounterName: (_root_.scala.Option[$retTp], Long) = ($None, 0L)
+              ..$lockField
+
+              ..$analyzeCachesField
+           """
+
+          val getOrUpdateValue = if (synchronized)
+            q"""
+                fromCache() match {
+                  case _root_.scala.Some(v) => v
+                  case _root_.scala.None =>
+                    $lockFieldName.synchronized {
+                      fromCache() match {  //double checked locking
+                        case _root_.scala.Some(v) => v
+                        case _root_.scala.None =>
+                          val computed = $cachedFunName()
+                          $valueAndCounterName = (_root_.scala.Some(computed), currModCount)
+                          computed
+                      }
+                    }
+                }
+             """
+          else
+            q"""
+                fromCache() match {
+                  case _root_.scala.Some(v) => v
+                  case _root_.scala.None =>
+                    val computed = $cachedFunName()
+                    $valueAndCounterName = (_root_.scala.Some(computed), currModCount)
+                    computed
+                }
+             """
+          val updatedRhs =
+            q"""
+               def $cachedFunName(): $retTp = {
+                 $actualCalculation
+               }
+
+               ..$currModCount
+
+               def fromCache() = {
+                 val readField = $valueAndCounterName
+                 if (readField._2 < currModCount || readField._1.isEmpty) None
+                 else readField._1
+               }
+
+               $getOrUpdateValue
+             """
+          (fields, updatedRhs)
+        }
+
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
           ..$fields
