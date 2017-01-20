@@ -189,6 +189,34 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     testFix(text, res, annotation)
   }
 
+  def testSealedTrait(): Unit = {
+    val code =
+      s"""
+         |sealed trait A {
+         |  def foo(): String
+         |}
+         |def bar(a: A) = println()
+         |bar(new A {
+         |  override def foo(): String = "something"
+         |})
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
+
+  def testFinalClass(): Unit = {
+    val code =
+      s"""
+         |final class A {
+         |  def foo(): String
+         |}
+         |def bar(a: A) = println()
+         |bar(new A {
+         |  override def foo(): String = "something"
+         |})
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
+
   def testParameterless(): Unit = {
     val code =
       """
