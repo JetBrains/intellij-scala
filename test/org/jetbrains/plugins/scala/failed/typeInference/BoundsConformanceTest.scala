@@ -42,4 +42,18 @@ class BoundsConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     )
   }
+
+  def testSCL11261(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |  sealed trait TOption
+        |
+        |  sealed trait TNumericLowerTypeBound
+        |
+        |  def sum[T2 >: TOption, T1 >: TNumericLowerTypeBound <: T2, A1, A2]
+        |  (b: Map[A1, T1])
+        |  (implicit f: Map[A2, T2]) = {}
+      """.stripMargin
+    )
+  }
 }
