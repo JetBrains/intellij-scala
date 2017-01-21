@@ -288,26 +288,28 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
-      var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
-        ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
-          (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
+    var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)) match {
+      case Some(s) => s
+      case None =>
+        var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
+          ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
+            (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
+          }
+        if (useExpectedType) {
+          this.updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
         }
-      if (useExpectedType) {
-        this.updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
-      }
-      applyOrUpdateElemLocal = applyOrUpdateResult
-      importsUsedLocal = importsUsed
-      implicitFunctionLocal = implicitFunction
-      val isNamedDynamic: Boolean =
-        applyOrUpdateResult.exists(result => result.isDynamic &&
-          result.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED)
-      checkApplication(processedType, args(includeUpdateCall = true, isNamedDynamic)).getOrElse {
-        applyOrUpdateElemLocal = None
-        problemsLocal = Seq(new DoesNotTakeParameters)
-        matchedParamsLocal = Seq()
-        processedType
-      }
+        applyOrUpdateElemLocal = applyOrUpdateResult
+        importsUsedLocal = importsUsed
+        implicitFunctionLocal = implicitFunction
+        val isNamedDynamic: Boolean =
+          applyOrUpdateResult.exists(result => result.isDynamic &&
+            result.name == DynamicResolveProcessor.APPLY_DYNAMIC_NAMED)
+        checkApplication(processedType, args(includeUpdateCall = true, isNamedDynamic)).getOrElse {
+          applyOrUpdateElemLocal = None
+          problemsLocal = Seq(new DoesNotTakeParameters)
+          matchedParamsLocal = Seq()
+          processedType
+        }
     }
 
     //Implicit parameters

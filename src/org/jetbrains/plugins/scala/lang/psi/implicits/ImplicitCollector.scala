@@ -301,7 +301,15 @@ class ImplicitCollector(place: PsiElement,
           }
         }
 
-        checkFunctionByType(c, withLocalTypeInference, checkFast)
+        if (isExtensionConversion && !fullInfo) {
+          val applicableParameters =
+            checkFunctionByType(c, withLocalTypeInference, checkFast, noReturnType = true).isDefined
+
+          if (applicableParameters)
+            checkFunctionByType(c, withLocalTypeInference, checkFast, noReturnType = false)
+          else None
+        }
+        else checkFunctionByType(c, withLocalTypeInference, checkFast, noReturnType = false)
 
       case _ =>
         if (withLocalTypeInference) None //only functions may have local type inference
@@ -403,10 +411,6 @@ class ImplicitCollector(place: PsiElement,
       reportWrong(c.copy(implicitParameters = implicitParams), subst, ImplicitParameterNotFoundResult)
     }
 
-    def updateTypeWithImplicitParameters(nonValueType: ScType) = {
-      InferUtil.updateTypeWithImplicitParameters(nonValueType, place, Some(fun), check = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
-    }
-
     def noImplicitParametersResult(nonValueType: ScType): Some[Candidate] = {
       val (valueType, typeParams) = inferValueType(nonValueType)
       val result = c.copy(
@@ -466,19 +470,19 @@ class ImplicitCollector(place: PsiElement,
         case None =>
       }
 
-      val (resType, implicitParams0) =
-        try updateTypeWithImplicitParameters(nonValueType)
-        catch {
-          case _: SafeCheckException => return wrongTypeParam(CantInferTypeParameterResult)
-        }
+      try {
+        val (resType, implicitParams0) = InferUtil.updateTypeWithImplicitParameters(nonValueType, place, Some(fun),
+          check = !fullInfo, searchImplicitsRecursively + 1, fullInfo)
+        val implicitParams = implicitParams0.getOrElse(Seq.empty)
 
-      val implicitParams = implicitParams0.getOrElse(Seq.empty)
-
-      if (implicitParams.exists(_.name == InferUtil.notFoundParameterName))
-        reportParamNotFoundResult(implicitParams)
-      else
-        fullResult(resType, implicitParams)
-
+        if (implicitParams.exists(_.name == InferUtil.notFoundParameterName))
+          reportParamNotFoundResult(implicitParams)
+        else
+          fullResult(resType, implicitParams)
+      }
+      catch {
+        case _: SafeCheckException => wrongTypeParam(CantInferTypeParameterResult)
+      }
     } else {
       noImplicitParametersResult(nonValueType)
     }
@@ -523,7 +527,7 @@ class ImplicitCollector(place: PsiElement,
 
       doComputations(coreElement.getOrElse(place), checkAdd, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
         case Some(res) => res
-        case None => reportWrong(c, subst, DivergedImplicitResult)
+        case None => reportWrong(c, c.substitutor, DivergedImplicitResult)
       }
     }
   }
@@ -561,52 +565,45 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def checkFunctionByType(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean): Option[Candidate] = {
+  private def checkFunctionByType(c: ScalaResolveResult,
+                          withLocalTypeInference: Boolean,
+                          checkFast: Boolean,
+                          noReturnType: Boolean): Option[Candidate] = {
     val fun = c.element.asInstanceOf[ScFunction]
     val subst = c.substitutor
 
-    def checkFunctionByTypeInner(noReturnType: Boolean): Option[Candidate] = {
-      val ft =
-        if (noReturnType) fun.functionTypeNoImplicits(Some(Nothing))
-        else fun.functionTypeNoImplicits()
+    val ft =
+      if (noReturnType) fun.functionTypeNoImplicits(Some(Nothing))
+      else fun.functionTypeNoImplicits()
 
-      ft match {
-        case Some(_funType: ScType) =>
-          val funType = MacroInferUtil.checkMacro(fun, Some(tp), place) getOrElse _funType
+    ft match {
+      case Some(_funType: ScType) =>
+        val funType = MacroInferUtil.checkMacro(fun, Some(tp), place) getOrElse _funType
 
-          val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {
-            case Some(t) => t
-            case None => return None
-          }
+        val substedFunTp = substedFunType(fun, funType, subst, withLocalTypeInference, noReturnType) match {
+          case Some(t) => t
+          case None => return None
+        }
 
-          if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (substedFunTp conforms tp)) {
-            if (checkFast || noReturnType) Some(c, ScSubstitutor.empty)
-            else checkFunctionType(fun, substedFunTp, c)
+        if (isExtensionConversion && argsConformWeakly(substedFunTp, tp) || (substedFunTp conforms tp)) {
+          if (checkFast || noReturnType) Some(c, ScSubstitutor.empty)
+          else checkFunctionType(fun, substedFunTp, c)
+        }
+        else if (noReturnType) Some(c, ScSubstitutor.empty)
+        else {
+          substedFunTp match {
+            case FunctionType(ret, params) if params.isEmpty =>
+              if (!ret.conforms(tp)) None
+              else if (checkFast) Some(c, ScSubstitutor.empty)
+              else checkFunctionType(fun, ret, c)
+            case _ =>
+              reportWrong(c, subst, TypeDoesntConformResult)
           }
-          else if (noReturnType) Some(c, ScSubstitutor.empty)
-          else {
-            substedFunTp match {
-              case FunctionType(ret, params) if params.isEmpty =>
-                if (!ret.conforms(tp)) None
-                else if (checkFast) Some(c, ScSubstitutor.empty)
-                else checkFunctionType(fun, ret, c)
-              case _ =>
-                reportWrong(c, subst, TypeDoesntConformResult)
-            }
-          }
-        case _ =>
-          if (!withLocalTypeInference) reportWrong(c, subst, BadTypeResult)
-          else None
-      }
+        }
+      case _ =>
+        if (!withLocalTypeInference) reportWrong(c, subst, BadTypeResult)
+        else None
     }
-
-    if (isExtensionConversion && !fullInfo) {
-      val applicableParameters = checkFunctionByTypeInner(noReturnType = true).isDefined
-
-      if (applicableParameters) checkFunctionByTypeInner(noReturnType = false)
-      else None
-    }
-    else checkFunctionByTypeInner(noReturnType = false)
   }
 
   private def applyExtensionPredicate(cand: Candidate): Option[Candidate] = {

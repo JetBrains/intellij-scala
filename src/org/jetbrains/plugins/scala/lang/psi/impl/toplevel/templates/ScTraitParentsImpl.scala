@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
@@ -35,9 +37,12 @@ class ScTraitParentsImpl private(stub: StubElement[ScTraitParents], nodeType: IE
       stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements ++ syntheticTypeElements
     } else allTypeElements
 
-    elements.map {
-      _.getType().getOrAny
+    val buffer = ArrayBuffer[ScType]()
+    val iterator = elements.iterator //for reducing stacktrace
+    while (iterator.hasNext) {
+      buffer += iterator.next().getType().getOrAny
     }
+    buffer
   }
 
   def typeElements: Seq[ScTypeElement] = {
