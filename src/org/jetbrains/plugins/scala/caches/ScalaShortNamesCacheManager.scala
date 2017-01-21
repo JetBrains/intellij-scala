@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.LightScalaMethod
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -222,17 +222,6 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       }
     }
     null
-  }
-
-  def getImplicitObjectsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
-    val classes = StubIndex.getElements(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, ScalaNamesUtil.cleanFqn(fqn), project,
-      new ScalaSourceFilterScope(scope, project), classOf[ScObject])
-    val res: ArrayBuffer[ScObject] = new ArrayBuffer[ScObject]
-    val classesIterator = classes.iterator()
-    while (classesIterator.hasNext) {
-      res += classesIterator.next()
-    }
-    res
   }
 
   def getClasses(psiPackage: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
