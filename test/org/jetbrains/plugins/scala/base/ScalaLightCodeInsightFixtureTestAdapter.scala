@@ -2,15 +2,12 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.codeInsight.folding.CodeFoldingManager
-import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
-import com.intellij.lang.surroundWith.Surrounder
-import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.actionSystem.IdeActions.{ACTION_EDITOR_BACKSPACE, ACTION_EDITOR_ENTER}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions.startCommand
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-import org.jetbrains.plugins.scala.util.{ScalaToolsFactory, TestUtils}
 
 /**
   * User: Dmitry Naydanov
@@ -27,8 +24,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     super.setUp()
 
     if (loadScalaLibrary) {
-      myFixture.allowTreeAccessForAllFiles()
-      libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
+      getFixture.allowTreeAccessForAllFiles()
+      libLoader = ScalaLibraryLoader.withMockJdk(getProject, getFixture.getModule, rootPath = null)
       libLoader.loadScala(libVersion)
     }
   }
@@ -36,25 +33,6 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   protected def libVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION
 
   protected def loadScalaLibrary = true
-
-  protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
-    getFixture.configureByText("dummy.scala", text)
-    val scaladocSurroundDescriptor = ScalaToolsFactory.getInstance().createSurroundDescriptors().getSurroundDescriptors()(1)
-    val selectionModel = getFixture.getEditor.getSelectionModel
-
-    val elementsToSurround =
-      scaladocSurroundDescriptor.getElementsToSurround(getFixture.getFile, selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
-
-    if (!canSurround) {
-      assert(elementsToSurround == null || elementsToSurround.isEmpty, elementsToSurround.mkString("![", ",", "]!"))
-    } else {
-      assert(elementsToSurround.nonEmpty, "No elements to surround!")
-      startCommand(getProject, "Surround With Test") {
-        SurroundWithHandler.invoke(getProject, getEditor, getFile, surrounder)
-      }
-      getFixture.checkResult(assumedText)
-    }
-  }
 
   protected def checkTextHasNoErrors(text: String): Unit = {
     getFixture.configureByText("dummy.scala", text)
