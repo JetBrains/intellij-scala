@@ -28,7 +28,7 @@ class ScCompositePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) w
   override def toString: String = "CompositePattern"
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
-    expectedType match {
+    this.expectedType match {
       case Some(expected) => Success(expected, Some(this))
       case _ => super.getType(ctx) //Failure
     }

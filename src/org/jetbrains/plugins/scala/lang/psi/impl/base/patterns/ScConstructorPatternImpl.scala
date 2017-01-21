@@ -83,7 +83,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
                 UndefinedType(TypeParameterType(tp, Some(r.substitutor)))))
               val emptySubst: ScSubstitutor = ScSubstitutor(td.typeParameters.map(tp => (tp.nameAndId, Any)).toMap)
-              expectedType match {
+              this.expectedType match {
                 case Some(tp) =>
                   val conformance = clazzType.conforms(tp, ScUndefinedSubstitutor())
                   if (conformance._1) {
@@ -111,7 +111,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               if (result.isEmpty) emptyRes
               else {
                 val funType = undefSubst.subst(result.get)
-                expectedType match {
+                this.expectedType match {
                   case Some(tp) =>
                     val conformance = funType.conforms(tp, ScUndefinedSubstitutor())
                     if (conformance._1) {

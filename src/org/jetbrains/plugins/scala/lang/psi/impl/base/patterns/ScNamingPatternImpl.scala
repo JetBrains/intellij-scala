@@ -34,14 +34,14 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
     if (getLastChild.isInstanceOf[ScSeqWildcard]) {
-      return expectedType match {
+      return this.expectedType match {
         case Some(x) => Success(x, Some(this))
         case _ =>  Failure("No expected type for wildcard naming", Some(this))
       }
     }
     if (named == null) Failure("Cannot infer type", Some(this))
     else {
-      expectedType match {
+      this.expectedType match {
         case Some(expectedType) => named.getType(TypingContext.empty).map(expectedType.glb(_))
         case  _ => named.getType(ctx)
       }

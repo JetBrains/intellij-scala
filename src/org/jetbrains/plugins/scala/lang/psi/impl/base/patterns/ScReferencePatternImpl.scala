@@ -52,7 +52,7 @@ class ScReferencePatternImpl private(stub: StubElement[ScReferencePattern], node
   override def toString: String = "ReferencePattern: " + name
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
-    expectedType match {
+    this.expectedType match {
       case Some(x) => Success(x, Some(this))
       case _ => Failure("Cannot define expected type", Some(this))
     }
@@ -63,7 +63,7 @@ class ScReferencePatternImpl private(stub: StubElement[ScReferencePattern], node
   }
 
   override def getNavigationElement: PsiElement = getContainingFile match {
-    case sf: ScalaFile if sf.isCompiled => {
+    case sf: ScalaFile if sf.isCompiled =>
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScMember]) // there is no complicated pattern-based declarations in decompiled files
       if (parent != null) {
         val navElem = parent.getNavigationElement
@@ -73,7 +73,6 @@ class ScReferencePatternImpl private(stub: StubElement[ScReferencePattern], node
         }
       }
       else super.getNavigationElement
-    }
     case _ => super.getNavigationElement
   }
 

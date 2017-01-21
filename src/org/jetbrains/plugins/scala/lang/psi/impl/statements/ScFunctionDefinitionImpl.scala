@@ -118,8 +118,4 @@ class ScFunctionDefinitionImpl protected (stub: StubElement[ScFunction], nodeTyp
       case _ => super.accept(visitor)
     }
   }
-
-  override def importantOrderFunction(): Boolean = {
-    hasModifierProperty("implicit") && !hasExplicitType
-  }
 }

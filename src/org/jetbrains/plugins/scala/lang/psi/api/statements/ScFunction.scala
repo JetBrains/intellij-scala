@@ -132,7 +132,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def getInheritedReturnType: Option[ScType] = {
     returnTypeElement match {
-      case Some(_) => returnType.toOption
+      case Some(_) => this.returnType.toOption
       case None =>
         val superReturnType = superMethodAndSubstitutor match {
           case Some((fun: ScFunction, subst)) =>
@@ -208,7 +208,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def methodType(result: Option[ScType]): ScType = {
     val clauses = effectiveParameterClauses
     val resultType = result match {
-      case None => returnType.getOrAny
+      case None => this.returnType.getOrAny
       case Some(x) => x
     }
     if (!hasParameterClause) return resultType
@@ -261,34 +261,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def parameterList: ScParameters = paramClauses // TODO merge
 
   def isProcedure: Boolean = paramClauses.clauses.isEmpty
-
-  def importantOrderFunction(): Boolean = false
-
-  def returnType: TypeResult[ScType] = {
-    if (importantOrderFunction()) {
-      val parent = getParent
-      val data = parent.getUserData(ScFunction.calculatedBlockKey)
-      if (data != null) returnTypeInner
-      else {
-        val children = parent match {
-          case stub: ScalaStubBasedElementImpl[_] if stub.getStub != null =>
-            import scala.collection.JavaConverters._
-            stub.getStub.getChildrenStubs.asScala.map(_.getPsi).iterator
-          case _ => parent.getChildren.iterator
-        }
-        while (children.hasNext) {
-          children.next() match {
-            case fun: ScFunction if fun.importantOrderFunction() =>
-              ProgressManager.checkCanceled()
-              fun.returnTypeInner
-            case _ =>
-          }
-        }
-        parent.putUserData(ScFunction.calculatedBlockKey, java.lang.Boolean.TRUE)
-        returnTypeInner
-      }
-    } else returnTypeInner
-  }
 
   def returnTypeInner: TypeResult[ScType]
 
@@ -559,7 +531,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   def getType(ctx: TypingContext): TypeResult[ScType] = {
-    returnType match {
+    this.returnType match {
       case Success(tp: ScType, _) =>
         var res: TypeResult[ScType] = Success(tp, None)
         var i = paramClauses.clauses.length - 1
@@ -578,7 +550,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean) = m match {
+  override protected def isSimilarMemberForNavigation(m: ScMember, strictCheck: Boolean): Boolean = m match {
     case f: ScFunction => f.name == name && {
       if (strictCheck) new PhysicalSignature(this, ScSubstitutor.empty).
         paramTypesEquiv(new PhysicalSignature(f, ScSubstitutor.empty))
@@ -625,17 +597,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
-  def functionTypeNoImplicits(retType: Option[ScType] = returnType.toOption): Option[ScType] = {
-    collectReverseParamTypesNoImplicits match {
-      case Some(params) =>
-        implicit val project = getProject
-        implicit val resolveScope = getResolveScope
-        retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)))
-      case None => None
-    }
-  }
-
   private def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
     var i = paramClauses.clauses.length - 1
     val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty
@@ -653,6 +614,55 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 }
 
 object ScFunction {
+  implicit class Ext(val function: ScFunction) extends AnyVal {
+    private implicit def project = function.getProject
+    private implicit def resolveScope = function.getResolveScope
+    private implicit def elementScope = function.elementScope
+
+    def returnType: TypeResult[ScType] = {
+      if (importantOrderFunction(function)) {
+        val parent = function.getParent
+        val data = parent.getUserData(ScFunction.calculatedBlockKey)
+        if (data != null) function.returnTypeInner
+        else {
+          val children = parent match {
+            case stub: ScalaStubBasedElementImpl[_] if stub.getStub != null =>
+              import scala.collection.JavaConverters._
+              stub.getStub.getChildrenStubs.asScala.map(_.getPsi).iterator
+            case _ => parent.getChildren.iterator
+          }
+          while (children.hasNext) {
+            children.next() match {
+              case fun: ScFunction if importantOrderFunction(fun) =>
+                ProgressManager.checkCanceled()
+                fun.returnTypeInner
+              case _ =>
+            }
+          }
+          parent.putUserData(ScFunction.calculatedBlockKey, java.lang.Boolean.TRUE)
+          function.returnTypeInner
+        }
+      } else function.returnTypeInner
+    }
+
+    def functionTypeNoImplicits(forcedReturnType: Option[ScType] = None): Option[ScType] = {
+      val retType = forcedReturnType match { //avoid getOrElse for reduced stacktrace
+        case None => returnType.toOption
+        case some => some
+      }
+      function.collectReverseParamTypesNoImplicits match {
+        case Some(params) =>
+          retType.map(params.foldLeft(_)((res, params) => FunctionType(res, params)))
+        case None => None
+      }
+    }
+
+    private def importantOrderFunction(fun: ScFunction) = fun match {
+      case funDef: ScFunctionDefinition => funDef.hasModifierProperty("implicit") && !funDef.hasExplicitType
+      case _ => false
+    }
+  }
+
   object Name {
     val Apply = "apply"
     val Update = "update"
