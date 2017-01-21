@@ -214,16 +214,14 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     *
     * @param tp type, which should be returned by method getTypeWithouImplicits
    */
-  def setTypeWithoutImplicits(tp: Option[ScType]) {
+  def setTypeForNullWithoutImplicits(tp: Option[ScType]) {
     if (getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL) assert(assertion = false,
       message = "Only null literals accepted, type: " + getFirstChild.getNode.getElementType)
     typeWithoutImplicits = tp
   }
 
-  override def getTypeWithoutImplicits(ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
-    val tp = typeWithoutImplicits
-    if (tp.isDefined) return Success(tp.get, None)
-    super.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+  def getTypeForNullWithoutImplicits: Option[ScType] = {
+    typeWithoutImplicits
   }
   
   /*

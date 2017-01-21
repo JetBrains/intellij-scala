@@ -103,7 +103,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               }
             }
             if (result == null || result.isEmpty) {
-              expectedType(fromUnderscore = false) match {
+              this.expectedType(fromUnderscore = false) match {
                 case Some(tp: ScType) => result = Some(tp)
                 case _ => result = None
               }

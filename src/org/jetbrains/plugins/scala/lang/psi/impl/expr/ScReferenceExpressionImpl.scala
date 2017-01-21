@@ -234,7 +234,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
       //The expected type pt is a stable type or
       //The expected type pt is an abstract type with a stable type as lower bound,
       // and the type T of the entity referred to by p does not conforms to pt,
-      expectedTypeEx() match {
+      this.expectedTypeEx() match {
         case Some((tp, typeElementOpt)) =>
           (tp match {
             case ScAbstractType(_, lower, _) => lower
@@ -382,7 +382,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
         if (obj.isSyntheticObject) {
           ScalaPsiUtil.getCompanionModule(obj) match {
             case Some(clazz) if clazz.isCase && !clazz.hasTypeParameters =>
-              expectedType() match {
+              this.expectedType() match {
                 case Some(tp) =>
                   if (FunctionType.isFunctionType(tp)) {
                     val tp = tail

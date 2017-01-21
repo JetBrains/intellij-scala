@@ -278,7 +278,7 @@ object InferUtil {
             case _ =>
           }
           val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
-          dummyExpr.asInstanceOf[ScLiteral].setTypeWithoutImplicits(Some(mt.returnType))
+          dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.returnType))
           val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))

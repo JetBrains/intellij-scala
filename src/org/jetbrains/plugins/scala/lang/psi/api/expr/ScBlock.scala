@@ -54,7 +54,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           if (throwable == null) return Failure("Cannot find Throwable class", Some(this))
           return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesType)), Some(this))
         case _ =>
-          val et = expectedType(fromUnderscore = false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+          val et = this.expectedType(fromUnderscore = false)
+            .getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
 
           def removeVarianceAbstracts(scType: ScType) = {
             var index = 0

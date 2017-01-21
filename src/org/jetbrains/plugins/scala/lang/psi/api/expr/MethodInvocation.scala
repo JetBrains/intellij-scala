@@ -21,60 +21,60 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
 /**
- * Pavel Fatin, Alexander Podkhalyuzin.
- */
+  * Pavel Fatin, Alexander Podkhalyuzin.
+  */
 
 // A common trait for Infix, Postfix and Prefix expressions
 // and Method calls to handle them uniformly
 trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
-   * For Infix, Postfix and Prefix expressions
-   * it's refernce expression for operation
- *
-   * @return method reference or invoked expression for calls
-   */
+    * For Infix, Postfix and Prefix expressions
+    * it's refernce expression for operation
+    *
+    * @return method reference or invoked expression for calls
+    */
   def getInvokedExpr: ScExpression
 
   /**
-   * @return call arguments
-   */
+    * @return call arguments
+    */
   def argumentExpressions: Seq[ScExpression]
 
   /**
-   * Unwraps parenthesised expression for method calls
- *
-   * @return unwrapped invoked expression
-   */
+    * Unwraps parenthesised expression for method calls
+    *
+    * @return unwrapped invoked expression
+    */
   def getEffectiveInvokedExpr: ScExpression = getInvokedExpr
 
   /**
-   * Important method for method calls like: foo(expr) = assign.
-   * Usually this is same as argumentExpressions
- *
-   * @return arguments with additional argument if call in update position
-   */
+    * Important method for method calls like: foo(expr) = assign.
+    * Usually this is same as argumentExpressions
+    *
+    * @return arguments with additional argument if call in update position
+    */
   def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = argumentExpressions
 
   /**
-   * Seq of application problems like type mismatch.
- *
-   * @return seq of application problems
-   */
+    * Seq of application problems like type mismatch.
+    *
+    * @return seq of application problems
+    */
   def applicationProblems: Seq[ApplicabilityProblem] = {
     getType()
     problemsVar
   }
 
   /**
-   * @return map of expressions and parameters
-   */
+    * @return map of expressions and parameters
+    */
   def matchedParameters: Seq[(ScExpression, Parameter)] = {
     matchedParametersInner.map(a => a.swap).filter(a => a._1 != null) //todo: catch when expression is null
   }
 
   /**
-   * @return map of expressions and parameters
-   */
+    * @return map of expressions and parameters
+    */
   def matchedParametersMap: Map[Parameter, Seq[ScExpression]] = {
     matchedParametersInner.groupBy(_._1).map(t => t.copy(_2 = t._2.map(_._2)))
   }
@@ -85,28 +85,28 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   /**
-   * In case if invoked expression converted implicitly to invoke apply or update method
- *
-   * @return imports used for implicit conversion
-   */
+    * In case if invoked expression converted implicitly to invoke apply or update method
+    *
+    * @return imports used for implicit conversion
+    */
   def getImportsUsed: collection.Set[ImportUsed] = {
     getType()
     importsUsedVar
   }
 
   /**
-   * In case if invoked expression converted implicitly to invoke apply or update method
- *
-   * @return actual conversion element
-   */
+    * In case if invoked expression converted implicitly to invoke apply or update method
+    *
+    * @return actual conversion element
+    */
   def getImplicitFunction: Option[PsiNamedElement] = {
     getType()
     implicitFunctionVar
   }
 
   /**
-   * true if this call is syntactic sugar for apply or update method.
-   */
+    * true if this call is syntactic sugar for apply or update method.
+    */
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
   def applyOrUpdateElement: Option[ScalaResolveResult] = {
@@ -115,26 +115,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   /**
-   * It's arguments for method and infix call.
-   * For prefix and postfix call it's just operation.
- *
-   * @return Element, which reflects arguments
-   */
+    * It's arguments for method and infix call.
+    * For prefix and postfix call it's just operation.
+    *
+    * @return Element, which reflects arguments
+    */
   def argsElement: PsiElement
 
   /**
-   * This method useful in case if you want to update some polymorphic type
-   * according to method call expected type
-   */
-  def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
-                                    check: Boolean = false): TypeResult[ScType] = {
-    InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
-      expectedType = expectedType(), expr = this, check = check)
-  }
-
-  /**
-   * @return Is this method invocation in 'update' syntax sugar position.
-   */
+    * @return Is this method invocation in 'update' syntax sugar position.
+    */
   def isUpdateCall: Boolean = false
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
@@ -168,9 +158,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case _ =>
     }
 
-    val withExpectedType = useExpectedType && expectedType().isDefined //optimization to avoid except
+    val withExpectedType = useExpectedType && this.expectedType().isDefined //optimization to avoid except
 
-    if (useExpectedType) nonValueType = updateAccordingToExpectedType(nonValueType, check = true)
+    if (useExpectedType) nonValueType = this.updateAccordingToExpectedType(nonValueType, check = true)
 
     def checkConformance(retType: ScType, psiExprs: Seq[Expression], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
@@ -189,8 +179,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     def tuplizyCase(exprs: Seq[Expression])
                    (fun: (Seq[Expression]) => (ScType, scala.Seq[ApplicabilityProblem],
-                           Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)])): ScType = {
+                     Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)])): ScType = {
       val c = fun(exprs)
+
       def tail: ScType = {
         problemsLocal = c._2
         matchedParamsLocal = c._3
@@ -202,8 +193,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         })
         dependentSubst.subst(c._1)
       }
+
       if (c._2.nonEmpty) {
-        ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map {e =>
+        ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map { e =>
           val cd = fun(e)
           if (cd._2.nonEmpty) tail
           else {
@@ -255,7 +247,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     def args(includeUpdateCall: Boolean = false, isNamedDynamic: Boolean = false): Seq[Expression] = {
       def default: Seq[ScExpression] =
         if (includeUpdateCall) argumentExpressionsIncludeUpdateCall
-        else  argumentExpressions
+        else argumentExpressions
+
       if (isNamedDynamic) {
         default.map {
           expr =>
@@ -301,7 +294,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
           (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
-        updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
+        this.updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)
       }
       applyOrUpdateElemLocal = applyOrUpdateResult
       importsUsedLocal = importsUsed
@@ -345,4 +338,22 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
 object MethodInvocation {
   def unapply(invocation: MethodInvocation) = Some(invocation.getInvokedExpr, invocation.argumentExpressions)
+
+  implicit class MethodInvocationExt(val invocation: MethodInvocation) extends AnyVal {
+    private implicit def elementScope = invocation.elementScope
+
+    private implicit def typeSystem = invocation.typeSystem
+
+    /**
+      * This method useful in case if you want to update some polymorphic type
+      * according to method call expected type
+      */
+    def updateAccordingToExpectedType(nonValueType: TypeResult[ScType],
+                                      check: Boolean = false): TypeResult[ScType] = {
+      InferUtil.updateAccordingToExpectedType(nonValueType, fromImplicitParameters = false, filterTypeParams = false,
+        expectedType = invocation.expectedType(), expr = invocation, check = check)
+    }
+
+  }
+
 }
