@@ -1,19 +1,23 @@
-package org.jetbrains.plugins.scala.codeInspection.monads
+package org.jetbrains.plugins.scala
+package codeInspection
+package monads
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
  * @author Sergey Tolmachev (tolsi.ru@gmail.com)
  * @since 29.09.15
  */
-class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class NestedStatefulMonadsInspectionTest extends ScalaInspectionTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val annotation = NestedStatefulMonadsInspection.Annotation
-  protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[NestedStatefulMonadsInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[NestedStatefulMonadsInspection]
+
+  override protected val description: String =
+    NestedStatefulMonadsInspection.Annotation
 
   def test_1(): Unit = {
     val text =
@@ -33,14 +37,14 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
     val text =
       s"""import scala.util.Try
         |${START}Try { Try {} }$END"""
-    check(text)
+    checkTextHasError(text)
   }
 
   def test_4(): Unit = {
     val text =
       s"""import scala.concurrent.Future
         |${START}Future { Future {} }$END"""
-    check(text)
+    checkTextHasError(text)
   }
 
   def test_5(): Unit = {
@@ -53,14 +57,14 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
       s"""import scala.concurrent.Future
           |val a = Future { }
           |${START}Future { a }$END"""
-    check(text)
+    checkTextHasError(text)
   }
 
   def test_7(): Unit = {
     val text =
       s"""import scala.util._
           |${START}Try { Success() }$END"""
-    check(text)
+    checkTextHasError(text)
   }
 
   def test_8(): Unit = {
@@ -68,14 +72,14 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
       s"""import scala.util._
           |import scala.concurrent.Future
           |${START}Try { Future.successful() }$END"""
-    check(text)
+    checkTextHasError(text)
   }
 
   def test_9(): Unit = {
     val text =
       s"""import scala.util._
         |${START}Success(Success(1))$END"""
-    check(text)
+    checkTextHasError(text)
   }
 
   def test_10(): Unit = {
@@ -83,7 +87,7 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
       s"""import scala.util._
           |import scala.concurrent.Future
           |${START}Future { Success() }$END"""
-    check(text)
+    checkTextHasError(text)
   }
 
   def test_11(): Unit = {
@@ -104,6 +108,6 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
     val text =
       s"""import scala.util._
         |Array(${START}Success(Failure(1))$END)"""
-    check(text)
+    checkTextHasError(text)
   }
 }

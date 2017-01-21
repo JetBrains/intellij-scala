@@ -2,21 +2,21 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
 
 /**
  * Nikolay.Tropin
  * 6/3/13
  */
-class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class ConvertibleToMethodValueInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val annotation = InspectionBundle.message("convertible.to.method.value.name")
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
+
+  val description = InspectionBundle.message("convertible.to.method.value.name")
   val hintAnon = InspectionBundle.message("convertible.to.method.value.anonymous.hint")
   val hintEta = InspectionBundle.message("convertible.to.method.value.eta.hint")
-
-  protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
 
   def test_methodCallUntyped() {
     val selected = s"""object A {
@@ -25,7 +25,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |  val f1 = ${START}A.f(_, _)$END
                      |}
                      |"""
-    check(selected)
+    checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
@@ -36,7 +36,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                    |  }
                    |  val f1 = A.f _
                    |}"""
-    testFix(text, result, hintAnon)
+    testQuickFix(text, result, hintAnon)
   }
 
   def test_infixUntyped() {
@@ -65,7 +65,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                        |  }
                        |  val f1: (Int, Int) => Unit = ${START}A.f(_, _)$END
                        |}"""
-    check(selected)
+    checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
@@ -76,7 +76,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                    |  }
                    |  val f1: (Int, Int) => Unit = A.f
                    |}"""
-    testFix(text, result, hintAnon)
+    testQuickFix(text, result, hintAnon)
   }
 
   def test_methodCallEtaTyped() {
@@ -85,7 +85,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                        |  }
                        |  val f1: (Int, Int) => Unit = ${START}A.f _$END
                        |}"""
-    check(selected)
+    checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
@@ -96,7 +96,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                    |  }
                    |  val f1: (Int, Int) => Unit = A.f
                    |}"""
-    testFix(text, result, hintEta)
+    testQuickFix(text, result, hintEta)
   }
 
   def test_methodCallWithDefaultUntyped() {
@@ -105,7 +105,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                        |  }
                        |  val f1 = ${START}A.f(_, _)$END
                        |}"""
-    check(selected)
+    checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int = 0) {
                  |  }
@@ -116,7 +116,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                    |  }
                    |  val f1 = A.f _
                    |}"""
-    testFix(text, result, hintAnon)
+    testQuickFix(text, result, hintAnon)
   }
 
   def test_methodCallWithDefaultTyped() {
@@ -283,7 +283,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |}
       """.stripMargin
     checkTextHasError(text)
-    testFix(text, result, hintAnon)
+    testQuickFix(text, result, hintAnon)
   }
 
   def testStableVal(): Unit = {
@@ -312,7 +312,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                      |}
       """.stripMargin
     checkTextHasError(text)
-    testFix(text, result, hintAnon)
+    testQuickFix(text, result, hintAnon)
   }
 
   def testStableObject(): Unit = {
@@ -337,7 +337,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                     |}
       """.stripMargin
     checkTextHasError(text)
-    testFix(text, result, hintAnon)
+    testQuickFix(text, result, hintAnon)
   }
 
   def testStableSyntheticFun(): Unit = {
@@ -348,7 +348,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                    |list.filter(("a" + "b").contains)
                  """.stripMargin
     checkTextHasError(text)
-    testFix(text, result, hintEta)
+    testQuickFix(text, result, hintEta)
   }
 
   def testFunFromThis(): Unit = {
@@ -365,7 +365,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
           |}
          """.stripMargin
     checkTextHasError(text)
-    testFix(text, result, hintEta)
+    testQuickFix(text, result, hintEta)
   }
 
   def testCallFromImported(): Unit = {
@@ -389,7 +389,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
           |}
       """.stripMargin
     checkTextHasError(text)
-    testFix(text, result, hintAnon)
+    testQuickFix(text, result, hintAnon)
   }
 
   def testByNameParam(): Unit = {

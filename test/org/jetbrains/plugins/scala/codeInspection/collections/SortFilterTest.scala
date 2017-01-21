@@ -12,42 +12,46 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override def hint: String = InspectionBundle.message("sort.filter.hint")
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[SortFilterInspection]
+
+  override protected val hint: String =
+    InspectionBundle.message("sort.filter.hint")
 
   def testWithoutParams() {
     val selected = s"List(0, 1).${START}sorted.filter(_ => true)$END"
-    check(selected)
+    checkTextHasError(selected)
 
     val text = "List(0, 1).sorted.filter(_ => true)"
     val result = "List(0, 1).filter(_ => true).sorted"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def testWithParameter() {
     val selected = s"List(0, 1).${START}sortWith((x, y) => x < y).filter(_ => true)$END"
-    check(selected)
+    checkTextHasError(selected)
 
     val text = "List(0, 1).sortWith((x, y) => x < y).filter(_ => true)"
     val result = "List(0, 1).filter(_ => true).sortWith((x, y) => x < y)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def testWithGenericParameter() {
     val selected = s"List(0, 1).${START}sortBy[String](_.toString).filter(_ => true)$END"
-    check(selected)
+    checkTextHasError(selected)
 
     val text = "List(0, 1).sortBy[String](_.toString).filter(_ => true)"
     val result = "List(0, 1).filter(_ => true).sortBy[String](_.toString)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def testInfix() {
     val selected = s"List(0, 1).${START}sortBy[String](_.toString) filter (_ => true)$END"
-    check(selected)
+    checkTextHasError(selected)
 
     val text = "List(0, 1).sortBy[String](_.toString) filter (_ => true)"
     val result = "List(0, 1).filter(_ => true).sortBy[String](_.toString)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def testWithSideEffect(): Unit = {
@@ -61,6 +65,4 @@ class SortFilterTest extends OperationsOnCollectionInspectionTest {
         |}
       """.stripMargin)
   }
-
-  override val inspectionClass = classOf[SortFilterInspection]
 }

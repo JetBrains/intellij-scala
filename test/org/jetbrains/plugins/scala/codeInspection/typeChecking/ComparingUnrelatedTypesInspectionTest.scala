@@ -3,18 +3,21 @@ package codeInspection.typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 /**
  * Nikolay.Tropin
  * 9/26/13
  */
-class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ComparingUnrelatedTypesInspection]
-  protected val annotation: String = ComparingUnrelatedTypesInspection.inspectionName
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[ComparingUnrelatedTypesInspection]
+
+  override protected val description: String =
+    ComparingUnrelatedTypesInspection.inspectionName
 
   def testWeakConformance() {
     val text1 = s"""val a = 0

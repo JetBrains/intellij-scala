@@ -2,19 +2,22 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 10/14/15.
   */
-class AutoTuplingInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class AutoTuplingInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AutoTuplingInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[AutoTuplingInspection]
 
-  override protected def annotation: String = AutoTuplingInspection.message
+  override protected val description: String =
+    AutoTuplingInspection.message
+
   val hint = MakeTuplesExplicitFix.hint
 
   def testBasic(): Unit = {
@@ -35,7 +38,7 @@ class AutoTuplingInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
         |def foo(a: Any) = {}
         |foo((1, 2))
       """.stripMargin
-    testFix(code, result, hint)
+    testQuickFix(code, result, hint)
   }
 
   def testSAMNotHighlighted(): Unit = {
@@ -68,7 +71,7 @@ class AutoTuplingInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
         |def foo(a: Any) = {}
         |foo((() => println("foo"), () => 2))
       """.stripMargin
-    testFix(code, result, hint)
+    testQuickFix(code, result, hint)
   }
 
   def testSAMNotHighlightedWhenTypesOfParametersOfAnonymousFunctionAreInferred(): Unit = {

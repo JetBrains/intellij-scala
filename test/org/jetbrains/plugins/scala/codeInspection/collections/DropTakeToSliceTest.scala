@@ -1,15 +1,22 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
- * @author Nikolay.Tropin
- */
-class DropTakeToSliceTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[DropTakeToSliceInspection]
+  * @author Nikolay.Tropin
+  */
+abstract class ReplaceWithSliceTest extends OperationsOnCollectionInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.drop.take.with.slice")
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[DropTakeToSliceInspection]
+}
+
+class DropTakeToSliceTest extends ReplaceWithSliceTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("replace.drop.take.with.slice")
 
   def testSeqWithLiteralArg(): Unit = {
     doTest(
@@ -52,10 +59,10 @@ class DropTakeToSliceTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class TakeDropToSliceTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[DropTakeToSliceInspection]
+class TakeDropToSliceTest extends ReplaceWithSliceTest {
 
-  override def hint: String = InspectionBundle.message("replace.take.drop.with.slice")
+  override protected val hint: String =
+    InspectionBundle.message("replace.take.drop.with.slice")
 
   def testSeqWithLiteralArg(): Unit = {
     doTest(

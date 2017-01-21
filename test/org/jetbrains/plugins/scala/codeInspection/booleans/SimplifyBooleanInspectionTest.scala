@@ -1,46 +1,41 @@
 package org.jetbrains.plugins.scala
-package codeInspection.booleans
+package codeInspection
+package booleans
 
+import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
  * Nikolay.Tropin
  * 4/24/13
  */
-class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class SimplifyBooleanInspectionTest extends ScalaQuickFixTestBase {
 
+  import CodeInsightTestFixture.CARET_MARKER
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val annotation = "Simplify boolean expression"
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[SimplifyBooleanInspection]
 
-  private def check(text: String) {
-    checkTextHasError(text, annotation, classOf[SimplifyBooleanInspection])
-  }
-
-  private def testFix(text: String, result: String, hint: String) {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[SimplifyBooleanInspection])
-  }
-
-  private def checkHasNoErrors(text: String) {
-    checkTextHasNoErrors(text, annotation, classOf[SimplifyBooleanInspection])
-  }
+  override protected val description =
+    "Simplify boolean expression"
 
   def test_NotTrue() {
     val selectedText = s"$START!true$END"
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = "!true"
     val result = "false"
     val hint = "Simplify !true"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_TrueEqualsA() {
     val selectedText =
       s"""val a = true
          |${START}true == a$END""".stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """val a = true
@@ -48,14 +43,14 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
     val result = """val a = true
                    |a""".stripMargin
     val hint = "Simplify true == a"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_TrueAndA() {
     val selectedText =
       s"""val a = true
          |${START}true && a$END""".stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
        """val a = true
@@ -63,20 +58,20 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
     val result = """val a = true
                     |a""".stripMargin
     val hint = "Simplify true && a"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_AOrFalse() {
     val selectedText = s"""val a = true
                           |${START}a | false$END""".stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = """val a = true
                    |a | false""".stripMargin
     val result =  """val a = true
                     |a""".stripMargin
     val hint = "Simplify a | false"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_ExternalExpression() {
@@ -84,7 +79,7 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
                           |val a = true
                           |${START}true && (a || false)$END
       """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = s"""
         |val a = true
@@ -93,53 +88,53 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
         |val a = true
         |a""".stripMargin
     val hint = "Simplify true && (a || false)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_InternalExpression() {
     val selectedText =
       s"""
          |val a = true
-         |true && ($START<caret>a || false$END)
+         |true && (${START}a || false$END)
       """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = s"""
-        |val a = true
-        |true && (<caret>a || false)
+                  |val a = true
+                  |true && (${CARET_MARKER}a || false)
       """.stripMargin
     val result = s"""
         |val a = true
         |true && a
       """.stripMargin
     val hint = "Simplify a || false"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_TrueNotEqualsA() {
     val selectedText =  s"""val a = true
                            |val flag: Boolean = ${START}true != a$END""".stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = s"""val a = true
                   |val flag: Boolean = true != a""".stripMargin
     val result = """val a = true
                     |val flag: Boolean = !a""".stripMargin
     val hint = "Simplify true != a"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_SimplifyInParentheses() {
     val selectedText = s"""val a = true
                           |!(${START}true != a$END)""".stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = """val a = true
                   |!(true != a)""".stripMargin
     val result = """val a = true
                    |!(!a)""".stripMargin
     val hint = "Simplify true != a"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_TrueAsAny() {
@@ -154,14 +149,14 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
         |  println("false")
         |}
         |
-      """.stripMargin.replace("\r", "").trim
+      """.stripMargin
 
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def testParentheses(): Unit = {
-    testFix(
-      "true<caret> && (2 - 1) * 0 == 0",
+    testQuickFix(
+      s"true$CARET_MARKER && (2 - 1) * 0 == 0",
       "(2 - 1) * 0 == 0",
       "Simplify true && (2 - 1) * 0 == 0")
   }

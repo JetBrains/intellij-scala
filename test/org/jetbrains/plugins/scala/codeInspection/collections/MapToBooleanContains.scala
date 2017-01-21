@@ -1,15 +1,22 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
  */
-class MapContainsTrue extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[MapToBooleanContainsInspection]
+abstract class MapToBooleanContainsInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.map.contains.true.with.exists")
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[MapToBooleanContainsInspection]
+}
+
+class MapContainsTrueTest extends MapToBooleanContainsInspectionTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("replace.map.contains.true.with.exists")
 
   def testSimple(): Unit = {
     doTest(
@@ -48,10 +55,10 @@ class MapContainsTrue extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class MapContainsFalse extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[MapToBooleanContainsInspection]
+class MapContainsFalseTest extends MapToBooleanContainsInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.map.contains.false.with.not.forall")
+  override protected val hint: String =
+    InspectionBundle.message("replace.map.contains.false.with.not.forall")
 
   def testSimple(): Unit = {
     doTest(

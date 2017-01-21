@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import com.intellij.testFramework.EditorTestUtil
+import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.junit.experimental.categories.Category
 
 /**
@@ -10,23 +11,36 @@ import org.junit.experimental.categories.Category
   * Date: 22.03.16.
   */
 @Category(Array(classOf[PerfCycleTests]))
-class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class BadCodeIsGreenTest extends ScalaInspectionTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[LocalInspectionTool]
+}
+
+class Test1 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "‘A’ has itself as bound"
 
   def testScl7139_1() {
     checkTextHasError(
       s"""
-        |class X1[${START}A >: A${END}]
-      """.stripMargin, "‘A’ has itself as bound")
+         |class X1[${START}A >: A$END]
+      """.stripMargin)
   }
   
   def testScl7139_2() {
     checkTextHasError(
       s"""
-        |class X2[A <: B, B <: C, ${START}C <: A${END}]
-      """.stripMargin, "‘A’ has itself as bound")
+         |class X2[A <: B, B <: C, ${START}C <: A$END]
+      """.stripMargin)
   }
+}
+
+class Test2 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Type mismatch: expected (=> TicketTester.A) => TicketTester.B, found: TicketTester.A => TicketTester.B"
 
   def testScl1731(): Unit = {
     checkTextHasError(
@@ -36,8 +50,14 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  class B
          |  val a: (=> A) => B = $START(x: A) => new B$END
          |}
-       """.stripMargin, "Type mismatch: expected (=> TicketTester.A) => TicketTester.B, found: TicketTester.A => TicketTester.B")
+       """.stripMargin)
   }
+}
+
+class Test3 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Type mismatch: expected Future[?], found Option[Int]"
 
   def testScl8684(): Unit = {
     checkTextHasError(
@@ -49,8 +69,14 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    } yield x + y
         |  }
         |}
-      """.stripMargin, "Type mismatch: expected Future[?], found Option[Int]")
+      """.stripMargin)
   }
+}
+
+class Test4 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Reference to a is ambiguous; it is both a method parameter and a variable in scope."
 
   def testSCL4434(): Unit = {
     checkTextHasError(
@@ -60,8 +86,14 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  var a = 1;
         |  foo(a = 2)
         |}
-      """.stripMargin, "Reference to a is ambiguous; it is both a method parameter and a variable in scope.")
+      """.stripMargin)
   }
+}
+
+class Test5 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Type mismatch, expected: M[T], actual: Main.B4"
 
   def testSCL7618(): Unit = {
     checkTextHasError(
@@ -82,8 +114,14 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  foo(new B3)
         |  foo(new B4)
         |}
-      """.stripMargin, "Type mismatch, expected: M[T], actual: Main.B4")
+      """.stripMargin)
   }
+}
+
+class Test6 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Type mismatch, expected: Foo, actual: String"
 
   def testSCL8983(): Unit = {
     checkTextHasError(
@@ -99,8 +137,14 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  val y = "y"
         |  val string: Foo = new Foo()(x,y)
         |}
-      """.stripMargin, "Type mismatch, expected: Foo, actual: String")
+      """.stripMargin)
   }
+}
+
+class Test7 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "class type required but Hello.type found"
 
   def testSCL10320(): Unit = {
     checkTextHasError(
@@ -116,8 +160,14 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    this
         |  }
         |}
-      """.stripMargin, "class type required but Hello.type found")
+      """.stripMargin)
   }
+}
+
+class Test8 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Type mismatch, expected: (String, Any), actual: String(\"b\")"
 
   def testSCL10438(): Unit = {
     checkTextHasError(
@@ -125,15 +175,27 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |object Stuff {
         |  val parameters = Map[String, Any]("a", "b")
         |}
-      """.stripMargin, "Type mismatch, expected: (String, Any), actual: String(\"b\")")
+      """.stripMargin)
   }
+}
+
+class Test9 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Type mismatch, expected: Option[?], actual: Seq[Int]"
 
   def testSCL10583(): Unit = {
     checkTextHasError(
       """
         |Some(1) flatMap (Seq(_))
-      """.stripMargin, "Type mismatch, expected: Option[?], actual: Seq[Int]")
+      """.stripMargin)
   }
+}
+
+class Test10 extends BadCodeIsGreenTest {
+
+  override protected val description: String =
+    "Type mismatch, expected: Int, actual: Unit"
 
   def testSCL10608(): Unit = {
     checkTextHasError(
@@ -144,6 +206,6 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  }
         |def foo(par: Int) = ???
         |foo(abc)
-      """.stripMargin, "Type mismatch, expected: Int, actual: Unit")
+      """.stripMargin)
   }
 }

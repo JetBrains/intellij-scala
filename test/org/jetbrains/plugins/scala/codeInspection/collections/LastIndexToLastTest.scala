@@ -1,18 +1,21 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
- * @author Nikolay.Tropin
- */
+  * @author Nikolay.Tropin
+  */
 class LastIndexToLastTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[LastIndexToLastInspection]
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[LastIndexToLastInspection]
 
-  override def hint: String = InspectionBundle.message("replace.with.last")
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.last")
 
   def testExplicitApply(): Unit = {
     doTest(
@@ -90,14 +93,14 @@ class LastIndexToLastTest extends OperationsOnCollectionInspectionTest {
   def testIndexedSeq(): Unit = {
     checkTextHasNoErrors(
       """val seq = scala.collection.IndexedSeq(1, 2)
-        |seq(seq.size - 1)""".stripMargin, hint, inspectionClass)
+        |seq(seq.size - 1)""".stripMargin)
     checkTextHasNoErrors(
       """import scala.collection.immutable.Vector
         |val v = Vector(1, 2)
-        |v(v.length - 1)""".stripMargin, hint, inspectionClass)
+        |v(v.length - 1)""".stripMargin)
     checkTextHasNoErrors(
       """val buf = scala.collection.mutable.ArrayBuffer(1, 2)
-        |buf(buf.size - 1)""".stripMargin, hint, inspectionClass)
+        |buf(buf.size - 1)""".stripMargin)
   }
 
 }

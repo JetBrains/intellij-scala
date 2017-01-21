@@ -1,17 +1,22 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
  */
-class HeadOptionTest extends OperationsOnCollectionInspectionTest {
+abstract class HeadOrLastOptionTest extends OperationsOnCollectionInspectionTest {
 
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[HeadOrLastOptionInspection]
+}
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[HeadOrLastOptionInspection]
+class HeadOptionTest extends HeadOrLastOptionTest {
 
-  override def hint: String = InspectionBundle.message("replace.with.headOption")
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.headOption")
 
   def test1(): Unit = {
     doTest(
@@ -55,10 +60,10 @@ class HeadOptionTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class LastOptionTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[HeadOrLastOptionInspection]
+class LastOptionTest extends HeadOrLastOptionTest {
 
-  override def hint: String = InspectionBundle.message("replace.with.lastOption")
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.lastOption")
 
   def test1(): Unit = {
     doTest(

@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
 
@@ -10,25 +12,29 @@ class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  def test_inline_map() {
+  override protected val classOfInspection: Class[FindAndMapToApplyInspection] =
+    classOf[FindAndMapToApplyInspection]
 
+  override protected val hint: String =
+    "Replace find and map with apply"
+
+  def test_inline_map() {
     val selected = s"Map().${START}find(_ == 1).map(_._2)$END"
 
-    check(selected)
+    checkTextHasError(selected)
 
     val text = "Map().find(_ == 1).map(_._2)"
 
     val result = "Map()(1)"
 
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_with_map_as_val() = {
-
     val selected =
       s"""val m = Map("k" -> "5", "v" -> "6")
           m.${START}find(_ == "5").map(_._2)$END"""
-    check(selected)
+    checkTextHasError(selected)
 
     val text =
       s"""val m = Map("k" -> "5", "v" -> "6")
@@ -38,11 +44,6 @@ class FindAndMapToApplyTest extends OperationsOnCollectionInspectionTest {
       s"""val m = Map("k" -> "5", "v" -> "6")
           m("5")""".stripMargin
 
-    testFix(text, result, hint)
-
+    testQuickFix(text, result, hint)
   }
-
-  override val inspectionClass = classOf[FindAndMapToApplyInspection]
-
-  override def hint: String = "Replace find and map with apply"
 }

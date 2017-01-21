@@ -1,22 +1,24 @@
-package org.jetbrains.plugins.scala.codeInspection.caseClasses
+package org.jetbrains.plugins.scala
+package codeInspection
+package caseClasses
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RedundantNewCaseClassInspection
 
 /**
   * mattfowler
   * 5/7/2016
   */
-class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class RedundantNewCaseClassInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override protected def annotation: String = ScalaBundle.message("new.on.case.class.instantiation.redundant")
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[RedundantNewCaseClassInspection]
 
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[RedundantNewCaseClassInspection]
+  override protected val description: String =
+    ScalaBundle.message("new.on.case.class.instantiation.redundant")
 
   def testSimpleCaseClass(): Unit = {
     val program =
@@ -31,9 +33,9 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
          |val a = A(5)
        """.stripMargin
 
-    check(program)
+    checkTextHasError(program)
 
-    testFix(program, expected, annotation)
+    testQuickFix(program, expected, description)
   }
 
   def testGenericCaseClass(): Unit = {
@@ -49,9 +51,9 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
          |val a = A(5)
        """.stripMargin
 
-    check(program.stripMargin)
+    checkTextHasError(program.stripMargin)
 
-    testFix(program, expected, annotation)
+    testQuickFix(program, expected, description)
   }
 
   def testNestedCaseClasses(): Unit = {
@@ -64,7 +66,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
          |${START}new$END Node(1, new Node(2, Empty))
           """.stripMargin
 
-    check(program)
+    checkTextHasError(program)
 
     val expected =
       s"""
@@ -75,7 +77,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
          |Node(1, new Node(2, Empty))
           """.stripMargin
 
-    testFix(program, expected, annotation)
+    testQuickFix(program, expected, description)
   }
 
   def testNestedCaseClassesWithNewNested(): Unit = {
@@ -88,7 +90,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
          |Node(1, ${START}new$END Node(2, Empty))
           """.stripMargin
 
-    check(program)
+    checkTextHasError(program)
 
     val expected =
       s"""
@@ -99,7 +101,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
          |Node(1, Node(2, Empty))
           """.stripMargin
 
-    testFix(program, expected, annotation)
+    testQuickFix(program, expected, description)
   }
 
   def testOverriddenApplyMethodHasNoErrors(): Unit = checkTextHasNoErrors(
@@ -120,7 +122,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
 
   def testSimpleNormalClassHasNoErrors(): Unit = checkTextHasNoErrors(
     s"""class A(x: Int)
-        |val a = new A(5)
+       |val a = new A(5)
      """.stripMargin)
 
   def testCreationWithMixinTraitHasNoErrors(): Unit = checkTextHasNoErrors(

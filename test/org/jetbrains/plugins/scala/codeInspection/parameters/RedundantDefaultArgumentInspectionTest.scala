@@ -1,26 +1,20 @@
 package org.jetbrains.plugins.scala.codeInspection.parameters
 
+import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
-class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val annotation = "Argument duplicates corresponding parameter default value"
-  val quickFixHint = "Delete redundant default argument"
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[RedundantDefaultArgumentInspection]
 
-  private def check(text: String) {
-    checkTextHasError(text, annotation, classOf[RedundantDefaultArgumentInspection])
-  }
+  override protected val description = "Argument duplicates corresponding parameter default value"
 
-  private def testFix(text: String, result: String) {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), quickFixHint, classOf[RedundantDefaultArgumentInspection])
-  }
+  private val hint = "Delete redundant default argument"
 
-  private def checkHasNoErrors(text: String) {
-    checkTextHasNoErrors(text, annotation, classOf[RedundantDefaultArgumentInspection])
-  }
+  private def testFix(text: String, result: String): Unit = testQuickFix(text, result, hint)
 
   def test_Simple() {
     val selectedText =
@@ -28,7 +22,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
          |def f(x: Int = 0) {}
          |f(${START}0$END)
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -50,7 +44,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
         |def f(x: Int) {}
         |f(0)
       """.stripMargin
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_SimpleWrongValue() {
@@ -59,7 +53,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
         |def f(x: Int = 0) {}
         |f(1)
       """.stripMargin
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_NamedArgument() {
@@ -68,7 +62,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
          |def f(x: Int, y: Int = 0, z: Int) {}
          |f(1, ${START}y=0$END, z=1)
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -90,7 +84,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
         |def f(x: Int, y: Int = 0, z: Int) {]
         |f(1, 0, 1)
       """.stripMargin
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_ArgumentAfterNamed(): Unit = {
@@ -99,7 +93,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
         |def f(x: Int, y: Int = 0, z: Int) {}
         |f(1, y=0, 1)
       """.stripMargin
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_LastArgument() {
@@ -108,12 +102,12 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
          |def f(x: Int, y: Int = 0) {}
          |f(1, ${START}0$END)
       """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
-         |def f(x: Int, y: Int = 0) {}
-         |f(1, 0)
+        |def f(x: Int, y: Int = 0) {}
+        |f(1, 0)
       """.stripMargin
 
     val result =
@@ -130,7 +124,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
          |def f(x: Int, y: Int = 0, z: Int, t: Int) {}
          |f(1, ${START}0$END, z = 1, t = 2)
       """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -152,7 +146,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
          |def f(x: Int = 0)
          |f(${START}0$END)
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -168,13 +162,13 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
     testFix(text, result)
   }
 
-  def test_EmptySugnature(): Unit = {
+  def test_EmptySignature(): Unit = {
     val text =
       """
         |def f()
         |f(1)
       """.stripMargin
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_AssignmentNotNamedArg(): Unit = {
@@ -184,7 +178,7 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
         |var z = 2
         |f(1, z = 3)
       """.stripMargin
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   //currently we cannot compare values of interpolated strings
@@ -196,11 +190,11 @@ class RedundantDefaultArgumentInspectionTest extends ScalaLightCodeInsightFixtur
         |
         |  foo(s"x$x")
       """.stripMargin
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def testInterpolatedStringArg(): Unit = {
-    checkHasNoErrors(
+    checkTextHasNoErrors(
       """def foo(s: String = "")
         |foo(s"aa")
       """.stripMargin)

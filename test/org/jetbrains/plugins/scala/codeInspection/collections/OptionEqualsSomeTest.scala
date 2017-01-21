@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
@@ -6,12 +8,18 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 /**
  * @author Nikolay.Tropin
  */
-class OptionEqualsSomeTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[OptionEqualsSomeToContainsInspection]
+abstract class OptionEqualsSomeToContainsInspectionTest extends OperationsOnCollectionInspectionTest {
+
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[OptionEqualsSomeToContainsInspection]
+}
+
+class OptionEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
+
+  override protected val hint: String =
+    OptionEqualsSomeToContains.hint
 
   override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
-
-  override def hint: String = OptionEqualsSomeToContains.hint
 
   def test1(): Unit = {
     doTest(
@@ -46,10 +54,10 @@ class OptionEqualsSomeTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class OptionNotEqualsSomeTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[OptionEqualsSomeToContainsInspection]
+class OptionNotEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
 
-  override def hint: String = OptionNotEqualsSomeToNotContains.hint
+  override protected val hint: String =
+    OptionNotEqualsSomeToNotContains.hint
 
   override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
@@ -70,22 +78,22 @@ class OptionNotEqualsSomeTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class OptionEqualsSome_2_10_Test extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[OptionEqualsSomeToContainsInspection]
+class OptionEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspectionTest {
+
+  override protected val hint: String =
+    OptionEqualsSomeToContains.hint
 
   override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
-
-  override def hint: String = OptionEqualsSomeToContains.hint
 
   def testNoErrors(): Unit = {
     checkTextHasNoErrors("Option(1) == Some(2)")
   }
 }
 
-class OptionNotEqualsSome_2_10_Test extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[OptionEqualsSomeToContainsInspection]
+class OptionNotEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspectionTest {
 
-  override def hint: String = OptionNotEqualsSomeToNotContains.hint
+  override protected val hint: String =
+    OptionNotEqualsSomeToNotContains.hint
 
   override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
 

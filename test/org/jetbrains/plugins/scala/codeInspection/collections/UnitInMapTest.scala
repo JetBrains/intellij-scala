@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
@@ -10,10 +11,14 @@ class UnitInMapTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[UnitInMapInspection]
+  override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[UnitInMapInspection]
 
-  override def description: String = InspectionBundle.message("expression.unit.return.in.map")
-  override def hint: String = InspectionBundle.message("use.foreach.instead.of.map")
+  override protected lazy val description: String =
+    InspectionBundle.message("expression.unit.return.in.map")
+
+  override protected val hint: String =
+    InspectionBundle.message("use.foreach.instead.of.map")
 
   def test1(): Unit = {
     doTest(
@@ -45,14 +50,14 @@ class UnitInMapTest extends OperationsOnCollectionInspectionTest {
   }
 
   def test2(): Unit = {
-    check(s"val mapped = Seq(1, 2).map(${START}println(_)$END)")
-    check(
+    checkTextHasError(s"val mapped = Seq(1, 2).map(${START}println(_)$END)")
+    checkTextHasError(
       s"""
          |Seq(1, 2).map {
          |  ${START}println(_)$END
          |}
        """.stripMargin)
-    check(
+    checkTextHasError(
       s"""
          |Seq(1, 2).map { x =>
          |  ${START}println(x)$END

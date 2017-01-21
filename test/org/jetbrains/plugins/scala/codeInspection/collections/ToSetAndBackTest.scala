@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
@@ -10,9 +11,11 @@ class ToSetAndBackTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[ToSetAndBackInspection]
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[ToSetAndBackInspection]
 
-  override def hint: String = InspectionBundle.message("replace.toSet.and.back.with.distinct")
+  override protected val hint: String =
+    InspectionBundle.message("replace.toSet.and.back.with.distinct")
 
   def testSeq(): Unit = {
     doTest(

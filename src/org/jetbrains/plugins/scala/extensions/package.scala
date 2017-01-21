@@ -9,7 +9,7 @@ import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Computable, Key, ThrowableComputable}
+import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
@@ -17,7 +17,6 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.caches.CachesUtil.keys
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
@@ -561,14 +560,17 @@ package object extensions {
     override def call(): T = action
   }
 
-  def startCommand(project: Project, commandName: String)(body: => Unit): Unit = {
-    CommandProcessor.getInstance.executeCommand(project, new Runnable {
-      def run() {
+  def startCommand(project: Project, runnable: Runnable, commandName: String): Unit =
+    CommandProcessor.getInstance().executeCommand(project, runnable, commandName, null)
+
+  def startCommand(project: Project, commandName: String = "")(body: => Unit): Unit = {
+    startCommand(project, new Runnable {
+      def run(): Unit = {
         inWriteAction {
           body
         }
       }
-    }, commandName, null)
+    }, commandName)
   }
 
   def inWriteAction[T](body: => T): T = {

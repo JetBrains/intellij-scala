@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection
 
 /**
   * Created by a.tsukanov on 27.05.2016.
   */
-class VariableNullInitializerInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class VariableNullInitializerInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override protected def annotation: String = VariableNullInitializerInspection.inspectionName
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
 
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VariableNullInitializerInspection]
+  override protected val description: String = VariableNullInitializerInspection.inspectionName
 
   def testSimpleCase(): Unit = {
     def testType(typeName: String): Unit = {
@@ -25,14 +25,14 @@ class VariableNullInitializerInspectionTest extends ScalaLightInspectionFixtureT
            |}
          """.stripMargin
 
-      check(declaration)
+      checkTextHasError(declaration)
       val result =
         s"""
           |object Moo {
           |  var x: $typeName = _
           |}
         """.stripMargin
-      testFix(declaration, result, annotation)
+      testQuickFix(declaration, result, description)
     }
     testType("String")
     testType("Unit")
@@ -63,13 +63,13 @@ class VariableNullInitializerInspectionTest extends ScalaLightInspectionFixtureT
          |}
        """.stripMargin
 
-    check(declaration)
-    testFix(declaration,
+    checkTextHasError(declaration)
+    testQuickFix(declaration,
       s"""
          |object Moo {
          |  var a, b, c: String = _
          |}
-       """.stripMargin, annotation)
+       """.stripMargin, description)
   }
 
   def testDeclarationWithUnderscore(): Unit = {
@@ -90,8 +90,8 @@ class VariableNullInitializerInspectionTest extends ScalaLightInspectionFixtureT
 
   def testDoesNotRemoveModifiers(): Unit = {
     val code = wrapInObject(s"private var x: String = ${START}null$END")
-    check(code)
-    testFix(code, wrapInObject(s"private var x: String = _"), annotation)
+    checkTextHasError(code)
+    testQuickFix(code, wrapInObject(s"private var x: String = _"), description)
   }
 
   private def wrapInObject(code: String): String =

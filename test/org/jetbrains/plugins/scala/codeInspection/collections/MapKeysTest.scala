@@ -4,14 +4,18 @@ import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELE
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
- * @author Nikolay.Tropin
- */
-class MapKeysTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[MapKeysInspection]
+  * @author Nikolay.Tropin
+  */
+abstract class MapKeysTest extends OperationsOnCollectionInspectionTest {
 
-  override val hint: String = InspectionBundle.message("replace.with.keys")
-  val setHint = InspectionBundle.message("replace.with.keySet")
-  val iteratorHint = InspectionBundle.message("replace.with.keysIterator")
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[MapKeysInspection]
+}
+
+class ReplaceWithKeysTest extends MapKeysTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.keys")
 
   def test1(): Unit = {
     doTest(
@@ -30,48 +34,29 @@ class MapKeysTest extends OperationsOnCollectionInspectionTest {
   }
 
   def test3(): Unit = {
-    checkTextHasError(s"Map(1 -> 2).${START}map(_._1).toSet$END", setHint, inspectionClass)
-    testFix("Map(1 -> 2).map(_._1).toSet", "Map(1 -> 2).keySet", setHint)
-  }
-
-  def test4(): Unit = {
-    checkTextHasError(s"Map(1 -> 2).${START}map(_._1).toIterator$END", iteratorHint, inspectionClass)
-    testFix("Map(1 -> 2).map(_._1).toIterator", "Map(1 -> 2).keysIterator", iteratorHint)
-  }
-
-  def test5(): Unit = {
     checkTextHasNoErrors("Seq((1, 2)).map(x => x._1)")
   }
 }
 
-class MapValuesTest extends OperationsOnCollectionInspectionTest{
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[MapValuesInspection]
+class ReplaceWithKeySetTest extends MapKeysTest {
 
-  override val hint: String = InspectionBundle.message("replace.with.values")
-  val iteratorHint = InspectionBundle.message("replace.with.valuesIterator")
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.keySet")
 
-  def test1(): Unit = {
-    doTest(
-      s"Map(1 -> 2) ${START}map (x => x._2)$END",
-      "Map(1 -> 2) map (x => x._2)",
-      "Map(1 -> 2).values"
-    )
+  def test(): Unit = {
+    checkTextHasError(s"Map(1 -> 2).${START}map(_._1).toSet$END")
+    testQuickFix("Map(1 -> 2).map(_._1).toSet", "Map(1 -> 2).keySet", hint)
   }
 
-  def test2(): Unit = {
-    doTest(
-      s"Map(1 -> 2).${START}map(_._2)$END",
-      "Map(1 -> 2).map(_._2)",
-      "Map(1 -> 2).values"
-    )
-  }
+}
 
-  def test3(): Unit = {
-    checkTextHasError(s"Map(1 -> 2).${START}map(_._2).toIterator$END", iteratorHint, inspectionClass)
-    testFix("Map(1 -> 2).map(_._2).toIterator", "Map(1 -> 2).valuesIterator", iteratorHint)
-  }
+class ReplaceWithKeysIteratorTest extends MapKeysTest {
 
-  def test4(): Unit = {
-    checkTextHasNoErrors("Seq((1, 2)).map(x => x._2)")
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.keysIterator")
+
+  def test(): Unit = {
+    checkTextHasError(s"Map(1 -> 2).${START}map(_._1).toIterator$END")
+    testQuickFix("Map(1 -> 2).map(_._1).toIterator", "Map(1 -> 2).keysIterator", hint)
   }
 }

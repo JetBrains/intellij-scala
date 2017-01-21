@@ -2,19 +2,21 @@ package org.jetbrains.plugins.scala.codeInspection.unused
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{DeleteUnusedElementFix, ScalaUnusedSymbolInspection}
 
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
-class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class ScalaUnusedSymbolInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ScalaUnusedSymbolInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[ScalaUnusedSymbolInspection]
 
-  override protected def annotation: String = ScalaUnusedSymbolInspection.Annotation
+  override protected val description: String =
+    ScalaUnusedSymbolInspection.Annotation
 
   val hint = DeleteUnusedElementFix.Hint
 
@@ -37,7 +39,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |class Foo {
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testLocalUnusedSymbol(): Unit = {
@@ -65,7 +67,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testNonPrivateField(): Unit = {
@@ -102,7 +104,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  println(b)
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testSupressed(): Unit = {
@@ -149,7 +151,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
          |  }
          |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testMatchCaseWithType(): Unit = {
@@ -181,7 +183,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testMatchCaseNoType(): Unit = {
@@ -213,7 +215,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testAnonymousFunctionDestructor(): Unit = {
@@ -242,7 +244,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testBindingPattern(): Unit = {
@@ -271,7 +273,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testBindingPattern2(): Unit = {
@@ -300,7 +302,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testAnonymousFunctionWithCaseClause(): Unit = {
@@ -335,7 +337,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testUnusedRegularAnonymousFunction(): Unit = {
@@ -364,7 +366,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testFor(): Unit = {
@@ -396,7 +398,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaLightInspectionFixtureTestAda
         |  }
         |}
       """.stripMargin
-    testFix(before, after, hint)
+    testQuickFix(before, after, hint)
   }
 
   def testNoHighlightWildCards(): Unit = {

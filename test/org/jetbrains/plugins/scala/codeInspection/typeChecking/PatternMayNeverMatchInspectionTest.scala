@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.typeChecking
 
-import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
-
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 21.12.15.

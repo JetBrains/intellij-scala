@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
@@ -10,11 +11,14 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SideEffectsInMonadicTransformationInspection]
-  override def hint: String = InspectionBundle.message("side.effects.in.monadic")
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[SideEffectsInMonadicTransformationInspection]
+
+  override protected val hint: String =
+    InspectionBundle.message("side.effects.in.monadic")
 
   def testInfixAssignment(): Unit = {
-    check(
+    checkTextHasError(
       s"""
         |var a = 0
         |Seq(1, 2).map(${START}a += _$END)
@@ -22,7 +26,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testAssignment(): Unit = {
-    check(
+    checkTextHasError(
       s"""
          |var filtered = 0
          |Seq(1, 2).filter { x =>
@@ -49,7 +53,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testIteratorNext(): Unit = {
-    check(
+    checkTextHasError(
       s"""
         |val it = Iterator(1, 2)
         |Seq(1, 2) map {x =>
@@ -61,7 +65,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testCollectionMethods(): Unit = {
-    check(
+    checkTextHasError(
       s"""
          |import scala.collection.mutable.ArrayBuffer
          |
@@ -73,7 +77,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
       """.stripMargin
     )
 
-    check(
+    checkTextHasError(
       s"""
          |import scala.collection.mutable.ArrayBuffer
          |
@@ -85,7 +89,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
       """.stripMargin
     )
 
-    check(
+    checkTextHasError(
       s"""
          |import scala.collection.mutable.ArrayBuffer
          |
@@ -97,7 +101,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
       """.stripMargin
     )
 
-    check(
+    checkTextHasError(
       s"""
          |import scala.collection.mutable.ArrayBuffer
          |
@@ -109,7 +113,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
       """.stripMargin
     )
 
-    check(
+    checkTextHasError(
       s"""
          |import scala.collection.mutable.Stack
          |
@@ -124,7 +128,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testUpdateMethod(): Unit = {
-    check(
+    checkTextHasError(
       s"""
        |import scala.collection.mutable.ArrayBuffer
        |val buf = ArrayBuffer(1, 2)
@@ -151,7 +155,8 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testUnitTypeMethod(): Unit = {
-    check(s"""
+    checkTextHasError(
+      s"""
           |val s = ""
           |Seq(1, 2).map {x =>
           |  ${START}s.wait(1000)$END
@@ -159,7 +164,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
           |}
          """.stripMargin)
 
-    check(
+    checkTextHasError(
       s"""
         |Seq("1", "2").map {
         |    ${START}println(_)$END
@@ -176,7 +181,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testScalaSetter(): Unit = {
-    check(
+    checkTextHasError(
       s"""
         |class A {
         |  var z = 1
@@ -185,7 +190,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
         |Seq(1).map(x => ${START}a.z_=(x)$END)
       """.stripMargin
     )
-    check(
+    checkTextHasError(
       s"""
        |class A {
        |  var z = 1
@@ -197,7 +202,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
   }
 
   def testJavaSetter(): Unit = {
-    check(
+    checkTextHasError(
       s"""
        |class A {
        |  @BeanProperty

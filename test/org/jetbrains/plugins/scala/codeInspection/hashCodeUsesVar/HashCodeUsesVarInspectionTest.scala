@@ -1,19 +1,23 @@
-package org.jetbrains.plugins.scala.codeInspection.hashCodeUsesVar
+package org.jetbrains.plugins.scala
+package codeInspection
+package hashCodeUsesVar
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
 
 /**
   * Daniyar Itegulov
   * 2016-02-08
   */
-class HashCodeUsesVarInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[HashCodeUsesVarInspection]
-  override protected def annotation: String = "Non-value field is accessed in 'hashCode()'"
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[HashCodeUsesVarInspection]
+
+  override protected val description: String =
+    "Non-value field is accessed in 'hashCode()'"
 
   def testReturnsVar(): Unit = {
     val text = s"""class A {

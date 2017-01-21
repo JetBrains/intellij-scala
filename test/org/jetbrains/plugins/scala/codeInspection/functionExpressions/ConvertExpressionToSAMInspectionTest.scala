@@ -3,15 +3,15 @@ package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
-import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
- * Author: Svyatoslav Ilinskiy
- * Date: 6/30/15
- */
-class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+  * Author: Svyatoslav Ilinskiy
+  * Date: 6/30/15
+  */
+class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
@@ -24,12 +24,11 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     defaultProfile.setSettings(newSettings)
   }
 
-
   override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
 
-  override protected def annotation: String = InspectionBundle.message("convert.expression.to.sam")
+  override protected val description: String = InspectionBundle.message("convert.expression.to.sam")
 
   def testOverloads(): Unit = {
     val code =
@@ -107,7 +106,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |}
         |Koo foo (() => ???)
       """.stripMargin
-    testFix(before, after, annotation)
+    testQuickFix(before, after, description)
   }
 
   def testThreadRunnable(): Unit = {
@@ -117,7 +116,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
          |override def run() = println()
          |}
       """.stripMargin
-    check(code)
+    checkTextHasError(code)
     val text =
       s"""
          |new Thread(new Runnable {
@@ -125,17 +124,17 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
          |})
       """.stripMargin
     val res = "\nnew Thread(() => println())\n"
-    testFix(text, res, annotation)
+    testQuickFix(text, res, description)
   }
 
   def testValueDefinition(): Unit = {
     val code =
       s"""
-        |val y: Runnable = ${START}new Runnable $END{
-        |  override def run(): Unit = ???
-        |}
+         |val y: Runnable = ${START}new Runnable $END{
+         |  override def run(): Unit = ???
+         |}
       """.stripMargin
-    check(code)
+    checkTextHasError(code)
     val text =
       """
         |val y: Runnable = new Runnable {
@@ -143,7 +142,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |}
       """.stripMargin
     val res = "\nval y: Runnable = () => ???\n"
-    testFix(text, res, annotation)
+    testQuickFix(text, res, description)
   }
 
   def testValueDefinitionNoDeclaredType(): Unit = {
@@ -159,15 +158,15 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
   def testNoParenFunction(): Unit = {
     val code =
       s"""
-        |trait A {
-        |  def foo(): String
-        |}
-        |def bar(a: A) = println()
-        |bar(${START}new A $END{
-        |  override def foo(): String = "something"
-        |})
+         |trait A {
+         |  def foo(): String
+         |}
+         |def bar(a: A) = println()
+         |bar(${START}new A $END{
+         |  override def foo(): String = "something"
+         |})
       """.stripMargin
-    check(code)
+    checkTextHasError(code)
     val text =
       """
         |trait A {
@@ -178,6 +177,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |  override def foo(): String = "something"
         |})
       """.stripMargin
+
     def res =
       """
         |trait A {
@@ -186,7 +186,8 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |def bar(a: A) = ???
         |bar(() => "something")
       """.stripMargin
-    testFix(text, res, annotation)
+
+    testQuickFix(text, res, description)
   }
 
   def testSealedTrait(): Unit = {
@@ -250,15 +251,15 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
   def testInner(): Unit = {
     val code =
       s"""
-        |new Thread(${START}new Runnable $END{
-        |  def run() {
-        |    def foo(i: Int) = i
-        |
+         |new Thread(${START}new Runnable $END{
+         |  def run() {
+         |    def foo(i: Int) = i
+         |
         |    println(foo(10))
-        |  }
-        |})
+         |  }
+         |})
       """.stripMargin
-    check(code)
+    checkTextHasError(code)
     val text =
       s"""
          |new Thread(new Runnable {
@@ -277,21 +278,21 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
          |  println(foo(10))
          |})
       """.stripMargin
-    testFix(text, res, annotation)
+    testQuickFix(text, res, description)
   }
 
   def testMultiLine(): Unit = {
     val code =
       s"""
-        |new Thread(${START}new Runnable $END{
-        |  override def run(): Unit = {
-        |    val i = 2 + 3
-        |    val z = 2
-        |    println(i - z)
-        |  }
-        |})
+         |new Thread(${START}new Runnable $END{
+         |  override def run(): Unit = {
+         |    val i = 2 + 3
+         |    val z = 2
+         |    println(i - z)
+         |  }
+         |})
       """.stripMargin
-    check(code)
+    checkTextHasError(code)
     val text =
       s"""
          |new Thread(new Runnable {
@@ -310,7 +311,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |  println(i - z)
         |})
       """.stripMargin
-    testFix(text, res, annotation)
+    testQuickFix(text, res, description)
   }
 
   def testByNameAndDefaultParams(): Unit = {
@@ -321,7 +322,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
          |  override def test(s: => String, x: Int = 1): Unit = println(s)
          |}
       """.stripMargin
-    check(code)
+    checkTextHasError(code)
     val text =
       """trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
         |
@@ -329,32 +330,34 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |  override def test(s: => String, x: Int = 1): Unit = println(s)
         |}
       """.stripMargin
+
     def res =
       """trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
         |
         |val sm: SAM = (s: String, x: Int) => println(s)
       """.stripMargin
-    testFix(text, res, annotation)
+
+    testQuickFix(text, res, description)
   }
 
   def testExistentialTypes(): Unit = {
     val code =
       s"""
-        |object Foo {
-        |  new MyObservable[String].addListener(${START}new MyChangeListener[String] $END{
-        |    override def changed(observable: MyObservable[_ <: String], oldValue: String, newValue: String): Unit = ???
-        |  })
-        |}
-        |
+         |object Foo {
+         |  new MyObservable[String].addListener(${START}new MyChangeListener[String] $END{
+         |    override def changed(observable: MyObservable[_ <: String], oldValue: String, newValue: String): Unit = ???
+         |  })
+         |}
+         |
         |trait MyChangeListener[T] {
-        |  def changed(observable: MyObservable[_ <: T], oldValue: T, newValue: T)
-        |}
-        |
+         |  def changed(observable: MyObservable[_ <: T], oldValue: T, newValue: T)
+         |}
+         |
         |class MyObservable[T] {
-        |  def addListener (listener: MyChangeListener[_ >: T]) = ???
-        |}
+         |  def addListener (listener: MyChangeListener[_ >: T]) = ???
+         |}
       """.stripMargin
-    check(code)
+    checkTextHasError(code)
     val text =
       s"""
          |object Foo {
@@ -385,6 +388,6 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |  def addListener (listener: MyChangeListener[_ >: T]) = ???
         |}
       """.stripMargin
-    testFix(text, res, annotation)
+    testQuickFix(text, res, description)
   }
 }

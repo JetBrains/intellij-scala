@@ -12,42 +12,47 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val hint = InspectionBundle.message("fold.true.and.hint")
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[FoldTrueAndInspection]
+
+  override protected val hint: String =
+    InspectionBundle.message("fold.true.and.hint")
+
   def test_1() {
     val selected = s"List(false).${START}foldLeft(true){_ && _}$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List(false).foldLeft(true){_ && _}"
     val result = "List(false).forall(_)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_2() {
     val selected = s"""def a(x: String) = false
                      |List("a").$START/:(true) (_ && a(_))$END""".stripMargin
-    check(selected)
+    checkTextHasError(selected)
     val text = """def a(x: String) = false
                  |List("a")./:(true) (_ && a(_))""".stripMargin
     val result = """def a(x: String) = false
                    |List("a").forall(a(_))""".stripMargin
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_3() {
     val selected = s"""def a(x: String) = false
                      |List("a").${START}fold(true) ((x,y) => x && a(y))$END""".stripMargin
-    check(selected)
+    checkTextHasError(selected)
     val text = """def a(x: String) = false
                  |List("a").fold(true) ((x,y) => x && a(y))""".stripMargin
     val result = """def a(x: String) = false
                    |List("a").forall(y => a(y))""".stripMargin
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_4() {
 
     val text = """def a(x: String) = false
                  |List("a").foldLeft(true) ((x,y) => x && a(x))""".stripMargin
-    checkTextHasNoErrors(text, hint, inspectionClass)
+    checkTextHasNoErrors(text)
   }
 
   def testWithoutSideEffect(): Unit = {
@@ -92,6 +97,4 @@ class FoldTrueAndTest extends OperationsOnCollectionInspectionTest {
         |}
       """.stripMargin)
   }
-
-  override val inspectionClass = classOf[FoldTrueAndInspection]
 }

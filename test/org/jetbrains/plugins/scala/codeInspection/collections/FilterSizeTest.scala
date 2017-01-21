@@ -12,31 +12,31 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
   val hint = InspectionBundle.message("filter.size.hint")
   def test_1() {
     val selected = s"Array().${START}filter(x => true).size$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "Array().filter(x => true).size"
     val result = "Array().count(x => true)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_2() {
     val selected = s"List().${START}filter(x => true).length$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List().filter(x => true).length"
     val result = "List().count(x => true)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_3() {
     val selected = s"Map() ${START}filter (x => true) size$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "Map() filter (x => true) size"
     val result = "Map() count (x => true)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_4() {
     val selected = s"List().${START}filter {x => true}.size$END"
-    check(selected)
+    checkTextHasError(selected)
     val text =
       """List().filter {
         |  x => true
@@ -47,9 +47,9 @@ class FilterSizeTest extends OperationsOnCollectionInspectionTest {
         |  x => true
         |}
         |""".stripMargin
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
 
-  override val inspectionClass = classOf[FilterSizeInspection]
+  override val classOfInspection = classOf[FilterSizeInspection]
 }

@@ -15,26 +15,26 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
   val hint = InspectionBundle.message("filter.headOption.hint")
   def test_1() {
     val selected = s"List(0).${START}filter(x => true).headOption$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List(0).filter(x => true).headOption"
     val result = "List(0).find(x => true)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_2() {
     val selected = s"(List(0) ${START}filter (x => true)).headOption$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "(List(0) filter (x => true)).headOption"
     val result = "List(0) find (x => true)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_3() {
     val selected = s"List(0).${START}filter(x => true).headOption$END.isDefined"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List(0).filter(x => true).headOption.isDefined"
     val result = "List(0).find(x => true).isDefined"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def testSideEffect(): Unit = {
@@ -47,5 +47,5 @@ class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
       """.stripMargin)
   }
 
-  override val inspectionClass = classOf[FilterHeadOptionInspection]
+  override val classOfInspection = classOf[FilterHeadOptionInspection]
 }

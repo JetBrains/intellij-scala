@@ -1,124 +1,133 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
-import com.intellij.testFramework.EditorTestUtil
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
- * @author Nikolay.Tropin
- */
-class EmptyCheckTest extends OperationsOnCollectionInspectionTest {
+  * @author Nikolay.Tropin
+  */
+abstract class CheckEmptinessTest extends OperationsOnCollectionInspectionTest {
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[EmptyCheckInspection]
+}
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+class ReplaceIsEmptyTest extends CheckEmptinessTest {
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[EmptyCheckInspection]
-
-  override def hint: String = isEmptyHint
-
-  val isEmptyHint = InspectionBundle.message("replace.with.isEmpty")
-  val isDefinedHint = InspectionBundle.message("replace.with.isDefined")
-  val nonEmptyHint = InspectionBundle.message("replace.with.nonEmpty")
-
-  def testNotIsEmpty() {
-    val selected = s"$START!Seq().isEmpty$END"
-    checkTextHasError(selected, nonEmptyHint, inspectionClass)
-    val text = "!Seq().isEmpty"
-    val result = "Seq().nonEmpty"
-    testFix(text, result, nonEmptyHint)
-  }
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.isEmpty")
 
   def testNotNonEmpty() {
     val selected = s"$START!Seq().nonEmpty$END"
-    checkTextHasError(selected, isEmptyHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "!Seq().nonEmpty"
     val result = "Seq().isEmpty"
-    testFix(text, result, isEmptyHint)
+    testQuickFix(text, result, hint)
   }
 
   def testNotIsDefined() {
     val selected = s"$START!Option(1).isDefined$END"
-    checkTextHasError(selected, isEmptyHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "!Option(1).isDefined"
     val result = "Option(1).isEmpty"
-    testFix(text, result, isEmptyHint)
+    testQuickFix(text, result, hint)
   }
 
   def testSizeEqualsZero(): Unit = {
     val selected = s"Seq()$START.size == 0$END"
-    checkTextHasError(selected, isEmptyHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "Seq().size == 0"
     val result = "Seq().isEmpty"
-    testFix(text, result, isEmptyHint)
-  }
-
-  def testSizeGreaterZero(): Unit = {
-    val selected = s"Seq()$START.size > 0$END"
-    checkTextHasError(selected, nonEmptyHint, inspectionClass)
-    val text = "Seq().size > 0"
-    val result = "Seq().nonEmpty"
-    testFix(text, result, nonEmptyHint)
-  }
-
-  def testLengthGrEqOne(): Unit = {
-    val selected = s"Seq()$START.length >= 1$END"
-    checkTextHasError(selected, nonEmptyHint, inspectionClass)
-    val text = "Seq().size >= 1"
-    val result = "Seq().nonEmpty"
-    testFix(text, result, nonEmptyHint)
+    testQuickFix(text, result, hint)
   }
 
   def testEqualsNone(): Unit = {
     val selected = s"Option(1)$START == None$END"
-    checkTextHasError(selected, isEmptyHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "Option(1) == None"
     val result = "Option(1).isEmpty"
-    testFix(text, result, isEmptyHint)
-  }
-
-  def testNotEqualsNone(): Unit = {
-    val selected = s"Option(1)$START != None$END"
-    checkTextHasError(selected, isDefinedHint, inspectionClass)
-    val text = "Option(1) != None"
-    val result = "Option(1).isDefined"
-    testFix(text, result, isDefinedHint)
-  }
-
-  def testNoneNotEquals(): Unit = {
-    val selected = s"${START}None != ${END}Option(1)"
-    checkTextHasError(selected, isDefinedHint, inspectionClass)
-    val text = "None != Option(1)"
-    val result = "Option(1).isDefined"
-    testFix(text, result, isDefinedHint)
-  }
-
-  def testSizeNotEqualsZero(): Unit = {
-    val selected = s"Seq()$START.size != 0$END"
-    checkTextHasError(selected, nonEmptyHint, inspectionClass)
-    val text = "Seq().size != 0"
-    val result = "Seq().nonEmpty"
-    testFix(text, result, nonEmptyHint)
+    testQuickFix(text, result, hint)
   }
 
   def testNotSizeNotEqualsZero(): Unit = {
     val selected = s"$START!(Seq().size != 0)$END"
-    checkTextHasError(selected, isEmptyHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "!(Seq().size != 0)"
     val result = "Seq().isEmpty"
-    testFix(text, result, isEmptyHint)
+    testQuickFix(text, result, hint)
   }
 
   def testWithHeadOption(): Unit = {
     val selected = s"Seq(1)$START.headOption == None$END"
-    checkTextHasError(selected, isEmptyHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "Seq(1).headOption == None"
     val result = "Seq(1).isEmpty"
-    testFix(text, result, isEmptyHint)
+    testQuickFix(text, result, hint)
   }
 
   def testWithLastOption(): Unit = {
     val selected = s"$START!Seq(1).lastOption.isDefined$END"
-    checkTextHasError(selected, isEmptyHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "!Seq(1).lastOption.isDefined"
     val result = "Seq(1).isEmpty"
-    testFix(text, result, isEmptyHint)
+    testQuickFix(text, result, hint)
+  }
+}
+
+class ReplaceWithIsDefinedTest extends CheckEmptinessTest {
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.isDefined")
+
+  def testNotEqualsNone(): Unit = {
+    val selected = s"Option(1)$START != None$END"
+    checkTextHasError(selected)
+    val text = "Option(1) != None"
+    val result = "Option(1).isDefined"
+    testQuickFix(text, result, hint)
+  }
+
+  def testNoneNotEquals(): Unit = {
+    val selected = s"${START}None != ${END}Option(1)"
+    checkTextHasError(selected)
+    val text = "None != Option(1)"
+    val result = "Option(1).isDefined"
+    testQuickFix(text, result, hint)
+  }
+}
+
+class ReplaceWithNonEmptyTest extends CheckEmptinessTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.nonEmpty")
+
+  def testNotIsEmpty() {
+    val selected = s"$START!Seq().isEmpty$END"
+    checkTextHasError(selected)
+    val text = "!Seq().isEmpty"
+    val result = "Seq().nonEmpty"
+    testQuickFix(text, result, hint)
+  }
+
+  def testSizeGreaterZero(): Unit = {
+    val selected = s"Seq()$START.size > 0$END"
+    checkTextHasError(selected)
+    val text = "Seq().size > 0"
+    val result = "Seq().nonEmpty"
+    testQuickFix(text, result, hint)
+  }
+
+  def testLengthGrEqOne(): Unit = {
+    val selected = s"Seq()$START.length >= 1$END"
+    checkTextHasError(selected)
+    val text = "Seq().size >= 1"
+    val result = "Seq().nonEmpty"
+    testQuickFix(text, result, hint)
+  }
+
+  def testSizeNotEqualsZero(): Unit = {
+    val selected = s"Seq()$START.size != 0$END"
+    checkTextHasError(selected)
+    val text = "Seq().size != 0"
+    val result = "Seq().nonEmpty"
+    testQuickFix(text, result, hint)
   }
 }

@@ -1,7 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
@@ -10,9 +11,11 @@ class SizeToLengthTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SizeToLengthInspection]
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[SizeToLengthInspection]
 
-  override def hint: String = InspectionBundle.message("size.to.length")
+  override protected val hint: String =
+    InspectionBundle.message("size.to.length")
 
   def testString(): Unit = {
     doTest(s"""|"".${START}size$END""".stripMargin, "\"\".size", "\"\".length")

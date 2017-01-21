@@ -1,37 +1,41 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
 /**
- * Nikolay.Tropin
- * 5/30/13
- */
-class MapGetOrElseBooleanTest extends OperationsOnCollectionInspectionTest {
+  * Nikolay.Tropin
+  * 5/30/13
+  */
+abstract class MapGetOrElseBooleanTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[MapGetOrElseBooleanInspection]
+}
 
-  val hint: String = InspectionBundle.message("map.getOrElse.false.hint")
-  val hintTrue: String = InspectionBundle.message("map.getOrElse.true.hint")
+class ReplaceWithExistsTest extends MapGetOrElseBooleanTest {
 
-  def test_1() {
+  override protected val hint: String =
+    InspectionBundle.message("map.getOrElse.false.hint")
+
+  def test_1(): Unit = {
     val selected = s"None.${START}map(x => true).getOrElse(false)$END"
-    check(selected)
+    checkTextHasError(selected)
 
     val text = "None.map(x => true).getOrElse(false)"
     val result = "None.exists(x => true)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   "aaa ".split(' ')
 
-  def test_2() {
+  def test_2(): Unit = {
     val selected =
       s"""class Test {
-          |  Some(0) ${START}map (_ => true) getOrElse false$END
-          |}""".stripMargin
-    check(selected)
+         |  Some(0) ${START}map (_ => true) getOrElse false$END
+         |}""".stripMargin
+    checkTextHasError(selected)
 
     val text =
       """class Test {
@@ -41,36 +45,40 @@ class MapGetOrElseBooleanTest extends OperationsOnCollectionInspectionTest {
       """class Test {
         |  Some(0) exists (_ => true)
         |}""".stripMargin
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
-  def test_3() {
+  def test_3(): Unit = {
     val selected =
       s"""val valueIsGoodEnough: (Any) => Boolean = _ => true
-          |(None ${START}map valueIsGoodEnough).getOrElse(false)$END""".stripMargin
-    check(selected)
+         |(None ${START}map valueIsGoodEnough).getOrElse(false)$END""".stripMargin
+    checkTextHasError(selected)
     val text =
       """val valueIsGoodEnough: (Any) => Boolean = _ => true
         |(None map valueIsGoodEnough).getOrElse(false)""".stripMargin
     val result =
       """val valueIsGoodEnough: (Any) => Boolean = _ => true
         |None exists valueIsGoodEnough""".stripMargin
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
+}
 
-  def test_4() {
+class ReplaceWithForallTest extends MapGetOrElseBooleanTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("map.getOrElse.true.hint")
+
+  def test(): Unit = {
     val selected =
       s"""val valueIsGoodEnough: (Any) => Boolean = _ => true
-          |(None ${START}map valueIsGoodEnough).getOrElse(true)$END""".stripMargin
-    check(selected, hintTrue)
+         |(None ${START}map valueIsGoodEnough).getOrElse(true)$END""".stripMargin
+    checkTextHasError(selected)
     val text =
       """val valueIsGoodEnough: (Any) => Boolean = _ => true
         |(None map valueIsGoodEnough).getOrElse(true)""".stripMargin
     val result =
       """val valueIsGoodEnough: (Any) => Boolean = _ => true
         |None forall valueIsGoodEnough""".stripMargin
-    testFix(text, result, hintTrue)
+    testQuickFix(text, result, hint)
   }
-
-  override val inspectionClass = classOf[MapGetOrElseBooleanInspection]
 }

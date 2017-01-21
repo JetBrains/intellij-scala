@@ -1,71 +1,65 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
+import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
 /**
  * Nikolay.Tropin
  * 4/24/13
  */
-class DoubleNegationInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class DoubleNegationInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val annotation = "Double negation"
-  val hint = "Remove double negation"
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DoubleNegationInspection]
+  override protected val description: String = "Double negation"
 
-  private def check(text: String) {
-    checkTextHasError(text, annotation, classOf[DoubleNegationInspection])
-  }
-
-  private def testFix(text: String, result: String) {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), hint, classOf[DoubleNegationInspection])
-  }
-
+  private val hint = "Remove double negation"
+  
   def test_NotNotTrue() {
     val selectedText = s"$START!(!true)$END"
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = "!(!true)"
     val result = "true"
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
   def test_Not_ANotEqualsB() {
     val selectedText = s"val flag: Boolean = $START!(a != b)$END"
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = "val flag: Boolean = !(a != b)"
     val result = "val flag: Boolean = a == b"
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
   def test_NotA_NotEquals_B() {
     val selectedText = s"if ($START!a != b$END) true else false"
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = "if (!a != b) true else false"
     val result = "if (a == b) true else false"
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
   def test_NotA_Equals_NotB() {
     val selectedText = s"$START!a == !b$END"
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = "!a == !b"
     val result = "a == b"
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
   def test_NotA_NotEquals_NotB() {
     val selectedText = s"$START!a != !b$END"
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text = "!a != !b"
     val result = "a != b"
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
-
 }

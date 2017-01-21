@@ -1,73 +1,82 @@
 package org.jetbrains.plugins.scala
-package codeInspection.collections
+package codeInspection
+package collections
 
-import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
+import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
 /**
- * Nikolay.Tropin
- * 2014-05-06
- */
-class ExistsEqualsTest extends OperationsOnCollectionInspectionTest {
+  * Nikolay.Tropin
+  * 2014-05-06
+  */
+abstract class ExistsEqualsTest extends OperationsOnCollectionInspectionTest {
 
-  import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[ExistsEqualsInspection]
+}
 
-  val hint = InspectionBundle.message("exists.equals.hint")
-  val forallNotEqualsHint = InspectionBundle.message("forall.notEquals.hint")
+class ReplaceWithContainsTest extends ExistsEqualsTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("exists.equals.hint")
+
   def test_1() {
     val selected = s"List(0).${START}exists(x => x == 1)$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List(0).exists(x => x == 1)"
     val result = "List(0).contains(1)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_2() {
     val selected = s"List(0).${START}exists(_ == 1)$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List(0).exists(_ == 1)"
     val result = "List(0).contains(1)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_3() {
     val selected = s"List(0) ${START}exists (x => x == 1)$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List(0) exists (x => x == 1)"
     val result = "List(0) contains 1"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_4() {
     val selected = s"List(0).${START}exists(1 == _)$END"
-    check(selected)
+    checkTextHasError(selected)
     val text = "List(0).exists(1 == _)"
     val result = "List(0).contains(1)"
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_5() {
     val text = "List(0).exists(x => x == - x)"
-    checkTextHasNoErrors(text, hint, inspectionClass)
+    checkTextHasNoErrors(text)
   }
 
   def test_6() {
     val text = "Some(1).exists(_ == 1)"
-    checkTextHasNoErrors(text, hint, inspectionClass)
+    checkTextHasNoErrors(text)
   }
 
   def test_7() {
     val text = "Map(1 -> \"1\").exists(_ == (1, \"1\"))"
-    checkTextHasNoErrors(text, hint, inspectionClass)
+    checkTextHasNoErrors(text)
   }
+}
+
+class ReplaceWithNotContainsTest extends ExistsEqualsTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("forall.notEquals.hint")
 
   def testForallNotEquals(): Unit = {
     val selected = s"Seq(1, 2).${START}forall(_ != 2)$END"
-    checkTextHasError(selected, forallNotEqualsHint, inspectionClass)
+    checkTextHasError(selected)
     val text = "Seq(1, 2).forall(_ != 2)"
     val result = "!Seq(1, 2).contains(2)"
-    testFix(text, result, forallNotEqualsHint)
+    testQuickFix(text, result, hint)
   }
-
-  override val inspectionClass = classOf[ExistsEqualsInspection]
 }

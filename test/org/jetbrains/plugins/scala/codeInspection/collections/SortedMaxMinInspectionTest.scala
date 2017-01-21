@@ -1,15 +1,21 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Markus.Hauck
  */
-class SortedMaxInspectionTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SortedMaxMinInspection]
+abstract class SortedMaxMinInspectionTest extends OperationsOnCollectionInspectionTest {
+  override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[SortedMaxMinInspection]
+}
 
-  override def hint: String = InspectionBundle.message("replace.sorted.head.with.min")
+class SortedMaxInspectionTest extends SortedMaxMinInspectionTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("replace.sorted.head.with.min")
 
   def test(): Unit = {
     doTest(
@@ -20,10 +26,10 @@ class SortedMaxInspectionTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class SortedMinInspectionTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SortedMaxMinInspection]
+class SortedMinInspectionTest extends SortedMaxMinInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.sorted.last.with.max")
+  override protected val hint: String =
+    InspectionBundle.message("replace.sorted.last.with.max")
 
   def test(): Unit = {
     doTest(
@@ -34,10 +40,10 @@ class SortedMinInspectionTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class SortByMaxInspectionTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SortedMaxMinInspection]
+class SortByMaxInspectionTest extends SortedMaxMinInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.sortBy.head.with.minBy")
+  override protected val hint: String =
+    InspectionBundle.message("replace.sortBy.head.with.minBy")
 
   def test(): Unit = {
     doTest(
@@ -48,10 +54,10 @@ class SortByMaxInspectionTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class SortByMinInspectionTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SortedMaxMinInspection]
+class SortByMinInspectionTest extends SortedMaxMinInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.sortBy.last.with.maxBy")
+  override protected val hint: String =
+    InspectionBundle.message("replace.sortBy.last.with.maxBy")
 
   def test(): Unit = {
     doTest(

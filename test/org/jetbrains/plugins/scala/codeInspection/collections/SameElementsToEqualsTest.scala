@@ -1,15 +1,21 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
  * @author Nikolay.Tropin
  */
-class SameElementsToEqualsTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SameElementsToEqualsInspection]
+abstract class SameElementsToEqualsInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.sameElements.with.equals")
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[SameElementsToEqualsInspection]
+}
+
+class SameElementsToEqualsTest extends SameElementsToEqualsInspectionTest {
+
+  override protected val hint: String = InspectionBundle.message("replace.sameElements.with.equals")
 
   def testSeqs(): Unit = {
     doTest(
@@ -49,10 +55,10 @@ class SameElementsToEqualsTest extends OperationsOnCollectionInspectionTest {
 
 }
 
-class CorrespondsToEqualsTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[SameElementsToEqualsInspection]
+class CorrespondsToEqualsTest extends SameElementsToEqualsInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.corresponds.with.equals")
+  override protected val hint: String =
+    InspectionBundle.message("replace.corresponds.with.equals")
 
   def test1(): Unit = {
     doTest(

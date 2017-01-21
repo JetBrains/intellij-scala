@@ -2,19 +2,21 @@ package org.jetbrains.plugins.scala.codeInspection.unused
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.{VarCouldBeValInspection, VarToValFix}
 
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
-class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
+class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[VarCouldBeValInspection]
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
+    classOf[VarCouldBeValInspection]
 
-  override protected def annotation: String = VarCouldBeValInspection.Annotation
+  override protected val description: String =
+    VarCouldBeValInspection.Annotation
 
 
   def testPrivateField(): Unit = {
@@ -40,7 +42,7 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
         |  println(s)
         |}
       """.stripMargin
-    testFix(before, after, VarToValFix.Hint)
+    testQuickFix(before, after, VarToValFix.Hint)
   }
 
   def testLocalVar(): Unit = {
@@ -72,7 +74,7 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
         |  }
         |}
       """.stripMargin
-    testFix(before, after, VarToValFix.Hint)
+    testQuickFix(before, after, VarToValFix.Hint)
   }
 
   def testNonPrivateField(): Unit = {
@@ -114,7 +116,7 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
         |  println(a)
         |}
       """.stripMargin
-    testFix(before, after, VarToValFix.Hint)
+    testQuickFix(before, after, VarToValFix.Hint)
   }
 
   def testSupressed(): Unit = {
@@ -180,6 +182,6 @@ class VarCouldBeValInspectionTest extends ScalaLightInspectionFixtureTestAdapter
         |  }
         |}
       """.stripMargin
-    testFix(before, after, VarToValFix.Hint)
+    testQuickFix(before, after, VarToValFix.Hint)
   }
 }

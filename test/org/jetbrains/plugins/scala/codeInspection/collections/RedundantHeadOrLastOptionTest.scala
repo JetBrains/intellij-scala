@@ -1,14 +1,22 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
 /**
  * @author Nikolay.Tropin
  */
-class RedundantHeadOptionTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[RedundantHeadOrLastOptionInspection]
+abstract class RedundantHeadOrLastOptionInspectionTest extends OperationsOnCollectionInspectionTest {
 
-  override def hint: String = RedundantHeadOption.hint
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[RedundantHeadOrLastOptionInspection]
+}
+
+class RedundantHeadOptionTest extends RedundantHeadOrLastOptionInspectionTest {
+
+  override protected val hint: String =
+    RedundantHeadOption.hint
 
   def test1(): Unit = {
     doTest(
@@ -51,10 +59,10 @@ class RedundantHeadOptionTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class RedundantLastOptionTest extends OperationsOnCollectionInspectionTest{
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[RedundantHeadOrLastOptionInspection]
+class RedundantLastOptionTest extends RedundantHeadOrLastOptionInspectionTest {
 
-  override def hint: String = RedundantLastOption.hint
+  override protected val hint: String =
+    RedundantLastOption.hint
 
   def test1(): Unit = {
     doTest(

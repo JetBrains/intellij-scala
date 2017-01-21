@@ -1,15 +1,22 @@
-package org.jetbrains.plugins.scala.codeInspection.collections
+package org.jetbrains.plugins.scala
+package codeInspection
+package collections
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 
 /**
- * @author Nikolay.Tropin
- */
-class FilterOtherContainsTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[FilterOtherContainsInspection]
+  * @author Nikolay.Tropin
+  */
+abstract class FilterOtherTest extends OperationsOnCollectionInspectionTest {
 
-  override def hint: String = InspectionBundle.message("replace.filter.with.intersect")
+  override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[FilterOtherContainsInspection]
+}
+
+class FilterOtherContainsTest extends FilterOtherTest {
+
+  override protected val hint: String =
+    InspectionBundle.message("replace.filter.with.intersect")
 
   def testFunExpr(): Unit = {
     doTest(
@@ -72,10 +79,10 @@ class FilterOtherContainsTest extends OperationsOnCollectionInspectionTest {
   }
 }
 
-class FilterOtherNotContainsTest extends OperationsOnCollectionInspectionTest {
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[FilterOtherContainsInspection]
+class FilterOtherNotContainsTest extends FilterOtherTest {
 
-  override def hint: String = InspectionBundle.message("replace.filter.with.diff")
+  override protected val hint: String =
+    InspectionBundle.message("replace.filter.with.diff")
 
   def testFunExpr(): Unit = {
     doTest(

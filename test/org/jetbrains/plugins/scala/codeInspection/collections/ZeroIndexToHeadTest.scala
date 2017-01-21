@@ -10,9 +10,11 @@ class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[ZeroIndexToHeadInspection]
+  override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
+    classOf[ZeroIndexToHeadInspection]
 
-  override def hint: String = InspectionBundle.message("replace.with.head")
+  override protected val hint: String =
+    InspectionBundle.message("replace.with.head")
 
   def testApply(): Unit = {
     doTest(s"List(1, 2).${START}apply(0)$END",
@@ -36,10 +38,10 @@ class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
   }
 
   def testIndexedSeq(): Unit = {
-    checkTextHasNoErrors("scala.collection.IndexedSeq(1, 2)(0)", hint, inspectionClass)
+    checkTextHasNoErrors("scala.collection.IndexedSeq(1, 2)(0)")
     checkTextHasNoErrors(
       """import scala.collection.immutable.Vector
-        |Vector(1, 2)(0)""".stripMargin, hint, inspectionClass)
-    checkTextHasNoErrors("scala.collection.mutable.ArrayBuffer(1, 2)(0)", hint, inspectionClass)
+        |Vector(1, 2)(0)""".stripMargin)
+    checkTextHasNoErrors("scala.collection.mutable.ArrayBuffer(1, 2)(0)")
   }
 }

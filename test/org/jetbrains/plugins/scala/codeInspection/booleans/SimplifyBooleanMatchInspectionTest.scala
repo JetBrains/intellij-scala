@@ -1,28 +1,19 @@
 package org.jetbrains.plugins.scala.codeInspection.booleans
 
+import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 
-class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
 
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-  val annotation = "Trivial match can be simplified"
-  val quickFixHint = "Simplify match to if statement"
+  override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SimplifyBooleanMatchInspection]
+  override protected val description = "Trivial match can be simplified"
 
-  private def check(text: String) {
-    checkTextHasError(text, annotation, classOf[SimplifyBooleanMatchInspection])
-  }
+  private val hint = "Simplify match to if statement"
 
-  private def testFix(text: String, result: String) {
-    testQuickFix(text.replace("\r", ""), result.replace("\r", ""), quickFixHint, classOf[SimplifyBooleanMatchInspection])
-  }
-
-  private def checkHasNoErrors(text: String) {
-    checkTextHasNoErrors(text, annotation, classOf[SimplifyBooleanMatchInspection])
-  }
-
-  def test_SingleTrueWithParentlessPatternSimpleBranches() {
+  def test_SingleTrueWithParenthesis_lessPatternSimpleBranches() {
     val selectedText =
       s"""
          |val a = true
@@ -30,7 +21,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  case true => 1
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -47,10 +38,10 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
-  def test_SingleTrueWithParentlessPatternSimpleBranchesBracesBlock() {
+  def test_SingleTrueWithParenthesis_lessPatternSimpleBranchesBracesBlock() {
     val selectedText =
       s"""
          |val a = true
@@ -60,7 +51,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  }
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -79,10 +70,10 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
-  def test_SingleFalseWithParentlessPatternSimpleBranches() {
+  def test_SingleFalseWithParenthesis_lessPatternSimpleBranches() {
     val selectedText =
       s"""
          |val a = true
@@ -90,7 +81,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  case false => 1
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -107,10 +98,10 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
-  def test_TrueFalseWithParentlessPatternSimpleBranches() {
+  def test_TrueFalseWithParenthesis_lessPatternSimpleBranches() {
     val selectedText =
       s"""
          |val a = true
@@ -119,7 +110,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  case true => 4
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -139,10 +130,10 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
-  def test_TrueWildcardWithParentlessPatternSimpleBranches() {
+  def test_TrueWildcardWithParenthesis_lessPatternSimpleBranches() {
     val selectedText =
       s"""
          |val a = true
@@ -151,7 +142,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  case _ => 4
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -171,10 +162,10 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
-  def test_FalseWildcardWithParentlessPatternSimpleBranches() {
+  def test_FalseWildcardWithParenthesis_lessPatternSimpleBranches() {
     val selectedText =
       s"""
          |val a = true
@@ -183,7 +174,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  case _ => 4
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -203,10 +194,10 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
-  def test_TrueFalseWithParentlessPatternBlockBranches() {
+  def test_TrueFalseWithParenthesis_lessPatternBlockBranches() {
     val selectedText =
       s"""
          |val a = true
@@ -220,7 +211,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  }
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       s"""
@@ -246,7 +237,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
   def test_SingleTrueWithParenthesisedPatternSimpleBranches() {
@@ -256,7 +247,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  case true => 1
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -271,7 +262,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
   def test_SingleFalseWithParenthesisedPatternSimpleBranches() {
@@ -281,7 +272,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |  case false => 1
          |}
        """.stripMargin
-    check(selectedText)
+    checkTextHasError(selectedText)
 
     val text =
       """
@@ -296,7 +287,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
         |}
       """.stripMargin
 
-    testFix(text, result)
+    testQuickFix(text, result, hint)
   }
 
   def test_SingleComplexBranch() {
@@ -310,7 +301,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |}
        """.stripMargin
 
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_ThreeBranches() {
@@ -328,7 +319,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |}
        """.stripMargin
 
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_NotBooleanExpr() {
@@ -342,7 +333,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |}
        """.stripMargin
 
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_OnlyWildcardExpr() {
@@ -356,7 +347,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |}
        """.stripMargin
 
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_TwoWildcatdsExpr() {
@@ -373,7 +364,7 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |}
        """.stripMargin
 
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 
   def test_MatchWithGuard() {
@@ -387,6 +378,6 @@ class SimplifyBooleanMatchInspectionTest extends ScalaLightCodeInsightFixtureTes
          |}
        """.stripMargin
 
-    checkHasNoErrors(text)
+    checkTextHasNoErrors(text)
   }
 }

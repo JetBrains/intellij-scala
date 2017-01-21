@@ -12,49 +12,49 @@ class MapGetGetTest extends OperationsOnCollectionInspectionTest {
   import EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
   val hint = InspectionBundle.message("get.get.hint")
-  override val inspectionClass = classOf[MapGetGetInspection]
+  override val classOfInspection = classOf[MapGetGetInspection]
 
   def test_1() {
     val selected = s"""Map("a"->"x").${START}get("a").get$END"""
-    check(selected)
+    checkTextHasError(selected)
     val text = """Map("a" -> "x").get("a").get"""
     val result = """Map("a" -> "x")("a")"""
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_2() {
     val selected =
       s"""val m = Map("a" -> "b")
          |m.${START}get("a").get$END""".stripMargin
-    check(selected)
+    checkTextHasError(selected)
     val text =
       s"""val m = Map("a" -> "b")
           |m.get("a").get""".stripMargin
     val result =
       s"""val m = Map("a" -> "b")
           |m("a")""".stripMargin
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_3() {
     val selected =
       s"""val m = Map(1 -> "b")
           |m.${START}get(1).get$END""".stripMargin
-    check(selected)
+    checkTextHasError(selected)
     val text =
       s"""val m = Map(1 -> "b")
           |m.get(1).get""".stripMargin
     val result =
       s"""val m = Map(1 -> "b")
           |m(1)""".stripMargin
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 
   def test_4() {
     val selected = s"""Map("a"->"x").${START}get(0).get$END"""
-    check(selected)
+    checkTextHasError(selected)
     val text = """Map("a" -> "x").get(0).get"""
     val result = """Map("a" -> "x")(0)"""
-    testFix(text, result, hint)
+    testQuickFix(text, result, hint)
   }
 }
