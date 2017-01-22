@@ -51,3 +51,8 @@ the directory where Scala plugin repository is and then import it as SBT project
 
    - if Scala Compile Server is disabled:
    ```Settings > Build, Execution, Deployment > Compiler > Build process heap size```
+
+6. There are multiple build configurations and corresponding SBT tasks. The easiest path
+to get started (and what you probably want regardless) is `sbt runFastTests`; for
+development purposes, a good proxy for the overall health of your local copy is the
+`TypeInferenceTest` build configuration, which you've installed in step 4.
