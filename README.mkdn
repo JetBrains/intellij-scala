@@ -1,9 +1,10 @@
+[![Build Status](https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:Scala_Tests)/statusIcon)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=Scala_Tests&guest=1) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
+
+
 # Scala Plugin for IntelliJ IDEA
 
 Plugin that implements Scala, SBT, Play 2, SSP and Hocon support in IntelliJ
 IDEA.
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
 
 ## General information
 
