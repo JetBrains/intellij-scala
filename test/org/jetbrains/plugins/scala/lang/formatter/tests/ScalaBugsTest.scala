@@ -1622,6 +1622,18 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL9516_1(): Unit = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """"
+        |if (false) { //blah
+        |  val x = 42
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
   def testSCL6599(): Unit = {
     val before =
       """"
@@ -2239,9 +2251,30 @@ bars foreach {case (x, y) => list.add(x + y)}
     getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
     val before =
       """
-        |object Test {
+        |object Test { //before fun call
         |  println(42) //before val
         |  val x = 42 //before var
+        |  var y = 42 //before def
+        |  def z = 42 //before type
+        |  type F = Int //before class
+        |  class Inner //before object
+        |  object OInner //before trait
+        |  trait TInner
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL9321_1(): Unit = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """
+        |object Test { //before fun call
+        |  println(42) //before val
+        |
+        |  val x = 42 //before var
+        |
         |  var y = 42 //before def
         |
         |  def z = 42 //before type
@@ -2257,6 +2290,46 @@ bars foreach {case (x, y) => list.add(x + y)}
         |}
       """.stripMargin.replace("\r", "")
     doTextTest(before)
+  }
+
+  def testSCL4269() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
+    val before =
+      """
+        |object HelloWorld { // A sample application object
+        |  def main(args: Array[String]) {
+        |    println("Hello, world!")
+        |  }
+        |
+        |  def otherFun = 42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
+  def testSCL4269_1() = {
+    val before =
+      """
+        |object HelloWorld { // A sample application object
+        |  def main(args: Array[String]) {
+        |    println("Hello, world!")
+        |  }
+        |
+        |  def otherFun = 42
+        |}
+      """.stripMargin.replace("\r", "")
+    val after =
+      """
+        |object HelloWorld {
+        |  // A sample application object
+        |  def main(args: Array[String]) {
+        |    println("Hello, world!")
+        |  }
+        |
+        |  def otherFun = 42
+        |}
+      """.stripMargin.replace("\r", "")
+    doTextTest(before, after)
   }
 
   def testSCL9450() = {

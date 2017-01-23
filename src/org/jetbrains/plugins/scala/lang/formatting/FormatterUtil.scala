@@ -4,9 +4,12 @@ package formatting
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * User: Alexander Podkhalyuzin
@@ -39,5 +42,10 @@ object FormatterUtil {
   def getNormalIndentString(project: Project): String = {
     String.format("%1$" +
       ScalaCodeStyleSettings.getInstance(project).getContainer.getIndentSize(ScalaFileType.INSTANCE) + "s", " ")
+  }
+
+  def isCommentGrabbingPsi(element: PsiElement): Boolean = element match {
+    case _: ScValue | _: ScVariable | _: ScFunction | _: ScTypeDefinition | _: ScTypeAlias => true
+    case _ => false
   }
 }
