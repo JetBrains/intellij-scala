@@ -2411,5 +2411,16 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before)
   }
 
+  def testSCL4280(): Unit = {
+    val before =
+      """
+        |/**
+        |  * @see [[com.example.MyClass#myMethod(String)]]
+        |  */
+        |def myOtherMethod(s: String) = ???
+      """.stripMargin.replace("\r", "")
+    doTextTest(before)
+  }
+
   def doTextTest(value: String): Unit = doTextTest(value, value)
 }
