@@ -70,7 +70,6 @@ object getDummyBlocks {
   private def applyInner(node: ASTNode, block: ScalaBlock): util.ArrayList[Block] = {
     val children = node.getChildren(null)
     val subBlocks = new util.ArrayList[Block]
-    var prevChild: ASTNode = null
     val settings = block.getCommonSettings
     val scalaSettings = block.getSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     node.getPsi match {
@@ -200,12 +199,19 @@ object getDummyBlocks {
         val pointer = pointerManager.createSmartPsiElementPointer(interpolated)
         alignmentsMap(project).put(pointer, Alignment.createAlignment())
       case _: ScValue | _: ScVariable | _: ScFunction if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
-        val childrenFiltered = children.filter(isCorrectBlock(_))
+        val childrenFiltered = children.filter(isCorrectBlock)
         subBlocks.add(getSubBlock(block, scalaSettings, childrenFiltered.head))
         val tail = childrenFiltered.tail
-        subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null,
-          Indent.getNoneIndent, arrangeSuggestedWrapForChild(block, node, scalaSettings, block.suggestedWrap),
-          block.getSettings))
+        subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null, {
+          val ws = Option(node.getTreePrev)
+          val preWsET = ws.map(_.getTreePrev).flatMap(Option(_)).map(_.getElementType)
+          ws.map(_.getPsi) match {
+            case Some(ws: PsiWhiteSpace) if scalaSettings.KEEP_COMMENTS_ON_SAME_LINE &&
+              (preWsET.exists(_ == ScalaTokenTypes.tLBRACE) || preWsET.exists(_ == ScalaTokenTypes.tLPARENTHESIS)) &&
+              !ws.getText.contains("\n") => Indent.getNormalIndent
+            case _ => Indent.getNoneIndent
+          }
+        }, arrangeSuggestedWrapForChild(block, node, scalaSettings, block.suggestedWrap), block.getSettings))
         return subBlocks
       case _ =>
     }
@@ -296,7 +302,6 @@ object getDummyBlocks {
       } else {
         subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       }
-      prevChild = child
     }
     subBlocks
   }

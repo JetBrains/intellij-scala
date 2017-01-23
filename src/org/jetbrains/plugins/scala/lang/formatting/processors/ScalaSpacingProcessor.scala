@@ -343,12 +343,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case _ =>
     }
 
-    def isCommentGrabbingPsi(element: PsiElement) = rightPsi match {
-      case _: ScValue | _: ScVariable => true
-      case _ => false
-    }
     if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE &&
-      (rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT || isCommentGrabbingPsi(rightPsi) &&
+      (rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT || FormatterUtil.isCommentGrabbingPsi(rightPsi) &&
       rightPsi.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLINE_COMMENT)) {
       return COMMON_SPACING
     }
