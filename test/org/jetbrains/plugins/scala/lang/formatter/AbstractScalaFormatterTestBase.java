@@ -84,7 +84,7 @@ public abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
   }
 
   public void doTextTest(final String text, String textAfter) throws IncorrectOperationException {
-    doTextTest(Action.REFORMAT, text, textAfter);
+    doTextTest(Action.REFORMAT, StringUtil.convertLineSeparators(text), StringUtil.convertLineSeparators(textAfter));
   }
 
   public void doTextTest(final Action action, final String text, String textAfter) throws IncorrectOperationException {

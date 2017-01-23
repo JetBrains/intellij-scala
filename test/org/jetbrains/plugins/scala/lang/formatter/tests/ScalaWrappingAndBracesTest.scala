@@ -28,7 +28,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2
 2 :: 2 :: 2 :: 2 :: 2 :: 2 :: 2 :: 2 :: 2 :: 2 :: 2 :: 2 :: Nil
 2 + 2 + 2 + 2 + 22 * 66 + 2
-""".replace("\r", "")
+"""
     val after =
 """
 2 + 2 + 2 + 2 + 2 +
@@ -41,7 +41,7 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
   2 :: 2 :: Nil
 2 + 2 + 2 + 2 +
   22 * 66 + 2
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -54,14 +54,14 @@ class ScalaWrappingAndBracesTest extends AbstractScalaFormatterTestBase {
 List(1, 2) match {
   case x :: y :: z :: Nil =>
 }
-""".replace("\r", "")
+"""
     val after =
 """
 List(1, 2) match {
   case x :: y ::
     z :: Nil =>
 }
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -72,12 +72,12 @@ List(1, 2) match {
     val before =
 """
 val x: T + T + T + T + T
-""".replace("\r", "")
+"""
     val after =
 """
 val x: T + T + T +
   T + T
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -88,7 +88,7 @@ val x: T + T + T +
     val before =
 """
 2 + 3 + 4 * 6 + (7 + 9 * 10) - 8 - 4
-""".replace("\r", "")
+"""
     val after =
 """
 2 +
@@ -100,7 +100,7 @@ val x: T + T + T +
       10) -
   8 -
   4
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -112,7 +112,7 @@ val x: T + T + T +
 """
 2 + 2 + 2 + 2 + 2 + 2
 2 + 2 + 2 + 2 + 2
-""".replace("\r", "")
+"""
     val after =
 """
 2 +
@@ -122,7 +122,7 @@ val x: T + T + T +
   2 +
   2
 2 + 2 + 2 + 2 + 2
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -134,12 +134,12 @@ val x: T + T + T +
 """
 2 + 2 + 2 + 2 + 2 + 2
 2 + 2 + 2 + 2 + 2
-""".replace("\r", "")
+"""
     val after =
 """
 2 + 2 + 2 + 2 + 2 + 2
 2 + 2 + 2 + 2 + 2
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -151,14 +151,14 @@ val i = 2 + 2 +
  3 + 5 +
  6 + 7 *
  8
-""".replace("\r", "")
+"""
     val after =
 """
 val i = 2 + 2 +
         3 + 5 +
         6 + 7 *
             8
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -172,7 +172,7 @@ val i = 2 + 2 +
 (2333333333333333 + 2)
 (2 +
 2)
-""".replace("\r", "")
+"""
     val after =
 """
 (
@@ -183,7 +183,7 @@ val i = 2 + 2 +
   2 +
     2
   )
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -192,13 +192,13 @@ val i = 2 + 2 +
     val before =
 """
 foo(1, 2, 3)
-""".replace("\r", "")
+"""
     val after =
 """
 foo(1,
   2,
   3)
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -209,13 +209,13 @@ foo(1,
 foo(1,
 2,
 3)
-""".replace("\r", "")
+"""
     val after =
 """
 foo(1,
     2,
     3)
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -227,7 +227,7 @@ foo(1,
 foo(1,
 2,
 3)
-""".replace("\r", "")
+"""
     val after =
 """
 foo(
@@ -235,7 +235,7 @@ foo(
   2,
   3
 )
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -244,13 +244,13 @@ foo(
     val before =
 """
 foo(1, 2).foo(1, 2).foo(1, 2)
-""".replace("\r", "")
+"""
     val after =
 """
 foo(1, 2)
   .foo(1, 2)
   .foo(1, 2)
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -264,7 +264,7 @@ foo(1, 2, 3).
 foo.
 foo
 .foo
-""".replace("\r", "")
+"""
     val after =
 """
 val x = foo.
@@ -273,7 +273,7 @@ val x = foo.
         foo.
         foo
         .foo
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -293,7 +293,7 @@ class A {
 }
 class B extends A {
 }
-""".replace("\r", "")
+"""
     val after =
 """
 class A
@@ -310,7 +310,7 @@ class A
 class B extends A
 {
 }
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 

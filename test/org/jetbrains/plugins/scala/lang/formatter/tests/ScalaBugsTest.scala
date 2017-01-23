@@ -12,10 +12,10 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   def test {
     val before =
 """
-""".replace("\r", "")
+"""
     val after =
 """
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
    */
@@ -24,7 +24,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     val before =
 """
 someMethod(new Something, abc, def)
-""".replace("\r", "")
+"""
 
     doTextTest(before)
   }
@@ -33,7 +33,7 @@ someMethod(new Something, abc, def)
     val before =
 """
 import foo.{Foo, Bar}
-""".replace("\r", "")
+"""
 
     doTextTest(before)
   }
@@ -52,7 +52,7 @@ class Foo {
   //comment
   def foo = 1
 }
-""".replace("\r", "")
+"""
     val after =
 """
 class Foo {
@@ -67,7 +67,7 @@ class Foo {
   //comment
   def foo = 1
 }
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -79,7 +79,7 @@ class Foo {
  *something
  */
 class A
-""".replace("\r", "")
+"""
     val after =
 """
 /**
@@ -87,7 +87,7 @@ class A
   * something
   */
 class A
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -104,7 +104,7 @@ n.foreach
     println(x)
   }
 }
-""".replace("\r", "")
+"""
     val after =
 """
 val n = Seq(1, 2, 3)
@@ -115,7 +115,7 @@ n.foreach
     println(x)
   }
 }
-""".replace("\r", "")
+"""
     doTextTest(before, after)
   }
 
@@ -127,13 +127,13 @@ n.foreach
 Set(1, 2, 3).filter{a => a % 2 == 0}
 List((1, 2), (2, 3), (3, 4)).map {case (k: Int, n: Int) => k + n}
 Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter{ case (1, "aa") => true; case _ => false}
-""".replace("\r", "")
+"""
     val after =
 """
 Set(1, 2, 3).filter { a => a % 2 == 0 }
 List((1, 2), (2, 3), (3, 4)).map { case (k: Int, n: Int) => k + n }
 Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter { case (1, "aa") => true; case _ => false }
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -147,7 +147,7 @@ Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter { case (1, "aa") => true; case _ => 
 Set(1, 2, 3).filter{a => a % 2 == 0}
 List((1, 2), (2, 3), (3, 4)).map {case (k: Int, n: Int) => k + n}
 Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter{ case (1, "aa") => true; case _ => false}
-""".replace("\r", "")
+"""
 
     val after =
 """
@@ -161,7 +161,7 @@ Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter {
   case (1, "aa") => true;
   case _ => false
 }
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -176,7 +176,7 @@ def func() {println("test")}
 
 def func2() {
   println("test")}
-""".replace("\r", "")
+"""
 
     val after =
 """
@@ -185,7 +185,7 @@ def func() { println("test") }
 def func2() {
   println("test")
 }
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -199,7 +199,7 @@ def func() {  println()}
 
 def func2() { println()
 }
-""".replace("\r", "")
+"""
 
     val after =
 """
@@ -210,7 +210,7 @@ def func() {
 def func2() {
   println()
 }
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -235,7 +235,7 @@ def f[T](i: Int) {
 }
 
 (a: Int, b: Int, c: Int) => a + b + c
-""".replace("\r", "")
+"""
 
     val after =
 """
@@ -254,7 +254,7 @@ def f[T](i: Int) {
 }
 
 (a: Int, b: Int, c: Int) => a + b + c
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -285,7 +285,7 @@ def +++(s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-""".replace("\r", "")
+"""
 
     val after =
 """
@@ -308,7 +308,7 @@ def +++ (s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -339,7 +339,7 @@ def +++(s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-      """.replace("\r", "")
+      """
 
     val after =
       """
@@ -362,7 +362,7 @@ def +++ (s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -393,7 +393,7 @@ def +++(s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-      """.replace("\r", "")
+      """
 
     val after =
       """
@@ -416,7 +416,7 @@ def +++ (s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -447,7 +447,7 @@ def +++(s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-      """.replace("\r", "")
+      """
 
     val after =
       """
@@ -470,7 +470,7 @@ def +++ (s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -500,7 +500,7 @@ def +++(s: StringBuilder): StringBuilder = {
 }
 
 def ::= (o: Any) {}
-      """.replace("\r", "")
+      """
 
     val after =
       """
@@ -523,7 +523,7 @@ def +++(s: StringBuilder): StringBuilder = {
 }
 
 def ::=(o: Any) {}
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -537,14 +537,14 @@ def ::=(o: Any) {}
 def f(i: Int)(j: Int) {}
 
 f(1)(2)
-""".replace("\r", "")
+"""
 
     val after =
 """
 def f (i: Int)(j: Int) {}
 
 f (1)(2)
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -574,7 +574,7 @@ class B(i: Int)(s: String) {
     this ("")
   }
 }
-""".replace("\r", "")
+"""
 
     val after =
 """
@@ -597,7 +597,7 @@ class B(i: Int)(s: String) {
     this("")
   }
 }
-""".replace("\r", "")
+"""
 
     doTextTest(before, after)
   }
@@ -624,7 +624,7 @@ bars  foreach {
 
 bars foreach{ case (x,y) =>   list.add(x + y) }
 
-      """.replace("\r", "")
+      """
 
     val after =
       """
@@ -642,7 +642,7 @@ bars foreach {
 
 bars foreach { case (x, y) => list.add(x + y) }
 
-      """.replace("\r", "")
+      """
 
     doTextTest(before, after)
   }
@@ -669,7 +669,7 @@ bars  foreach {
 
 bars foreach{ case (x,y) =>   list.add(x + y) }
 
-      """.replace("\r", "")
+      """
 
     val after =
       """
@@ -686,7 +686,7 @@ bars foreach {
 }
 
 bars foreach {case (x, y) => list.add(x + y)}
-      """.replace("\r", "")
+      """
 
     doTextTest(before, after)
   }
@@ -706,7 +706,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       |    println(p )
       |  }
       |}
-    """.stripMargin.replace("\r", "")
+    """.stripMargin
 
     val after =
     """
@@ -721,7 +721,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       |    println(p)
       |  }
       |}
-    """.stripMargin.replace("\r", "")
+    """.stripMargin
 
     doTextTest(before, after)
   }
@@ -739,7 +739,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = { _ + _}
         |  val f5: (Int, Int) => Int = {_ + _ }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -749,7 +749,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = {_ + _}
         |  val f5: (Int, Int) => Int = {_ + _}
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -767,7 +767,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = { _ + _}
         |  val f5: (Int, Int) => Int = {_ + _ }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -777,7 +777,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = { _ + _ }
         |  val f5: (Int, Int) => Int = { _ + _ }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -795,7 +795,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = { _ + _}
         |  val f5: (Int, Int) => Int = {_ + _ }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -805,7 +805,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = {_ + _}
         |  val f5: (Int, Int) => Int = {_ + _}
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -823,7 +823,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = { _ + _}
         |  val f5: (Int, Int) => Int = {_ + _ }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -833,7 +833,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  val f4: (Int, Int) => Int = { _ + _ }
         |  val f5: (Int, Int) => Int = { _ + _ }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -849,7 +849,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  }
         |  )
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -863,7 +863,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  * Some comments
         |  */
         |class A
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -871,7 +871,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         | * Some comments
         | */
         |class A
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -886,7 +886,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |      1
         |  }).map(_ + 1)
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -897,7 +897,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    1
         |  }).map(_ + 1)
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -911,7 +911,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  println(a)
         |//  println(b)
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -925,7 +925,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |} yield {
         |    x
         |  }
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -935,7 +935,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |} yield {
         |  x
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     /* TODO this is only a temporary reference
       actual result should be the following:
@@ -962,7 +962,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |{
         |  case _: Throwable => println("gotcha!")
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -973,7 +973,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |{
         |  case _: Throwable => println("gotcha!")
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -990,7 +990,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |{
         |  case _: Throwable => println("gotcha!")
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1002,7 +1002,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  {
         |    case _: Throwable => println("gotcha!")
         |  }
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1016,7 +1016,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  case (i) =>
         |  testExpr
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1029,12 +1029,12 @@ bars foreach {case (x, y) => list.add(x + y)}
         |val v
         |    =
         |    "smth"
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
         |val v = "smth"
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1045,14 +1045,14 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """
         |@throws(classOf[IOException]) @deprecated def doSmth() {}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
         |@throws(classOf[IOException])
         |@deprecated
         |def doSmth() {}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1068,7 +1068,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    val myLocalVal = 42
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1079,7 +1079,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    val myLocalVal = 42
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1094,7 +1094,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1105,7 +1105,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1120,7 +1120,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1130,7 +1130,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1146,7 +1146,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1158,7 +1158,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1172,7 +1172,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |class MyLongClassName(someParam: String, someOtherParam: Int) extends SomeClass with SomeTrait with AnotherTrait with AndAnotherTrait with YetAnotherTrait {
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1182,7 +1182,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    with AndAnotherTrait
         |    with YetAnotherTrait {
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1200,7 +1200,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |   is disabled.
         |  Asterisks will be aligned and added though, like in java.
         |   */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1212,7 +1212,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *is disabled.
         |  *Asterisks will be aligned and added though, like in java.
         |  */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1230,7 +1230,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
         |  * @throws RuntimeException whenever it feels like it
         |  */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1241,7 +1241,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  * eiusmod tempor incididunt ut labore et dolore magna aliqua.
         |  * @throws RuntimeException whenever it feels like it
         |  */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1262,7 +1262,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
         |  */
         |def foo(x: Int, longParamName: Int): Int
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1278,7 +1278,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
         |  */
         |def foo(x: Int, longParamName: Int): Int
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1300,7 +1300,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
         |  */
         |def foo(x: Int, longParamName: Int): Int
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1314,7 +1314,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
         |  */
         |def foo(x: Int, longParamName: Int): Int
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1336,7 +1336,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  * @throws RuntimeException whenever it feels like it
         |  */
         |def foo(x: Int, longParamName: Int): Int
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1356,7 +1356,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    foo2: Int,
         |    bar2: Int) = ???
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1367,7 +1367,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |      foo2: Int,
         |      bar2: Int) = ???
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1391,7 +1391,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    bar2: Int
         |    ) = ???
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1406,7 +1406,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |      bar2: Int
         |  ) = ???
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1432,7 +1432,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  }
         |
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1453,7 +1453,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  }
         |
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1478,7 +1478,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  }
         |
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1499,7 +1499,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |      }
         |
         |  }
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1514,7 +1514,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *                 agara
         |  * @return The saved photo.
         |  */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1529,7 +1529,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *
         |  * @param bar is bar
         |  */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1543,7 +1543,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  * @param foo is foo
         |  * @param bar is bar
         |  */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1552,7 +1552,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *
         |  * @param bar is bar
         |  */
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1573,14 +1573,14 @@ bars foreach {case (x, y) => list.add(x + y)}
         |a match {
         |  case c1 :: (rest@(c2 :: cs)) =>
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """"
         |a match {
         |  case c1 :: (rest @ (c2 :: cs)) =>
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1597,7 +1597,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  aa: String,
         |  aaaa: String
         |)
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1606,7 +1606,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  aa     : String,
         |  aaaa   : String
         |)
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1617,7 +1617,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       """"
         |if (false) { //blah
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1629,7 +1629,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |if (false) { //blah
         |  val x = 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1666,7 +1666,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  * b. 2
         |  */
         |val a = 42
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """"
@@ -1699,7 +1699,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  * b. 2
         |  */
         |val a = 42
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1722,7 +1722,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    val logFile1 = "README.md"
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1734,7 +1734,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
         |import java.util.UUID
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before)
   }
@@ -1744,14 +1744,14 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
         |import java.util.UUID
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
         |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _}
         |// collision with Matcher's have 'symbol implicit
         |import java.util.UUID
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -1761,7 +1761,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |collection.map { item =>
         |  item.property
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -1779,7 +1779,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |                           } yield prog
         |                         })
         |                       }
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -1799,7 +1799,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |MyObj:=("toto", "tata")
         |MyObj:=(("toto", "tata"))
         |MyObj:=Tuple2("toto", "tata")
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1810,7 +1810,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |MyObj := ("toto", "tata")
         |MyObj := (("toto", "tata"))
         |MyObj := Tuple2("toto", "tata")
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -1831,14 +1831,14 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  a,
         |  b
         |  )
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |(
         |  a,
         |  b
         |)
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -1851,14 +1851,14 @@ bars foreach {case (x, y) => list.add(x + y)}
         |a,
         |b
         |)
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |val foo = (
         |            a,
         |            b
         |            )
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -1871,14 +1871,14 @@ bars foreach {case (x, y) => list.add(x + y)}
         |a,
         |b
         |)
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |val foo = (
         |            a,
         |            b
         |          )
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -1888,7 +1888,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |def f = if (true) 1 else {
         |  0
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -1902,7 +1902,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |param3 = 5){
         |println("foo")
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |multipleParams(delay = 3,
@@ -1910,7 +1910,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |               param3 = 5) {
         |  println("foo")
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -1932,7 +1932,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    while (!agenda.isEmpty) next()
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -1946,7 +1946,7 @@ bars foreach {case (x, y) => list.add(x + y)}
          |{}
          |
          |class Baz {}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -1960,7 +1960,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  with Foo {}
         |
         |class Baz {}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -1971,7 +1971,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |{}
         |
         |class Baz {}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -1983,7 +1983,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  import foo.bar
         |
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -1994,7 +1994,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |val a = (52,
         |  52
         |)
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2003,7 +2003,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |type Set =
         |  Int => Boolean
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2014,13 +2014,13 @@ bars foreach {case (x, y) => list.add(x + y)}
         |implicit def foo
         |(a: Int)
         |(b: Int) = ???
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |implicit def foo
         |  (a: Int)
         |  (b: Int) = ???
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2030,14 +2030,14 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |collection.map { _ => doStuff()
         |item.property}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |collection.map { _ =>
         |  doStuff()
         |  item.property
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2077,7 +2077,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |//comment
         |type T =
         |  Int
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2089,7 +2089,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |class Foo
         |{
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2101,7 +2101,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |class Foo
         |  {
         |  }
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2111,7 +2111,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |foo( a, b, c )
         |bar()
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2121,7 +2121,7 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |foo(a, b, c)
         |bar( )
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2132,7 +2132,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  _ => ???,
         |  _ => ???
         |)
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2147,7 +2147,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |case class ImAClass(something1: Int, something2: Int, something3: Int, something4: Int, something5: Int) {
         |  val uselessVal = 1
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |case class ImAClass(
@@ -2159,7 +2159,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |
         |  val uselessVal = 1
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2186,7 +2186,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |} catch {
         |  case _: Exception => 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2197,7 +2197,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |try 42 catch {
         |  case _: Exception => 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |try {
@@ -2205,7 +2205,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |} catch {
         |  case _: Exception => 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2218,7 +2218,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    42
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2229,7 +2229,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |42 match {
         |  case 42 => 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |42 match {
@@ -2237,7 +2237,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |    42
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2262,7 +2262,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  trait TInner
         |
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2288,7 +2288,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  trait TInner
         |
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2303,7 +2303,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |
         |  def otherFun = 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2317,7 +2317,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |
         |  def otherFun = 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |object HelloWorld {
@@ -2328,7 +2328,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |
         |  def otherFun = 42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2340,7 +2340,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |trait Something { this: Runnable =>
         |
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2350,7 +2350,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     val before =
       """
         |trait Something { this: Runnable => }
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2364,7 +2364,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |// with Baz
         |{
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2376,7 +2376,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  println("1")
         |else
         |  println("2")
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     val after =
       """
         |if (true) {
@@ -2384,7 +2384,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |} else {
         |  println("2")
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2400,7 +2400,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |else {
         |  42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before, after)
   }
 
@@ -2454,7 +2454,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |
         |  def aMethod(): Unit = {}
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2480,7 +2480,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  protected def foo2 =
         |    42
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
@@ -2491,7 +2491,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  * @see [[com.example.MyClass#myMethod(String)]]
         |  */
         |def myOtherMethod(s: String) = ???
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
     doTextTest(before)
   }
 
