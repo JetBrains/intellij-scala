@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 
 /**
@@ -14,7 +15,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
 
   override def doTextTest(text: String, textAfter: String): Unit = {
     myTextRange = null
-    var input = text
+    var input = StringUtil.convertLineSeparators(text)
     if (input.contains(startMarker) && input.contains(endMarker)) {
       val rangeStart = input.indexOf(startMarker)
       input = input.replace(startMarker, "")
@@ -22,7 +23,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
       input = input.replace(endMarker, "")
       myTextRange = new TextRange(rangeStart, rangeEnd)
     }
-    super.doTextTest(input, textAfter)
+    super.doTextTest(input, StringUtil.convertLineSeparators(textAfter))
   }
 
   def testSelection(): Unit = {
@@ -34,7 +35,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |  def foo() = /*start*/a+b/*end*/
         |  def bar() = a+b
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -44,7 +45,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |  def foo() = a + b
         |  def bar() = a+b
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -60,7 +61,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |/*start*/  def foo() = a+b/*end*/
         |  def bar() = a+b
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -72,7 +73,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |  def foo() = a + b
         |  def bar() = a+b
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -88,7 +89,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |  *//*end*/
         |def foo(x: Int, y: Int): Int = x+y
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -100,7 +101,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |    */
         |def foo(x: Int, y: Int): Int = x+y
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -116,7 +117,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |  *//*end*/
         |def foo(x: Int, y: Int): Int = x+y
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -128,7 +129,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |    */
         |def foo(x: Int, y: Int): Int = x+y
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -141,7 +142,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |  def foo() = /*start*/{
         |}/*end*/
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     val after =
       """
@@ -150,7 +151,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |  def foo() = {
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -176,7 +177,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
         |    42
         |  }
         |}
-      """.stripMargin.replace("\r", "")
+      """.stripMargin
 
     doTextTest(before, after)
   }
@@ -194,7 +195,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
 //        |11
 //        |}/*end*/
 //        |}
-//      """.stripMargin.replace("\r", "")
+//      """.stripMargin
 //
 //    val after =
 //      """
@@ -205,7 +206,7 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
 //        |    11
 //        |  }
 //        |}
-//      """.stripMargin.replace("\r", "")
+//      """.stripMargin
 //
 //    doTextTest(before, after)
 //  }
