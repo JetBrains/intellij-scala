@@ -14,6 +14,7 @@ import com.intellij.openapi.wm.StatusBarWidget.PlatformType
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
@@ -162,7 +163,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   }
 
   private def statusBar: Option[StatusBar] =
-    Option(WindowManager.getInstance).map(_.getStatusBar(project))
+    Option(WindowManager.getInstance).flatMap(_.getStatusBar(project).toOption)
 
   private object Widget extends StatusBarWidget {
     def ID = "TypeAwareHighlighting"

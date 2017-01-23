@@ -37,4 +37,12 @@ public class EnterActionTest extends AbstractEnterActionTestBase {
   public static Test suite() {
     return new EnterActionTest();
   }
+
+  @Override
+  public String transform(String testName, String[] data) throws Exception {
+    if (testName.equals("else_error_aligned")) {
+      getScalaSettings().ALIGN_IF_ELSE = true;
+    }
+    return super.transform(testName, data);
+  }
 }

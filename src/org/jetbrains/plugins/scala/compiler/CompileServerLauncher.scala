@@ -270,16 +270,18 @@ object CompileServerLauncher {
 
   private def jdkChangeRequired(project: Project): Option[String] = {
     val javaSdk = JavaSdk.getInstance
+    def isAtLeast8(sdk: Sdk): Boolean =
+      Option(javaSdk.getVersion(sdk)).exists(_.isAtLeast(JavaSdkVersion.JDK_1_8))
 
     def isScala2_12(module: ScalaModule) = module.sdk.languageLevel >= ScalaLanguageLevel.Scala_2_12
     def isJava8(module: ScalaModule) = {
       val sdk = Option(ModuleRootManager.getInstance(module.module).getSdk)
-      sdk.exists(javaSdk.getVersion(_).isAtLeast(JavaSdkVersion.JDK_1_8))
+      sdk.exists(isAtLeast8)
     }
 
     val requiresJdk8 = project.scalaModules.exists(m => isScala2_12(m) || isJava8(m))
     if (requiresJdk8) {
-      val jdk8Names = availableJdks(project).toSet.filter(javaSdk.getVersion(_).isAtLeast(JavaSdkVersion.JDK_1_8)).map(_.getName)
+      val jdk8Names = availableJdks(project).toSet.filter(isAtLeast8).map(_.getName)
       if (jdk8Names.isEmpty) {
         val title = "Scala 2.12 requires JDK 1.8 to compile"
         val content = s"<html><body><a href=''>Configure</a></body></html>"
