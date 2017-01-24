@@ -1,28 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi
 package stubs
 package index
 
-
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.IntStubIndexExtension
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import com.intellij.psi.stubs.StubIndexKey
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
+class ScPackageObjectIndex extends ScIntStubIndexExtension[PsiClass] {
 
-class ScPackageObjectIndex extends IntStubIndexExtension[PsiClass] {
-
-  override def get(int: java.lang.Integer, project: Project, scope: GlobalSearchScope): java.util.Collection[PsiClass] =
-    super.get(int, project, new ScalaSourceFilterScope(scope, project))
-
-  def getKey = ScPackageObjectIndex.KEY
-}
-
-object ScPackageObjectIndex {
-  val KEY = ScalaIndexKeys.PACKAGE_OBJECT_KEY
+  override def getKey: StubIndexKey[Integer, PsiClass] =
+    ScalaIndexKeys.PACKAGE_OBJECT_KEY
 }
