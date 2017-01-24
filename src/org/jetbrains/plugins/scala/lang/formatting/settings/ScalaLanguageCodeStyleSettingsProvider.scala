@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 import com.intellij.application.options.SmartIndentOptionsEditor
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationBundle
+import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.OptionAnchor
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.psi.codeStyle.{CodeStyleSettingsCustomizable, CommonCodeStyleSettings, DisplayPriority, LanguageCodeStyleSettingsProvider}
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -29,6 +30,11 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
   override def customizeSettings(consumer: CodeStyleSettingsCustomizable, settingsType: SettingsType) {
     def showCustomOption(fieldName: String, title: String, groupName: String, options: AnyRef*) {
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, options: _*)
+    }
+
+    def showCustomOptionAnchored(fieldName: String, title: String, groupName: String,
+                         anchorOpt: OptionAnchor, anchorField: String, options: AnyRef*): Unit = {
+      consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, anchorOpt, anchorField, options:_*)
     }
 
     val buffer: ArrayBuffer[String] = new ArrayBuffer
@@ -67,7 +73,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
       //Method calls section
       buffer ++= Seq("CALL_PARAMETERS_WRAP", "ALIGN_MULTILINE_PARAMETERS_IN_CALLS",
-        "PREFER_PARAMETERS_WRAP", "CALL_PARAMETERS_LPAREN_ON_NEXT_LINE", "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE")
+        "PREFER_PARAMETERS_WRAP", "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE")
 
       //align call parameters
       buffer ++= Seq("ALIGN_MULTILINE_METHOD_BRACKETS")
@@ -150,6 +156,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
       showCustomOption("DO_NOT_INDENT_TUPLES_CLOSE_BRACE", "Do not indent tuples closing parenthesis", TUPLES_WRAP)
       showCustomOption("ALIGN_TUPLE_ELEMENTS", "Align tuple elements", TUPLES_WRAP)
+      showCustomOptionAnchored("CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN", ApplicationBundle.message("wrapping.new.line.after.lpar"),
+        CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING, OptionAnchor.BEFORE, "CALL_PARAMETERS_RPAREN_ON_NEXT_LINE",
+        Array("No new line", "New line always", "New line for multiple arguments"), Array(ScalaCodeStyleSettings.NO_NEW_LINE,
+          ScalaCodeStyleSettings.NEW_LINE_ALWAYS, ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS))
     }
 
     if (settingsType == SettingsType.SPACING_SETTINGS) {

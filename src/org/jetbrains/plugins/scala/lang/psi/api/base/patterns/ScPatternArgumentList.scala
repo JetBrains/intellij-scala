@@ -26,4 +26,6 @@ trait ScPatternArgumentList extends ScArguments {
     }
     return child != null && child.getNode.getElementType == ScalaTokenTypes.tCOMMA
   }
+
+  override def getArgsCount: Int = patterns.length
 }

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * @author Alexander Podkhalyuzin
@@ -220,7 +221,7 @@ foo(1,
   }
 
   def testCallParametersParen() {
-    getCommonSettings.CALL_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_ALWAYS
     getCommonSettings.CALL_PARAMETERS_RPAREN_ON_NEXT_LINE = true
     val before =
 """

@@ -128,12 +128,6 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
               true
             }
 
-//            override protected def runForClasses(classes: java.util.List[PsiClass], method: PsiMethod,
-//                                                 context: ConfigurationContext, performRunnable: Runnable) {
-//
-//              performRunnable.run()
-//            }
-
             override protected def runForClass(aClass: PsiClass, psiMethod: PsiMethod, context: ConfigurationContext,
                                                performRunnable: Runnable) {
               config.setTestClassPath(aClass.getQualifiedName)

@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
@@ -75,6 +73,11 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false;
   public boolean KEEP_COMMENTS_ON_SAME_LINE = false;
   public boolean SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false;
+  public int CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = 0;
+
+  public static final int NO_NEW_LINE = 0;
+  public static final int NEW_LINE_ALWAYS = 1;
+  public static final int NEW_LINE_FOR_MULTIPLE_ARGUMENTS = 2;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;

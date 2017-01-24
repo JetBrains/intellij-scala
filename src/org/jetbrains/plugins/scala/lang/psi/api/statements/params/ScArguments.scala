@@ -11,5 +11,5 @@ package params
 */
 
 trait ScArguments extends ScalaPsiElement {
-
+  def getArgsCount: Int
 }
