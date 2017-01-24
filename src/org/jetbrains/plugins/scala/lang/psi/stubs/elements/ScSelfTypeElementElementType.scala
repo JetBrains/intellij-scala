@@ -11,7 +11,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex.KEY
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
   * User: Alexander Podkhalyuzin
@@ -43,7 +43,7 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
   }
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit =
-    this.indexStub(stub.classNames, sink, KEY)
+    this.indexStub(stub.classNames, sink, ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY)
 
   override def createElement(node: ASTNode): ScSelfTypeElement = new ScSelfTypeElementImpl(node)
 

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScSelfTypeInheritorsIndex}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
@@ -40,7 +40,7 @@ object ScalaStubsUtil {
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
     val iterator: java.util.Iterator[ScExtendsBlock] =
-      StubIndex.getElements(ScDirectInheritorsIndex.KEY, name, clazz.getProject, new ScalaSourceFilterScope(scope, clazz.getProject), classOf[ScExtendsBlock]).iterator
+      StubIndex.getElements(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, name, clazz.getProject, new ScalaSourceFilterScope(scope, clazz.getProject), classOf[ScExtendsBlock]).iterator
     while (iterator.hasNext) {
       val extendsBlock: PsiElement = iterator.next
       val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
@@ -84,7 +84,7 @@ object ScalaStubsUtil {
         }
         inReadAction {
           val iterator: java.util.Iterator[ScSelfTypeElement] =
-            StubIndex.getElements(ScSelfTypeInheritorsIndex.KEY, name, project, scope, classOf[ScSelfTypeElement]).iterator
+            StubIndex.getElements(ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY, name, project, scope, classOf[ScSelfTypeElement]).iterator
           while (iterator.hasNext) {
             val selfTypeElement = iterator.next
             selfTypeElement.typeElement match {

@@ -13,7 +13,7 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAnnotatedMemberIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 /**
  * User: Alexander Podkhalyuzin
@@ -32,7 +32,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
 
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
-        val candidates: java.util.Collection[ScAnnotation] = StubIndex.getElements(ScAnnotatedMemberIndex.KEY,
+        val candidates = StubIndex.getElements(ScalaIndexKeys.ANNOTATED_MEMBER_KEY,
           annClass.name, annClass.getProject, scope, classOf[ScAnnotation])
         val iter = candidates.iterator
         while (iter.hasNext) {
