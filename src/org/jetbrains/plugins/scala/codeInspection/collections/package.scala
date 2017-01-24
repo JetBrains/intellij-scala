@@ -376,17 +376,17 @@ package object collections {
     case _ => isOfClassFrom(expr, Array("scala.Array"))
   }
 
-  def isSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSet", expr)
+  def isSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSetLike", expr)
 
-  def isSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSeq", expr)
+  def isSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSeqLike", expr)
 
-  def isIndexedSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.IndexedSeq", expr)
+  def isIndexedSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.IndexedSeqLike", expr)
 
-  def isMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenMap", expr)
+  def isMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenMapLike", expr)
 
-  def isSortedSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedSet", expr)
+  def isSortedSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedSetLike", expr)
 
-  def isSortedMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedMap", expr)
+  def isSortedMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.SortedMapLike", expr)
 
   def isIterator(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.Iterator", expr)
 

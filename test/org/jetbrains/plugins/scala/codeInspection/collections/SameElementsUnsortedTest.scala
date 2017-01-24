@@ -5,8 +5,8 @@ package collections
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
 /**
- * @author Nikolay.Tropin
- */
+  * @author Nikolay.Tropin
+  */
 abstract class CorrespondsUnsortedInspectionTest extends OperationsOnCollectionInspectionTest {
 
   override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
@@ -72,10 +72,9 @@ class CorrespondsUnsortedTest extends CorrespondsUnsortedInspectionTest {
     checkTextHasNoErrors("Iterator(1).corresponds(scala.collection.SortedSet(1))((x, y) => true)")
   }
 
-  //  TODO: check
-  //  def testCorrespondsArray(): Unit = {
-  //    checkTextHasNoErrors("Iterator(1).corresponds(Array(1))((x, y) => true)")
-  //  }
+  def testCorrespondsArray(): Unit = {
+    checkTextHasNoErrors("Iterator(1).corresponds(Array(1))((x, y) => true)")
+  }
 
   def testSeqCorrespondsSeq(): Unit = {
     checkTextHasNoErrors("Seq(1).corresponds(Seq(1))((x, y) => true)")
