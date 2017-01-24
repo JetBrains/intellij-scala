@@ -95,7 +95,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     createContentDirsCheckBox.setSelected(true)
     resolveClassifiersCheckBox.setSelected(true)
     resolveJavadocsCheckBox.setSelected(false)
-    resolveSbtClassifiersCheckBox.setSelected(true)
+    resolveSbtClassifiersCheckBox.setSelected(false)
 
     settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionComboBox)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionComboBox)
