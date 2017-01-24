@@ -367,7 +367,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (leftElementType == tLPARENTHESIS && (leftPsi.getParent.isInstanceOf[ScArgumentExprList] ||
             leftPsi.getParent.isInstanceOf[ScPatternArgumentList])) {
-      if (settings.CALL_PARAMETERS_LPAREN_ON_NEXT_LINE) {
+      if (scalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN == ScalaCodeStyleSettings.NEW_LINE_ALWAYS ||
+        scalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN == ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS &&
+          leftPsi.getParent.asInstanceOf[ScArguments].getArgsCount > 1) {
         if (settings.SPACE_WITHIN_METHOD_CALL_PARENTHESES && rightElementType != tRPARENTHESIS ||
           settings.SPACE_WITHIN_EMPTY_METHOD_CALL_PARENTHESES && rightElementType == tRPARENTHESIS)
           return WITH_SPACING_DEPENDENT(leftPsi.getParent.getTextRange)

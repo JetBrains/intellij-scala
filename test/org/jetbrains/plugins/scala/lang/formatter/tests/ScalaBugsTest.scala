@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * @author Alexander Podkhalyuzin
@@ -1725,6 +1726,65 @@ bars foreach {case (x, y) => list.add(x + y)}
       """.stripMargin
 
     doTextTest(before)
+  }
+
+  def testSCL6913() = {
+    getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_ALWAYS
+
+    val before =
+      """
+        |val starCraftGameLogs = StarCraftGameLogs(Map(1 -> "Total destruction by computer player",
+        |                                              2 -> "Total destruction again... under 15 minutes",
+        |                                              3 -> "Dead before successfully building a single Zergling",
+        |                                              4 -> "Man I'm bad at this game!",
+        |                                              4 -> "Entire Overlord transport destroyed in transit",
+        |                                              4 -> "Glorious victory!!! J/k, 10 guys punched my city into flames.",
+        |                                              4 -> "3 on 1 win!"))
+      """.stripMargin
+
+    val after =
+      """
+        |val starCraftGameLogs = StarCraftGameLogs(
+        |  Map(
+        |    1 -> "Total destruction by computer player",
+        |    2 -> "Total destruction again... under 15 minutes",
+        |    3 -> "Dead before successfully building a single Zergling",
+        |    4 -> "Man I'm bad at this game!",
+        |    4 -> "Entire Overlord transport destroyed in transit",
+        |    4 -> "Glorious victory!!! J/k, 10 guys punched my city into flames.",
+        |    4 -> "3 on 1 win!"))
+      """.stripMargin
+
+    doTextTest(before, after)
+  }
+
+  def testSCL6913_1() = {
+    getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS
+
+    val before =
+      """
+        |val starCraftGameLogs = StarCraftGameLogs(Map(1 -> "Total destruction by computer player",
+        |                                              2 -> "Total destruction again... under 15 minutes",
+        |                                              3 -> "Dead before successfully building a single Zergling",
+        |                                              4 -> "Man I'm bad at this game!",
+        |                                              4 -> "Entire Overlord transport destroyed in transit",
+        |                                              4 -> "Glorious victory!!! J/k, 10 guys punched my city into flames.",
+        |                                              4 -> "3 on 1 win!"))
+      """.stripMargin
+
+    val after =
+      """
+        |val starCraftGameLogs = StarCraftGameLogs(Map(
+        |  1 -> "Total destruction by computer player",
+        |  2 -> "Total destruction again... under 15 minutes",
+        |  3 -> "Dead before successfully building a single Zergling",
+        |  4 -> "Man I'm bad at this game!",
+        |  4 -> "Entire Overlord transport destroyed in transit",
+        |  4 -> "Glorious victory!!! J/k, 10 guys punched my city into flames.",
+        |  4 -> "3 on 1 win!"))
+      """.stripMargin
+
+    doTextTest(before, after)
   }
 
   def testSCL6267() = {
