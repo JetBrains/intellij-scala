@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.lang.transformation.implicits
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package implicits
 
 import scala.language.implicitConversions
 
@@ -8,51 +9,48 @@ import scala.language.implicitConversions
   * @author Pavel Fatin
   */
 class ExpandImplicitConversionTest extends TransformerTest(new ExpandImplicitConversion()) {
-  def testTypeConversionMethod() = check(
-    "implicit def f(p: A): B = _",
-    "val v: B = A",
-    "val v: B = f(A)"
-  )
 
-  def testTypeConversionFunction() = check(
-    "implicit val f: A => B = _",
-    "val v: B = A",
-    "val v: B = f(A)"
-  )
+  def testTypeConversionMethod(): Unit = check(
+    before = "val v: B = A",
+    after = "val v: B = f(A)"
+  )(header = "implicit def f(p: A): B = _")
 
-  def testTypeConversionClass() = check(
-    "implicit class Foo(val p: A) extends B",
-    "val b: B = A",
-    "val b: B = Foo(A)"
-  )
+  def testTypeConversionFunction(): Unit = check(
+    before = "val v: B = A",
+    after = "val v: B = f(A)"
+  )(header = "implicit val f: A => B = _")
 
-  def testMethodCall() = check(
-    "implicit class Foo(val p: A) extends B",
-    "A.b()",
-    "Foo(A).b()"
-  )
+  def testTypeConversionClass(): Unit = check(
+    before = "val b: B = A",
+    after = "val b: B = Foo(A)"
+  )(header = "implicit class Foo(val p: A) extends B")
 
-  def testUnimported() = check(
+  def testMethodCall(): Unit = check(
+    before = "A.b()",
+    after = "Foo(A).b()"
+  )(header = "implicit class Foo(val p: A) extends B")
+
+  def testNotImported(): Unit = check(
+    before = "val v: O = A",
+    after = "val v: O = O.f(A)"
+  )(header =
     """
       class O
       object O {
         implicit def f(p: A): O = _
       }
-    """,
-    "val v: O = A",
-    "val v: O = O.f(A)"
-  )
+    """)
 
-// TODO
-//  def testIndirection() = check(
-//    """
-//      class T {
-//        implicit def f(p: A): O = _
-//      }
-//      class O
-//      object O extends T
-//    """,
-//    "val v: O = A",
-//    "val v: O = O.f(A)"
-//  )
+  // TODO
+  //  def testIndirection(): Unit = check(
+  //    before = "val v: O = A",
+  //    after = "val v: O = O.f(A)"
+  //  )(header =
+  //    """
+  //        class T {
+  //          implicit def f(p: A): O = _
+  //        }
+  //        class O
+  //        object O extends T
+  //      """)
 }

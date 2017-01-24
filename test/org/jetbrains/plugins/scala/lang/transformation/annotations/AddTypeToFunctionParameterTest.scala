@@ -1,43 +1,46 @@
-package org.jetbrains.plugins.scala.lang.transformation.annotations
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package annotations
 
 /**
   * @author Pavel Fatin
   */
-class AddTypeToFunctionParameterTest extends TransformerTest(new AddTypeToFunctionParameter(),
-  """
+class AddTypeToFunctionParameterTest extends TransformerTest(new AddTypeToFunctionParameter()) {
+
+  override protected val header: String =
+    """
      object O {
        def apply(v: A => Unit) {}
      }
-  """) {
+  """
 
-  def testImplicitType() = check(
-    "O(p => ())",
-    "O((p: A) => ())"
-  )
+  def testImplicitType(): Unit = check(
+    before = "O(p => ())",
+    after = "O((p: A) => ())"
+  )()
 
-  def testSimpleNameBinding() = check(
-    """
-     import scala.io.Source
+  def testSimpleNameBinding(): Unit = check(
+    before = "X(p => ())",
+    after = "X((p: Source) => ())"
+  )(header =
+    s"""
+     ${TransformationTest.ScalaSourceHeader}
      object X { def apply(f: Source => Unit) {} }
-    """,
-    "X(p => ())",
-    "X((p: Source) => ())"
-  )
+    """)
 
-  def testExplicitType() = check(
-    "O((p: A) => ())",
-    "O((p: A) => ())"
-  )
+  def testExplicitType(): Unit = check(
+    before = "O((p: A) => ())",
+    after = "O((p: A) => ())"
+  )()
 
-  def testMethodParameter() = check(
-    "def f(p: A) {}",
-    "def f(p: A) {}"
-  )
+  def testMethodParameter(): Unit = check(
+    before = "def f(p: A) {}",
+    after = "def f(p: A) {}"
+  )()
 
-  def testClassParameter() = check(
-    "class T(p: A) {}",
-    "class T(p: A) {}"
-  )
+  def testClassParameter(): Unit = check(
+    before = "class T(p: A) {}",
+    after = "class T(p: A) {}"
+  )()
 }

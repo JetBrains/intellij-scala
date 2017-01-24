@@ -1,57 +1,52 @@
-package org.jetbrains.plugins.scala.lang.transformation
+package org.jetbrains.plugins.scala
+package lang
+package transformation
 package functions
 
 /**
   * @author Pavel Fatin
   */
 class MakeEtaExpansionExplicitTest extends TransformerTest(new MakeEtaExpansionExplicit()) {
-  def testReference() = check(
-    "def f(a: A): B = _",
-    "val v: A => B = f",
-    "val v: A => B = f _"
-  )
 
-  def testCall() = check(
-    "def f(a: A)(b: B): C = _",
-    "val v: B => C = f(a)",
-    "val v: B => C = f(a) _"
-  )
+  def testReference(): Unit = check(
+    before = "val v: A => B = f",
+    after = "val v: A => B = f _"
+  )(header = "def f(a: A): B = _")
 
-  def testReferenceNoExpectedType() = check(
-    "def f(a: A): B = _",
-    "f",
-    "f"
-  )
+  def testCall(): Unit = check(
+    before = "val v: B => C = f(a)",
+    after = "val v: B => C = f(a) _"
+  )(header = "def f(a: A)(b: B): C = _")
 
-  def testCallNoExpectedType() = check(
-    "def f(a: A)(b: B): C = _",
-    "f(a)",
-    "f(a)"
-  )
+  def testReferenceNoExpectedType(): Unit = check(
+    before = "f",
+    after = "f"
+  )(header = "def f(a: A): B = _")
 
-  def testOrdinaryReference() = check(
-    "def f: A = _",
-    "f",
-    "f"
-  )
+  def testCallNoExpectedType(): Unit = check(
+    before = "f(a)",
+    after = "f(a)"
+  )(header = "def f(a: A)(b: B): C = _")
 
-  def testOrdinaryCall() = check(
-    "def f(a: A): B = _",
-    "f(A)",
-    "f(A)"
-  )
+  def testOrdinaryReference(): Unit = check(
+    before = "f",
+    after = "f"
+  )(header = "def f: A = _")
 
-  def testReferenceExplicitExpansion() = check(
-    "def f(a: A): B = _",
-    "f _",
-    "f _"
-  )
+  def testOrdinaryCall(): Unit = check(
+    before = "f(A)",
+    after = "f(A)"
+  )(header = "def f(a: A): B = _")
 
-  def testCallExplictExpansion() = check(
-    "def f(a: A)(b: B): C = _",
-    "f(a) _",
-    "f(a) _"
-  )
+  def testReferenceExplicitExpansion(): Unit = check(
+    before = "f _",
+    after = "f _"
+  )(header = "def f(a: A): B = _")
+
+  def testCallExplicitExpansion(): Unit = check(
+    before = "f(a) _",
+    after = "f(a) _"
+  )(header = "def f(a: A)(b: B): C = _")
 
   // TODO test Java method
 }

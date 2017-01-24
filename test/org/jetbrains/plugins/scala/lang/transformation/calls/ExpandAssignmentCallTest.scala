@@ -1,55 +1,57 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
-class ExpandAssignmentCallTest extends TransformerTest(new ExpandAssignmentCall(),
-  """
+class ExpandAssignmentCallTest extends TransformerTest(new ExpandAssignmentCall()) {
+
+  override protected val header: String =
+    """
      class T {
        def +(p: A) = new T()
        def ::(p: A) = new T()
      }
 
      var t = new T()
-  """) {
+  """
 
-  def testImplicit() = check(
-    "t += A",
-    "t = t + A"
-  )
+  def testImplicit(): Unit = check(
+    before = "t += A",
+    after = "t = t + A"
+  )()
 
-  def testSynthetic() = check(
-    "var i = 0",
-    "i += 1",
-    "i = i + 1"
-  )
+  def testSynthetic(): Unit = check(
+    before = "i += 1",
+    after = "i = i + 1"
+  )(header = "var i = 0")
 
-  def testRightAssociative() = check(
-    "t ::= A",
-    "t = A :: t"
-  )
+  def testRightAssociative(): Unit = check(
+    before = "t ::= A",
+    after = "t = A :: t"
+  )()
 
-  def testExplicit() = check(
-    "t = t + A",
-    "t = t + A"
-  )
+  def testExplicit(): Unit = check(
+    before = "t = t + A",
+    after = "t = t + A"
+  )()
 
-  def testWithoutAssignment() = check(
-    "t + A",
-    "t + A"
-  )
+  def testWithoutAssignment(): Unit = check(
+    before = "t + A",
+    after = "t + A"
+  )()
 
-  def testRealMethod() = check(
+  def testRealMethod(): Unit = check(
+    before = "r += A",
+    after = "r += A"
+  )(header =
     """
      class R {
        def +=(p: A) = new R()
      }
 
      var r = new R()
-    """,
-    "r += A",
-    "r += A"
-  )
+    """)
 }

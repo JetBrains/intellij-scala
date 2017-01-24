@@ -1,33 +1,35 @@
-package org.jetbrains.plugins.scala.lang.transformation.types
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package types
 
 /**
   * @author Pavel Fatin
   */
 class ExpandTupleTypeTest extends TransformerTest(new ExpandTupleType()) {
-  def testTuple2() = check(
-    "val v: (A, B)",
-    "val v: Tuple2[A, B]"
-  )
 
-  def testTuple3() = check(
-    "val v: (A, B, C)",
-    "val v: Tuple3[A, B, C]"
-  )
+  def testTuple2(): Unit = check(
+    before = "val v: (A, B)",
+    after = "val v: Tuple2[A, B]"
+  )()
 
-  def testParens() = check(
-    "val v: (A)",
-    "val v: (A)"
-  )
+  def testTuple3(): Unit = check(
+    before = "val v: (A, B, C)",
+    after = "val v: Tuple3[A, B, C]"
+  )()
 
-  def testInsideFunctionType() = check(
-    "val v: (A, B) => C",
-    "val v: (A, B) => C"
-  )
+  def testParenthesis(): Unit = check(
+    before = "val v: (A)",
+    after = "val v: (A)"
+  )()
 
-  def testExplicit() = check(
-    "val v: Tuple2[A, B]",
-    "val v: Tuple2[A, B]"
-  )
+  def testInsideFunctionType(): Unit = check(
+    before = "val v: (A, B) => C",
+    after = "val v: (A, B) => C"
+  )()
+
+  def testExplicit(): Unit = check(
+    before = "val v: Tuple2[A, B]",
+    after = "val v: Tuple2[A, B]"
+  )()
 }

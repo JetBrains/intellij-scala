@@ -1,38 +1,41 @@
-package org.jetbrains.plugins.scala.lang.transformation
+package org.jetbrains.plugins.scala
+package lang
+package transformation
 package declarations
 
 /**
   * @author Pavel Fatin
   */
 class MakeResultExpressionExplicitTest extends TransformerTest(new MakeResultExpressionExplicit()) {
-  def testResultExpression() = check(
-    "def f(): A = A",
-    "def f(): A = return A"
-  )
 
-  def testMultipleExpressions() = check(
-    "def f(): A = if (true) A else A",
-    "def f(): A = if (true) return A else return A"
-  )
+  def testResultExpression(): Unit = check(
+    before = "def f(): A = A",
+    after = "def f(): A = return A"
+  )()
 
-  def testNoExplicitResultType() = check(
-    "def f() = A",
-    "def f() = A"
-  )
+  def testMultipleExpressions(): Unit = check(
+    before = "def f(): A = if (true) A else A",
+    after = "def f(): A = if (true) return A else return A"
+  )()
 
-  def testUnitResultType() = check(
-    "def f(): Unit = A",
-    "def f(): Unit = A"
-  )
+  def testNoExplicitResultType(): Unit = check(
+    before = "def f() = A",
+    after = "def f() = A"
+  )()
 
-  def testIntermediateExpression() = check(
-    "def f(): A = { A; B }",
-    "def f(): A = { A; return B }"
-  )
+  def testUnitResultType(): Unit = check(
+    before = "def f(): Unit = A",
+    after = "def f(): Unit = A"
+  )()
 
-  def testNoEnclosingMethod() = check(
-    "{ A }",
-    "{ A }"
-  )
+  def testIntermediateExpression(): Unit = check(
+    before = "def f(): A = { A; B }",
+    after = "def f(): A = { A; return B }"
+  )()
+
+  def testNoEnclosingMethod(): Unit = check(
+    before = "{ A }",
+    after = "{ A }"
+  )()
 }
 

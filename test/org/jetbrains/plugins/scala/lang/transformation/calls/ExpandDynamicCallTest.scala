@@ -1,12 +1,15 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
-class ExpandDynamicCallTest extends TransformerTest(new ExpandDynamicCall(),
-  """
+class ExpandDynamicCallTest extends TransformerTest(new ExpandDynamicCall()) {
+
+  override protected val header: String =
+    """
      object O extends Dynamic {
        def applyDynamic(s: String)(args: Any*) {}
        def applyDynamicNamed(s: String)(args: (String, Any)*) {}
@@ -14,65 +17,67 @@ class ExpandDynamicCallTest extends TransformerTest(new ExpandDynamicCall(),
        def updateDynamic(s: String)(arg: Any) {}
        def f() {}
      }
-  """) {
+  """
 
-  def testApplyDynamic() = check(
-    "O.foo(A)",
-    "O.applyDynamic(\"foo\")(A)"
-  )
+  def testApplyDynamic(): Unit = check(
+    before = "O.foo(A)",
+    after = "O.applyDynamic(\"foo\")(A)"
+  )()
 
-  def testApplyDynamicInfix() = check(
-    "O foo A",
-    "O.applyDynamic(\"foo\")(A)"
-  )
+  def testApplyDynamicInfix(): Unit = check(
+    before = "O foo A",
+    after = "O.applyDynamic(\"foo\")(A)"
+  )()
 
-  def testApplyDynamicNamed() = check(
-    "O.foo(bar = A)",
-    "O.applyDynamicNamed(\"foo\")((\"bar\", A))"
-  )
+  def testApplyDynamicNamed(): Unit = check(
+    before = "O.foo(bar = A)",
+    after = "O.applyDynamicNamed(\"foo\")((\"bar\", A))"
+  )()
 
-  def testApplyDynamicNamedInfix() = check(
-    "O foo (bar = A)",
-    "O.applyDynamicNamed(\"foo\")((\"bar\", A))"
-  )
+  def testApplyDynamicNamedInfix(): Unit = check(
+    before = "O foo (bar = A)",
+    after = "O.applyDynamicNamed(\"foo\")((\"bar\", A))"
+  )()
 
-  def testSelectDynamic() = check(
-    "O.foo",
-    "O.selectDynamic(\"foo\")"
-  )
+  def testSelectDynamic(): Unit = check(
+    before = "O.foo",
+    after = "O.selectDynamic(\"foo\")"
+  )()
 
-  def testSelectDynamicPostfix() = check(
-    "O foo",
-    "O.selectDynamic(\"foo\")"
-  )
+  def testSelectDynamicPostfix(): Unit = check(
+    before = "O foo",
+    after = "O.selectDynamic(\"foo\")"
+  )()
 
-  def testUpdateDynamic() = check(
-    "O.foo = A",
-    "O.updateDynamic(\"foo\")(A)"
-  )
+  def testUpdateDynamic(): Unit = check(
+    before = "O.foo = A",
+    after = "O.updateDynamic(\"foo\")(A)"
+  )()
 
-  def testUpdateDynamicPostfix() = check(
-    "O foo = A",
-    "O.updateDynamic(\"foo\")(A)"
-  )
+  def testUpdateDynamicPostfix(): Unit = check(
+    before = "O foo = A",
+    after = "O.updateDynamic(\"foo\")(A)"
+  )()
 
-  def testExplicitMethod() = check(
-    """
+  def testExplicitMethod(): Unit = check(
+    before =
+      """
        O.applyDynamic("foo")(A)
        O.applyDynamicNamed("foo")(("bar", A))
        O.selectDynamic("foo")
        O.updateDynamic("foo")(A)
     """,
-    """
+    after =
+      """
        O.applyDynamic("foo")(A)
        O.applyDynamicNamed("foo")(("bar", A))
        O.selectDynamic("foo")
        O.updateDynamic("foo")(A)
     """
-  )
+  )()
 
-  def testRealMethod() = check(
-    "O.f()",
-    "O.f()"
-  )
+  def testRealMethod(): Unit = check(
+    before = "O.f()",
+    after = "O.f()"
+  )()
 }

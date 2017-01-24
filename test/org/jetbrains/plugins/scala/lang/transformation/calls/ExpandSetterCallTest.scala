@@ -1,53 +1,58 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
-class ExpandSetterCallTest extends TransformerTest(new ExpandSetterCall(),
-  """
+class ExpandSetterCallTest extends TransformerTest(new ExpandSetterCall()) {
+
+  override protected val header: String =
+    """
      object O {
        var v1: A = _
        var v2: A
        private[this] var v3: A = _
      }
-  """) {
+  """
 
-  def testPropertyDefinition() = check(
-    "O.v1 = A",
-    "O.v1_=(A)"
-  )
+  def testPropertyDefinition(): Unit = check(
+    before = "O.v1 = A",
+    after = "O.v1_=(A)"
+  )()
 
-  def testPropertyDeclaration() = check(
-    "O.v2 = A",
-    "O.v2_=(A)"
-  )
+  def testPropertyDeclaration(): Unit = check(
+    before = "O.v2 = A",
+    after = "O.v2_=(A)"
+  )()
 
-  def testPrivateThisVariable() = check(
-    "O.v3 = A",
-    "O.v3 = A"
-  )
+  def testPrivateThisVariable(): Unit = check(
+    before = "O.v3 = A",
+    after = "O.v3 = A"
+  )()
 
-  def testIncomplete() = check(
-    "O.v1 =",
-    "O.v1_=()"
-  )
+  def testIncomplete(): Unit = check(
+    before = "O.v1 =",
+    after = "O.v1_=()"
+  )()
 
-  def testBlockVariable() = check(
-    """
+  def testBlockVariable(): Unit = check(
+    before = "v = A",
+    after = "v = A"
+  )(
+    header =
+      """
      {
        val v: A = _
     """,
-    "v = A",
-    "v = A",
-    "}"
+    footer = "}"
   )
 
-  def testExplicitCall() = check(
-    "O.v_=(A)",
-    "O.v_=(A)"
-  )
+  def testExplicitCall(): Unit = check(
+    before = "O.v_=(A)",
+    after = "O.v_=(A)"
+  )()
 
   // TODO variable in compiled code
 }

@@ -1,45 +1,45 @@
-package org.jetbrains.plugins.scala.lang.transformation.annotations
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package annotations
 
 /**
   * @author Pavel Fatin
   */
 class AddTypeToReferencePatternTest extends TransformerTest(new AddTypeToReferencePattern()) {
-  def testCaseCaluse() = check(
-    "(new A()) match { case v => }",
-    "(new A()) match { case v: A => }"
-  )
 
-  def testGenerator() = check(
-    "for (v <- new List[A]()) {}",
-    "for (v: A <- new List[A]()) {}"
-  )
+  def testCaseClause(): Unit = check(
+    before = "(new A()) match { case v => }",
+    after = "(new A()) match { case v: A => }"
+  )()
 
-  def testNestedPattern() = check(
-    "case class P(v: A)",
-    "val P(v) = P(new A())",
-    "val P(v: A) = P(new A())"
-  )
+  def testGenerator(): Unit = check(
+    before = "for (v <- new List[A]()) {}",
+    after = "for (v: A <- new List[A]()) {}"
+  )()
 
-  def testSimpleNameBinding() = check(
-    "import scala.io.Source",
-    "(new Source()) match { case v => }",
-    "(new Source()) match { case v: Source => }"
-  )
+  def testNestedPattern(): Unit = check(
+    before = "val P(v) = P(new A())",
+    after = "val P(v: A) = P(new A())"
+  )(header = "case class P(v: A)")
 
-  def testTypedPattern() = check(
-    "(new A()) match { case v: A => }",
-    "(new A()) match { case v: A => }"
-  )
+  def testSimpleNameBinding(): Unit = check(
+    before = "(new Source()) match { case v => }",
+    after = "(new Source()) match { case v: Source => }"
+  )(header = TransformationTest.ScalaSourceHeader)
 
-  def testValue() = check(
-    "val v = new A()",
-    "val v = new A()"
-  )
+  def testTypedPattern(): Unit = check(
+    before = "(new A()) match { case v: A => }",
+    after = "(new A()) match { case v: A => }"
+  )()
 
-  def testVariable() = check(
-    "var v = new A()",
-    "var v = new A()"
-  )
+  def testValue(): Unit = check(
+    before = "val v = new A()",
+    after = "val v = new A()"
+  )()
+
+  def testVariable(): Unit = check(
+    before = "var v = new A()",
+    after = "var v = new A()"
+  )()
 }

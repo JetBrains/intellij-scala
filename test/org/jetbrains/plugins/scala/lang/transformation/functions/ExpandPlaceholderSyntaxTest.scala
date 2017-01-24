@@ -1,70 +1,72 @@
-package org.jetbrains.plugins.scala.lang.transformation
+package org.jetbrains.plugins.scala
+package lang
+package transformation
 package functions
 
 /**
   * @author Pavel Fatin
   */
 class ExpandPlaceholderSyntaxTest extends TransformerTest(new ExpandPlaceholderSyntax()) {
-  def testUnderscore() = check(
-    "_.foo",
-    "x => x.foo"
-  )
 
-  def testUnderscoreType() = check(
-    "(_: A).foo",
-    "(a: A) => a.foo"
-  )
+  def testUnderscore(): Unit = check(
+    before = "_.foo",
+    after = "x => x.foo"
+  )()
 
-  def testMultipleUnderscores() = check(
-    "_.foo + _.bar",
-    "(x1, x2) => x1.foo + x2.bar"
-  )
+  def testUnderscoreType(): Unit = check(
+    before = "(_: A).foo",
+    after = "(a: A) => a.foo"
+  )()
 
-  def testArgument() = check(
-    "foo(_)",
-    "x => foo(x)"
-  )
+  def testMultipleUnderscores(): Unit = check(
+    before = "_.foo + _.bar",
+    after = "(x1, x2) => x1.foo + x2.bar"
+  )()
 
-  def testArgumentType() = check(
-    "foo(_: A)",
-    "(a: A) => foo(a)"
-  )
+  def testArgument(): Unit = check(
+    before = "foo(_)",
+    after = "x => foo(x)"
+  )()
 
-  def testMultipleArguments() = check(
-    "foo(_, _)",
-    "(x1, x2) => foo(x1, x2)"
-  )
+  def testArgumentType(): Unit = check(
+    before = "foo(_: A)",
+    after = "(a: A) => foo(a)"
+  )()
 
-  def testPartialApplicatoin() = check(
-    "foo(_, A)",
-    "x => foo(x, A)"
-  )
+  def testMultipleArguments(): Unit = check(
+    before = "foo(_, _)",
+    after = "(x1, x2) => foo(x1, x2)"
+  )()
 
-  def testUnderscoreAndArgument() = check(
-    "_.foo(_)",
-    "(x1, x2) => x1.foo(x2)"
-  )
+  def testPartialApplication(): Unit = check(
+    before = "foo(_, A)",
+    after = "x => foo(x, A)"
+  )()
 
-  def testExplicitQualifier() = check(
-    "a => a.foo",
-    "a => a.foo"
-  )
+  def testUnderscoreAndArgument(): Unit = check(
+    before = "_.foo(_)",
+    after = "(x1, x2) => x1.foo(x2)"
+  )()
 
-  def testExplicitArgument() = check(
-    "a => foo(a)",
-    "a => foo(a)"
-  )
+  def testExplicitQualifier(): Unit = check(
+    before = "a => a.foo",
+    after = "a => a.foo"
+  )()
 
-  def testInitializer() = check(
-    "val v: A = _",
-    "val v: A = _"
-  )
+  def testExplicitArgument(): Unit = check(
+    before = "a => foo(a)",
+    after = "a => foo(a)"
+  )()
 
-  def testEtaExpansion() = check(
-    "def f(a: A): C = _",
-    "f _",
-    "f _"
-  )
+  def testInitializer(): Unit = check(
+    before = "val v: A = _",
+    after = "val v: A = _"
+  )()
+
+  def testEtaExpansion(): Unit = check(
+    before = "f _",
+    after = "f _"
+  )(header = "def f(a: A): C = _")
 
   // TODO check for name collisions
 }

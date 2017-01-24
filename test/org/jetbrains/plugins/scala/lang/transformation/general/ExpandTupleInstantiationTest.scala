@@ -1,23 +1,25 @@
-package org.jetbrains.plugins.scala.lang.transformation.general
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package general
 
 /**
   * @author Pavel Fatin
   */
 class ExpandTupleInstantiationTest extends TransformerTest(new ExpandTupleInstantiation()) {
-  def testTuple2() = check(
-    "(A, B)",
-    "Tuple2(A, B)"
-  )
 
-  def testTuple3() = check(
-    "(A, B, C)",
-    "Tuple3(A, B, C)"
-  )
+  def testTuple2(): Unit = check(
+    before = "(A, B)",
+    after = "Tuple2(A, B)"
+  )()
 
-  def testExplicit() = check(
-    "Tuple2(A, B)",
-    "Tuple2(A, B)"
-  )
+  def testTuple3(): Unit = check(
+    before = "(A, B, C)",
+    after = "Tuple3(A, B, C)"
+  )()
+
+  def testExplicit(): Unit = check(
+    before = "Tuple2(A, B)",
+    after = "Tuple2(A, B)"
+  )()
 }

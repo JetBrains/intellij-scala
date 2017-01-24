@@ -1,35 +1,36 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
 class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgument()) {
-  def testMethodCall() = check(
-    "f {A}",
-    "f(A)"
-  )
+  def testMethodCall(): Unit = check(
+    before = "f {A}",
+    after = "f(A)"
+  )()
 
-  def testInfixExpression() = check(
-    "O f {A}",
-    "O f (A)"
-  )
+  def testInfixExpression(): Unit = check(
+    before = "O f {A}",
+    after = "O f (A)"
+  )()
 
-  def testComplexExpression() = check(
-    "f {A; B}",
-    "f({A; B})"
-  )
+  def testComplexExpression(): Unit = check(
+    before = "f {A; B}",
+    after = "f({A; B})"
+  )()
 
-  def testMultipleClauses() = check(
-    "f(A) {B}",
-    "f(A)(B)"
-  )
+  def testMultipleClauses(): Unit = check(
+    before = "f(A) {B}",
+    after = "f(A)(B)"
+  )()
 
-  def testExplicit() = check(
-    "f(A)",
-    "f(A)"
-  )
+  def testExplicit(): Unit = check(
+    before = "f(A)",
+    after = "f(A)"
+  )()
 
   // TODO test synthetic method
 }

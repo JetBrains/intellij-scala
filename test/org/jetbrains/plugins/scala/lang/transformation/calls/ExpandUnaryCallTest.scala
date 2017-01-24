@@ -1,42 +1,45 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
-class ExpandUnaryCallTest extends TransformerTest(new ExpandUnaryCall(),
-  """
+class ExpandUnaryCallTest extends TransformerTest(new ExpandUnaryCall()) {
+
+  override protected val header: String =
+    """
      object O {
        def unary_! {}
        def !(p: A) {}
      }
-  """) {
+  """
 
-  def testImplicit() = check(
-    "!O",
-    "O.unary_!"
-  )
+  def testImplicit(): Unit = check(
+    before = "!O",
+    after = "O.unary_!"
+  )()
 
-  def testSynthetic() = check(
-    "!true",
-    "true.unary_!"
-  )
+  def testSynthetic(): Unit = check(
+    before = "!true",
+    after = "true.unary_!"
+  )()
 
-  def testExplicit() =  check(
-    "O.unary_!",
-    "O.unary_!"
-  )
+  def testExplicit(): Unit = check(
+    before = "O.unary_!",
+    after = "O.unary_!"
+  )()
 
-  def testOtherPrefix() = check(
-    "+O",
-    "+O"
-  )
+  def testOtherPrefix(): Unit = check(
+    before = "+O",
+    after = "+O"
+  )()
 
-  def testOtherMethod() = check(
-    "O.!(A)",
-    "O.!(A)"
-  )
+  def testOtherMethod(): Unit = check(
+    before = "O.!(A)",
+    after = "O.!(A)"
+  )()
 
   // TODO test renamed method
 }

@@ -1,44 +1,45 @@
-package org.jetbrains.plugins.scala.lang.transformation.annotations
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package annotations
 
 /**
   * @author Pavel Fatin
   */
 class AddTypeToValueDefinitionTest extends TransformerTest(new AddTypeToValueDefinition()) {
-  def testSinglePattern() = check(
-    "val v = new A()",
-    "val v: A = new A()"
-  )
 
-  def testMultiplePatterns() = check(
-    "val v1, v2 = new A()",
-    "val v1, v2: A = new A()"
-  )
+  def testSinglePattern(): Unit = check(
+    before = "val v = new A()",
+    after = "val v: A = new A()"
+  )()
 
-  def testSimpleNameBinding() = check(
-    "import scala.io.Source",
+  def testMultiplePatterns(): Unit = check(
+    before = "val v1, v2 = new A()",
+    after = "val v1, v2: A = new A()"
+  )()
+
+  def testSimpleNameBinding(): Unit = check(
     "val v = new Source()",
     "val v: Source = new Source()"
-  )
+  )(header = TransformationTest.ScalaSourceHeader)
 
-  def testExplicitType() = check(
-    "val v: A = new A()",
-    "val v: A = new A()"
-  )
+  def testExplicitType(): Unit = check(
+    before = "val v: A = new A()",
+    after = "val v: A = new A()"
+  )()
 
-  def testDeclaration() = check(
-    "val v: A",
-    "val v: A"
-  )
+  def testDeclaration(): Unit = check(
+    before = "val v: A",
+    after = "val v: A"
+  )()
 
-  def testVariable() = check(
-    "var v = new A()",
-    "var v = new A()"
-  )
+  def testVariable(): Unit = check(
+    before = "var v = new A()",
+    after = "var v = new A()"
+  )()
 
-  def testCaseClause() = check(
-    "A match { case v => }",
-    "A match { case v => }"
-  )
+  def testCaseClause(): Unit = check(
+    before = "A match { case v => }",
+    after = "A match { case v => }"
+  )()
 }

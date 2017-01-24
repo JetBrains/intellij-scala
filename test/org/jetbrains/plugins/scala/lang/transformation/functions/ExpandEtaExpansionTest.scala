@@ -1,97 +1,88 @@
-package org.jetbrains.plugins.scala.lang.transformation
+package org.jetbrains.plugins.scala
+package lang
+package transformation
 package functions
 
 /**
   * @author Pavel Fatin
   */
 class ExpandEtaExpansionTest extends TransformerTest(new ExpandEtaExpansion()) {
-  def testExplicit() = check(
-    "def f(a: A) = _",
-    "f _",
-    "(a: A) => f(a)"
-  )
 
-  def testExplicitNoParameters() = check(
-    "def f = _",
-    "f _",
-    "() => f"
-  )
+  def testExplicit(): Unit = check(
+    before = "f _",
+    after = "(a: A) => f(a)"
+  )(header = "def f(a: A) = _")
 
-  def testExplicitMultipleParameters() = check(
-    "def f(a: A, b: B) = _",
-    "f _",
-    "(a: A, b: B) => f(a, b)"
-  )
+  def testExplicitNoParameters(): Unit = check(
+    before = "f _",
+    after = "() => f"
+  )(header = "def f = _")
 
-  def testExplicitMultipleClauses() = check(
-    "def f(a: A)(b: B) = _",
-    "f _",
-    "(a: A) => (b: B) => f(a)(b)"
-  )
+  def testExplicitMultipleParameters(): Unit = check(
+    before = "f _",
+    after = "(a: A, b: B) => f(a, b)"
+  )(header = "def f(a: A, b: B) = _")
 
-  def testExplicitCurrying() = check(
-    "def f(a: A)(b: B) = _",
-    "f(a) _",
-    "(b: B) => f(a)(b)"
-  )
+  def testExplicitMultipleClauses(): Unit = check(
+    before = "f _",
+    after = "(a: A) => (b: B) => f(a)(b)"
+  )(header = "def f(a: A)(b: B) = _")
 
-  def testImplicit() = check(
-    "def f(a: A): B = _",
-    "val v: A => B = f",
-    "val v: A => B = a => f(a)"
-  )
+  def testExplicitCurrying(): Unit = check(
+    before = "f(a) _",
+    after = "(b: B) => f(a)(b)"
+  )(header = "def f(a: A)(b: B) = _")
 
-  def testImplicitNoParameters() = check(
-    "def f: A = _",
-    "val v: () => A = f", // not applicable
-    "val v: () => A = f"
-  )
+  def testImplicit(): Unit = check(
+    before = "val v: A => B = f",
+    after = "val v: A => B = a => f(a)"
+  )(header = "def f(a: A): B = _")
 
-  def testImplicitMultipleParameters() = check(
-    "def f(a: A, b: B): C = _",
-    "val v: (A, B) => C = f",
-    "val v: (A, B) => C = (a, b) => f(a, b)"
-  )
+  def testImplicitNoParameters(): Unit = check(
+    before = "val v: () => A = f", // not applicable
+    after = "val v: () => A = f"
+  )(header = "def f: A = _")
 
-  def testImplicitMultipleClauses() = check(
-    "def f(a: A)(b: B): C = _",
-    "val v: A => B => C = f",
-    "val v: A => B => C = a => b => f(a)(b)"
-  )
+  def testImplicitMultipleParameters(): Unit = check(
+    before = "val v: (A, B) => C = f",
+    after = "val v: (A, B) => C = (a, b) => f(a, b)"
+  )(header = "def f(a: A, b: B): C = _")
 
-  def testImplicitCurrying() = check(
-    "def f(a: A)(b: B): C = _",
-    "val v: B => C = f(a)",
-    "val v: B => C = b => f(a)(b)"
-  )
+  def testImplicitMultipleClauses(): Unit = check(
+    before = "val v: A => B => C = f",
+    after = "val v: A => B => C = a => b => f(a)(b)"
+  )("def f(a: A)(b: B): C = _")
 
-  def testNaming() = check(
-    "def f(foo: A) = _",
-    "f _",
-    "(foo: A) => f(foo)"
-  )
+  def testImplicitCurrying(): Unit = check(
+    before = "val v: B => C = f(a)",
+    after = "val v: B => C = b => f(a)(b)"
+  )(header = "def f(a: A)(b: B): C = _")
 
-  def testArbitraryArgument() = check(
-    "def f(a: A)(b: B) = _",
-    "f(c) _",
-    "(b: B) => f(c)(b)"
-  )
+  def testNaming(): Unit = check(
+    before = "f _",
+    after = "(foo: A) => f(foo)"
+  )(header = "def f(foo: A) = _")
+
+  def testArbitraryArgument(): Unit = check(
+    before = "f(c) _",
+    after = "(b: B) => f(c)(b)"
+  )(header = "def f(a: A)(b: B) = _")
 
   // "easter egg" syntax (by-name parameter is actually a method)
-  def testExplicitByNameParameter() = check(
-    "def f(a: => A) = a _",
-    "def f(a: => A) = () => a"
-  )
+  def testExplicitByNameParameter(): Unit = check(
+    before = "def f(a: => A) = a _",
+    after = "def f(a: => A) = () => a"
+  )()
 
-  def testImplicitByNameParameter() = check(
-    "def f(a: => A) = { val v: () => A = a }", // not applicable
-    "def f(a: => A) = { val v: () => A = a }"
-  )
+  def testImplicitByNameParameter(): Unit = check(
+    before = "def f(a: => A) = { val v: () => A = a }", // not applicable
+    after = "def f(a: => A) = { val v: () => A = a }"
+  )()
 
-  def testExplicitNormalParameter() = check(
-    "def f(a: A) = a _",
-    "def f(a: A) = a _"
-  )
+  def testExplicitNormalParameter(): Unit = check(
+    before = "def f(a: A) = a _",
+    after = "def f(a: A) = a _"
+  )()
 
   // TODO Java methods
 }

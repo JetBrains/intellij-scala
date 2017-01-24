@@ -1,62 +1,63 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
-class ExpandApplyCallTest extends TransformerTest(new ExpandApplyCall(),
-  """
+class ExpandApplyCallTest extends TransformerTest(new ExpandApplyCall()) {
+
+  override protected val header: String =
+    """
      object O {
        def apply(p: A) {}
        def apply(p1: A, p2: A) {}
        def f(p: A) {}
      }
-  """) {
+  """
 
-  def testSingleArgument() = check(
-    "O(A)",
-    "O.apply(A)"
-  )
+  def testSingleArgument(): Unit = check(
+    before = "O(A)",
+    after = "O.apply(A)"
+  )()
 
-  def testMultipleArguments() = check(
-    "O(A, A)",
-    "O.apply(A, A)"
-  )
+  def testMultipleArguments(): Unit = check(
+    before = "O(A, A)",
+    after = "O.apply(A, A)"
+  )()
 
-  def testSynthetic() = check(
-    "case class S(a: A)",
-    "S(A)",
-    "S.apply(A)"
-  )
+  def testSynthetic(): Unit = check(
+    before = "S(A)",
+    after = "S.apply(A)"
+  )(header = "case class S(a: A)")
 
-  def testExplicit() =  check(
-    "O.apply(A)",
-    "O.apply(A)"
-  )
+  def testExplicit(): Unit = check(
+    before = "O.apply(A)",
+    after = "O.apply(A)"
+  )()
 
-  def testOtherMethod() = check(
-    "O.f(A)",
-    "O.f(A)"
-  )
+  def testOtherMethod(): Unit = check(
+    before = "O.f(A)",
+    after = "O.f(A)"
+  )()
 
-  def testIndirectResolution() = check(
-    "val v = O",
-    "v(A)",
-    "v.apply(A)"
-  )
+  def testIndirectResolution(): Unit = check(
+    before = "v(A)",
+    after = "v.apply(A)"
+  )(header = "val v = O")
 
-  def testCompoundQualifier() = check(
+  def testCompoundQualifier(): Unit = check(
+    before = "O1.O2(A)",
+    after = "O1.O2.apply(A)"
+  )(header =
     """
      object O1 {
        object O2 {
          def apply(p: A) {}
        }
      }
-    """,
-    "O1.O2(A)",
-    "O1.O2.apply(A)"
-  )
+    """)
 
   // TODO test renamed "apply" method
 }

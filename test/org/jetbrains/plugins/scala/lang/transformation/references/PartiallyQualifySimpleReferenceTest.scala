@@ -1,42 +1,44 @@
-package org.jetbrains.plugins.scala.lang.transformation.references
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package references
 
 /**
   * @author Pavel Fatin
   */
 class PartiallyQualifySimpleReferenceTest extends TransformerTest(new PartiallyQualifySimpleReference()) {
-  def testUnqualified() = check(
+
+  def testUnqualified(): Unit = check(
+    before = "f",
+    after = "O.f"
+  )(header =
     """
      object O {
        def f: A = _
      }
      import O._
-    """,
-    "f",
-    "O.f"
-  )
+    """)
 
-  def testQualified() = check(
+  def testQualified(): Unit = check(
+    before = "O.f",
+    after = "O.f"
+  )(header =
     """
      object O {
        def f: A = _
      }
      import O._
-    """,
-    "O.f",
-    "O.f"
-  )
+    """)
 
-  def testIndirect() = check(
+  def testIndirect(): Unit = check(
+    before = "f",
+    after = "O.f"
+  )(header =
     """
      class T {
        def f: A = _
      }
      object O extends T
      import O._
-    """,
-    "f",
-    "O.f"
-  )
+    """)
 }

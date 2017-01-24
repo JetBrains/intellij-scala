@@ -1,34 +1,37 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
-class ExpandAutoTuplingTest extends TransformerTest(new ExpandAutoTupling(),
-  """
+class ExpandAutoTuplingTest extends TransformerTest(new ExpandAutoTupling()) {
+
+  override protected val header: String =
+    """
      object O {
        def f(v: Any) {}
      }
-  """) {
+  """
 
-  def testMethodCall() = check(
-    "O.f(A, B)",
-    "O.f((A, B))"
-  )
+  def testMethodCall(): Unit = check(
+    before = "O.f(A, B)",
+    after = "O.f((A, B))"
+  )()
 
-  def testInfixExpression() = check(
-    "O f (A, B)",
-    "O f ((A, B))"
-  )
+  def testInfixExpression(): Unit = check(
+    before = "O f (A, B)",
+    after = "O f ((A, B))"
+  )()
 
-  def testSingleArgument() = check(
-    "O.f(A)",
-    "O.f(A)"
-  )
+  def testSingleArgument(): Unit = check(
+    before = "O.f(A)",
+    after = "O.f(A)"
+  )()
 
-  def testExplicit() = check(
-    "O.f((A, B))",
-    "O.f((A, B))"
-  )
+  def testExplicit(): Unit = check(
+    before = "O.f((A, B))",
+    after = "O.f((A, B))"
+  )()
 }

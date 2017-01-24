@@ -1,45 +1,47 @@
-package org.jetbrains.plugins.scala.lang.transformation.calls
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package calls
 
 /**
   * @author Pavel Fatin
   */
-class ExpandUpdateCallTest extends TransformerTest(new ExpandUpdateCall(),
-  """
+class ExpandUpdateCallTest extends TransformerTest(new ExpandUpdateCall()) {
+
+  override protected val header: String =
+    """
      object O {
        def update(k: A, v: B) {}
        def update(k1: A, k2: A, v: B) {}
        def f(k: A, v: B) {}
      }
-    """) {
+    """
 
-  def testSingleArgument() = check(
-    "O(A) = B",
-    "O.update(A, B)"
-  )
+  def testSingleArgument(): Unit = check(
+    before = "O(A) = B",
+    after = "O.update(A, B)"
+  )()
 
-  def testMultipleArguments() = check(
-    "O(A, A) = B",
-    "O.update(A, A, B)"
-  )
+  def testMultipleArguments(): Unit = check(
+    before = "O(A, A) = B",
+    after = "O.update(A, A, B)"
+  )()
 
-  def testExplicit() = check(
-    "O.update(A, B)",
-    "O.update(A, B)"
-  )
+  def testExplicit(): Unit = check(
+    before = "O.update(A, B)",
+    after = "O.update(A, B)"
+  )()
 
-  def testOtherMethod() = check(
-    "O.f(A, B)",
-    "O.f(A, B)"
-  )
+  def testOtherMethod(): Unit = check(
+    before = "O.f(A, B)",
+    after = "O.f(A, B)"
+  )()
 
-// TODO set ResolveResult.innerResolveResult as we do for "appply"
-//  def testIndirectResolution() = check(
-//    "val v = O",
-//    "v(A) = B",
-//    "v.update(A) = B"
-//  )
+  // TODO set ResolveResult.innerResolveResult as we do for "appply"
+  //  def testIndirectResolution(): Unit = check(
+  //    before = "v(A) = B",
+  //    after = "v.update(A) = B"
+  //  )(header = "val v = O")
 
   // TODO test renamed "update" method
 }

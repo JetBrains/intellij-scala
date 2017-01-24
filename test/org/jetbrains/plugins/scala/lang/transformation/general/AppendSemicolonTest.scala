@@ -1,23 +1,37 @@
-package org.jetbrains.plugins.scala.lang.transformation.general
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package general
 
 /**
   * @author Pavel Fatin
   */
 class AppendSemicolonTest extends TransformerTest(new AppendSemicolon()) {
-  def testSingleLineSeparator() = check(
-    "A\nB",
-    "A;\nB;"
-  )
 
-  def testMultipleLineSeparators() = check(
-    "A\n\nB",
-    "A;\n\nB;"
-  )
+  def testSingleLineSeparator(): Unit = check(
+    before =
+      """A
+        |B""".stripMargin,
+    after =
+      """A;
+        |B;""".stripMargin
+  )()
 
-  def testExplicit() = check(
-    "A;\nB;",
-    "A;\nB;"
-  )
+  def testMultipleLineSeparators(): Unit = check(
+    before =
+      """A
+        |B""".stripMargin,
+    after =
+      """A;
+        |B;""".stripMargin
+  )()
+
+  def testExplicit(): Unit = check(
+    before =
+      """A;
+        |B;""".stripMargin,
+    after =
+      """A;
+        |B;""".stripMargin
+  )()
 }

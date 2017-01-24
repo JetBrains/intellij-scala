@@ -1,33 +1,36 @@
-package org.jetbrains.plugins.scala.lang.transformation.annotations
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package annotations
 
 /**
   * @author Pavel Fatin
   */
-class AddTypeToUnderscoreParameterTest extends TransformerTest(new AddTypeToUnderscoreParameter(),
-  """
+class AddTypeToUnderscoreParameterTest extends TransformerTest(new AddTypeToUnderscoreParameter()) {
+
+  override protected val header: String =
+    """
      object O {
        def apply(v: A => Unit) {}
      }
-  """) {
+  """
 
-  def testImplicitType() = check(
-    "O(_.a())",
-    "O((_: A).a())"
-  )
+  def testImplicitType(): Unit = check(
+    before = "O(_.a())",
+    after = "O((_: A).a())"
+  )()
 
-  def testSimpleNameBinding() = check(
-    """
-     import scala.io.Source
+  def testSimpleNameBinding(): Unit = check(
+    before = "X(_.toString)",
+    after = "X((_: Source).toString)"
+  )(header =
+    s"""
+     ${TransformationTest.ScalaSourceHeader}
      object X { def apply(f: Source => Unit) {} }
-    """,
-    "X(_.toString)",
-    "X((_: Source).toString)"
-  )
+    """)
 
-  def testExplicitType() = check(
-    "O((_: A).a())",
-    "O((_: A).a())"
+  def testExplicitType(): (String, String) => Unit = check(
+    before = "O((_: A).a())",
+    after = "O((_: A).a())"
   )
 }

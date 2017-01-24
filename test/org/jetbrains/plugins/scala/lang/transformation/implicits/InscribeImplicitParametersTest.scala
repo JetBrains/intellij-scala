@@ -1,58 +1,62 @@
-package org.jetbrains.plugins.scala.lang.transformation.implicits
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package implicits
 
 /**
   * @author Pavel Fatin
   */
-class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplicitParameters(),
-  "implicit val v: A = _") {
+class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplicitParameters()) {
 
-  def testReferenceExpression() = check(
-    "def f(implicit p: A) {}",
-    "f",
-    "f(v)"
-  )
+  override protected val header: String =
+    "implicit val v: A = _"
 
-  def testMethodCall() = check(
-    "def f(p1: A)(implicit p2: A) {}",
-    "f(A)",
-    "f(A)(v)"
-  )
+  def testReferenceExpression(): Unit = check(
+    before = "f",
+    after = "f(v)"
+  )(header = "def f(implicit p: A) {}")
 
-  def testInfixExpression() = check(
+  def testMethodCall(): Unit = check(
+    before = "f(A)",
+    after = "f(A)(v)"
+  )(header = "def f(p1: A)(implicit p2: A) {}")
+
+  def testInfixExpression(): Unit = check(
+    before = "O f A",
+    after = "(O f A)(v)"
+  )(header =
     """
      object O {
        def f(p1: A)(implicit p2: A) {}
      }
-    """,
-    "O f A",
-    "(O f A)(v)"
-  )
+    """)
 
-  def testPostfixExpression() = check(
+  def testPostfixExpression(): Unit = check(
+    before = "O f",
+    after = "(O f)(v)"
+  )(header =
     """
      object O {
        def f(implicit p: A) {}
      }
-    """,
-    "O f",
-    "(O f)(v)"
-  )
+    """)
 
-  def testUnimported() = check(
+  def testNotImported(): Unit = check(
+    before = "f",
+    after = "f(O.v)"
+  )(header =
     """
        class O
        object O {
          implicit val v: O = _
        }
        def f(implicit p: O) {}
-    """,
-    "f",
-    "f(O.v)"
-  )
+    """)
 
-  def testIndirection() = check(
+  def testIndirection(): Unit = check(
+    before = "f",
+    after = "f(O.v)"
+  )(header =
     """
       class T {
         implicit val v: O = _
@@ -60,27 +64,24 @@ class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplici
       class O
       object O extends T
       def f(implicit p: O) {}
-    """,
-    "f",
-    "f(O.v)"
-  )
+    """)
 
   // TODO inscribe something like "implicitly[ClassTag[T]]"?
-  def testReflect() = check(
+  def testReflect(): Unit = check(
+    before = "O f",
+    after = "O f"
+  )(header =
     """
      object O {
        def f(implicit p: scala.reflect.ClassTag[A]) {}
      }
-    """,
-    "O f",
-    "O f"
-  )
+    """)
 
-// TODO inscibe type arguments
-//  def testTypeArguments() = check(
-//    "Seq(1).map(_ + 1)",
-//    "Seq(1).map(_ + 1)(Seq.canBuildFrom[Int])"
-//  )
+  // TODO inscibe type arguments
+  //  def testTypeArguments(): Unit = check(
+  //    before = "Seq(1).map(_ + 1)",
+  //    after = "Seq(1).map(_ + 1)(Seq.canBuildFrom[Int])"
+  //  )()
 
   // TODO test optional qualifier
   // TODO test multiple parameters

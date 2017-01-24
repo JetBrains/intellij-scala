@@ -1,28 +1,30 @@
-package org.jetbrains.plugins.scala.lang.transformation.types
-
-import org.jetbrains.plugins.scala.lang.transformation.TransformerTest
+package org.jetbrains.plugins.scala
+package lang
+package transformation
+package types
 
 /**
   * @author Pavel Fatin
   */
 class ExpandFunctionTypeTest extends TransformerTest(new ExpandFunctionType()) {
-  def testSingleArgument() = check(
-    "val v: A => B",
-    "val v: Function1[A, B]"
-  )
 
-  def testParens() = check(
-    "val v: (A) => B",
-    "val v: Function1[A, B]"
-  )
+  def testSingleArgument(): Unit = check(
+    before = "val v: A => B",
+    after = "val v: Function1[A, B]"
+  )()
 
-  def testMultipleArguments() = check(
-    "val v: (A, B) => C",
-    "val v: Function2[A, B, C]"
-  )
+  def testParenthesis(): Unit = check(
+    before = "val v: (A) => B",
+    after = "val v: Function1[A, B]"
+  )()
 
-  def testExplicit() = check(
-    "val v: Function1[A, B]",
-    "val v: Function1[A, B]"
-  )
+  def testMultipleArguments(): Unit = check(
+    before = "val v: (A, B) => C",
+    after = "val v: Function2[A, B, C]"
+  )()
+
+  def testExplicit(): Unit = check(
+    before = "val v: Function1[A, B]",
+    after = "val v: Function1[A, B]"
+  )()
 }
