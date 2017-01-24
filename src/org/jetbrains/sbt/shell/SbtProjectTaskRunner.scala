@@ -68,28 +68,31 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
     // and may work differently than just calling the products task from the main module in sbt
     val command = tasks.asScala.collect {
       case task: ModuleBuildTask =>
-        // FIXME use id, not name. but where do we get id from?
         val module = task.getModule
         val project = module.getProject
-        val projectInfo = ProjectDataManager.getInstance().getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath)
-        val projectStructure = projectInfo.getExternalProjectStructure
-        val moduleId = ES.getExternalProjectId(module)
+        val moduleId = ES.getExternalProjectId(module) // nullable, but that's okay for use in predicate
 
+        // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
         val predicate = new BooleanFunction[DataNode[ModuleData]] {
-          // TODO well this seems hacky. any better way to get the data for selected module?
           override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
         }
 
         val emptyURI = new URI("")
+        val dataManager = ProjectDataManager.getInstance()
+
 
         for {
+          projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
+          projectStructure <- Option(projectInfo.getExternalProjectStructure)
           moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
           moduleSbtDataNode <- Option(ES.find(moduleDataNode, SbtModuleData.Key))
-          data = moduleSbtDataNode.getData
-          uri = data.buildURI
+          data = {
+            dataManager.ensureTheDataIsReadyToUse(moduleSbtDataNode)
+            moduleSbtDataNode.getData
+          }
           // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
           // created from AAR files. Should implement a more elegant solution for AARs.
-          if uri != null && uri != emptyURI
+          uri <- Option(data.buildURI) if uri != emptyURI
         } yield {
           val id = data.id
           // `products` task is a little more general than just `compile`
