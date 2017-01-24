@@ -62,8 +62,10 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      (applicable, installed) match {
        case (true, true) => // do nothing
        case (true, false) =>
-         bar.addWidget(Widget, "before Position", project)
-         installed = true
+         bar.foreach { b =>
+           b.addWidget(Widget, "before Position", project)
+           installed = true
+         }
        case (false, true) =>
          removeWidget()
        case (false, false) => // do nothing
@@ -72,14 +74,14 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
   def removeWidget() {
     if (installed) {
-      bar.removeWidget(Widget.ID)
+      bar.foreach(_.removeWidget(Widget.ID))
       installed = false
     }
   }
 
   private def updateWidget() {
-     bar.updateWidget(Widget.ID)
-   }
+    bar.foreach(_.updateWidget(Widget.ID))
+  }
 
   private def applicable = running ||
           ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
@@ -91,7 +93,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
 
    private def launcher = CompileServerLauncher.instance
 
-   private def bar = WindowManager.getInstance.getStatusBar(project)
+   private def bar = Option(WindowManager.getInstance.getStatusBar(project))
 
    private object Widget extends StatusBarWidget {
      def ID = "Compile server"
