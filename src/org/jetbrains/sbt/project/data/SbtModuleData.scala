@@ -8,7 +8,7 @@ import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityD
 /**
   * Created by jast on 2016-12-12.
   */
-class SbtModuleData(val owner: ProjectSystemId, val id: String, val buildURI: URI)
+case class SbtModuleData(owner: ProjectSystemId, id: String, buildURI: URI)
   extends AbstractExternalEntityData(owner)
 
 object SbtModuleData {

@@ -86,7 +86,7 @@ class SbtProjectNode(val data: SbtProjectData)
 }
 
 class SbtModuleNode(val data: SbtModuleData) extends Node[SbtModuleData] {
-  def this(id: String, buildURI: URI) { this(new SbtModuleData(SbtProjectSystem.Id, id, buildURI)) }
+  def this(id: String, buildURI: URI) { this(SbtModuleData(SbtProjectSystem.Id, id, buildURI)) }
   override protected def key: Key[SbtModuleData] = SbtModuleData.Key
 }
 
