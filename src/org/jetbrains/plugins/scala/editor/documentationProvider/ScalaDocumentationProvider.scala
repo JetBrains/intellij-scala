@@ -399,7 +399,7 @@ object ScalaDocumentationProvider {
       escapeHtml(clazz.qualifiedName) + "</code></a>"
   }
 
-  private def parseParameters(elem: ScParameterOwner, spaces: Int)
+  def parseParameters(elem: ScParameterOwner, spaces: Int)
                              (implicit typeToString: ScType => String): String = {
     elem.allClauses.map(parseParameterClause(_, spaces)).mkString("\n")
   }

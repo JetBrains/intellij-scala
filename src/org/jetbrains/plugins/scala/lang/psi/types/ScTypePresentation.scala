@@ -122,8 +122,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           val fun = s.namedElement.asInstanceOf[ScFunction]
           val funCopy =
             ScFunction.getCompoundCopy(s.substitutedTypes.map(_.map(_()).toList), s.typeParams.toList, rt, fun)
-          val paramClauses = funCopy.paramClauses.clauses.map(_.parameters.map(param =>
-            ScalaDocumentationProvider.parseParameter(param)(typeText0)).mkString("(", ", ", ")")).mkString("")
+          val paramClauses = ScalaDocumentationProvider.parseParameters(funCopy, -1)(typeText0)
           val retType = if (!compType.equiv(rt)) typeText0(rt) else "this.type"
           val typeParams = if (funCopy.typeParameters.nonEmpty)
             funCopy.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
@@ -164,7 +163,7 @@ object ScTypePresentation extends api.ScTypePresentation {
         case _ => Seq.empty
       }
 
-      val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{", "; ", "}"))
+      val refinementText = if (declsTexts.isEmpty) Nil else Seq(declsTexts.mkString("{\n  ", "\n\n  ", "\n}"))
 
       (componentsText ++ refinementText).mkString(" ")
     }

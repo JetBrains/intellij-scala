@@ -209,14 +209,11 @@ object UpdateStrategy {
     def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 
     t match {
-      case ScCompoundType(comps, _, _) =>
+      case compound @ ScCompoundType(comps, _, _) =>
         val uselessTypes = Set("_root_.scala.Product", "_root_.scala.Serializable", "_root_.java.lang.Object")
-        comps.map(_.canonicalText).filterNot(uselessTypes.contains) match {
-          case Seq(base) => Seq(typeElemfromText(base))
-          case types => (Seq(types.mkString(" with ")) ++ types).flatMap { t =>
-            Seq(typeElemfromText(t))
-          }
-        }
+        val filtered = comps.filterNot(c => uselessTypes.contains(c.canonicalText))
+        val newCompType = compound.copy(components = filtered)
+        Seq(typeElemfromText(newCompType.canonicalText))
       case tp =>
         val project = context.getProject
         tp.extractClass(project) match {
