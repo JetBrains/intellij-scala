@@ -148,21 +148,22 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     else param.replace(newParam)
   }
 
+  def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
+    val parent = anchor.getParent
+    val added = parent.addAfter(annotation, anchor)
+
+    implicit val manager = anchor.getManager
+    parent.addAfter(createWhitespace, anchor)
+    parent.addAfter(createColon, anchor)
+    added
+  }
+
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement)
                        (implicit typeSystem: TypeSystem = context.typeSystem) {
-    def addActualType(annotation: ScTypeElement) = {
-      val parent = anchor.getParent
-      val added = parent.addAfter(annotation, anchor)
-
-      implicit val manager = context.getManager
-      parent.addAfter(createWhitespace, anchor)
-      parent.addAfter(createColon, anchor)
-      added
-    }
 
     val tps = UpdateStrategy.annotationsFor(t, context)
 
-    val added = addActualType(tps.head)
+    val added = addActualType(tps.head, anchor)
     editor match {
       case Some(e) if tps.size > 1 =>
         val texts = tps.reverse.flatMap(_.getType().toOption).map(ScTypeText)

@@ -1,16 +1,29 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeAnnotation
 
-import com.intellij.codeInspection.{LocalQuickFixBase, ProblemDescriptor, ProblemsHolder}
+import java.util
+
+import com.intellij.codeInspection._
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.util.ProgressWindow
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation}
+import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation, UpdateStrategy}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.formatting.settings._
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Pavel Fatin
@@ -80,10 +93,60 @@ class TypeAnnotationInspection extends AbstractInspection {
     }
   }
 
-  private class AddTypeAnnotationQuickFix(element: PsiElement) extends AbstractFixOnPsiElement("Add type annotation", element) {
+  private class AddTypeAnnotationQuickFix(element: PsiElement)
+    extends AbstractFixOnPsiElement("Add type annotation", element) with BatchQuickFix[CommonProblemDescriptor] {
+
     def doApplyFix(project: Project): Unit = {
       val elem = getElement
       ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, elem)(project.typeSystem)
+    }
+
+    override def applyFix(project: Project,
+                          descriptors: Array[CommonProblemDescriptor],
+                          psiElementsToIgnore: util.List[PsiElement],
+                          refreshViews: Runnable): Unit = {
+
+      val fixes = descriptors.flatMap { d =>
+        d.getFixes.collect {
+          case addTypeFix: AddTypeAnnotationQuickFix => addTypeFix
+        }
+      }
+      val buffer = ArrayBuffer[(ScTypeElement, PsiElement)]()
+      val strategy = new CollectTypesToAddStrategy(buffer)
+
+      val computeTypesRunnable = new Runnable {
+        override def run(): Unit = inReadAction {
+          for (fix <- fixes) {
+            val elem = fix.getElement
+            ToggleTypeAnnotation.complete(strategy, elem)(project.typeSystem)
+            val progress = ProgressManager.getInstance().getProgressIndicator
+            progress.setFraction(progress.getFraction + 1.0 / fixes.length)
+            progress.setText(elem.getText)
+          }
+        }
+      }
+
+      ApplicationManagerEx.getApplicationEx
+        .runProcessWithProgressSynchronously(computeTypesRunnable, getFamilyName, true, project)
+
+      inWriteCommandAction(project, getFamilyName) {
+        buffer.foreach {
+          case (typeElem, anchor) =>
+            val added = strategy.addActualType(typeElem, anchor)
+            TypeAdjuster.markToAdjust(added)
+
+            Option(refreshViews).foreach(_.run())
+        }
+      }
+    }
+
+    private class CollectTypesToAddStrategy(buffer: ArrayBuffer[(ScTypeElement, PsiElement)]) extends AddOnlyStrategy(editor = None) {
+
+      override def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement)
+                                    (implicit typeSystem: TypeSystem): Unit = {
+        val tps = UpdateStrategy.annotationsFor(t, context)
+        buffer += ((tps.head, anchor))
+      }
     }
   }
 
