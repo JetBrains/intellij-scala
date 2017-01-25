@@ -16,4 +16,17 @@ class DefaultArgWithTypeArgsTest extends ScalaLightCodeInsightFixtureTestAdapter
         |}
       """.stripMargin)
   }
+
+  def testSCL11285(): Unit = {
+    checkTextHasNoErrors(
+      """trait Input {
+        |  type Value
+        |}
+        |
+        |def requestInput[Res](req: Input {type Value = Res}): Res = ???
+        |
+        |def test(req: Input): Unit =
+        |  requestInput[req.Value](req)
+      """.stripMargin)
+  }
 }
