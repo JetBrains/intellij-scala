@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalaTest;
 
+import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
 import org.jetbrains.plugins.scala.testingSupport.scalaTest.treeBuilder.ParallelTreeBuilder;
 import org.jetbrains.plugins.scala.testingSupport.scalaTest.treeBuilder.TreeBuilder;
 import org.scalatest.Reporter;
@@ -88,7 +89,6 @@ public class ScalaTestReporterWithLocation implements Reporter {
             TestFailed testFailed = (TestFailed) event;
             Option<Throwable> throwableOption = testFailed.throwable();
             String detail = "";
-            String locationHint = ""; //todo: ?
             String failureLocation = "";
             if (throwableOption instanceof Some) {
                 Throwable throwable = throwableOption.get();
@@ -111,6 +111,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
             String res = "testFailed name='" + escapeString(decodedTestText) + "' message='" + escapeString(message) +
                     "' details='" + escapeString(detail) + "' ";
             if (error) res += "error = 'true'";
+            res += TestRunnerUtil.actualExpectedAttrsScalaTest(testFailed.message());
             res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) + "'";
             treeBuilder.closeScope(res, ordinal, testFailed.suiteId(), true);
             final String eventName = "org.scalatest.events.TestFailed";

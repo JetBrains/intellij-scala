@@ -14,7 +14,27 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TestRunnerUtil {
-  public static final Pattern COMPARISON_PATTERN = Pattern.compile("'(.+)' is not equal to '(.*)'", Pattern.MULTILINE | Pattern.DOTALL);
+  public static final PatternWithIndices SPECS_COMPARISON_PATTERN =
+    new PatternWithIndices(Pattern.compile("'(.+)' is not equal to '(.*)'", Pattern.MULTILINE | Pattern.DOTALL),
+      1, 2);
+  public static final PatternWithIndices SCALATEST_COMPARISON_PATTERN_WAS =
+    new PatternWithIndices(Pattern.compile("(.+) was not equal to (.*)", Pattern.MULTILINE | Pattern.DOTALL),
+      1, 2);
+  public static final PatternWithIndices SCALATEST_COMPARISON_PATTERN_WAS_NULL =
+    new PatternWithIndices(Pattern.compile("(.+) was not (null)", Pattern.MULTILINE | Pattern.DOTALL),
+      1, 2);
+  public static final PatternWithIndices SCALATEST_COMPARISON_PATTERN_DID =
+    new PatternWithIndices(Pattern.compile("(.+) did not equal (.*)", Pattern.MULTILINE | Pattern.DOTALL),
+      1, 2);
+  public static final PatternWithIndices SCALATEST_PATTERN_SIZE =
+    new PatternWithIndices(Pattern.compile("(.+) had size (.+) instead of expected size (.+)",
+      Pattern.MULTILINE | Pattern.DOTALL), 2, 3);
+  public static final PatternWithIndices SCALATEST_PATTERN_LENGTH =
+    new PatternWithIndices(Pattern.compile("(.+) had length (.+) instead of expected length (.+)",
+      Pattern.MULTILINE | Pattern.DOTALL), 2, 3);
+  public static final PatternWithIndices SCALATEST_PATTERN_CLASSINSTANCE =
+    new PatternWithIndices(Pattern.compile("(.+) was not an instance of (.+), but an instance of (.+)",
+      Pattern.MULTILINE | Pattern.DOTALL), 3, 2);
   public static final Pattern LOCATION_PATTERN = Pattern.compile("(\\S+)( \\((.+)\\))?");
 
   // from ServiceMessage
@@ -38,6 +58,11 @@ public class TestRunnerUtil {
     return " expected='" + escapeString(expected) + "' actual='" + escapeString(actual) + "' ";
   }
 
+  public static String actualExpectedAttrsScalaTest(String message) {
+    return actualExpectedAttrsFromRegex(message, SCALATEST_COMPARISON_PATTERN_WAS, SCALATEST_COMPARISON_PATTERN_WAS_NULL,
+      SCALATEST_COMPARISON_PATTERN_DID, SCALATEST_PATTERN_LENGTH, SCALATEST_PATTERN_SIZE, SCALATEST_PATTERN_CLASSINSTANCE);
+  }
+
   public static String actualExpectedAttrsSpecs2(String message, Details details) {
     String actualExpectedAttrs;
     if (details != null && details instanceof FailureDetails) {
@@ -47,22 +72,24 @@ public class TestRunnerUtil {
       actualExpectedAttrs = actualExpectedAttrs(actual, expected);
     } else {
       // fall back
-      actualExpectedAttrs = actualExpectedAttrsFromRegex(message);
+      actualExpectedAttrs = actualExpectedAttrsFromRegex(message, SPECS_COMPARISON_PATTERN);
     }
     return actualExpectedAttrs;
   }
 
   // hack until Specs passes a meaningful throwble.
   // https://github.com/etorreborre/specs2/issues/9
-  public static String actualExpectedAttrsFromRegex(String message) {
+  public static String actualExpectedAttrsFromRegex(String message, PatternWithIndices... comparisonPattern) {
     if (message == null) {
       return "";
     }
-    Matcher matcher = COMPARISON_PATTERN.matcher(message);
-    if (matcher.matches()) {
-      String actual = matcher.group(1);
-      String expected = matcher.group(2);
-      return actualExpectedAttrs(actual, expected);
+    for (PatternWithIndices patternWithIndices : comparisonPattern) {
+      Matcher matcher = patternWithIndices.pattern.matcher(message);
+      if (matcher.matches()) {
+        String actual = matcher.group(patternWithIndices.actualIndex);
+        String expected = matcher.group(patternWithIndices.expectedIndex);
+        return actualExpectedAttrs(actual, expected);
+      }
     }
     return "";
   }
@@ -135,6 +162,17 @@ public class TestRunnerUtil {
     Pattern pattern = Pattern.compile("([^\\\\])\\\\n");
     Matcher matcher = pattern.matcher(testName);
     return matcher.replaceAll("$1\n").replace("\\\\", "\\");
+  }
+
+  private static class PatternWithIndices {
+    public final Pattern pattern;
+    public final int actualIndex;
+    public final int expectedIndex;
+    public PatternWithIndices(Pattern pattern, int actualIndex, int expectedIndex) {
+      this.pattern = pattern;
+      this.actualIndex = actualIndex;
+      this.expectedIndex = expectedIndex;
+    }
   }
 
 }
