@@ -29,4 +29,23 @@ class JavaAnnotationTest extends JavaHighlitghtingTestBase() {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
+  def testSCL11283() = {
+    val scala =
+      """
+      """.stripMargin
+
+    val java =
+      """
+        |public class Whatever {
+        |    public <K, V> Map<K, V> convert(java.util.Map<K, V> m) {
+        |        return JavaConverters$.MODULE$.mapAsScalaMapConverter(m).asScala().toMap(
+        |                scala.Predef$.MODULE$.<scala.Tuple2<K, V>>conforms()
+        |        );
+        |    }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "Whatever"))
+  }
+
 }
