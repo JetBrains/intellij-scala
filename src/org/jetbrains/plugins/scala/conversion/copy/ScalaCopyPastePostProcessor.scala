@@ -6,6 +6,7 @@ import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil.getElementsInRange
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
+import com.intellij.openapi.editor.richcopy.settings.RichCopySettings
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
@@ -43,7 +44,11 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
   protected def collectTransferableData0(file: PsiFile, editor: Editor,
                                          startOffsets: Array[Int], endOffsets: Array[Int]): Associations = {
+
     if (DumbService.getInstance(file.getProject).isDumb) return null
+
+    //copy as plain text
+    if (!RichCopySettings.getInstance().isEnabled) return null
 
     if(!file.isInstanceOf[ScalaFile]) return null
 
