@@ -5,8 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickF
 
 class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
 
-  override protected val description: String = InspectionBundle.message("specs2.use.builtin.matcher")
-
+  protected val annotation = InspectionBundle.message("specs2.use.builtin.matcher")
   private val hint = InspectionBundle.message("specs2.builtin.matcher.alternative.exists")
   protected val classOfInspection = classOf[BuiltinMatcherExistsInspection]
 
@@ -15,7 +14,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
     Seq("be_===", "be_==", "beEqualTo", "equalTo", "beTypedEqualTo", "typedEqualTo").foreach { matcher =>
       val code =
         s"""
-          |expr must $START$matcher(Some("123"))$END
+           |expr must $START$matcher(Some("123"))$END
         """.stripMargin
       val expected =
         """
@@ -32,7 +31,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
     Seq("be_===", "be_==", "beEqualTo", "equalTo", "beTypedEqualTo", "typedEqualTo").foreach { matcher =>
       val code =
         s"""
-          |expr must $START$matcher(None)$END
+           |expr must $START$matcher(None)$END
         """.stripMargin
       val expected =
         """
@@ -122,7 +121,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
           """.stripMargin
         val expected =
           s"""
-            |expr must be$either("123")
+             |expr must be$either("123")
           """.stripMargin
 
         checkTextHasError(code)
@@ -131,4 +130,6 @@ class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
       }
     }
   }
+
+  override protected val description: String = InspectionBundle.message("specs2.builtin.matcher.alternative.exists")
 }
