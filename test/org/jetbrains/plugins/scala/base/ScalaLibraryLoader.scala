@@ -87,10 +87,10 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isI
     val reflectPath = TestUtils.getScalaReflectPath(sdkVersion)
 
     val scalaSdkJars = Seq(libraryPath, compilerPath) ++ (if (loadReflect) Seq(reflectPath) else Seq.empty)
-    val classRoots = scalaSdkJars.map(path => JarFileSystem.getInstance.refreshAndFindFileByPath(path + "!/")).asJava
+    val classRoots = scalaSdkJars.flatMap(path => JarFileSystem.getInstance.refreshAndFindFileByPath(path + "!/").toOption).asJava
 
     val scalaLibrarySrc = TestUtils.getScalaLibrarySrc(sdkVersion)
-    val srcsRoots = Seq(JarFileSystem.getInstance.refreshAndFindFileByPath(scalaLibrarySrc + "!/")).asJava
+    val srcsRoots = Option(JarFileSystem.getInstance.refreshAndFindFileByPath(scalaLibrarySrc + "!/")).toSeq.asJava
     val scalaSdkLib = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots, srcsRoots)
     val languageLevel = Artifact.ScalaCompiler.versionOf(new File(compilerPath))
       .flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
