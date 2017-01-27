@@ -5,8 +5,9 @@ import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.console.LanguageConsoleView
-import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
+import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskResult
@@ -37,9 +38,16 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   /**
     * Execute an sbt task.
     */
-  def command(cmd: String): Future[ProjectTaskResult] = {
+  def command(cmd: String): Future[ProjectTaskResult] =
+    queueCommand(cmd, new CommandListener(None))
 
-    val listener = new CommandListener
+  def commandWithIndicator(cmd: String, indicator: ProgressIndicator): Future[ProjectTaskResult] = {
+    val listener = new CommandListener(Option(indicator))
+    queueCommand(cmd, listener)
+  }
+
+  private def queueCommand(cmd: String, listener: CommandListener) = {
+
     commands.put((cmd, listener))
 
     listener.future.recover {
@@ -120,7 +128,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
 
 }
 
-class CommandListener extends ProcessAdapter {
+class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener {
 
   private var success = false
   private var errors = 0
@@ -130,14 +138,27 @@ class CommandListener extends ProcessAdapter {
 
   def future: Future[ProjectTaskResult] = promise.future
 
+  override def startNotified(event: ProcessEvent): Unit = {
+    indicator.foreach { i =>
+      i.setText("build started")
+      i.setFraction(0.1)
+    }
+  }
+
   override def processTerminated(event: ProcessEvent): Unit = {
     val res = new ProjectTaskResult(true, errors, warnings)
+    indicator.foreach(_.stop())
     promise.complete(Success(res))
   }
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-    val text = event.getText
-    // TODO make sure this works with colored output
+  override def onLine(text: String): Unit = {
+
+    indicator.foreach { i =>
+      i.setFraction(0.2)
+      i.setText("building ...")
+      i.setText2(text)
+    }
+
     if (text startsWith "[error]") {
       success = false
       errors += 1
@@ -146,9 +167,15 @@ class CommandListener extends ProcessAdapter {
     }
     else if (text contains "[success]")
       success = true
+      // TODO running multiple tasks at once will output multiple success lines, so this may negate previous errors
 
     if (!promise.isCompleted && promptReady(text)) {
       val res = new ProjectTaskResult(false, errors, warnings)
+      indicator.foreach { i =>
+        i.setFraction(1)
+        i.setText("build completed")
+        i.stop()
+      }
       promise.complete(Success(res))
     }
   }
@@ -160,12 +187,12 @@ object SbtShellCommunication {
 }
 
 /** Monitor sbt prompt status, do something when state changes */
-class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends ProcessAdapter {
+class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends LineListener {
 
   private var readyState: Boolean = false
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-    val sbtReady = promptReady(event.getText)
+  def onLine(line: String): Unit = {
+    val sbtReady = promptReady(line)
     if (sbtReady && !readyState) {
       readyState = true
       whenReady
@@ -180,13 +207,49 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Proc
 object SbtProcessUtil {
 
   def promptReady(line: String): Boolean =
-    line match {
+    line.trim match {
       case
-        "> " |
-        "scala> " |
+        ">" | // todo can we guard against false positives? like somebody outputting > on the bare prompt
+        "scala>" |
         "Hit enter to retry or 'exit' to quit:"
         => true
 
       case _ => false
     }
+}
+
+/**
+  * Pieces lines back together from parts of colored lines.
+  */
+abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
+
+  private val builder = new StringBuilder
+
+  def onLine(line: String): Unit
+
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit =
+    updateLine(event.getText)
+
+  override def coloredTextAvailable(text: String, attributes: Key[_]): Unit =
+    updateLine(text)
+
+  private def updateLine(text: String) = {
+    text match {
+      case "\n" =>
+        lineDone()
+      case t if t.endsWith("\n") =>
+        builder.append(t.dropRight(1))
+        lineDone()
+      case t =>
+        builder.append(t)
+        val lineSoFar = builder.result()
+        if (promptReady(lineSoFar)) lineDone()
+    }
+  }
+
+  private def lineDone() = {
+    val line = builder.result()
+    builder.clear()
+    onLine(line)
+  }
 }

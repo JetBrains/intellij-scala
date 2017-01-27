@@ -12,6 +12,8 @@ import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.ModuleType
+import com.intellij.openapi.progress.Task._
+import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task._
 import com.intellij.util.BooleanFunction
@@ -22,7 +24,9 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 import scala.collection.JavaConverters._
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
 
 /**
@@ -66,7 +70,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
     // the "build" button in IDEA always runs the build for all individual modules,
     // and may work differently than just calling the products task from the main module in sbt
-    val command = tasks.asScala.collect {
+    val moduleCommands = tasks.asScala.collect {
       case task: ModuleBuildTask =>
         val module = task.getModule
         val project = module.getProject
@@ -80,7 +84,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
         val emptyURI = new URI("")
         val dataManager = ProjectDataManager.getInstance()
 
-
+        // TODO instead of silently not running a task, collect failures, report to user
         for {
           projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
           projectStructure <- Option(projectInfo.getExternalProjectStructure)
@@ -99,18 +103,41 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
           s"{$uri}$id/products"
         }
         // TODO also run task for non-default scopes? test, it, etc
-    }.flatten.mkString("; ", "; ", "")
+    }.flatten
 
-    // TODO consider running module build tasks separately
-    // may require collecting results individually and aggregating
-    // and shell communication should do proper queueing
-    shell.command(command)
-      .onComplete {
-      case Success(taskResult) =>
-        // TODO progress monitoring
-        callbackOpt.foreach(_.finished(taskResult))
-      case Failure(x) =>
-        // TODO some kind of feedback / rethrow
+    // don't run anything if there's not module to run a build for
+    // TODO user feedback
+    if (moduleCommands.nonEmpty) {
+
+      val command = moduleCommands.mkString("; ", "; ", "")
+
+      // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
+      val task = new CommandTask(project) {
+        override def run(indicator: ProgressIndicator): Unit = {
+          indicator.setIndeterminate(true)
+          //        indicator.setFraction(0) // TODO how does the fraction thing work? can we also have an indicator without fraction?
+          indicator.setText("queued sbt build")
+
+          // TODO consider running module build tasks separately
+          // may require collecting results individually and aggregating
+          // and shell communication should do proper queueing
+          val commandFuture = shell.commandWithIndicator(command, indicator)
+            .andThen {
+              case Success(taskResult) =>
+                // TODO progress monitoring
+                callbackOpt.foreach(_.finished(taskResult))
+                indicator.setFraction(1)
+                indicator.setText("sbt build completed")
+              case Failure(x) =>
+                indicator.setText("sbt build failed")
+              // TODO some kind of feedback / rethrow
+            }
+
+          // block thread to make indicator available :(
+          Await.ready(commandFuture, Duration.Inf)
+        }
+      }
+      ProgressManager.getInstance().run(task)
     }
   }
 
@@ -128,4 +155,8 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       taskSettings, executorId
     )
   }
+
 }
+
+private abstract class CommandTask(project: Project) extends
+  Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND)
