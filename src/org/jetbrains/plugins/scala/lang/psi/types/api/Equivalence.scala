@@ -3,15 +3,19 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.{Computable, RecursionManager}
+import com.intellij.openapi.util.Computable
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 /**
   * @author adkozlov
   */
 trait Equivalence extends TypeSystemOwner {
-  private val guard = RecursionManager.createGuard(s"${typeSystem.name}.equivalence.guard")
+  type Data = (ScType, ScType, Boolean)
+  type Result = (Boolean, ScUndefinedSubstitutor)
+
+  private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.equivalence.guard")
 
   private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
     ContainerUtil.createConcurrentWeakMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
@@ -51,11 +55,11 @@ trait Equivalence extends TypeSystemOwner {
       return tuple.copy(_2 = substitutor + tuple._2)
     }
 
-    if (guard.currentStack().contains(key)) {
+    if (guard.currentStackContains(key)) {
       return (false, ScUndefinedSubstitutor())
     }
 
-    val result = guard.doPreventingRecursion(key, false, computable(left, right, ScUndefinedSubstitutor(), falseUndef))
+    val result = guard.doPreventingRecursion(key, computable(left, right, ScUndefinedSubstitutor(), falseUndef))
     if (result == null) return (false, ScUndefinedSubstitutor())
     if (!nowEval) {
       try {
@@ -69,6 +73,7 @@ trait Equivalence extends TypeSystemOwner {
     result.copy(_2 = substitutor + result._2)
   }
 
-  protected def computable(left: ScType, right: ScType, substitutor: ScUndefinedSubstitutor,
+  protected def computable(left: ScType, right: ScType,
+                           substitutor: ScUndefinedSubstitutor,
                            falseUndef: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
 }

@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.annotation.tailrec
 import scala.util.control.ControlThrowable
@@ -72,16 +73,16 @@ object CachesUtil {
    *
    * Do not use this method directly. You should use CachedWithRecursionGuard annotation instead
    */
-  def getWithRecursionPreventingWithRollback[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
-                                                        provider: => MyProvider[Dom, Result],
-                                                        defaultValue: => Result): Result = {
+  def getWithRecursionPreventingWithRollback[Dom >: Null <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
+                                                                        provider: => MyProvider[Dom, Result],
+                                                                        defaultValue: => Result): Result = {
     var computed: CachedValue[Result] = e.getUserData(key)
     if (computed == null) {
       val manager = CachedValuesManager.getManager(e.getProject)
       computed = manager.createCachedValue(new CachedValueProvider[Result] {
         def compute(): CachedValueProvider.Result[Result] = {
-          val guard = getRecursionGuard(key.toString)
-          if (guard.currentStack().contains(e)) {
+          val guard = RecursionManager.RecursionGuard[Dom, CachedValueProvider.Result[Result]](key.toString)
+          if (guard.currentStackContains(e)) {
             if (ScPackageImpl.isPackageObjectProcessing) {
               throw new ScPackageImpl.DoNotProcessPackageObjectException
             }
@@ -93,7 +94,7 @@ object CachesUtil {
               throw new ProbablyRecursionException(e, (), key, Set(fun))
             }
           }
-          guard.doPreventingRecursion(e, false /* todo: true? */, new Computable[CachedValueProvider.Result[Result]] {
+          guard.doPreventingRecursion(e, new Computable[CachedValueProvider.Result[Result]] {
             def compute(): CachedValueProvider.Result[Result] = {
               try {
                 provider.compute()
@@ -147,16 +148,6 @@ object CachesUtil {
     def compute() = new CachedValueProvider.Result(builder(e), dependencyItem)
   }
 
-  private val guards: ConcurrentMap[String, RecursionGuard] = ContainerUtil.newConcurrentMap[String, RecursionGuard]()
-  def getRecursionGuard(id: String): RecursionGuard = {
-    val guard = guards.get(id)
-    if (guard == null) {
-      val result = RecursionManager.createGuard(id)
-      guards.put(id, result)
-      result
-    } else guard
-  }
-
   /**
    * IMPORTANT:
    * CachedMappedWithRecursionGuard annotation relies on this method. If you delete this method a lot of the code will
@@ -165,11 +156,11 @@ object CachesUtil {
    *
    * Do not use this method directly. You should use CachedMappedWithRecursionGuard annotation instead
    */
-  def getMappedWithRecursionPreventingWithRollback[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
-                                                                        key: Key[CachedValue[ConcurrentMap[Data, Result]]],
-                                                                        builder: (Dom, Data) => Result,
-                                                                        defaultValue: => Result,
-                                                                        dependencyItem: Object): Result = {
+  def getMappedWithRecursionPreventingWithRollback[Data, Result >: Null <: AnyRef](e: PsiElement, data: Data,
+                                                                                   key: Key[CachedValue[ConcurrentMap[Data, Result]]],
+                                                                                   builder: (PsiElement, Data) => Result,
+                                                                                   defaultValue: => Result,
+                                                                                   dependencyItem: Object): Result = {
     var computed: CachedValue[ConcurrentMap[Data, Result]] = e.getUserData(key)
     if (computed == null) {
       val manager = CachedValuesManager.getManager(e.getProject)
@@ -185,8 +176,8 @@ object CachesUtil {
     if (result == null) {
       var isCache = true
       result = {
-        val guard = getRecursionGuard(key.toString)
-        if (guard.currentStack().contains((e, data))) {
+        val guard = RecursionManager.RecursionGuard[(PsiElement, Data), Result](key.toString)
+        if (guard.currentStackContains((e, data))) {
           if (ScPackageImpl.isPackageObjectProcessing) {
             throw new ScPackageImpl.DoNotProcessPackageObjectException
           }
@@ -199,7 +190,7 @@ object CachesUtil {
             throw new ProbablyRecursionException(e, data, key, Set(fun))
           }
         } else {
-          guard.doPreventingRecursion((e, data), false, new Computable[Result] {
+          guard.doPreventingRecursion((e, data), new Computable[Result] {
             def compute(): Result = {
               try {
                 builder(e, data)
@@ -275,7 +266,7 @@ object CachesUtil {
   }
 
   case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
-                                                                            data: Data,
-                                                                            key: Key[T],
-                                                                            set: Set[ScFunction]) extends ControlThrowable
+                                                                    data: Data,
+                                                                    key: Key[T],
+                                                                    set: Set[ScFunction]) extends ControlThrowable
 }

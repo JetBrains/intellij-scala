@@ -3,9 +3,10 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.{Computable, RecursionManager}
+import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiClass
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 import scala.collection.immutable.HashSet
@@ -14,7 +15,10 @@ import scala.collection.immutable.HashSet
   * @author adkozlov
   */
 trait Conformance extends TypeSystemOwner {
-  private val guard = RecursionManager.createGuard(s"${typeSystem.name}.conformance.guard")
+  type Data = (ScType, ScType, Boolean)
+  type Result = (Boolean, ScUndefinedSubstitutor)
+
+  private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.conformance.guard")
 
   private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
     ContainerUtil.createConcurrentWeakMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
@@ -26,7 +30,7 @@ trait Conformance extends TypeSystemOwner {
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = HashSet.empty,
                           substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
-                          checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+                          checkWeak: Boolean = false): Result = {
     ProgressManager.checkCanceled()
 
     if (left.equiv(Any) || right.equiv(Nothing)) return (true, substitutor)
@@ -38,11 +42,11 @@ trait Conformance extends TypeSystemOwner {
       if (substitutor.isEmpty) return tuple
       return tuple.copy(_2 = substitutor + tuple._2)
     }
-    if (guard.currentStack().contains(key)) {
+    if (guard.currentStackContains(key)) {
       return (false, ScUndefinedSubstitutor())
     }
 
-    val res = guard.doPreventingRecursion(key, false, computable(left, right, visited, checkWeak))
+    val res = guard.doPreventingRecursion(key, computable(left, right, visited, checkWeak))
     if (res == null) return (false, ScUndefinedSubstitutor())
     cache.put(key, res)
     if (substitutor.isEmpty) return res
