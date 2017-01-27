@@ -76,19 +76,17 @@ public class TestUtils {
 
 
 
+  @NotNull
   public static String getTestDataPath() {
     if (TEST_DATA_PATH == null) {
       ClassLoader loader = TestUtils.class.getClassLoader();
       URL resource = loader.getResource("testdata");
       try {
-        // jzaugg: this logic was added to stay backwards compatible. Does anyone/anything
-        // rely on this working from the working directory one level higher than "./scala-plugin"? If not,
-        // we can just simplify to use `f2`
         File f1 = new File("scala-plugin", "testdata");
         if (f1.exists()) {
           TEST_DATA_PATH = f1.getAbsolutePath();
         } else {
-          File f2 = new File("testdata");
+          File f2 = findTestDataDir(new File(".").getCanonicalFile());
           TEST_DATA_PATH = f2.getAbsolutePath();
         }
         if (resource != null) {
@@ -96,11 +94,27 @@ public class TestUtils {
         }
       } catch (URISyntaxException e) {
         LOG.error(e);
-        return null;
+        throw new RuntimeException(e);
+        // just rethrowing here because that's a clearer way to make tests fail than some NPE somewhere else
+      } catch (IOException e) {
+        LOG.error(e);
+        throw new RuntimeException(e);
       }
     }
 
     return TEST_DATA_PATH;
+  }
+
+  /** Go upwards to find testdata, because when running test from IDEA, the launching dir might be some subdirectory. */
+  @NotNull
+  private static File findTestDataDir(File here) throws IOException {
+    File testdata = new File(here,"testdata").getCanonicalFile();
+    if (testdata.exists()) return testdata;
+    else {
+      File parent = here.getParentFile();
+      if (parent == null) throw new RuntimeException("no testdata directory found");
+      else return findTestDataDir(parent);
+    }
   }
 
 
