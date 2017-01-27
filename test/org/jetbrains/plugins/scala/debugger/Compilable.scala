@@ -106,39 +106,37 @@ trait Compilable {
   }
 
   private class ErrorReportingCallback(semaphore: Semaphore) extends CompileStatusNotification {
-    private var myError: Throwable = _
-    private val myMessages = ListBuffer[String]()
+    private var myError: Option[Throwable] = None
+    private var myMessages: List[String] = List.empty
 
-    def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext) {
+    def finished(aborted: Boolean, errors: Int, warnings: Int, compileContext: CompileContext): Unit = {
       try {
-        for (category <- CompilerMessageCategory.values) {
-          for (message <- compileContext.getMessages(category)) {
-            val msg: String = message.getMessage
-            if (category != CompilerMessageCategory.INFORMATION || !msg.startsWith("Compilation completed successfully")) {
-              myMessages += (category + ": " + msg)
-            }
-          }
-        }
-        if (errors > 0) {
-          Assert.fail("Compiler errors occurred! " + myMessages.mkString("\n"))
-        }
-        Assert.assertFalse("Code did not compile!", aborted)
-      }
-      catch {
-        case t: Throwable => myError = t
-      }
-      finally {
-        semaphore.up()
-      }
-    }
+        myMessages = (for {
+          category <- CompilerMessageCategory.values
+          message <- compileContext.getMessages(category)
+          msg = message.getMessage
+          if category != CompilerMessageCategory.INFORMATION || !msg.startsWith("Compilation completed successfully")
+        } yield
+          category + ": " + msg).toList
 
-    def hasError = myError != null
+      if (errors > 0) {
+        Assert.fail("Compiler errors occurred! " + myMessages.mkString("\n"))
+      }
+      Assert.assertFalse("Code did not compile!", aborted)
+    } catch {
+      case t: Throwable => myError = Option(t)
+    } finally {
+      semaphore.up()
+    }
+  }
+
+    def hasError: Boolean = myError != null
 
     def throwException() {
-      if (myError != null) throw new RuntimeException(myError)
+      myError.foreach(e => throw new RuntimeException(e))
     }
 
-    def getMessages: List[String] = myMessages.toList
+    def getMessages: List[String] = myMessages
   }
 
   private def refreshVfs(path: String) {

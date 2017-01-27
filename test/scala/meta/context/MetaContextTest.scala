@@ -19,7 +19,7 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
     }
   }
 
-  def doTest: Unit = {
+  def doTest(): Unit = {
     import scala.meta._
     implicit val sc:scala.meta.semantic.Context = semanticContext
     val text =
@@ -34,7 +34,6 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
 //    val foo = bar.tpe.supertypes.head
 //    val members = foo.members
 //    val denot = foo.show[Semantics]
-    ""
   }
 
   // FIXME: disabled until semantics engine is implemented
