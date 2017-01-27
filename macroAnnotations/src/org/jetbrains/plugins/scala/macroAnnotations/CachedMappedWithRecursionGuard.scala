@@ -102,8 +102,8 @@ object CachedMappedWithRecursionGuard {
           if (result == null) {
             var isCache = true
             result = {
-              val guard = $getRecursionGuardFQN(key.toString)
-              if (guard.currentStack().contains((e, data))) {
+              val guard = $recursionGuardFQN[(Dom, Data), Result](key.toString)
+              if (guard.currentStackContains((e, data))) {
                 if (_root_.org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.isPackageObjectProcessing) {
                   throw new _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.DoNotProcessPackageObjectException
                 }
@@ -116,8 +116,8 @@ object CachedMappedWithRecursionGuard {
                   throw new _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(e, data, key, _root_.scala.collection.immutable.Set(fun))
                 }
               } else {
-                guard.doPreventingRecursion((e, data), false, new _root_.com.intellij.openapi.util.Computable[_root_.java.lang.Object] {
-                  def compute(): _root_.java.lang.Object = {
+                guard.doPreventingRecursion((e, data), new _root_.com.intellij.openapi.util.Computable[Result] {
+                  def compute(): Result = {
                     try {
                       val ${generateTermName()}: _root_.scala.Any = e
                       val $dataName: $dataTypeName = data

@@ -40,8 +40,6 @@ object BaseProcessor {
 
   val FORWARD_REFERENCE_KEY: Key[java.lang.Boolean] = Key.create("forward.reference.key")
 
-  val guard = RecursionManager.createGuard("process.element.guard")
-
   def isImplicitProcessor(processor: PsiScopeProcessor): Boolean = {
     processor match {
       case b: BaseProcessor => b.isImplicitProcessor

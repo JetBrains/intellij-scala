@@ -10,8 +10,6 @@ import scala.collection.immutable.HashMap
  * @author Alexander Podkhalyuzin
  */
 object ScalaRecursionManager {
-  val functionRecursionGuard = RecursionManager.createGuard("function.inference.recursion")
-  val resolveReferenceRecursionGuard = RecursionManager.createGuard("resolve.reference.recursion")
 
   val IMPLICIT_PARAM_TYPES_KEY = "implicit.param.types.key"
 
