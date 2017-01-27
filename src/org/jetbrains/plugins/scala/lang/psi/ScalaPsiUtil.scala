@@ -51,7 +51,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -535,48 +535,56 @@ object ScalaPsiUtil {
     val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
     val parts: mutable.Queue[ScType] = new mutable.Queue[ScType]
 
+    def collectPartsIter(iterable: TraversableOnce[ScType]) = {
+      val iterator = iterable.toIterator
+      while(iterator.hasNext) {
+        collectParts(iterator.next())
+      }
+    }
+
+    def collectPartsTr(option: TypeResult[ScType]) = {
+      option match {
+        case Success(t, _) => collectParts(t)
+        case _ =>
+      }
+    }
+
     def collectParts(tp: ScType) {
       ProgressManager.checkCanceled()
       if (visited.contains(tp)) return
       visited += tp
       tp.isAliasType match {
-        case Some(AliasType(_, _, upper)) => upper.foreach(collectParts)
+        case Some(AliasType(_, _, Success(t, _))) => collectParts(t)
         case _ =>
       }
 
       def collectSupers(clazz: PsiClass, subst: ScSubstitutor) {
         clazz match {
           case td: ScTemplateDefinition =>
-            td.superTypes.foreach {
-              tp => collectParts(subst.subst(tp))
-            }
+            collectPartsIter(td.superTypes.map(subst.subst))
           case clazz: PsiClass =>
-            clazz.getSuperTypes.foreach {
-              tp =>
-                val stp = tp.toScType()
-                collectParts(subst.subst(stp))
-            }
+            collectPartsIter(clazz.getSuperTypes.map(t => subst.subst(t.toScType())))
         }
       }
 
       tp match {
-        case ScDesignatorType(v: ScBindingPattern) => v.getType(TypingContext.empty).foreach(collectParts)
-        case ScDesignatorType(v: ScFieldId) => v.getType(TypingContext.empty).foreach(collectParts)
-        case ScDesignatorType(p: ScParameter) => p.getType(TypingContext.empty).foreach(collectParts)
-        case ScCompoundType(comps, _, _) => comps.foreach(collectParts)
+        case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.getType(TypingContext.empty))
+        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.getType(TypingContext.empty))
+        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.getType(TypingContext.empty))
+        case ScCompoundType(comps, _, _) => collectPartsIter(comps)
         case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
-          args.foreach(collectParts)
+          collectPartsIter(args)
         case p@ParameterizedType(des, args) =>
           p.extractClassType(project) match {
             case Some((clazz, subst)) =>
               parts += des
               collectParts(des)
-              args.foreach(collectParts)
+              collectPartsIter(args)
               collectSupers(clazz, subst)
             case _ =>
               collectParts(des)
-              args.foreach(collectParts)
+              collectPartsIter(args)
           }
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType
@@ -584,9 +592,9 @@ object ScalaPsiUtil {
         case proj@ScProjectionType(projected, _, _) =>
           collectParts(projected)
           proj.actualElement match {
-            case v: ScBindingPattern => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
-            case v: ScFieldId => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
-            case v: ScParameter => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
+            case v: ScBindingPattern => collectPartsTr(v.getType(TypingContext.empty).map(proj.actualSubst.subst))
+            case v: ScFieldId => collectPartsTr(v.getType(TypingContext.empty).map(proj.actualSubst.subst))
+            case v: ScParameter => collectPartsTr(v.getType(TypingContext.empty).map(proj.actualSubst.subst))
             case _ =>
           }
           tp.extractClassType(project) match {
@@ -665,25 +673,22 @@ object ScalaPsiUtil {
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
           case _ =>
-            for {
-              (clazz: PsiClass, subst: ScSubstitutor) <- tp.extractClassType(project)
-              if !visited.contains(clazz)
-            } {
-              clazz match {
-                case o: ScObject => addResult(o.qualifiedName, tp)
-                case _ =>
-                  getCompanionModule(clazz) match {
-                    case Some(obj: ScObject) =>
-                      tp match {
-                        case ScProjectionType(proj, _, s) =>
-                          addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
-                        case ParameterizedType(ScProjectionType(proj, _, s), _) =>
-                          addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
-                        case _ => addResult(obj.qualifiedName, ScDesignatorType(obj))
-                      }
-                    case _ =>
-                  }
-              }
+            tp.extractClassType(project) match {
+              case Some((obj: ScObject, _)) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
+              case Some((clazz, _)) if !visited.contains(clazz) =>
+                getCompanionModule(clazz) match {
+                  case Some(obj: ScObject) =>
+                    tp match {
+                      case ScProjectionType(proj, _, s) =>
+                        addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
+                      case ParameterizedType(ScProjectionType(proj, _, s), _) =>
+                        addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
+                      case _ =>
+                        addResult(obj.qualifiedName, ScDesignatorType(obj))
+                    }
+                  case _ =>
+                }
+              case _ =>
             }
         }
       }
