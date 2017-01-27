@@ -2,15 +2,15 @@ package org.jetbrains.sbt.shell
 
 import java.io.File
 
-import com.intellij.execution.configurations.{GeneralCommandLine, JavaParameters}
-import com.intellij.execution.process.{ColoredProcessHandler, OSProcessHandler}
+import com.intellij.execution.configurations.{GeneralCommandLine, JavaParameters, PtyCommandLine}
+import com.intellij.execution.process.ColoredProcessHandler
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil, Sdk, SdkTypeId}
 import com.intellij.openapi.roots.ProjectRootManager
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.structure.SbtRunner
+
 import scala.collection.JavaConverters._
 /**
   * Manages the sbt shell process instance for the project.
@@ -41,10 +41,29 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcherJar.getCanonicalPath)
     // TODO make sure jvm also gets proxy settings
-    javaParameters.getVMParametersList.addAll(sbtSettings.vmOptions.asJava)
+    val vmParams = javaParameters.getVMParametersList
+    vmParams.addAll(sbtSettings.vmOptions.asJava)
 
-    val commandLine: GeneralCommandLine = JdkUtil.setupJVMCommandLine(sbtSettings.vmExecutable.getAbsolutePath, javaParameters, false)
-    new ColoredProcessHandler(commandLine)
+    val commandLine: GeneralCommandLine = javaParameters.toCommandLine
+    val pty = createPtyCommandLine(commandLine)
+    new ColoredProcessHandler(pty)
+  }
+
+  /**
+    * Because the regular GeneralCommandLine process doesn't mesh well with JLine on Windows, use a
+    * Pseudo-Terminal based command line
+    * @param commandLine commandLine to copy from
+    * @return
+    */
+  private def createPtyCommandLine(commandLine: GeneralCommandLine) = {
+    val pty = new PtyCommandLine()
+    pty.withExePath(commandLine.getExePath)
+    pty.withWorkDirectory(commandLine.getWorkDirectory)
+    pty.withEnvironment(commandLine.getEnvironment)
+    pty.withParameters(commandLine.getParametersList.getList)
+    pty.withParentEnvironmentType(commandLine.getParentEnvironmentType)
+
+    pty
   }
 
   /** Request an sbt shell process instance. It will be started if necessary.
