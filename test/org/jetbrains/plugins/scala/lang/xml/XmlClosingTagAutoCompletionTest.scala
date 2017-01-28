@@ -2,68 +2,68 @@ package org.jetbrains.plugins.scala
 package lang.xml
 
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 /**
  * User: Dmitry Naydanov
  * Date: 3/3/12
  */
 
-class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class XmlClosingTagAutoCompletionTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
-  
-  private def checkGeneratedTextGt(text: String,  assumedStub: String) {
+
+  private def checkGeneratedTextGt(text: String, assumedStub: String): Unit = {
     checkGeneratedTextAfterTyping(text, assumedStub, '>')
   }
 
-  private def checkGeneratedTextSlash(text: String,  assumedStub: String) {
+  private def checkGeneratedTextSlash(text: String, assumedStub: String): Unit = {
     checkGeneratedTextAfterTyping(text, assumedStub, '/')
   }
 
-  def testSimpleTag() {
+  def testSimpleTag(): Unit = {
     val text = "class A { val xml1 = <aaa" + CARET_MARKER + " }"
     val assumedStub = "class A { val xml1 = <aaa></aaa> }"
 
     checkGeneratedTextGt(text, assumedStub)
   }
 
-  def testSimpleEmptyTag() {
+  def testSimpleEmptyTag(): Unit = {
     val text = "class A { val xml = <aaa" + CARET_MARKER + " }"
     val assumedStub = "class A { val xml = <aaa/> }"
 
     checkGeneratedTextSlash(text, assumedStub)
   }
 
-  def testComplicatedTag() {
+  def testComplicatedTag(): Unit = {
     val text = "class A { val xml = <a>blah blah <blah/> <b" + CARET_MARKER + "</a> }"
     val assumedStub = "class A { val xml = <a>blah blah <blah/> <b></b></a> }"
 
     checkGeneratedTextGt(text, assumedStub)
   }
 
-  def testComplicatedEmptyTag() {
+  def testComplicatedEmptyTag(): Unit = {
     val text = "class A { val xml = <a>blah blah <blah/> <abc" + CARET_MARKER + "</a> }"
     val assumedStub = "class A { val xml = <a>blah blah <blah/> <abc/></a> }"
 
     checkGeneratedTextSlash(text, assumedStub)
   }
 
-  def testTagWithParams() {
+  def testTagWithParams(): Unit = {
     val text = "class A { <a param1=\"blah blah\"" + CARET_MARKER + " }"
     val assumedStub = "class A { <a param1=\"blah blah\"></a> }"
 
     checkGeneratedTextGt(text, assumedStub)
   }
 
-  def testEmptyTagWithParams() {
+  def testEmptyTagWithParams(): Unit = {
     val text = "class A { <a param1=\"blah blah\"" + CARET_MARKER + " }"
     val assumedStub = "class A { <a param1=\"blah blah\"/> }"
 
     checkGeneratedTextSlash(text, assumedStub)
   }
 
-  def testBigXml() {
+  def testBigXml(): Unit = {
     val text =
       ("""
       |<lift:TD.list all_id="all_todos">
@@ -122,7 +122,7 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
     checkGeneratedTextGt(text, assumedStub)
   }
 
-  def testXmlPattern1() {
+  def testXmlPattern1(): Unit = {
     val text =
       ("""
       | xml match {
@@ -140,7 +140,7 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
     checkGeneratedTextGt(text, assumedStub)
   }
 
-  def testXmlPaternWithEmptyTag1() {
+  def testXmlPatternWithEmptyTag1(): Unit = {
     val text =
       ("""
       | xml match {
@@ -158,7 +158,7 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
     checkGeneratedTextSlash(text, assumedStub)
   }
 
-  def testXmlPattern2() {
+  def testXmlPattern2(): Unit = {
     val text =
       ("""
       | xml match {
@@ -178,7 +178,7 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
     checkGeneratedTextGt(text, assumedStub)
   }
 
-  def testXmlPatternWithEmpryTag2() {
+  def testXmlPatternWithEmptyTag2(): Unit = {
     val text =
       ("""
       | xml match {
@@ -198,13 +198,13 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
     checkGeneratedTextSlash(text, assumedStub)
   }
 
-  def testSwallowGtAfterEmptyTagEnd() {
+  def testSwallowGtAfterEmptyTagEnd(): Unit = {
     val text = "class A { val xml = <aaa/>" + CARET_MARKER + " }"
 
     checkGeneratedTextGt(text, text)
   }
 
-  def testSwallowGtAfterEmptyTagEndInXmlPattern() {
+  def testSwallowGtAfterEmptyTagEndInXmlPattern(): Unit = {
     val header = 
       """
         |val xml = <aaa attr="<aaa//>" />

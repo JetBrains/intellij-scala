@@ -1,43 +1,26 @@
 package org.jetbrains.plugins.scala
 package lang.lexer
 
-import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 /**
  * User: Dmitry.Naydanov
  * Date: 29.07.14.
  */
-class IncrementalLexerHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class IncrementalLexerHighlightingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
-  private def genericTestHighlighting(startText: String, typed: Char*) {
-    val caretIndex = startText indexOf CARET_MARKER
+  private def genericTestHighlighting(text: String, typed: Char*) {
+    configureByText(text)
 
-    val fileText = startText.replace(CARET_MARKER, "")
-
-    myFixture.configureByText("dummy.scala", fileText)
-    myFixture.getEditor.getCaretModel moveToOffset caretIndex
-
-    typed foreach {
-      case '\r' =>
-        CommandProcessor.getInstance.executeCommand(myFixture.getProject, new Runnable {
-          def run() {
-            myFixture.performEditorAction(IdeActions.ACTION_EDITOR_BACKSPACE)
-          }
-        }, "", null)
-      case '\n' =>
-        CommandProcessor.getInstance().executeCommand(myFixture.getProject, new Runnable {
-          def run() {
-            myFixture.performEditorAction(IdeActions.ACTION_EDITOR_ENTER)
-          }
-        }, "", null)
-      case a => myFixture.`type`(a)
+    typed.foreach {
+      case '\r' => performBackspaceAction()
+      case '\n' => performEnterAction()
+      case char => performTypingAction(char)
     }
 
     val incSegments = myFixture.getEditor.asInstanceOf[EditorImpl].getHighlighter.asInstanceOf[LexerEditorHighlighter].getSegments

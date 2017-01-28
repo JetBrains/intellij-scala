@@ -5,7 +5,7 @@ import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
  * User: Dmitry.Naydanov
  * Date: 10.07.14.
  */
-class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ArrowTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
@@ -31,7 +31,7 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     settings = ScalaCodeStyleSettings.getInstance(myFixture.getProject)
   }
 
-  def testReplaceCaseArrow() {
+  def testReplaceCaseArrow(): Unit = {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
     val before =
@@ -51,7 +51,7 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkGeneratedTextAfterTyping(before, after, '>')
   }
 
-  def testReplaceFunTypeArrow() {
+  def testReplaceFunTypeArrow(): Unit = {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
     val before =
@@ -67,7 +67,7 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkGeneratedTextAfterTyping(before, after, '>')
   }
 
-  def testReplaceLambdaArrow() {
+  def testReplaceLambdaArrow(): Unit = {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
     val before1 = convertLoadedString(FileUtil.loadFile(new File(getTestDataPath + s"/${getTestName(true)}Before.test")))
@@ -76,7 +76,7 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkGeneratedTextAfterTyping(before1, after1, '>')
   }
 
-  def testReplaceMapArrow() {
+  def testReplaceMapArrow(): Unit = {
     settings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = true
 
     val before =
@@ -92,7 +92,7 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkGeneratedTextAfterTyping(before, after, '>')
   }
 
-  def testReplaceForGeneratorArrow() {
+  def testReplaceForGeneratorArrow(): Unit = {
     settings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = true
 
     val before =
@@ -108,7 +108,7 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     checkGeneratedTextAfterTyping(before, after, '-')
   }
 
-  def testDontAddGtSign() {
+  def testDontAddGtSign(): Unit = {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
     val fileName = s"$getTestDataPath/${getTestName(true)}.test"

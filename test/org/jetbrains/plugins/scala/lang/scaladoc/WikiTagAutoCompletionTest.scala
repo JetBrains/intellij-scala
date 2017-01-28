@@ -2,47 +2,47 @@ package org.jetbrains.plugins.scala
 package lang.scaladoc
 
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/25/12
  */
-class WikiTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class WikiTagAutoCompletionTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
-  def testCodeLinkAC() {
+  def testCodeLinkAC(): Unit = {
     val text = "/** [" + CARET_MARKER + " */"
     val assumedStub = "/** [[]] */"
     checkGeneratedTextAfterTyping(text, assumedStub, '[')
   }
 
-  def testInnerCodeAC() {
+  def testInnerCodeAC(): Unit = {
     val text = "/** {{" + CARET_MARKER + " */"
     val assumedStub = "/** {{{}}} */"
     checkGeneratedTextAfterTyping(text, assumedStub, '{')
   }
 
-  def testMonospaceAC() {
+  def testMonospaceAC(): Unit = {
     val text = "/** " + CARET_MARKER + " */"
     val assumedStub = "/** `` */"
     checkGeneratedTextAfterTyping(text, assumedStub, '`')
   }
 
-  def testSuperscriptAC() {
+  def testSuperscriptAC(): Unit = {
     val text = "/** " + CARET_MARKER + " */"
     val assumedStub = "/** ^^ */"
     checkGeneratedTextAfterTyping(text, assumedStub, '^')
   }
 
-  def testSubscriptAC() {
+  def testSubscriptAC(): Unit = {
     val text = "/** ," + CARET_MARKER + " */"
     val assumedStub = "/** ,,,, */"
     checkGeneratedTextAfterTyping(text, assumedStub, ',')
   }
 
-  def testBoldSimpleAC() {
+  def testBoldSimpleAC(): Unit = {
     val text = "/** ''" + CARET_MARKER + "'' */"
     val assumedStub = "/** '''''' */"
     checkGeneratedTextAfterTyping(text, assumedStub, '\'')
