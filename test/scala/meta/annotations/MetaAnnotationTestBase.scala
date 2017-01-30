@@ -39,7 +39,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
     val metaModule = PsiTestUtil.addModule(myFixture.getProject, JavaModuleType.getModuleType, "meta", root)
     val loader = new DisposableScalaLibraryLoader(getProject, metaModule, null, true, Some(DebuggerTestUtil.findJdk8()))
-    loader.loadScala(scalaSdkVersion)
+    loader.init(scalaSdkVersion)
     addAllMetaLibraries(metaModule)
     enableParadisePlugin(myFixture.getProject)
     extensions.inWriteAction {

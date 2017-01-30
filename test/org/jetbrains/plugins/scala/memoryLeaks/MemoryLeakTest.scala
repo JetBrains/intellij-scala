@@ -69,7 +69,7 @@ class MemoryLeakTest extends PlatformTestCase {
   protected def addScalaLibrary(project: Project): ScalaLibraryLoader = {
     val module = ModuleManager.getInstance(project).getModules()(0)
     val libraryLoader = ScalaLibraryLoader.withMockJdk(project, module, null)
-    libraryLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+    libraryLoader.init(TestUtils.DEFAULT_SCALA_SDK_VERSION)
     libraryLoader
   }
 

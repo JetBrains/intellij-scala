@@ -33,7 +33,7 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
     super.setUp(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
     myLibraryLoader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false);
-    myLibraryLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION);
+    myLibraryLoader.init(TestUtils.DEFAULT_SCALA_SDK_VERSION);
   }
 
   public void tearDown() throws Exception {

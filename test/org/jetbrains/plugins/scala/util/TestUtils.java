@@ -153,37 +153,6 @@ public class TestUtils {
     return getScalaLibrarySrc(DEFAULT_SCALA_SDK_VERSION);
   }
 
-  public static String getMockScalazLib(ScalaSdkVersion version) {
-    String major = version.getMajor();
-    String dirName = "/org.scalaz/scalaz-core_" + major + "/bundles/";
-    String fileName = "scalaz-core_" + major + "-7.1.0.jar";
-    return getIvyCachePath() + dirName + fileName;
-  }
-
-  public static String getMockSprayLib(ScalaSdkVersion version) {
-    return getIvyCachePath() + "/io.spray/spray-routing_2.11/bundles/spray-routing_2.11-1.3.1.jar" ;
-  }
-
-  public static String getMockSlickLib(ScalaSdkVersion version) {
-    return getIvyCachePath() + "/com.typesafe.slick/slick_2.11/bundles/slick_2.11-3.1.0.jar" ;
-  }
-
-  public static String getSpecs2Lib(ScalaSdkVersion version) {
-    return getIvyCachePath() + "/org.specs2/specs2_2.11/jars/specs2_2.11-2.4.15.jar" ;
-  }
-
-  public static String getScalacheckLib(ScalaSdkVersion version) {
-    return getIvyCachePath() + "/org.scalacheck/scalacheck_2.11/jars/scalacheck_2.11-1.12.5.jar" ;
-  }
-
-  public static String getPostgresLib(ScalaSdkVersion version) {
-    return getIvyCachePath() +  "/com.wda.sdbc/postgresql_2.11/jars/postgresql_2.11-0.5.jar" ;
-  }
-
-  public static String getCatsLib(ScalaSdkVersion version) {
-    return getIvyCachePath() + "/org.typelevel/cats-core_2.11/jars/cats-core_2.11-0.4.0.jar" ;
-  }
-
   public static String getScalaLibrarySrc(ScalaSdkVersion version) {
     String fileName = "scala-library-" + version.getMinor() + "-sources.jar";
     return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/" + fileName;

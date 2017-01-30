@@ -21,7 +21,7 @@ abstract class ScalaFixtureTestCase(private val scalaVersion: ScalaSdkVersion = 
     super.setUp()
 
     libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null, loadReflect)
-    libLoader.loadScala(scalaVersion)
+    libLoader.init(scalaVersion)
   }
 
   override def tearDown(): Unit = {
