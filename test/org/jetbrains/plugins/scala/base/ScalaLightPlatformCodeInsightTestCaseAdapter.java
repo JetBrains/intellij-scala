@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
   protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
     super.setUp();
     myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(), isIncludeReflectLibrary(),
-            ScalaLibraryLoader.getSdkNone(), additionalLibraries());
+            ScalaLibraryLoader.getSdkNone());
     myLibraryLoader.loadScala(libVersion);
     TestUtils.disableTimerThread();
     //libLoader.clean();

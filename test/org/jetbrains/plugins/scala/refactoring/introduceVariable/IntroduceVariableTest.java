@@ -5,7 +5,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.base.ScalaLibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -32,7 +32,7 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
   protected void setUp(Project project) {
     super.setUp(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
-    myLibraryLoader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false, new String[0]);
+    myLibraryLoader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false);
     myLibraryLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION);
   }
 

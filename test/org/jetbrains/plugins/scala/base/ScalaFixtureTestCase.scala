@@ -3,6 +3,7 @@ package base
 
 
 import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, CodeInsightTestFixture}
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
