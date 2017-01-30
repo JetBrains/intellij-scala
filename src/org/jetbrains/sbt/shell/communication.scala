@@ -4,8 +4,7 @@ import java.io.{OutputStreamWriter, PrintWriter}
 import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicBoolean
 
-import com.intellij.execution.console.LanguageConsoleView
-import com.intellij.execution.process.{AnsiEscapeDecoder, ProcessAdapter, ProcessEvent}
+import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
@@ -27,7 +26,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   private lazy val process = SbtProcessManager.forProject(project)
 
   private val shellPromptReady = new AtomicBoolean(false)
-  private val queueProcessingActive = new AtomicBoolean(false)
+  private val communicationActive = new AtomicBoolean(false)
   private val shellQueueReady = new Semaphore(1)
   private val commands = new LinkedBlockingQueue[(String, CommandListener)]()
 
@@ -48,6 +47,8 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
 
   private def queueCommand(cmd: String, listener: CommandListener) = {
 
+    initCommunication(process.acquireShellProcessHandler)
+
     commands.put((cmd, listener))
 
     listener.future.recover {
@@ -62,22 +63,21 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     handler.addProcessListener(listener)
   }
 
-  def startQueueProcessing(): Unit = {
-    if (!queueProcessingActive.getAndSet(true)) {
-      // is it ok for this executor to run a queue processor?
-      PooledThreadExecutor.INSTANCE.submit(new Runnable {
-        override def run(): Unit = {
-          val handler = process.acquireShellProcessHandler
-          // make sure there is exactly one permit available
-          shellQueueReady.drainPermits()
-          shellQueueReady.release()
-          while (!handler.isProcessTerminating && !handler.isProcessTerminated) {
-            nextQueuedCommand(1.second)
-          }
-          queueProcessingActive.set(false)
+  /** Start processing command queue if it is not yet active. */
+  private def startQueueProcessing(handler: OSProcessHandler): Unit = {
+
+    // is it ok for this executor to run a queue processor?
+    PooledThreadExecutor.INSTANCE.submit(new Runnable {
+      override def run(): Unit = {
+        // make sure there is exactly one permit available
+        shellQueueReady.drainPermits()
+        shellQueueReady.release()
+        while (!handler.isProcessTerminating && !handler.isProcessTerminated) {
+          nextQueuedCommand(1.second)
         }
-      })
-    }
+        communicationActive.set(false)
+      }
+    })
   }
 
   private def nextQueuedCommand(timeout: Duration) = {
@@ -108,28 +108,24 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   /**
     * To be called when the process is reinitialized externally
     */
-  def initCommunication(consoleView: LanguageConsoleView): Unit = {
+  def initCommunication(handler: OSProcessHandler): Unit = {
+    if (!communicationActive.getAndSet(true)) {
+      val stateChanger = new SbtShellReadyListener(
+        whenReady = shellPromptReady.set(true),
+        whenWorking = shellPromptReady.set(false)
+      )
 
-    // TODO update icon with ready/working state
-    val promptReadyStateChanger = new SbtShellReadyListener(
-      whenReady = {
-        shellPromptReady.set(true)
-        consoleView.setPrompt(">")
-      },
-      whenWorking = {
-        shellPromptReady.set(false)
-        consoleView.setPrompt("X")
-      }
-    )
-    // assume initial state is Working
-    shellPromptReady.set(false)
-    consoleView.setPrompt("X")
+      shellPromptReady.set(false)
+      handler.addProcessListener(stateChanger)
+      if (!handler.isStartNotified) handler.startNotify()
 
-    attachListener(promptReadyStateChanger)
-
-    startQueueProcessing()
+      startQueueProcessing(handler)
+    }
   }
+}
 
+object SbtShellCommunication {
+  def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
 }
 
 class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener {
@@ -186,12 +182,10 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
 
 }
 
-object SbtShellCommunication {
-  def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
-}
 
 /**
-  * Monitor sbt prompt status, do something when state changes
+  * Monitor sbt prompt status, do something when state changes.
+  * TODO: Maybe specify an internal callback thingy just for ready state changes so that other parts don't have to depend on prompt changes
   * @param whenReady callback when going into Ready state
   * @param whenWorking callback when going into Working state
   */

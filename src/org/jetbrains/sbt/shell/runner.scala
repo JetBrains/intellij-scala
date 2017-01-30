@@ -2,6 +2,7 @@ package org.jetbrains.sbt.shell
 
 import java.awt.event.KeyEvent
 import java.util
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.Icon
 
 import com.intellij.execution.console._
@@ -27,6 +28,8 @@ import scala.collection.JavaConverters._
   */
 class SbtShellRunner(project: Project, consoleTitle: String)
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
+
+  private val isInitialized: AtomicBoolean = new AtomicBoolean(false)
 
   private val myConsoleView: LanguageConsoleImpl = {
     val cv = new LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage)
@@ -67,11 +70,20 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
   override def initAndRun(): Unit = {
     // if already startNotified, there should already be a console running, so don't init this one.
-    if (! myProcessHandler.isStartNotified) {
+    if (!isInitialized.getAndSet(true)) {
       super.initAndRun()
       UIUtil.invokeLaterIfNeeded(new Runnable {
         override def run(): Unit = {
-          SbtShellCommunication.forProject(project).initCommunication(myConsoleView)
+          // assume initial state is Working
+          // FIXME this is not correct when shell process was started without view
+          myConsoleView.setPrompt("X")
+
+          // TODO update icon with ready/working state
+          val shellPromptChanger = new SbtShellReadyListener(
+            whenReady = myConsoleView.setPrompt(">"),
+            whenWorking = myConsoleView.setPrompt("X")
+          )
+          SbtShellCommunication.forProject(project).attachListener(shellPromptChanger)
         }
       })
     } else {

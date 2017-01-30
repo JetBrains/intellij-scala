@@ -23,7 +23,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
   @volatile private var myProcessHandler: Option[ColoredProcessHandler] = None
 
-
   private def createShellProcessHandler(): ColoredProcessHandler = {
     val workingDir = project.getBaseDir.getCanonicalPath
 
