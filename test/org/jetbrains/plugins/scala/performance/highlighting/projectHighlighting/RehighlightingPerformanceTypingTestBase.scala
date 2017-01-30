@@ -9,7 +9,7 @@ import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures._
 import com.intellij.util.ThrowableRunnable
-import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.util.TestUtils

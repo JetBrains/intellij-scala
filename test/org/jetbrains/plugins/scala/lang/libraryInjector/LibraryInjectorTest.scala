@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil}
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
