@@ -121,6 +121,10 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
         consoleView.setPrompt("X")
       }
     )
+    // assume initial state is Working
+    shellPromptReady.set(false)
+    consoleView.setPrompt("X")
+
     attachListener(promptReadyStateChanger)
 
     startQueueProcessing()
@@ -186,7 +190,11 @@ object SbtShellCommunication {
   def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
 }
 
-/** Monitor sbt prompt status, do something when state changes */
+/**
+  * Monitor sbt prompt status, do something when state changes
+  * @param whenReady callback when going into Ready state
+  * @param whenWorking callback when going into Working state
+  */
 class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends LineListener {
 
   private var readyState: Boolean = false
