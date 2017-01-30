@@ -73,7 +73,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, getSourceRootDir.getCanonicalPath,
       loadReflect, Some(getTestProjectJdk))
 
-    scalaLibraryLoader.loadScala(scalaSdkVersion)
+    scalaLibraryLoader.init(scalaSdkVersion)
   }
 
   protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {

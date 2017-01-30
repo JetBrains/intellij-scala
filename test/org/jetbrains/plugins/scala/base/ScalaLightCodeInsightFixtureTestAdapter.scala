@@ -25,7 +25,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
       libLoader = ScalaLibraryLoader.withMockJdk(getProject, getFixture.getModule, rootPath = null)
-      libLoader.loadScala(libVersion)
+      libLoader.init(libVersion)
     }
   }
 

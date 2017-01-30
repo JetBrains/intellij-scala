@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
+import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.PerfCycleTests
+import org.jetbrains.plugins.scala.base.libraryLoaders.{ScalaZLoader, ThirdPartyLibraryLoader}
 import org.junit.experimental.categories.Category
 
 /**
@@ -8,8 +10,10 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class ScalazTest extends FailedResolveTest("scalaz"){
-  override protected def additionalLibraries(): Array[String] = Array("scalaz")
+class ScalazTest extends FailedResolveTest("scalaz") {
+
+  override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
+    Array(ScalaZLoader()(module))
 
   def testSCL7213(): Unit = doTest()
 
