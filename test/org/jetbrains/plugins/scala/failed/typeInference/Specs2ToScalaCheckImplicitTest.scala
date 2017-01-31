@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.libraryLoaders.{ScalaZLoader, Specs2Loader, ThirdPartyLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{ScalaZCoreLoader, Specs2Loader, ThirdPartyLibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.junit.experimental.categories.Category
 
@@ -13,7 +13,7 @@ import org.junit.experimental.categories.Category
 class Specs2ToScalaCheckImplicitTest extends TypeInferenceTestBase {
 
   override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
-    Array(Specs2Loader()(module), ScalaZLoader()(module))
+    Array(Specs2Loader("2.4.15")(module), ScalaZCoreLoader()(module))
 
   def testSCL8864(): Unit = doTest {
     s"""object Main extends App {

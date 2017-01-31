@@ -37,7 +37,7 @@ class SprayRouting extends TypeInferenceBenchmarkBase("SprayRouting") {
 
 class Scalaz extends TypeInferenceBenchmarkBase("Scalaz") {
   override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
-    Array(ScalaZLoader()(module))
+    Array(ScalaZCoreLoader()(module))
 }
 
 class Slick extends TypeInferenceBenchmarkBase("Slick") {

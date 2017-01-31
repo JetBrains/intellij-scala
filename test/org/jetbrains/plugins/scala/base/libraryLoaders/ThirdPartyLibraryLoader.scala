@@ -45,11 +45,18 @@ abstract class IvyLibraryLoaderAdapter extends ThirdPartyLibraryLoader {
   }
 }
 
-case class ScalaZLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
-  override protected val name: String = "scalaz-core"
+abstract class ScalaZBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
   override protected val vendor: String = "org.scalaz"
   override protected val version: String = "7.1.0"
   override protected val isBundled: Boolean = true
+}
+
+case class ScalaZCoreLoader(implicit val module: Module) extends ScalaZBaseLoader {
+  override protected val name: String = "scalaz-core"
+}
+
+case class ScalaZConcurrentLoader(implicit val module: Module) extends ScalaZBaseLoader {
+  override protected val name: String = "scalaz-concurrent"
 }
 
 case class SlickLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
@@ -81,13 +88,13 @@ case class CatsLoader(implicit val module: Module) extends IvyLibraryLoaderAdapt
     super.path(_2_11)
 }
 
-case class Specs2Loader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
-  override protected val name: String = "specs2"
+abstract class Specs2BaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
   override protected val vendor: String = "org.specs2"
-  override protected val version: String = "2.4.15"
+}
 
-  override protected def path(implicit version: ScalaSdkVersion): String =
-    super.path(_2_11)
+case class Specs2Loader(override protected val version: String)
+                       (implicit val module: Module) extends Specs2BaseLoader {
+  override protected val name: String = "specs2"
 }
 
 case class ScalaCheckLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
@@ -106,4 +113,37 @@ case class PostgresLoader(implicit val module: Module) extends IvyLibraryLoaderA
 
   override protected def path(implicit version: ScalaSdkVersion): String =
     super.path(_2_11)
+}
+
+case class ScalaTestLoader(override protected val version: String,
+                           override protected val isBundled: Boolean = false)
+                          (implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  override protected val name: String = "scalatest"
+  override protected val vendor: String = "org.scalatest"
+}
+
+case class ScalaXmlLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  override protected val name: String = "scala-xml"
+  override protected val vendor: String = "org.scala-lang.modules"
+  override protected val version: String = "1.0.1"
+  override protected val isBundled: Boolean = true
+}
+
+case class UTestLoader(override protected val version: String)
+                      (implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  override protected val name: String = "utest"
+  override protected val vendor: String = "com.lihaoyi"
+}
+
+case class QuasiQuotesLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  override protected val name: String = "quasiquotes"
+  override protected val vendor: String = "org.scalamacros"
+  override protected val version: String = "2.0.0"
+}
+
+case class ScalaAsyncLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  override protected val name: String = "scala-async"
+  override protected val vendor: String = "org.scala-lang.modules"
+  override protected val version: String = "0.9.5"
+  override protected val isBundled: Boolean = false
 }

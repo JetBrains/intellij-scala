@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.utest.scala2_10.utest_0_3_1
 
+import org.jetbrains.plugins.scala.base.libraryLoaders.{QuasiQuotesLoader, ThirdPartyLibraryLoader, UTestLoader}
 import org.jetbrains.plugins.scala.testingSupport.utest.UTestTestCase
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
@@ -9,12 +10,9 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   */
 abstract class UTestTestBase_2_10_0_3_1 extends UTestTestCase {
 
-  /**
-    * Intended for loading libraries different from scala-compiler.
-    */
-  override protected def addOtherLibraries(): Unit = {
-    addIvyCacheLibrary("qQuotes", "org.scalamacros/quasiquotes_2.10/jars", "quasiquotes_2.10-2.0.0.jar")
-    addIvyCacheLibrary("utest", "com.lihaoyi/utest_2.10/jars", "utest_2.10-0.3.1.jar")
+  override protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = {
+    implicit val module = getModule
+    Seq(UTestLoader("0.3.1"), QuasiQuotesLoader())
   }
 
   override protected val scalaSdkVersion = ScalaSdkVersion._2_10
