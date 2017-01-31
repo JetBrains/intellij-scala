@@ -32,26 +32,25 @@ object RecursionManager {
 
   class RecursionGuard[Data >: Null <: AnyRef, Result >: Null <: AnyRef] private (id: String) {
 
-    //this method and actual function body can be inlined in macros
-    def doPreventingRecursion(key: Data, computable: Computable[Result]): Result = {
-      val stack: CalculationStack = ourStack.get
+    //see also org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.doPreventingRecursion
+    def doPreventingRecursion(data: Data, computable: Computable[Result]): Result = {
+      if (isReentrant(data)) return null
 
-      if (isReentrant(key, stack)) return null
+      val realKey = createKey(data)
 
-      val realKey = new MyKey(id, key, false)
-
-      val (sizeBefore, sizeAfter) = beforeComputation(realKey, stack)
+      val (sizeBefore, sizeAfter) = beforeComputation(realKey)
 
       try {
         computable.compute()
       }
       finally {
-        afterComputation(realKey, sizeBefore, sizeAfter, stack)
+        afterComputation(realKey, sizeBefore, sizeAfter)
       }
     }
 
-    def isReentrant(key: Data, stack: CalculationStack): Boolean = {
-      val realKey = new MyKey(id, key, true)
+    def isReentrant(data: Data): Boolean = {
+      val stack = ourStack.get()
+      val realKey = createKey(data, myCallEquals = true)
       if (stack.checkReentrancy(realKey)) {
         if (ourAssertOnPrevention) throw new AssertionError("Endless recursion prevention occurred")
         true
@@ -59,14 +58,18 @@ object RecursionManager {
       else false
     }
 
-    def beforeComputation(realKey: MyKey[Data], stack: CalculationStack): (Int, Int) = {
+    def createKey(data: Data, myCallEquals: Boolean = false) = new MyKey[Data](id, data, myCallEquals)
+
+    def beforeComputation(realKey: MyKey[Data]): (Int, Int) = {
+      val stack = ourStack.get()
       val sizeBefore: Int = stack.progressMap.size
       stack.beforeComputation(realKey)
       val sizeAfter: Int = stack.progressMap.size
       (sizeBefore, sizeAfter)
     }
 
-    def afterComputation(realKey: MyKey[Data], sizeBefore: Int, sizeAfter: Int, stack: CalculationStack): Unit = {
+    def afterComputation(realKey: MyKey[Data], sizeBefore: Int, sizeAfter: Int): Unit = {
+      val stack = ourStack.get()
       try stack.afterComputation(realKey, sizeBefore, sizeAfter)
       catch {
         case e: Throwable =>
@@ -97,7 +100,7 @@ object RecursionManager {
     }
   }
 
-  private class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
+  class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
     // remember user object hashCode to ensure our internal maps consistency
     private val myHashCode: Int = guardId.hashCode * 31 + userObject.hashCode
 

@@ -3,7 +3,6 @@ package caches
 
 
 import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.atomic.{AtomicInteger, AtomicReferenceArray}
 
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.{DoNotProcessPackageObjectException, isPackageObjectProcessing}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
@@ -91,7 +91,7 @@ object CachesUtil {
               return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
             } else {
               fun.setProbablyRecursive(true)
-              throw new ProbablyRecursionException(e, (), key, Set(fun))
+              throw ProbablyRecursionException(e, (), key, Set(fun))
             }
           }
           guard.doPreventingRecursion(e, new Computable[CachedValueProvider.Result[Result]] {
@@ -187,7 +187,7 @@ object CachesUtil {
             defaultValue
           } else {
             fun.setProbablyRecursive(true)
-            throw new ProbablyRecursionException(e, data, key, Set(fun))
+            throw ProbablyRecursionException(e, data, key, Set(fun))
           }
         } else {
           guard.doPreventingRecursion((e, data), new Computable[Result] {
@@ -269,4 +269,33 @@ object CachesUtil {
                                                                     data: Data,
                                                                     key: Key[T],
                                                                     set: Set[ScFunction]) extends ControlThrowable
+
+  def getOrCreateCachedMap[Dom <: PsiElement, Data, Result](elem: Dom,
+                                                            key: MappedKey[Data, Result],
+                                                            dependencyItem: () => Object): ConcurrentMap[Data, Result] = {
+
+    val cachedValue = elem.getOrUpdateUserData(key, {
+      val manager = CachedValuesManager.getManager(elem.getProject)
+      val provider = new CachedValueProvider[ConcurrentMap[Data, Result]] {
+        def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] =
+          new CachedValueProvider.Result(ContainerUtil.newConcurrentMap[Data, Result](), dependencyItem())
+      }
+      manager.createCachedValue(provider, false)
+    })
+    cachedValue.getValue
+  }
+
+  //used in CachedMappedWithRecursionGuard
+  def handleRecursion[Data, Result](e: PsiElement, data: Data, key: Key[_], defaultValue: => Result): Result = {
+    if (isPackageObjectProcessing)
+      throw new DoNotProcessPackageObjectException()
+
+    PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction]) match {
+      case null => defaultValue
+      case fun if fun.isProbablyRecursive => defaultValue
+      case fun =>
+        fun.setProbablyRecursive(true)
+        throw ProbablyRecursionException(e, data, key, Set(fun))
+    }
+  }
 }

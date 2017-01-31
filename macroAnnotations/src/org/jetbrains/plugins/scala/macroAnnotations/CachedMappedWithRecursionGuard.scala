@@ -25,9 +25,7 @@ object CachedMappedWithRecursionGuard {
     implicit val x: c.type = c
 
     //generated names
-    val cachedFunName: c.universe.TermName = generateTermName("cachedFun")
     val dataName: c.universe.TermName = generateTermName("data")
-    val dataTypeName: c.universe.TypeName = generateTypeName("Data")
 
     //noinspection ZeroIndexToHead
     def parameters: (Tree, Tree, Tree) = c.prefix.tree match {
@@ -46,115 +44,82 @@ object CachedMappedWithRecursionGuard {
         }
 
         //some more generated names
-        val keyId: String = c.freshName(name + "cacheKey")
-        val key: c.universe.TermName = generateTermName(name + "Key")
+        val keyId: String = c.freshName(name + "$keyId")
         val cacheStatsName: c.universe.TermName = generateTermName(name + "cacheStats")
         val defdefFQN = thisFunctionFQN(name.toString)
         val analyzeCaches = analyzeCachesEnabled(c)
+        val computedValue = generateTermName("computedValue")
+        val guard = generateTermName("guard")
+        val defValueName = generateTermName("defaultValue")
 
         //function parameters
         val flatParams = paramss.flatten
         val parameterTypes = flatParams.map(_.tpt)
         val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
-        val parameterDefinitions: List[c.universe.Tree] = flatParams match {
-          case param :: Nil => List(ValDef(NoMods, param.name, param.tpt, q"$dataName"))
-          case _ => flatParams.zipWithIndex.map {
-            case (param, i) => ValDef(NoMods, param.name, param.tpt, q"$dataName.${TermName("_" + (i + 1))}")
-          }
-        }
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
-        val builder = q"""
-          def $cachedFunName(${generateTermName()}: _root_.scala.Any, $dataName: $dataTypeName): $retTp = {
-            ..$parameterDefinitions
+        val guardedCalculation = withUIFreezingGuard(c)(q"$computedValue = $actualCalculation")
 
-            $actualCalculation
-          }
-          """
+        def handleProbablyRecursiveException(calculation: c.universe.Tree): c.universe.Tree = {
+          q"""
+              try {
+                $calculation
+              }
+              catch {
+                case $cachesUtilFQN.ProbablyRecursionException(`e`, `data`, k, set) if k == key =>
+                  try {
+                    $calculation
+                  } finally {
+                    set.foreach(_.setProbablyRecursive(false))
+                  }
+                case t@$cachesUtilFQN.ProbablyRecursionException(ee, innerData, k, set) if k == key =>
+                  val fun = $psiTreeUtilFQN.getContextOfType(e, true, classOf[$scFunctionTypeFqn])
+                  if (fun == null || fun.isProbablyRecursive) throw t
+                  else {
+                    fun.setProbablyRecursive(true)
+                    throw t.copy(set = set + fun)
+                  }
+              }
+           """
+        }
+
+        val withProbablyRecursiveException = handleProbablyRecursiveException(guardedCalculation)
+        val dataForRecursionGuard = q"(e, data)"
 
         val updatedRhs = q"""
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
-          type $dataTypeName = (..$parameterTypes)
-          val $dataName = (..$parameterNames)
-          $builder
 
           type Dom = $psiElementType
-          type Data = $dataTypeName
+          type Data = (..$parameterTypes)
           type Result = $retTp
+
           val e: Dom = $element
-          val data: Data = $dataName
-          val key: _root_.com.intellij.openapi.util.Key[_root_.com.intellij.psi.util.CachedValue[_root_.java.util.concurrent.ConcurrentMap[Data, Result]]] = $key
-          lazy val defaultValue: Result = $defaultValue
-          lazy val dependencyItem: Object = $dependencyItem
+          val data: Data = (..$parameterNames)
+          val key = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$concurrentMapTypeFqn[Data, Result]]]]($keyId)
 
-          var computed: _root_.com.intellij.psi.util.CachedValue[_root_.java.util.concurrent.ConcurrentMap[Data, Result]] = e.getUserData(key)
-          if (computed == null) {
-            val manager = _root_.com.intellij.psi.util.CachedValuesManager.getManager(e.getProject)
-            computed = manager.createCachedValue(new _root_.com.intellij.psi.util.CachedValueProvider[_root_.java.util.concurrent.ConcurrentMap[Data, Result]] {
-              def compute(): _root_.com.intellij.psi.util.CachedValueProvider.Result[_root_.java.util.concurrent.ConcurrentMap[Data, Result]] = {
-                new _root_.com.intellij.psi.util.CachedValueProvider.Result(_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap[Data, Result](), dependencyItem)
-              }
-            }, false)
-            e.putUserData(key, computed)
+          def dependencyItem: Object = $dependencyItem
+          def $defValueName: Result = $defaultValue
+
+          val map = $cachesUtilFQN.getOrCreateCachedMap[Dom, Data, Result](e, key, () => dependencyItem)
+
+          val fromCache = map.get(data)
+
+          if (fromCache != null) return fromCache
+
+          val $guard = $recursionGuardFQN[(Dom, Data), Result](key.toString)
+          if ($guard.currentStackContains($dataForRecursionGuard))
+            return $cachesUtilFQN.handleRecursion[Data, Result](e, data, key, $defValueName)
+
+          var $computedValue: $retTp = null
+
+          ${doPreventingRecursion(c)(withProbablyRecursiveException, guard, dataForRecursionGuard, retTp)}
+
+          val result = $computedValue match {
+            case null => $defValueName
+            case notNull => notNull
           }
-          val map = computed.getValue
-          var result = map.get(data)
-          if (result == null) {
-            var isCache = true
-            result = {
-              val guard = $recursionGuardFQN[(Dom, Data), Result](key.toString)
-              if (guard.currentStackContains((e, data))) {
-                if (_root_.org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.isPackageObjectProcessing) {
-                  throw new _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.DoNotProcessPackageObjectException
-                }
-                val fun = _root_.com.intellij.psi.util.PsiTreeUtil.getContextOfType(e, true, classOf[_root_.org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction])
-                if (fun == null || fun.isProbablyRecursive) {
-                  isCache = false
-                  defaultValue
-                } else {
-                  fun.setProbablyRecursive(true)
-                  throw new _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(e, data, key, _root_.scala.collection.immutable.Set(fun))
-                }
-              } else {
-                guard.doPreventingRecursion((e, data), new _root_.com.intellij.openapi.util.Computable[Result] {
-                  def compute(): Result = {
-                    try {
-                      val ${generateTermName()}: _root_.scala.Any = e
-                      val $dataName: $dataTypeName = data
-                      ..$parameterDefinitions
 
-                      if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
-                      else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
-                    }
-                    catch {
-                      case _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(`e`, `data`, k, set) if k == key =>
-                        try {
-                          val ${generateTermName()}: _root_.scala.Any = e
-                          val $dataName: $dataTypeName = data
-                          ..$parameterDefinitions
-
-                          if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
-                          else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
-                        } finally set.foreach(_.setProbablyRecursive(false))
-                      case t@_root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(ee, innerData, k, set) if k == key =>
-                        val fun = _root_.com.intellij.psi.util.PsiTreeUtil.getContextOfType(e, true, classOf[_root_.org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction])
-                        if (fun == null || fun.isProbablyRecursive) throw t
-                        else {
-                          fun.setProbablyRecursive(true)
-                          throw _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(ee, innerData, k, set + fun)
-                        }
-                    }
-                  }
-                }) match {
-                  case null => defaultValue
-                  case notNull => notNull.asInstanceOf[Result]
-                }
-              }
-            }
-            if (isCache) {
-              map.put(data, result)
-            }
-          }
+          map.put(data, result)
           result
         """
 
@@ -165,7 +130,6 @@ object CachedMappedWithRecursionGuard {
 
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
-          private def $key = $cachesUtilFQN.getOrCreateKey[$mappedKeyTypeFQN[(..$parameterTypes), $retTp]]($keyId)
           ..$cacheStatsField
 
           ..$updatedDef
