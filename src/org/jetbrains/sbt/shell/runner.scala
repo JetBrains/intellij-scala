@@ -42,9 +42,11 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
 
     // file links
-    val patternMacro = s"\\s${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}:\\s"
+    val patternMacro = s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}:\\s"
     val pattern = new RegexpFilter(project, patternMacro).getPattern
-    val format = new PatternHyperlinkFormat(pattern, false, false, PatternHyperlinkPart.PATH, PatternHyperlinkPart.LINE)
+    import PatternHyperlinkPart._
+    // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
+    val format = new PatternHyperlinkFormat(pattern, false, false, null, PATH, LINE)
     val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(format))
     val fileFilter = new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
     cv.addMessageFilter(fileFilter)
