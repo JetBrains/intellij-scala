@@ -27,6 +27,7 @@ case object HideClassPrivate extends Verbosity
 case object HideInstancePrivate extends Verbosity
 
 class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
+  import ScalaSigPrinter._
   import stream._
 
   def this(stream: PrintStream, printPrivates: Boolean) = this(stream: PrintStream, if (printPrivates) ShowAll else HideClassPrivate)
@@ -663,30 +664,17 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   def typeParamString(params: Seq[TypeSymbol]): String =
     if (params.isEmpty) ""
     else params.map(toString).mkString("[", ", ", "]")
+}
 
-  val _syms = Map("\\$bar" -> "|", "\\$tilde" -> "~",
-    "\\$bang" -> "!", "\\$up" -> "^", "\\$plus" -> "+",
-    "\\$minus" -> "-", "\\$eq" -> "=", "\\$less" -> "<",
-    "\\$times" -> "*", "\\$div" -> "/", "\\$bslash" -> "\\\\",
-    "\\$greater" -> ">", "\\$qmark" -> "?", "\\$percent" -> "%",
-    "\\$amp" -> "&", "\\$colon" -> ":", "\\$u2192" -> "→",
-    "\\$hash" -> "#")
-  val pattern = Pattern.compile(_syms.keys.foldLeft("")((x, y) => if (x == "") y else x + "|" + y))
-  val placeholderPattern = "_\\$(\\d)+"
-
-  private val keywordList =
+object ScalaSigPrinter {
+  val keywordList =
     Set("true", "false", "null", "abstract", "case", "catch", "class", "def",
-        "do", "else", "extends", "final", "finally", "for", "forSome", "if",
-        "implicit", "import", "lazy", "match", "new", "object", "override",
-        "package", "private", "protected", "return", "sealed", "super",
-        "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
-        "yield")
+      "do", "else", "extends", "final", "finally", "for", "forSome", "if",
+      "implicit", "import", "lazy", "match", "new", "object", "override",
+      "package", "private", "protected", "return", "sealed", "super",
+      "this", "throw", "trait", "try", "type", "val", "var", "while", "with",
+      "yield")
 
-  private def stripPrivatePrefix(name: String) = {
-    val i = name.lastIndexOf("$$")
-    if (i > 0) name.substring(i + 2) else name
-  }
-  
   def processName(name: String): String = {
     def processNameWithoutDot(name: String) = {
       def isIdentifier(id: String): Boolean = {
@@ -711,7 +699,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
                '^' | '*' | '+' | '-' | '<' |
                '>' | '?' | ':' | '=' | '&' |
                '|' | '/' | '\\' => true
-          case c => isSpecial(c)
+          case _ => isSpecial(c)
         }
 
 
@@ -729,6 +717,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
       val result = NameTransformer.decode(name)
       if (!isIdentifier(result) || keywordList.contains(result) || result == "=") "`" + result + "`" else result
     }
+
     val stripped = stripPrivatePrefix(name)
     val m = pattern.matcher(stripped)
     var temp = stripped
@@ -737,10 +726,27 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
       val re = "\\" + key
       temp = temp.replaceAll(re, _syms(re))
     }
+
+    val placeholderPattern = "_\\$(\\d)+"
     var result = temp.replaceAll(placeholderPattern, "_")
 
     //to avoid names like this one: ?0 (from existential type parameters)
     if (result.length() > 1 && result(0) == '?' && result(1).isDigit) result = "x" + result.substring(1)
     result.split('.').map(s => processNameWithoutDot(s)).mkString(".")
   }
+
+  private def stripPrivatePrefix(name: String): String = {
+    val i = name.lastIndexOf("$$")
+    if (i > 0) name.substring(i + 2) else name
+  }
+
+  val _syms = Map("\\$bar" -> "|", "\\$tilde" -> "~",
+    "\\$bang" -> "!", "\\$up" -> "^", "\\$plus" -> "+",
+    "\\$minus" -> "-", "\\$eq" -> "=", "\\$less" -> "<",
+    "\\$times" -> "*", "\\$div" -> "/", "\\$bslash" -> "\\\\",
+    "\\$greater" -> ">", "\\$qmark" -> "?", "\\$percent" -> "%",
+    "\\$amp" -> "&", "\\$colon" -> ":", "\\$u2192" -> "→",
+    "\\$hash" -> "#")
+
+  val pattern: Pattern = Pattern.compile(_syms.keys.foldLeft("")((x, y) => if (x == "") y else x + "|" + y))
 }
