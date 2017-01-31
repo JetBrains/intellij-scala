@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Type
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Author: ilyas, alefas
@@ -37,10 +38,18 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     if (hasCaseClauses) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
-      val clausesType = clauses.foldLeft(Nothing: ScType)((tp, clause) => tp.lub(clause.expr match {
-        case Some(expr) => expr.getType(TypingContext.empty).getOrNothing
-        case _ => Nothing
-      }, checkWeak = true))
+
+      val clausesTypes = ArrayBuffer[ScType]()
+      val iterator = clauses.iterator
+      while (iterator.hasNext) {
+        iterator.next().expr match {
+          case Some(e) => clausesTypes += e.getType().getOrNothing
+          case _ =>
+        }
+      }
+      val clausesLubType =
+        if (clausesTypes.isEmpty) Nothing
+        else typeSystem.bounds.lub(clausesTypes, checkWeak = true)
 
       implicit val resolveScope = getResolveScope
       implicit val project = getProject
@@ -52,7 +61,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           val fun = funs.find(_.isInstanceOf[ScTrait]).getOrElse(return Failure("Cannot find PartialFunction class", Some(this)))
           val throwable = manager.getCachedClass(resolveScope, "java.lang.Throwable").orNull
           if (throwable == null) return Failure("Cannot find Throwable class", Some(this))
-          return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesType)), Some(this))
+          return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesLubType)), Some(this))
         case _ =>
           val et = this.expectedType(fromUnderscore = false)
             .getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
@@ -74,9 +83,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
           return et match {
             case FunctionType(_, params) =>
-              Success(FunctionType(clausesType, params.map(removeVarianceAbstracts)), Some(this))
+              Success(FunctionType(clausesLubType, params.map(removeVarianceAbstracts)), Some(this))
             case PartialFunctionType(_, param) =>
-              Success(PartialFunctionType(clausesType, removeVarianceAbstracts(param)), Some(this))
+              Success(PartialFunctionType(clausesLubType, removeVarianceAbstracts(param)), Some(this))
             case _ =>
               Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
           }
@@ -96,30 +105,30 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           t match {
             case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result.contains(this) =>
               val t = existize(p.getType(TypingContext.empty).getOrAny, visitedWithT)
-              val ex = new ScExistentialArgument(p.name, Nil, t, t)
+              val ex = ScExistentialArgument(p.name, Nil, t, t)
               m.put(p.name, ex)
               ex
             case ScDesignatorType(typed: ScBindingPattern) if typed.nameContext.isInstanceOf[ScCaseClause] &&
               typed.nameContext.asInstanceOf[ScCaseClause].expr.contains(this) =>
               val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
-              val ex = new ScExistentialArgument(typed.name, Nil, t, t)
+              val ex = ScExistentialArgument(typed.name, Nil, t, t)
               m.put(typed.name, ex)
               ex
             case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
               case obj: ScObject =>
                 val t = existize(leastClassType(obj), visitedWithT)
-                val ex = new ScExistentialArgument(obj.name, Nil, t, t)
+                val ex = ScExistentialArgument(obj.name, Nil, t, t)
                 m.put(obj.name, ex)
                 ex
               case clazz: ScTypeDefinition =>
                 val t = existize(leastClassType(clazz), visitedWithT)
                 val vars = clazz.typeParameters.map(TypeParameterType(_, None)).toList
-                val ex = new ScExistentialArgument(clazz.name, vars, t, t)
+                val ex = ScExistentialArgument(clazz.name, vars, t, t)
                 m.put(clazz.name, ex)
                 ex
               case typed: ScTypedDefinition =>
                 val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
-                val ex = new ScExistentialArgument(typed.name, Nil, t, t)
+                val ex = ScExistentialArgument(typed.name, Nil, t, t)
                 m.put(typed.name, ex)
                 ex
               case _ => t
@@ -156,7 +165,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
             case ScExistentialType(q, wildcards) =>
               new ScExistentialType(existize(q, visitedWithT), wildcards.map {
-                ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lower, visitedWithT), existize(ex.upper, visitedWithT))
+                ex => ScExistentialArgument(ex.name, ex.args, existize(ex.lower, visitedWithT), existize(ex.upper, visitedWithT))
               })
             case _ => t
           }
