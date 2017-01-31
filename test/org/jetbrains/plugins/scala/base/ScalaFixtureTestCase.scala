@@ -30,9 +30,7 @@ abstract class ScalaFixtureTestCase
     implicit val module = myFixture.getModule
     implicit val version = scalaSdkVersion
 
-    libraryLoaders = Seq(
-      new ScalaLibraryLoader(project, module, includeReflectLibrary),
-      JdkLoader())
+    libraryLoaders = Seq(ScalaLibraryLoader(includeReflectLibrary), JdkLoader())
     libraryLoaders.foreach(_.init)
   }
 

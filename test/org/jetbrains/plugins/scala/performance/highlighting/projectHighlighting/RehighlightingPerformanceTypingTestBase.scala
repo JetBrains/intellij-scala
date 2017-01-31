@@ -46,8 +46,7 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     implicit val module = myCodeInsightTestFixture.getModule
     implicit val version = DEFAULT_SCALA_SDK_VERSION
 
-    libraryLoaders = Seq(new ScalaLibraryLoader(project, module),
-      JdkLoader(),
+    libraryLoaders = Seq(ScalaLibraryLoader(), JdkLoader(),
       SourcesLoader(getTestDataPath + "/"))
 
     libraryLoaders.foreach(_.init)

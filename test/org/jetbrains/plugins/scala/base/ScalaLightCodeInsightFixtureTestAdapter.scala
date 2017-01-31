@@ -30,10 +30,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
       implicit val module = getFixture.getModule
       implicit val project = getProject
       implicit val version = scalaSdkVersion
-      libraryLoaders = Seq(
-        new ScalaLibraryLoader(project, module),
-        JdkLoader()
-      )
+
+      libraryLoaders = Seq(ScalaLibraryLoader(), JdkLoader())
       libraryLoaders.foreach(_.init)
     }
   }
