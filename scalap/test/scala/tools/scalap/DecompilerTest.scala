@@ -91,4 +91,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testScl10858() = {
     doTest("LazyValBug.class")
   }
+
+  def testPackageName(): Unit = {
+    doTest("Bactickeds.class")
+  }
 }
