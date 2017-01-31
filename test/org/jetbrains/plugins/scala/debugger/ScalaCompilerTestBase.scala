@@ -9,32 +9,29 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
 
 /**
- * Nikolay.Tropin
- * 2/26/14
- */
+  * Nikolay.Tropin
+  * 2/26/14
+  */
 abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   private var deleteProjectAtTearDown = false
-  private var scalaLibraryLoader: ScalaLibraryLoader = _
+  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
 
   override def setUp(): Unit = {
     super.setUp()
@@ -59,7 +56,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
     }
 
-//  protected def addRoots() {
+    //  protected def addRoots() {
 
     inWriteAction {
       val srcRoot = getOrCreateChildDir("src")
@@ -69,34 +66,20 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     }
   }
 
-  protected def addScalaSdk(loadReflect: Boolean = true) {
-    scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, getSourceRootDir.getCanonicalPath,
-      loadReflect, Some(getTestProjectJdk))
+  protected def addLibraries(loadReflect: Boolean = true) {
+    implicit val project = getProject
+    implicit val module = getModule
+    implicit val version = scalaSdkVersion
 
-    scalaLibraryLoader.init(scalaSdkVersion)
+    libraryLoaders = Seq(
+      new ScalaLibraryLoader(project, module, getSourceRootDir.getCanonicalPath, loadReflect, Some(getTestProjectJdk))
+    ) ++ additionalLibraries
+    libraryLoaders.foreach(_.init)
   }
 
-  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
-    addIvyCacheLibraryToModule(myModule, libraryName, libraryPath, jarNames:_*)
-  }
+  protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = Seq.empty
 
-  protected def addIvyCacheLibraryToModule(module: Module, libraryName: String, libraryPath: String, jarNames: String*) = {
-    val libsPath = TestUtils.getIvyCachePath
-    val pathExtended = s"$libsPath/$libraryPath/"
-    VfsRootAccess.allowRootAccess(pathExtended)
-    PsiTestUtil.addLibrary(module, libraryName, pathExtended, jarNames: _*)
-  }
-
-  override protected def getTestProjectJdk: Sdk = {
-//    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
-//    if (scalaVersion.startsWith("2.12")) {
-//      DebuggerTestUtil.findJdk8()
-//    }
-//    else {
-//      jdkTable.getInternalJdk
-//    }
-      DebuggerTestUtil.findJdk8()
-  }
+  override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
 
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 
@@ -107,8 +90,10 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
           CompilerTestUtil.disableExternalCompiler(myProject)
           CompileServerLauncher.instance.stop()
           val baseDir = getBaseDir
-          scalaLibraryLoader.clean()
-          scalaLibraryLoader = null
+
+          libraryLoaders.foreach(_.clean())
+          libraryLoaders = Seq.empty
+
           ScalaCompilerTestBase.super.tearDown()
 
           if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)

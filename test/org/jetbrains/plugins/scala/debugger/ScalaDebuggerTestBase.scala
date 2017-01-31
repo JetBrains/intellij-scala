@@ -9,11 +9,9 @@ import com.intellij.execution.application.{ApplicationConfiguration, Application
 import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.testFramework._
 import com.intellij.util.ThrowableRunnable
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -49,16 +47,10 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       def run() {
         ScalaDebuggerTestBase.super.setUp()
         checkOrAddAllSourceFiles()
-        addScalaSdk()
-        addOtherLibraries()
+        addLibraries()
       }
     })
   }
-
-  /**
-   * Intended for loading libraries different from scala-compiler.
-   */
-  protected def addOtherLibraries()
 
   override def setUpModule(): Unit = {
     if (needMake) super.setUpModule()

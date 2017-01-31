@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.typeInference.generated
 
 import com.intellij.openapi.module.Module
-import org.jetbrains.plugins.scala.base.libraryLoaders.{ScalaZLoader, ThirdPartyLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{ScalaZCoreLoader, ThirdPartyLibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 /**
@@ -14,7 +14,7 @@ class TypeInferenceScalazTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "scalaz/"
 
   override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
-    Array(ScalaZLoader()(module))
+    Array(ScalaZCoreLoader()(module))
 
   def testSCL3819() {
     doTest()
