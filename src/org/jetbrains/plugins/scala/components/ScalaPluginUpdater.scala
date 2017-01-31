@@ -38,7 +38,7 @@ object ScalaPluginUpdater {
 
   def pluginDescriptor: IdeaPluginDescriptorImpl = ScalaPluginVersionVerifier.getPluginDescriptor
 
-  private val scalaPluginId = "1347-scala"
+  private val scalaPluginId = "1347"
 
   val baseUrl = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
 
