@@ -9,7 +9,7 @@ import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures._
 import com.intellij.util.ThrowableRunnable
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader, SourcesLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.util.TestUtils._
@@ -46,7 +46,8 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     implicit val module = myCodeInsightTestFixture.getModule
     implicit val version = DEFAULT_SCALA_SDK_VERSION
 
-    libraryLoaders = Seq(ScalaLibraryLoader.withMockJdk(project, module),
+    libraryLoaders = Seq(new ScalaLibraryLoader(project, module),
+      JdkLoader(),
       SourcesLoader(getTestDataPath + "/"))
 
     libraryLoaders.foreach(_.init)

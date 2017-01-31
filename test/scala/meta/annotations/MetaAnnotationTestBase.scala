@@ -10,7 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
-import org.jetbrains.plugins.scala.debugger.{Compilable, DebuggerTestUtil}
+import org.jetbrains.plugins.scala.debugger.Compilable
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
@@ -34,24 +34,26 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   }
 
   def compileMetaSource(source: String): List[String] = {
+    implicit val project = getProject
+
     val root = extensions.inWriteAction {
-      Option(myFixture.getProject.getBaseDir.findChild("meta")).getOrElse(myFixture.getProject.getBaseDir.createChildDirectory(null, "meta"))
+      val baseDir = project.getBaseDir
+      Option(baseDir.findChild("meta")).getOrElse(baseDir.createChildDirectory(null, "meta"))
     }
-    val metaModule = PsiTestUtil.addModule(myFixture.getProject, JavaModuleType.getModuleType, "meta", root)
-    val loader = new DisposableScalaLibraryLoader(getProject, metaModule, true, Some(DebuggerTestUtil.findJdk8()))
+
+    implicit val metaModule = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", root)
+    val loader = new DisposableScalaLibraryLoader()
     loader.init(scalaSdkVersion)
-    addAllMetaLibraries(metaModule)
-    enableParadisePlugin(myFixture.getProject)
+
+    addAllMetaLibraries
+    enableParadisePlugin
+
     extensions.inWriteAction {
       val modifiableRootModel = ModuleRootManager.getInstance(myModule).getModifiableModel
       modifiableRootModel.addModuleOrderEntry(metaModule)
       modifiableRootModel.commit()
     }
-    extensions.inWriteAction {
-      val modifiableRootModel = ModuleRootManager.getInstance(metaModule).getModifiableModel
-      modifiableRootModel.setSdk(DebuggerTestUtil.findJdk8())
-      modifiableRootModel.commit()
-    }
+
     VfsTestUtil.createFile(root, "meta.scala", source)
     try {
       make()

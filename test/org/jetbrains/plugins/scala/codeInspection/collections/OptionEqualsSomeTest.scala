@@ -19,7 +19,7 @@ class OptionEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
 
-  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
   def test1(): Unit = {
     doTest(
@@ -59,7 +59,7 @@ class OptionNotEqualsSomeTest extends OptionEqualsSomeToContainsInspectionTest {
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint
 
-  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
   def test1(): Unit = {
     doTest(
@@ -83,7 +83,7 @@ class OptionEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspectionTes
   override protected val hint: String =
     OptionEqualsSomeToContains.hint
 
-  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
 
   def testNoErrors(): Unit = {
     checkTextHasNoErrors("Option(1) == Some(2)")
@@ -95,7 +95,7 @@ class OptionNotEqualsSome_2_10_Test extends OptionEqualsSomeToContainsInspection
   override protected val hint: String =
     OptionNotEqualsSomeToNotContains.hint
 
-  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
 
   def testNoErrors(): Unit = {
     checkTextHasNoErrors("Option(1) == Some(2)")

@@ -12,7 +12,12 @@ import scala.tools.scalap.DecompilerTestBase
   * @author Roman.Shein
   * @since 31.05.2016.
   */
-abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase(ScalaSdkVersion._2_11, true) with DecompilerTestBase with AssertMatches {
+abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with DecompilerTestBase with AssertMatches {
+
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+
+  override protected val includeReflectLibrary: Boolean = true
+
   override def basePath(separator: Char) = s"${super.basePath(separator)}highlighting$separator"
 
   override def doTest(fileName: String) = {

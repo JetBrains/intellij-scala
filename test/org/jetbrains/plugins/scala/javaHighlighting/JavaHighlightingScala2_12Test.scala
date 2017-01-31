@@ -6,7 +6,10 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   * @author Alefas
   * @since 22/12/2016
   */
-class JavaHighlightingScala2_12Test extends JavaHighlitghtingTestBase(ScalaSdkVersion._2_12) {
+class JavaHighlightingScala2_12Test extends JavaHighlightingTestBase {
+
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_12
+
   def testSCL11016(): Unit = {
     val java =
       """

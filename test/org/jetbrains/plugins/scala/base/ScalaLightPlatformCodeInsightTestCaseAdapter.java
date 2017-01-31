@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -26,7 +25,6 @@ import java.util.Arrays;
  * @author Alexander Podkhalyuzin
  */
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase {
-    private String JDK_HOME = TestUtils.getDefaultJdk();
     private LibraryLoader[] myLibraryLoaders = null;
 
     protected String rootPath() {
@@ -43,7 +41,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected Sdk getProjectJDK() {
-        return JavaSdk.getInstance().createJdk("java sdk", JDK_HOME, false);
+        return TestUtils.createJdk();
     }
 
     protected TestUtils.ScalaSdkVersion getDefaultScalaSDKVersion() {
@@ -60,7 +58,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         Module module = getModule();
 
         ArrayList<LibraryLoader> libraryLoaders = new ArrayList<LibraryLoader>();
-        libraryLoaders.add(new ScalaLibraryLoader(getProject(), module, isIncludeReflectLibrary(), ScalaLibraryLoader.getSdkNone()));
+        libraryLoaders.add(new ScalaLibraryLoader(getProject(), module, isIncludeReflectLibrary()));
 
         String path = rootPath();
         if (path != null) {

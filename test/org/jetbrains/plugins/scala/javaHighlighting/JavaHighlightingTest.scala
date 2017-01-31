@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala
 package javaHighlighting
 
 import org.jetbrains.plugins.scala.annotator._
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 
 /**
  * Author: Svyatoslav Ilinskiy
  * Date: 7/8/15
  */
-class JavaHighlightingTest extends JavaHighlitghtingTestBase() {
+class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
   def testSignatures(): Unit = {
     val scala =

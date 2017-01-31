@@ -19,6 +19,8 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.JavaSdk;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -117,11 +119,10 @@ public class TestUtils {
     }
   }
 
-
-  public static String getDefaultJdk() {
+  public static Sdk createJdk() {
     String path = DebuggerTestUtil$.MODULE$.discoverJDK18().get();
     VfsRootAccess.allowRootAccess(path);
-    return path;
+    return JavaSdk.getInstance().createJdk("java sdk", path, false);
   }
 
   public enum ScalaSdkVersion {

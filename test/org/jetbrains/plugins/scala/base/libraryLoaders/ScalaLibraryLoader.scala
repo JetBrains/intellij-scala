@@ -4,11 +4,10 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.JarFileSystem
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaLoader
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction}
@@ -20,8 +19,9 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 import scala.collection.mutable.ArrayBuffer
 
-class ScalaLibraryLoader(project: Project, implicit val module: Module, isIncludeReflectLibrary: Boolean = false,
-                         javaSdk: Option[Sdk] = None) extends LibraryLoader {
+class ScalaLibraryLoader(project: Project, implicit val module: Module,
+                         isIncludeReflectLibrary: Boolean = false)
+  extends LibraryLoader {
 
   private val addedLibraries = ArrayBuffer[Library]()
 
@@ -32,12 +32,6 @@ class ScalaLibraryLoader(project: Project, implicit val module: Module, isInclud
 
     addScalaSdk
     LibraryLoader.storePointers()
-
-    javaSdk.foreach { sdk =>
-      val rootModel = ModuleRootManager.getInstance(module).getModifiableModel
-      rootModel.setSdk(sdk)
-      inWriteAction(rootModel.commit())
-    }
   }
 
   private def addSyntheticClasses(): Unit =
@@ -47,15 +41,10 @@ class ScalaLibraryLoader(project: Project, implicit val module: Module, isInclud
       case _ =>
     }
 
-  override def clean(): Unit = {
-    disposeLibraries()
-  }
-
-  protected def disposeLibraries(): Unit = {
+  override def clean(): Unit =
     inWriteAction {
       addedLibraries.foreach(module.detach)
     }
-  }
 
   private def addScalaSdk(implicit version: ScalaSdkVersion) = {
     val compilerPath = TestUtils.getScalaCompilerPath(version)
@@ -83,13 +72,14 @@ class ScalaLibraryLoader(project: Project, implicit val module: Module, isInclud
   }
 }
 
-object ScalaLibraryLoader {
-  def getSdkNone: Option[Sdk] = None
+case class JdkLoader(jdk: Sdk = TestUtils.createJdk())
+                    (implicit val module: Module) extends LibraryLoader {
 
-  def withMockJdk(project: Project, module: Module, isIncludeReflectLibrary: Boolean = false): ScalaLibraryLoader = {
-    val mockJdk = TestUtils.getDefaultJdk
-    VfsRootAccess.allowRootAccess(mockJdk)
-    val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
-    new ScalaLibraryLoader(project, module, isIncludeReflectLibrary, javaSdk)
+  override def init(implicit version: ScalaSdkVersion): Unit = {
+    val model = ModuleRootManager.getInstance(module).getModifiableModel
+    model.setSdk(jdk)
+    inWriteAction {
+      model.commit()
+    }
   }
 }

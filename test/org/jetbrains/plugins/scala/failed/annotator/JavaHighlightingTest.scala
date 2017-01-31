@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlitghtingTestBase
+import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingTestBase
 import org.junit.experimental.categories.Category
 
 /**
@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   * @since 23/03/16
   */
 @Category(Array(classOf[PerfCycleTests]))
-class JavaHighlightingTest extends JavaHighlitghtingTestBase() {
+class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
   def testSCL8982() = {
     val scala =
