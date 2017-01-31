@@ -99,8 +99,6 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
       }
       result.restartCompletionWhenNothingMatches()
 
-      val (expectedTypesAfterNew, isAfterNew) = ScalaAfterNewCompletionUtil.expectedTypesAfterNew(position, context)
-
       //if prefix is capitalized, class name completion is enabled
       val classNameCompletion = shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)
       val insertedElement: PsiElement = position
@@ -133,19 +131,16 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     import scala.collection.mutable.{HashMap => MHashMap}
                     val renamedMap = new MHashMap[String, (String, PsiNamedElement)]
                     el.isRenamed.foreach(name => renamedMap += ((clazz.name, (name, clazz))))
-                    val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
-                      def compute: Boolean = {
-                        JavaCompletionUtil.isInExcludedPackage(clazz, false)
-                      }
-                    })
 
-                    if (!isExcluded && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
-                      if (isAfterNew) {
-                        val lookupElement = getLookupElementFromClass(expectedTypesAfterNew, clazz, renamedMap)
-                        addElement(lookupElement)
-                      } else {
-                        addElement(el)
-                      }
+                    if (!ScalaCompletionUtil.isExcluded(clazz) &&
+                      !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
+
+                      val (typesAfterNew, isAfterNew) =
+                        ScalaAfterNewCompletionUtil.expectedTypesAfterNew(position, context)
+
+                      addElement(
+                        if (isAfterNew) getLookupElementFromClass(typesAfterNew, clazz, renamedMap) else el
+                      )
                     }
                   case _ if lookingForAnnotations =>
                   case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => //don't show _= methods for vars in basic completion
