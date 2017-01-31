@@ -31,12 +31,12 @@ package object types {
 
     def conforms(`type`: ScType)
                 (implicit typeSystem: TypeSystem): Boolean = {
-      conforms(`type`, ScUndefinedSubstitutor())._1
+      typeSystem.conformance.conformsInner(`type`, scType)._1
     }
 
     def weakConforms(`type`: ScType)
                     (implicit typeSystem: TypeSystem): Boolean = {
-      conforms(`type`, ScUndefinedSubstitutor(), checkWeak = true)._1
+      typeSystem.conformance.conformsInner(`type`, scType, checkWeak = true)._1
     }
 
     def conforms(`type`: ScType,
