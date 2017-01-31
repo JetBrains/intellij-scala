@@ -7,9 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.openapi.vfs.{JarFileSystem, LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaLoader
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction}
@@ -21,7 +20,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 import scala.collection.mutable.ArrayBuffer
 
-class ScalaLibraryLoader(project: Project, implicit val module: Module, rootPath: String, isIncludeReflectLibrary: Boolean = false,
+class ScalaLibraryLoader(project: Project, implicit val module: Module, isIncludeReflectLibrary: Boolean = false,
                          javaSdk: Option[Sdk] = None) extends LibraryLoader {
 
   private val addedLibraries = ArrayBuffer[Library]()
@@ -30,13 +29,6 @@ class ScalaLibraryLoader(project: Project, implicit val module: Module, rootPath
     ScalaLoader.loadScala()
 
     addSyntheticClasses()
-
-    if (rootPath != null) {
-      FileUtil.createIfDoesntExist(new File(rootPath))
-      val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
-      assert(testDataRoot != null)
-      PsiTestUtil.addSourceRoot(module, testDataRoot)
-    }
 
     addScalaSdk
     LibraryLoader.storePointers()
@@ -56,10 +48,6 @@ class ScalaLibraryLoader(project: Project, implicit val module: Module, rootPath
     }
 
   override def clean(): Unit = {
-    if (rootPath != null) {
-      val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
-      PsiTestUtil.removeSourceRoot(module, testDataRoot)
-    }
     disposeLibraries()
   }
 
@@ -98,11 +86,10 @@ class ScalaLibraryLoader(project: Project, implicit val module: Module, rootPath
 object ScalaLibraryLoader {
   def getSdkNone: Option[Sdk] = None
 
-  def withMockJdk(project: Project, module: Module, rootPath: String, isIncludeReflectLibrary: Boolean = false): ScalaLibraryLoader = {
-
+  def withMockJdk(project: Project, module: Module, isIncludeReflectLibrary: Boolean = false): ScalaLibraryLoader = {
     val mockJdk = TestUtils.getDefaultJdk
     VfsRootAccess.allowRootAccess(mockJdk)
     val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
-    new ScalaLibraryLoader(project, module, rootPath, isIncludeReflectLibrary, javaSdk)
+    new ScalaLibraryLoader(project, module, isIncludeReflectLibrary, javaSdk)
   }
 }

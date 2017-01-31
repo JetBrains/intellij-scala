@@ -38,8 +38,8 @@ object ScalaUtil {
     PathManager.getSystemPath + "/scala"
   }
 
-  def createTmpDir(prefix: String, suffix: String): File = {
-    val tmpDir = File.createTempFile(prefix, suffix)
+  def createTmpDir(prefix: String): File = {
+    val tmpDir = File.createTempFile(prefix, "")
     tmpDir.delete()
     tmpDir.mkdir()
     tmpDir

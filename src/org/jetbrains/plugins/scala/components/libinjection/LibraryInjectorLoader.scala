@@ -73,8 +73,8 @@ object InjectorPersistentCache {
 }
 
 class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
-  import LibraryInjectorLoader._
-  import LibraryInjectorLoader.LOG
+
+  import LibraryInjectorLoader.{LOG, _}
 
   class DynamicClassLoader(urls: Array[URL], parent: ClassLoader) extends java.net.URLClassLoader(urls, parent) {
     def addUrl(url: URL): Unit = {
@@ -334,7 +334,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   // don't forget to remove temp directory after compilation
   private def extractInjectorSources(jar: File, injectorDescriptor: InjectorDescriptor): Seq[File] = {
-    val tmpDir = ScalaUtil.createTmpDir("inject", "")
+    val tmpDir = ScalaUtil.createTmpDir("inject")
     def copyToTmpDir(virtualFile: VirtualFile): File = {
       val target = new File(tmpDir, virtualFile.getName)
       val targetStream = new BufferedOutputStream(new FileOutputStream(target))
@@ -472,7 +472,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
     val scalaSDK = project.modulesWithScala.head.scalaSdk.get
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.newModule(ScalaUtil.createTmpDir("injectorModule","").getAbsolutePath +
+    val module = model.newModule(ScalaUtil.createTmpDir("injectorModule").getAbsolutePath +
       "/" + INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     model.commit()
     module.configureScalaCompilerSettingsFrom("Default", Seq())

@@ -4,19 +4,18 @@ import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import com.intellij.compiler.CompilerTestUtil
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil}
+import com.intellij.testFramework.ModuleTestCase
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 
 /**
@@ -25,39 +24,11 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
-  val LIBRARY_NAME = "dummy_lib.jar"
-  private var scalaLibraryLoader: ScalaLibraryLoader = _
+  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
 
-  trait Zipable {
-    def zip(toDir: File): File = ???
-    def withParent(name: String): Zipable
-  }
-  case class ZFile(name: String, data: String) extends Zipable {
-    override def withParent(parentName: String) = copy(name = s"$parentName/$name")
-  }
-  case class ZDir(name: String, files: Seq[Zipable]) extends Zipable{
-    override def zip(toDir: File): File = {
-      val file = new File(toDir, LIBRARY_NAME)
-      val zfs = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
-      def doZip(zipable: Zipable): Unit = {
-        zipable match {
-          case ZDir(zname, zfiles) =>
-            zfs.putNextEntry(new ZipEntry(zname+"/"))
-            zfiles.foreach(z=>doZip(z.withParent(zname)))
-            zfs.closeEntry()
-          case ZFile(zname, zdata) =>
-            zfs.putNextEntry(new ZipEntry(zname))
-            zfs.write(zdata.getBytes("UTF-8"), 0, zdata.length)
-            zfs.closeEntry()
-        }
-      }
-      doZip(this)
-      zfs.close()
-      file
-    }
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
-    override def withParent(parentName: String) = copy(name = s"$parentName/$name")
-  }
+  override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
 
   override def setUp(): Unit = {
     super.setUp()
@@ -67,78 +38,141 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     DebuggerTestUtil.forceJdk8ForBuildProcess()
   }
 
+  import LibraryInjectorTest._
+
   override def setUpModule(): Unit = {
     super.setUpModule()
-    scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, myProject.getBasePath,
-      isIncludeReflectLibrary = true, javaSdk = Some(getTestProjectJdk))
 
-    scalaLibraryLoader.init(scalaSdkVersion)
-    addLibrary(testData(getTestName(false)).zip(ScalaUtil.createTmpDir("injectorTestLib", "")))
+    implicit val project = getProject
+    implicit val module = getModule
+    implicit val version = scalaSdkVersion
+
+    libraryLoaders = Seq(new ScalaLibraryLoader(project, module, isIncludeReflectLibrary = true, javaSdk = Some(getTestProjectJdk)),
+      SourcesLoader(project.getBasePath),
+      InjectorLibraryLoader()
+    )
+    libraryLoaders.foreach(_.init)
   }
 
   protected override def tearDown() {
-    CompilerTestUtil.disableExternalCompiler(myProject)
+    CompilerTestUtil.disableExternalCompiler(getProject)
     CompileServerLauncher.instance.stop()
-    scalaLibraryLoader.clean()
-    scalaLibraryLoader = null
+
+    libraryLoaders.foreach(_.clean())
+    libraryLoaders = Seq.empty
+
     super.tearDown()
   }
 
-  protected def addLibrary(library: File) {
-    VfsRootAccess.allowRootAccess(library.getAbsolutePath)
-    PsiTestUtil.addLibrary(myModule, library.getAbsolutePath)
-    VirtualFilePointerManager.getInstance().asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
-  }
-
-  override protected def getTestProjectJdk: Sdk = {
-    DebuggerTestUtil.findJdk8()
-  }
-
-  val simpleInjector = {
-    val manifest =
-      """
-        |<intellij-compat>
-        |    <scala-plugin since-version="0.0.0" until-version="9.9.9">
-        |        <psi-injector interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
-        |         implementation="com.foo.bar.Implementation">
-        |            <source>META-INF/Implementation.scala</source>
-        |            <source>META-INF/Foo.scala</source>
-        |        </psi-injector>
-        |    </scala-plugin>
-        |</intellij-compat>
-        |
-      """.stripMargin
-
-    val implementationClass =
-      """
-        |package com.foo.bar
-        |import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-        |
-        |class Implementation extends SyntheticMembersInjector { val foo = new Foo }
-      """.stripMargin
-
-    val fooClass =
-      """
-        |package com.foo.bar
-        |class Foo
-      """.stripMargin
-
-    ZDir("META-INF",
-      Seq(
-        ZFile(LibraryInjectorLoader.INJECTOR_MANIFEST_NAME, manifest),
-        ZFile("Implementation.scala", implementationClass),
-        ZFile("Foo.scala", fooClass)
-      )
-    )
-  }
-
-  val testData = Map("Simple" -> simpleInjector)
-
   def testSimple() {
-    VirtualFilePointerManager.getInstance().asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
-    assert(LibraryInjectorLoader.getInstance(myProject).getInjectorClasses(classOf[SyntheticMembersInjector]).nonEmpty)
+    LibraryLoader.storePointers()
+
+    val injectorLoader = LibraryInjectorLoader.getInstance(getProject)
+    val classes = injectorLoader.getInjectorClasses(classOf[SyntheticMembersInjector])
+
+    assertTrue(classes.nonEmpty)
+  }
+}
+
+object LibraryInjectorTest {
+
+  case class InjectorLibraryLoader(implicit val module: Module) extends ThirdPartyLibraryLoader {
+    override protected val name: String = "injector"
+
+    override protected def path(implicit sdkVersion: ScalaSdkVersion): String = {
+      val tmpDir = ScalaUtil.createTmpDir("injectorTestLib")
+      InjectorLibraryLoader.simpleInjector.zip(tmpDir).getAbsolutePath
+    }
   }
 
+  object InjectorLibraryLoader {
+    private val simpleInjector: ZDirectory = {
+      val manifest =
+        """
+          |<intellij-compat>
+          |    <scala-plugin since-version="0.0.0" until-version="9.9.9">
+          |        <psi-injector interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"
+          |         implementation="com.foo.bar.Implementation">
+          |            <source>META-INF/Implementation.scala</source>
+          |            <source>META-INF/Foo.scala</source>
+          |        </psi-injector>
+          |    </scala-plugin>
+          |</intellij-compat>
+          |
+      """.stripMargin
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+      val implementationClass =
+        """
+          |package com.foo.bar
+          |import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
+          |
+          |class Implementation extends SyntheticMembersInjector { val foo = new Foo }
+        """.stripMargin
+
+      val fooClass =
+        """
+          |package com.foo.bar
+          |class Foo
+        """.stripMargin
+
+      ZDirectory("META-INF",
+        Seq(
+          ZFile(LibraryInjectorLoader.INJECTOR_MANIFEST_NAME, manifest),
+          ZFile("Implementation.scala", implementationClass),
+          ZFile("Foo.scala", fooClass)
+        )
+      )
+    }
+  }
+
+  sealed trait Zippable {
+    val entryName: String
+
+    def withParent(name: String): Zippable
+
+    def zipTo(implicit outputStream: ZipOutputStream): Unit = {
+      outputStream.putNextEntry(new ZipEntry(entryName))
+      withStream
+      outputStream.closeEntry()
+    }
+
+    protected def withStream(implicit outputStream: ZipOutputStream): Unit
+  }
+
+  case class ZFile(name: String, data: String) extends Zippable {
+    override val entryName: String = name
+
+    override def withParent(parentName: String): ZFile = copy(name = s"$parentName/$name")
+
+    override protected def withStream(implicit outputStream: ZipOutputStream): Unit =
+      outputStream.write(data.getBytes("UTF-8"), 0, data.length)
+  }
+
+  case class ZDirectory(name: String, files: Seq[Zippable]) extends Zippable {
+    override val entryName: String = s"$name/"
+
+    def zip(toDir: File): File = {
+      val result = new File(toDir, "dummy_lib.jar")
+      writeTo(result)
+      result
+    }
+
+    private def writeTo(file: File): Unit = {
+      val outputStream: ZipOutputStream = null
+      try {
+        val outputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)))
+        withStream(outputStream)
+      } finally {
+        if (outputStream != null) {
+          outputStream.close()
+        }
+      }
+    }
+
+    override def withParent(parentName: String): ZDirectory = copy(name = s"$parentName/$name")
+
+    override protected def withStream(implicit outputStream: ZipOutputStream): Unit =
+      files.map(_.withParent(name)).foreach(_.zipTo)
+  }
+
 }

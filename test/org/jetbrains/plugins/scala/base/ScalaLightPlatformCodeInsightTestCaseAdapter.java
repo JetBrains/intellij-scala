@@ -14,6 +14,7 @@ import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.SourcesLoader;
 import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -59,8 +60,12 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         Module module = getModule();
 
         ArrayList<LibraryLoader> libraryLoaders = new ArrayList<LibraryLoader>();
-        libraryLoaders.add(new ScalaLibraryLoader(getProject(), module, rootPath(), isIncludeReflectLibrary(),
-                ScalaLibraryLoader.getSdkNone()));
+        libraryLoaders.add(new ScalaLibraryLoader(getProject(), module, isIncludeReflectLibrary(), ScalaLibraryLoader.getSdkNone()));
+
+        String path = rootPath();
+        if (path != null) {
+            libraryLoaders.add(new SourcesLoader(path, module));
+        }
 
         libraryLoaders.addAll(Arrays.asList(additionalLibraries(module)));
 
