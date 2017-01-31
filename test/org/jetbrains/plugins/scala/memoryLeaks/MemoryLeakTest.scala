@@ -66,36 +66,36 @@ class MemoryLeakTest extends PlatformTestCase {
     project
   }
 
-  private def createLibraryLoaders(project: Project): Seq[LibraryLoader] = {
+  private def createLibraryLoaders(implicit project: Project): Seq[LibraryLoader] = {
     implicit val module = ModuleManager.getInstance(project).getModules()(0)
-    Seq(new ScalaLibraryLoader(project, module), JdkLoader())
+    Seq(ScalaLibraryLoader(), JdkLoader())
   }
 
-  protected def closeAndDispose(project: Project): Unit = {
+  private def closeAndDispose(implicit project: Project): Unit = {
     ProjectManagerEx.getInstanceEx.closeAndDispose(project)
     assertFalse(project.isOpen)
     assertTrue(project.isDisposed)
   }
 
   def testLeaksAfterProjectDispose(): Unit = {
-    val project = loadAndSetupProject(projectPath)
+    implicit val project = loadAndSetupProject(projectPath)
 
-    val libraryLoaders = createLibraryLoaders(project)
+    val libraryLoaders = createLibraryLoaders
     libraryLoaders.foreach(_.init(TestUtils.DEFAULT_SCALA_SDK_VERSION))
 
-    doSomeWork(project)
+    doSomeWork
 
     libraryLoaders.foreach(_.clean())
 
-    val allRoots = allRootsForProject(project)
+    val allRoots = allRootsForProject
 
-    closeAndDispose(project)
+    closeAndDispose
 
     checkLeak[ScalaPsiManager](allRoots, classOf[ScalaPsiManager], m => m.project == project)
     checkLeak[ScalaFile](allRoots, classOf[ScalaFile], f => f.getProject == project)
   }
 
-  def doSomeWork(project: Project): Unit = {
+  private def doSomeWork(implicit project: Project): Unit = {
     val psiFile = findScalaFile(project)
     annotateFile(psiFile)
     runAllInspections(project)
@@ -112,7 +112,7 @@ class MemoryLeakTest extends PlatformTestCase {
     assertNotNull("Run configuration wasn't created", result)
   }
 
-  def runAllInspections(project: Project): Unit = {
+  private def runAllInspections(implicit project: Project): Unit = {
     val inspectionManager = InspectionManager.getInstance(project).asInstanceOf[InspectionManagerEx]
     val inspectionProfile = new InspectionProfileImpl("test")
     inspectionProfile.initInspectionTools(getProject)
@@ -137,13 +137,13 @@ class MemoryLeakTest extends PlatformTestCase {
     new ScalaAnnotator().annotate(psiFile, new AnnotatorHolderMock(psiFile))
   }
 
-  def checkLeak[T](root: AnyRef, clazz: Class[T], isLeak: T => Boolean): Unit = {
+  private def checkLeak[T](root: AnyRef, clazz: Class[T], isLeak: T => Boolean): Unit = {
     LeakHunter.checkLeak[T](root, clazz, new Processor[T] {
       override def process(t: T): Boolean = isLeak(t)
     })
   }
 
-  def allRootsForProject(project: Project): Seq[AnyRef] = {
+  private def allRootsForProject(implicit project: Project): Seq[AnyRef] = {
     val picoContainer = project.getPicoContainer
     LeakHunter.allRoots().asScala :+ picoContainer
   }

@@ -19,32 +19,26 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 import scala.collection.mutable.ArrayBuffer
 
-class ScalaLibraryLoader(project: Project, implicit val module: Module,
-                         isIncludeReflectLibrary: Boolean = false)
+case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
+                             (implicit val module: Module, project: Project)
   extends LibraryLoader {
 
   private val addedLibraries = ArrayBuffer[Library]()
+  private val syntheticClassesLoader = ScalaLibraryLoader.SyntheticClassesLoader()
 
-  def init(implicit version: ScalaSdkVersion) {
-    ScalaLoader.loadScala()
-
-    addSyntheticClasses()
+  def init(implicit version: ScalaSdkVersion): Unit = {
+    syntheticClassesLoader.init
 
     addScalaSdk
     LibraryLoader.storePointers()
   }
 
-  private def addSyntheticClasses(): Unit =
-    project.getComponent(classOf[SyntheticClasses]) match {
-      case classes if !classes.isClassesRegistered =>
-        classes.registerClasses()
-      case _ =>
-    }
-
-  override def clean(): Unit =
+  override def clean(): Unit = {
     inWriteAction {
       addedLibraries.foreach(module.detach)
     }
+    syntheticClassesLoader.clean()
+  }
 
   private def addScalaSdk(implicit version: ScalaSdkVersion) = {
     val compilerPath = TestUtils.getScalaCompilerPath(version)
@@ -70,6 +64,21 @@ class ScalaLibraryLoader(project: Project, implicit val module: Module,
       addedLibraries += scalaSdkLib
     }
   }
+}
+
+object ScalaLibraryLoader {
+
+  ScalaLoader.loadScala()
+
+  case class SyntheticClassesLoader(implicit val module: Module, project: Project) extends LibraryLoader {
+
+    override def init(implicit version: ScalaSdkVersion): Unit =
+      project.getComponent(classOf[SyntheticClasses]) match {
+        case classes if !classes.isClassesRegistered => classes.registerClasses()
+        case _ =>
+      }
+  }
+
 }
 
 case class JdkLoader(jdk: Sdk = TestUtils.createJdk())

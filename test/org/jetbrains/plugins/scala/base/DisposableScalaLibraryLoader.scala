@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
   * Loader will be disposed together with the module it's attached to.
   */
 class DisposableScalaLibraryLoader(implicit project: Project, module: Module)
-  extends ScalaLibraryLoader(project, module, true) with Disposable {
+  extends ScalaLibraryLoader(true) with Disposable {
 
   Disposer.register(module, this)
 

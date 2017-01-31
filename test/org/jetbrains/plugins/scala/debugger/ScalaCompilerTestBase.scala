@@ -71,9 +71,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     implicit val module = getModule
     implicit val version = scalaSdkVersion
 
-    libraryLoaders = Seq(
-      new ScalaLibraryLoader(project, module, loadReflect),
-      JdkLoader(getTestProjectJdk),
+    libraryLoaders = Seq(ScalaLibraryLoader(loadReflect), JdkLoader(getTestProjectJdk),
       SourcesLoader(getSourceRootDir.getCanonicalPath)
     ) ++ additionalLibraries
     libraryLoaders.foreach(_.init)

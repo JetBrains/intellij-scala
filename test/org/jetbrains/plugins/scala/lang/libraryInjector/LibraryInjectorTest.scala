@@ -47,7 +47,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     implicit val module = getModule
     implicit val version = scalaSdkVersion
 
-    libraryLoaders = Seq(new ScalaLibraryLoader(project, module, isIncludeReflectLibrary = true),
+    libraryLoaders = Seq(ScalaLibraryLoader(isIncludeReflectLibrary = true),
       JdkLoader(getTestProjectJdk),
       SourcesLoader(project.getBasePath),
       InjectorLibraryLoader()
