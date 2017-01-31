@@ -4,7 +4,8 @@ package base
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
@@ -13,23 +14,31 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   * Date: 3/5/12
   */
 
-abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with TestFixtureProvider {
+abstract class ScalaLightCodeInsightFixtureTestAdapter
+  extends LightCodeInsightFixtureTestCase with TestFixtureProvider with ScalaVersion {
 
-  private var libLoader: ScalaLibraryLoader = _
+  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
 
   override def getFixture: CodeInsightTestFixture = myFixture
 
-  override protected def setUp() {
+  override protected def setUp(): Unit = {
     super.setUp()
 
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
-      libLoader = ScalaLibraryLoader.withMockJdk(getProject, getFixture.getModule)
-      libLoader.init(libVersion)
+
+      implicit val module = getFixture.getModule
+      implicit val project = getProject
+      implicit val version = scalaSdkVersion
+      libraryLoaders = Seq(
+        new ScalaLibraryLoader(project, module),
+        JdkLoader()
+      )
+      libraryLoaders.foreach(_.init)
     }
   }
 
-  protected def libVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION
+  protected override def scalaSdkVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION
 
   protected def loadScalaLibrary = true
 
@@ -40,11 +49,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
   }
 
-  protected override def tearDown() {
-    if (libLoader != null) {
-      libLoader.clean()
-    }
-    libLoader = null
+  protected override def tearDown(): Unit = {
+    libraryLoaders.foreach(_.clean())
+    libraryLoaders = Seq.empty
     super.tearDown()
   }
 }

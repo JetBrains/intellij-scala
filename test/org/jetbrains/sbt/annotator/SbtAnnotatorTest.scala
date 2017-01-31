@@ -6,7 +6,7 @@ import java.io.File
 import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
-import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
@@ -47,8 +47,7 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
     psifile.asInstanceOf[SbtFileImpl]
   }
 
-  override def getTestProjectJdk: Sdk =
-    JavaSdk.getInstance().createJdk("java sdk", TestUtils.getDefaultJdk, false)
+  override def getTestProjectJdk: Sdk = TestUtils.createJdk()
 
   protected def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)

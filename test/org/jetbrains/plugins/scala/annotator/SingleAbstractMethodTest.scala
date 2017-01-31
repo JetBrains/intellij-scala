@@ -5,15 +5,14 @@ import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 6/15/15
   */
-abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION)
-  extends ScalaFixtureTestCase(scalaSdk) with AssertMatches {
+abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with AssertMatches {
+
   def testBasicGenerics() {
     val code =
       """
@@ -536,12 +535,15 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
   val missingParameterType = ContainsPattern("Missing parameter type")
 
   case class ContainsPattern(fr: String) {
-    def unapply(s: String) = s.contains(fr)
+    def unapply(s: String): Boolean = s.contains(fr)
   }
 
 }
 
-class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_12) {
+class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
+
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_12
+
   def testFunctionSAM() {
     val code =
       """
@@ -705,7 +707,10 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
   }
 }
 
-class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase(scalaSdk = ScalaSdkVersion._2_11) {
+class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
+
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+
   protected override def setUp() {
     super.setUp()
 

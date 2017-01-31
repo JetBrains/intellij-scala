@@ -12,9 +12,11 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   * @author Alefas
   * @since 23/03/16
   */
-abstract class JavaHighlitghtingTestBase(private val scalaVersion: ScalaSdkVersion = ScalaSdkVersion._2_11)
-  extends ScalaFixtureTestCase(scalaVersion = scalaVersion) with AssertMatches {
+abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with AssertMatches {
+
   private var filesCreated: Boolean = false
+
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")

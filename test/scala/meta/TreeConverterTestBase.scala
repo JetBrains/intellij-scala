@@ -24,6 +24,6 @@ abstract class TreeConverterTestBaseNoLibrary extends TreeConverterTestBase {
 }
 
 abstract class TreeConverterTestBaseWithLibrary extends TreeConverterTestBase {
-  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 //  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }

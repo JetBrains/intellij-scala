@@ -26,19 +26,20 @@ trait ScalametaUtils {
       "tokenizers", "tokens", "transversers", "trees").map(getLibEntry)
   }
 
-  protected def addIvyCacheLibraryToModule(module: Module)(libraryName: String, libraryPath: String, jarNames: Seq[String]): Unit = {
+  protected def addIvyCacheLibraryToModule(libraryName: String, libraryPath: String, jarNames: Seq[String])
+                                          (implicit module: Module): Unit = {
     val libsPath = TestUtils.getIvyCachePath
     val pathExtended = s"$libsPath/$libraryPath/"
     VfsRootAccess.allowRootAccess(pathExtended)
     PsiTestUtil.addLibrary(module, libraryName, pathExtended, jarNames: _*)
   }
 
-  protected def addAllMetaLibraries(module: Module) = {
-    val addToModule = addIvyCacheLibraryToModule(module) _
+  protected def addAllMetaLibraries(implicit module: Module): Unit = {
+    val addToModule = addIvyCacheLibraryToModule _
     getMetaLibraries.foreach(addToModule.tupled)
   }
 
-  protected def enableParadisePlugin(project: Project) = {
+  protected def enableParadisePlugin(implicit project: Project): Unit = {
     val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val settings = profile.getSettings
     val paradisePath = s"${TestUtils.getIvyCachePath}/org.scalameta/paradise_2.11.8/jars/paradise_2.11.8-$paradiseVersion.jar"

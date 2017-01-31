@@ -13,7 +13,6 @@ import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{EdtTestUtil, ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
@@ -21,7 +20,6 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
@@ -74,7 +72,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     implicit val version = scalaSdkVersion
 
     libraryLoaders = Seq(
-      new ScalaLibraryLoader(project, module, loadReflect, Some(getTestProjectJdk)),
+      new ScalaLibraryLoader(project, module, loadReflect),
+      JdkLoader(getTestProjectJdk),
       SourcesLoader(getSourceRootDir.getCanonicalPath)
     ) ++ additionalLibraries
     libraryLoaders.foreach(_.init)
