@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
-import com.intellij.openapi.util.Key
+import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, JavaCompletionUtil, PrefixMatcher}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -336,5 +337,13 @@ object ScalaCompletionUtil {
 
   def isTypeDefiniton(position: PsiElement): Boolean =
     Option(PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement])).isDefined
+
+  def isExcluded(clazz: PsiClass): Boolean = {
+    ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
+      def compute: Boolean = {
+        JavaCompletionUtil.isInExcludedPackage(clazz, false)
+      }
+    })
+  }
 
 }
