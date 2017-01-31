@@ -13,10 +13,9 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
   */
 class DisposableScalaLibraryLoader(project: Project,
                                    module: Module,
-                                   rootPath: String,
                                    isIncludeReflectLibrary: Boolean = false,
                                    javaSdk: Option[Sdk] = None)
-  extends ScalaLibraryLoader(project, module, rootPath, isIncludeReflectLibrary, javaSdk) with Disposable {
+  extends ScalaLibraryLoader(project, module, isIncludeReflectLibrary, javaSdk) with Disposable {
 
   Disposer.register(module, this)
 

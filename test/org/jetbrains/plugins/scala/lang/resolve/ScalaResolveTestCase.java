@@ -20,7 +20,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter;
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
@@ -44,10 +43,6 @@ public abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsight
 
   protected void setUp(TestUtils.ScalaSdkVersion version) throws Exception {
     super.setUp(version);
-    final SyntheticClasses syntheticClasses = getProjectAdapter().getComponent(SyntheticClasses.class);
-    if (!syntheticClasses.isClassesRegistered()) {
-      syntheticClasses.registerClasses();
-    }
 
     String extention = ".scala";
     String fileName = getTestName(false);

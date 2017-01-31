@@ -20,7 +20,7 @@ abstract class ScalaFixtureTestCase(private val scalaVersion: ScalaSdkVersion = 
   override protected def setUp(): Unit = {
     super.setUp()
 
-    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null, loadReflect)
+    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, loadReflect)
     libLoader.init(scalaVersion)
   }
 

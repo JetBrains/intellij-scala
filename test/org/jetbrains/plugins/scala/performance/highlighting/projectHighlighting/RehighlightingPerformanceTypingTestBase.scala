@@ -9,10 +9,10 @@ import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures._
 import com.intellij.util.ThrowableRunnable
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaLibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.TestUtils._
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -22,7 +22,7 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
 
   var myCodeInsightTestFixture: CodeInsightTestFixture = _
 
-  var libLoader: ScalaLibraryLoader = _
+  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
 
   override def setUp(): Unit = {
     super.setUp()
@@ -42,17 +42,24 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     myCodeInsightTestFixture = IdeaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fakeFixture)
     myCodeInsightTestFixture.setUp()
 
-    libLoader = ScalaLibraryLoader.withMockJdk(myCodeInsightTestFixture.getProject, myCodeInsightTestFixture.getModule,
-      TestUtils.getTestDataPath + "/")
-    libLoader.init(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+    implicit val project = myCodeInsightTestFixture.getProject
+    implicit val module = myCodeInsightTestFixture.getModule
+    implicit val version = DEFAULT_SCALA_SDK_VERSION
+
+    libraryLoaders = Seq(ScalaLibraryLoader.withMockJdk(project, module),
+      SourcesLoader(getTestDataPath + "/"))
+
+    libraryLoaders.foreach(_.init)
   }
 
 
   override def tearDown(): Unit = {
     myCodeInsightTestFixture.tearDown()
     myCodeInsightTestFixture = null
-    libLoader.clean()
-    libLoader = null
+
+    libraryLoaders.foreach(_.clean())
+    libraryLoaders = Seq.empty
+
     super.tearDown()
   }
 
