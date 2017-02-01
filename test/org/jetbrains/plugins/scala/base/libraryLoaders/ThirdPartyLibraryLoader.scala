@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.base.libraryLoaders
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
+import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader._
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion._2_11
 import org.jetbrains.plugins.scala.util.TestUtils._
@@ -30,25 +31,20 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
       .contains(name)
 }
 
-abstract class IvyLibraryLoaderAdapter extends ThirdPartyLibraryLoader {
-  protected val vendor: String
+abstract class IvyLibraryLoaderAdapter extends ThirdPartyLibraryLoader with IvyLibraryLoader {
   protected val version: String
-  protected val isBundled: Boolean = false
 
-  protected def path(implicit version: ScalaSdkVersion): String = {
-    val major = version.getMajor
+  override protected def folder(implicit version: ScalaSdkVersion): String =
+    s"${name}_${version.getMajor}"
 
-    val path = s"$vendor/${name}_$major/${if (isBundled) "bundles" else "jars"}"
-    val fileName = s"${name}_$major-${this.version}"
-
-    s"$getIvyCachePath/$path/$fileName.jar"
-  }
+  override protected def fileName(implicit version: ScalaSdkVersion): String =
+    s"$folder-${this.version}"
 }
 
 abstract class ScalaZBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
   override protected val vendor: String = "org.scalaz"
   override protected val version: String = "7.1.0"
-  override protected val isBundled: Boolean = true
+  override protected val ivyType: IvyType = Bundles
 }
 
 case class ScalaZCoreLoader(implicit val module: Module) extends ScalaZBaseLoader {
@@ -63,7 +59,7 @@ case class SlickLoader(implicit val module: Module) extends IvyLibraryLoaderAdap
   override protected val name: String = "slick"
   override protected val vendor: String = "com.typesafe.slick"
   override protected val version: String = "3.1.0"
-  override protected val isBundled: Boolean = true
+  override protected val ivyType: IvyType = Bundles
 
   override protected def path(implicit version: ScalaSdkVersion): String =
     super.path(_2_11)
@@ -73,7 +69,7 @@ case class SprayLoader(implicit val module: Module) extends IvyLibraryLoaderAdap
   override protected val name: String = "spray-routing"
   override protected val vendor: String = "io.spray"
   override protected val version: String = "1.3.1"
-  override protected val isBundled: Boolean = true
+  override protected val ivyType: IvyType = Bundles
 
   override protected def path(implicit version: ScalaSdkVersion): String =
     super.path(_2_11)
@@ -116,7 +112,7 @@ case class PostgresLoader(implicit val module: Module) extends IvyLibraryLoaderA
 }
 
 case class ScalaTestLoader(override protected val version: String,
-                           override protected val isBundled: Boolean = false)
+                           override protected val ivyType: IvyType = Jars)
                           (implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "scalatest"
   override protected val vendor: String = "org.scalatest"
@@ -126,7 +122,7 @@ case class ScalaXmlLoader(implicit val module: Module) extends IvyLibraryLoaderA
   override protected val name: String = "scala-xml"
   override protected val vendor: String = "org.scala-lang.modules"
   override protected val version: String = "1.0.1"
-  override protected val isBundled: Boolean = true
+  override protected val ivyType: IvyType = Bundles
 }
 
 case class UTestLoader(override protected val version: String)
@@ -145,5 +141,4 @@ case class ScalaAsyncLoader(implicit val module: Module) extends IvyLibraryLoade
   override protected val name: String = "scala-async"
   override protected val vendor: String = "org.scala-lang.modules"
   override protected val version: String = "0.9.5"
-  override protected val isBundled: Boolean = false
 }
