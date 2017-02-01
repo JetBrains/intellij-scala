@@ -172,11 +172,11 @@ class RestartAction(runner: SbtShellRunner, executor: Executor, contentDescripto
   templatePresentation.setDescription(null)
 
   def actionPerformed(e: AnActionEvent): Unit = {
-    ExecutionManager.getInstance(runner.getProject)
+    val removed = ExecutionManager.getInstance(runner.getProject)
       .getContentManager
       .removeRunContent(executor, contentDescriptor)
 
-    runner.respawn.initAndRun()
+    if (removed) runner.respawn.initAndRun()
   }
 
   override def update(e: AnActionEvent) {}
