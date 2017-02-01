@@ -20,7 +20,7 @@ class SbtShellStartAction extends ExternalSystemAction {
   }
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    SbtShellRunner.run(event.getProject)
+    SbtProcessManager.forProject(event.getProject).openShellRunner()
   }
 
   override def isEnabled(e: AnActionEvent): Boolean =
