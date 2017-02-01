@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_2_11_3_1M
 
 import com.intellij.openapi.module.Module
+import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader.{Bundles, IvyType}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestCase
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
@@ -57,12 +58,12 @@ object Specs2_2_11_3_1_M_Base {
     override protected val name: String = "shapeless"
     override protected val vendor: String = "com.chuusai"
     override protected val version: String = "2.0.0"
-    override protected val isBundled: Boolean = true
+    override protected val ivyType: IvyType = Bundles
   }
 
   abstract class SCodecBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
     override protected val vendor: String = "org.typelevel"
-    override protected val isBundled: Boolean = true
+    override protected val ivyType: IvyType = Bundles
   }
 
   case class SCodecCoreLoader(implicit val module: Module) extends SCodecBaseLoader {

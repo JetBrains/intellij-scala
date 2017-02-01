@@ -7,24 +7,25 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.vfs.JarFileSystem
+import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaLoader
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction}
+import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader._
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.project.template.Artifact
+import org.jetbrains.plugins.scala.project.template.Artifact.ScalaCompiler.versionOf
 import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-
-import scala.collection.mutable.ArrayBuffer
 
 case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
                              (implicit val module: Module, project: Project)
   extends LibraryLoader {
 
-  private val addedLibraries = ArrayBuffer[Library]()
-  private val syntheticClassesLoader = ScalaLibraryLoader.SyntheticClassesLoader()
+  import ScalaLibraryLoader._
+
+  private var library: Library = _
+  private val syntheticClassesLoader = SyntheticClassesLoader()
 
   def init(implicit version: ScalaSdkVersion): Unit = {
     syntheticClassesLoader.init
@@ -34,49 +35,98 @@ case class ScalaLibraryLoader(isIncludeReflectLibrary: Boolean = false)
   }
 
   override def clean(): Unit = {
-    inWriteAction {
-      addedLibraries.foreach(module.detach)
+    if (library != null) {
+      inWriteAction {
+        module.detach(library)
+      }
     }
+
     syntheticClassesLoader.clean()
   }
 
   private def addScalaSdk(implicit version: ScalaSdkVersion) = {
-    val compilerPath = TestUtils.getScalaCompilerPath(version)
-    val libraryPath = TestUtils.getScalaLibraryPath(version)
-    val reflectPath = TestUtils.getScalaReflectPath(version)
+    val loaders = Seq(ScalaCompilerLoader(), ScalaRuntimeLoader()) ++
+      (if (isIncludeReflectLibrary) Seq(ScalaReflectLoader()) else Seq.empty)
+
+    val files = loaders.map(_.path).map(new File(_))
+
+    val classRoots = loaders.flatMap(_.rootFiles)
+    val srcRoots = ScalaRuntimeLoader(Sources).rootFiles
 
     import scala.collection.JavaConversions._
-    val scalaSdkJars = Seq(libraryPath, compilerPath) ++ (if (isIncludeReflectLibrary) Seq(reflectPath) else Seq.empty)
-
-    val fileSystem = JarFileSystem.getInstance
-    val classRoots = scalaSdkJars.map(_ + "!/")
-      .flatMap(path => fileSystem.refreshAndFindFileByPath(path).toOption)
-
-    val scalaLibrarySrc = TestUtils.getScalaLibrarySrc(version)
-    val srcsRoots = Option(fileSystem.refreshAndFindFileByPath(scalaLibrarySrc + "!/")).toSeq
-    val scalaSdkLib = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots, srcsRoots)
-    val languageLevel = Artifact.ScalaCompiler.versionOf(new File(compilerPath))
-      .flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
+    library = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots, srcRoots)
 
     inWriteAction {
-      scalaSdkLib.convertToScalaSdkWith(languageLevel, scalaSdkJars.map(new File(_)))
-      module.attach(scalaSdkLib)
-      addedLibraries += scalaSdkLib
+      library.convertToScalaSdkWith(languageLevel(files.head), files)
+
+      module.attach(library)
     }
   }
+
+  private def languageLevel(compiler: File) =
+    versionOf(compiler)
+      .flatMap(_.toLanguageLevel)
+      .getOrElse(ScalaLanguageLevel.Default)
 }
 
 object ScalaLibraryLoader {
 
   ScalaLoader.loadScala()
 
-  case class SyntheticClassesLoader(implicit val module: Module, project: Project) extends LibraryLoader {
+  private case class SyntheticClassesLoader(implicit val module: Module, project: Project)
+    extends LibraryLoader {
 
-    override def init(implicit version: ScalaSdkVersion): Unit =
+    def init(implicit version: ScalaSdkVersion): Unit =
       project.getComponent(classOf[SyntheticClasses]) match {
         case classes if !classes.isClassesRegistered => classes.registerClasses()
         case _ =>
       }
+  }
+
+  private abstract class ScalaLibraryLoaderAdapter(implicit module: Module)
+    extends IvyLibraryLoader {
+
+    override protected val vendor: String = "org.scala-lang"
+
+    override def path(implicit version: ScalaSdkVersion): String = super.path
+
+    def rootFiles(implicit version: ScalaSdkVersion): Seq[VirtualFile] = {
+      val fileSystem = JarFileSystem.getInstance
+      Option(fileSystem.refreshAndFindFileByPath(s"$path!/")).toSeq
+    }
+
+    override def init(implicit version: ScalaSdkVersion): Unit = {}
+
+    override protected def folder(implicit version: ScalaSdkVersion): String = name
+
+    override protected def fileName(implicit version: ScalaSdkVersion): String = s"$name-${version.getMinor}"
+  }
+
+  private case class ScalaCompilerLoader(implicit val module: Module)
+    extends ScalaLibraryLoaderAdapter {
+
+    override protected val name: String = "scala-compiler"
+  }
+
+  private case class ScalaRuntimeLoader(protected override val ivyType: IvyType = Jars)
+                                       (implicit val module: Module)
+    extends ScalaLibraryLoaderAdapter {
+
+    override protected val name: String = "scala-library"
+
+    override protected def fileName(implicit version: ScalaSdkVersion): String = {
+      val suffix = ivyType match {
+        case Sources => "-sources"
+        case _ => ""
+      }
+      super.fileName + suffix
+    }
+  }
+
+  private case class ScalaReflectLoader(implicit val module: Module)
+    extends ScalaLibraryLoaderAdapter {
+
+    override protected val name: String = "scala-reflect"
   }
 
 }
@@ -84,7 +134,7 @@ object ScalaLibraryLoader {
 case class JdkLoader(jdk: Sdk = TestUtils.createJdk())
                     (implicit val module: Module) extends LibraryLoader {
 
-  override def init(implicit version: ScalaSdkVersion): Unit = {
+  def init(implicit version: ScalaSdkVersion): Unit = {
     val model = ModuleRootManager.getInstance(module).getModifiableModel
     model.setSdk(jdk)
     inWriteAction {
