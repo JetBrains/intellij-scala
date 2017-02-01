@@ -11,10 +11,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.SourcesLoader;
-import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.*;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
@@ -25,7 +22,7 @@ import java.util.Arrays;
  * @author Alexander Podkhalyuzin
  */
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase {
-    private LibraryLoader[] myLibraryLoaders = null;
+    private CompositeLibrariesLoader myLibrariesLoader = null;
 
     protected String rootPath() {
         return null;
@@ -67,10 +64,9 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
         libraryLoaders.addAll(Arrays.asList(additionalLibraries(module)));
 
-        myLibraryLoaders = libraryLoaders.toArray(new LibraryLoader[libraryLoaders.size()]);
-        for (LibraryLoader libraryLoader : myLibraryLoaders) {
-            libraryLoader.init(libVersion);
-        }
+        LibraryLoader[] loaders = libraryLoaders.toArray(new LibraryLoader[libraryLoaders.size()]);
+        myLibrariesLoader = CompositeLibrariesLoader$.MODULE$.apply(loaders, module);
+        myLibrariesLoader.init(libVersion);
 
         TestUtils.disableTimerThread();
         //libLoader.clean();
@@ -127,11 +123,9 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected void tearDown() throws Exception {
-        if (myLibraryLoaders != null) {
-            for (LibraryLoader libraryLoader : myLibraryLoaders) {
-                libraryLoader.clean();
-            }
-            myLibraryLoaders = null;
+        if (myLibrariesLoader != null) {
+            myLibrariesLoader.clean();
+            myLibrariesLoader = null;
         }
 
         super.tearDown();

@@ -3,7 +3,7 @@ package base
 
 
 import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, CodeInsightTestFixture}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{CompositeLibrariesLoader, JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.util.TestUtils.{DEFAULT_SCALA_SDK_VERSION, ScalaSdkVersion}
 
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.{DEFAULT_SCALA_SDK_VERSION, Sc
 abstract class ScalaFixtureTestCase
   extends CodeInsightFixtureTestCase with TestFixtureProvider with ScalaVersion {
 
-  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
+  private var librariesLoader: Option[CompositeLibrariesLoader] = None
 
   protected val includeReflectLibrary: Boolean = false
 
@@ -30,13 +30,16 @@ abstract class ScalaFixtureTestCase
     implicit val module = myFixture.getModule
     implicit val version = scalaSdkVersion
 
-    libraryLoaders = Seq(ScalaLibraryLoader(includeReflectLibrary), JdkLoader())
-    libraryLoaders.foreach(_.init)
+    librariesLoader = Some(CompositeLibrariesLoader(
+      ScalaLibraryLoader(includeReflectLibrary),
+      JdkLoader()
+    ))
+    librariesLoader.foreach(_.init)
   }
 
   override def tearDown(): Unit = {
-    libraryLoaders.foreach(_.clean())
-    libraryLoaders = Seq.empty
+    librariesLoader.foreach(_.clean())
+    librariesLoader = None
 
     super.tearDown()
   }

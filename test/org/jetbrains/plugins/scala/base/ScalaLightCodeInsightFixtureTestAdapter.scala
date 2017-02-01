@@ -4,7 +4,7 @@ package base
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{CompositeLibrariesLoader, JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.ScalaVersion
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 abstract class ScalaLightCodeInsightFixtureTestAdapter
   extends LightCodeInsightFixtureTestCase with TestFixtureProvider with ScalaVersion {
 
-  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
+  private var librariesLoader: Option[CompositeLibrariesLoader] = None
 
   override def getFixture: CodeInsightTestFixture = myFixture
 
@@ -31,8 +31,11 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
       implicit val project = getProject
       implicit val version = scalaSdkVersion
 
-      libraryLoaders = Seq(ScalaLibraryLoader(), JdkLoader())
-      libraryLoaders.foreach(_.init)
+      librariesLoader = Some(CompositeLibrariesLoader(
+        ScalaLibraryLoader(),
+        JdkLoader()
+      ))
+      librariesLoader.foreach(_.init)
     }
   }
 
@@ -48,8 +51,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   }
 
   protected override def tearDown(): Unit = {
-    libraryLoaders.foreach(_.clean())
-    libraryLoaders = Seq.empty
+    librariesLoader.foreach(_.clean())
+    librariesLoader = None
     super.tearDown()
   }
 }

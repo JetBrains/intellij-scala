@@ -9,7 +9,7 @@ import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures._
 import com.intellij.util.ThrowableRunnable
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader, SourcesLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.util.TestUtils._
@@ -22,7 +22,7 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
 
   var myCodeInsightTestFixture: CodeInsightTestFixture = _
 
-  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
+  private var librariesLoader: Option[CompositeLibrariesLoader] = None
 
   override def setUp(): Unit = {
     super.setUp()
@@ -46,10 +46,12 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     implicit val module = myCodeInsightTestFixture.getModule
     implicit val version = DEFAULT_SCALA_SDK_VERSION
 
-    libraryLoaders = Seq(ScalaLibraryLoader(), JdkLoader(),
-      SourcesLoader(getTestDataPath + "/"))
-
-    libraryLoaders.foreach(_.init)
+    librariesLoader = Some(CompositeLibrariesLoader(
+      ScalaLibraryLoader(),
+      JdkLoader(),
+      SourcesLoader(getTestDataPath + "/")
+    ))
+    librariesLoader.foreach(_.init)
   }
 
 
@@ -57,8 +59,8 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     myCodeInsightTestFixture.tearDown()
     myCodeInsightTestFixture = null
 
-    libraryLoaders.foreach(_.clean())
-    libraryLoaders = Seq.empty
+    librariesLoader.foreach(_.clean())
+    librariesLoader = None
 
     super.tearDown()
   }

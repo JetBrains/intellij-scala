@@ -24,7 +24,7 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
-  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
+  private var librariesLoader: Option[CompositeLibrariesLoader] = None
 
   override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
@@ -47,20 +47,21 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     implicit val module = getModule
     implicit val version = scalaSdkVersion
 
-    libraryLoaders = Seq(ScalaLibraryLoader(isIncludeReflectLibrary = true),
+    librariesLoader = Some(CompositeLibrariesLoader(
+      ScalaLibraryLoader(isIncludeReflectLibrary = true),
       JdkLoader(getTestProjectJdk),
       SourcesLoader(project.getBasePath),
       InjectorLibraryLoader()
-    )
-    libraryLoaders.foreach(_.init)
+    ))
+    librariesLoader.foreach(_.init)
   }
 
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(getProject)
     CompileServerLauncher.instance.stop()
 
-    libraryLoaders.foreach(_.clean())
-    libraryLoaders = Seq.empty
+    librariesLoader.foreach(_.clean())
+    librariesLoader = None
 
     super.tearDown()
   }
