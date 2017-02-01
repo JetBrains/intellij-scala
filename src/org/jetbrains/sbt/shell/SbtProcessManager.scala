@@ -22,6 +22,7 @@ import scala.collection.JavaConverters._
 class SbtProcessManager(project: Project) extends AbstractProjectComponent(project) {
 
   @volatile private var myProcessHandler: Option[ColoredProcessHandler] = None
+  @volatile private var myShellRunner: Option[SbtShellRunner] = None
 
   private def createShellProcessHandler(): ColoredProcessHandler = {
     val workingDir = project.getBaseDir.getCanonicalPath
@@ -75,9 +76,26 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
       if handler.getProcess.isAlive
     } yield handler)
       .getOrElse {
-        myProcessHandler = Option(createShellProcessHandler())
-        myProcessHandler.get
+        val handler = createShellProcessHandler()
+        myProcessHandler = Option(handler)
+        handler
       }
+  }
+
+  /** Creates the SbtShellRunner view, or focuses it if it already exists. */
+  def openShellRunner(): SbtShellRunner = myShellRunner.synchronized {
+
+    myShellRunner match {
+      case None =>
+        val title = "SBT Shell"
+        val runner = new SbtShellRunner(project, title)
+        myShellRunner = Option(runner)
+        runner.initAndRun()
+        runner
+      case Some(runner) =>
+        runner.focusShell()
+        runner
+    }
   }
 
   def restartProcess(): Unit = myProcessHandler.synchronized {

@@ -29,8 +29,6 @@ import scala.collection.JavaConverters._
 class SbtShellRunner(project: Project, consoleTitle: String)
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
 
-  private val isInitialized: AtomicBoolean = new AtomicBoolean(false)
-
   private val myConsoleView: LanguageConsoleImpl = {
     val cv = new LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage)
     cv.getConsoleEditor.setOneLineMode(true)
@@ -71,30 +69,21 @@ class SbtShellRunner(project: Project, consoleTitle: String)
   override def createProcess(): Process = myProcessHandler.getProcess
 
   override def initAndRun(): Unit = {
-    // if already startNotified, there should already be a console running, so don't init this one.
-    if (!isInitialized.getAndSet(true)) {
-      super.initAndRun()
-      UIUtil.invokeLaterIfNeeded(new Runnable {
-        override def run(): Unit = {
-          // assume initial state is Working
-          // FIXME this is not correct when shell process was started without view
-          myConsoleView.setPrompt("X")
+    super.initAndRun()
+    UIUtil.invokeLaterIfNeeded(new Runnable {
+      override def run(): Unit = {
+        // assume initial state is Working
+        // FIXME this is not correct when shell process was started without view
+        myConsoleView.setPrompt("X")
 
-          // TODO update icon with ready/working state
-          val shellPromptChanger = new SbtShellReadyListener(
-            whenReady = myConsoleView.setPrompt(">"),
-            whenWorking = myConsoleView.setPrompt("X")
-          )
-          SbtShellCommunication.forProject(project).attachListener(shellPromptChanger)
-        }
-      })
-    } else {
-      // just open it and focus instead
-      val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
-      toolWindow.activate(null, true)
-      val content = toolWindow.getContentManager.findContent(consoleTitle)
-      toolWindow.getContentManager.setSelectedContent(content, true)
-    }
+        // TODO update icon with ready/working state
+        val shellPromptChanger = new SbtShellReadyListener(
+          whenReady = myConsoleView.setPrompt(">"),
+          whenWorking = myConsoleView.setPrompt("X")
+        )
+        SbtShellCommunication.forProject(project).attachListener(shellPromptChanger)
+      }
+    })
   }
 
 
@@ -128,6 +117,13 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
   override def getConsoleIcon: Icon = SbtShellRunner.ICON
 
+  def focusShell(): Unit = {
+    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
+    toolWindow.activate(null, true)
+    val content = toolWindow.getContentManager.findContent(consoleTitle)
+    toolWindow.getContentManager.setSelectedContent(content, true)
+  }
+
 
   def createAutoCompleteAction(): AnAction = {
     val action = new AutoCompleteAction
@@ -145,16 +141,8 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 }
 
 object SbtShellRunner {
-
   // TODO migrate sbt icons to where all the other icons are
   val ICON: Icon = IconLoader.getIcon("/sbt.png")
-
-  /** Initialize and run an sbt shell window. */
-  def run(project: Project): Unit = {
-    val title = "SBT Shell"
-    val cr = new SbtShellRunner(project, title)
-    cr.initAndRun()
-  }
 }
 
 class AutoCompleteAction extends DumbAwareAction {
@@ -192,6 +180,7 @@ class ExecuteTaskAction(task: String, icon: Option[Icon]) extends DumbAwareActio
   getTemplatePresentation.setText(s"Execute $task")
 
   override def actionPerformed(e: AnActionEvent): Unit = {
+    // TODO execute with indicator
     SbtShellCommunication.forProject(e.getProject).command(task)
   }
 }
