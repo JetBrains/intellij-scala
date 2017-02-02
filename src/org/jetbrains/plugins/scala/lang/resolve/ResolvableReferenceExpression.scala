@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard$, CachedWithRecursionGuard, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -41,11 +41,11 @@ object ResolvableReferenceExpression {
 
   implicit class Resolver(val reference: ScReferenceExpression) extends AnyVal {
 
-    @CachedMappedWithRecursionGuard(reference, Array.empty, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(reference, Array.empty, ModCount.getBlockModificationCount)
     def multiResolveImpl(incomplete: Boolean): Array[ResolveResult] =
       ReferenceExpressionResolver.resolve(reference, shapesOnly = false, incomplete)
 
-    @CachedWithRecursionGuard[ScReferenceExpression](reference, Array.empty[ResolveResult], ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(reference, Array.empty[ResolveResult], ModCount.getBlockModificationCount)
     def shapeResolveImpl: Array[ResolveResult] =
       ReferenceExpressionResolver.resolve(reference, shapesOnly = true, incomplete = false)
   }

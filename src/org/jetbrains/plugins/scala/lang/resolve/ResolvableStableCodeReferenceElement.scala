@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard$, CachedWithRecursionGuard, ModCount}
 
 import scala.collection.Set
 
@@ -42,7 +42,7 @@ object ResolvableStableCodeReferenceElement {
 
     private implicit def typeSystem: TypeSystem = stableRef.typeSystem
 
-    @CachedMappedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
     def resolveTypesOnly(incomplete: Boolean): Array[ResolveResult] = {
       val importResolverNoMethods = new StableCodeReferenceElementResolver(stableRef, false, false, false) {
         override protected def getKindsFor(ref: ScStableCodeReferenceElement): Set[ResolveTargets.Value] = {
@@ -52,7 +52,7 @@ object ResolvableStableCodeReferenceElement {
       importResolverNoMethods.resolve(stableRef, incomplete)
     }
 
-    @CachedMappedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
     def resolveMethodsOnly(incomplete: Boolean): Array[ResolveResult] = {
       val importResolverNoTypes = new StableCodeReferenceElementResolver(stableRef, false, false, false) {
         override protected def getKindsFor(ref: ScStableCodeReferenceElement): Set[ResolveTargets.Value] = {
@@ -63,28 +63,28 @@ object ResolvableStableCodeReferenceElement {
       importResolverNoTypes.resolve(stableRef, incomplete)
     }
 
-    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
     def resolveNoConstructor: Array[ResolveResult] = {
       ProgressManager.checkCanceled()
       val noConstructorResolver = new StableCodeReferenceElementResolver(stableRef, false, false, true)
       noConstructorResolver.resolve(stableRef, incomplete = false)
     }
 
-    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
     def resolveAllConstructors: Array[ResolveResult] = {
       ProgressManager.checkCanceled()
       val resolverAllConstructors = new StableCodeReferenceElementResolver(stableRef, false, true, false)
       resolverAllConstructors.resolve(stableRef, incomplete = false)
     }
 
-    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
     def shapeResolve: Array[ResolveResult] = {
       ProgressManager.checkCanceled()
       val shapesResolver = new StableCodeReferenceElementResolver(stableRef, true, false, false)
       shapesResolver.resolve(stableRef, incomplete = false)
     }
 
-    @CachedWithRecursionGuard[ScStableCodeReferenceElement](stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(stableRef, EMPTY_ARRAY, ModCount.getBlockModificationCount)
     def shapeResolveConstr: Array[ResolveResult] = {
       ProgressManager.checkCanceled()
       val shapesResolverAllConstructors = new StableCodeReferenceElementResolver(stableRef, true, true, false)

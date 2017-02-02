@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
@@ -215,17 +215,17 @@ object ScExpression {
 
     def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
-    @CachedMappedWithRecursionGuard(expr, Array.empty[(ScType, Option[ScTypeElement])], ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, Array.empty[(ScType, Option[ScTypeElement])], ModCount.getBlockModificationCount)
     def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
       ExpectedTypes.expectedExprTypes(expr, fromUnderscore = fromUnderscore)
     }
 
-    @CachedMappedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, None, ModCount.getBlockModificationCount)
     def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(expr, fromUnderscore)
 
     def getTypeIgnoreBaseType: TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
 
-    @CachedMappedWithRecursionGuard(expr, Failure("Recursive getNonValueType", Some(expr)), ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, Failure("Recursive getNonValueType", Some(expr)), ModCount.getBlockModificationCount)
     def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
                         ignoreBaseType: Boolean = false,
                         fromUnderscore: Boolean = false): TypeResult[ScType] = {
@@ -257,7 +257,7 @@ object ScExpression {
       * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
       *                        this parameter is useful for refactorings (introduce variable)
       */
-    @CachedMappedWithRecursionGuard(expr, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(expr))), ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(expr))), ModCount.getBlockModificationCount)
     def getTypeAfterImplicitConversion(checkImplicits: Boolean = true,
                                        isShape: Boolean = false,
                                        expectedOption: Option[ScType] = None,
@@ -322,7 +322,7 @@ object ScExpression {
       }
     }
 
-    @CachedMappedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits", Some(expr)),
+    @CachedWithRecursionGuard(expr, Failure("Recursive getTypeWithoutImplicits", Some(expr)),
       ModCount.getBlockModificationCount)
     def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false, fromUnderscore: Boolean = false): TypeResult[ScType] = {
       ProgressManager.checkCanceled()
@@ -417,7 +417,7 @@ object ScExpression {
     }
 
 
-    @CachedMappedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(expr, Array.empty[ScalaResolveResult], ModCount.getBlockModificationCount)
     def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
       val applyProc =
         new MethodResolveProcessor(expr, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */ ,

@@ -40,7 +40,7 @@ trait ScInterpolated extends ScalaPsiElement {
     val parts = getStringParts.mkString(quote, s"$quote, $quote", quote) //making list of string literals
     val params = getInjections.map(_.getText).mkString("(", ",", ")")
     if (getContext == null) None else Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
-      s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, this))
+      s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, ScInterpolated.this))
   }
 
   def getInjections: Array[ScExpression] = {

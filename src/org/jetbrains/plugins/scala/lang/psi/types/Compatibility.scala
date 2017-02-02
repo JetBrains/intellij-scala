@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set}
@@ -50,7 +50,7 @@ object Compatibility {
     }
 
 
-    @CachedMappedWithRecursionGuard(place, (Success(typez, None), Set.empty), ModCount.getBlockModificationCount)
+    @CachedWithRecursionGuard(place, (Success(typez, None), Set.empty), ModCount.getBlockModificationCount)
     private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
       expectedOption match {
         case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)

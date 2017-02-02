@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, CachedWithRecursionGuard$, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
@@ -83,7 +83,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
       }
     }
 
-  @CachedMappedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
   private def collectRegulars: Set[RegularImplicitResolveResult] = {
     ScalaPsiUtil.debug(s"Regular implicit map", LOG)
 
@@ -115,7 +115,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
     }
   }
 
-  @CachedMappedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(expression, Set.empty, ModCount.getBlockModificationCount)
   private def collectCompanions(arguments: Seq[ScType]): Set[CompanionImplicitResolveResult] = {
     ScalaPsiUtil.debug(s"Companions implicit map", LOG)
 

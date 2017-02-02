@@ -28,7 +28,7 @@ trait ScMethodLike extends ScMember with PsiMethod {
    */
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
-    this match {
+    ScMethodLike.this match {
       case method: PsiMethod if method.isConstructor =>
         val clazz = method.containingClass
         clazz match {

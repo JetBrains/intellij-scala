@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, CachedMacroUtil, CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations._
 
 import scala.meta.intellij.MetaExpansionsManager
 
@@ -111,7 +111,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     } orNull
   }
 
-  @CachedMappedWithRecursionGuard(this, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(this, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
   def getMetaExpansion: Either[String, scala.meta.Tree] = {
     val metaAnnotation = annotations.find(_.isMetaAnnotation)
     metaAnnotation match {
