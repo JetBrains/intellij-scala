@@ -450,42 +450,42 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    @CachedWithRecursionGuard[PsiClass](clazz, Seq.empty, CachesUtil.getDependentItem(clazz)())
+    @CachedWithRecursionGuard(clazz, Seq.empty, CachesUtil.getDependentItem(clazz)())
     def inner(): Seq[ScType] = {
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
-          return Seq(ScalaType.designator(obj))
+          Seq(ScalaType.designator(obj))
         case _ =>
+          ProgressManager.checkCanceled()
+          val project = clazz.getProject
+          implicit val typeSystem = project.typeSystem
+
+          val tp = {
+            def default =
+              if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
+              else ScParameterizedType(ScalaType.designator(clazz),
+                clazz.getTypeParameters.map(TypeParameterType(_, None)))
+            clazz match {
+              case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
+              case _ => default
+            }
+          }
+          val supers: Seq[ScType] = {
+            clazz match {
+              case td: ScTemplateDefinition => td.superTypes
+              case clazz: PsiClass => clazz.getSuperTypes.map {
+                case ctp: PsiClassType =>
+                  val cl = ctp.resolve()
+                  if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
+                  else ctp.toScType()
+                case ctp => ctp.toScType()
+              }.toSeq
+            }
+          }
+
+          generalLinearization(Some(project), tp, addTp = true, supers = supers)(project.typeSystem)
       }
 
-      ProgressManager.checkCanceled()
-      val project = clazz.getProject
-      implicit val typeSystem = project.typeSystem
-
-      val tp = {
-        def default =
-          if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
-          else ScParameterizedType(ScalaType.designator(clazz),
-            clazz.getTypeParameters.map(TypeParameterType(_, None)))
-        clazz match {
-          case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
-          case _ => default
-        }
-      }
-      val supers: Seq[ScType] = {
-        clazz match {
-          case td: ScTemplateDefinition => td.superTypes
-          case clazz: PsiClass => clazz.getSuperTypes.map {
-            case ctp: PsiClassType =>
-              val cl = ctp.resolve()
-              if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
-              else ctp.toScType()
-            case ctp => ctp.toScType()
-          }.toSeq
-        }
-      }
-
-      generalLinearization(Some(project), tp, addTp = true, supers = supers)(project.typeSystem)
     }
 
     inner()

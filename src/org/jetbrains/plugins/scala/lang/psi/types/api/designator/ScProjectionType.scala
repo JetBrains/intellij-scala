@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, CachedWithRecursionGuard$, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.Set
@@ -135,7 +135,7 @@ class ScProjectionType private(val projected: ScType,
     }
   }
 
-  @CachedMappedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
   private def actualImpl(projected: ScType, superReference: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =

@@ -20,7 +20,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   override def toString: String = s"$typeName: $getText"
 
-  @CachedWithRecursionGuard[ScTypeElement](this, Failure("Recursive type of type element", Some(this)),
+  @CachedWithRecursionGuard(this, Failure("Recursive type of type element", Some(this)),
     ModCount.getBlockModificationCount)
   def getType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
 

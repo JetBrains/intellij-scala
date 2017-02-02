@@ -5,13 +5,10 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 /**
-  * This annotation makes the compiler generate code that calls CachesUtil.get(..,)
+  * This annotation makes the compiler generate code that caches values in the user data of the psiElement.
+  * Caches are invalidated on change of `dependencyItem`.
   *
-  * NOTE: Annotated function should preferably be top-level or in a static object for better performance.
-  * The field for Key is generated and it is more efficient to just keep it stored in this field, rather than get
-  * it from CachesUtil every time
-  *
-  * Author: Svyatoslav Ilinskiy
+  * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
   * Date: 9/25/15.
   */
 class CachedInsidePsiElement(psiElement: Any, dependencyItem: Object) extends StaticAnnotation {
@@ -39,36 +36,72 @@ object CachedInsidePsiElement {
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
-        if (paramss.flatten.nonEmpty) {
-          abort("CachedInsidePsiElement annotation works for functions without parameters only")
-        }
+        //function parameters
+        val flatParams = paramss.flatten
+        val parameterTypes = flatParams.map(_.tpt)
+        val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
+        val hasParams = flatParams.nonEmpty
+
+        //generated types
+        val dataType = if (hasParams) tq"(..$parameterTypes)" else tq"Unit"
+        val resultType = box(c)(retTp)
 
         //generated names
-        val cachedFunName = generateTermName("cachedFun")
         val keyId = c.freshName(name.toString + "cacheKey")
-        val key = generateTermName(name + "Key")
-        val cacheStatsName = generateTermName("cacheStats")
-        val defdefFQN = thisFunctionFQN(name.toString)
+        val cacheStatsName = TermName(c.freshName("cacheStats"))
+        val analyzeCaches = CachedMacroUtil.analyzeCachesEnabled(c)
+        val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
+        val elemName = generateTermName("element")
+        val dataName = generateTermName("data")
+        val keyVarName = generateTermName("key")
+        val holderName = generateTermName("holder")
+        val resultName = generateTermName("result")
+        val cachedFunName = generateTermName("cachedFun")
 
-        val analyzeCaches = analyzeCachesEnabled(c)
-        val provider = TypeName("MyProvider")
+        val dataValue = if (hasParams) q"(..$parameterNames)" else q"()"
+        val getOrCreateCachedHolder =
+          if (hasParams)
+            q"$cachesUtilFQN.getOrCreateCachedMap[$psiElementType, $dataType, $resultType]($elemName, $keyVarName, () => $dependencyItem)"
+          else
+            q"$cachesUtilFQN.getOrCreateCachedRef[$psiElementType, $resultType]($elemName, $keyVarName, () => $dependencyItem)"
 
-        val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
+        val getFromHolder =
+          if (hasParams) q"$holderName.get($dataName)"
+          else q"$holderName.get()"
+
+        val updateHolder =
+          if (hasParams) q"$holderName.putIfAbsent($dataName, $resultName)"
+          else q"$holderName.compareAndSet(null, $resultName)"
+
+
+        val actualCalculation = withUIFreezingGuard(c) {
+          transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
+        }
 
         val analyzeCachesEnterCacheArea =
           if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()"
           else EmptyTree
+
+        val computation = if (hasReturnStatements(c)(actualCalculation)) q"$cachedFunName()" else q"$actualCalculation"
+
         val updatedRhs = q"""
-          def $cachedFunName(): $retTp = {
-            if (_root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.isAlreadyGuarded) { $actualCalculation }
-            else _root_.org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI { $actualCalculation }
-          }
+          def $cachedFunName(): $retTp = $actualCalculation
           ..$analyzeCachesEnterCacheArea
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItem))
+
+          val $dataName = $dataValue
+          val $keyVarName = ${getOrCreateKey(c, hasParams)(q"$keyId", dataType, resultType)}
+          val $elemName = $elem
+
+          val $holderName = $getOrCreateCachedHolder
+          val fromCachedHolder = $getFromHolder
+          if (fromCachedHolder != null) return fromCachedHolder
+
+          val $resultName = $computation
+          $updateHolder
+          $resultName
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
-          private def $key = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
           ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 
           ..$updatedDef
@@ -78,5 +111,4 @@ object CachedInsidePsiElement {
       case _ => abort("You can only annotate one function!")
     }
   }
-
 }

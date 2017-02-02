@@ -17,25 +17,25 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNa
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceElementResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 /**
  * @author AlexanderPodkhalyuzin
@@ -269,7 +269,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
   override def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
     val resolver = new StableCodeReferenceElementResolver(ScStableCodeReferenceElementImpl.this, false, false, false)
     resolver.resolve(ScStableCodeReferenceElementImpl.this, incomplete)

@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, CachedWithRecursionGuard$, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -43,7 +43,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceElementImpl(node) w
 
   def getKinds(incomplete: Boolean, completion: Boolean): ResolveTargets.ValueSet = StdKinds.stableClass
 
-  @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+  @CachedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
   def multiResolve(incomplete: Boolean): Array[ResolveResult] =
     doResolve(new ResolveProcessor(getKinds(incomplete), ScTypeProjectionImpl.this, refName))
 
