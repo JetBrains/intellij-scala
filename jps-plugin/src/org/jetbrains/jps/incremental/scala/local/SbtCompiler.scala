@@ -77,6 +77,8 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
 
     } catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
+      case t: Throwable =>
+        client.trace(t)
     }
   }
 }
