@@ -47,6 +47,9 @@ class DottyCompiler(scalaInstance: ScalaInstance, compilerJars: CompilerJars) ex
 
       val process = mainObj.getMethod("process", classOf[Array[String]], classOf[SimpleReporter], classOf[CompilerCallback])
       process.invoke(mainInstance, args, new ClientDottyReporter(client), new ClientDottyCallback(client))
+    } catch {
+      case t: Throwable =>
+        client.trace(t)
     }
     finally {
       oldDefault match {

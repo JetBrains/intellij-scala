@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import java.io.File
+import java.lang.reflect.InvocationTargetException
 
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import sbt.compiler.{AnalyzingCompiler, CompileOutput, CompilerArguments, CompilerCache}
@@ -26,9 +27,14 @@ class IdeaIncrementalCompiler(scalac: AnalyzingCompiler) extends AbstractCompile
     val cArgs = new CompilerArguments(scalac.scalaInstance, scalac.cp)
     val options = "IntellijIdea.simpleAnalysis" +: cArgs(Nil, compilationData.classpath, None, compilationData.scalaOptions)
 
-    try scalac.compile(compilationData.sources, emptyChanges, options, out, clientCallback, reporter, CompilerCache.fresh, logger, Option(progress))
+
+    try {
+      scalac.compile(compilationData.sources, emptyChanges, options, out, clientCallback, reporter, CompilerCache.fresh, logger, Option(progress))
+    }
     catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
+      case t: Throwable =>
+        client.trace(t)
     }
   }
 
