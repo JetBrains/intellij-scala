@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.conversion.visitors
 
-import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, IntermediateNode}
+import org.jetbrains.plugins.scala.conversion.ast.{IntermediateNode, LiteralExpression}
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by Kate Ustyuzhanina
@@ -10,20 +11,23 @@ import scala.collection.mutable
   */
 class PrintWithComments extends SimplePrintVisitor {
   override def visit(node: IntermediateNode): Unit = {
-    printWithSeparator(node.comments.beforeComments, "")
+    printComments(node.comments.beforeComments)
     super.visit(node)
-    printWithSeparator(node.comments.afterComments, "")
-    val latest = node.comments.latestCommtets.filter(!printedComments.contains(_))
-    printWithSeparator(latest, "")
-    printedComments ++= latest ++ node.comments.afterComments ++ node.comments.beforeComments
+    printComments(node.comments.afterComments ++ node.comments.latestCommtets)
   }
 
+  //override this function to be able to print last comments in block before "}"
   override def printBodyWithCurlyBracketes(node: IntermediateNode, printBodyFunction: () => Unit): Unit = {
     printer.append(" { ")
     printBodyFunction()
-    printWithSeparator(node.comments.latestCommtets, "")
-    printedComments ++= node.comments.latestCommtets
+    printComments(node.comments.latestCommtets)
     printer.append("}")
+  }
+
+  def printComments(comments: ArrayBuffer[LiteralExpression]): Unit ={
+    val unprinted = comments.filterNot(printedComments.contains)
+    printWithSeparator(unprinted, "")
+    printedComments ++= unprinted
   }
 
   val printedComments = new mutable.HashSet[LiteralExpression]()
