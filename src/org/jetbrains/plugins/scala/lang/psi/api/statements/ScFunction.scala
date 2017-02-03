@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -622,25 +623,31 @@ object ScFunction {
     def returnType: TypeResult[ScType] = {
       if (importantOrderFunction(function)) {
         val parent = function.getParent
-        val data = parent.getUserData(ScFunction.calculatedBlockKey)
-        if (data != null) function.returnTypeInner
+        val isCalculating = isCalculatingFor(parent)
+
+        if (isCalculating.get()) function.returnTypeInner
         else {
-          val children = parent match {
-            case stub: ScalaStubBasedElementImpl[_] if stub.getStub != null =>
-              import scala.collection.JavaConverters._
-              stub.getStub.getChildrenStubs.asScala.map(_.getPsi).iterator
-            case _ => parent.getChildren.iterator
-          }
-          while (children.hasNext) {
-            children.next() match {
-              case fun: ScFunction if importantOrderFunction(fun) =>
-                ProgressManager.checkCanceled()
-                fun.returnTypeInner
-              case _ =>
+          isCalculating.set(true)
+          try {
+            val children = parent match {
+              case stub: ScalaStubBasedElementImpl[_] if stub.getStub != null =>
+                import scala.collection.JavaConverters._
+                stub.getStub.getChildrenStubs.asScala.map(_.getPsi).iterator
+              case _ => parent.getChildren.iterator
             }
+            while (children.hasNext) {
+              children.next() match {
+                case fun: ScFunction if importantOrderFunction(fun) =>
+                  ProgressManager.checkCanceled()
+                  fun.returnTypeInner
+                case _ =>
+              }
+            }
+            function.returnTypeInner
           }
-          parent.putUserData(ScFunction.calculatedBlockKey, java.lang.Boolean.TRUE)
-          function.returnTypeInner
+          finally {
+            isCalculating.set(false)
+          }
         }
       } else function.returnTypeInner
     }
@@ -684,7 +691,11 @@ object ScFunction {
   /** Is this function sometimes invoked without it's name appearing at the call site? */
   def isSpecial(name: String): Boolean = Name.Special(name)
 
-  private val calculatedBlockKey: Key[java.lang.Boolean] = Key.create("calculated.function.returns.block")
+  private val calculatingBlockKey: Key[ThreadLocal[Boolean]] = Key.create("calculating.function.returns.block")
+
+  private def isCalculatingFor(e: PsiElement) = e.getOrUpdateUserData(ScFunction.calculatingBlockKey, new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  })
 
   @tailrec
   def getCompoundCopy(pTypes: List[List[ScType]], tParams: List[TypeParameter], rt: ScType, fun: ScFunction): ScFunction = {
