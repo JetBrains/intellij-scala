@@ -70,4 +70,45 @@ class CopyTextToScala extends CopyTestBase(Text(), Scala()) {
 
     doTestEmptyToFile(fromText, expected)
   }
+
+  def testJavaFileWithoutSemicolon(): Unit ={
+    val fromText =
+      """
+        |<selection>class Test {
+        |    public static void main(String[] args) {
+        |        System.out.println("hello")
+        |        System.out.println(" how are you?");
+        |    }
+        |}</selection>
+      """.stripMargin
+
+    val expected =
+      """object Test {
+        |  def main(args: Array[String]) {
+        |    System.out.println("hello")
+        |    System.out.println(" how are you?")
+        |  }
+        |}""".stripMargin
+
+    doTestEmptyToFile(fromText, expected)
+  }
+
+  def testJavaMethodWithoutLatestCurlyBrackets(): Unit ={
+    val fromText =
+      """
+        |class Test {
+        |    <selection>public static void main(String[] args) {
+        |        System.out.println("hello")
+        |        System.out.println(" how are you?"); </selection>
+        |}
+      """.stripMargin
+
+
+    val expected =
+      """def main(args: Array[String]) {
+        |  System.out.println("hello")
+        |  System.out.println(" how are you?")
+        |}""".stripMargin
+    doTestEmptyToFile(fromText, expected)
+  }
 }
