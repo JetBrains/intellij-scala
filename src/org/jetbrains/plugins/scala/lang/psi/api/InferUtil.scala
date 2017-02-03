@@ -3,7 +3,6 @@ package lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiTypeParameterListOwner}
-import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -15,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -167,7 +166,7 @@ object InferUtil {
       val param = iterator.next()
       val paramType = abstractSubstitutor.subst(param.paramType) //we should do all of this with information known before
       val implicitState = ImplicitState(place, paramType, paramType, coreElement, isImplicitConversion = false,
-          searchImplicitsRecursively, None, fullInfo = false, Some(ScalaRecursionManager.recursionMap.get()))
+          searchImplicitsRecursively, None, fullInfo = false, Some(ImplicitsRecursionGuard.currentMap))
       val collector = new ImplicitCollector(implicitState)
       val results = collector.collect()
       if (results.length == 1) {

@@ -5,8 +5,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
-import org.jetbrains.plugins.scala.caches.ScalaRecursionManager.{RecursionMap, recursionMap}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
@@ -33,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Implic
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.Option.option2Iterable
 import scala.annotation.tailrec
 import scala.collection.Set
 
@@ -66,7 +63,7 @@ object ImplicitCollector {
                            searchImplicitsRecursively: Int,
                            extensionData: Option[ExtensionConversionData],
                            fullInfo: Boolean,
-                           previousRecursionState: Option[RecursionMap])
+                           previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap])
 
 }
 
@@ -85,14 +82,14 @@ class ImplicitCollector(place: PsiElement,
                         searchImplicitsRecursively: Int = 0,
                         extensionData: Option[ExtensionConversionData] = None,
                         fullInfo: Boolean = false,
-                        previousRecursionState: Option[RecursionMap] = None) {
+                        previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap] = None) {
   def this(state: ImplicitState) {
     this(state.place, state.tp, state.expandedTp, state.coreElement, state.isImplicitConversion,
        state.searchImplicitsRecursively, state.extensionData, state.fullInfo, state.previousRecursionState)
   }
 
   lazy val collectorState: ImplicitState = ImplicitState(place, tp, expandedTp, coreElement, isImplicitConversion,
-    searchImplicitsRecursively, extensionData, fullInfo, Some(ScalaRecursionManager.recursionMap.get()))
+    searchImplicitsRecursively, extensionData, fullInfo, Some(ImplicitsRecursionGuard.currentMap))
 
   private val project = place.getProject
   private implicit val typeSystem = project.typeSystem
@@ -137,12 +134,12 @@ class ImplicitCollector(place: PsiElement,
 
     previousRecursionState match {
       case Some(m) =>
-        val currentMap = recursionMap.get()
+        val currentMap = ImplicitsRecursionGuard.currentMap
         try {
-          recursionMap.set(m)
+          ImplicitsRecursionGuard.setRecursionMap(m)
           calc()
         } finally {
-          recursionMap.set(currentMap)
+          ImplicitsRecursionGuard.setRecursionMap(currentMap)
         }
       case _ => calc()
     }
@@ -514,20 +511,27 @@ class ImplicitCollector(place: PsiElement,
         }
       }
     }
-    import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
 
     if (isImplicitConversion) compute()
     else {
       val coreTypeForTp = coreType(tp)
+      val element = coreElement.getOrElse(place)
 
       def equivOrDominates(tp: ScType, found: ScType): Boolean =
         found.equiv(tp, ScUndefinedSubstitutor(), falseUndef = false)._1 || dominates(tp, found)
 
-      val checkAdd: (ScType, Seq[ScType]) => Boolean = (tp, searches) => !searches.exists(equivOrDominates(tp, _))
+      def checkRecursive(tp: ScType, searches: Seq[ScType]): Boolean = searches.exists(equivOrDominates(tp, _))
 
-      doComputations(coreElement.getOrElse(place), checkAdd, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
-        case Some(res) => res
-        case None => reportWrong(c, c.substitutor, DivergedImplicitResult)
+      def divergedResult = reportWrong(c, c.substitutor, DivergedImplicitResult)
+
+      if (ImplicitsRecursionGuard.isRecursive(element, coreTypeForTp, checkRecursive)) divergedResult
+      else {
+        ImplicitsRecursionGuard.beforeComputation(element, coreTypeForTp)
+        try {
+          compute().orElse(divergedResult)
+        } finally {
+          ImplicitsRecursionGuard.afterComputation(element)
+        }
       }
     }
   }
