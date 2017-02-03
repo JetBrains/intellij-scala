@@ -83,7 +83,7 @@ object ScalaLibraryLoader {
       }
   }
 
-  private abstract class ScalaLibraryLoaderAdapter(implicit module: Module)
+  abstract class ScalaLibraryLoaderAdapter(implicit module: Module)
     extends IvyLibraryLoader {
 
     override protected val vendor: String = "org.scala-lang"
@@ -102,14 +102,14 @@ object ScalaLibraryLoader {
     override protected def fileName(implicit version: ScalaSdkVersion): String = s"$name-${version.getMinor}"
   }
 
-  private case class ScalaCompilerLoader(implicit val module: Module)
+  case class ScalaCompilerLoader(implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
     override protected val name: String = "scala-compiler"
   }
 
-  private case class ScalaRuntimeLoader(protected override val ivyType: IvyType = Jars)
-                                       (implicit val module: Module)
+  case class ScalaRuntimeLoader(protected override val ivyType: IvyType = Jars)
+                               (implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
     override protected val name: String = "scala-library"
@@ -123,7 +123,7 @@ object ScalaLibraryLoader {
     }
   }
 
-  private case class ScalaReflectLoader(implicit val module: Module)
+  case class ScalaReflectLoader(implicit val module: Module)
     extends ScalaLibraryLoaderAdapter {
 
     override protected val name: String = "scala-reflect"

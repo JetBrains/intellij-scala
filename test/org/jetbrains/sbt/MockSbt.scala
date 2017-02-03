@@ -4,39 +4,96 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
-import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader.{ScalaCompilerLoader, ScalaLibraryLoaderAdapter, ScalaReflectLoader, ScalaRuntimeLoader}
+import org.jetbrains.plugins.scala.debugger.ScalaVersion_2_10
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
-import scala.collection.JavaConverters._
-
 /**
- * @author Nikolay Obedin
- * @since 7/27/15.
- */
-trait MockSbt {
+  * @author Nikolay Obedin
+  * @since 7/27/15.
+  */
+trait MockSbt extends ScalaVersion_2_10 {
 
-  def sbtVersion: String
+  implicit val sbtVersion: String
 
-  def addSbtAsModuleDependency(module: Module): Unit = {
+  protected def addSbtLibrary(implicit module: Module): Unit = {
+    import MockSbt._
 
-    val sbtLibraries = Seq("collections", "interface", "io", "ivy", "logging", "main", "main-settings", "process", "sbt")
-      .map(n => new File(TestUtils.getIvyCachePath + s"/org.scala-sbt/$n/jars/$n-$sbtVersion.jar"))
-    val scalaLibrary = ScalaSdkVersion._2_10
-    val scalaLibraryJars = Seq(
-      TestUtils.getScalaLibraryPath(scalaLibrary),
-      TestUtils.getScalaCompilerPath(scalaLibrary),
-      TestUtils.getScalaReflectPath(scalaLibrary)
-    ).map(new File(_))
-    val classesPath = (sbtLibraries ++ scalaLibraryJars).map(VfsUtil.getUrlForLibraryRoot)
-    ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classesPath.toList.asJava, java.util.Collections.emptyList())
-    preventLeakageOfVfsPointers()
+    val loaders = Seq(ScalaCompilerLoader(), ScalaRuntimeLoader(), ScalaReflectLoader(),
+      SbtCollectionsLoader(), SbtInterfaceLoader(), SbtIOLoader(), SbtIvyLoader(), SbtLoggingLoader(),
+      SbtMainLoader(), SbtMainSettingsLoader(), SbtProcessLoader(), SbtLoader())
+
+    implicit val version = scalaSdkVersion
+
+    val classPath = loaders.map(urlForLibraryRoot)
+
+    import scala.collection.JavaConversions._
+    ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classPath, Seq.empty[String])
+
+    LibraryLoader.storePointers()
+  }
+}
+
+object MockSbt {
+
+  private def urlForLibraryRoot(loader: ScalaLibraryLoaderAdapter)
+                               (implicit version: ScalaSdkVersion): String = {
+    val file = new File(loader.path)
+    VfsUtil.getUrlForLibraryRoot(file)
   }
 
-  def preventLeakageOfVfsPointers(): Unit =
-    VirtualFilePointerManager.getInstance().asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
+  private abstract class SbtBaseLoader(implicit val version: String, val module: Module) extends ScalaLibraryLoaderAdapter {
+    override protected val vendor: String = "org.scala-sbt"
+
+    override protected def fileName(implicit version: ScalaSdkVersion): String =
+      s"$name-${this.version}"
+  }
+
+  private case class SbtCollectionsLoader(implicit override val version: String,
+                                          override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "collections"
+  }
+
+  private case class SbtInterfaceLoader(implicit override val version: String,
+                                        override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "interface"
+  }
+
+  private case class SbtIOLoader(implicit override val version: String,
+                                 override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "io"
+  }
+
+  private case class SbtIvyLoader(implicit override val version: String,
+                                  override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "ivy"
+  }
+
+  private case class SbtLoggingLoader(implicit override val version: String,
+                                      override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "logging"
+  }
+
+  private case class SbtMainLoader(implicit override val version: String,
+                                   override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "main"
+  }
+
+  private case class SbtMainSettingsLoader(implicit override val version: String,
+                                           override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "main-settings"
+  }
+
+  private case class SbtProcessLoader(implicit implicit override val version: String,
+                                      override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "process"
+  }
+
+  private case class SbtLoader(implicit override val version: String,
+                               override val module: Module) extends SbtBaseLoader {
+    override protected val name: String = "sbt"
+  }
 
 }

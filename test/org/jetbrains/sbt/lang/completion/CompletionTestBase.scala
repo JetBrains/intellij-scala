@@ -57,7 +57,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
 
   override def setUp() {
     super.setUpWithoutScalaLib()
-    addSbtAsModuleDependency(getModuleAdapter)
+    addSbtLibrary(getModuleAdapter)
     inWriteAction(StartupManager.getInstance(getProjectAdapter).asInstanceOf[StartupManagerImpl].startCacheUpdate())
     FileUtil.delete(ResolverIndex.DEFAULT_INDEXES_DIR)
   }
