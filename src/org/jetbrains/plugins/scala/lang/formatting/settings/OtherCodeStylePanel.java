@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
 import com.intellij.application.options.CodeStyleAbstractPanel;
+import com.intellij.application.options.codeStyle.CommenterForm;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
@@ -30,14 +31,16 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox replaceWithUnicodeSymbolCheckBox1;
   private JCheckBox replaceInForGeneratorCheckBox;
   private JCheckBox replaceLambdaWithGreekLetter;
-  private JCheckBox lineCommentAtFirstColumnCheckBox;
   private JCheckBox alternateIndentationForParamsCheckBox;
   private JSpinner alternateIndentationForParamsSpinner;
   private JPanel alternateParamIndentPanel;
   private JLabel spacesLabel;
+  private JPanel myCommenterPanel;
+  private CommenterForm myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
 
   protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
     super(settings);
+    $$$setupUI$$$();
     alternateIndentationForParamsSpinner.setModel(new SpinnerNumberModel(4, 1, null, 1));
     resetImpl(settings);
   }
@@ -61,7 +64,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   @NotNull
   @Override
   protected FileType getFileType() {
-      return ScalaFileType.INSTANCE;
+    return ScalaFileType.INSTANCE;
   }
 
   @Nullable
@@ -75,21 +78,20 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     if (!isModified(settings)) return;
 
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-      CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
     scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = enforceFunctionalSyntaxForCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR = replaceWithUnicodeSymbolCheckBox1.isSelected();
     scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = replaceInForGeneratorCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER = replaceLambdaWithGreekLetter.isSelected();
-    commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN = lineCommentAtFirstColumnCheckBox.isSelected();
     scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = alternateIndentationForParamsCheckBox.isSelected();
     scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = (Integer) alternateIndentationForParamsSpinner.getValue();
+    myCommenterForm.apply(settings);
   }
 
   @Override
   public boolean isModified(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-      CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
+    CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
 
     if (scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT != enforceFunctionalSyntaxForCheckBox.isSelected())
       return true;
@@ -101,15 +103,11 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
       return true;
     if (scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER != replaceLambdaWithGreekLetter.isSelected())
       return true;
-    if (commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN != lineCommentAtFirstColumnCheckBox.isSelected())
-      return true;
     if (scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != alternateIndentationForParamsCheckBox.isSelected())
       return true;
     if (scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != (Integer) alternateIndentationForParamsSpinner.getValue())
       return true;
-
-
-    return false;
+    return (myCommenterForm.isModified(settings));
   }
 
   @Nullable
@@ -121,22 +119,18 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   @Override
   protected void resetImpl(CodeStyleSettings settings) {
     ScalaCodeStyleSettings scalaCodeStyleSettings = settings.getCustomSettings(ScalaCodeStyleSettings.class);
-      CommonCodeStyleSettings commonCodeStyleSettings = settings.getCommonSettings(ScalaLanguage.INSTANCE);
     enforceFunctionalSyntaxForCheckBox.setSelected(scalaCodeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT);
     replaceWithUnicodeSymbolCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR);
     replaceWithUnicodeSymbolCheckBox1.setSelected(scalaCodeStyleSettings.REPLACE_MAP_ARROW_WITH_UNICODE_CHAR);
     replaceInForGeneratorCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR);
     replaceLambdaWithGreekLetter.setSelected(scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER);
-    lineCommentAtFirstColumnCheckBox.setSelected(commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN);
     alternateIndentationForParamsCheckBox.setSelected(scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
     alternateIndentationForParamsSpinner.setValue(scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
+    myCommenterForm.reset(settings);
   }
 
-  {
-// GUI initializer generated by IntelliJ IDEA GUI Designer
-// >>> IMPORTANT!! <<<
-// DO NOT EDIT OR ADD ANY CODE HERE!
-    $$$setupUI$$$();
+  private void createUIComponents() {
+    myCommenterPanel = myCommenterForm.getCommenterPanel();
   }
 
   /**
@@ -147,6 +141,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
    * @noinspection ALL
    */
   private void $$$setupUI$$$() {
+    createUIComponents();
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPanel = new JPanel();
@@ -170,10 +165,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     replaceLambdaWithGreekLetter.setSelected(false);
     replaceLambdaWithGreekLetter.setText("Kind Projector: Replace 'Lambda' with unicode symbol");
     contentPanel.add(replaceLambdaWithGreekLetter, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    lineCommentAtFirstColumnCheckBox = new JCheckBox();
-    lineCommentAtFirstColumnCheckBox.setSelected(false);
-    lineCommentAtFirstColumnCheckBox.setText("Line comment on first column");
-    contentPanel.add(lineCommentAtFirstColumnCheckBox, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     alternateParamIndentPanel = new JPanel();
     alternateParamIndentPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
     contentPanel.add(alternateParamIndentPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -189,5 +180,6 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     alternateParamIndentPanel.add(spacesLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer2 = new Spacer();
     alternateParamIndentPanel.add(spacer2, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    contentPanel.add(myCommenterPanel, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 }
