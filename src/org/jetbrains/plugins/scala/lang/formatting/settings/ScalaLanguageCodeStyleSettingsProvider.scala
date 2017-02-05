@@ -114,6 +114,11 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       buffer ++= Seq("KEEP_SIMPLE_BLOCKS_IN_ONE_LINE", "KEEP_SIMPLE_METHODS_IN_ONE_LINE", "KEEP_FIRST_COLUMN_COMMENT")
     }
 
+    //comments generation
+    if (settingsType == SettingsType.COMMENTER_SETTINGS) {
+      buffer ++= Seq("LINE_COMMENT_AT_FIRST_COLUMN", "BLOCK_COMMENT_AT_FIRST_COLUMN")
+    }
+
     consumer.showStandardOptions(buffer.toArray:_*)
     consumer.renameStandardOption("SPACE_BEFORE_TYPE_PARAMETER_LIST", "Before opening square bracket")
 
