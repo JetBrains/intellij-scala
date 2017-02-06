@@ -20,7 +20,7 @@ import com.intellij.util.Processor
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{CompositeLibrariesLoader, JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -66,9 +66,12 @@ class MemoryLeakTest extends PlatformTestCase {
     project
   }
 
-  private def createLibraryLoaders(implicit project: Project): Seq[LibraryLoader] = {
+  private def createLibrariesLoaders(implicit project: Project) = {
     implicit val module = ModuleManager.getInstance(project).getModules()(0)
-    Seq(ScalaLibraryLoader(), JdkLoader())
+    CompositeLibrariesLoader(
+      ScalaLibraryLoader(),
+      JdkLoader()
+    )
   }
 
   private def closeAndDispose(implicit project: Project): Unit = {
@@ -80,12 +83,12 @@ class MemoryLeakTest extends PlatformTestCase {
   def testLeaksAfterProjectDispose(): Unit = {
     implicit val project = loadAndSetupProject(projectPath)
 
-    val libraryLoaders = createLibraryLoaders
-    libraryLoaders.foreach(_.init(TestUtils.DEFAULT_SCALA_SDK_VERSION))
+    val libraryLoaders = createLibrariesLoaders
+    libraryLoaders.init(TestUtils.DEFAULT_SCALA_SDK_VERSION)
 
     doSomeWork
 
-    libraryLoaders.foreach(_.clean())
+    libraryLoaders.clean()
 
     val allRoots = allRootsForProject
 

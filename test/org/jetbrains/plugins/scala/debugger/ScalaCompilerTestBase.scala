@@ -31,7 +31,7 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   private var deleteProjectAtTearDown = false
-  private var libraryLoaders: Seq[LibraryLoader] = Seq.empty
+  private var librariesLoader: Option[CompositeLibrariesLoader] = None
 
   override def setUp(): Unit = {
     super.setUp()
@@ -71,10 +71,14 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     implicit val module = getModule
     implicit val version = scalaSdkVersion
 
-    libraryLoaders = Seq(ScalaLibraryLoader(loadReflect), JdkLoader(getTestProjectJdk),
+    val libraryLoaders = Seq(
+      ScalaLibraryLoader(loadReflect),
+      JdkLoader(getTestProjectJdk),
       SourcesLoader(getSourceRootDir.getCanonicalPath)
     ) ++ additionalLibraries
-    libraryLoaders.foreach(_.init)
+
+    librariesLoader = Some(CompositeLibrariesLoader(libraryLoaders: _*))
+    librariesLoader.foreach(_.init)
   }
 
   protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = Seq.empty
@@ -91,8 +95,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
           CompileServerLauncher.instance.stop()
           val baseDir = getBaseDir
 
-          libraryLoaders.foreach(_.clean())
-          libraryLoaders = Seq.empty
+          librariesLoader.foreach(_.clean())
+          librariesLoader = None
 
           ScalaCompilerTestBase.super.tearDown()
 
