@@ -5,7 +5,7 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.searches.ReferencesSearch.SearchParameters
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{Both, ContainingClass, inReadAction}
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -23,11 +23,19 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
   protected def checkAndTransform(ref: PsiReference): Option[ScReferenceElement]
 
   def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = inReadAction(ScalaSourceFilterScope(queryParameters))
     val element = queryParameters.getElementToSearch
     val ignoreAccess = queryParameters.isIgnoreAccessScope
-    element match {
-      case fun: ScFunctionDefinition if names.contains(fun.name) =>
+
+    val data = inReadAction {
+      element match {
+        case Both(fun: ScFunctionDefinition, ContainingClass(obj: ScObject)) if names.contains(fun.name) =>
+          val scope = ScalaSourceFilterScope(queryParameters)
+          Some((fun, obj, scope))
+        case _ => None
+      }
+    }
+    data match {
+      case Some((fun, obj, scope)) =>
         val processor = new Processor[PsiReference] {
           def process(ref: PsiReference): Boolean = {
             inReadAction {
@@ -38,10 +46,7 @@ abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference
             }
           }
         }
-        inReadAction(fun.containingClass) match {
-          case obj: ScObject => ReferencesSearch.search(obj, scope, ignoreAccess).forEach(processor)
-          case _ => true
-        }
+        ReferencesSearch.search(obj, scope, ignoreAccess).forEach(processor)
       case _ => true
     }
   }

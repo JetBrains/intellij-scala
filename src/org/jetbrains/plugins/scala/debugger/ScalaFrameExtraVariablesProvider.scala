@@ -36,9 +36,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 /**
-* Nikolay.Tropin
-* 2014-12-04
-*/
+  * Nikolay.Tropin
+  * 2014-12-04
+  */
 class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   override def isAvailable(sourcePosition: SourcePosition, evaluationContext: EvaluationContext): Boolean = {
     ScalaDebuggerSettings.getInstance().SHOW_VARIABLES_FROM_OUTER_SCOPES &&
@@ -71,8 +71,8 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     val sorted = mutable.SortedSet()(Ordering.by[ScalaResolveResult, Int](_.getElement.getTextRange.getStartOffset))
     inReadAction {
       candidates.foreach(sorted += _)
+      sorted.map(_.name)
     }
-    sorted.map(_.name)
   }
 
   private def toTextWithImports(s: String) = {
@@ -103,10 +103,29 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   }
 
   private def canEvaluateLong(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
-    srr.getElement match {
-      case named if generatorNotFromBody(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
-      case named: PsiNamedElement if notUsedInCurrentClass(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
-      case _ => true
+    def tryEvaluate(name: String, place: PsiElement, evaluationContext: EvaluationContext): Try[AnyRef] = {
+      Try {
+        val evaluator = {
+          val twi = toTextWithImports(name)
+          val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
+          val location = evaluationContext.getFrameProxy.location()
+          val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
+          if (sourcePosition.isEmpty) throw EvaluationException("Debug process is detached.")
+          ScalaEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
+            case _: ScalaCompilingExpressionEvaluator => throw EvaluationException("Don't use compiling evaluator here")
+            case e => e
+          }
+        }
+        evaluator.evaluate(evaluationContext)
+      }
+    }
+
+    inReadAction {
+      srr.getElement match {
+        case named if generatorNotFromBody(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
+        case named: PsiNamedElement if notUsedInCurrentClass(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
+        case _ => true
+      }
     }
   }
 
@@ -114,22 +133,6 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     cc.parents.take(3).exists(_.isInstanceOf[ScCatchBlock])
   }
 
-  private def tryEvaluate(name: String, place: PsiElement, evaluationContext: EvaluationContext): Try[AnyRef] = {
-    Try {
-      val evaluator = inReadAction {
-        val twi = toTextWithImports(name)
-        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
-        val location = evaluationContext.getFrameProxy.location()
-        val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
-        if (sourcePosition.isEmpty) throw EvaluationException("Debug process is detached.")
-        ScalaEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
-          case _: ScalaCompilingExpressionEvaluator => throw EvaluationException("Don't use compiling evaluator here")
-          case e => e
-        }
-      }
-      evaluator.evaluate(evaluationContext)
-    }
-  }
 
   private def notUsedInCurrentClass(named: PsiNamedElement, place: PsiElement): Boolean = {
     inReadAction {

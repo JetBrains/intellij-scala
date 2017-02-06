@@ -10,11 +10,11 @@ import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
  * Nikolay.Tropin
@@ -22,9 +22,11 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
  */
 class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    val scope = inReadAction(ScalaSourceFilterScope(queryParameters))
-    val element = queryParameters.getElementToSearch
     val project = queryParameters.getProject
+    val scope = inReadAction {
+      ScalaSourceFilterScope(queryParameters)
+    }
+    val element = queryParameters.getElementToSearch
     element match {
       case _ if inReadAction(!element.isValid) => true
       case binding: ScBindingPattern =>

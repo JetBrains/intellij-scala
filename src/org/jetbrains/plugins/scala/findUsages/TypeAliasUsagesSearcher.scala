@@ -10,7 +10,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -35,21 +34,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
-    val target: PsiElement = parameters.getElementToSearch
-    val ta = target match {
-      case named: PsiNamedElement =>
-        inReadAction(ScalaPsiUtil.nameContext(named)) match {
-          case ta: ScTypeAliasDefinition => ta
-          case _ => return
-        }
-      case _ => return
+    val data = inReadAction {
+      parameters.getElementToSearch match {
+        case target @ ScalaPsiUtil.inNameContext(ta: ScTypeAliasDefinition) =>
+          val nm = ta.name
+          if (nm != null && !StringUtil.isEmptyOrSpaces(nm))
+            Some((target, nm, parameters.getEffectiveSearchScope))
+          else None
+        case _ => None
+      }
     }
-    val name: String = ta.name
-    if (name == null || StringUtil.isEmptyOrSpaces(name)) return
-    val scope: SearchScope = inReadAction(ScalaSourceFilterScope(parameters))
-    val collector: SearchRequestCollector = parameters.getOptimizer
-    val session: SearchSession = collector.getSearchSession
-    collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
+    data match {
+      case Some((target, name, scope)) =>
+        val collector: SearchRequestCollector = parameters.getOptimizer
+        val session: SearchSession = collector.getSearchSession
+        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
+      case _ =>
+    }
   }
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {

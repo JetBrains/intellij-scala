@@ -24,8 +24,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
     val element = queryParameters.getElementToSearch
     element match {
       case _ if inReadAction(!element.isValid) => true
-      case scalaValue(vals) =>
-        val name: String = vals.getName
+      case scalaValue(vals, name) =>
         val processor = new TextOccurenceProcessor {
           def execute(element: PsiElement, offsetInElement: Int): Boolean = {
             val references = inReadAction(element.getReferences)
@@ -52,7 +51,7 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
         val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
         helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
       case wrapper: PsiTypedDefinitionWrapper => //only this is added for find usages factory
-        val name: String = wrapper.getName
+        val name: String = inReadAction(wrapper.getName)
         val processor = new TextOccurenceProcessor {
           def execute(element: PsiElement, offsetInElement: Int): Boolean = {
             val references = inReadAction(element.getReferences)
@@ -83,9 +82,9 @@ class JavaValsUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearc
   }
 
   private object scalaValue {
-    def unapply(td: ScTypedDefinition): Option[ScTypedDefinition] = inReadAction {
+    def unapply(td: ScTypedDefinition): Option[(ScTypedDefinition, String)] = inReadAction {
       ScalaPsiUtil.nameContext(td) match {
-        case _: ScValue | _: ScVariable | _: ScClassParameter if td.getName != "" => Some(td)
+        case _: ScValue | _: ScVariable | _: ScClassParameter if td.getName != "" => Some(td, td.getName)
         case _ => None
       }
     }

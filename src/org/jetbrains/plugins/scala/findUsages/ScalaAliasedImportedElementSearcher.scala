@@ -17,25 +17,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(parameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]) {
-    val target: Option[PsiNamedElement] = inReadAction {
+    val data: Option[(PsiNamedElement, String, SearchScope)] = inReadAction {
       parameters.getElementToSearch match {
         case named: PsiNamedElement =>
+          val name = named.name
           ScalaPsiUtil.nameContext(named) match {
-            case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias => Some(named)
+            case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias if name != null && !StringUtil.isEmptyOrSpaces(name) =>
+              val scope = ScalaSourceFilterScope(parameters)
+              Some((named, name, scope))
             case _ => None
           }
         case _ => None
       }
     }
-    for {
-      named <- target
-      name <- Option(named.name)
-      if !StringUtil.isEmptyOrSpaces(name)
-    } {
-      val scope: SearchScope = inReadAction(ScalaSourceFilterScope(parameters))
-      val collector: SearchRequestCollector = parameters.getOptimizer
-      val session: SearchSession = collector.getSearchSession
-      collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session))
+    data match {
+      case Some((named, name, scope)) =>
+        val collector: SearchRequestCollector = parameters.getOptimizer
+        val session: SearchSession = collector.getSearchSession
+        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session))
+      case _ =>
     }
   }
 

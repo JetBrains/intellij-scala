@@ -15,17 +15,24 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
-    val target: PsiElement = parameters.getElementToSearch
-    val scPack = target match {
-      case pack: PsiPackage => ScPackageImpl(pack)
-      case _ => return
+    val data = inReadAction {
+      parameters.getElementToSearch match {
+        case pack: PsiPackage =>
+          val scPack =ScPackageImpl(pack)
+          val nm = scPack.name
+          if (nm != null && !StringUtil.isEmptyOrSpaces(nm))
+            Some((scPack, nm, parameters.getEffectiveSearchScope))
+          else None
+        case _ => None
+      }
     }
-    val name = scPack.name
-    if (name == null || StringUtil.isEmptyOrSpaces(name)) return
-    val scope: SearchScope = inReadAction(parameters.getEffectiveSearchScope) // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
-    val collector: SearchRequestCollector = parameters.getOptimizer
-    val session: SearchSession = collector.getSearchSession
-    collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(scPack, null, session))
+    data match {
+      case Some((scPack, name, scope)) =>
+        val collector: SearchRequestCollector = parameters.getOptimizer
+        val session: SearchSession = collector.getSearchSession
+        collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(scPack, null, session))
+      case _ =>
+    }
   }
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {

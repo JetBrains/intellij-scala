@@ -23,11 +23,16 @@ class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     val project = queryParameters.getProject
     val scope = inReadAction(ScalaSourceFilterScope(queryParameters))
-    val element = queryParameters.getElementToSearch
-    element match {
-      case _ if !inReadAction(element.isValid) => true
-      case parameter : ScParameter =>
-        val name = parameter.name
+
+    val data = inReadAction {
+      queryParameters.getElementToSearch match {
+        case e if !e.isValid => None
+        case parameter: ScParameter => Some((parameter, parameter.name))
+        case _ => None
+      }
+    }
+    data match {
+      case Some((parameter, name)) =>
         val collectedReferences = new mutable.HashSet[PsiReference]
         val processor = new TextOccurenceProcessor {
           def execute(element: PsiElement, offsetInElement: Int): Boolean = {

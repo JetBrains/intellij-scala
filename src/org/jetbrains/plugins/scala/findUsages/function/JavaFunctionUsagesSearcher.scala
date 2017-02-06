@@ -19,8 +19,7 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
     val scope = inReadAction(queryParameters.getEffectiveSearchScope)
     val element = queryParameters.getElementToSearch
     element match {
-      case scalaOrNonStatic(method) =>
-        val name: String = method.getName
+      case scalaOrNonStatic(method, name) =>
         val collectedReferences: mutable.HashSet[PsiReference] = new mutable.HashSet[PsiReference]
         val processor = new TextOccurenceProcessor {
           def execute(element: PsiElement, offsetInElement: Int): Boolean = {
@@ -51,12 +50,12 @@ class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesS
   }
 
   private object scalaOrNonStatic {
-    def unapply(method: PsiMethod): Option[PsiMethod] = {
+    def unapply(method: PsiMethod): Option[(PsiMethod, String)] = {
       inReadAction {
         if (!method.isValid) return None
         method match {
-          case f: ScFunction => Some(f)
-          case m: PsiMethod if !m.hasModifierProperty(PsiModifier.STATIC) => Some(m)
+          case f: ScFunction => Some((f, f.getName))
+          case m: PsiMethod if !m.hasModifierProperty(PsiModifier.STATIC) => Some((m, m.getName))
           case _ => None
         }
       }

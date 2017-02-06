@@ -7,12 +7,13 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{PsiSearchHelper, SearchScope, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.extensions.{Parent, inReadAction}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.extensions.{Both, Parent, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignStmt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 
@@ -26,16 +27,22 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
     implicit val consumer = cons
     val element = queryParameters.getElementToSearch
     val project = queryParameters.getProject
-    element match {
-      case _ if !inReadAction(element.isValid) => true
-      case fun: ScFunction if fun.name endsWith suffixScala =>
-        processAssignments(fun, fun.name, project)
-        processSimpleUsages(fun, fun.name, project)
-      case refPattern: ScReferencePattern if inReadAction(ScalaPsiUtil.nameContext(refPattern)).isInstanceOf[ScVariable] =>
-        val name = refPattern.name
-        processAssignments(refPattern, name, project)
-        processSimpleUsages(refPattern, name + suffixScala, project)
-        processSimpleUsages(refPattern, name + suffixJava, project)
+    val data: Option[(ScNamedElement, String)] = inReadAction {
+      element match {
+        case _ if !element.isValid => None
+        case f: ScFunction => Some((f, f.name))
+        case Both(rp: ScReferencePattern, inNameContext(_: ScVariable)) => Some((rp, rp.name))
+        case _ => None
+      }
+    }
+    data match {
+      case Some((fun: ScFunction, name)) if name endsWith suffixScala =>
+        processAssignments(fun, name, project)
+        processSimpleUsages(fun, name, project)
+      case Some((pattern: ScReferencePattern, name)) =>
+        processAssignments(pattern, name, project)
+        processSimpleUsages(pattern, name + suffixScala, project)
+        processSimpleUsages(pattern, name + suffixJava, project)
       case _ => true
     }
   }
