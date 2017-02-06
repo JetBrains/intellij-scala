@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.structure.TaskData
 
 /**
   * @author Pavel Fatin
@@ -90,12 +91,21 @@ class SbtModuleNode(val data: SbtModuleData) extends Node[SbtModuleData] {
   override protected def key: Key[SbtModuleData] = SbtModuleData.Key
 }
 
+class SbtSettingNode(val data: SbtSettingData) extends Node[SbtSettingData] {
+  def this(label:String, description: String, rank: Int) = this(new SbtSettingData(SbtProjectSystem.Id, label, description, rank))
+  override protected def key: Key[SbtSettingData] = SbtSettingData.Key
+}
+
+class SbtTaskNode(val data: SbtTaskData) extends Node[SbtTaskData] {
+  def this(label:String, description: String, rank: Int) = this(new SbtTaskData(SbtProjectSystem.Id, label, description, rank))
+  override protected def key: Key[SbtTaskData] = SbtTaskData.Key
+}
+
 class ModuleExtNode(val data: ModuleExtData)
   extends Node[ModuleExtData] {
   def this(scalaVersion: Option[Version], scalacClasspath: Seq[File], scalacOptions: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String]) {
     this(new ModuleExtData(SbtProjectSystem.Id, scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions))
   }
-
   protected def key = ModuleExtData.Key
 }
 
@@ -124,6 +134,7 @@ class SbtBuildModuleNode(val data: SbtBuildModuleData)
 
   protected def key = SbtBuildModuleData.Key
 }
+
 
 abstract class Node[T] {
   private var children = Vector.empty[Node[_]]

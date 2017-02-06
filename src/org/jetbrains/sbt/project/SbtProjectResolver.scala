@@ -189,8 +189,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     new ModuleExtNode(scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions)
   }
 
-  private def createSbtModuleData(project: sbtStructure.ProjectData): SbtModuleNode =
-    new SbtModuleNode(project.id, project.buildURI)
+  private def createSbtModuleData(project: sbtStructure.ProjectData): SbtModuleNode = {
+    val node = new SbtModuleNode(project.id, project.buildURI)
+    val tasks = project.tasks.map(t => new SbtTaskNode(t.label, t.description.getOrElse(""), t.rank))
+    val settings = project.settings.map(s => new SbtSettingNode(s.label, s.description.getOrElse(""), s.rank))
+    node.addAll(tasks)
+    node.addAll(settings)
+    node
+  }
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {
     new AndroidFacetNode(android.targetVersion, android.manifest, android.apk,
