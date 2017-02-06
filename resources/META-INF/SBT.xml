@@ -47,6 +47,8 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtSettingDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtTaskDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
         <externalProjectDataService
                 implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>
