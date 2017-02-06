@@ -10,6 +10,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.CompositeLibrariesLoader
 import org.jetbrains.plugins.scala.debugger.Compilable
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -42,11 +43,13 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
 
     implicit val metaModule = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", root)
-    val loader = new DisposableScalaLibraryLoader()
-    loader.init(scalaSdkVersion)
+    implicit val version = scalaSdkVersion
 
-    addAllMetaLibraries
-    enableParadisePlugin
+    CompositeLibrariesLoader(
+      new DisposableScalaLibraryLoader() +: additionalLibraries(metaModule)
+    ).init(scalaSdkVersion)
+
+    enableParadisePlugin(metaModule)
 
     extensions.inWriteAction {
       val modifiableRootModel = ModuleRootManager.getInstance(myModule).getModifiableModel
