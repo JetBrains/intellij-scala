@@ -121,7 +121,8 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
     toolWindow.activate(null, true)
     val content = toolWindow.getContentManager.findContent(consoleTitle)
-    toolWindow.getContentManager.setSelectedContent(content, true)
+    if (content != null)
+      toolWindow.getContentManager.setSelectedContent(content, true)
   }
 
 
