@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement.withQualifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -329,38 +329,59 @@ object TypeAdjuster extends ApplicationAdapter {
         case _ => typeText
       }
 
+      def pathAndPrefixed(qual: String, prefixLength: Int): Option[(String, String)] = {
+        val words = ScalaNamesUtil.splitName(qual)
+        if (words.size > prefixLength) {
+          val packageName = words.dropRight(prefixLength).mkString(".")
+          val prefixed = words.takeRight(prefixLength + 1).mkString(".")
+          Some((packageName, prefixed))
+        }
+        else None
+      }
+
+      def update(newTypeText: String, pathsToImport: Seq[String]) =
+        copy(replacement = addSingletonType(newTypeText), resolve = Some(target), pathsToImport = pathsToImport)
+
       target match {
         case cl: PsiClass if needPrefix(cl) =>
-          val words = cl.qualifiedName.split('.')
-          val withPrefix = words.takeRight(2).mkString(".")
-          val packageName = words.dropRight(1).mkString(".")
-          copy(replacement = addSingletonType(withPrefix), resolve = Some(cl), pathsToImport = Seq(packageName))
+          pathAndPrefixed(cl.qualifiedName, 1) match {
+            case Some((packageName, prefixed)) =>
+              update(prefixed, Seq(packageName))
+            case _ => this
+          }
         case _ =>
-          val name = target.name
-
-          val alreadyResolvesToSameName = resolve match {
-            case Some(named: PsiNamedElement) =>
-              named.name == name && alreadyResolves(name)
-            case _ => false
-          }
-
-          if (alreadyResolvesToSameName) copy(replacement = addSingletonType(name), pathsToImport = Seq.empty)
-          else {
-            val withoutImport = copy(replacement = addSingletonType(name), resolve = Some(target), pathsToImport = Seq.empty)
-
-            if (withoutImport.checkReplacementResolve) withoutImport
-            else withoutImport.copy(pathsToImport = ScalaNamesUtil.qualifiedName(target).toSeq)
-          }
+          ScalaNamesUtil.qualifiedName(target).flatMap { qualName =>
+            val addingPrefixesIterator =
+              Iterator.from(0)
+                .map(pathAndPrefixed(qualName, _))
+                .takeWhile(_.isDefined)
+                .flatten
+            addingPrefixesIterator.collectFirst {
+              case (_, prefixed) if resolvesRight(prefixed) =>
+                update(prefixed, Seq.empty)
+              case (path, prefixed) if !resolvesWrong(prefixed) =>
+                update(prefixed, Seq(path))
+            }
+          }.getOrElse(this)
       }
     }
 
-    override def checkReplacementResolve: Boolean = alreadyResolves(replacement)
+    override def checkReplacementResolve: Boolean = resolvesRight(replacement)
 
-    private def alreadyResolves(refText: String) = {
+    private def resolvesRight(refText: String): Boolean = alreadyResolves(refText).getOrElse(false)
+    private def resolvesWrong(refText: String): Boolean = alreadyResolves(refText).contains(false)
+
+    private def alreadyResolves(refText: String): Option[Boolean] = {
+      def areEquivTypes(e1: PsiNamedElement, e2: PsiNamedElement): Boolean = {
+        ScDesignatorType(e1).equiv(ScDesignatorType(e2))(e1.typeSystem)
+      }
+
       val ref = newRef(refText, origElement)
       (ref.flatMap(_.resolve().toOption), resolve) match {
-        case (Some(e1), Some(e2)) => ScEquivalenceUtil.smartEquivalence(e1, e2)
-        case _ => false
+        case (Some(e1: PsiNamedElement), Some(e2: PsiNamedElement)) =>
+          Some(ScEquivalenceUtil.smartEquivalence(e1, e2) || areEquivTypes(e1, e2))
+        case (Some(_), _) => Some(false)
+        case _ => None
       }
     }
 
@@ -368,7 +389,7 @@ object TypeAdjuster extends ApplicationAdapter {
       val fromSettings = ScalaCodeStyleSettings.getInstance(origElement.getProject).hasImportWithPrefix(c.qualifiedName)
       def forInnerClass = {
         val isExternalRefToInnerClass = Option(c.containingClass).exists(!_.isAncestorOf(origElement))
-        isExternalRefToInnerClass && !alreadyResolves(c.name)
+        isExternalRefToInnerClass && !resolvesRight(c.name)
       }
 
       fromSettings || forInnerClass

@@ -5,10 +5,10 @@ object A {
 }
 
 /*
-import java.lang.Boolean
+import java.lang
 import java.util.{Comparator => C}
 
 object A {
-  val comparator: C[Boolean] = null
+  val comparator: C[lang.Boolean] = null
 }
 */

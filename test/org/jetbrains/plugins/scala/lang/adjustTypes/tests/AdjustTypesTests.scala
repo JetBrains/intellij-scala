@@ -17,6 +17,8 @@ class AdjustTypesTests extends AdjustTypesTestBase {
 
   def testJavaWithImportAlias() = doTest()
 
+  def testNameConflicts() = doTest()
+
   def testJavaInnerClasses() = doTest()
 
   def testPackagings() = doTest()
