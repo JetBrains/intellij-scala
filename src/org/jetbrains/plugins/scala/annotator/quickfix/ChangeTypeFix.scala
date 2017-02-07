@@ -12,9 +12,18 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends IntentionAction {
-  val getText: String = "Change type '%s' to '%s'".format(typeElement.getText, newType.presentableText)
+
+  val getText: String = {
+    val (oldTypeDescripton, newTypeDescription) = typeElement.getType() match {
+      case Success(oldType, _) => ScTypePresentation.different(oldType, newType)
+      case _ => (typeElement.getText, newType.presentableText)
+    }
+    s"Change type '$oldTypeDescripton' to '$newTypeDescription'"
+  }
 
   def getFamilyName: String = "Change Type"
 
