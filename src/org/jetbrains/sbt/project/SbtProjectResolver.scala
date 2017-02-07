@@ -146,7 +146,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
-      moduleNode.add(createSbtModuleData(project))
+      moduleNode.add(new SbtModuleNode(project.id, project.buildURI))
+      moduleNode.addAll(createTaskData(project))
+      moduleNode.addAll(createSettingData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
@@ -189,13 +191,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     new ModuleExtNode(scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions)
   }
 
-  private def createSbtModuleData(project: sbtStructure.ProjectData): SbtModuleNode = {
-    val node = new SbtModuleNode(project.id, project.buildURI)
-    val tasks = project.tasks.map(t => new SbtTaskNode(t.label, t.description.getOrElse(""), t.rank))
-    val settings = project.settings.map(s => new SbtSettingNode(s.label, s.description.getOrElse(""), s.rank))
-    node.addAll(tasks)
-    node.addAll(settings)
-    node
+
+  private def createTaskData(project: sbtStructure.ProjectData): Seq[SbtTaskNode] = {
+    project.tasks.map { t =>
+      new SbtTaskNode(t.label, t.description.getOrElse(""), t.rank)
+    }
+  }
+
+  private def createSettingData(project: sbtStructure.ProjectData): Seq[SbtSettingNode] = {
+    project.settings.map { s =>
+      new SbtSettingNode(s.label, s.description.getOrElse(""), s.rank)
+    }
   }
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {

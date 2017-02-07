@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 import org.jetbrains.sbt.resolvers.SbtResolver
-import org.jetbrains.sbt.structure.TaskData
 
 /**
   * @author Pavel Fatin
