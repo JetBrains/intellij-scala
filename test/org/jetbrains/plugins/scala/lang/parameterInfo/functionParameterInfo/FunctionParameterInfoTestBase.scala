@@ -46,22 +46,8 @@ abstract class FunctionParameterInfoTestBase extends ScalaLightPlatformCodeInsig
     val context = createInfoContext(file, offset)
     val actual = handleUI(findElementAt(offset), context)
 
-    val lastPsi = findElementAt()
-    val text = lastPsi.getText
-    val outputs = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => Seq(text.substring(2).trim)
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).split("<--->").toSeq.map { output =>
-          output.trim
-        }
-      case _ =>
-        fail("Test result must be in last comment statement.")
-        Seq.empty
-    }
-
-    val output = outputs.find(_ == actual).getOrElse(outputs.head)
-
-    assertEquals(output, actual)
+    val expected = expectedSignatures(findElementAt())
+    assertTrue(expected.contains(actual))
   }
 
   private def createInfoContext(file: VirtualFile, offset: Int) = {
@@ -85,7 +71,7 @@ object FunctionParameterInfoTestBase {
   private val CARET_MARKER = "/*caret*/"
 
   private def handleUI(element: PsiElement,
-                       context: ShowParameterInfoContext): String = {
+                       context: ShowParameterInfoContext): Seq[String] = {
     val handler = new ScalaFunctionParameterInfoHandler
     handler.findElementForParameterInfo(context)
 
@@ -99,7 +85,7 @@ object FunctionParameterInfoTestBase {
       handler.updateUI(item, uiContext)
     }
 
-    items.mkString(System.lineSeparator)
+    items.toSeq.flatMap(normalize)
   }
 
   private def createInfoUIContext(parameterOwner: PsiElement)
@@ -121,4 +107,22 @@ object FunctionParameterInfoTestBase {
 
     def setUIComponentEnabled(enabled: Boolean): Unit = {}
   }
+
+  private def expectedSignatures(lastElement: PsiElement): Seq[Seq[String]] = {
+    val dropRight = lastElement.getNode.getElementType match {
+      case ScalaTokenTypes.tLINE_COMMENT => 0
+      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT => 2
+    }
+
+    val text = lastElement.getText
+    text.substring(2, text.length - dropRight)
+      .split("<--->")
+      .map(normalize)
+  }
+
+  private def normalize(string: String) =
+    string.split(System.lineSeparator)
+      .map(_.trim)
+      .filterNot(_.isEmpty)
+      .toSeq
 }
