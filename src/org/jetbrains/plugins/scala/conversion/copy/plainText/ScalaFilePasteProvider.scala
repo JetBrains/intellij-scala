@@ -12,9 +12,11 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
+
+import scala.util.Try
 
 /**
   * Created by Kate Ustyuzhanina on 12/13/16.
@@ -35,8 +37,8 @@ class ScalaFilePasteProvider extends PasteProvider {
 
     if (optScalaFile.isEmpty || optTargetDir.isEmpty) return
 
-    extensions.inWriteCommandAction(project) {
-      try {
+    Try {
+      extensions.inWriteCommandAction(project) {
         val scalaFile = optScalaFile.get
         val directory = optTargetDir.get
         val file = directory.createFile(fileName(scalaFile))
@@ -48,10 +50,9 @@ class ScalaFilePasteProvider extends PasteProvider {
           updatePackageStatement(file, directory, project)
           new OpenFileDescriptor(project, file.getVirtualFile).navigate(true)
         }
-      } catch {
-        case e: IncorrectOperationException =>
-          Messages.showErrorDialog(project, e.getMessage, "Paste")
       }
+    } recover  {
+      case e: IncorrectOperationException => Messages.showErrorDialog(project, e.getMessage, "Paste")
     }
   }
 
@@ -59,11 +60,9 @@ class ScalaFilePasteProvider extends PasteProvider {
     if (!file.isInstanceOf[ScalaFile]) return
     CommandProcessor.getInstance.executeCommand(project, new Runnable {
       def run() {
-        try {
+        Try {
           Option(JavaDirectoryService.getInstance.getPackage(targetDir))
             .foreach(dir => file.asInstanceOf[ScalaFile].setPackageName(dir.getQualifiedName))
-        } catch {
-          case _: IncorrectOperationException => //do nothing
         }
       }
     }, "Updating package statement", null)
