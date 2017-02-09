@@ -76,7 +76,6 @@ object CompilationData {
     }
   }
 
-
   def checkOrCreate(output: File) {
     if (!output.exists()) {
       try {
@@ -88,8 +87,12 @@ object CompilationData {
   }
 
   def outputsNotSpecified(chunk: ModuleChunk): Option[String] = {
-    chunk.getTargets.asScala.find(_.getOutputDir == null)
-            .map("Output directory not specified for module " + _.getModule.getName)
+    val moduleNames = chunk.getTargets.asScala.filter(_.getOutputDir == null).map(_.getModule.getName)
+    moduleNames.toSeq match {
+      case Seq() => None
+      case Seq(name) => Some(s"Output directory not specified for module $name")
+      case names => Some(names.mkString(s"Output directory not specified for modules ", ", ", ""))
+    }
   }
 
   private def javaOptionsFor(context: CompileContext, chunk: ModuleChunk): Seq[String] = {
@@ -133,13 +136,8 @@ object CompilationData {
   }
 
   private def createOutputToCacheMap(context: CompileContext): Either[String, Map[File, File]] = {
-    val targetToOutput = targetsIn(context).map { target =>
-      val outputDir = target.getOutputDir
-
-      if (outputDir == null)
-        throw new RuntimeException("Output directory not specified for module " + target.getModule.getName)
-
-      (target, outputDir)
+    val targetToOutput = targetsIn(context).collect {
+      case target if target.getOutputDir != null => (target, target.getOutputDir)
     }
 
     outputClashesIn(targetToOutput).toLeft {
@@ -153,6 +151,7 @@ object CompilationData {
   private def createOutputGroups(chunk: ModuleChunk): Seq[(File, File)] = {
     for {
       target <- chunk.getTargets.asScala.toSeq
+      if target.getOutputDir != null
       module = target.getModule
       output = target.getOutputDir.getCanonicalFile
       sourceRoot <- module.getSourceRoots.asScala.map(_.getFile.getCanonicalFile)
