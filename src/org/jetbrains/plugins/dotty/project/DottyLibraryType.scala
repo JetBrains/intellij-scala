@@ -17,7 +17,7 @@ class DottyLibraryType extends LibraryType[ScalaLibraryProperties](DottyLibraryK
 
   override def getIcon = Icons.SCALA_SDK
 
-  override def getIcon(properties: LibraryProperties[_]): Icon = Icons.SCALA_SDK
+  override def getIcon(properties: ScalaLibraryProperties): Icon = Icons.SCALA_SDK
 
   def getCreateActionName = "Dotty SDK"
 

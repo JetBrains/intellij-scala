@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import java.awt.event.MouseEvent
+import java.awt.geom.Point2D
 import java.awt.{Insets, Point}
 import java.util
 import javax.swing.JComponent
@@ -117,4 +118,8 @@ class EditorStub extends Editor {
 
     override def getElementAt(point: Point): Inlay = null
   }
+
+  override def xyToVisualPosition(p: Point2D): VisualPosition = null
+
+  override def visualPositionToPoint2D(pos: VisualPosition): Point2D = null
 }

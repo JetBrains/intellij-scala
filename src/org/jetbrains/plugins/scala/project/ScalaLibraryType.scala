@@ -15,7 +15,7 @@ import javax.swing.{Icon, JComponent}
 class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryKind) {
   override def getIcon = Icons.SCALA_SDK
 
-  override def getIcon(properties: LibraryProperties[_]): Icon = Icons.SCALA_SDK
+  override def getIcon(properties: ScalaLibraryProperties): Icon = Icons.SCALA_SDK
 
   def getCreateActionName = "Scala SDK"
 

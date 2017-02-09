@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import java.awt.Point
+import java.awt.geom.Point2D
 import java.util
 
 import com.intellij.openapi.Disposable
@@ -46,4 +47,8 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
     new CaretModelMock(offset, offsetToLogicalPosition(offset))
 
   override def offsetToVisualPosition(i: Int, b: Boolean, b1: Boolean): VisualPosition = null
+
+  override def xyToVisualPosition(p: Point2D): VisualPosition = null
+
+  override def visualPositionToPoint2D(pos: VisualPosition): Point2D = null
 }

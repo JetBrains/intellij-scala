@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.completion.{CompletionLookupArranger, CompletionType, LightFixtureCompletionTestCase}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
+import com.intellij.codeInsight.completion.{CompletionType, LightFixtureCompletionTestCase, StatisticsUpdate}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
+import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import com.intellij.ide.ui.UISettings
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
@@ -69,8 +69,8 @@ abstract class ScalaCompletionSortingTestCase(completionType: CompletionType,
     def imitateItemSelection(lookup: LookupImpl, index: Int): Unit = {
       val item: LookupElement = lookup.getItems.get(index)
       lookup.setCurrentItem(item)
-      CompletionLookupArranger.collectStatisticChanges(item, lookup)
-      CompletionLookupArranger.applyLastCompletionStatisticsUpdate()
+      StatisticsUpdate.collectStatisticChanges(item)
+      StatisticsUpdate.applyLastCompletionStatisticsUpdate()
     }
 
     imitateItemSelection(lookup, index)
@@ -80,7 +80,7 @@ abstract class ScalaCompletionSortingTestCase(completionType: CompletionType,
   @throws[Exception]
   override def tearDown() {
     LookupManager.getInstance(getProject).hideActiveLookup()
-    UISettings.getInstance.SORT_LOOKUP_ELEMENTS_LEXICOGRAPHICALLY = false
+    UISettings.getInstance.setSortLookupElementsLexicographically(false)
     CodeInsightSettings.getInstance.COMPLETION_CASE_SENSITIVE = CodeInsightSettings.FIRST_LETTER
     super.tearDown()
   }
