@@ -20,12 +20,14 @@ import scala.collection.mutable
   */
 object PlainTextCopyUtil {
   /**
-    * Treat scala file as valid if it doesn't contain ";\n" && parsed correctly
+    * Treat scala file as valid if it doesn't contain ";\n" or one word text or parsed correctly
     */
   def isValidScalaFile(text: String, project: Project): Boolean = {
     def withLastSemicolon(text: String): Boolean = (!text.contains("\n") && text.contains(";")) || text.contains(";\n")
+    def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
     if (text == null || project == null || withLastSemicolon(text)) false
+    else if (isOneWord(text)) true
     else createScalaFile(text, project).exists(isParsedCorrectly)
   }
 
