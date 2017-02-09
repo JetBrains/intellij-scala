@@ -216,7 +216,10 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   private def sameSourceFiles(): Boolean = {
     def numberOfFiles(dir: File): Int = dir match {
-      case d: File if d.isDirectory => d.listFiles().map(numberOfFiles).sum
+      case d: File if d.isDirectory =>
+        val listFiles = d.listFiles()
+        Assert.assertTrue(s"listFiles() is null for directory: ${d.getAbsolutePath}", listFiles != null)
+        listFiles.map(numberOfFiles).sum
       case f => 1
     }
     val existingFilesNumber = numberOfFiles(srcDir)
