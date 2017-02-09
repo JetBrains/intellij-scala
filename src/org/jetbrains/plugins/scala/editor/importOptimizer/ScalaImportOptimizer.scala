@@ -95,7 +95,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val counter = new AtomicInteger(0)
 
     def processAllElementsConcurrentlyUnderProgress[T <: PsiElement](elements: util.List[T])(action: T => Unit) = {
-      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, true, new Processor[T] {
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, new Processor[T] {
         override def process(element: T): Boolean = {
           val count: Int = counter.getAndIncrement
           if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
@@ -167,7 +167,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def getImportTextCreator: ImportTextCreator = new ImportTextCreator
 
-  protected def isImportDelimiter(psi: PsiElement) = psi.isInstanceOf[PsiWhiteSpace]
+  protected def isImportDelimiter(psi: PsiElement): Boolean = psi.isInstanceOf[PsiWhiteSpace]
 
   def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] && file.getViewProvider.getAllFiles.size() < 3
 
@@ -380,7 +380,7 @@ object ScalaImportOptimizer {
       val root = if (rootUsed) s"${_root_prefix}." else ""
       val postfix =
         if (groupStrings.length > 1 || renames.nonEmpty || hiddenNames.nonEmpty) groupStrings.mkString(s"{$space", ", ", s"$space}")
-        else groupStrings(0)
+        else groupStrings.head
       val prefix = s"$root${relative.getOrElse(prefixQualifier)}"
       val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
       s"import $prefix$dotOrNot$postfix"
@@ -733,27 +733,6 @@ object ScalaImportOptimizer {
     val lText = textCreator.getImportText(lInfo, settings)
     val rText = textCreator.getImportText(rInfo, settings)
     ScalaImportOptimizer.greater(lPrefix, rPrefix, lText, rText, settings)
-  }
-
-  private def importsUsedFor(expr: ScExpression): Set[ImportUsed] = {
-    val res = mutable.HashSet[ImportUsed]()
-
-    res ++= expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType()).importsUsed
-
-    expr match {
-      case call: ScMethodCall => res ++= call.getImportsUsed
-      case f: ScForStatement => res ++= ScalaPsiUtil.getExprImports(f)
-      case _ =>
-    }
-
-    expr.findImplicitParameters match {
-      case Some(seq) =>
-        for (rr <- seq if rr != null) {
-          res ++= rr.importsUsed
-        }
-      case _ =>
-    }
-    res.toSet
   }
 
   private def collectImportsUsed(element: PsiElement, imports: util.Set[ImportUsed], names: util.Set[UsedName]): Unit = {
