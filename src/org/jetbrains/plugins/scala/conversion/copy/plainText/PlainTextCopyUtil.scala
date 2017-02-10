@@ -24,17 +24,15 @@ object PlainTextCopyUtil {
     */
   def isValidScalaFile(text: String, project: Project): Boolean = {
     def withLastSemicolon(text: String): Boolean = (!text.contains("\n") && text.contains(";")) || text.contains(";\n")
+
     def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
-    if (text == null || project == null || withLastSemicolon(text)) false
+    if (withLastSemicolon(text)) false
     else if (isOneWord(text)) true
     else createScalaFile(text, project).exists(isParsedCorrectly)
   }
 
-  def isValidJavaFile(text: String, project: Project): Boolean = {
-    if (text == null || project == null) false
-    else createJavaFile(text, project).exists(isParsedCorrectly)
-  }
+  def isValidJavaFile(text: String, project: Project): Boolean = createJavaFile(text, project).exists(isParsedCorrectly)
 
   def isParsedCorrectly(file: PsiFile): Boolean = {
     lazy val javaPossibleErrors: mutable.HashSet[String] = mutable.HashSet[String](

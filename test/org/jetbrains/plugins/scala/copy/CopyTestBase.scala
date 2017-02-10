@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.copy
 import com.intellij.openapi.actionSystem.IdeActions
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.TestUtils.CARET_MARKER
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
 /**
   * Created by Kate Ustyuzhanina on 12/28/16.
   */
-abstract class CopyTestBase(fromLang: Lang, toLang: Lang) extends ScalaLightCodeInsightFixtureTestAdapter {
+abstract class CopyTestBase() extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
 
@@ -17,20 +18,20 @@ abstract class CopyTestBase(fromLang: Lang, toLang: Lang) extends ScalaLightCode
   override protected def setUp(): Unit = {
     super.setUp()
 
-    oldSettings = ScalaCodeStyleSettings.getInstance(getProject).clone().asInstanceOf[ScalaCodeStyleSettings]
+    oldSettings = ScalaCodeStyleSettings.getInstance(getProject)
     TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
   }
 
   def doTest(fromText: String, toText: String, expectedText: String): Unit = {
-    myFixture.configureByText("from" + langToName(fromLang), normalize(fromText))
+    myFixture.configureByText("from" + "Dummy" + fromLangExtension, normalize(fromText))
     myFixture.performEditorAction(IdeActions.ACTION_COPY)
-    myFixture.configureByText("to" + langToName(toLang), normalize(toText))
+    myFixture.configureByText("to" + "Dummy" + toLangExtension, normalize(toText))
     myFixture.performEditorAction(IdeActions.ACTION_PASTE)
     myFixture.checkResult(expectedText)
   }
 
-  def doTestEmptyToFile(fromText: String, expectedText: String): Unit ={
-    doTest(fromText, emptyFileText, expectedText)
+  def doTestEmptyToFile(fromText: String, expectedText: String): Unit = {
+    doTest(fromText, CARET_MARKER, expectedText)
   }
 
   override def tearDown(): Unit = {
@@ -39,18 +40,6 @@ abstract class CopyTestBase(fromLang: Lang, toLang: Lang) extends ScalaLightCode
     super.tearDown()
   }
 
-  val emptyFileText = "<caret>"
-
-  private def langToName(lang: Lang): String = {
-    lang match {
-      case Scala() => "Dummy.scala"
-      case Java() => "Dummy.java"
-      case Text() => "Dummy.txt"
-    }
-  }
+  val toLangExtension: String = ".scala"
+  val fromLangExtension: String
 }
-
-sealed abstract class Lang
-case class Scala() extends Lang
-case class Java() extends Lang
-case class Text() extends Lang

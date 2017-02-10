@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
-import java.awt.datatransfer.DataFlavor
+import java.awt.datatransfer.DataFlavor.stringFlavor
 
-import com.intellij.ide.PasteProvider
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys}
-import com.intellij.openapi.command.CommandProcessor
+import com.intellij.ide.{IdeView, PasteProvider}
+import com.intellij.openapi.actionSystem.LangDataKeys.{IDE_VIEW, MODULE}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.Messages.showErrorDialog
 import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, startCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -24,61 +25,77 @@ import scala.util.Try
 
 class ScalaFilePasteProvider extends PasteProvider {
 
+  import ScalaFilePasteProvider._
+
+  def fileName(scalaFile: ScalaFile): String =
+    scalaFile.typeDefinitions.headOption.map(_.name).getOrElse("scriptFile") + ".scala"
+
   override def performPaste(dataContext: DataContext): Unit = {
+    val text: String = CopyPasteManager.getInstance.getContents(stringFlavor)
+    implicit val context = dataContext
 
-    def fileName(scalaFile: ScalaFile): String =
-      scalaFile.typeDefinitions.headOption.map(_.name + ".scala").getOrElse("scriptFile.scala")
-
-    val text: String = CopyPasteManager.getInstance.getContents(DataFlavor.stringFlavor)
-    val project = CommonDataKeys.PROJECT.getData(dataContext)
-
-    val optScalaFile = Option(project).flatMap(PlainTextCopyUtil.createScalaFile(text, _))
-    val optTargetDir = Option(LangDataKeys.IDE_VIEW.getData(dataContext)).flatMap(_.getOrChooseDirectory.toOption)
-
-    if (optScalaFile.isEmpty || optTargetDir.isEmpty) return
-
-    Try {
-      extensions.inWriteCommandAction(project) {
-        val scalaFile = optScalaFile.get
-        val directory = optTargetDir.get
-        val file = directory.createFile(fileName(scalaFile))
-
-        Option(PsiDocumentManager.getInstance(project).getDocument(file)).foreach { document =>
-          document.setText(scalaFile.getText)
-          PsiDocumentManager.getInstance(project).commitDocument(document)
-
-          updatePackageStatement(file, directory, project)
-          new OpenFileDescriptor(project, file.getVirtualFile).navigate(true)
-        }
-      }
-    } recover  {
-      case e: IncorrectOperationException => Messages.showErrorDialog(project, e.getMessage, "Paste")
+    maybeProject.flatMap(PlainTextCopyUtil.createScalaFile(text, _)).zip {
+      maybeIdeView.flatMap(_.getOrChooseDirectory.toOption)
+    }.foreach {
+      case (scalaFile, directory) => createFileInDirectory(fileName(scalaFile), text, directory, scalaFile.getProject)
     }
   }
 
-  private def updatePackageStatement(file: PsiFile, targetDir: PsiDirectory, project: Project) {
-    if (!file.isInstanceOf[ScalaFile]) return
-    CommandProcessor.getInstance.executeCommand(project, new Runnable {
-      def run() {
+  private def createFileInDirectory(fileName: String, fileText: String, directory: PsiDirectory, project: Project) = {
+    Try {
+      extensions.inWriteCommandAction(project) {
+        val file = directory.createFile(fileName).asInstanceOf[ScalaFile]
+        val documentManager = PsiDocumentManager.getInstance(project)
+
+        Option(documentManager.getDocument(file))
+          .foreach { document =>
+            document.setText(fileText)
+            documentManager.commitDocument(document)
+            updatePackageStatement(file, directory, project)
+
+            new OpenFileDescriptor(project, file.getVirtualFile)
+              .navigate(true)
+          }
+      }
+    }.recover {
+      case e: IncorrectOperationException => showErrorDialog(project, e.getMessage, "Paste")
+    }
+  }
+
+  private def updatePackageStatement(file: ScalaFile, targetDir: PsiDirectory, project: Project) =
+    startCommand(project, new Runnable {
+      def run(): Unit = {
         Try {
-          Option(JavaDirectoryService.getInstance.getPackage(targetDir))
-            .foreach(dir => file.asInstanceOf[ScalaFile].setPackageName(dir.getQualifiedName))
+          Some(JavaDirectoryService.getInstance)
+            .flatMap(_.getPackage(targetDir).toOption)
+            .map(_.getQualifiedName)
+            .foreach(file.setPackageName)
         }
       }
-    }, "Updating package statement", null)
-  }
+    }, "Updating package statement")
 
-  override def isPastePossible(dataContext: DataContext): Boolean = {
-    true
-  }
+  override def isPastePossible(dataContext: DataContext): Boolean = true
 
   override def isPasteEnabled(dataContext: DataContext): Boolean = {
-    Option(LangDataKeys.IDE_VIEW.getData(dataContext)).nonEmpty &&
-      Option(LangDataKeys.MODULE.getData(dataContext)).exists(_.hasScala) && //don't affect NON scala projects even when scala plugin is turn on
-      PlainTextCopyUtil.isValidScalaFile(
-        CopyPasteManager.getInstance.getContents(DataFlavor.stringFlavor),
-        CommonDataKeys.PROJECT.getData(dataContext)
-      )
+    implicit val context = dataContext
+
+    maybeIdeView.nonEmpty &&
+      maybeModule.exists(_.hasScala) && //don't affect NON scala projects even when scala plugin is turn on
+      maybeContent.zip(maybeProject).exists {
+        case (text, project) => PlainTextCopyUtil.isValidScalaFile(text, project)
+      }
   }
 }
 
+object ScalaFilePasteProvider {
+
+  import CommonDataKeys._
+
+  private def maybeProject(implicit context: DataContext): Option[Project] = Option(PROJECT.getData(context))
+
+  private def maybeIdeView(implicit context: DataContext): Option[IdeView] = Option(IDE_VIEW.getData(context))
+
+  private def maybeModule(implicit context: DataContext): Option[Module] = Option(MODULE.getData(context))
+
+  private def maybeContent: Option[String] = Option(CopyPasteManager.getInstance.getContents(stringFlavor))
+}

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 /**
   * Created by Kate Ustuyzhanina on 12/28/16.
   */
-class CopyTextToScala extends CopyTestBase(Text(), Scala()) {
+class CopyTextToScala extends CopyTestBase() {
   override protected def setUp(): Unit = {
     super.setUp()
     ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
@@ -111,4 +111,6 @@ class CopyTextToScala extends CopyTestBase(Text(), Scala()) {
         |}""".stripMargin
     doTestEmptyToFile(fromText, expected)
   }
+
+  override val fromLangExtension: String = ".txt"
 }

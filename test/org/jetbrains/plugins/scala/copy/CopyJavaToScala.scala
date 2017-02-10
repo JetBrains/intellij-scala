@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProj
   *
   * Created by Kate Ustuyzhanina on 12/28/16.
   */
-class CopyJavaToScala extends CopyTestBase(Java(), Scala()) {
+class CopyJavaToScala extends CopyTestBase() {
 
   override def setUp(): Unit = {
     super.setUp()
@@ -80,4 +80,6 @@ class CopyJavaToScala extends CopyTestBase(Java(), Scala()) {
 
     doTestEmptyToFile(fromText, expected)
   }
+
+  override val fromLangExtension: String = ".java"
 }
