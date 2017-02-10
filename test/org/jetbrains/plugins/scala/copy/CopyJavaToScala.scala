@@ -81,5 +81,50 @@ class CopyJavaToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
+  def testPackageWithComment(): Unit = {
+    val fromText =
+      """<selection>//comment before
+        |package qwert;
+        |
+        |import java.util.ArrayList;
+        |import java.util.HashSet;
+        |import java.util.List;
+        |import java.util.Set;
+        |
+        |
+        |public class Test {
+        |    List<Integer> list = new ArrayList<Integer>();
+        |
+        |    private static class Inner {
+        |        void foo() {
+        |            Set<String> st = new HashSet<>();
+        |        }
+        |    }
+        |}</selection>""".stripMargin
+
+    val expected =
+      """//comment before
+        |package qwert
+        |
+        |import java.util
+        |import java.util.{ArrayList, HashSet, List, Set}
+        |
+        |object Test {
+        |
+        |  private class Inner {
+        |    private[qwert] def foo() {
+        |      val st: util.Set[String] = new util.HashSet[String]
+        |    }
+        |  }
+        |
+        |}
+        |
+        |class Test {
+        |  private[qwert] val list: util.List[Integer] = new util.ArrayList[Integer]
+        |}""".stripMargin
+
+    doTestEmptyToFile(fromText, expected)
+  }
+
   override val fromLangExtension: String = ".java"
 }

@@ -11,7 +11,7 @@ import com.intellij.psi.scope._
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer._
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -170,7 +170,10 @@ trait ScImportsHolder extends ScalaPsiElement {
       ourPackageName.contains(pathQualifier)
     }
 
-    getFirstChild match {
+    def firstChildNotCommentWhitespace =
+      this.children.dropWhile(el => el.isInstanceOf[PsiComment] || el.isInstanceOf[PsiWhiteSpace]).headOption
+
+    firstChildNotCommentWhitespace.foreach {
       case pack: ScPackaging if !pack.isExplicit && this.children.filterByType(classOf[ScImportStmt]).isEmpty =>
         pack.addImportsForPaths(paths, refsContainer)
         return
