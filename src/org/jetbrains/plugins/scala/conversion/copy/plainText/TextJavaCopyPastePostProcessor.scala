@@ -109,13 +109,12 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
     val scalaFile = new ScalaCodeFragment(project, JavaToScala.convertPsisToText(elementsToConvert))
 
-    val scalaFileText = scalaFile.getText
-    ConverterUtil.runInspections(scalaFile, project, 0, scalaFileText.length)
-    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, scalaFileText.length, scalaFile))
+    ConverterUtil.runInspections(scalaFile, project, 0, scalaFile.getText.length)
+    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, scalaFile.getText.length, scalaFile))
 
     newLine(convertStatement(javaFile.getPackageStatement)) +
       newLine(convertStatement(javaFile.getImportList)) +
-      scalaFileText
+      scalaFile.getText
   }
 
 
