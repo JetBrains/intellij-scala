@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
 import java.lang.Boolean
+import java.lang.System.lineSeparator
 
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.internal.statistic.UsageTrigger
@@ -47,7 +48,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
       case _ => ("", Array.empty[Association], true)
     }
 
-    if (text == "") {
+    if (text == null || text == "" || project == null) {
       return
     }
 
@@ -66,17 +67,18 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
           val project = javaCodeWithContext.project
 
           createFileWithAdditionalImports(javaCodeWithContext).foreach { javaFile =>
-            val convertedImportText = convertImports(javaFile)
-            val convertedTextWithoutImports = convert(javaFile, javaCodeWithContext.context, project)
+            val convertedText = convert(javaFile, javaCodeWithContext.context, project)
 
-            ConverterUtil.replaceByConvertedCode(editor, bounds, s"$convertedImportText$convertedTextWithoutImports")
+            ConverterUtil.replaceByConvertedCode(editor, bounds, convertedText)
 
-            editor.getCaretModel.moveToOffset(bounds.getStartOffset + convertedTextWithoutImports.length)
+            editor.getCaretModel.moveToOffset(bounds.getStartOffset + convertedText.length)
 
             ConverterUtil.withSpecialStyleIn(project) {
               val manager = CodeStyleManager.getInstance(project)
-              manager.reformatText(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument),
-                bounds.getStartOffset, bounds.getStartOffset + convertedTextWithoutImports.length)
+              manager.reformatText(
+                PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument),
+                bounds.getStartOffset, bounds.getStartOffset + convertedText.length
+              )
             }
           }
         }
@@ -85,31 +87,37 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
   }
 
   def convert(javaFile: PsiJavaFile, context: CopyContext, project: Project): String = {
-    val text = javaFile.getText
+    def convertStatement(psiElement: PsiElement): String =
+      Option(psiElement).map(holder => JavaToScala.convertPsisToText(Array(holder))).getOrElse("")
 
-    // TODO: more clevere
-    val importPrefix = javaFile.getImportList.getTextRange.getEndOffset
+    def newLine(text: String): String = if (text == "") text else text + lineSeparator()
+
+    val javaFileLen = javaFile.getText.length
+    val (begin, end) = context match {
+      case _: FileContext => (0, javaFileLen)
+      case part =>
+        (part.prefix.length + javaFile.getImportList.getTextRange.getEndOffset,
+          javaFileLen - part.prefix.length)
+    }
+
     val elementsToConvert =
       ConverterUtil.collectTopElements(
-        context.prefix.length + importPrefix,
-        text.length - context.postfix.length,
+        begin,
+        end,
         javaFile
-      )
+      ).filterNot(el => el.isInstanceOf[PsiImportList] || el.isInstanceOf[PsiPackageStatement])
 
-    val scalaFile =
-      new ScalaCodeFragment(project,
-        JavaToScala.convertPsisToText(elementsToConvert)
-      )
+    val scalaFile = new ScalaCodeFragment(project, JavaToScala.convertPsisToText(elementsToConvert))
 
-    ConverterUtil.runInspections(scalaFile, project, 0, scalaFile.getText.length)
-    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, scalaFile.getText.length, scalaFile))
+    val scalaFileText = scalaFile.getText
+    ConverterUtil.runInspections(scalaFile, project, 0, scalaFileText.length)
+    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, scalaFileText.length, scalaFile))
 
-    scalaFile.getText
+    newLine(convertStatement(javaFile.getPackageStatement)) +
+      newLine(convertStatement(javaFile.getImportList)) +
+      scalaFileText
   }
 
-  def convertImports(imports: PsiJavaFile): String = {
-    Option(imports.getImportList).map(holder => JavaToScala.convertPsisToText(Array(holder))).getOrElse("")
-  }
 
   def createFileWithAdditionalImports(codeWithContext: CodeWithContext): Option[PsiJavaFile] = {
     codeWithContext
@@ -121,11 +129,11 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
   case class FileContext() extends CopyContext("", "")
 
-  case class ClassContext() extends CopyContext("class Dummy { ", "\n}")
+  case class ClassContext() extends CopyContext("class Dummy { ", s"${lineSeparator()}}")
 
-  case class BlockContext() extends CopyContext("class Dummy { void foo () { ", "\n}\n}")
+  case class BlockContext() extends CopyContext("class Dummy { void foo () { ", s"${lineSeparator()}}${lineSeparator()}}")
 
-  case class ExpressionContext() extends CopyContext("class Dummy { Object field =", "\n}")
+  case class ExpressionContext() extends CopyContext("class Dummy { Object field =", s"${lineSeparator()}}")
 
   case class CodeWithContext(text: String, project: Project, context: CopyContext) {
     def parseWithContextAsJava: Boolean =
