@@ -26,13 +26,13 @@ import scala.collection.mutable.ArrayBuffer
   * @author Nikolay.Tropin
   */
 case class ImportInfo(prefixQualifier: String,
-                      relative: Option[String],
-                      allNames: Set[String],
-                      singleNames: Set[String],
-                      renames: Map[String, String],
-                      hiddenNames: Set[String],
-                      hasWildcard: Boolean,
-                      rootUsed: Boolean,
+                      relative: Option[String] = None,
+                      allNames: Set[String] = Set.empty,
+                      singleNames: Set[String] = Set.empty,
+                      renames: Map[String, String] = Map.empty,
+                      hiddenNames: Set[String] = Set.empty,
+                      hasWildcard: Boolean = false,
+                      rootUsed: Boolean = false,
                       isStableImport: Boolean = true,
                       allNamesForWildcard: Set[String] = Set.empty,
                       wildcardHasUnusedImplicit: Boolean = false) {

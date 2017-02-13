@@ -158,6 +158,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   private boolean ADD_FULL_QUALIFIED_IMPORTS = true;
   private boolean DO_NOT_CHANGE_LOCAL_IMPORTS_ON_OPTIMIZE = true;
   private boolean SORT_IMPORTS = true;
+  private boolean SORT_AS_SCALASTYLE = false;
   private boolean COLLECT_IMPORTS_TOGETHER = true;
 
   private String[] ALWAYS_USED_IMPORTS = new String[0];
@@ -252,6 +253,14 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public void setSortImports(boolean value) {
     SORT_IMPORTS = value;
+  }
+
+  public boolean isSortAsScalastyle() {
+    return SORT_AS_SCALASTYLE;
+  }
+
+  public void setSortAsScalastyle(boolean value) {
+    this.SORT_AS_SCALASTYLE = value;
   }
 
   public boolean isCollectImports() {

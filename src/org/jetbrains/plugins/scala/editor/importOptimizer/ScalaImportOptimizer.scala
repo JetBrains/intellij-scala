@@ -47,6 +47,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
 
+  protected def settings(project: Project): OptimizeImportSettings = OptimizeImportSettings(project)
+
   def processFile(file: PsiFile): Runnable = processFile(file, null)
 
   def processFile(file: PsiFile, progressIndicator: ProgressIndicator = null): Runnable = {
@@ -123,8 +125,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
       importsInfo.toSeq.sortBy(_.startOffset)
     }
 
-    val settings = OptimizeImportSettings(project)
-    import settings._
+    val importsSettings = settings(project)
+    import importsSettings._
 
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features
@@ -136,7 +138,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val rangeInfos = collectRanges(createInfo(_, isImportUsed))
 
-    val optimized = rangeInfos.map(range => (range, optimizedImportInfos(range, settings)))
+    val optimized = rangeInfos.map(range => (range, optimizedImportInfos(range, importsSettings)))
 
     new Runnable {
       def run() {
@@ -150,7 +152,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
           else optimized
 
         for ((range, importInfos) <- ranges.reverseIterator) {
-          replaceWithNewImportInfos(range, importInfos, settings, scalaFile)
+          replaceWithNewImportInfos(range, importInfos, importsSettings, scalaFile)
         }
         documentManager.commitDocument(document)
       }
@@ -199,6 +201,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     var prevGroupIndex = -1
     def groupSeparatorsBefore(info: ImportInfo, currentGroupIndex: Int) = {
       if (currentGroupIndex <= prevGroupIndex || prevGroupIndex == -1) ""
+      else if (scalastyleGroups.nonEmpty) newLineWithIndent
       else {
         def isBlankLine(i: Int) = importLayout(i) == ScalaCodeStyleSettings.BLANK_LINE
         val blankLineNumber =
@@ -359,14 +362,16 @@ object ScalaImportOptimizer {
   }
 
   class ImportTextCreator {
-    def getImportText(importInfo: ImportInfo, isUnicodeArrow: Boolean, spacesInImports: Boolean,
-                      sortLexicografically: Boolean): String = {
+    def getImportText(importInfo: ImportInfo,
+                      isUnicodeArrow: Boolean,
+                      spacesInImports: Boolean,
+                      nameOrdering: Option[Ordering[String]]): String = {
       import importInfo._
 
       val groupStrings = new ArrayBuffer[String]
 
       def addGroup(names: Iterable[String]) = {
-        if (sortLexicografically) groupStrings ++= names.toSeq.sorted
+        if (nameOrdering.isDefined) groupStrings ++= names.toSeq.sorted(nameOrdering.get)
         else groupStrings ++= names
       }
 
@@ -386,8 +391,13 @@ object ScalaImportOptimizer {
       s"import $prefix$dotOrNot$postfix"
     }
 
-    def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String =
-      getImportText(importInfo, settings.isUnicodeArrow, settings.spacesInImports, settings.sortImports)
+    def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String = {
+      val ordering =
+        if (settings.scalastyleOrder) Some(ScalastyleSettings.nameOrdering)
+        else if (settings.sortImports) Some(Ordering.String)
+        else None
+      getImportText(importInfo, settings.isUnicodeArrow, settings.spacesInImports, ordering)
+    }
   }
 
   def optimizedImportInfos(rangeInfo: RangeInfo, settings: OptimizeImportSettings): Seq[ImportInfo] = {
@@ -702,20 +712,25 @@ object ScalaImportOptimizer {
     }
   }
 
-  def findGroupIndex(info: String, settings: OptimizeImportSettings): Int = {
-    val groups = settings.importLayout
-    val suitable = groups.filter { group =>
-      group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
-        info.startsWith(group))
-    }
-    val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
-      if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
-      else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
-      else if (r.startsWith(l)) r
-      else l
-    }
+  def findGroupIndex(prefix: String, settings: OptimizeImportSettings): Int = {
+    settings.scalastyleGroups match {
+      case Some(patterns) =>
+        patterns.indexWhere(_.matcher(prefix).matches())
+      case _ =>
+        val groups = settings.importLayout
+        val suitable = groups.filter { group =>
+          group != ScalaCodeStyleSettings.BLANK_LINE && (group == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS ||
+            prefix.startsWith(group))
+        }
+        val elem = suitable.tail.foldLeft(suitable.head) { (l, r) =>
+          if (l == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) r
+          else if (r == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) l
+          else if (r.startsWith(l)) r
+          else l
+        }
 
-    groups.indexOf(elem)
+        groups.indexOf(elem)
+    }
   }
 
   def greater(lPrefix: String, rPrefix: String, lText: String, rText: String, settings: OptimizeImportSettings): Boolean = {
@@ -723,6 +738,8 @@ object ScalaImportOptimizer {
     val rIndex = findGroupIndex(rPrefix, settings)
     if (lIndex > rIndex) true
     else if (rIndex > lIndex) false
+    else if (settings.scalastyleOrder)
+      ScalastyleSettings.compareImports(lPrefix, rPrefix) > 0
     else lText > rText
   }
 

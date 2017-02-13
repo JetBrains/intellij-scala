@@ -1,49 +1,64 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.ImportTextCreator
 import org.junit.Assert
 
 class ImportTextCreatorTest extends TestCase {
-
-  val textCreator = new ImportTextCreator()
+  private val lexOrdering = Some(Ordering.String)
+  private val scalastyleOrdering = Some(ScalastyleSettings.nameOrdering)
+  private val textCreator = new ImportTextCreator()
+  import textCreator.getImportText
 
   def testGetImportText_Root_And_Wildcard(): Unit = {
-    val info = ImportInfo("scala.collection", None, Set.empty, Set.empty, Map.empty, Set.empty, hasWildcard = true, rootUsed = true)
-    Assert.assertEquals("import _root_.scala.collection._", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
+    val info = ImportInfo("scala.collection", hasWildcard = true, rootUsed = true)
+    Assert.assertEquals("import _root_.scala.collection._", getImportText(info, isUnicodeArrow = false, spacesInImports = false, lexOrdering))
   }
 
   def testGetImportText_Hidden(): Unit = {
-    val info = ImportInfo("scala", None, Set.empty, Set.empty, Map.empty, Set("Long"), hasWildcard = false, rootUsed = false)
-    Assert.assertEquals("import scala.{Long => _}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
+    val info = ImportInfo("scala", hiddenNames = Set("Long"))
+    Assert.assertEquals("import scala.{Long => _}", getImportText(info, isUnicodeArrow = false, spacesInImports = false, lexOrdering))
   }
 
   def testGetImportText_Renames(): Unit = {
-    val info = ImportInfo("java.lang", None, Set.empty, Set.empty, Map("Long" -> "JLong"), Set.empty, hasWildcard = false, rootUsed = false)
-    Assert.assertEquals("import java.lang.{Long => JLong}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
+    val info = ImportInfo("java.lang", renames = Map("Long" -> "JLong"))
+    Assert.assertEquals("import java.lang.{Long => JLong}", getImportText(info, isUnicodeArrow = false, spacesInImports = false, lexOrdering))
   }
 
   def testGetImportText_UnicodeArrowAndSpaces(): Unit = {
-    val info = ImportInfo("java.lang", None, Set.empty, Set.empty, Map("Long" -> "JLong"), Set.empty, hasWildcard = false, rootUsed = false)
-    Assert.assertEquals("import java.lang.{ Long ⇒ JLong }", textCreator.getImportText(info, isUnicodeArrow = true, spacesInImports = true, sortLexicografically = true))
+    val info = ImportInfo("java.lang", renames = Map("Long" -> "JLong"))
+    Assert.assertEquals("import java.lang.{ Long ⇒ JLong }", getImportText(info, isUnicodeArrow = true, spacesInImports = true, lexOrdering))
   }
 
   def testGetImportText_SortSingles(): Unit = {
-    val info = ImportInfo("java.lang", None, Set.empty,
-      Set("Long", "Integer", "Float", "Short"), Map.empty, Set.empty, hasWildcard = false, rootUsed = false)
-    Assert.assertEquals("import java.lang.{Float, Integer, Long, Short}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
+    val info = ImportInfo("java.lang", singleNames = Set("Long", "Integer", "Float", "Short"))
+    Assert.assertEquals("import java.lang.{Float, Integer, Long, Short}", getImportText(info, isUnicodeArrow = false, spacesInImports = false, lexOrdering))
   }
 
   def testGetImportText_Renames_Hidden_Singles_Wildcard_Spaces(): Unit = {
-    val info = ImportInfo("java.lang", None, Set.empty, Set("Integer", "Character", "Runtime"),
-      Map("Long" -> "JLong", "Float" -> "JFloat"), Set("System"), hasWildcard = true, rootUsed = false)
+    val info = ImportInfo("java.lang",
+      singleNames = Set("Integer", "Character", "Runtime"),
+      renames = Map("Long" -> "JLong", "Float" -> "JFloat"),
+      hiddenNames = Set("System"),
+      hasWildcard = true)
     Assert.assertEquals("import java.lang.{ Character, Integer, Runtime, Float => JFloat, Long => JLong, System => _, _ }",
-      textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = true, sortLexicografically = true))
+      getImportText(info, isUnicodeArrow = false, spacesInImports = true, lexOrdering))
   }
 
   def testGetImportText_No_Sorting(): Unit = {
-    val info = ImportInfo("java.lang", None, Set.empty,
-      Set("Long", "Integer", "Float", "Short"), Map.empty, Set.empty, hasWildcard = false, rootUsed = false)
-    Assert.assertEquals("import java.lang.{Long, Integer, Float, Short}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = false))
+    val info = ImportInfo("java.lang", singleNames = Set("Long", "Integer", "Float", "Short"))
+    Assert.assertEquals("import java.lang.{Long, Integer, Float, Short}", getImportText(info, isUnicodeArrow = false, spacesInImports = false, nameOrdering = None))
+  }
+
+  def testLexSorting(): Unit = {
+    val info = ImportInfo("java.io", singleNames = Set("InputStream", "IOException", "SequenceInputStream"))
+    Assert.assertEquals("import java.io.{IOException, InputStream, SequenceInputStream}",
+      getImportText(info, isUnicodeArrow = false, spacesInImports = false, lexOrdering))
+  }
+
+  def testScalastyleSorting(): Unit = {
+    val info = ImportInfo("java.io", singleNames = Set("InputStream", "IOException", "SequenceInputStream"))
+    Assert.assertEquals("import java.io.{InputStream, IOException, SequenceInputStream}",
+      getImportText(info, isUnicodeArrow = false, spacesInImports = false, scalastyleOrdering))
   }
 }

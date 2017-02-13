@@ -29,7 +29,7 @@ object ScalastyleCodeInspection {
     }
   }
 
-  private def configuration(project: Project): Option[ScalastyleConfiguration] = {
+  def configuration(project: Project): Option[ScalastyleConfiguration] = {
 
     def latest(scalastyleXml: VirtualFile): Option[ScalastyleConfiguration] = {
       def read(): TimestampedScalastyleConfiguration = {

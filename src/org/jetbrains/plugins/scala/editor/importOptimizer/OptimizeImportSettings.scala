@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
+import java.util.regex.Pattern
+
 import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
@@ -14,9 +17,14 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
                                   spacesInImports: Boolean,
                                   classCountToUseImportOnDemand: Int,
                                   importLayout: Array[String],
-                                  isAlwaysUsedImport: String => Boolean) {
+                                  isAlwaysUsedImport: String => Boolean,
+                                  scalastyleSettings: ScalastyleSettings) {
 
-  private def this(s: ScalaCodeStyleSettings) {
+  def scalastyleGroups: Option[Seq[Pattern]] = scalastyleSettings.groups
+  def scalastyleOrder: Boolean = scalastyleSettings.scalastyleOrder
+
+  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings) {
+
     this(
       s.isAddFullQualifiedImports,
       s.isDoNotChangeLocalImportsOnOptimize,
@@ -26,11 +34,24 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
       s.SPACES_IN_IMPORTS,
       s.getClassCountToUseImportOnDemand,
       s.getImportLayout,
-      s.isAlwaysUsedImport
+      s.isAlwaysUsedImport,
+      scalastyleSettings
     )
   }
 }
 
 object OptimizeImportSettings {
-  def apply(project: Project) = new OptimizeImportSettings(ScalaCodeStyleSettings.getInstance(project))
+  def apply(project: Project): OptimizeImportSettings = {
+    val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
+    val scalastyleSettings =
+      if (codeStyleSettings.isSortAsScalastyle) {
+        val scalastyleConfig = ScalastyleCodeInspection.configuration(project)
+        val scalastyleChecker = scalastyleConfig.flatMap(_.checks.find(_.className == ScalastyleSettings.importOrderChecker))
+        val groups = scalastyleChecker.filter(_.enabled).flatMap(ScalastyleSettings.groups)
+        ScalastyleSettings(scalastyleOrder = true, groups)
+      }
+      else ScalastyleSettings(scalastyleOrder = false, None)
+
+    new OptimizeImportSettings(codeStyleSettings, scalastyleSettings)
+  }
 }

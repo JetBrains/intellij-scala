@@ -6,11 +6,12 @@ package optimize
 import java.io.File
 
 import _root_.com.intellij.psi.impl.source.tree.TreeUtil
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
+import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -24,6 +25,12 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
 abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def folderPath: String = baseRootPath() + "optimize/"
+
+  protected def settings = OptimizeImportSettings(getProjectAdapter)
+
+  def importOptimizer = new ScalaImportOptimizer() {
+    override def settings(project: Project): OptimizeImportSettings = OptimizeImportsTestBase.this.settings
+  }
 
   protected def doTest() {
     import _root_.junit.framework.Assert._
@@ -39,7 +46,7 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
     var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
 
     if (getTestName(true).startsWith("sorted")) ScalaCodeStyleSettings.getInstance(getProjectAdapter).setSortImports(true)
-    ScalaUtils.runWriteActionDoNotRequestConfirmation(new ScalaImportOptimizer().processFile(scalaFile), getProjectAdapter, "Test")
+    ScalaUtils.runWriteActionDoNotRequestConfirmation(importOptimizer.processFile(scalaFile), getProjectAdapter, "Test")
     res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
 
     lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
