@@ -389,7 +389,6 @@ class ScalaPsiManager(val project: Project) {
 
   def incModificationCount(): Long = modificationTracker.incModificationCount()
 
-  @TestOnly
   def clearAllCaches(): Unit = {
     clearOnChange()
     clearOnOutOfCodeBlockChange()
@@ -441,8 +440,7 @@ class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponen
   }
 
   override def projectClosed(): Unit = {
-    //todo make separate substitutorCache for each project
-    ParameterizedType.substitutorCache.clear()
+    manager.clearAllCaches()
   }
 
   override def disposeComponent(): Unit = {
