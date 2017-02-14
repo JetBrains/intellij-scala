@@ -60,6 +60,7 @@ object ConverterUtil {
         else
           elem
       }
+
       var elem: PsiElement = findElem(startOffset)
       if (elem != null) {
         while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
@@ -127,21 +128,22 @@ object ConverterUtil {
 
   //collect top elements in range
   def collectTopElements(startOffset: Int, endOffset: Int, javaFile: PsiFile): Array[PsiElement] = {
+    def parentIsValid(psiElement: PsiElement): Boolean = {
+      psiElement.parent.exists { p =>
+        !p.isInstanceOf[PsiFile] && Option(p.getTextRange).exists(_.getStartOffset == startOffset)
+      }
+    }
+
     val parentAtOffset =
       Option(javaFile.findElementAt(startOffset))
         .map(_.parents)
         .getOrElse(Iterator.empty)
-        .dropWhile(el =>
-          el.getParent != null &&
-            !el.getParent.isInstanceOf[PsiFile] &&
-            el.getParent.getTextRange.getStartOffset == startOffset)
+        .dropWhile(parentIsValid)
 
     if (parentAtOffset.isEmpty) {
       Array.empty[PsiElement]
     } else {
-
       val elem = parentAtOffset.next()
-
       val topElements =
         elem.nextSibilingsWithSelf
           .takeWhile(elem => elem != null && elem.getTextRange.getEndOffset < endOffset)
@@ -204,6 +206,7 @@ object ConverterUtil {
       if (text != null && text.nonEmpty && text.last == ';') text.substring(0, text.length - 1)
       else text
     }
+
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
   }
 
@@ -235,10 +238,12 @@ object ConverterUtil {
 
   def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String): Unit = {
     val document = editor.getDocument
+
     def hasQuoteAt(offset: Int) = {
       val chars = document.getCharsSequence
       offset >= 0 && offset <= chars.length() && chars.charAt(offset) == '\"'
     }
+
     val start = bounds.getStartOffset
     val end = bounds.getEndOffset
     val isInsideStringLiteral = hasQuoteAt(start - 1) && hasQuoteAt(end)
