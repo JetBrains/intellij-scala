@@ -17,7 +17,7 @@ trait ScalametaUtils {
 
   protected val metaVersion = "1.3.0"
   protected val paradiseVersion = "3.0.0-M5"
-  protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11_8
+  protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
   def getMetaLibraries: Seq[(String, String, Seq[String])] = {
     val scala = scalaSdkVersion.getMajor

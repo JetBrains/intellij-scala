@@ -136,9 +136,9 @@ object DependencyGroups {
     "org.scala-lang" % "scala-reflect" % "2.10.6",
     "org.scala-lang" % "scala-compiler" % "2.10.6",
 
-    "org.scala-lang" % "scala-library" % "2.11.7" withSources(),
-    "org.scala-lang" % "scala-reflect" % "2.11.7",
-    "org.scala-lang" % "scala-compiler" % "2.11.7",
+    "org.scala-lang" % "scala-library" % "2.11.8" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.11.8",
+    "org.scala-lang" % "scala-compiler" % "2.11.8",
 
     "org.scala-lang" % "scala-library" % "2.12.0" withSources(),
     "org.scala-lang" % "scala-reflect" % "2.12.0",
