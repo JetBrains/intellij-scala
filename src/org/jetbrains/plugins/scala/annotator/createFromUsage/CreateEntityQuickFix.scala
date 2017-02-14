@@ -28,11 +28,11 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 import scala.util.{Failure, Success, Try}
 
 /**
- * Pavel Fatin
- */
+  * Pavel Fatin
+  */
 
 abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, keyword: String)
-        extends CreateFromUsageQuickFixBase(ref, entity) {
+  extends CreateFromUsageQuickFixBase(ref, entity) {
   // TODO add private modifiers for unqualified entities ?
   // TODO use Java CFU when needed
   // TODO find better place for fields, create methods after
@@ -89,41 +89,42 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
     if (!FileModificationService.getInstance.prepareFileForWrite(block.map(_.getContainingFile).getOrElse(file))) return
 
     inWriteAction {
-      val entity = block match {
+      val maybeEntity = block match {
         case Some(_ childOf (obj: ScObject)) if obj.isSyntheticObject =>
           val bl = materializeSytheticObject(obj).extendsBlock
           createEntity(bl, ref, text)
         case Some(it) => createEntity(it, ref, text)
         case None => createEntity(ref, text)
       }
+      for (entity <- maybeEntity) {
+        ScalaPsiUtil.adjustTypes(entity)
+        entity match {
+          case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
+          case _ =>
+        }
 
-      ScalaPsiUtil.adjustTypes(entity)
-      entity match {
-        case scalaPsi: ScalaPsiElement => TypeAnnotationUtil.removeTypeAnnotationIfNeeded(scalaPsi)
-        case _ =>
-      }
+        val builder = new TemplateBuilderImpl(entity)
 
-      val builder = new TemplateBuilderImpl(entity)
+        for (aType <- entityType;
+             typeElement <- entity.children.findByType(classOf[ScSimpleTypeElement])) {
+          builder.replaceElement(typeElement, aType)
+        }
 
-      for (aType <- entityType;
-           typeElement <- entity.children.findByType(classOf[ScSimpleTypeElement])) {
-        builder.replaceElement(typeElement, aType)
-      }
+        addTypeParametersToTemplate(entity, builder)
+        addParametersToTemplate(entity, builder)
+        addQmarksToTemplate(entity, builder)
 
-      addTypeParametersToTemplate(entity, builder)
-      addParametersToTemplate(entity, builder)
-      addQmarksToTemplate(entity, builder)
+        CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
 
-      CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(entity)
+        val template = builder.buildTemplate()
 
-      val template = builder.buildTemplate()
-
-      val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
-      if (!isScalaConsole) {
-        val newEditor = positionCursor(entity.getLastChild)
-        val range = entity.getTextRange
-        newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
-        TemplateManager.getInstance(project).startTemplate(newEditor, template)
+        val isScalaConsole = file.getName == ScalaLanguageConsoleView.SCALA_CONSOLE
+        if (!isScalaConsole) {
+          val newEditor = positionCursor(entity.getLastChild)
+          val range = entity.getTextRange
+          newEditor.getDocument.deleteString(range.getStartOffset, range.getEndOffset)
+          TemplateManager.getInstance(project).startTemplate(newEditor, template)
+        }
       }
     }
   }
@@ -164,33 +165,36 @@ object CreateEntityQuickFix {
     }
   }
 
-  def createEntity(block: ScExtendsBlock, ref: ScReferenceExpression, text: String): PsiElement = {
+  def createEntity(block: ScExtendsBlock, ref: ScReferenceExpression, text: String): Option[PsiElement] = {
     if (block.templateBody.isEmpty)
       block.add(createTemplateBody(block.getManager))
 
     val children = block.templateBody.get.children.toSeq
-    val anchor = children.find(_.isInstanceOf[ScSelfTypeElement]).getOrElse(children.head)
-    val holder = anchor.getParent
-    val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
+    for (anchor <- children.find(_.isInstanceOf[ScSelfTypeElement]).orElse(children.headOption)) yield {
+      val holder = anchor.getParent
 
-    implicit val manager = ref.getManager
-    val entity = holder.addAfter(createElementFromText(text), anchor)
-    if (hasMembers) holder.addAfter(createNewLine(), entity)
+      val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
 
-    entity
+      implicit val manager = ref.getManager
+      val entity = holder.addAfter(createElementFromText(text), anchor)
+      if (hasMembers) holder.addAfter(createNewLine(), entity)
+
+      entity
+    }
   }
 
-  def createEntity(ref: ScReferenceExpression, text: String): PsiElement = {
-    val anchor = anchorForUnqualified(ref).get
-    val holder = anchor.getParent
+  def createEntity(ref: ScReferenceExpression, text: String): Option[PsiElement] = {
+    for (anchor <- anchorForUnqualified(ref)) yield {
+      val holder = anchor.getParent
 
-    implicit val manager = ref.getManager
-    val entity = holder.addBefore(createElementFromText(text), anchor)
+      implicit val manager = ref.getManager
+      val entity = holder.addBefore(createElementFromText(text), anchor)
 
-    holder.addBefore(createNewLine("\n\n"), entity)
-    holder.addAfter(createNewLine("\n\n"), entity)
+      holder.addBefore(createNewLine("\n\n"), entity)
+      holder.addAfter(createNewLine("\n\n"), entity)
 
-    entity
+      entity
+    }
   }
 
   private def typeFor(ref: ScReferenceExpression): Option[String] = ref.getParent match {
@@ -206,12 +210,12 @@ object CreateEntityQuickFix {
   }
 
   private def genericParametersFor(ref: ScReferenceExpression): Option[String] = ref.parent.collect {
-    case genCall: ScGenericCall => 
+    case genCall: ScGenericCall =>
       genCall.arguments match {
         case args if args.size == 1 => "[T]"
         case args => args.indices.map(i => s"T$i").mkString("[", ", ", "]")
       }
-      
+
   }
 
   private def anchorForUnqualified(ref: ScReferenceExpression): Option[PsiElement] = {
