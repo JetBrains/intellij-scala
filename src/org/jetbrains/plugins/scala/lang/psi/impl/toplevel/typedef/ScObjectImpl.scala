@@ -5,6 +5,8 @@ package impl
 package toplevel
 package typedef
 
+import javax.swing.Icon
+
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.project.DumbService
@@ -76,7 +78,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
 
   override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
 
-  override def getIconInner = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
+  override def getIconInner: Icon = if (isPackageObject) Icons.PACKAGE_OBJECT else Icons.OBJECT
 
   override def getName: String = {
     if (isPackageObject) return "package$"
@@ -99,7 +101,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
 
   def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 
-  override def isCase = hasModifierProperty("case")
+  override def isCase: Boolean = hasModifierProperty("case")
 
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                    state: ResolveState,
@@ -162,8 +164,10 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def fakeCompanionClass: Option[PsiClass] = getCompanionModule(this) match {
     case Some(_) => None
-    case None => Some(new PsiClassWrapper(this, getQualifiedName.substring(0, getQualifiedName.length() - 1),
-      getName.substring(0, getName.length() - 1)))
+    case None =>
+      val qualName = Option(getQualifiedName).map(_.stripSuffix("$"))
+      val name = Option(getName).map(_.stripSuffix("$"))
+      qualName.map(qn => new PsiClassWrapper(this, qn, name.getOrElse(qn)))
   }
 
   def fakeCompanionClassOrCompanionClass: PsiClass = fakeCompanionClass match {
