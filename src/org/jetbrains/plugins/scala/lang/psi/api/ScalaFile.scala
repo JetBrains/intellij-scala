@@ -35,7 +35,9 @@ trait ScalaFile extends ScalaPsiElement with ScToplevelElement with PsiClassOwne
 
   def sourceName: String
 
-  def isScriptFile(withCaching: Boolean = true): Boolean
+  def isScriptFile: Boolean = isScriptFileImpl
+
+  def isScriptFileImpl: Boolean
 
   def isWorksheetFile: Boolean
 }

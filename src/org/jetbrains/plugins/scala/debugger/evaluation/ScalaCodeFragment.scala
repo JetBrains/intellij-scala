@@ -83,9 +83,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 
   def getIntentionActionsFilter: IntentionActionsFilter = filter
 
-  override def isScriptFile: Boolean = false
-
-  override def isScriptFile(withCashing: Boolean): Boolean = false
+  override def isScriptFileImpl: Boolean = false
 
   override def addImportForPath(path: String, ref: PsiElement) {
     imports += path

@@ -55,7 +55,7 @@ object ScopeSuggester {
       result
     }
 
-    val isScriptFile = currentElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()
+    val isScriptFile = currentElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile
 
     val owners = ScalaRefactoringUtil.getTypeParameterOwnerList(currentElement) ++ ScalaRefactoringUtil.getTypeAliasOwnersList(currentElement)
     var parent = getParent(currentElement, isScriptFile)
@@ -243,7 +243,7 @@ object ScopeSuggester {
         val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
         allOcurrences += occurrences
         val parent = file match {
-          case scalaFile: ScalaFile if scalaFile.isScriptFile() =>
+          case scalaFile: ScalaFile if scalaFile.isScriptFile =>
             file
           case _ => PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
         }

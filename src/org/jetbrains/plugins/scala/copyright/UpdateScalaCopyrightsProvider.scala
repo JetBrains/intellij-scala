@@ -21,7 +21,7 @@ class UpdateScalaCopyrightsProvider extends UpdateCopyrightsProvider {
 
       override def getPackageStatement: PsiElement = {
         val file = getFile.asInstanceOf[ScalaFile]
-        if (file.isScriptFile()) return file.getFirstChild
+        if (file.isScriptFile) return file.getFirstChild
         val packs = file.packagings
         if (packs.isEmpty) return null
         packs.head

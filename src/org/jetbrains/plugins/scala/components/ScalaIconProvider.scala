@@ -18,7 +18,7 @@ class ScalaIconProvider extends IconProvider {
       case null =>
       case file: ScalaFile =>
         if (file.isWorksheetFile) return Icons.WORKSHEET_LOGO
-        if (file.isScriptFile()) return Icons.SCRIPT_FILE_LOGO
+        if (file.isScriptFile) return Icons.SCRIPT_FILE_LOGO
         if (file.getVirtualFile == null) return Icons.SCRIPT_FILE_LOGO
         val name = file.getVirtualFile.getNameWithoutExtension
         val defs = file.typeDefinitions

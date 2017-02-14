@@ -135,7 +135,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     var parent = element.getParent
     while (isParentOk(parent)) {
       parent match {
-        case file: ScalaFile if file.isScriptFile() => res += prev
+        case file: ScalaFile if file.isScriptFile => res += prev
         case _: ScBlock => res += prev
         case _: ScTemplateBody => res += prev
         case _ =>

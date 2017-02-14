@@ -265,7 +265,7 @@ object ResolveUtils {
                 case td: ScTemplateDefinition =>
                   PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
                           getCompanionModule(td).getOrElse(null: PsiElement), place, false)
-                case file: ScalaFile if file.isScriptFile() =>
+                case file: ScalaFile if file.isScriptFile =>
                   PsiTreeUtil.isContextAncestor(file, place, false)
                 case _ =>
                   ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile]) match {

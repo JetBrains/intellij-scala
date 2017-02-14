@@ -74,7 +74,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
 
       if (childValue instanceof ScalaFile) {
         ScalaFile file = (ScalaFile) childValue;
-        if (!file.isScriptFile(true)) {
+        if (!file.isScriptFile()) {
           ScTypeDefinition[] definitions = file.typeDefinitionsArray();
           if (definitions.length == 1 && hasNameOfFile(definitions[0])) {
             result.add(new TypeDefinitionTreeNode(new ClassTreeNode(file.getProject(), definitions[0], settings)));
@@ -206,7 +206,7 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
       final ViewSettings settings = getSettings();
       final ArrayList<AbstractTreeNode> result = new ArrayList<AbstractTreeNode>();
       ScalaFile owner = (ScalaFile) getValue();
-      if (!owner.isScriptFile(true)) {
+      if (!owner.isScriptFile()) {
         for (PsiClass aClass : owner.typeDefinitionsArray()) {
           result.add(new TypeDefinitionTreeNode(new ClassTreeNode(myProject, aClass, settings)));
         }

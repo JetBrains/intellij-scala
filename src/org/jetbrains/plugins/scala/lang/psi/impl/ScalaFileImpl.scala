@@ -154,38 +154,30 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     }
   }
 
-  private def isScriptFileImpl: Boolean = {
-    val stub = getStub
-    if (stub == null) {
-      val empty = this.children.forall {
-        case _: PsiWhiteSpace => true
-        case _: PsiComment => true
-        case _ => false
-      }
-      if (empty) return true // treat empty or commented files as scripts to avoid project recompilations
-      val childrenIterator = getNode.getChildren(null).iterator
-      while (childrenIterator.hasNext) {
-        val n = childrenIterator.next()
-        n.getPsi match {
-          case _: ScPackaging => return false
-          case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
-          case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
-        }
-      }
-      false
-    } else {
-      stub.isScript
+  @CachedInsidePsiElement(this, this)
+  def isScriptFileImpl: Boolean = {
+    val empty = this.children.forall {
+      case _: PsiWhiteSpace => true
+      case _: PsiComment => true
+      case _ => false
     }
+    if (empty) return true // treat empty or commented files as scripts to avoid project recompilations
+    val childrenIterator = getNode.getChildren(null).iterator
+    while (childrenIterator.hasNext) {
+      val n = childrenIterator.next()
+      n.getPsi match {
+        case _: ScPackaging => return false
+        case _: ScValue | _: ScVariable | _: ScFunction | _: ScExpression | _: ScTypeAlias => return true
+        case _ => if (n.getElementType == ScalaTokenTypes.tSH_COMMENT) return true
+      }
+    }
+    false
   }
 
-  def isScriptFile: Boolean = isScriptFile(withCaching = true)
-
-  @CachedInsidePsiElement(this, this)
-  private def isScriptFileCached: Boolean = isScriptFileImpl
-
-  def isScriptFile(withCaching: Boolean): Boolean = {
-    if (!withCaching) isScriptFileImpl
-    else isScriptFileCached
+  override def isScriptFile: Boolean = {
+    val stub = getStub
+    if (stub != null) stub.isScript
+    else isScriptFileImpl
   }
 
   def isWorksheetFile: Boolean = {
@@ -315,7 +307,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   @Nullable
   def packageName: String = {
-    if (isScriptFile(withCaching = false) || isWorksheetFile) return null
+    if (isScriptFile || isWorksheetFile) return null
     var res: String = ""
     var x: ScToplevelElement = this
     while (true) {

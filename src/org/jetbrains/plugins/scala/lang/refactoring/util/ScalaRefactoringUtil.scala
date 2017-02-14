@@ -778,7 +778,7 @@ object ScalaRefactoringUtil {
   }
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
-    if (file.asInstanceOf[ScalaFile].isScriptFile()) file
+    if (file.asInstanceOf[ScalaFile].isScriptFile) file
     else {
       val elem = file.findElementAt(startOffset)
       val result = ScalaPsiUtil.getParentOfType(elem, classOf[ScExtendsBlock], classOf[PsiFile])

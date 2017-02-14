@@ -18,7 +18,7 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class SbtFileImpl(provider: FileViewProvider) extends ScalaFileImpl(provider, SbtFileType) with ScDeclarationSequenceHolder{
-  override def isScriptFile(withCashing: Boolean) = false
+  override def isScriptFileImpl: Boolean = false
 
   override def immediateTypeDefinitions: Seq[Nothing] = Seq.empty
 

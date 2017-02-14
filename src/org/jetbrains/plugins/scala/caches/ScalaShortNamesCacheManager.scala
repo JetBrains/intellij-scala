@@ -40,7 +40,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       if (ScalaNamesUtil.equivalentFqn(name, clazz.qualifiedName)) {
         clazz.getContainingFile match {
           case file: ScalaFile =>
-            if (!file.isScriptFile(withCaching = true)) return clazz
+            if (!file.isScriptFile) return clazz
           case _ => return clazz
         }
       }

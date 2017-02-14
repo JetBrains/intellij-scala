@@ -23,7 +23,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
   override def checkFile(file: PsiFile, manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     file match {
       case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
-        if (file.isScriptFile()) return null
+        if (file.isScriptFile) return null
         if (file.typeDefinitions.isEmpty) return null
 
         val dir = file.getContainingDirectory

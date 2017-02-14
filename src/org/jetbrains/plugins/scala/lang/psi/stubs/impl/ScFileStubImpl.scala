@@ -32,5 +32,5 @@ class ScFileStubImpl(file: ScalaFile) extends AbstractFileStub(file) {
 
   override def isCompiled: Boolean = file.isCompiled
 
-  override def isScript: Boolean = file.isScriptFile(withCaching = false)
+  override def isScript: Boolean = file.isScriptFileImpl
 }

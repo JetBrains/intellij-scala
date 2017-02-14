@@ -40,7 +40,7 @@ class ScalaScriptConfugurationProducer extends {
     val file = location.getPsiElement.getContainingFile
     file match {
       case null => null
-      case scalaFile: ScalaFile if scalaFile.isScriptFile() && !scalaFile.isWorksheetFile => {
+      case scalaFile: ScalaFile if scalaFile.isScriptFile && !scalaFile.isWorksheetFile => {
         val settings = RunManager.getInstance(location.getProject).createRunConfiguration(scalaFile.name, confFactory)
         val conf: ScalaScriptRunConfiguration = settings.getConfiguration.asInstanceOf[ScalaScriptRunConfiguration]
         val module = ModuleUtilCore.findModuleForFile(scalaFile.getVirtualFile, scalaFile.getProject)

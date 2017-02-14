@@ -19,7 +19,7 @@ class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
       case scalaFile: ScalaFile if scalaFile.getFileType == ScalaFileType.INSTANCE => // can be for example sbt file type
         !JavaProjectRootsUtil.isOutsideJavaSourceRoot(file) || 
           scalaFile.getViewProvider.getFileType == ScratchFileType.INSTANCE || 
-          scalaFile.isScriptFile(true) || ScalaConsoleInfo.isConsole(file)
+          scalaFile.isScriptFile || ScalaConsoleInfo.isConsole(file)
       case _ => true
     }
   }

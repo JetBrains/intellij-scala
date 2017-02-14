@@ -266,7 +266,7 @@ object ScalaCompletionUtil {
    */
   def processPsiLeafForFilter(leaf: PsiElement): (PsiElement, Boolean) = Option(leaf) map {
     l => l.getContainingFile match {
-      case scriptFile: ScalaFile if scriptFile.isScriptFile() => (leaf.getParent, true)
+      case scriptFile: ScalaFile if scriptFile.isScriptFile => (leaf.getParent, true)
       case _: ScalaFile => (leaf, false)
       case _ => (null, false)
     }
