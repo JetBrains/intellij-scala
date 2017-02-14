@@ -273,6 +273,8 @@ package object extensions {
 
     def nextSiblings: Iterator[PsiElement] = new NextSiblignsIterator(element)
 
+    def nextSibilingsWithSelf: Iterator[PsiElement] = Iterator(element) ++ nextSiblings
+
     def isAncestorOf(e: PsiElement): Boolean = PsiTreeUtil.isAncestor(element, e, true)
 
     def contexts: Iterator[PsiElement] = new ContextsIterator(element)

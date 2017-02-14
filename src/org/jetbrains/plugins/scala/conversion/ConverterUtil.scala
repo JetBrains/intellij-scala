@@ -127,20 +127,30 @@ object ConverterUtil {
 
   //collect top elements in range
   def collectTopElements(startOffset: Int, endOffset: Int, javaFile: PsiFile): Array[PsiElement] = {
-    val buf = new ArrayBuffer[PsiElement]
-    var elem: PsiElement = javaFile.findElementAt(startOffset)
+    val parentAtOffset =
+      Option(javaFile.findElementAt(startOffset))
+        .map(_.parents)
+        .getOrElse(Iterator.empty)
+        .dropWhile(el =>
+          el.getParent != null &&
+            !el.getParent.isInstanceOf[PsiFile] &&
+            el.getParent.getTextRange.getStartOffset == startOffset)
 
-    while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-      elem.getParent.getTextRange.getStartOffset == startOffset) {
-      elem = elem.getParent
-    }
+    if (parentAtOffset.isEmpty) {
+      Array.empty[PsiElement]
+    } else {
 
-    buf += elem
-    while (elem != null && elem.getTextRange.getEndOffset < endOffset) {
-      elem = elem.getNextSibling
-      buf += elem
+      val elem = parentAtOffset.next()
+
+      val topElements =
+        elem.nextSibilingsWithSelf
+          .takeWhile(elem => elem != null && elem.getTextRange.getEndOffset < endOffset)
+          .map(_.getNextSibling)
+          .filter(el => el != null && el.isValid)
+          .toArray
+
+      elem +: topElements
     }
-    buf.filter(el => el != null && el.isValid).toArray
   }
 
   def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
