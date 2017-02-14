@@ -31,7 +31,7 @@ class ServerMediator(project: Project) extends ProjectComponent {
     override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
       if (settings.COMPILE_SERVER_ENABLED && isScalaProject) {
         invokeAndWait {
-          CompileServerManager.instance(project).configureWidget()
+          CompileServerManager.configureWidget(project)
         }
 
         if (CompileServerLauncher.needRestart(project)) {

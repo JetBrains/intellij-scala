@@ -78,7 +78,7 @@ class CompileServerLauncher extends ApplicationComponent {
         false
       case Right(_) =>
         invokeLater {
-          CompileServerManager.instance(project).configureWidget()
+          CompileServerManager.configureWidget(project)
         }
         true
     }
@@ -147,7 +147,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
     ApplicationManager.getApplication invokeLater new Runnable {
       override def run() {
-        CompileServerManager.instance(project).configureWidget()
+        CompileServerManager.configureWidget(project)
       }
     }
   }

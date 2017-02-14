@@ -199,7 +199,13 @@ class CompileServerManager(project: Project) extends ProjectComponent {
  }
 
 object CompileServerManager {
-  def instance(project: Project): CompileServerManager = project.getComponent(classOf[CompileServerManager])
+
+  def configureWidget(project: Project): Unit = {
+    if (!project.isDisposed) {
+      val instance = project.getComponent(classOf[CompileServerManager])
+      instance.configureWidget()
+    }
+  }
 
   def showCompileServerSettingsDialog(): Unit = {
     ShowSettingsUtil.getInstance().showSettingsDialog(null, "Scala Compile Server")
