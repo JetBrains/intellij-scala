@@ -97,6 +97,22 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
     assert(messages(code).isEmpty)
   }
 
+  def testSCL11306() = {
+    val code =
+      """
+        |object T {
+        |  class A[F[_]]
+        |  class B[F[_]]
+        |  class C[F[_]]
+        |
+        |  final case class Prod[F[_[_]], G[_[_]], A[_]](fa: F[A], ga: G[A])
+        |
+        |  val x = Prod(new A[List], Prod(new B[List], new C[List]))
+        |}
+      """.stripMargin
+    assert(messages(code).isEmpty)
+  }
+
   def messages(@Language(value = "Scala") code: String) = {
     val annotator = new ApplicationAnnotator {}
     val file = code.parse
