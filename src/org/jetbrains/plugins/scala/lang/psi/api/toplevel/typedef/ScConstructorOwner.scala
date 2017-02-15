@@ -13,13 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParame
   */
 trait ScConstructorOwner extends ScParameterOwner with ScTemplateDefinition {
   def constructor: Option[ScPrimaryConstructor] =
-    this match {
-      case element: ScalaStubBasedElementImpl[_] if element.getStub != null =>
-        element.getStub
-          .getChildrenByType(PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory)
-          .headOption
-      case _ => None
-    }
+    findChild(classOf[ScPrimaryConstructor])
 
   def parameters: Seq[ScClassParameter] =
     constructor.toSeq.flatMap {
