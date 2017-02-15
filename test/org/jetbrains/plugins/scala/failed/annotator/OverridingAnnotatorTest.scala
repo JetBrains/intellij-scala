@@ -100,4 +100,30 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       case Nil =>
     }
   }
+
+  def testScl11327(): Unit = {
+    assertMatches(
+      messages(
+        """import MyOverride._
+          |
+          |class MyOverride(string: String) {
+          |
+          |  def foo(): String = {
+          |    bar(string)
+          |  }
+          |}
+          |
+          |object MyOverride extends SomeTrait {
+          |  def bar(string: String): String = string + "bar"
+          |
+          |  override def baz(string: String): String = string.reverse + "baz"
+          |}
+          |
+          |trait SomeTrait {
+          |  def baz(string: String): String
+          |}
+        """.stripMargin)) {
+      case Nil =>
+    }
+  }
 }
