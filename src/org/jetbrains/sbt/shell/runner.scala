@@ -2,7 +2,6 @@ package org.jetbrains.sbt.shell
 
 import java.awt.event.KeyEvent
 import java.util
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.Icon
 
 import com.intellij.execution.console._
@@ -19,7 +18,7 @@ import com.intellij.openapi.project.{DumbAwareAction, Project}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.ui.UIUtil
+import com.pty4j.{PtyProcess, WinSize}
 
 import scala.collection.JavaConverters._
 
@@ -29,7 +28,7 @@ import scala.collection.JavaConverters._
 class SbtShellRunner(project: Project, consoleTitle: String)
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
 
-  private val myConsoleView: LanguageConsoleImpl = {
+  private val myConsoleView: LanguageConsoleImpl = ShellUIUtil.inUIsync {
     val cv = new LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage)
     cv.getConsoleEditor.setOneLineMode(true)
 
@@ -70,22 +69,27 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
   override def initAndRun(): Unit = {
     super.initAndRun()
-    UIUtil.invokeLaterIfNeeded(new Runnable {
-      override def run(): Unit = {
-        // assume initial state is Working
-        // FIXME this is not correct when shell process was started without view
-        myConsoleView.setPrompt("X")
+    ShellUIUtil.inUI {
 
-        // TODO update icon with ready/working state
-        val shellPromptChanger = new SbtShellReadyListener(
-          whenReady = myConsoleView.setPrompt(">"),
-          whenWorking = myConsoleView.setPrompt("X")
-        )
-        SbtShellCommunication.forProject(project).attachListener(shellPromptChanger)
+      // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
+      // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
+      // TODO perhaps determine actual width of window and adapt accordingly
+      myProcessHandler.getProcess match {
+        case proc: PtyProcess => proc.setWinSize(new WinSize (2000, 100))
       }
-    })
-  }
 
+      // assume initial state is Working
+      // FIXME this is not correct when shell process was started without view
+      myConsoleView.setPrompt("X")
+
+      // TODO update icon with ready/working state
+      val shellPromptChanger = new SbtShellReadyListener(
+        whenReady = myConsoleView.setPrompt(">"),
+        whenWorking = myConsoleView.setPrompt("X")
+      )
+      SbtShellCommunication.forProject(project).attachListener(shellPromptChanger)
+    }
+  }
 
   object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
 
@@ -117,14 +121,14 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
   override def getConsoleIcon: Icon = SbtShellRunner.ICON
 
-  def focusShell(): Unit = {
+  def openShell(focus: Boolean): Unit = {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
-    toolWindow.activate(null, true)
+    toolWindow.activate(null, focus)
     val content = toolWindow.getContentManager.findContent(consoleTitle)
     if (content != null)
-      toolWindow.getContentManager.setSelectedContent(content, true)
-  }
+      toolWindow.getContentManager.setSelectedContent(content, focus)
 
+  }
 
   def createAutoCompleteAction(): AnAction = {
     val action = new AutoCompleteAction

@@ -71,29 +71,27 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     * SbtProcessManager is solely responsible for handling the running state.
     */
   def acquireShellProcessHandler: ColoredProcessHandler = myProcessHandler.synchronized {
-    (for {
-      handler <- myProcessHandler
-      if handler.getProcess.isAlive
-    } yield handler)
-      .getOrElse {
+    myProcessHandler match {
+      case Some(handler) if handler.getProcess.isAlive => handler
+      case _ =>
         val handler = createShellProcessHandler()
         myProcessHandler = Option(handler)
         handler
-      }
+    }
   }
 
   /** Creates the SbtShellRunner view, or focuses it if it already exists. */
-  def openShellRunner(): SbtShellRunner = myShellRunner.synchronized {
+  def openShellRunner(focus: Boolean = false): SbtShellRunner = myProcessHandler.synchronized {
 
     myShellRunner match {
-      case None =>
+      case Some(runner) if runner.getConsoleView.isRunning =>
+        ShellUIUtil.inUIsync(runner.openShell(focus))
+        runner
+      case _ =>
         val title = "SBT Shell"
         val runner = new SbtShellRunner(project, title)
         myShellRunner = Option(runner)
         runner.initAndRun()
-        runner
-      case Some(runner) =>
-        runner.focusShell()
         runner
     }
   }
@@ -103,9 +101,12 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     myProcessHandler = Option(createShellProcessHandler())
   }
 
-  def destroyProcess(): Unit = myProcessHandler.synchronized {
-    myProcessHandler.foreach(_.destroyProcess())
-    myProcessHandler = None
+  def destroyProcess(): Unit = {
+    myProcessHandler.synchronized {
+      myProcessHandler.foreach(_.destroyProcess())
+      myProcessHandler = None
+      myShellRunner = None
+    }
   }
 
   override def projectClosed(): Unit = {

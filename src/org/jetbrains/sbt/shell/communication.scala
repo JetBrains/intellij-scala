@@ -6,12 +6,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskResult
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtProcessUtil._
+import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationLong}
@@ -30,24 +30,18 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   private val shellQueueReady = new Semaphore(1)
   private val commands = new LinkedBlockingQueue[(String, CommandListener)]()
 
-
-  // TODO ask sbt to provide completions for a line via its parsers
-  def completion(line: String): List[String] = List.empty
-
   /**
-    * Execute an sbt task.
+    * Queue an sbt command for execution in the sbt shell.
     */
-  def command(cmd: String): Future[ProjectTaskResult] =
-    queueCommand(cmd, new CommandListener(None))
-
-  def commandWithIndicator(cmd: String, indicator: ProgressIndicator): Future[ProjectTaskResult] = {
-    val listener = new CommandListener(Option(indicator))
+  def command(cmd: String, eventHandler: EventHandler = _=>(), showShell: Boolean = true): Future[ProjectTaskResult] = {
+    val eventHandler: EventHandler = _ => ()
+    val listener = new CommandListener(eventHandler)
+    if (showShell) process.openShellRunner()
+    initCommunication(process.acquireShellProcessHandler)
     queueCommand(cmd, listener)
   }
 
   private def queueCommand(cmd: String, listener: CommandListener) = {
-
-    initCommunication(process.acquireShellProcessHandler)
 
     commands.put((cmd, listener))
 
@@ -90,7 +84,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
         val handler = process.acquireShellProcessHandler
         handler.addProcessListener(listener)
 
-        // TODO more robust way to get the writer? cf createOutputStreamWriter
         val shell = new PrintWriter(new OutputStreamWriter(handler.getProcessInput))
 
         // we want to avoid registering multiple callbacks to the same output and having whatever side effects
@@ -108,7 +101,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   /**
     * To be called when the process is reinitialized externally
     */
-  def initCommunication(handler: OSProcessHandler): Unit = {
+  private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
     if (!communicationActive.getAndSet(true)) {
       val stateChanger = new SbtShellReadyListener(
         whenReady = shellPromptReady.set(true),
@@ -126,9 +119,17 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
 
 object SbtShellCommunication {
   def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
+
+  type EventHandler = ShellEvent => Unit
+
+  sealed trait ShellEvent
+  case object TaskStart extends ShellEvent
+  case object TaskComplete extends ShellEvent
+  case class Output(line: String) extends ShellEvent
 }
 
-class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener {
+
+private[shell] class CommandListener(eventHandler: EventHandler) extends LineListener {
 
   private var success = false
   private var errors = 0
@@ -138,26 +139,16 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
 
   def future: Future[ProjectTaskResult] = promise.future
 
-  override def startNotified(event: ProcessEvent): Unit = {
-    indicator.foreach { i =>
-      i.setText("build started")
-      i.setFraction(0.1)
-    }
-  }
+  override def startNotified(event: ProcessEvent): Unit = eventHandler(TaskStart)
 
   override def processTerminated(event: ProcessEvent): Unit = {
     val res = new ProjectTaskResult(true, errors, warnings)
-    indicator.foreach(_.stop())
+    // TODO separate event type for completion by termination?
+    eventHandler(TaskComplete)
     promise.complete(Success(res))
   }
 
   override def onLine(text: String): Unit = {
-
-    indicator.foreach { i =>
-      i.setFraction(0.2)
-      i.setText("building ...")
-      i.setText2(text)
-    }
 
     if (text startsWith "[error]") {
       success = false
@@ -171,21 +162,19 @@ class CommandListener(indicator: Option[ProgressIndicator]) extends LineListener
 
     if (!promise.isCompleted && promptReady(text)) {
       val res = new ProjectTaskResult(false, errors, warnings)
-      indicator.foreach { i =>
-        i.setFraction(1)
-        i.setText("build completed")
-        i.stop()
-      }
+
+      eventHandler(TaskComplete)
       promise.complete(Success(res))
+    } else {
+      eventHandler(Output(text))
     }
   }
-
 }
 
 
 /**
   * Monitor sbt prompt status, do something when state changes.
-  * TODO: Maybe specify an internal callback thingy just for ready state changes so that other parts don't have to depend on prompt changes
+  *
   * @param whenReady callback when going into Ready state
   * @param whenWorking callback when going into Working state
   */
@@ -206,7 +195,7 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Line
   }
 }
 
-object SbtProcessUtil {
+private[shell] object SbtProcessUtil {
 
   def promptReady(line: String): Boolean =
     line.trim match {
@@ -223,7 +212,7 @@ object SbtProcessUtil {
 /**
   * Pieces lines back together from parts of colored lines.
   */
-abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
+private[shell] abstract class LineListener extends ProcessAdapter with AnsiEscapeDecoder.ColoredTextAcceptor {
 
   private val builder = new StringBuilder
 
