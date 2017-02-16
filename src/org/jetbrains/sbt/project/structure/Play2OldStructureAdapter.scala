@@ -22,7 +22,7 @@ object Play2OldStructureAdapter {
     }
     val oldData = projectKeyValueTriples.groupBy(_._2).mapValues(_.map({ case (id, _, v) => (id, v)}))
 
-    new Play2ProjectData(SbtProjectSystem.Id, avoidSL7005Bug(oldData.mapValues(_.toMap)))
+    Play2ProjectData(avoidSL7005Bug(oldData.mapValues(_.toMap)))
   }
 
   private def extractProjectKeyValue(id: ProjectId, baseDir: File, data: Play2Data): Seq[(ProjectId, String, ParsedValue[_])] =  {

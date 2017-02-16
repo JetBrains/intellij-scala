@@ -1,15 +1,9 @@
 package org.jetbrains.sbt
 package project.data
 
-import java.io.File
-import java.net.URI
-
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
-import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
-import org.jetbrains.sbt.resolvers.SbtResolver
 
 /**
   * @author Pavel Fatin
@@ -76,61 +70,39 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
   protected def key = ProjectKeys.LIBRARY_DEPENDENCY
 }
 
-class SbtProjectNode(val data: SbtProjectData)
-  extends Node[SbtProjectData] {
-  def this(basePackages: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
-    this(new SbtProjectData(SbtProjectSystem.Id, basePackages, jdk, javacOptions, sbtVersion, projectPath))
-  }
-
-  protected def key = SbtProjectData.Key
+class SbtProjectNode(val data: SbtProjectData) extends Node[SbtProjectData] {
+  override protected def key = SbtProjectData.Key
 }
 
 class SbtModuleNode(val data: SbtModuleData) extends Node[SbtModuleData] {
-  def this(id: String, buildURI: URI) { this(SbtModuleData(SbtProjectSystem.Id, id, buildURI)) }
   override protected def key: Key[SbtModuleData] = SbtModuleData.Key
 }
 
 class SbtSettingNode(val data: SbtSettingData) extends Node[SbtSettingData] {
-  def this(label:String, description: String, rank: Int) = this(new SbtSettingData(SbtProjectSystem.Id, label, description, rank))
   override protected def key: Key[SbtSettingData] = SbtSettingData.Key
 }
 
 class SbtTaskNode(val data: SbtTaskData) extends Node[SbtTaskData] {
-  def this(label:String, description: String, rank: Int) = this(new SbtTaskData(SbtProjectSystem.Id, label, description, rank))
   override protected def key: Key[SbtTaskData] = SbtTaskData.Key
 }
 
-class ModuleExtNode(val data: ModuleExtData)
-  extends Node[ModuleExtData] {
-  def this(scalaVersion: Option[Version], scalacClasspath: Seq[File], scalacOptions: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String]) {
-    this(new ModuleExtData(SbtProjectSystem.Id, scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions))
-  }
+class SbtCommandNode(val data: SbtCommandData) extends Node[SbtCommandData] {
+  override protected def key: Key[SbtCommandData] = SbtCommandData.Key
+}
+
+class ModuleExtNode(val data: ModuleExtData) extends Node[ModuleExtData] {
   protected def key = ModuleExtData.Key
 }
 
-class AndroidFacetNode(val data: AndroidFacetData)
-  extends Node[AndroidFacetData] {
-  def this(version: String, manifest: File, apk: File, res: File, assets: File, gen: File, libs: File, isLibrary: Boolean, proguardConfig: Seq[String]) {
-    this(new AndroidFacetData(SbtProjectSystem.Id, version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig))
-  }
-
+class AndroidFacetNode(val data: AndroidFacetData) extends Node[AndroidFacetData] {
   protected def key = AndroidFacetData.Key
 }
 
 class Play2ProjectNode(val data: Play2ProjectData) extends Node[Play2ProjectData] {
-  def this(projectKeys: Map[String, Map[String, ParsedValue[_]]]) {
-    this(new Play2ProjectData(SbtProjectSystem.Id, projectKeys))
-  }
-
   def key = Play2ProjectData.Key
 }
 
-class SbtBuildModuleNode(val data: SbtBuildModuleData)
-  extends Node[SbtBuildModuleData] {
-  def this(imports: Seq[String], resolvers: Set[SbtResolver]) {
-    this(new SbtBuildModuleData(SbtProjectSystem.Id, imports, resolvers))
-  }
-
+class SbtBuildModuleNode(val data: SbtBuildModuleData) extends Node[SbtBuildModuleData] {
   protected def key = SbtBuildModuleData.Key
 }
 

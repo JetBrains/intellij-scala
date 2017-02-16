@@ -9,7 +9,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.sbt.project.data.AndroidFacetNode
+import org.jetbrains.sbt.project.data.{AndroidFacetData, AndroidFacetNode}
 
 import scala.io.Source
 
@@ -31,7 +31,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
         name := "Module 1"
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
-        arbitraryNodes += new AndroidFacetNode(
+        arbitraryNodes += new AndroidFacetNode(AndroidFacetData(
           version = "21",
           manifest = new File(getProject.getBasePath + "/manifest.xml"),
           apk = new File(getProject.getBasePath + "/test.apk"),
@@ -41,7 +41,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
           libs = new File(getProject.getBasePath + "/libs"),
           isLibrary = true,
           proguardConfig = proguardConfig
-        )
+        ))
       }
     }.build.toDataNode
 
@@ -86,7 +86,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new AndroidFacetNode("", null, null, null, null, null, null, false, Seq.empty)
+      arbitraryNodes += new AndroidFacetNode(AndroidFacetData("", null, null, null, null, null, null, false, Seq.empty))
     }.build.toDataNode
     importProjectData(testProject)
   }

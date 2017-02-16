@@ -86,7 +86,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val projectJdk = chooseJdk(project, settingsJdk)
 
-    projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, data.sbtVersion, root))
+    projectNode.add(new SbtProjectNode(SbtProjectData(basePackages, projectJdk, javacOptions, data.sbtVersion, root)))
 
     val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
     projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))
@@ -146,9 +146,10 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
-      moduleNode.add(new SbtModuleNode(project.id, project.buildURI))
+      moduleNode.add(new SbtModuleNode(SbtModuleData(project.id, project.buildURI)))
       moduleNode.addAll(createTaskData(project))
       moduleNode.addAll(createSettingData(project))
+      moduleNode.addAll(createCommandData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
@@ -188,26 +189,33 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val javacOptions = project.java.fold(Seq.empty[String])(_.options)
     val jdk = project.android.map(android => Android(android.targetVersion))
       .orElse(project.java.flatMap(java => java.home.map(JdkByHome)))
-    new ModuleExtNode(scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions)
+    new ModuleExtNode(ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions))
   }
 
 
   private def createTaskData(project: sbtStructure.ProjectData): Seq[SbtTaskNode] = {
     project.tasks.map { t =>
-      new SbtTaskNode(t.label, t.description.getOrElse(""), t.rank)
+      new SbtTaskNode(SbtTaskData(t.label, t.description.getOrElse(""), t.rank))
     }
   }
 
   private def createSettingData(project: sbtStructure.ProjectData): Seq[SbtSettingNode] = {
     project.settings.map { s =>
-      new SbtSettingNode(s.label, s.description.getOrElse(""), s.rank)
+      // TODO use options for description, value and handle them in the UI appropriately
+      new SbtSettingNode(SbtSettingData(s.label, s.description.getOrElse(""), s.rank, s.stringValue.getOrElse("")))
+    }
+  }
+
+  private def createCommandData(project: sbtStructure.ProjectData) = {
+     project.commands.map { c =>
+      new SbtCommandNode(SbtCommandData(c.name, c.help))
     }
   }
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {
-    new AndroidFacetNode(android.targetVersion, android.manifest, android.apk,
+    new AndroidFacetNode(AndroidFacetData(android.targetVersion, android.manifest, android.apk,
                          android.res, android.assets, android.gen, android.libs,
-                         android.isLibrary, android.proguardConfig)
+                         android.isLibrary, android.proguardConfig))
   }
 
   private def createUnresolvedLibrary(moduleId: sbtStructure.ModuleIdentifier): LibraryNode = {
@@ -345,7 +353,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   def createSbtBuildModuleData(project: sbtStructure.ProjectData, localCachePath: Option[String]): SbtBuildModuleNode = {
     val imports = project.build.imports.flatMap(_.trim.substring(7).split(", "))
     val resolvers = project.resolvers map { r => new SbtMavenResolver(r.name, r.root).asInstanceOf[SbtResolver] }
-    new SbtBuildModuleNode(imports, resolvers + SbtResolver.localCacheResolver(localCachePath))
+    new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers + SbtResolver.localCacheResolver(localCachePath)))
   }
 
   private def validRootPathsIn(project: sbtStructure.ProjectData, scope: String)

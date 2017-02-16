@@ -5,7 +5,7 @@ import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.project.data.{SbtModuleData, SbtSettingData, SbtTaskData}
+import org.jetbrains.sbt.project.data.{SbtCommandData, SbtModuleData, SbtSettingData, SbtTaskData}
 
 /**
   * Created by jast on 2017-01-24.
@@ -15,6 +15,8 @@ class SbtModuleDataService extends DefaultDataService[SbtModuleData, Module](Sbt
 class SbtTaskDataService extends DefaultDataService[SbtTaskData, Module](SbtTaskData.Key)
 
 class SbtSettingDataService extends DefaultDataService[SbtSettingData, Module](SbtSettingData.Key)
+
+class SbtCommandDataService extends DefaultDataService[SbtCommandData, Module](SbtCommandData.Key)
 
 
 abstract class DefaultDataService[E,I](key: Key[E]) extends AbstractDataService[E,I](key) {

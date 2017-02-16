@@ -6,7 +6,7 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor}
 import com.intellij.util.containers.MultiMap
-import org.jetbrains.sbt.project.data.{SbtSettingData, SbtTaskData}
+import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
 import scala.collection.JavaConverters._
 
@@ -15,7 +15,7 @@ import scala.collection.JavaConverters._
   */
 class SbtViewContributor extends ExternalSystemViewContributor {
 
-  val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key)
+  val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key)
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -26,6 +26,7 @@ class SbtViewContributor extends ExternalSystemViewContributor {
 
     val taskNodes = dataNodes.get(SbtTaskData.Key).asScala
     val settingNodes = dataNodes.get(SbtSettingData.Key).asScala
+    val commandNodes = dataNodes.get(SbtCommandData.Key).asScala
 
     val taskViewNodes = taskNodes.map { dataNode =>
       val typedNode = dataNode.asInstanceOf[DataNode[SbtTaskData]]
@@ -37,38 +38,57 @@ class SbtViewContributor extends ExternalSystemViewContributor {
       new SbtSettingViewNode(externalProjectsView, typedNode)
     }
 
-    val tasksNode = new SbtTasksNode(externalProjectsView)
+    val commandViewNodes = commandNodes.map { dataNode =>
+      val typedNode = dataNode.asInstanceOf[DataNode[SbtCommandData]]
+      new SbtCommandViewNode(externalProjectsView, typedNode)
+    }
+
+    val tasksNode = new SbtTasksGroupNode(externalProjectsView)
     tasksNode.addAll(taskViewNodes.asJavaCollection)
-    val settingsNode = new SbtSettingsNode(externalProjectsView)
+    val settingsNode = new SbtSettingsGroupNode(externalProjectsView)
     settingsNode.addAll(settingViewNodes.asJavaCollection)
+    val commandsNode = new SbtCommandsGroupNode(externalProjectsView)
+    commandsNode.addAll(commandViewNodes.asJavaCollection)
 
-    val result = new util.ArrayList[ExternalSystemNode[_]](2)
-    result.add(settingsNode)
-    result.add(tasksNode)
-
-    result
+    List[ExternalSystemNode[_]](settingsNode, tasksNode, commandsNode).asJava
   }
 
 }
 
-// dummy objects to satisfy compiler
+// data nodes for grouping nodes. These are required for correct processing by external system
+class GroupDataNode[T](data: T) extends DataNode[T](new Key[T](data.getClass.getName, 0), data, null)
 case object SbtTasks
 case object SbtSettings
+case object SbtCommands
 
-class SbtTasksNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtTasks.type](view, null) {
+class SbtTasksGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtTasks)) {
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
+    setNameAndTooltip(getName, "SBT tasks defined in this project")
     // presentation.setIcon(sbtIcon) TODO
-    setNameAndTooltip("SBT Tasks", "SBT tasks defined in project")
   }
+
+  override def getName: String = "SBT Tasks"
 }
 
-class SbtSettingsNode(view: ExternalProjectsView) extends ExternalSystemNode[SbtSettings.type](view, null) {
+class SbtSettingsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtSettings)) {
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
+    setNameAndTooltip(getName, "SBT settings defined in this project")
     // presentation.setIcon(sbtIcon) TODO
-    setNameAndTooltip("SBT Settings", "SBT settings defined in project")
   }
+
+  override def getName: String = "SBT Settings"
+}
+
+class SbtCommandsGroupNode(view: ExternalProjectsView) extends ExternalSystemNode(view, null, new GroupDataNode(SbtCommands)) {
+  override def update(presentation: PresentationData): Unit = {
+    super.update(presentation)
+    setNameAndTooltip(getName, "Named SBT commands defined in this project")
+    // presentation.setIcon(sbtIcon) TODO
+  }
+
+  override def getName: String = "SBT Commands"
 }
 
 class SbtTaskViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtTaskData])
@@ -76,11 +96,14 @@ class SbtTaskViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtTaskData
 
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
-    // presentation.setIcon(sbtIcon) TODO
-
-    val data = dataNode.getData
-    setNameAndTooltip(data.label, data.description)
+    // presentation.setIcon(sbtIcon) TODOsetNameAndTooltip(dataNode.getData.name, dataNode.getData.description)
+    setNameAndTooltip(dataNode.getData.name, dataNode.getData.description)
   }
+
+  override def getName: String = dataNode.getData.name
+  override def getMenuId: String = "Scala.Sbt.TaskMenu"
+  override def getActionId: String = "Scala.Sbt.RunTask"
+  override def isAlwaysLeaf: Boolean = true
 }
 
 class SbtSettingViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtSettingData])
@@ -89,8 +112,32 @@ class SbtSettingViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtSetti
   override def update(presentation: PresentationData): Unit = {
     super.update(presentation)
     // presentation.setIcon(sbtIcon) TODO
-
-    val data = dataNode.getData
-    setNameAndTooltip(data.label, data.description)
+    setNameAndTooltip(dataNode.getData.name, dataNode.getData.description)
   }
+
+  override def getName: String = dataNode.getData.name
+  override def getMenuId: String = "Scala.Sbt.SettingMenu"
+  override def getActionId: String = "Scala.Sbt.ShowSetting"
+  override def isAlwaysLeaf: Boolean = true
+}
+
+class SbtCommandViewNode(view: ExternalProjectsView, dataNode: DataNode[SbtCommandData])
+  extends ExternalSystemNode[SbtCommandData](view, null, dataNode) {
+  private lazy val helpString =  {
+    val data = dataNode.getData()
+    data.help.map { case (name, description) =>
+      s"$name : $description"
+    }.mkString("\n")
+  }
+
+  override def update(presentation: PresentationData): Unit = {
+    super.update(presentation)
+    // presentation.setIcon(sbtIcon) TODO
+    setNameAndTooltip(getName, helpString)
+  }
+
+  override def getName: String = dataNode.getData.name
+  override def getMenuId: String = "Scala.Sbt.CommandMenu"
+  override def getActionId: String = "Scala.Sbt.RunCommand"
+  override def isAlwaysLeaf: Boolean = true
 }

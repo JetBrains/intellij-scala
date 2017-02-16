@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.data
-import org.jetbrains.sbt.project.data.SbtProjectNode
+import org.jetbrains.sbt.project.data.{SbtProjectData, SbtProjectNode}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
@@ -94,13 +94,13 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
       linkedProjectPath := getProject.getBasePath
 
       modules += new module {
-        val typeId = SharedSourcesModuleType.instance.getId
+        val typeId: String = SharedSourcesModuleType.instance.getId
         name := "Module 1"
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
       }
 
-      arbitraryNodes += new SbtProjectNode(Seq.empty, None, Seq.empty, "", getProject.getBasePath)
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(Seq.empty, None, Seq.empty, "", getProject.getBasePath))
     }.build.toDataNode
 
     importProjectData(testProject)
@@ -125,7 +125,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
 
-      arbitraryNodes += new SbtProjectNode(basePackages, jdk, javacOptions, sbtVersion, getProject.getBasePath)
+      arbitraryNodes += new SbtProjectNode(SbtProjectData(basePackages, jdk, javacOptions, sbtVersion, getProject.getBasePath))
     }.build.toDataNode
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {
