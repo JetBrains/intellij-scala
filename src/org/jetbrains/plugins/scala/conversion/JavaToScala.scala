@@ -304,7 +304,6 @@ object JavaToScala {
       case e: PsiExpressionList =>
         ExpressionList(e.getExpressions.map(convertPsiToIntermdeiate(_, externalProperties)))
       case lambda: PsiLambdaExpression =>
-        val params = lambda.getParameterList.getParameters
         FunctionalExpression(
           convertPsiToIntermdeiate(lambda.getParameterList, externalProperties),
           convertPsiToIntermdeiate(lambda.getBody, externalProperties))
