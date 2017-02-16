@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.conversion.visitors
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.conversion.PrettyPrinter
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType.ClassType
-import org.jetbrains.plugins.scala.conversion.PrettyPrinter
-import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.ast.ModifierType.ModifierType
+import org.jetbrains.plugins.scala.conversion.ast._
 
 /**
   * Created by Kate Ustyuzhanina
@@ -45,6 +45,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case NewExpression(mtype, arrayInitalizer, arrayDimension) =>
         visitNewExpression(mtype, arrayInitalizer, arrayDimension)
       case AnonymousClassExpression(anonymousClass) => visitAnonimousClassExpression(anonymousClass)
+      case FunctionalExpression(params, body) => visitFunctionalExpression(params, body)
       case PolyadicExpression(args, operation) => visitPoliadic(args, operation)
       case PrefixExpression(operand, signType, canBeSimplified) => visitPrefixPostfix(operand, signType, canBeSimplified)
       case PostfixExpression(operand, signType, canBeSimplified) =>
@@ -322,6 +323,37 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     visit(anonClass)
   }
 
+  def visitFunctionalExpression(params: IntermediateNode, body: IntermediateNode): Unit = {
+    visit(params)
+    printer.append(" => ")
+
+    body match {
+      case BlockConstruction(_) =>
+        def constructHelperFunction(): Unit = {
+          printer.append("{\n")
+          printer.append("def foo")
+          visit(params)
+          printer.append(" = \n")
+          printBodyWithCurlyBracketes(body, () => visit(body))
+          printer.append("\n")
+        }
+
+        def constructFuncitonCall(): Unit = {
+          val pNames: Seq[IntermediateNode] = params.asInstanceOf[ParameterListConstruction].list.collect {
+            case p: ParameterConstruction => p
+          }.map(_.name)
+
+          printer.append("foo")
+          printWithSeparator(pNames, ",", "(", ")")
+          printer.append("} ")
+        }
+
+        constructHelperFunction()
+        constructFuncitonCall()
+      case _ => visit(body)
+    }
+  }
+
   def visitPoliadic(args: Seq[IntermediateNode], operation: String): Unit = {
     printWithSeparator(args, " " + operation + " ")
   }
@@ -489,15 +521,19 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       else printer.append("val ")
     }
     visit(name)
-    printer.append(": ")
-    visit(scCompType)
+
+    if (!scCompType.isInstanceOf[EmptyConstruction]) {
+      printer.append(": ")
+      visit(scCompType)
+    }
+
     if (isArray) {
       printer.append("*")
     }
   }
 
   def visitParameterList(list: Seq[IntermediateNode]): Unit = {
-    printWithSeparator(list, ", ", "(", ")", list.nonEmpty)
+    printWithSeparator(list, ", ", "(", ")")
   }
 
 
@@ -616,7 +652,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     }
 
     printer.append("try ")
-    tryBlock.foreach{ t =>
+    tryBlock.foreach { t =>
       printBodyWithCurlyBracketes(t, () => visit(t))
     }
 
@@ -702,7 +738,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     if (iteratedValue.isDefined) visit(iteratedValue.get)
     printer.append(") ")
 
-    body.foreach{ b =>
+    body.foreach { b =>
       printBodyWithCurlyBracketes(b, () => visit(b))
     }
   }

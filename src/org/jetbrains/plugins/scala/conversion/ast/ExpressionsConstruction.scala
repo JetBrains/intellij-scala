@@ -48,6 +48,7 @@ case class ThisExpression(value: Option[IntermediateNode]) extends IntermediateN
 case class SuperExpression(value: Option[IntermediateNode]) extends IntermediateNode
 case class LiteralExpression(literal: String) extends IntermediateNode
 case class ParenthesizedExpression(value: Option[IntermediateNode]) extends IntermediateNode
+case class FunctionalExpression(params: IntermediateNode, body: IntermediateNode) extends IntermediateNode
 object NewExpression {
   def apply(mtype: IntermediateNode, arrayInitalizer: Seq[IntermediateNode],
             withArrayInitalizer: Boolean = true): NewExpression = {

@@ -11,5 +11,5 @@ case class BlockConstruction(statements: Seq[IntermediateNode]) extends Intermed
     beforeStatements += statement
   }
 
-  val beforeStatements = new ArrayBuffer[IntermediateNode]
+  val beforeStatements: ArrayBuffer[IntermediateNode] = new ArrayBuffer[IntermediateNode]
 }

@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+import com.intellij.psi.PsiLambdaExpression
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -99,10 +100,12 @@ object JavaToScala {
                                    refs: Seq[ReferenceData] = Seq.empty,
                                    usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](),
                                    textMode: Boolean = false): IntermediateNode = {
-    Option(`type`).map { t =>
-      val iNode = TypeConstruction.createIntermediateTypePresentation(t, project)
-      handleAssociations(psiElement, iNode)
-      iNode
+    Option(`type`).map {
+      case _: PsiLambdaParameterType => EmptyConstruction()
+      case t =>
+        val iNode = TypeConstruction.createIntermediateTypePresentation(t, project)
+        handleAssociations(psiElement, iNode)
+        iNode
     }.getOrElse(EmptyConstruction())
   }
 
@@ -300,6 +303,11 @@ object JavaToScala {
         SuperExpression(Option(s.getQualifier).map(convertPsiToIntermdeiate(_, externalProperties)))
       case e: PsiExpressionList =>
         ExpressionList(e.getExpressions.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case lambda: PsiLambdaExpression =>
+        val params = lambda.getParameterList.getParameters
+        FunctionalExpression(
+          convertPsiToIntermdeiate(lambda.getParameterList, externalProperties),
+          convertPsiToIntermdeiate(lambda.getBody, externalProperties))
       case l: PsiLocalVariable =>
         val parent = Option(PsiTreeUtil.getParentOfType(l, classOf[PsiCodeBlock], classOf[PsiBlockStatement]))
         val needVar = if (parent.isEmpty) false else isVar(l, parent)

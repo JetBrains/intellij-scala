@@ -150,10 +150,10 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       scalaProcessor.processTransferableData(project, editor, bounds, i, ref, singletonList(new Associations(shiftedAssociations)))
 
       inWriteAction {
-        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getStartOffset + text.length, editor)
+        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
 
         TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
-          ConverterUtil.collectTopElements(bounds.getStartOffset, bounds.getStartOffset + text.length, file)
+          ConverterUtil.collectTopElements(bounds.getStartOffset, bounds.getEndOffset, file)
         )
       }
     }

@@ -4,5 +4,5 @@ public class A {
     }
 }
 /*
-val r: Runnable = () -> System.out.println("Serializable!").asInstanceOf[Runnable with Nothing]
+val r: Runnable = () => System.out.println("Serializable!").asInstanceOf[Runnable with Nothing]
  */
