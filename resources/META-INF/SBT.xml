@@ -49,6 +49,7 @@
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtSettingDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtTaskDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtCommandDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
         <externalProjectDataService implementation="org.jetbrains.plugins.scala.project.migration.ImportedLibrariesService"/>
 
@@ -113,5 +114,88 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <scalaFileFactory implementation="org.jetbrains.sbt.language.SbtFileFactory" />
     </extensions>
+
+    <actions>
+        <action id="Scala.Sbt.StartShell"
+                class="org.jetbrains.sbt.shell.action.SbtShellStartAction"
+                text="Start SBT Shell"
+        >
+            <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Scala.RunConsole" />
+        </action>
+
+        <action id="Scala.Sbt.RunTask"
+                class="org.jetbrains.sbt.shell.action.RunTaskAction"
+                text="Run"
+                description="Run task in SBT Shell"
+        />
+        <action id="Scala.Sbt.ShowTask"
+                class="org.jetbrains.sbt.shell.action.ShowTaskAction"
+                text="Show result"
+                description="Show task result in SBT Shell"
+        />
+        <action id="Scala.Sbt.InspectTask"
+                class="org.jetbrains.sbt.shell.action.InspectTaskAction"
+                text="Inspect"
+                description="Inspect task in SBT Shell"
+        />
+        <action id="Scala.Sbt.ShowSetting"
+                class="org.jetbrains.sbt.shell.action.ShowSettingAction"
+                text="Show value"
+                description="Show setting in SBT Shell"
+        />
+        <action id="Scala.Sbt.InspectSetting"
+                class="org.jetbrains.sbt.shell.action.InspectSettingAction"
+                text="Inspect"
+                description="Inspect setting in SBT Shell"
+        />
+        <action id="Scala.Sbt.RunCommand"
+                class="org.jetbrains.sbt.shell.action.RunCommandAction"
+                text="Run"
+                description="Run command in SBT Shell"
+        />
+        <action id="Scala.Sbt.Help"
+                class="org.jetbrains.sbt.shell.action.SbtHelpAction"
+                text="Help"
+                description="Get help in SBT Shell"
+        />
+
+
+        <group>
+            <separator/>
+            <reference id="Scala.Sbt.StartShell"/>
+            <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
+        </group>
+
+        <group id="Scala.Sbt.TaskMenu" popup="true">
+            <reference ref="RunContextGroup"/>
+            <separator/>
+            <reference ref="Scala.Sbt.RunTask"/>
+            <reference ref="Scala.Sbt.ShowTask"/>
+            <reference ref="Scala.Sbt.InspectTask"/>
+            <reference ref="Scala.Sbt.Help"/>
+            <separator/>
+            <reference id="ExternalSystem.AssignShortcut"/>
+        </group>
+
+        <group id="Scala.Sbt.SettingMenu" popup="true">
+            <reference ref="RunContextGroup"/>
+            <separator/>
+            <reference ref="Scala.Sbt.ShowSetting"/>
+            <reference ref="Scala.Sbt.InspectSetting"/>
+            <reference ref="Scala.Sbt.Help"/>
+            <separator/>
+            <reference id="ExternalSystem.AssignShortcut"/>
+        </group>
+
+        <group id="Scala.Sbt.CommandMenu" popup="true">
+            <reference ref="RunContextGroup"/>
+            <separator/>
+            <reference ref="Scala.Sbt.RunCommand"/>
+            <reference ref="Scala.Sbt.Help"/>
+            <separator/>
+            <reference id="ExternalSystem.AssignShortcut"/>
+        </group>
+
+    </actions>
 
 </idea-plugin>

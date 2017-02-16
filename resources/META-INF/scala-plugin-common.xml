@@ -1516,18 +1516,6 @@
                 description="Expand macro application under cursor">
             <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>
-        <action id="Scala.Sbt.StartShell"
-                class="org.jetbrains.sbt.shell.SbtShellStartAction"
-                icon="org.jetbrains.plugins.scala.icons.Icons.SCALA_CONSOLE"
-                description="Start SBT shell">
-            <add-to-group group-id="ToolsMenu" anchor="after" relative-to-action="Scala.RunConsole" />
-        </action>
-
-        <group>
-          <separator/>
-          <reference id="Scala.Sbt.StartShell"/>
-          <add-to-group group-id="ExternalSystemView.ActionsToolbar.LeftPanel"/>
-        </group>
 
     </actions>
 

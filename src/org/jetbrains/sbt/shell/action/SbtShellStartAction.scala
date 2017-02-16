@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.shell
+package org.jetbrains.sbt.shell.action
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.externalSystem.action.ExternalSystemAction
@@ -6,6 +6,7 @@ import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.jetbrains.sbt.shell.SbtProcessManager
 
 /**
   * Created by jast on 2016-11-04.
@@ -20,11 +21,8 @@ class SbtShellStartAction extends ExternalSystemAction {
   }
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    SbtProcessManager.forProject(event.getProject).openShellRunner()
+    SbtProcessManager.forProject(event.getProject).openShellRunner(focus = true)
   }
-
-  override def isEnabled(e: AnActionEvent): Boolean =
-    true
 
   // hide for non-sbt project toolwindows
   override def isVisible(e: AnActionEvent): Boolean =
