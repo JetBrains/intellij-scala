@@ -1,4 +1,4 @@
-class CaseClasuseParamAsLocal {
+class CaseClauseParamAsLocal {
 
   abstract case class Base(i: Int)
 

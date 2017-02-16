@@ -50,7 +50,6 @@ import java.util.List;
 public class TestUtils {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.util.TestUtils");
 
-  public static final String CARET_MARKER = "<caret>";
   public static final String BEGIN_MARKER = "<begin>";
   public static final String END_MARKER = "<end>";
 
@@ -179,11 +178,6 @@ public class TestUtils {
   public static String getScalaReflectPath(ScalaSdkVersion version) {
     String fileName = "scala-reflect-" + version.getMinor() + ".jar";
     return getIvyCachePath() + "/org.scala-lang/scala-reflect/jars/" + fileName;
-  }
-  
-  public static String removeCaretMarker(String text) {
-    int index = text.indexOf(CARET_MARKER);
-    return text.substring(0, index) + text.substring(index + CARET_MARKER.length());
   }
 
   public static String removeBeginMarker(String text) {
