@@ -4,16 +4,16 @@ package parameterInfo
 package patternParameterInfo
 
 import com.intellij.lang.parameterInfo.ParameterInfoHandlerWithTabActionSupport
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScPatternArgumentList}
+import com.intellij.psi.PsiElement
 
 /**
   * @author Aleksander Podkhalyuzin
   * @since 25.04.2009
   */
-abstract class PatternParameterInfoTestBase extends ParameterInfoTestBase[ScPatternArgumentList, ScPattern] {
+abstract class PatternParameterInfoTestBase extends ParameterInfoTestBase {
 
   override protected def folderPath = super.folderPath + "patternParameterInfo/"
 
-  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, ScPattern] =
+  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[_ <: PsiElement, Any, _ <: PsiElement] =
     new ScalaPatternParameterInfoHandler
 }

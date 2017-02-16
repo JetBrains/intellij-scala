@@ -15,16 +15,15 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.junit.Assert._
 
 import scala.collection.mutable
 
-abstract class ParameterInfoTestBase[O <: PsiElement, E <: ScalaPsiElement] extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ParameterInfoTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   protected def folderPath = baseRootPath() + "parameterInfo/"
 
-  protected def createHandler: ParameterInfoHandlerWithTabActionSupport[O, Any, E]
+  protected def createHandler: ParameterInfoHandlerWithTabActionSupport[_ <: PsiElement, Any, _ <: PsiElement]
 
   import ParameterInfoTestBase._
 

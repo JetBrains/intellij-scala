@@ -4,16 +4,16 @@ package parameterInfo
 package typeParameterInfo
 
 import com.intellij.lang.parameterInfo.ParameterInfoHandlerWithTabActionSupport
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
+import com.intellij.psi.PsiElement
 
 /**
   * @author Aleksander Podkhalyuzin
   * @since 26.04.2009
   */
-abstract class TypeParameterInfoTestBase extends ParameterInfoTestBase[ScTypeArgs, ScTypeElement] {
+abstract class TypeParameterInfoTestBase extends ParameterInfoTestBase {
 
   override protected def folderPath: String = super.folderPath + "typeParameterInfo/"
 
-  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, ScTypeElement] =
+  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[_ <: PsiElement, Any, _ <: PsiElement] =
     new ScalaTypeParameterInfoHandler
 }
