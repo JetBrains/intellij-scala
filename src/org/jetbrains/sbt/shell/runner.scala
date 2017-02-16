@@ -19,6 +19,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.pty4j.{PtyProcess, WinSize}
+import org.jetbrains.sbt.shell.action.{AutoCompleteAction, ExecuteTaskAction, RestartAction}
 
 import scala.collection.JavaConverters._
 
@@ -87,7 +88,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
         whenReady = myConsoleView.setPrompt(">"),
         whenWorking = myConsoleView.setPrompt("X")
       )
-      SbtShellCommunication.forProject(project).attachListener(shellPromptChanger)
+      SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
     }
   }
 
@@ -131,18 +132,11 @@ class SbtShellRunner(project: Project, consoleTitle: String)
   }
 
   def createAutoCompleteAction(): AnAction = {
-    val action = new AutoCompleteAction
+    val action = new AutoCompleteAction // TODO some sensible implementation possible yet?
     action.registerCustomShortcutSet(KeyEvent.VK_TAB, 0, null)
     action.getTemplatePresentation.setVisible(false)
     action
   }
-
-  /** A new instance of the runner with the same constructor params as this one, but fresh state. */
-  def respawn: SbtShellRunner = {
-    processManager.restartProcess()
-    new SbtShellRunner(project, consoleTitle)
-  }
-
 }
 
 object SbtShellRunner {
@@ -150,42 +144,5 @@ object SbtShellRunner {
   val ICON: Icon = IconLoader.getIcon("/sbt.png")
 }
 
-class AutoCompleteAction extends DumbAwareAction {
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    // TODO call code completion (ctrl+space by default)
-  }
-}
-
-class RestartAction(runner: SbtShellRunner, executor: Executor, contentDescriptor: RunContentDescriptor) extends DumbAwareAction {
-  copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_RERUN))
-
-  val templatePresentation: Presentation = getTemplatePresentation
-  templatePresentation.setIcon(AllIcons.Actions.Restart)
-  templatePresentation.setText("Restart SBT Shell") // TODO i18n / language-bundle
-  templatePresentation.setDescription(null)
-
-  def actionPerformed(e: AnActionEvent): Unit = {
-    val removed = ExecutionManager.getInstance(runner.getProject)
-      .getContentManager
-      .removeRunContent(executor, contentDescriptor)
-
-    if (removed) runner.respawn.initAndRun()
-  }
-
-  override def update(e: AnActionEvent) {}
-}
-
 class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
   extends ProcessBackedConsoleExecuteActionHandler(processHandler, true)
-
-
-class ExecuteTaskAction(task: String, icon: Option[Icon]) extends DumbAwareAction {
-
-  getTemplatePresentation.setIcon(icon.orNull)
-  getTemplatePresentation.setText(s"Execute $task")
-
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    // TODO execute with indicator
-    SbtShellCommunication.forProject(e.getProject).command(task)
-  }
-}

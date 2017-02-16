@@ -52,11 +52,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     }
   }
 
-  def attachListener(listener: ProcessAdapter): Unit = {
-    val handler = process.acquireShellProcessHandler
-    handler.addProcessListener(listener)
-  }
-
   /** Start processing command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
 
@@ -81,17 +76,16 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
       if (next != null) {
         val (cmd, listener) = next
 
-        val handler = process.acquireShellProcessHandler
-        handler.addProcessListener(listener)
+        process.attachListener(listener)
 
-        val shell = new PrintWriter(new OutputStreamWriter(handler.getProcessInput))
+        process.withWriter { shell =>
+          shell.println(cmd)
+          shell.flush()
+        }
 
         // we want to avoid registering multiple callbacks to the same output and having whatever side effects
-        shell.println(cmd)
-        shell.flush()
-
         listener.future.onComplete { _ =>
-          handler.removeProcessListener(listener)
+          process.removeListener(listener)
           shellQueueReady.release()
         }
       } else shellQueueReady.release()
@@ -99,7 +93,10 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   }
 
   /**
-    * To be called when the process is reinitialized externally
+    * To be called when the process is reinitialized externally.
+    * Will only work correctly when `acquireShellProcessHandler.isStartNotify == true`
+    * This is usually ensured by calling openShellRunner first, but it's possible
+    * to manually trigger it if a fully background process is desired
     */
   private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
     if (!communicationActive.getAndSet(true)) {
@@ -109,8 +106,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
       )
 
       shellPromptReady.set(false)
-      handler.addProcessListener(stateChanger)
-      if (!handler.isStartNotified) handler.startNotify()
+      process.attachListener(stateChanger)
 
       startQueueProcessing(handler)
     }

@@ -1,9 +1,9 @@
 package org.jetbrains.sbt.shell
 
-import java.io.File
+import java.io.{File, OutputStreamWriter, PrintWriter}
 
 import com.intellij.execution.configurations.{GeneralCommandLine, JavaParameters, PtyCommandLine}
-import com.intellij.execution.process.ColoredProcessHandler
+import com.intellij.execution.process.{ColoredProcessHandler, ProcessAdapter}
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -70,7 +70,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     * The process handler should only be used to access the running process!
     * SbtProcessManager is solely responsible for handling the running state.
     */
-  def acquireShellProcessHandler: ColoredProcessHandler = myProcessHandler.synchronized {
+  private[shell] def acquireShellProcessHandler: ColoredProcessHandler = myProcessHandler.synchronized {
     myProcessHandler match {
       case Some(handler) if handler.getProcess.isAlive => handler
       case _ =>
@@ -78,6 +78,31 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
         myProcessHandler = Option(handler)
         handler
     }
+  }
+
+  private def createShellRunner() = {
+    val title = "SBT Shell"
+    val runner = new SbtShellRunner(project, title)
+    runner.initAndRun()
+    runner
+  }
+
+  private def updateShellRunner() = {
+    val runner = createShellRunner()
+    myShellRunner = Option(runner)
+    runner
+  }
+
+  def attachListener(listener: ProcessAdapter): Unit =
+    acquireShellProcessHandler.addProcessListener(listener)
+
+  def removeListener(listener: ProcessAdapter): Unit =
+    acquireShellProcessHandler.removeProcessListener(listener)
+
+  /** Supply a printwriter that writes to the current process. */
+  def withWriter[T](f: PrintWriter => T) = {
+    val writer = new PrintWriter(new OutputStreamWriter(acquireShellProcessHandler.getProcessInput))
+    f(writer)
   }
 
   /** Creates the SbtShellRunner view, or focuses it if it already exists. */
@@ -88,25 +113,20 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
         ShellUIUtil.inUIsync(runner.openShell(focus))
         runner
       case _ =>
-        val title = "SBT Shell"
-        val runner = new SbtShellRunner(project, title)
-        myShellRunner = Option(runner)
-        runner.initAndRun()
-        runner
+        updateShellRunner()
     }
   }
 
   def restartProcess(): Unit = myProcessHandler.synchronized {
     destroyProcess()
     myProcessHandler = Option(createShellProcessHandler())
+    updateShellRunner()
   }
 
-  def destroyProcess(): Unit = {
-    myProcessHandler.synchronized {
-      myProcessHandler.foreach(_.destroyProcess())
-      myProcessHandler = None
-      myShellRunner = None
-    }
+  def destroyProcess(): Unit = myProcessHandler.synchronized {
+    myProcessHandler.foreach(_.destroyProcess())
+    myProcessHandler = None
+    myShellRunner = None
   }
 
   override def projectClosed(): Unit = {
