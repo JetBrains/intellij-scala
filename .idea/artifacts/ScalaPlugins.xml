@@ -57,12 +57,12 @@
         <element id="library" level="project" name="SBT: org.scalameta:tokens_2.11:1.3.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:transversers_2.11:1.3.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:trees_2.11:1.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-1-g746aa2c:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-4-ga73b109:jar" />
       </element>
       <element id="directory" name="launcher">
-        <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.11:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-1-g746aa2c:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-1-g746aa2c:jar" />
+        <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.13:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-4-ga73b109:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-4-ga73b109:jar" />
       </element>
     </root>
   </artifact>
