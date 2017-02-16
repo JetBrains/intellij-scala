@@ -57,14 +57,18 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit): Try[Elem] = {
     val pluginFile = customStructureFile.getOrElse(LauncherDir / s"sbt-structure-$sbtVersion.jar")
 
+    val l = _root_.scala.collection.immutable.List(1)
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+      val setCommands = Seq(
+        s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
+        s"""SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$options""""
+      ).mkString("set _root_.scala.collection.Seq(", ",", ")")
+
       val sbtCommands = Seq(
-        s"""set shellPrompt := { _ => "" }""",
-        s"""set SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
-        s"""set SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$options" """,
+        setCommands,
         s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.CreateTasks""",
-        s"""*/*:dump-structure""",
-        s"""exit""")
+        "*/*:dump-structure"
+      ).mkString(";",";","")
 
       val processCommandsRaw =
         path(vmExecutable) +:
@@ -73,19 +77,17 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         "-Dfile.encoding=UTF-8" +:
         (vmOptions ++ SbtOpts.loadFrom(directory)) :+
         "-jar" :+
-        path(SbtLauncher)
+        path(SbtLauncher) :+
+        sbtCommands
+
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
       Try {
         val processBuilder = new ProcessBuilder(processCommands.asJava)
         processBuilder.directory(directory)
-        environment.foreach { case (name, value) =>
-          processBuilder.environment().put(name, value)
-        }
+        processBuilder.environment().putAll(environment.asJava)
         val process = processBuilder.start()
         using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
-          sbtCommands.foreach(writer.println)
-          writer.flush()
           val result = handle(process, listener)
           result.map { output =>
             if (structureFile.length > 0)
