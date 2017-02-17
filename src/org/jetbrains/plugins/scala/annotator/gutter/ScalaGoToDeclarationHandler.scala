@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.{isDynamicReference, resolveDynamic}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -83,8 +83,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
       val ref = file.findReferenceAt(sourceElement.getTextRange.getStartOffset)
       if (ref == null) return null
       val targets = ref match {
-        case expression: ScReferenceExpression if DynamicResolveProcessor.isDynamicReference(expression) =>
-          handleDynamicResolveResult(new DynamicResolveProcessor(expression).resolve())
+        case expression: ScReferenceExpression if isDynamicReference(expression) =>
+          handleDynamicResolveResult(resolveDynamic(expression))
         case resRef: ScReferenceElement =>
           resRef.bind() match {
             case Some(x)  => handleScalaResolveResult(x)

@@ -1,30 +1,15 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor
 
-import com.intellij.psi.{PsiClass, ResolveResult}
+import com.intellij.psi.ResolveResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver.getAllResolveResult
 
-import scala.collection.mutable.ArrayBuffer
-
-/**
-  * Resolve reference for Dynamic type via DynamicTypeReferenceResolver's implementations
-  */
-class DynamicResolveProcessor(referenceExpression: ScReferenceExpression) {
-
-  import scala.collection.JavaConversions._
-
-  def resolve(): ArrayBuffer[ResolveResult] = {
-    val res = new ArrayBuffer() ++= DynamicTypeReferenceResolver.getAllResolveResult(referenceExpression)
-    res
-  }
-}
 
 object DynamicResolveProcessor {
 
@@ -50,27 +35,25 @@ object DynamicResolveProcessor {
       case _ => false
     }) APPLY_DYNAMIC_NAMED else APPLY_DYNAMIC
 
+  def isDynamicReference(reference: ScReferenceExpression): Boolean = {
+    implicit val typeSystem: TypeSystem = reference.typeSystem
 
-  def isDynamicReference(referenceExpression: ScReferenceExpression): Boolean = {
-    implicit val typeSystem: TypeSystem = referenceExpression.getProject.typeSystem
+    def qualifierType() = reference.qualifier
+      .flatMap(_.getNonValueType(TypingContext.empty).toOption)
 
-    def findDynamicCachedClass(): Option[PsiClass] =
-      ScalaPsiManager.instance(referenceExpression.getProject).getCachedClass(referenceExpression.getResolveScope, "scala.Dynamic")
+    def cachedClassType() =
+      ScalaPsiManager.instance(reference.getProject)
+        .getCachedClass(reference.getResolveScope, "scala.Dynamic")
+        .map(ScDesignatorType(_))
 
-    def computeType(): Option[ScType] = {
-      referenceExpression.qualifier.flatMap { ttype =>
-        ttype.getNonValueType(TypingContext.empty) match {
-          case Success(elementType: ScType, _) => Some(elementType)
-          case _ => None
-        }
-      }
+    qualifierType().zip(cachedClassType()).exists {
+      case (qualifierType, classType) => qualifierType.conforms(classType)
     }
+  }
 
-    computeType().exists { elementType =>
-      findDynamicCachedClass().exists { clazz =>
-        elementType.conforms(ScDesignatorType(clazz))
-      }
-    }
+  def resolveDynamic(reference: ScReferenceExpression): Seq[ResolveResult] = {
+    import scala.collection.JavaConversions._
+    getAllResolveResult(reference)
   }
 }
 
