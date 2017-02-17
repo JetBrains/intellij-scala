@@ -7,9 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver.getAllResolveResult
-
 
 object DynamicResolveProcessor {
 
@@ -19,27 +17,29 @@ object DynamicResolveProcessor {
   val UPDATE_DYNAMIC = "updateDynamic"
   val NAMED = "Named"
 
-  def getDynamicReturn(tp: ScType): ScType = {
-    tp match {
-      case pt@ScTypePolymorphicType(mt: ScMethodType, typeArgs) => ScTypePolymorphicType(mt.returnType, typeArgs)(pt.typeSystem)
-      case mt: ScMethodType => mt.returnType
-      case _ => tp
-    }
+  def getDynamicReturn: ScType => ScType = {
+    case methodType: ScMethodType => methodType.returnType
+    case ScTypePolymorphicType(methodType: ScMethodType, parameters) =>
+      ScTypePolymorphicType(getDynamicReturn(methodType), parameters)(methodType.typeSystem)
+    case scType => scType
   }
 
-  def getDynamicNameForMethodInvocation(call: MethodInvocation): String =
-    if (call.argumentExpressions.collect {
+  def getDynamicNameForMethodInvocation(call: MethodInvocation): String = {
+    val arguments = call.argumentExpressions.collect {
       case statement: ScAssignStmt => statement.getLExpression
-    }.exists {
-      case r: ScReferenceExpression => r.qualifier.isEmpty
+    }
+
+    if (arguments.exists {
+      case reference: ScReferenceExpression => reference.qualifier.isEmpty
       case _ => false
     }) APPLY_DYNAMIC_NAMED else APPLY_DYNAMIC
+  }
 
   def isDynamicReference(reference: ScReferenceExpression): Boolean = {
     implicit val typeSystem: TypeSystem = reference.typeSystem
 
     def qualifierType() = reference.qualifier
-      .flatMap(_.getNonValueType(TypingContext.empty).toOption)
+      .flatMap(_.getNonValueType().toOption)
 
     def cachedClassType() =
       ScalaPsiManager.instance(reference.getProject)
