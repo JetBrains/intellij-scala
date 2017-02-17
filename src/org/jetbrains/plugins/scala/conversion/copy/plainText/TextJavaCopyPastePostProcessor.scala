@@ -74,13 +74,11 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
             editor.getCaretModel.moveToOffset(bounds.getStartOffset + convertedText.length)
 
-            ConverterUtil.withSpecialStyleIn(project) {
-              val manager = CodeStyleManager.getInstance(project)
-              manager.reformatText(
+            CodeStyleManager.getInstance(project)
+              .reformatText(
                 PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument),
                 bounds.getStartOffset, bounds.getStartOffset + convertedText.length
               )
-            }
           }
         }
       }

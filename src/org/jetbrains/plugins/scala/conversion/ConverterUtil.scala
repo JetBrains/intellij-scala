@@ -8,8 +8,6 @@ import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
@@ -254,27 +252,6 @@ object ConverterUtil {
 
   object ConvertedCode {
     lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
-  }
-
-  def withSpecialStyleIn(project: Project)(block: => Unit) {
-    val settings = CodeStyleSettingsManager.getSettings(project).getCommonSettings(ScalaLanguage.INSTANCE)
-
-    val keep_blank_lines_in_code = settings.KEEP_BLANK_LINES_IN_CODE
-    val keep_blank_lines_in_declarations = settings.KEEP_BLANK_LINES_IN_DECLARATIONS
-    val keep_blank_lines_before_rbrace = settings.KEEP_BLANK_LINES_BEFORE_RBRACE
-
-    settings.KEEP_BLANK_LINES_IN_CODE = 0
-    settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
-    settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
-
-    try {
-      block
-    }
-    finally {
-      settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
-      settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations
-      settings.KEEP_BLANK_LINES_BEFORE_RBRACE = keep_blank_lines_before_rbrace
-    }
   }
 
   def shownDialog(msg: String, project: Project): ScalaPasteFromJavaDialog = {

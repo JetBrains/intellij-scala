@@ -134,10 +134,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
         }
 
-        ConverterUtil.withSpecialStyleIn(project) {
-          val manager = CodeStyleManager.getInstance(project)
-          manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
-        }
+        CodeStyleManager.getInstance(project)
+          .reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
 
         markedAssociations.map {
           case (association, marker) =>
