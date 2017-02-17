@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -226,22 +227,24 @@ object TypeAnnotationUtil {
     val configurable: Configurable = visitor.find(groups: _*)
         
     assert(configurable != null, "Cannot find configurable: " + classOf[CodeStyleSchemesConfigurable].getName)
-    
-    ShowSettingsUtil.getInstance.editConfigurable(project, configurable, new Runnable() {
-      def run() {
-        val codeStyleMainPanel: CodeStyleMainPanel = configurable.createComponent.asInstanceOf[CodeStyleMainPanel]
-        assert(codeStyleMainPanel != null, "Cannot find Code Style main panel")
 
-        codeStyleMainPanel.getPanels.headOption.foreach { panel =>
-          val selectedPanel = panel.getSelectedPanel
-          assert(selectedPanel != null)
-          selectedPanel match {
-            case tab: ScalaTabbedCodeStylePanel => tab.changeTab("Type Annotations")
-            case _ =>
+    extensions.invokeLater {
+      ShowSettingsUtil.getInstance.editConfigurable(project, configurable, new Runnable() {
+        def run() {
+          val codeStyleMainPanel: CodeStyleMainPanel = configurable.createComponent.asInstanceOf[CodeStyleMainPanel]
+          assert(codeStyleMainPanel != null, "Cannot find Code Style main panel")
+
+          codeStyleMainPanel.getPanels.headOption.foreach { panel =>
+            val selectedPanel = panel.getSelectedPanel
+            assert(selectedPanel != null)
+            selectedPanel match {
+              case tab: ScalaTabbedCodeStylePanel => tab.changeTab("Type Annotations")
+              case _ =>
+            }
           }
         }
-      }
-    })
+      })
+    }
   }
   
   def createTypeAnnotationsHLink(project: Project , msg: String): HyperlinkLabel = {
