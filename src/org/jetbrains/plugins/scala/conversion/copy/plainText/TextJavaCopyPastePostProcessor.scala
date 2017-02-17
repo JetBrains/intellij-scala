@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
 import java.lang.Boolean
-import java.lang.System.lineSeparator
 
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.internal.statistic.UsageTrigger
@@ -23,6 +22,8 @@ import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
   * Created by Kate Ustyuzhanina on 12/19/16.
   */
 class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBlockTransferableData] {
+  private val lineSeparator = '\n'
+
   override protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int],
                                                   endOffsets: Array[Int]): TextBlockTransferableData = {
     null
@@ -90,7 +91,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
     def convertStatement(psiElement: PsiElement): String =
       Option(psiElement).map(holder => JavaToScala.convertPsisToText(Array(holder))).getOrElse("")
 
-    def newLine(text: String): String = if (text == "") text else text + lineSeparator()
+    def newLine(text: String): String = if (text == "") text else text + lineSeparator
 
     val javaFileLen = javaFile.getText.length
     val (begin, end) = context match {
@@ -128,11 +129,11 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
   case class FileContext() extends CopyContext("", "")
 
-  case class ClassContext() extends CopyContext("class Dummy { ", s"${lineSeparator()}}")
+  case class ClassContext() extends CopyContext("class Dummy { ", s"$lineSeparator}")
 
-  case class BlockContext() extends CopyContext("class Dummy { void foo () { ", s"${lineSeparator()}}${lineSeparator()}}")
+  case class BlockContext() extends CopyContext("class Dummy { void foo () { ", s"$lineSeparator}$lineSeparator}")
 
-  case class ExpressionContext() extends CopyContext("class Dummy { Object field =", s"${lineSeparator()}}")
+  case class ExpressionContext() extends CopyContext("class Dummy { Object field =", s"$lineSeparator}")
 
   case class CodeWithContext(text: String, project: Project, context: CopyContext) {
     def parseWithContextAsJava: Boolean =

@@ -45,7 +45,7 @@ class CopyWorksheetAction extends AnAction with TopComponentAction {
   private def createMerged(editor: Editor, viewer: Editor): String = {
     val result = new StringBuilder
     val fullShift = StringUtil.repeat(" ", CopyWorksheetAction.COPY_BORDER)
-    val lineSeparator = Option(System.getProperty("line.separator")) getOrElse "\n"
+    val lineSeparator = "\n"
 
     val leftDocument = editor.getDocument
     val rightDocument = viewer.getDocument

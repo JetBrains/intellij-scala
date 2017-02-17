@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.visitors
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.conversion.PrettyPrinter
 import org.jetbrains.plugins.scala.conversion.ast.IntermediateNode
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -18,7 +19,7 @@ trait IntermediateTreeVisitor {
 
   def escapeKeyword(name: String): String = ScalaNamesUtil.escapeKeyword(name)
 
-  def stringResult: String = printer.toString
+  def stringResult: String = StringUtil.convertLineSeparators(printer.toString)
 
   val rangedElementsMap = new mutable.HashMap[IntermediateNode, TextRange]
 }

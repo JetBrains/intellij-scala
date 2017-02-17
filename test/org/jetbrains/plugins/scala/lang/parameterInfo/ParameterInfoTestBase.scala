@@ -9,6 +9,7 @@ import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
 import com.intellij.lang.parameterInfo.{ParameterInfoHandlerWithTabActionSupport, ParameterInfoUIContext}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
@@ -118,7 +119,8 @@ object ParameterInfoTestBase {
   }
 
   private def normalize(string: String) =
-    string.split(System.lineSeparator)
+    StringUtil.convertLineSeparators(string)
+      .split('\n')
       .map(_.trim)
       .filterNot(_.isEmpty)
       .toSeq

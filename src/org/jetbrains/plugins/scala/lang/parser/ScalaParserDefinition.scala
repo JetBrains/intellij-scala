@@ -56,7 +56,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
 
     import com.intellij.lang.ParserDefinition.SpaceRequirements._
     rightNode.getElementType match {
-      case ScalaTokenTypes.tWHITE_SPACE_IN_LINE if rightNode.getText.contains(System.lineSeparator) => MAY
+      case ScalaTokenTypes.tWHITE_SPACE_IN_LINE if rightNode.getText.contains('\n') => MAY
       case _ if isNeighbour => MUST_LINE_BREAK
       case ScalaTokenTypes.kIMPORT => MUST_LINE_BREAK
       case _ => super.spaceExistanceTypeBetweenTokens(leftNode, rightNode)

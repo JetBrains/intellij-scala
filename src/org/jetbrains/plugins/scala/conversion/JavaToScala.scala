@@ -953,7 +953,6 @@ object JavaToScala {
   def convertPsiToText(element: PsiElement): String = {
     val visitor = new PrintWithComments
     visitor.visit(convertPsiToIntermdeiate(element, null)(textMode = true))
-    visitor.stringResult
 
     val text = visitor.stringResult
 

@@ -27,7 +27,7 @@ abstract class CopyTestBase() extends ScalaLightCodeInsightFixtureTestAdapter {
     myFixture.performEditorAction(IdeActions.ACTION_COPY)
     myFixture.configureByText("to" + "Dummy" + toLangExtension, normalize(toText))
     myFixture.performEditorAction(IdeActions.ACTION_PASTE)
-    myFixture.checkResult(expectedText)
+    myFixture.checkResult(normalize(expectedText))
   }
 
   def doTestEmptyToFile(fromText: String, expectedText: String): Unit = {
