@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.console
 
 import java.io.{IOException, OutputStream}
 
-import com.intellij.execution.console.LanguageConsoleBuilder
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions

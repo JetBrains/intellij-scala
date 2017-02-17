@@ -32,7 +32,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
     val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
     val sdk = configuredSdk.getOrElse(projectSdk)
-    assert(sdk != null, "Setup a project JDK to run the SBT shell with")
+    assert(sdk != null, "Setup a project JDK to run the SBT shell")
     val launcherJar: File = sbtSettings.customLauncher.getOrElse(SbtRunner.getDefaultLauncher)
 
     val javaParameters: JavaParameters = new JavaParameters

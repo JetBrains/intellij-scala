@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.io.{OutputStreamWriter, PrintWriter}
 import java.util.concurrent._
 import java.util.concurrent.atomic.AtomicBoolean
 
