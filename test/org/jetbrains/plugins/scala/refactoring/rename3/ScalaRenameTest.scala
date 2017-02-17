@@ -54,4 +54,6 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testMethodSameAsJavaKeyword() = doTest()
 
   def testParamSameAsJavaKeyword() = doTest()
+  
+  def testObjectImport() = doTest()
 }

@@ -11,7 +11,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameUtil
 import com.intellij.usageView.UsageInfo
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -106,43 +106,49 @@ object ScalaRenameUtil {
                                   listener: RefactoringElementListener): Unit = {
     case class UsagesWithName(name: String, usages: Array[UsageInfo])
 
-    val encodeNames: UsagesWithName => Seq[UsagesWithName] = {
-      case UsagesWithName(name, usagez) =>
-        if (usagez.isEmpty) Nil
+    def encodeNames(usagesWithName: UsagesWithName): Seq[UsagesWithName] = {
+      val UsagesWithName(name, usagez) = usagesWithName
+
+      if (usagez.isEmpty) Nil
+      else {
+        val encodedName = ScalaNamesUtil.toJavaName(newName)
+        if (encodedName == name) Seq(UsagesWithName(name, usagez))
         else {
-          val encodedName = ScalaNamesUtil.toJavaName(newName)
-          if (encodedName == name) Seq(UsagesWithName(name, usagez))
-          else {
-            val needEncodedName: UsageInfo => Boolean = { u =>
-              val ref = u.getReference.getElement
-              !ref.getLanguage.isKindOf(ScalaLanguage.INSTANCE) //todo more concise condition?
-            }
-            val (usagesEncoded, usagesPlain) = usagez.partition(needEncodedName)
-            Seq(UsagesWithName(encodedName, usagesEncoded), UsagesWithName(name, usagesPlain))
+          val needEncodedName: UsageInfo => Boolean = { u =>
+            val ref = u.getReference.getElement
+            !ref.getLanguage.isKindOf(ScalaLanguage.INSTANCE) //todo more concise condition?
           }
+          val (usagesEncoded, usagesPlain) = usagez.partition(needEncodedName)
+          Seq(UsagesWithName(encodedName, usagesEncoded), UsagesWithName(name, usagesPlain))
         }
+      }
     }
 
-    val modifyScObjectName: UsagesWithName => Seq[UsagesWithName] = {
-      case UsagesWithName(name, usagez) =>
-        if (usagez.isEmpty) Nil
-        else {
-          val needDollarSign: UsageInfo => Boolean = { u =>
-            !u.getReference.isInstanceOf[ScReferenceElement]
+    def modifyScObjectName(usagesWithName: UsagesWithName): Seq[UsagesWithName] = {
+      val UsagesWithName(name, usagez) = usagesWithName
+      if (usagez.isEmpty) Nil
+      else {
+        def needDollarSign(u: UsageInfo): Boolean = {
+          u.getReference match {
+            case null => false
+            case _: ScReferenceElement => false
+            case ref if ref.getElement.isInstanceOf[ScalaPsiElement] => false
+            case _ => true
           }
-          val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
-          Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
         }
+        val (usagesWithDS, usagesPlain) = usagez.partition(needDollarSign)
+        Seq(UsagesWithName(name + "$", usagesWithDS), UsagesWithName(name, usagesPlain))
+      }
     }
 
-    val modifySetterName: UsagesWithName => Seq[UsagesWithName] = {
-      case UsagesWithName(name, usagez) =>
-        if (usagez.isEmpty) Nil
-        else {
-          val newNameWithoutSuffix = name.stripSuffix(setterSuffix(name))
-          val grouped = usagez.groupBy(u => setterSuffix(u.getElement.getText))
-          grouped.map(entry => UsagesWithName(newNameWithoutSuffix + entry._1, entry._2)).toSeq
-        }
+    def modifySetterName(usagesWithName: UsagesWithName): Seq[UsagesWithName] = {
+      val UsagesWithName(name, usagez) = usagesWithName
+      if (usagez.isEmpty) Nil
+      else {
+        val newNameWithoutSuffix = name.stripSuffix(setterSuffix(name))
+        val grouped = usagez.groupBy(u => setterSuffix(u.getElement.getText))
+        grouped.map(entry => UsagesWithName(newNameWithoutSuffix + entry._1, entry._2)).toSeq
+      }
     }
 
     val encoded = encodeNames(UsagesWithName(newName, usages))

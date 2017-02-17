@@ -10,7 +10,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -37,9 +38,13 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   private def rootAfter = (folderPath + getTestName(true) + "/after").replace(File.separatorChar, '/')
 
   protected def doTest(newName: String = "NameAfterRename") {
+    LocalFileSystem.getInstance().refresh(false)
     myDirectory = PsiTestUtil.createTestProjectStructure(projectAdapter, moduleAdapter, rootBefore, new util.HashSet[File]())
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
-    val filesBefore = myDirectory.findChild("tests").getChildren
+    val filesBefore =
+      VfsUtil.collectChildrenRecursively(myDirectory.findChild("tests")).asScala
+        .filter(!_.isDirectory)
+        .toArray
 
     val caretPositions = findCaretsAndRemoveMarkers(filesBefore)
     PsiDocumentManager.getInstance(projectAdapter).commitAllDocuments()
