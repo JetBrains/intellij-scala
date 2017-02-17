@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent
 import java.util
 import javax.swing.Icon
 
+import com.intellij.execution.Executor
 import com.intellij.execution.console._
 import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
 import com.intellij.execution.filters._
@@ -11,10 +12,9 @@ import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
 import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
-import com.intellij.execution.{ExecutionManager, Executor}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
-import com.intellij.openapi.project.{DumbAwareAction, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -80,7 +80,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
       }
 
       // assume initial state is Working
-      // FIXME this is not correct when shell process was started without view
+      // this is not correct when shell process was started without view, but we avoid that
       myConsoleView.setPrompt("X")
 
       // TODO update icon with ready/working state
@@ -145,4 +145,8 @@ object SbtShellRunner {
 }
 
 class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
-  extends ProcessBackedConsoleExecuteActionHandler(processHandler, true)
+  extends ProcessBackedConsoleExecuteActionHandler(processHandler, true) {
+
+  // input is echoed to the process anyway
+  setAddCurrentToHistory(false)
+}
