@@ -3,14 +3,14 @@ package org.jetbrains.plugins.scala
 import java.io.File
 
 import com.intellij.lang.Language
-import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.{ExistingLibraryEditor, NewLibraryEditor}
+import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.util.{Key, UserDataHolder}
-import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.dotty.DottyLanguage
@@ -60,64 +60,63 @@ package object project {
   }
 
   implicit class ModuleExt(val module: Module) extends AnyVal {
-    def hasScala: Boolean = scalaSdk.isDefined
+    def hasScala: Boolean =
+      scalaSdk.isDefined
 
-    def hasDotty: Boolean = scalaSdk.isDefined && scalaSdk.get.isDottySdk
+    def hasDotty: Boolean =
+      scalaSdk.exists(_.isDottySdk)
 
-    def scalaSdk: Option[ScalaSdk] = ScalaSdkCache.instanceIn(module.getProject).get(module)
+    def scalaSdk: Option[ScalaSdk] =
+      ScalaSdkCache.instanceIn(module.getProject).get(module)
 
     def modifiableModel: ModifiableRootModel =
       ModuleRootManager.getInstance(module).getModifiableModel
 
     def libraries: Set[Library] = {
       val collector = new CollectProcessor[Library]()
-      OrderEnumerator.orderEntries(module).librariesOnly().forEachLibrary(collector)
+      OrderEnumerator.orderEntries(module)
+        .librariesOnly()
+        .forEachLibrary(collector)
+
       collector.getResults.asScala.toSet
     }
 
-    def scalaLibraries: Set[Library] =
-      libraries.filter(_.getName.contains(ScalaLibraryName))
-
-    def attach(library: Library) {
+    def attach(library: Library): Unit = {
       val model = modifiableModel
       model.addLibraryEntry(library)
       model.commit()
     }
 
-    def attach(libraries: Seq[Library]): Unit = {
-      val model = modifiableModel
-      libraries.foreach(model.addLibraryEntry)
-      model.commit()
-    }
-
-    def detach(library: Library) {
+    def detach(library: Library): Unit = {
       val model = modifiableModel
       val entry = model.findLibraryOrderEntry(library)
       model.removeOrderEntry(entry)
       model.commit()
     }
 
-    def createLibraryFromJar(urls: Seq[String], name: String): Library = {
-      val lib = ProjectLibraryTable.getInstance(module.getProject).createLibrary(name)
-      val model = lib.getModifiableModel
-      urls.foreach(url => model.addRoot(url, OrderRootType.CLASSES))
-      model.commit()
-      lib
-    }
+    def scalaCompilerSettings: ScalaCompilerSettings =
+      compilerConfiguration.getSettingsForModule(module)
 
-    def scalaCompilerSettings: ScalaCompilerSettings = compilerConfiguration.getSettingsForModule(module)
-
-    def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]) {
+    def configureScalaCompilerSettingsFrom(source: String, options: Seq[String]): Unit =
       compilerConfiguration.configureSettingsForModule(module, source, options)
-    }
 
-    private def compilerConfiguration = ScalaCompilerConfiguration.instanceIn(module.getProject)
+    private def compilerConfiguration =
+      ScalaCompilerConfiguration.instanceIn(module.getProject)
   }
 
   implicit class ProjectExt(val project: Project) extends AnyVal {
-    private def modules: Seq[Module] = ModuleManager.getInstance(project).getModules.toSeq
 
-    def hasScala: Boolean = modules.exists(_.hasScala)
+    private def manager =
+      ModuleManager.getInstance(project)
+
+    private def modules: Seq[Module] =
+      manager.getModules.toSeq
+
+    def modifiableModel: ModifiableModuleModel =
+      manager.getModifiableModel
+
+    def hasScala: Boolean =
+      modules.exists(_.hasScala)
 
     def hasDotty: Boolean = {
       val cached = project.getUserData(CachesUtil.PROJECT_HAS_DOTTY_KEY)
@@ -131,54 +130,26 @@ package object project {
       }
     }
 
-    def modulesWithScala: Seq[Module] = modules.filter(_.hasScala)
+    def modulesWithScala: Seq[Module] =
+      modules.filter(_.hasScala)
 
-    def scalaModules: Seq[ScalaModule] = modulesWithScala.map(new ScalaModule(_))
+    def scalaModules: Seq[ScalaModule] =
+      modulesWithScala.map(new ScalaModule(_))
 
-    def anyScalaModule: Option[ScalaModule] = modules.find(_.hasScala).map(new ScalaModule(_))
+    def anyScalaModule: Option[ScalaModule] =
+      scalaModules.headOption
 
-    def scalaEvents: ScalaProjectEvents = project.getComponent(classOf[ScalaProjectEvents])
+    def scalaEvents: ScalaProjectEvents =
+      project.getComponent(classOf[ScalaProjectEvents])
 
-    def libraries: Seq[Library] = ProjectLibraryTable.getInstance(project).getLibraries.toSeq
+    def libraries: Seq[Library] =
+      ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 
-    def scalaLibraries: Seq[Library] = project.libraries.filter(_.getName.contains(ScalaLibraryName))
+    def typeSystem: TypeSystem =
+      typeSystemIn(project)
 
-    def scalaSdks: Seq[ScalaSdk] = libraries.filter(_.isScalaSdk).map(new ScalaSdk(_))
-
-    def createScalaSdk(name: String, classes: Seq[File], sources: Seq[File], docs: Seq[File], compilerClasspath: Seq[File], languageLevel: ScalaLanguageLevel): ScalaSdk = {
-      val library = ProjectLibraryTable.getInstance(project).createLibrary(name)
-
-      val editor = new NewLibraryEditor()
-
-      def addRoots(files: Seq[File], rootType: OrderRootType) {
-        files.foreach(file => editor.addRoot(VfsUtil.findFileByIoFile(file, false), rootType))
-      }
-
-      addRoots(classes, OrderRootType.CLASSES)
-      addRoots(sources, OrderRootType.SOURCES)
-      addRoots(docs, OrderRootType.DOCUMENTATION)
-
-      val properties = new ScalaLibraryProperties()
-      properties.compilerClasspath = compilerClasspath
-      properties.languageLevel = languageLevel
-
-      editor.setType(ScalaLibraryType.instance)
-      editor.setProperties(properties)
-
-      val libraryModel = library.getModifiableModel
-      editor.applyTo(libraryModel.asInstanceOf[LibraryEx.ModifiableModelEx])
-      libraryModel.commit()
-
-      new ScalaSdk(library)
-    }
-
-    def remove(library: Library) {
-      ProjectLibraryTable.getInstance(project).removeLibrary(library)
-    }
-
-    def typeSystem: TypeSystem = typeSystemIn(project)
-
-    def language: Language = if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
+    def language: Language =
+      if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
   }
 
   implicit class UserDataHolderExt(val holder: UserDataHolder) extends AnyVal {
@@ -191,7 +162,9 @@ package object project {
     }
   }
 
-  def typeSystemIn(project: Project): TypeSystem = if (project.hasDotty) DottyTypeSystem else ScalaTypeSystem
+  def typeSystemIn(project: Project): TypeSystem =
+    if (project.hasDotty) DottyTypeSystem
+    else ScalaTypeSystem
 
   class ScalaModule(val module: Module) {
     def sdk: ScalaSdk = module.scalaSdk.map(new ScalaSdk(_)).getOrElse {

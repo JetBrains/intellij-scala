@@ -471,7 +471,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     import org.jetbrains.plugins.scala.project._
 
     val scalaSDK = project.modulesWithScala.head.scalaSdk.get
-    val model  = ModuleManager.getInstance(project).getModifiableModel
+    val model = project.modifiableModel
     val module = model.newModule(ScalaUtil.createTmpDir("injectorModule").getAbsolutePath +
       "/" + INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     model.commit()
@@ -481,7 +481,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def removeIdeaModule() = {
-    val model  = ModuleManager.getInstance(project).getModifiableModel
+    val model = project.modifiableModel
     val module = model.findModuleByName(INJECTOR_MODULE_NAME.replaceAll("\\.iml$", ""))
     if (module != null) {
       model.disposeModule(module)

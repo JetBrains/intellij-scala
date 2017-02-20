@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings;
 import org.junit.Assert;
 import scala.Option;
-import scala.Some;
 import scala.Tuple2;
 
 import java.io.IOException;
@@ -139,20 +138,21 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       if (element instanceof ScExpression){
         ScExpression selectedExpr = null;
         ScType[] types = null;
+
         Option<Tuple2<ScExpression, ScType[]>> maybeExpression = ScalaRefactoringUtil.getExpression(project, myEditor, myFile, startOffset, endOffset,
                 package$.MODULE$.typeSystemIn(project));
-        if (maybeExpression instanceof Some) {
-          Some expression = (Some) maybeExpression;
-          selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) expression.get());
-          types = IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType[]>) expression.get());
+        if (maybeExpression.isDefined()) {
+          Tuple2<ScExpression, ScType[]> tuple2 = maybeExpression.get();
+          selectedExpr = tuple2._1();
+          types = tuple2._2();
         }
         Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-        TextRange[] occurences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
+        TextRange[] occurrences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
         String varName = "value";
 
         introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
-                occurences, varName, types[0], replaceAllOccurences, false);
+                occurrences, varName, types[0], replaceAllOccurences, false);
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){
