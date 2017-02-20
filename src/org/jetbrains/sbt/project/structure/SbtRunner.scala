@@ -57,9 +57,9 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit): Try[Elem] = {
     val pluginFile = customStructureFile.getOrElse(LauncherDir / s"sbt-structure-$sbtVersion.jar")
 
-    val l = _root_.scala.collection.immutable.List(1)
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       val setCommands = Seq(
+        s"""shellPrompt := { _ => "" }""",
         s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
         s"""SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$options""""
       ).mkString("set _root_.scala.collection.Seq(", ",", ")")
@@ -67,7 +67,8 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
       val sbtCommands = Seq(
         setCommands,
         s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.CreateTasks""",
-        "*/*:dump-structure"
+        "*/*:dump-structure",
+        "exit"
       ).mkString(";",";","")
 
       val processCommandsRaw =
@@ -77,8 +78,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         "-Dfile.encoding=UTF-8" +:
         (vmOptions ++ SbtOpts.loadFrom(directory)) :+
         "-jar" :+
-        path(SbtLauncher) :+
-        sbtCommands
+        path(SbtLauncher)
 
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
@@ -88,6 +88,8 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         processBuilder.environment().putAll(environment.asJava)
         val process = processBuilder.start()
         using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
+          writer.println(sbtCommands)
+          writer.flush()
           val result = handle(process, listener)
           result.map { output =>
             if (structureFile.length > 0)
