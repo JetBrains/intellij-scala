@@ -4,12 +4,12 @@ package project
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.util.{CommonProcessors, PathUtil}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.junit.Assert.{assertTrue, fail}
 
@@ -114,7 +114,7 @@ trait ProjectStructureMatcher {
   }
 
   private def assertProjectLibrariesEqual(project: Project)(expectedLibraries: Seq[library]): Unit = {
-    val actualLibraries = ProjectLibraryTable.getInstance(project).getLibraries.toSeq
+    val actualLibraries = project.libraries
     assertNamesEqual("Project library", expectedLibraries, actualLibraries)
     pairByName(expectedLibraries, actualLibraries).foreach((assertLibraryContentsEqual _).tupled)
   }

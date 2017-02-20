@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.project.migration
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.externalSystem.model.project.LibraryData
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.startup.StartupManager
 import org.jetbrains.plugins.scala.codeInspection.bundled.BundledInspectionBase
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.migration.BundledCodeStoreComponent._
 import org.jetbrains.plugins.scala.project.migration.api.{MigrationApiService, MigrationReport, SettingsDescriptor}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
@@ -32,10 +32,12 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
   private def copyOldLibraries(): Unit = {
     oldLibrariesCopy match {
       case None =>
-        oldLibrariesCopy = Option(ProjectLibraryTable.getInstance(project).getLibraries.map(_.getModifiableModel).flatMap {
-          case l: Library => Seq(l)
-          case _ => Seq.empty
-        })
+        oldLibrariesCopy = Option(project.libraries
+          .map(_.getModifiableModel)
+          .flatMap {
+            case l: Library => Seq(l)
+            case _ => Seq.empty
+          })
       case _ =>
     }
   }

@@ -4,19 +4,16 @@ import java.io.File
 import java.util
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, Key}
-import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
+import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
-import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.data.service.{ProjectDataServiceTestCase, ExternalSystemDataDsl}
-import ExternalSystemDataDsl._
-import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.SbtProjectSystem
+import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
+import org.jetbrains.sbt.project.data.service.{ExternalSystemDataDsl, ProjectDataServiceTestCase}
 
 import scala.collection.JavaConverters._
 
@@ -92,7 +89,9 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
 
     import org.jetbrains.plugins.scala.project._
-    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains("scala-library")).exists(_.isScalaSdk)
+    val isLibrarySetUp = getProject.libraries
+      .filter(_.getName.contains("scala-library"))
+      .exists(_.isScalaSdk)
     assert(isLibrarySetUp, "Scala library is not set up")
   }
 

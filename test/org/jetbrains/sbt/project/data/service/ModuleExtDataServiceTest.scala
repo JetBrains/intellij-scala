@@ -10,7 +10,6 @@ import com.intellij.openapi.externalSystem.service.notification.{NotificationCat
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
@@ -192,7 +191,9 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
 
     importProjectData(projectData)
 
-    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains(newVersion)).exists(_.isScalaSdk)
+    val isLibrarySetUp = getProject.libraries
+      .filter(_.getName.contains(newVersion))
+      .exists(_.isScalaSdk)
     assertTrue("Scala library is not set up", isLibrarySetUp)
   }
 
@@ -226,7 +227,9 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
   private def doTestAndCheckScalaSdk(scalaVersion: String, scalaLibraryVersion: String): Unit = {
     import org.jetbrains.plugins.scala.project._
     importProjectData(generateScalaProject(scalaVersion, Some(scalaLibraryVersion), Seq.empty))
-    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains("scala-library")).exists(_.isScalaSdk)
+    val isLibrarySetUp = getProject.libraries
+      .filter(_.getName.contains("scala-library"))
+      .exists(_.isScalaSdk)
     assertTrue("Scala library is not set up", isLibrarySetUp)
   }
 
