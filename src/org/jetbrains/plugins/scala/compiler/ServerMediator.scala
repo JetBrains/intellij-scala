@@ -10,7 +10,7 @@ import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManag
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{CompilerModuleExtension, ModuleRootManager}
+import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
@@ -102,8 +102,8 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
         if (splitAutomatically) {
           inWriteAction {
-            modulesWithClashes.foreach { module =>
-              val model = ModuleRootManager.getInstance(module).getModifiableModel
+            modulesWithClashes.map(_.modifiableModel)
+              .foreach { model =>
               val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
 
               val outputUrlParts = extension.getCompilerOutputUrl match {

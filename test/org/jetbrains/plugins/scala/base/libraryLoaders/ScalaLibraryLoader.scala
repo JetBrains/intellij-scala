@@ -5,7 +5,6 @@ import java.io.File
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
@@ -135,7 +134,7 @@ case class JdkLoader(jdk: Sdk = TestUtils.createJdk())
                     (implicit val module: Module) extends LibraryLoader {
 
   def init(implicit version: ScalaSdkVersion): Unit = {
-    val model = ModuleRootManager.getInstance(module).getModifiableModel
+    val model = module.modifiableModel
     model.setSdk(jdk)
     inWriteAction {
       model.commit()

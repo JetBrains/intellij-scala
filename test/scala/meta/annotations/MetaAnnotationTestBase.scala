@@ -10,7 +10,7 @@ import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent, ModuleRootManager}
+import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, JavaCodeInsightFixtureTestCase}
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
@@ -77,7 +78,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     enableParadisePlugin(metaModule)
 
     extensions.inWriteAction {
-      val modifiableRootModel = ModuleRootManager.getInstance(myModule).getModifiableModel
+      val modifiableRootModel = myModule.modifiableModel
       modifiableRootModel.addModuleOrderEntry(metaModule)
       modifiableRootModel.commit()
     }

@@ -66,6 +66,9 @@ package object project {
 
     def scalaSdk: Option[ScalaSdk] = ScalaSdkCache.instanceIn(module.getProject).get(module)
 
+    def modifiableModel: ModifiableRootModel =
+      ModuleRootManager.getInstance(module).getModifiableModel
+
     def libraries: Set[Library] = {
       val collector = new CollectProcessor[Library]()
       OrderEnumerator.orderEntries(module).librariesOnly().forEachLibrary(collector)
@@ -76,19 +79,19 @@ package object project {
       libraries.filter(_.getName.contains(ScalaLibraryName))
 
     def attach(library: Library) {
-      val model = ModuleRootManager.getInstance(module).getModifiableModel
+      val model = modifiableModel
       model.addLibraryEntry(library)
       model.commit()
     }
 
     def attach(libraries: Seq[Library]): Unit = {
-      val model = ModuleRootManager.getInstance(module).getModifiableModel
+      val model = modifiableModel
       libraries.foreach(model.addLibraryEntry)
       model.commit()
     }
 
     def detach(library: Library) {
-      val model = ModuleRootManager.getInstance(module).getModifiableModel
+      val model = modifiableModel
       val entry = model.findLibraryOrderEntry(library)
       model.removeOrderEntry(entry)
       model.commit()

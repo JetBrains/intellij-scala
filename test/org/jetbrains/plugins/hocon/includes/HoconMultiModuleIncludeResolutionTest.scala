@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry, ModuleRootManager, OrderRootType}
+import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry, OrderRootType}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
@@ -12,6 +12,7 @@ import com.intellij.testFramework.fixtures._
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.hocon.JavaInterop._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ModuleExt
 
 /**
  * @author ghik
@@ -56,8 +57,9 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
     inWriteAction {
       LocalFileSystem.getInstance().refresh(false)
 
-      modules.values.foreach { mod =>
-        val model = ModuleRootManager.getInstance(mod).getModifiableModel
+      modules.values
+        .map(_.modifiableModel)
+        .foreach { model =>
         val contentEntry = model.getContentEntries.head
         contentEntry.addSourceFolder(contentEntry.getFile.findChild("src"), JavaSourceRootType.SOURCE)
         contentEntry.addSourceFolder(contentEntry.getFile.findChild("testsrc"), JavaSourceRootType.TEST_SOURCE)
@@ -70,7 +72,7 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
       }
 
       def addDependency(dependingModule: Module, dependencyModule: Module): Unit = {
-        val model = ModuleRootManager.getInstance(dependingModule).getModifiableModel
+        val model = dependingModule.modifiableModel
         model.addModuleOrderEntry(dependencyModule).setExported(true)
         model.commit()
       }

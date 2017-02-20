@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.hocon
 
-import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.testFramework.LightPlatformTestCase.getModule
 import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, PsiTestUtil}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -18,8 +18,7 @@ abstract class HoconLightMultiFileTestCase extends LightPlatformCodeInsightTestC
   override def setUp() = {
     super.setUp()
 
-    val rootManager: ModuleRootManager = ModuleRootManager.getInstance(getModule)
-    val rootModel = rootManager.getModifiableModel
+    val rootModel = getModule.modifiableModel
     val testDataRoot = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
     assert(testDataRoot != null)
     val contentEntry = rootModel.addContentEntry(testDataRoot)
