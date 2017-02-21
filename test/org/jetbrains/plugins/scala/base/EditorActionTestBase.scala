@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.base
 
-import com.intellij.openapi.actionSystem.IdeActions.{ACTION_EDITOR_BACKSPACE, ACTION_EDITOR_ENTER}
+import com.intellij.openapi.actionSystem.IdeActions.{ACTION_EDITOR_BACKSPACE, ACTION_EDITOR_ENTER, ACTION_EXPAND_LIVE_TEMPLATE_BY_TAB}
+import com.intellij.openapi.fileTypes.FileType
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.startCommand
 
 /**
@@ -10,45 +12,56 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
   import ScalaLightCodeInsightFixtureTestAdapter.findCaretOffset
 
+  protected val myFileType: FileType = ScalaFileType.INSTANCE
+
   protected def configureByText(text: String, stripTrailingSpaces: Boolean = false): Unit = {
     val (actual, actualOffset) = findCaretOffset(text, stripTrailingSpaces)
 
-    getFixture.configureByText("dummy.scala", actual)
+    getFixture.configureByText(myFileType, actual)
     getFixture.getEditor.getCaretModel.moveToOffset(actualOffset)
   }
 
-  private def performTest(text: String, expectedText: String)(testBody: () => Unit): Unit = {
+  private def performTest(textBefore: String, textAfter: String)
+                         (testBody: () => Unit): Unit = {
     val stripTrailingSpaces = false
-    configureByText(text, stripTrailingSpaces)
+    configureByText(textBefore, stripTrailingSpaces)
 
     testBody()
 
-    val (expected, _) = findCaretOffset(expectedText, stripTrailingSpaces)
+    val (expected, _) = findCaretOffset(textAfter, stripTrailingSpaces)
     getFixture.checkResult(expected, stripTrailingSpaces)
   }
 
   protected def performTypingAction(charTyped: Char): Unit =
     getFixture.`type`(charTyped)
 
-  protected def checkGeneratedTextAfterTyping(actual: String, expected: String, charTyped: Char): Unit =
-    performTest(actual, expected) { () =>
+  protected def checkGeneratedTextAfterTyping(textBefore: String, textAfter: String, charTyped: Char): Unit =
+    performTest(textBefore, textAfter) { () =>
       performTypingAction(charTyped)
     }
 
   protected def performBackspaceAction(): Unit =
     performEditorAction(ACTION_EDITOR_BACKSPACE)
 
-  protected def checkGeneratedTextAfterBackspace(actual: String, expected: String): Unit =
-    performTest(actual, expected) { () =>
+  protected def checkGeneratedTextAfterBackspace(textBefore: String, textAfter: String): Unit =
+    performTest(textBefore, textAfter) { () =>
       performBackspaceAction()
     }
 
   protected def performEnterAction(): Unit =
     performEditorAction(ACTION_EDITOR_ENTER)
 
-  protected def checkGeneratedTextAfterEnter(actual: String, expected: String): Unit =
-    performTest(actual, expected) { () =>
+  protected def checkGeneratedTextAfterEnter(textBefore: String, textAfter: String): Unit =
+    performTest(textBefore, textAfter) { () =>
       performEnterAction()
+    }
+
+  protected def performLiveTemplateAction(): Unit =
+    performEditorAction(ACTION_EXPAND_LIVE_TEMPLATE_BY_TAB)
+
+  protected def checkGeneratedTextAfterLiveTemplate(textBefore: String, textAfter: String): Unit =
+    performTest(textBefore, textAfter) { () =>
+      performLiveTemplateAction()
     }
 
   private def performEditorAction(action: String): Unit =

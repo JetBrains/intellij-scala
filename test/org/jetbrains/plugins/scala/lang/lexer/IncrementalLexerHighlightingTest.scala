@@ -26,7 +26,7 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
     val incSegments = myFixture.getEditor.asInstanceOf[EditorImpl].getHighlighter.asInstanceOf[LexerEditorHighlighter].getSegments
 
     val secondText = myFixture.getFile.getText
-    myFixture.configureByText("dummy.scala", secondText)
+    myFixture.configureByText(myFileType, secondText)
     val segments = myFixture.getEditor.asInstanceOf[EditorImpl].getHighlighter.asInstanceOf[LexerEditorHighlighter].getSegments
 
     assert(incSegments.getSegmentCount == segments.getSegmentCount,
