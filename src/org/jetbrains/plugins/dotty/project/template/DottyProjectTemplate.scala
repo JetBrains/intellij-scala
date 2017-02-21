@@ -9,5 +9,5 @@ import org.jetbrains.plugins.scala.project.template.ScalaProjectTemplate
 class DottyProjectTemplate extends ScalaProjectTemplate {
   override protected val libraryDescription: CustomLibraryDescription = DottyLibraryDescription
 
-  override def getName = "Dotty"
+  override def languageName: String = "Dotty"
 }
