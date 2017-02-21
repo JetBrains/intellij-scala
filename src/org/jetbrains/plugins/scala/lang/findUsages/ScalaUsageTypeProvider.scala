@@ -113,6 +113,7 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
           else Some(WRITE)
         case MethodValue(_) => Some(functionExpression)
         case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => Some(READ)
+        case si: ScSelfInvocation if !isAncestor(si.args.orNull) => Some(secondaryConstructor)
         case _ => None
       }
     }
@@ -160,4 +161,5 @@ object ScalaUsageTypeProvider {
   val selfType: UsageType = "Self type"
   val typeBound: UsageType = "Type bound"
   val typeAlias: UsageType = "Type alias"
+  val secondaryConstructor: UsageType = "Secondary constructor"
 }

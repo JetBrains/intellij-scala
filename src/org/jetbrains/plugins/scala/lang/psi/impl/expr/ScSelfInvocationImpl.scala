@@ -5,6 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -99,5 +100,26 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       case s: ScalaElementVisitor => s.visitSelfInvocation(this)
       case _ => super.accept(visitor)
     }
+  }
+
+  override def handleElementRename(newElementName: String): PsiElement = this
+
+  override def getVariants: Array[AnyRef] = bind.toArray
+
+  override def isReferenceTo(element: PsiElement): Boolean = bind.contains(element)
+
+  override def bindToElement(element: PsiElement): PsiElement = this
+
+  override def getCanonicalText: String = "this"
+
+  override def getElement: PsiElement = this
+
+  override def resolve(): PsiElement = bind.orNull
+
+  override def isSoft: Boolean = false
+
+  override def getRangeInElement: TextRange = {
+    val start = this.getTextRange.getStartOffset
+    Option(thisElement).getOrElse(this).getTextRange.shiftRight(- start)
   }
 }

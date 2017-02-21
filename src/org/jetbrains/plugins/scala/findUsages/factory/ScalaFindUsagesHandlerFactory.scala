@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -35,26 +36,21 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case _: FakePsiMethod => true
       case _: ScTypedDefinition => true
       case _: ScTypeDefinition => true
+      case _: ScPrimaryConstructor => true
       case _: ScTypeParam => true
       case _: PsiClassWrapper => true
-      case _: ScFunctionWrapper => true
-      case _: StaticPsiMethodWrapper => true
-      case _: PsiTypedDefinitionWrapper => true
-      case _: StaticPsiTypedDefinitionWrapper => true
+      case _: LightScalaMethod => true
       case _ => false
     }
   }
 
   override def createFindUsagesHandler(element: PsiElement, forHighlightUsages: Boolean): FindUsagesHandler = {
     var replacedElement = element match {
-      case wrapper: PsiClassWrapper => wrapper.definition
-      case p: PsiTypedDefinitionWrapper => p.typedDefinition
-      case p: StaticPsiTypedDefinitionWrapper => p.typedDefinition
-      case f: ScFunctionWrapper => f.function
+      case isWrapper(named) => named
       case f: FakePsiMethod => f.navElement
-      case s: StaticPsiMethodWrapper => s.method
       case _ => element
     }
+
     def chooseSuper(name: String, supers: Seq[PsiNamedElement]) {
       def showDialog() {
         val message = ScalaBundle.message("find.usages.member.has.supers", name)
