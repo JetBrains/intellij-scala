@@ -1,20 +1,33 @@
 package org.jetbrains.plugins.scala
 package lang.lexer
 
-import com.intellij.openapi.editor.ex.util.LexerEditorHighlighter
+import com.intellij.openapi.editor.ex.util.{LexerEditorHighlighter, SegmentArrayWithData}
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.junit.Assert.assertEquals
 
 /**
- * User: Dmitry.Naydanov
- * Date: 29.07.14.
- */
+  * User: Dmitry.Naydanov
+  * Date: 29.07.14.
+  */
 class IncrementalLexerHighlightingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
 
-  private def genericTestHighlighting(text: String, typed: Char*) {
+  private def segments() = {
+    val editor = myFixture.getEditor match {
+      case impl: EditorImpl => impl
+    }
+
+    val highlighter = editor.getHighlighter match {
+      case impl: LexerEditorHighlighter => impl
+    }
+
+    highlighter.getSegments
+  }
+
+  private def doTest(text: String, typed: Char*): Unit = {
     configureByText(text)
 
     typed.foreach {
@@ -22,32 +35,22 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
       case '\n' => performEnterAction()
       case char => performTypingAction(char)
     }
+    val actualSegments = segments()
 
-    val incSegments = myFixture.getEditor.asInstanceOf[EditorImpl].getHighlighter.asInstanceOf[LexerEditorHighlighter].getSegments
+    myFixture.configureByText(myFileType, myFixture.getFile.getText)
+    val expectedSegments = segments()
 
-    val secondText = myFixture.getFile.getText
-    myFixture.configureByText(myFileType, secondText)
-    val segments = myFixture.getEditor.asInstanceOf[EditorImpl].getHighlighter.asInstanceOf[LexerEditorHighlighter].getSegments
+    assertEquals(actualSegments.getSegmentCount, expectedSegments.getSegmentCount)
 
-    assert(incSegments.getSegmentCount == segments.getSegmentCount,
-      s"Different segment count for incremental (${incSegments.getSegmentCount}) and full (${segments.getSegmentCount}) highlightings ")
-
-    for (i <- 0 until incSegments.getSegmentCount) {
-      val startI = incSegments getSegmentStart i
-      val start = segments getSegmentStart i
-      assert(start == startI, s"Different segment start in incremental ($startI) and full ($start) highlightings in segment #$i")
-
-      val endI = incSegments getSegmentEnd i
-      val end = segments getSegmentEnd i
-      assert(endI == end, s"Different segment end in incremental ($endI) and full ($end) highlightings in segment #$i")
-
-      val dataI = incSegments getSegmentData i
-      val data = incSegments getSegmentData i
-      assert(dataI == data, s"Different segment data in incremental ($dataI) and full ($data) highlightings in segment #$i")
-    }
+    import IncrementalLexerHighlightingTest.asTuples
+    asTuples(actualSegments)
+      .zip(asTuples(expectedSegments))
+      .foreach {
+        case (actual, expected) => assertEquals(actual, expected)
+      }
   }
 
-  def testSimple() {
+  def testSimple(): Unit = {
     val text =
       s"""
          |object dummy {
@@ -57,17 +60,17 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
          |}
        """.stripMargin
 
-    genericTestHighlighting(text, ';')
+    doTest(text, ';')
   }
 
-  def testScl7330() {
+  def testScl7330(): Unit = {
     val text = "object ololo {\n" + s"(escritorTexto$CARET_MARKER)\n" +
       "iniBloque(s\"\"\"filename=\"$fich\"\"\"\")\n" + "}"
 
-    genericTestHighlighting(text, ',', ' ', '\r', '\r')
+    doTest(text, ',', ' ', '\r', '\r')
   }
 
-  def testNestedStrings() {
+  def testNestedStrings(): Unit = {
     val text =
       s"""
          |object ololo {
@@ -75,10 +78,10 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
          |}
        """.stripMargin
 
-    genericTestHighlighting(text, '$', '$')
+    doTest(text, '$', '$')
   }
 
-  def testDiffNestedString() {
+  def testDiffNestedString(): Unit = {
     val text =
       s"""
          |fooboo(
@@ -92,43 +95,43 @@ class IncrementalLexerHighlightingTest extends EditorActionTestBase {
          | ${"\"\"\""}$CARET_MARKER
          |)""".stripMargin.replace("\r", "")
 
-    genericTestHighlighting(text, ',', ' ', '\r', '\r')
+    doTest(text, ',', ' ', '\r', '\r')
   }
 
   /**
-   * That relates straight to incremental highlighting - see SCL-8958 itself and comment to
-   * [[org.jetbrains.plugins.scala.lang.lexer.ScalaLexer#previousToken]]
-   */
-  def testScl8958() {
+    * That relates straight to incremental highlighting - see SCL-8958 itself and comment to
+    * [[org.jetbrains.plugins.scala.lang.lexer.ScalaLexer#previousToken]]
+    */
+  def testScl8958(): Unit = {
     val before =
       s"""
-        |class Test {
-        |  val test1 = <div></div>
-        |}
-        |
+         |class Test {
+         |  val test1 = <div></div>
+         |}
+         |
         |class Test2 {$CARET_MARKER}
       """.stripMargin
 
     val after =
       s"""
-        |class Test {
-        |  val test1 = <div></div>
-        |}
-        |
+         |class Test {
+         |  val test1 = <div></div>
+         |}
+         |
         |class Test2 {
-        |  $CARET_MARKER
-        |}
+         |  $CARET_MARKER
+         |}
       """.stripMargin
 
     checkGeneratedTextAfterEnter(before, after)
   }
-  
-  def testInterpolatedString() {
+
+  def testInterpolatedString(): Unit = {
     val text = "s\"\"\"\n    ${if (true)" + CARET_MARKER + "}\n\n\"\"\"\n{}\nval a = 1"
-    genericTestHighlighting(text, ' ')
+    doTest(text, ' ')
   }
 
-  def testBig() {
+  def testBig(): Unit = {
     val text =
       s"""package es.fcc.bibl.bd
 
@@ -213,9 +216,9 @@ class Sincronizador(servidor: String, ruta: String, soporte: String, tblsProcesa
   }
 }"""
 
-     genericTestHighlighting(text, '\r', ' ', ' ', '\r', '\r')
+    doTest(text, '\r', ' ', ' ', '\r', '\r')
   }
-  
+
   def testScl9396(): Unit = {
     val text =
       """
@@ -227,12 +230,19 @@ class Sincronizador(servidor: String, ruta: String, soporte: String, tblsProcesa
         |    val paymentType = 123
         |
         |    if (true) {
-        |      """ + CARET_MARKER + """"Unsupported payment type: [$paymentType]" ; val a = 1
-        |    }
-        |  }
-        |}
-      """.stripMargin
-    
-    genericTestHighlighting(text, 's')
+        |      """ + CARET_MARKER +
+        """"Unsupported payment type: [$paymentType]" ; val a = 1
+          |    }
+          |  }
+          |}
+        """.stripMargin
+
+    doTest(text, 's')
   }
+}
+
+object IncrementalLexerHighlightingTest {
+  private def asTuples(array: SegmentArrayWithData) =
+    for (i <- 0 until array.getSegmentCount)
+      yield (array.getSegmentStart(i), array.getSegmentEnd(i), array.getSegmentData(i))
 }
