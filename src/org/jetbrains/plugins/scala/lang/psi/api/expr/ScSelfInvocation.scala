@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 * Date: 22.02.2008
 */
 
-trait ScSelfInvocation extends ScalaPsiElement {
+trait ScSelfInvocation extends ScalaPsiElement with PsiReference {
   def args: Option[ScArgumentExprList] = findChild(classOf[ScArgumentExprList])
 
   def arguments: Seq[ScArgumentExprList] = findChildrenByClassScala(classOf[ScArgumentExprList]).toSeq
