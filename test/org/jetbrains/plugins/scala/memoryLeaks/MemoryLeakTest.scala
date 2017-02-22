@@ -13,10 +13,10 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{DumbService, Project, ProjectManager}
 import com.intellij.openapi.startup.StartupManager
+import com.intellij.openapi.util.Condition
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.{LeakHunter, PlatformTestCase}
-import com.intellij.util.Processor
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
@@ -142,8 +142,8 @@ class MemoryLeakTest extends PlatformTestCase with DefaultScalaSdkOwner {
   }
 
   private def checkLeak[T](root: AnyRef, clazz: Class[T], isLeak: T => Boolean): Unit = {
-    LeakHunter.checkLeak[T](root, clazz, new Processor[T] {
-      override def process(t: T): Boolean = isLeak(t)
+    LeakHunter.checkLeak(root, clazz, new Condition[T] {
+      override def value(t: T): Boolean = isLeak(t)
     })
   }
 
