@@ -21,8 +21,8 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     getFixture.getEditor.getCaretModel.moveToOffset(actualOffset)
   }
 
-  private def performTest(textBefore: String, textAfter: String)
-                         (testBody: () => Unit): Unit = {
+  protected def performTest(textBefore: String, textAfter: String)
+                           (testBody: () => Unit): Unit = {
     val stripTrailingSpaces = false
     configureByText(textBefore, stripTrailingSpaces)
 
