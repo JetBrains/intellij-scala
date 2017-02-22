@@ -8,13 +8,15 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{LazyVal, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{Both, LazyVal, PsiElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
 /**
  * Nikolay.Tropin
@@ -82,6 +84,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
     element match {
       case implicitlyConvertedTo(expr) => evaluatorFor(expr)
       case needsCompilation(message) => throw new NeedCompilationException(message)
+      case byNameParameterFunction(p, ref) => byNameParamEvaluator(ref, p, computeValue = false)
       case expr: ScExpression =>
         val innerEval = expr match {
           case lit: ScLiteral => literalEvaluator(lit)
@@ -170,5 +173,24 @@ private object needsCompilation {
     case interpolated: ScInterpolatedStringLiteral if interpolated.getType != InterpolatedStringType.STANDART =>
       message("interpolated string")
     case _ => None
+  }
+}
+
+private object byNameParameterFunction {
+  val byNameFunctionSuffix = "_byNameFun"
+
+  def unapply(ref: ScReferenceExpression): Option[(ScParameter, ScReferenceExpression)] = {
+    if (ref.qualifier.isDefined) None
+    else {
+      val refText = ref.refName
+      if (refText.endsWith(byNameFunctionSuffix)) {
+        val paramName = refText.stripSuffix(byNameFunctionSuffix)
+        createExpressionWithContextFromText(paramName, ref.getContext, ref) match {
+          case Both(ref: ScReferenceExpression, ResolvesTo(p: ScParameter)) if p.isCallByNameParameter => Some((p, ref))
+          case _ => throw EvaluationException(s"Cannot find by-name parameter with such name: $paramName")
+        }
+      }
+      else None
+    }
   }
 }
