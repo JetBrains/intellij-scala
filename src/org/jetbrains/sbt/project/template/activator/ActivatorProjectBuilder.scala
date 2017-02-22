@@ -5,8 +5,6 @@ import javax.swing.Icon
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
-import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.ProgressManager
@@ -16,7 +14,6 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.util.io.ZipUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -27,7 +24,8 @@ import org.jetbrains.sbt.project.template.activator.ActivatorRepoProcessor.DocDa
  * User: Dmitry.Naydanov
  * Date: 21.01.15.
  */
-class ActivatorProjectBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) {
+class ActivatorProjectBuilder extends 
+  AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) with SbtRefreshCaller {
   //TODO Refactor me
   private var allTemplates: Map[String, DocData] = Map.empty
   private val repoProcessor = new ActivatorCachedRepoProcessor
@@ -82,14 +80,7 @@ class ActivatorProjectBuilder extends AbstractExternalModuleBuilder[SbtProjectSe
     }
 
     modifiableRootModel.inheritSdk()
-
-    val settings =
-      ExternalSystemApiUtil.getSettings(modifiableRootModel.getProject, SbtProjectSystem.Id).
-        asInstanceOf[AbstractExternalSystemSettings[_ <: AbstractExternalSystemSettings[_, SbtProjectSettings, _],
-        SbtProjectSettings, _ <: ExternalSystemSettingsListener[SbtProjectSettings]]]
-
-    getExternalProjectSettings setExternalProjectPath getContentEntryPath
-    settings linkProject getExternalProjectSettings
+    callForRefresh(modifiableRootModel.getProject)
   }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
