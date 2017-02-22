@@ -5,8 +5,8 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
   * @author Alefas
@@ -16,7 +16,7 @@ abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with Assert
 
   private var filesCreated: Boolean = false
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override implicit val version: ScalaVersion = Scala_2_11
 
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
@@ -31,7 +31,7 @@ abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with Assert
     import scala.collection.JavaConverters._
     allInfo.asScala.toList.collect {
       case highlightInfo if highlightInfo.`type`.getSeverity(null) == HighlightSeverity.ERROR =>
-        new Error(highlightInfo.getText, highlightInfo.getDescription)
+        Error(highlightInfo.getText, highlightInfo.getDescription)
     }
   }
 
@@ -61,6 +61,6 @@ abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with Assert
   val CannotBeInstantianted = ContainsPattern("is abstract; cannot be instantiated")
 
   case class ContainsPattern(fragment: String) {
-    def unapply(s: String) = s.contains(fragment)
+    def unapply(s: String): Boolean = s.contains(fragment)
   }
 }

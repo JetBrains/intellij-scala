@@ -9,9 +9,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaFileType.WORKSHEET_EXTENSION
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ThirdPartyLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert.assertNotNull
@@ -71,7 +70,7 @@ object WorksheetProcessorTestBase {
 
     import MacroPrinterLoader.CLASS_NAME
 
-    override def init(implicit version: TestUtils.ScalaSdkVersion): Unit = {
+    override def init(implicit version: ScalaVersion): Unit = {
       val printerClazz = classLoader.loadClass(CLASS_NAME)
       assertNotNull(s"Worksheet printer class $CLASS_NAME is null", printerClazz)
 
@@ -87,7 +86,7 @@ object WorksheetProcessorTestBase {
       LibraryLoader.storePointers()
     }
 
-    override protected def path(implicit version: TestUtils.ScalaSdkVersion): String =
+    override protected def path(implicit version: ScalaVersion): String =
       throw new UnsupportedOperationException
   }
 

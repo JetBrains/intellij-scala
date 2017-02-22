@@ -24,7 +24,7 @@ import com.intellij.psi.{PsiDirectory, PsiElement, PsiManager}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestBase, ScalaVersion_2_11}
+import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
@@ -36,7 +36,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
   * @author Roman.Shein
   *         Date: 03.03.14
   */
-abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with IntegrationTest with ScalaVersion_2_11 {
+abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with IntegrationTest with ScalaSdkOwner {
+
+  override implicit val version: ScalaVersion = Scala_2_11
 
   protected val configurationProducer: AbstractTestConfigurationProducer
 

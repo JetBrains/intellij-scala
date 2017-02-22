@@ -21,14 +21,13 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.CompositeLibrariesLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
-import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil
+import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import org.jetbrains.plugins.scala.{TestFixtureProvider, extensions}
 import org.junit.Assert
 
@@ -69,7 +68,6 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     }
 
     implicit val metaModule = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", root)
-    implicit val version = scalaSdkVersion
 
     CompositeLibrariesLoader(
       new DisposableScalaLibraryLoader() +: additionalLibraries(metaModule)
@@ -210,7 +208,7 @@ object MetaAnnotationTestBase {
 
   private def enableParadisePlugin(module: Module)
                                   (implicit project: Project,
-                                   version: ScalaSdkVersion): Unit = {
+                                   version: ScalaVersion): Unit = {
     val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val settings = profile.getSettings
 
@@ -222,12 +220,12 @@ object MetaAnnotationTestBase {
     override protected val name: String = "paradise"
     override protected val version: String = "3.0.0-M5"
 
-    override protected def folder(implicit version: ScalaSdkVersion): String =
-      s"${name}_${version.getMinor}"
+    override protected def folder(implicit version: ScalaVersion): String =
+      s"${name}_${version.minor}"
 
-    override def path(implicit version: ScalaSdkVersion): String = super.path
+    override def path(implicit version: ScalaVersion): String = super.path
 
-    override def init(implicit version: ScalaSdkVersion): Unit = {}
+    override def init(implicit version: ScalaVersion): Unit = {}
   }
 
   private def refreshVfs(path: String): Unit = {

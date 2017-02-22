@@ -12,6 +12,9 @@ import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.base.libraryLoaders.*;
+import org.jetbrains.plugins.scala.debugger.ScalaSdkOwner;
+import org.jetbrains.plugins.scala.debugger.ScalaVersion;
+import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.IOException;
@@ -21,7 +24,7 @@ import java.util.Arrays;
 /**
  * @author Alexander Podkhalyuzin
  */
-public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase {
+public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase implements ScalaSdkOwner {
     private CompositeLibrariesLoader myLibrariesLoader = null;
 
     protected String rootPath() {
@@ -41,16 +44,13 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         return TestUtils.createJdk();
     }
 
-    protected TestUtils.ScalaSdkVersion getDefaultScalaSDKVersion() {
-        return TestUtils.DEFAULT_SCALA_SDK_VERSION;
+    @Override
+    public ScalaVersion version() {
+        return Scala_2_10$.MODULE$;
     }
 
     @Override
     protected void setUp() throws Exception {
-        setUp(getDefaultScalaSDKVersion());
-    }
-
-    protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
         super.setUp();
         Module module = getModule();
 
@@ -66,7 +66,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
         LibraryLoader[] loaders = libraryLoaders.toArray(new LibraryLoader[libraryLoaders.size()]);
         myLibrariesLoader = CompositeLibrariesLoader$.MODULE$.apply(loaders, module);
-        myLibrariesLoader.init(libVersion);
+        myLibrariesLoader.init(version());
 
         TestUtils.disableTimerThread();
         //libLoader.clean();

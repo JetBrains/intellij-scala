@@ -6,7 +6,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.debugger.ScalaVersion
 
 /**
   * @author adkozlov
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 case class SourcesLoader(rootPath: String)
                         (implicit val module: Module) extends LibraryLoader {
 
-  override def init(implicit version: ScalaSdkVersion): Unit = {
+  override def init(implicit version: ScalaVersion): Unit = {
     FileUtil.createIfDoesntExist(new File(rootPath))
     PsiTestUtil.addSourceRoot(module, rootFile)
 

@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.lang.worksheet
 
-import org.jetbrains.plugins.scala.debugger.ScalaVersion_2_11
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 
 /**
   * User: Dmitry.Naydanov
   * Date: 12.07.16.
   */
-class WorksheetCompileTest extends WorksheetProcessorTestBase with ScalaVersion_2_11 {
+class WorksheetCompileTest extends WorksheetProcessorTestBase {
+
+  override implicit val version: ScalaVersion = Scala_2_11
+
   def testSimple1(): Unit = doTest {
     """
       | val a = 1

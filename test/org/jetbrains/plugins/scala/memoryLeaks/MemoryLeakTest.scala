@@ -21,6 +21,7 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{CompositeLibrariesLoader, JdkLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -32,7 +33,7 @@ import scala.collection.JavaConverters._
 /**
   * @author Nikolay.Tropin
   */
-class MemoryLeakTest extends PlatformTestCase {
+class MemoryLeakTest extends PlatformTestCase with DefaultScalaSdkOwner {
 
   protected val testDataPath = new File(TestUtils.getTestDataPath, "memoryLeaks").getPath
 
@@ -84,7 +85,7 @@ class MemoryLeakTest extends PlatformTestCase {
     implicit val project = loadAndSetupProject(projectPath)
 
     val libraryLoaders = createLibrariesLoaders
-    libraryLoaders.init(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+    libraryLoaders.init
 
     doSomeWork
 

@@ -4,9 +4,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader._
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion._2_11
-import org.jetbrains.plugins.scala.util.TestUtils._
 
 /**
   * @author adkozlov
@@ -14,7 +13,7 @@ import org.jetbrains.plugins.scala.util.TestUtils._
 trait ThirdPartyLibraryLoader extends LibraryLoader {
   protected val name: String
 
-  override def init(implicit version: ScalaSdkVersion): Unit = {
+  override def init(implicit version: ScalaVersion): Unit = {
     if (alreadyExistsInModule) return
 
     val path = this.path
@@ -24,7 +23,7 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
     LibraryLoader.storePointers()
   }
 
-  protected def path(implicit version: ScalaSdkVersion): String
+  protected def path(implicit version: ScalaVersion): String
 
   private def alreadyExistsInModule =
     module.libraries.map(_.getName)
@@ -34,10 +33,10 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
 abstract class IvyLibraryLoaderAdapter extends ThirdPartyLibraryLoader with IvyLibraryLoader {
   protected val version: String
 
-  override protected def folder(implicit version: ScalaSdkVersion): String =
-    s"${name}_${version.getMajor}"
+  override protected def folder(implicit version: ScalaVersion): String =
+    s"${name}_${version.major}"
 
-  override protected def fileName(implicit version: ScalaSdkVersion): String =
+  override protected def fileName(implicit version: ScalaVersion): String =
     s"$folder-${this.version}"
 }
 
@@ -61,8 +60,8 @@ case class SlickLoader(implicit val module: Module) extends IvyLibraryLoaderAdap
   override protected val version: String = "3.1.0"
   override protected val ivyType: IvyType = Bundles
 
-  override protected def path(implicit version: ScalaSdkVersion): String =
-    super.path(_2_11)
+  override protected def path(implicit version: ScalaVersion): String =
+    super.path(Scala_2_11)
 }
 
 case class SprayLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
@@ -71,8 +70,8 @@ case class SprayLoader(implicit val module: Module) extends IvyLibraryLoaderAdap
   override protected val version: String = "1.3.1"
   override protected val ivyType: IvyType = Bundles
 
-  override protected def path(implicit version: ScalaSdkVersion): String =
-    super.path(_2_11)
+  override protected def path(implicit version: ScalaVersion): String =
+    super.path(Scala_2_11)
 }
 
 case class CatsLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
@@ -80,8 +79,8 @@ case class CatsLoader(implicit val module: Module) extends IvyLibraryLoaderAdapt
   override protected val vendor: String = "org.typelevel"
   override protected val version: String = "0.4.0"
 
-  override protected def path(implicit version: ScalaSdkVersion): String =
-    super.path(_2_11)
+  override protected def path(implicit version: ScalaVersion): String =
+    super.path(Scala_2_11)
 }
 
 abstract class Specs2BaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
@@ -98,8 +97,8 @@ case class ScalaCheckLoader(implicit val module: Module) extends IvyLibraryLoade
   override protected val vendor: String = "org.scalacheck"
   override protected val version: String = "1.12.5"
 
-  override protected def path(implicit version: ScalaSdkVersion): String =
-    super.path(_2_11)
+  override protected def path(implicit version: ScalaVersion): String =
+    super.path(Scala_2_11)
 }
 
 case class PostgresLoader(implicit val module: Module) extends IvyLibraryLoaderAdapter {
@@ -107,8 +106,8 @@ case class PostgresLoader(implicit val module: Module) extends IvyLibraryLoaderA
   override protected val vendor: String = "com.wda.sdbc"
   override protected val version: String = "0.5"
 
-  override protected def path(implicit version: ScalaSdkVersion): String =
-    super.path(_2_11)
+  override protected def path(implicit version: ScalaVersion): String =
+    super.path(Scala_2_11)
 }
 
 case class ScalaTestLoader(override protected val version: String,

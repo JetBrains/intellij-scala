@@ -2,17 +2,12 @@ package org.jetbrains.plugins.scala.lang.resolve;
 
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl;
-import org.jetbrains.plugins.scala.util.TestUtils;
 
 /**
  * User: Dmitry Naydanov
  * Date: 12/5/11
  */
 public class ScaladocLinkResolveTest extends ScaladocLinkResolveBase {
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp(TestUtils.ScalaSdkVersion._2_10);
-  }
 
   public void testCodeLinkResolve() throws Exception {
     genericResolve(1);

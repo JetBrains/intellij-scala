@@ -4,7 +4,6 @@ import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyLibraryLoader.{Bundles, IvyType}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.testingSupport.specs2.Specs2TestCase
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
   * @author Roman.Shein
@@ -21,9 +20,6 @@ trait Specs2_2_11_3_1_M_Base extends Specs2TestCase {
       ScalaXmlLoader(),
       SCodecBitsLoader(), SCodecCoreLoader())
   }
-
-  override protected val scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
-
 }
 
 object Specs2_2_11_3_1_M_Base {

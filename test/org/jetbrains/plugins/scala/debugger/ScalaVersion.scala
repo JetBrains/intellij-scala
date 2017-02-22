@@ -1,23 +1,38 @@
 package org.jetbrains.plugins.scala.debugger
 
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-
 /**
  * @author Nikolay.Tropin
  */
-trait ScalaVersion {
-  protected def scalaSdkVersion: ScalaSdkVersion
-  protected def scalaVersion: String = scalaSdkVersion.getMajor
+sealed trait ScalaVersion {
+  val major: String
+  val minor: String
 }
 
-trait ScalaVersion_2_10 extends ScalaVersion {
-  override protected val scalaSdkVersion = ScalaSdkVersion._2_10
+case object Scala_2_10 extends ScalaVersion {
+  override final val major: String = "2.10"
+  override final val minor: String = "2.10.6"
 }
 
-trait ScalaVersion_2_11 extends ScalaVersion {
-  override protected val scalaSdkVersion = ScalaSdkVersion._2_11
+case object Scala_2_11 extends ScalaVersion {
+  override final val major: String = "2.11"
+  override final val minor: String = "2.11.7"
 }
 
-trait ScalaVersion_2_12 extends ScalaVersion {
-  override protected val scalaSdkVersion = ScalaSdkVersion._2_12
+case object Scala_2_11_8 extends ScalaVersion {
+  override final val major: String = "2.11"
+  override final val minor: String = "2.11.8"
+}
+
+case object Scala_2_12 extends ScalaVersion {
+  override final val major: String = "2.12"
+  override final val minor: String = "2.12.0"
+}
+
+trait ScalaSdkOwner {
+  implicit val version: ScalaVersion
+}
+
+// Java compatibility
+trait DefaultScalaSdkOwner extends ScalaSdkOwner {
+  override implicit val version: ScalaVersion = Scala_2_10
 }

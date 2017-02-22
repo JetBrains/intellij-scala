@@ -28,7 +28,7 @@ import scala.collection.mutable.ListBuffer
   * Nikolay.Tropin
   * 2/26/14
   */
-abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
+abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   private var deleteProjectAtTearDown = false
   private var librariesLoader: Option[CompositeLibrariesLoader] = None
@@ -69,7 +69,6 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   protected def addLibraries(loadReflect: Boolean = true): Unit = {
     implicit val project = getProject
     implicit val module = getModule
-    implicit val version = scalaSdkVersion
 
     val libraryLoaders = Seq(
       ScalaLibraryLoader(loadReflect),
@@ -162,7 +161,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       }
     }
 
-    def hasError = myError != null
+    def hasError: Boolean = myError != null
 
     def throwException() {
       if (myError != null) throw new RuntimeException(myError)

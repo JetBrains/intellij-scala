@@ -10,6 +10,7 @@ import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures._
 import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.base.libraryLoaders._
+import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.util.TestUtils._
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.util.TestUtils._
   * Author: Svyatoslav Ilinskiy
   * Date: 11/17/2015
   */
-abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImportingTestCase {
+abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImportingTestCase with DefaultScalaSdkOwner {
 
   var myCodeInsightTestFixture: CodeInsightTestFixture = _
 
@@ -44,7 +45,6 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
 
     implicit val project = myCodeInsightTestFixture.getProject
     implicit val module = myCodeInsightTestFixture.getModule
-    implicit val version = DEFAULT_SCALA_SDK_VERSION
 
     librariesLoader = Some(CompositeLibrariesLoader(
       ScalaLibraryLoader(),

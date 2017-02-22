@@ -1,13 +1,18 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger._
 
 /**
  * User: Alefas
  * Date: 13.10.11
  */
-class ScalaLocalVariablesEvaluationTest extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_11
-class ScalaLocalVariablesEvaluationTest_212 extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_12
+class ScalaLocalVariablesEvaluationTest extends ScalaLocalVariablesEvaluationTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
+
+class ScalaLocalVariablesEvaluationTest_212 extends ScalaLocalVariablesEvaluationTestBase {
+  override implicit val version: ScalaVersion = Scala_2_12
+}
 
 abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Local.scala",

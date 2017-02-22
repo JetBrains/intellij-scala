@@ -15,8 +15,13 @@ import scala.collection.JavaConverters._
  * @author Nikolay.Tropin
  */
 
-class ExactBreakpointTest extends ExactBreakpointTestBase with ScalaVersion_2_11
-class ExactBreakpointTest_212 extends ExactBreakpointTestBase with ScalaVersion_2_12
+class ExactBreakpointTest extends ExactBreakpointTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
+
+class ExactBreakpointTest_212 extends ExactBreakpointTestBase {
+  override implicit val version: ScalaVersion = Scala_2_12
+}
 
 abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
 
