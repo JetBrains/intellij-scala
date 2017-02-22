@@ -131,7 +131,8 @@ object DependencyGroups {
     "org.typelevel" %% "cats" % "0.4.0",
     "org.scalameta" % "paradise_2.11.8" % "3.0.0-M5" exclude("org.scalameta", "scalameta_2.11"),
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
-    "com.typesafe.play" % "play_2.10" % "2.4.10"
+    "com.typesafe.play" % "play_2.10" % "2.4.10",
+    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.17"
   )
 
   val testScalaLibraryDownloader = Seq(
