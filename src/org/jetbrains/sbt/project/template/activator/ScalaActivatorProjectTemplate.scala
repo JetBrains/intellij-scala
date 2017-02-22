@@ -5,7 +5,7 @@ import javax.swing.Icon
 import com.intellij.ide.util.projectWizard.AbstractModuleBuilder
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectTemplate
-import org.jetbrains.sbt.Sbt
+import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * User: Dmitry.Naydanov
@@ -14,9 +14,9 @@ import org.jetbrains.sbt.Sbt
 class ScalaActivatorProjectTemplate extends ProjectTemplate {
   override def getName: String = "Activator"
 
-  override def getIcon: Icon = Sbt.Icon
+  override def getIcon: Icon = Icons.LIGHTBEND_LOGO
 
-  override def getDescription: String = "Project based on Typesafe activator templates"
+  override def getDescription: String = "Project based on Lightbend Activator templates"
 
   override def validateSettings(): ValidationInfo = null
 

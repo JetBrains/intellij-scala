@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package project.template
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.platform.ProjectTemplate
-import org.jetbrains.plugins.scala.icons.Icons
 
 /**
  * @author Pavel Fatin
@@ -13,11 +13,11 @@ class ScalaProjectTemplate extends ProjectTemplate {
 
   def languageName = "Scala"
 
-  def getName = s"$languageName (no-sbt)"
+  def getName = s"$languageName / IDEA project"
 
   def getDescription = s"Simple module with attached $languageName SDK"
 
-  def getIcon = Icons.SCALA_SMALL_LOGO
+  def getIcon = AllIcons.Nodes.Module
 
   def createModuleBuilder() = new ScalaModuleBuilder(languageName, libraryDescription)
 
