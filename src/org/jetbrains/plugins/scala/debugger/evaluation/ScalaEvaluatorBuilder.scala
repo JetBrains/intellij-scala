@@ -85,6 +85,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
       case implicitlyConvertedTo(expr) => evaluatorFor(expr)
       case needsCompilation(message) => throw new NeedCompilationException(message)
       case byNameParameterFunction(p, ref) => byNameParamEvaluator(ref, p, computeValue = false)
+      case thisFromFrame(eval) => eval
       case expr: ScExpression =>
         val innerEval = expr match {
           case lit: ScLiteral => literalEvaluator(lit)
@@ -192,5 +193,15 @@ private object byNameParameterFunction {
       }
       else None
     }
+  }
+}
+
+private object thisFromFrame {
+  val thisKey = "$this0"
+
+  def unapply(ref: ScReferenceExpression): Option[Evaluator] = {
+    if (ref.qualifier.isDefined) None
+    else if (ref.refName == thisKey) Some(new ThisEvaluator())
+    else None
   }
 }
