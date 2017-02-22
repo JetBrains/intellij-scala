@@ -693,49 +693,66 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
+  def byNameParamEvaluator(ref: ScReferenceExpression, p: ScParameter, computeValue: Boolean): Evaluator =  {
+    val paramEval = p match {
+      case cp: ScClassParameter if cp.isCallByNameParameter =>
+        val qualEval = qualifierEvaluator(ref.qualifier, ref)
+        val name = NameTransformer.encode(cp.name)
+        ScalaFieldEvaluator(qualEval, name, classPrivateThisField = true)
+      case _: ScParameter if p.isCallByNameParameter =>
+        calcLocal(p)
+      case _ => throw EvaluationException("By-name parameter expected")
+    }
+    if (computeValue) ScalaMethodEvaluator(paramEval, "apply", null, Nil)
+    else paramEval
+  }
+
+  private def withOuterFieldEvaluator(containingClass: PsiElement, name: String, message: String) = {
+    val (innerClass, iterationCount) = findContextClass { e =>
+      e == null || {val nextClass = getContextClass(e); nextClass == null || nextClass == containingClass}
+    }
+    if (innerClass == null) throw EvaluationException(message)
+    val thisEval = new ScalaThisEvaluator(iterationCount)
+    ScalaFieldEvaluator(thisEval, name)
+  }
+
+  private def calcLocal(named: PsiNamedElement): Evaluator = {
+    implicit val typeSystem = named.typeSystem
+
+    val name = NameTransformer.encode(named.name)
+    val containingClass = getContextClass(named)
+
+    val localVariableEvaluator: Evaluator = ScalaPsiUtil.nameContext(named) match {
+      case param: ScParameter =>
+        param.owner match {
+          case fun@(_: ScFunction | _: ScFunctionExpr) => parameterEvaluator(fun, param)
+          case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
+        }
+      case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
+      case _: ScGenerator | _: ScEnumerator if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
+        throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
+      case LazyVal(_) => localLazyValEvaluator(named)
+      case ScalaPositionManager.InsideAsync(_) =>
+        val simpleLocal = new ScalaLocalVariableEvaluator(name, fileName)
+        val fieldMacro = ScalaFieldEvaluator(new ScalaThisEvaluator(), name + "$macro")
+        ScalaDuplexEvaluator(simpleLocal, fieldMacro)
+      case _ => new ScalaLocalVariableEvaluator(name, fileName)
+    }
+
+    containingClass match {
+      case `contextClass` | _: ScGenerator | _: ScEnumerator => localVariableEvaluator
+      case _ if contextClass == null => localVariableEvaluator
+      case _ =>
+        val fieldEval = withOuterFieldEvaluator(containingClass, name, ScalaBundle.message("cannot.evaluate.local.variable", name))
+        ScalaDuplexEvaluator(fieldEval, localVariableEvaluator)
+    }
+  }
+
+
   def evaluatorForReferenceWithoutParameters(qualifier: Option[ScExpression],
                                              resolve: PsiElement,
                                              ref: ScReferenceExpression)
                                             (implicit typeSystem: TypeSystem): Evaluator = {
-
-    def withOuterFieldEvaluator(containingClass: PsiElement, name: String, message: String) = {
-      val (innerClass, iterationCount) = findContextClass { e =>
-        e == null || {val nextClass = getContextClass(e); nextClass == null || nextClass == containingClass}
-      }
-      if (innerClass == null) throw EvaluationException(message)
-      val thisEval = new ScalaThisEvaluator(iterationCount)
-      ScalaFieldEvaluator(thisEval, name)
-    }
-
-    def calcLocal(named: PsiNamedElement): Evaluator = {
-      val name = NameTransformer.encode(named.name)
-      val containingClass = getContextClass(named)
-
-      val localVariableEvaluator: Evaluator = ScalaPsiUtil.nameContext(named) match {
-        case param: ScParameter =>
-          param.owner match {
-            case fun@(_: ScFunction | _: ScFunctionExpr) => parameterEvaluator(fun, param)
-            case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
-          }
-        case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
-        case _: ScGenerator | _: ScEnumerator if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
-          throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
-        case LazyVal(_) => localLazyValEvaluator(named)
-        case ScalaPositionManager.InsideAsync(_) =>
-          val simpleLocal = new ScalaLocalVariableEvaluator(name, fileName)
-          val fieldMacro = ScalaFieldEvaluator(new ScalaThisEvaluator(), name + "$macro")
-          ScalaDuplexEvaluator(simpleLocal, fieldMacro)
-        case _ => new ScalaLocalVariableEvaluator(name, fileName)
-      }
-
-      containingClass match {
-        case `contextClass` | _: ScGenerator | _: ScEnumerator => localVariableEvaluator
-        case _ if contextClass == null => localVariableEvaluator
-        case _ =>
-          val fieldEval = withOuterFieldEvaluator(containingClass, name, ScalaBundle.message("cannot.evaluate.local.variable", name))
-          ScalaDuplexEvaluator(fieldEval, localVariableEvaluator)
-      }
-    }
 
     def calcLocalObject(obj: ScObject) = {
       val containingClass = getContextClass(obj)
@@ -756,9 +773,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     resolve match {
       case Both(isInsideLocalFunction(fun), named: PsiNamedElement) if isLocalValue =>
         ScalaDuplexEvaluator(calcLocal(named), parameterEvaluator(fun, resolve))
-      case p: ScParameter if p.isCallByNameParameter && isLocalValue =>
-        val localEval = calcLocal(p)
-        ScalaMethodEvaluator(localEval, "apply", null, Nil)
+      case p: ScParameter if p.isCallByNameParameter =>
+        byNameParamEvaluator(ref, p, computeValue = true)
       case obj: ScObject if isLocalValue => calcLocalObject(obj)
       case named: PsiNamedElement if isLocalValue =>
         calcLocal(named)
@@ -766,11 +782,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         objectEvaluator(obj, () => qualifierEvaluator(qualifier, ref))
       case _: PsiMethod | _: ScSyntheticFunction =>
         methodCallEvaluator(ref, Nil, Map.empty)
-      case cp: ScClassParameter if cp.isCallByNameParameter =>
-        val qualEval = qualifierEvaluator(qualifier, ref)
-        val name = NameTransformer.encode(cp.name)
-        val fieldEval = ScalaFieldEvaluator(qualEval, name, classPrivateThisField = true)
-        ScalaMethodEvaluator(fieldEval, "apply", null, Nil)
       case privateThisField(_) =>
         val named = resolve.asInstanceOf[ScNamedElement]
         val qualEval = qualifierEvaluator(qualifier, ref)
