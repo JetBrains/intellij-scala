@@ -73,6 +73,8 @@
 
         <applicationService serviceImplementation="org.jetbrains.sbt.resolvers.SbtResolverIndexesManager"/>
 
+        <projectTemplatesFactory implementation="org.jetbrains.sbt.project.template.SbtProjectTemplateFactory" order="first"/>
+
         <projectConfigurable groupId="build.tools" displayName="SBT" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
         <toolWindow id="SBT" anchor="right" icon="/sbt.png"

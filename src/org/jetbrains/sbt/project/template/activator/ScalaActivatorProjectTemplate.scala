@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.icons.Icons
 class ScalaActivatorProjectTemplate extends ProjectTemplate {
   override def getName: String = "Activator"
 
-  override def getIcon: Icon = Icons.LIGHTBEND_LOGO
+  override def getDescription: String = "SBT-based project from a Lightbend Activator template"
 
-  override def getDescription: String = "Project based on Lightbend Activator templates"
+  override def getIcon: Icon = Icons.LIGHTBEND_LOGO
 
   override def validateSettings(): ValidationInfo = null
 

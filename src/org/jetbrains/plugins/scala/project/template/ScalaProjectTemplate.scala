@@ -1,25 +1,35 @@
 package org.jetbrains.plugins.scala
 package project.template
 
+import javax.swing.Icon
+
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.platform.ProjectTemplate
+import org.jetbrains.plugins.scala.project.template.WizardEntity.{Module, Project}
 
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectTemplate extends ProjectTemplate {
+class ScalaProjectTemplate(entity: WizardEntity) extends ProjectTemplate {
   protected val libraryDescription: CustomLibraryDescription = ScalaLibraryDescription
 
-  def languageName = "Scala"
+  def getName: String = entity match {
+    case Project => "IDEA"
+    case Module => "Scala"
+  }
 
-  def getName = s"$languageName / IDEA project"
+  def getDescription: String = entity match {
+    case Project => "IDEA-based Scala project"
+    case Module => "Module with a Scala SDK"
+  }
 
-  def getDescription = s"Simple module with attached $languageName SDK"
+  def getIcon: Icon = entity match {
+    case Project => AllIcons.Nodes.IdeaProject
+    case Module => AllIcons.Nodes.Module
+  }
 
-  def getIcon = AllIcons.Nodes.Module
-
-  def createModuleBuilder() = new ScalaModuleBuilder(languageName, libraryDescription)
+  def createModuleBuilder() = new ScalaModuleBuilder("Scala", libraryDescription)
 
   def validateSettings() = null
 }
