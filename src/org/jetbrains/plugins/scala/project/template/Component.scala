@@ -30,8 +30,22 @@ sealed class Artifact(val prefix: String, val resource: Option[String] = None) {
 }
 
 object Artifact {
-  def values: Set[Artifact] = Set(ScalaLibrary, ScalaCompiler, ScalaReflect,
-    ScalaXml, ScalaSwing, ScalaCombinators, ScalaActors)
+  val ScalaArtifacts: Set[Artifact] = Set(
+    ScalaLibrary,
+    ScalaCompiler,
+    ScalaReflect,
+    ScalaXml,
+    ScalaSwing,
+    ScalaCombinators,
+    ScalaActors)
+
+  val DottyArtifacts: Set[Artifact] = Set(
+    ScalaLibrary,
+    ScalaCompiler,
+    ScalaReflect,
+    Dotty,
+    DottyInterfaces,
+    JLine)
 
   private def readProperty(file: File, resource: String, name: String): Option[String] = {
     try {
@@ -48,6 +62,8 @@ object Artifact {
     Option(properties.getProperty(name))
   }
 
+  // Scala
+
   case object ScalaLibrary extends Artifact("scala-library", Some("library.properties"))
 
   case object ScalaCompiler extends Artifact("scala-compiler", Some("compiler.properties"))
@@ -61,14 +77,12 @@ object Artifact {
   case object ScalaCombinators extends Artifact("scala-parser-combinators")
 
   case object ScalaActors extends Artifact("scala-actors")
-}
 
-object DottyArtifact {
-  val values: Set[Artifact] = Set(Main, Interfaces, JLine)
+  // Dotty
 
-  case object Main extends Artifact("dotty_2.11")
+  case object Dotty extends Artifact("dotty_2.11")
 
-  case object Interfaces extends Artifact("dotty-interfaces")
+  case object DottyInterfaces extends Artifact("dotty-interfaces")
 
   case object JLine extends Artifact("jline")
 }
@@ -90,7 +104,7 @@ object Kind {
 case class Component(artifact: Artifact, kind: Kind, version: Option[Version], file: File)
 
 object Component {
-  def discoverIn(artifacts: Set[Artifact], files: Seq[File]): Seq[Component] = {
+  def discoverIn(files: Seq[File], artifacts: Set[Artifact]): Seq[Component] = {
     val patterns = artifacts.flatMap { artifact =>
       Kind.values.map(kind => (kind.patternFor(artifact.prefix), artifact, kind))
     }
@@ -102,6 +116,4 @@ object Component {
       }
     }
   }
-  
-  def discoverIn(files: Seq[File]): Seq[Component] = discoverIn(Artifact.values ++ DottyArtifact.values, files)
 }

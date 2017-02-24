@@ -26,7 +26,7 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
 
   
   protected def extractVersion(files: Seq[File]): Option[Version] =
-  Component.discoverIn(Set(getArtifact), files).find {
+  Component.discoverIn(files, Set(getArtifact)).find {
       component => component.artifact.prefix == myArtifact.prefix
     }.flatMap(_.version)
   

@@ -4,25 +4,17 @@ import java.io.{File, FileNotFoundException}
 
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.Key
+import org.jetbrains.plugins.scala.project.Platform
 
 /**
- * @author Pavel Fatin
- */
-object Downloader extends Downloader {
-  def downloadScala(version: String, listener: String => Unit): Unit = download(version, listener)
-
-  override protected def sbtCommandsFor(version: String) = Seq(s"""set scalaVersion := "$version"""") ++
-    super.sbtCommandsFor(version)
-}
-
-trait Downloader {
-  protected def sbtCommandsFor(version: String) = Seq("updateClassifiers")
-
-  protected def download(version: String, listener: String => Unit) {
+  * @author Pavel Fatin
+  */
+object Downloader {
+  def downloadScala(platform: Platform, version: String, listener: String => Unit): Unit = {
     val buffer = new StringBuffer()
 
     usingTempFile("sbt-commands") { file =>
-      writeLinesTo(file, sbtCommandsFor(version): _*)
+      writeLinesTo(file, sbtCommandsFor(platform, version): _*)
       usingTempDirectory("sbt-project") { directory =>
         val process = Runtime.getRuntime.exec(osCommandsFor(file).toArray, null, directory)
 
@@ -59,6 +51,17 @@ trait Downloader {
     } else {
       throw new FileNotFoundException(launcher.getPath)
     }
+  }
+
+  private def sbtCommandsFor(platform: Platform, version: String) = platform match {
+    case Platform.Scala => Seq(
+      s"""set scalaVersion := "$version"""",
+      "updateClassifiers")
+
+    case Platform.Dotty => Seq(
+      """set resolvers := Seq("JFrog OSS Snapshots" at "https://oss.jfrog.org/artifactory/oss-snapshot-local")""",
+      """set libraryDependencies := Seq("me.d-d" % "dotty_2.11" % "0.1-SNAPSHOT")""",
+      "updateClassifiers")
   }
 }
 

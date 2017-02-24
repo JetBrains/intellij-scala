@@ -4,16 +4,13 @@ package project.template
 import javax.swing.Icon
 
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.platform.ProjectTemplate
 import org.jetbrains.plugins.scala.project.template.WizardEntity.{Module, Project}
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 class ScalaProjectTemplate(entity: WizardEntity) extends ProjectTemplate {
-  protected val libraryDescription: CustomLibraryDescription = ScalaLibraryDescription
-
   def getName: String = entity match {
     case Project => "IDEA"
     case Module => "Scala"
@@ -29,7 +26,7 @@ class ScalaProjectTemplate(entity: WizardEntity) extends ProjectTemplate {
     case Module => AllIcons.Nodes.Module
   }
 
-  def createModuleBuilder() = new ScalaModuleBuilder("Scala", libraryDescription)
+  def createModuleBuilder() = new ScalaModuleBuilder()
 
   def validateSettings() = null
 }

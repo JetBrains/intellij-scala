@@ -5,17 +5,17 @@ import javax.swing.*;
 /**
  * @author Pavel Fatin
  */
-class SComboBox extends JComboBox {
-  public SComboBox(String[] items) {
+public class SComboBox extends JComboBox {
+  public SComboBox() {
+  }
+
+  public <T extends Object> SComboBox(T[] items) {
+    //noinspection unchecked
     super(items);
   }
 
-  @Override
-  public String getSelectedItem() {
-    return (String) super.getSelectedItem();
-  }
-
-  public void setItems(String[] items) {
+  public <T extends Object> void setItems(T[] items) {
+    //noinspection unchecked
     super.setModel(new DefaultComboBoxModel(items));
   }
 }

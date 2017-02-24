@@ -55,8 +55,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    val sbtVersionComboBox            = new SComboBox(Array.empty)
-    val scalaVersionComboBox          = new SComboBox(Array.empty)
+    val sbtVersionComboBox            = new SComboBox()
+    val scalaVersionComboBox          = new SComboBox()
 
     val (scalaVersions, sbtVersions) = withProgressSynchronously("Fetching available versions") { listener =>
       listener("Fetching Scala versions...")
@@ -79,8 +79,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
     }) {
       override def updateDataModel() {
-        sbtVersion = sbtVersionComboBox.getSelectedItem
-        scalaVersion = scalaVersionComboBox.getSelectedItem
+        sbtVersion = sbtVersionComboBox.getSelectedItem.asInstanceOf[String]
+        scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
 
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
 

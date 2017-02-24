@@ -7,33 +7,41 @@ import java.util
 import java.util.Collections
 import javax.swing.JComponent
 
-import com.intellij.openapi.roots.libraries.{NewLibraryConfiguration, PersistentLibraryKind}
+import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 
 import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
  */
-object ScalaLibraryDescription extends ScalaLibraryDescription {
-  override protected val libraryKind = ScalaLibraryKind
+object ScalaLibraryDescription extends CustomLibraryDescription {
+  def getSuitableLibraryKinds: util.Set[ScalaLibraryKind.type] = Collections.singleton(ScalaLibraryKind)
 
-  override protected val sdkDescriptor = ScalaSdkDescriptor
+  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
+    implicit val ordering = implicitly[Ordering[Version]].reverse
 
-  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]): SdkSelectionDialog = {
-    new SdkSelectionDialog(parentComponent, provider)
+    def sdks = localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project")) ++
+            systemSdks.sortBy(_.version).map(SdkChoice(_, "System")) ++
+            ivySdks.sortBy(_.version).map(SdkChoice(_, "Ivy")) ++
+            mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
+
+    val dialog = new SdkSelectionDialog(parentComponent, () => sdks.sortBy(_.sdk.platform).asJava)
+
+    Option(dialog.open()).map(_.createNewLibraryConfiguration()).orNull
   }
-
-  override def sdks(contextDirectory: VirtualFile): Seq[SdkChoice] = super.sdks(contextDirectory) ++
-    systemSdks.sortBy(_.version).map(SdkChoice(_, "System"))
 
   override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL
 
-  private def systemSdks: Seq[SdkDescriptor] =
+  private def localSkdsIn(directory: File): Seq[ScalaSdkDescriptor] =
+    Seq(directory / "lib").flatMap(sdkIn)
+
+  def systemSdks: Seq[ScalaSdkDescriptor] =
     systemScalaRoots.flatMap(path => sdkIn(new File(path)).toSeq)
 
   private def systemScalaRoots: Seq[String] = {
@@ -69,54 +77,49 @@ object ScalaLibraryDescription extends ScalaLibraryDescription {
     path.split(File.pathSeparator)
             .find(_.toLowerCase.contains("scala"))
             .map(_.replaceFirst("""[/\\]?bin[/\\]?$""", ""))
-}
 
-trait ScalaLibraryDescription extends CustomLibraryDescription {
-  protected val libraryKind: PersistentLibraryKind[ScalaLibraryProperties]
+  private def sdkIn(root: File): Option[ScalaSdkDescriptor] = {
+    val components = Component.discoverIn(root.allFiles, Artifact.ScalaArtifacts)
 
-  protected val sdkDescriptor: SdkDescriptorCompanion
-
-  private val userHome = new File(System.getProperty("user.home"))
-
-  protected val ivyRepository = userHome / ".ivy2" / "cache"
-
-  protected val ivyScalaRoot = ivyRepository / "org.scala-lang"
-
-  protected val mavenRepository = userHome / ".m2" / "repository"
-
-  protected val mavenScalaRoot = mavenRepository / "org" / "scala-lang"
-
-  def dialog(parentComponent: JComponent, provide: () => java.util.List[SdkChoice]): SdkSelectionDialog
-
-  def sdks(contextDirectory: VirtualFile): Seq[SdkChoice] = {
-    val localSdks = Option(contextDirectory).toSeq.map(_ => virtualToIoFile(contextDirectory) / "lib").flatMap(sdkIn)
-    localSdks.map(SdkChoice(_, "Project")) ++
-      ivySdks.sortBy(_.version).map(SdkChoice(_, "Ivy")) ++
-      mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
+    ScalaSdkDescriptor.from(components).right.toOption
   }
 
-  def getSuitableLibraryKinds: util.Set[PersistentLibraryKind[ScalaLibraryProperties]] = Collections.singleton(libraryKind)
+  def mavenSdks: Seq[ScalaSdkDescriptor] = {
+    val root = new File(System.getProperty("user.home")) / ".m2"
 
-  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
-    implicit val ordering = implicitly[Ordering[Version]].reverse
-    Option(dialog(parentComponent, () => sdks(contextDirectory).asJava).open())
-      .map(_.createNewLibraryConfiguration())
-      .orNull
+    val scalaFiles = (root / "repository" / "org" / "scala-lang").allFiles
+
+    scalaSdksIn(scalaFiles)
   }
 
-  protected def discoverComponents(root: File) = Component.discoverIn(root.allFiles)
+  def ivySdks: Seq[ScalaSdkDescriptor] = {
+    val root = new File(System.getProperty("user.home")) / ".ivy2"
 
-  protected def sdkIn(root: File) = sdkDescriptor.from(discoverComponents(root)).right.toOption
+    val scalaFiles = (root / "cache" / "org.scala-lang").allFiles
 
-  protected def ivySdks = sdksIn(ivyScalaRoot)
+    val dottyFiles = scalaFiles ++
+      (root / "cache" / "me.d-d").allFiles ++
+      (root / "cache" / "jline").allFiles :+
+      CompileServerLauncher.dottyInterfacesJar
 
-  protected def mavenSdks = sdksIn(mavenScalaRoot)
+    scalaSdksIn(scalaFiles) ++
+      dottySdksIn(dottyFiles)
+  }
 
-  private def sdksIn(root: File): Seq[SdkDescriptor] = {
-    discoverComponents(root).groupBy(_.version).mapValues(sdkDescriptor.from).toSeq.collect {
+  private def scalaSdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
+    val components = Component.discoverIn(files, Artifact.ScalaArtifacts)
+
+    components.groupBy(_.version).mapValues(ScalaSdkDescriptor.from).toSeq.collect {
       case (Some(_), Right(sdk)) => sdk
     }
   }
+
+  private def dottySdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
+    val components = Component.discoverIn(files, Artifact.DottyArtifacts)
+      .filter(DottyComponents.isDottyComponent)
+
+    ScalaSdkDescriptor.from(components).right.toSeq
+  }
 }
 
-case class SdkChoice(sdk: SdkDescriptor, source: String)
+case class SdkChoice(sdk: ScalaSdkDescriptor, source: String)

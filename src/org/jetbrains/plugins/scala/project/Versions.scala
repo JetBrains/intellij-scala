@@ -9,30 +9,22 @@ import scala.util.matching.Regex
 /**
  * @author Pavel Fatin
  */
-object Versions extends Versions {
-  val DefaultScalaVersion: String = Scala.defaultVersion
+object Versions  {
+  val DefaultScalaVersion: String = Entity.Scala.defaultVersion
 
-  val DefaultSbtVersion: String = Sbt.defaultVersion
+  val DefaultDottyVersion: String = Entity.Dotty.defaultVersion
 
-  override protected val releaseVersionLine: Regex = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
+  val DefaultSbtVersion: String = Entity.Sbt.defaultVersion
 
-  def loadScalaVersions: Array[String] = loadVersionsOf(Scala)
+  def loadScalaVersions: Array[String] = loadVersionsOf(Entity.Scala)
 
-  def loadSbtVersions: Array[String] = loadVersionsOf(Sbt)
+  def loadDottyVersions: Array[String] = loadVersionsOf(Entity.Dotty)
 
-  private object Scala extends Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
-    Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.6", "2.11.8"))
+  def loadSbtVersions: Array[String] = loadVersionsOf(Entity.Sbt)
 
-  private object Sbt extends Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
-    Version("0.12.0"), Seq("0.12.4", "0.13.13"))
-}
-
-trait Versions {
-  protected val releaseVersionLine: Regex
-
-  protected def loadVersionsOf(entity: Entity): Array[String] = {
+  private def loadVersionsOf(entity: Entity): Array[String] = {
     loadVersionsFrom(entity.url, {
-      case releaseVersionLine(number) => number
+      case entity.pattern(number) => number
     })
       .getOrElse(entity.hardcodedVersions)
       .map(Version(_))
@@ -42,7 +34,7 @@ trait Versions {
       .toArray
   }
 
-  protected def loadVersionsFrom(url: String, filter: PartialFunction[String, String]): Try[Seq[String]] = {
+  private def loadVersionsFrom(url: String, filter: PartialFunction[String, String]): Try[Seq[String]] = {
     loadLinesFrom(url).map { lines => lines.collect(filter) }
   }
 
@@ -56,7 +48,24 @@ trait Versions {
     }
   }
 
-  protected case class Entity(url: String, minVersion: Version, hardcodedVersions: Seq[String]) {
+  private case class Entity(url: String, pattern: Regex, minVersion: Version, hardcodedVersions: Seq[String]) {
     def defaultVersion: String = hardcodedVersions.last
+  }
+
+  private object Entity {
+    val Scala = Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
+      ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
+      Version("2.8.0"),
+      Seq("2.8.2", "2.9.3", "2.10.6", "2.11.8"))
+
+    val Sbt = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
+      ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
+      Version("0.12.0"),
+      Seq("0.12.4", "0.13.13"))
+
+    val Dotty = Entity(s"https://oss.jfrog.org/artifactory/oss-snapshot-local/me/d-d/dotty_2.11",
+      """.+>(\d+.\d+.+)/<.*""".r,
+      Version("0.1-SNAPSHOT"),
+      Seq("0.1-SNAPSHOT"))
   }
 }
