@@ -1272,7 +1272,6 @@
         <!-- end of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
-        <library.type implementation="org.jetbrains.plugins.dotty.project.DottyLibraryType" />
     </extensions>
 
 
