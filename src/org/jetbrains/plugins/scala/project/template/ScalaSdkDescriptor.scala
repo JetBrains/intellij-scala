@@ -3,16 +3,18 @@ package project.template
 
 import java.io.File
 
+import com.intellij.openapi.roots.JavadocOrderRootType.{getInstance => JAVA_DOCS}
+import com.intellij.openapi.roots.OrderRootType
+import com.intellij.openapi.roots.OrderRootType.CLASSES
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
-import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
+import org.jetbrains.plugins.scala.project.Platform._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
 
 /**
- * @author Pavel Fatin
- */
+  * @author Pavel Fatin
+  */
 case class ScalaSdkDescriptor(platform: Platform,
                               version: Option[Version],
                               compilerFiles: Seq[File],
@@ -25,24 +27,26 @@ case class ScalaSdkDescriptor(platform: Platform,
 
     properties.platform = platform
     properties.languageLevel = platform match {
-      case Platform.Scala => version.flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
-      case Platform.Dotty => ScalaLanguageLevel.Snapshot
+      case Scala => version.flatMap(_.toLanguageLevel).getOrElse(ScalaLanguageLevel.Default)
+      case Dotty => ScalaLanguageLevel.Snapshot
     }
     properties.compilerClasspath = compilerFiles
 
     val name = platform match {
-      case Platform.Scala => "scala-sdk-" + version.map(_.number).getOrElse("Unknown")
-      case Platform.Dotty => "dotty-sdk"
+      case Scala => "scala-sdk-" + version.map(_.number).getOrElse("Unknown")
+      case Dotty => "dotty-sdk"
     }
 
     new NewLibraryConfiguration(name, ScalaLibraryType.instance, properties) {
       override def addRoots(editor: LibraryEditor): Unit = {
-        libraryFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, OrderRootType.CLASSES))
-        sourceFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, OrderRootType.SOURCES))
-        docFiles.map(_.toLibraryRootURL).foreach(editor.addRoot(_, JavadocOrderRootType.getInstance))
+        def addRoot(file: File, rootType: OrderRootType): Unit =
+          editor.addRoot(file.toLibraryRootURL, rootType)
+
+        (libraryFiles ++ sourceFiles).foreach(addRoot(_, CLASSES))
+        docFiles.foreach(addRoot(_, JAVA_DOCS))
 
         if (sourceFiles.isEmpty && docFiles.isEmpty) {
-          editor.addRoot(ScalaSdk.documentationUrlFor(version), JavadocOrderRootType.getInstance)
+          editor.addRoot(ScalaSdk.documentationUrlFor(version), JAVA_DOCS)
         }
       }
     }
@@ -50,24 +54,26 @@ case class ScalaSdkDescriptor(platform: Platform,
 }
 
 object ScalaSdkDescriptor {
+
+  import Artifact._
+  import Kind._
+
   def from(components: Seq[Component]): Either[String, ScalaSdkDescriptor] = {
-    val platform = if (components.exists(_.artifact == Artifact.Dotty)) Platform.Dotty else Platform.Scala
+    implicit val platform = if (components.map(_.artifact).contains(DottyCompiler)) Dotty else Scala
 
     val (binaryComponents, sourceComponents, docComponents) = {
       val componentsByKind = components.groupBy(_.kind)
 
-      (componentsByKind.getOrElse(Kind.Binaries, Seq.empty),
-              componentsByKind.getOrElse(Kind.Sources, Seq.empty),
-              componentsByKind.getOrElse(Kind.Docs, Seq.empty))
+      (componentsByKind.getOrElse(Binaries, Seq.empty),
+        componentsByKind.getOrElse(Sources, Seq.empty),
+        componentsByKind.getOrElse(Docs, Seq.empty))
     }
 
-    val reflectRequired = binaryComponents.exists { component =>
-      component.version.exists { version =>
-        ScalaLanguageLevel.from(version).exists(_ >= Scala_2_10)
-      }
-    }
+    val reflectRequired = binaryComponents.flatMap(_.version)
+      .flatMap(_.toLanguageLevel)
+      .exists(_ >= Scala_2_10)
 
-    val requiredBinaryArtifacts = binaryArtifactsFor(platform, reflectRequired)
+    val requiredBinaryArtifacts = binaryArtifactsFor(reflectRequired)
 
     val existingBinaryArtifacts = binaryComponents.map(_.artifact).toSet
 
@@ -76,13 +82,14 @@ object ScalaSdkDescriptor {
     if (missingBinaryArtifacts.isEmpty) {
       val compilerBinaries = binaryComponents.filter(it => requiredBinaryArtifacts.contains(it.artifact))
 
-      val libraryArtifacts = libraryArtifactsFor(platform)
+      val libraryArtifacts = libraryArtifactsFor
 
       val libraryBinaries = binaryComponents.filter(it => libraryArtifacts.contains(it.artifact))
       val librarySources = sourceComponents.filter(it => libraryArtifacts.contains(it.artifact))
       val libraryDocs = docComponents.filter(it => libraryArtifacts.contains(it.artifact))
 
-      val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version)
+      val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary)
+        .flatMap(_.version)
 
       val descriptor = ScalaSdkDescriptor(
         platform,
@@ -98,37 +105,17 @@ object ScalaSdkDescriptor {
     }
   }
 
-  private def binaryArtifactsFor(platform: Platform, reflectRequired: Boolean): Set[Artifact] = platform match {
-    case Platform.Scala =>
-      if (reflectRequired)
-        Set(
-          Artifact.ScalaLibrary,
-          Artifact.ScalaCompiler,
-          Artifact.ScalaReflect)
-      else
-        Set(
-          Artifact.ScalaLibrary,
-          Artifact.ScalaCompiler)
+  private[this] def binaryArtifactsFor(reflectRequired: Boolean)
+                                      (implicit platform: Platform): Set[Artifact] =
+    Set(ScalaLibrary, ScalaCompiler) ++ (platform match {
+      case Scala if reflectRequired => Set(ScalaReflect)
+      case Dotty => Set(ScalaReflect, DottyCompiler, DottyInterfaces, JLine)
+      case _ => Set.empty[Artifact]
+    })
 
-    case Platform.Dotty =>
-      Set(
-        Artifact.ScalaCompiler,
-        Artifact.ScalaReflect,
-        Artifact.ScalaLibrary,
-        Artifact.Dotty,
-        Artifact.DottyInterfaces,
-        Artifact.JLine)
-  }
-
-  private def libraryArtifactsFor(platform: Platform): Set[Artifact] = platform match {
-    case Platform.Scala =>
-      Artifact.ScalaArtifacts - Artifact.ScalaCompiler
-
-    case Platform.Dotty =>
-      Set(
-        Artifact.ScalaLibrary,
-        Artifact.ScalaReflect,
-        Artifact.Dotty,
-        Artifact.DottyInterfaces)
-  }
+  private[this] def libraryArtifactsFor(implicit platform: Platform): Set[Artifact] =
+    (platform match {
+      case Scala => ScalaArtifacts
+      case Dotty => DottyArtifacts - JLine
+    }) - ScalaCompiler
 }

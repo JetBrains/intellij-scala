@@ -37,15 +37,17 @@ object Artifact {
     ScalaXml,
     ScalaSwing,
     ScalaCombinators,
-    ScalaActors)
+    ScalaActors
+  )
 
   val DottyArtifacts: Set[Artifact] = Set(
     ScalaLibrary,
     ScalaCompiler,
     ScalaReflect,
-    Dotty,
+    DottyCompiler,
     DottyInterfaces,
-    JLine)
+    JLine
+  )
 
   private def readProperty(file: File, resource: String, name: String): Option[String] = {
     try {
@@ -80,7 +82,7 @@ object Artifact {
 
   // Dotty
 
-  case object Dotty extends Artifact("dotty_2.11")
+  case object DottyCompiler extends Artifact("dotty_2.11")
 
   case object DottyInterfaces extends Artifact("dotty-interfaces")
 
