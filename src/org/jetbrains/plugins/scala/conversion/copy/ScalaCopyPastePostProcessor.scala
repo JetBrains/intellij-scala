@@ -187,12 +187,12 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   }
 
   private def unqualifiedReferencesInRange(file: PsiFile, range: TextRange): Seq[ScReferenceElement] = {
-    getElementsInRange(file, range.getStartOffset, range.getEndOffset)
-      .asScala
-      .collect {
-        case ref: ScReferenceExpression if isPrimary(ref) => ref
-        case ref: ScStableCodeReferenceElementImpl if isPrimary(ref) => ref
-      }
+    file.depthFirst().filter { elem =>
+      range.contains(elem.getTextRange)
+    }.collect {
+      case ref: ScReferenceExpression if isPrimary(ref) => ref
+      case ref: ScStableCodeReferenceElementImpl if isPrimary(ref) => ref
+    }.toVector
   }
 
   private def isPrimary(ref: ScReferenceElement): Boolean = {
