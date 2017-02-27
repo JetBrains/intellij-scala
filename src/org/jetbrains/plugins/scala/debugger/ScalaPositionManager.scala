@@ -671,9 +671,12 @@ object ScalaPositionManager {
   def instance(mirror: Mirror): Option[ScalaPositionManager] = instance(mirror.virtualMachine())
 
   private def getVM(debugProcess: DebugProcess) = {
-    debugProcess.getVirtualMachineProxy match {
-      case impl: VirtualMachineProxyImpl => Option(impl.getVirtualMachine)
-      case _ => None
+    if (!DebuggerManagerThreadImpl.isManagerThread) None
+    else {
+      debugProcess.getVirtualMachineProxy match {
+        case impl: VirtualMachineProxyImpl => Option(impl.getVirtualMachine)
+        case _ => None
+      }
     }
   }
 
