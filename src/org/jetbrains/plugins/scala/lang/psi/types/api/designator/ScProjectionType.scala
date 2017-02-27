@@ -156,8 +156,8 @@ class ScProjectionType private(val projected: ScType,
     def processType(kinds: Set[ResolveTargets.Value] = ValueSet(CLASS),
                     default: Boolean = !superReference): Option[(PsiNamedElement, ScSubstitutor)] = {
       def elementClazz: Option[PsiClass] = element match {
-        case named: ScBindingPattern => Some(named.containingClass)
-        case member: ScMember => Some(member.containingClass)
+        case named: ScBindingPattern => Option(named.containingClass)
+        case member: ScMember => Option(member.containingClass)
         case _ => None
       }
       projected match {
