@@ -4,14 +4,13 @@ package codeInspection.typeAnnotation
 import java.util
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.util.ProgressWindow
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation, UpdateStrategy}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -20,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable.ArrayBuffer
@@ -158,7 +156,9 @@ class TypeAnnotationInspection extends AbstractInspection {
 
   private class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {
     def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit = {
-      TypeAnnotationUtil.showTypeAnnotationsSettings(project)
+      invokeLater {
+        TypeAnnotationUtil.showTypeAnnotationsSettings(project)
+      }
     }
   }
 }
