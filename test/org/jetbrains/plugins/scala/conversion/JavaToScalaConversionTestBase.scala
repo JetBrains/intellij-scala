@@ -52,8 +52,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
       .createFileFromText("dummyForJavaToScala.scala", ScalaLanguage.INSTANCE, res)
 
     res = inWriteAction {
-      ConverterUtil.runInspections(newFile, getProjectAdapter, 0, newFile.getText.length)
-      TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, newFile.getText.length, newFile))
+      ConverterUtil.cleanCode(newFile, getProjectAdapter, 0, newFile.getText.length)
       CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
     }
 

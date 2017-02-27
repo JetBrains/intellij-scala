@@ -957,12 +957,8 @@ object JavaToScala {
     val text = visitor.stringResult
 
     val file = new ScalaCodeFragment(element.getProject, text)
-    ConverterUtil.runInspections(file, element.getProject, 0, text.length)
 
-    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
-      ConverterUtil.collectTopElements(0, file.getText.length, file)
-    )
-
+    ConverterUtil.cleanCode(file, element.getProject, 0, file.getText.length)
     file.getText
   }
 

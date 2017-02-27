@@ -109,6 +109,7 @@ class CopyJavaToScala extends CopyTestBase() {
         |import java.util
         |import java.util.{ArrayList, HashSet, List, Set}
         |
+        |
         |object Test {
         |
         |  private class Inner {

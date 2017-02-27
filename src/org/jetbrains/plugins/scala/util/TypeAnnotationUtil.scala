@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
 
 /**
   * Created by kate on 7/14/16.
@@ -183,23 +183,27 @@ object TypeAnnotationUtil {
     }
   }
 
-  def removeTypeAnnotationIfNeeded(element: ScalaPsiElement): Unit = {
-    val state = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
-  
+  def removeTypeAnnotationIfNeeded(element: ScalaPsiElement,
+                                   state: ScalaApplicationSettings.ReturnTypeLevel = ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE): Unit = {
+    val applicationSettings = ScalaApplicationSettings.getInstance()
     state match {
-      case ReturnTypeLevel.ADD => //nothing
-      case ReturnTypeLevel.REMOVE | ReturnTypeLevel.BY_CODE_STYLE =>
+      case ADD => //nothing
+      case REMOVE | BY_CODE_STYLE =>
         getTypeElement(element) match {
-          case Some(typeElement) if (state == ReturnTypeLevel.REMOVE) || ((state == ReturnTypeLevel.BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
+          case Some(typeElement)
+            if (applicationSettings.SPECIFY_RETURN_TYPE_EXPLICITLY == REMOVE) ||
+              ((applicationSettings.SPECIFY_RETURN_TYPE_EXPLICITLY == BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
+
             AddOnlyStrategy.withoutEditor.removeTypeAnnotation(typeElement)
           case _ =>
         }
     }
   }
-  
-  def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement]): Unit = {
+
+  def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement],
+                                       state: ScalaApplicationSettings.ReturnTypeLevel = ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE): Unit = {
     elements.foreach(_.depthFirst().foreach {
-      case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement)
+      case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement, state)
       case _ =>
     })
   }

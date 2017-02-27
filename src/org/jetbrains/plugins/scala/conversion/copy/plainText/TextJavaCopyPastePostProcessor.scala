@@ -12,10 +12,8 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.conversion.copy.{Association, SingularCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 /**
@@ -42,7 +40,8 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
                                                   caretOffset: Int, ref: Ref[Boolean], value: TextBlockTransferableData): Unit = {
 
     if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
-    if (!PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument).isInstanceOf[ScalaFile]) return
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    if (!file.isInstanceOf[ScalaFile]) return
 
     val (text, _, _) = value match {
       case code: ConverterUtil.ConvertedCode => (code.data, code.associations, code.showDialog)
@@ -69,16 +68,15 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
           createFileWithAdditionalImports(javaCodeWithContext).foreach { javaFile =>
             val convertedText = convert(javaFile, javaCodeWithContext.context, project)
-
-            ConverterUtil.replaceByConvertedCode(editor, bounds, convertedText)
-
-            editor.getCaretModel.moveToOffset(bounds.getStartOffset + convertedText.length)
+            ConverterUtil.performePaste(editor, bounds, convertedText, project)
 
             CodeStyleManager.getInstance(project)
               .reformatText(
                 PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument),
                 bounds.getStartOffset, bounds.getStartOffset + convertedText.length
               )
+
+            ConverterUtil.cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset)
           }
         }
       }
@@ -106,14 +104,11 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
         javaFile
       ).filterNot(el => el.isInstanceOf[PsiImportList] || el.isInstanceOf[PsiPackageStatement])
 
-    val scalaFile = new ScalaCodeFragment(project, JavaToScala.convertPsisToText(elementsToConvert))
-
-    ConverterUtil.runInspections(scalaFile, project, 0, scalaFile.getText.length)
-    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, scalaFile.getText.length, scalaFile))
+    val scalaFileText = JavaToScala.convertPsisToText(elementsToConvert)
 
     newLine(convertStatement(javaFile.getPackageStatement)) +
-      newLine(convertStatement(javaFile.getImportList)) +
-      scalaFile.getText
+      convertStatement(javaFile.getImportList) +
+      scalaFileText
   }
 
 

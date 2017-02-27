@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, TextPa
 import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
@@ -126,9 +127,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     val needShowDialog = (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) && showDialog
     if (!needShowDialog || ConverterUtil.shownDialog(ScalaBundle.message("scala.copy.from.java"), project).isOK) {
       val shiftedAssociations = inWriteAction {
-        ConverterUtil.replaceByConvertedCode(editor, bounds, text)
-        editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
-        PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
+        ConverterUtil.performePaste(editor, bounds, text, project)
 
         val markedAssociations = associations.toList.zipMapped { dependency =>
           editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
@@ -145,14 +144,11 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
             movedAssociation
         }
       }
+
       scalaProcessor.processTransferableData(project, editor, bounds, i, ref, singletonList(new Associations(shiftedAssociations)))
 
       inWriteAction {
-        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
-
-        TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
-          ConverterUtil.collectTopElements(bounds.getStartOffset, bounds.getEndOffset, file)
-        )
+        ConverterUtil.cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
       }
     }
   }

@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -151,6 +152,24 @@ object ConverterUtil {
 
       elem +: topElements
     }
+  }
+
+  def performePaste(editor: Editor, bounds: RangeMarker, text: String, project: Project): Unit = {
+    ConverterUtil.replaceByConvertedCode(editor, bounds, text)
+    editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
+    PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+  }
+
+  /*
+    Run under write action
+    Remove type annotations & apply inspections
+  */
+  def cleanCode(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
+    runInspections(file, project, offset, endOffset, editor)
+
+    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(
+      ConverterUtil.collectTopElements(offset, endOffset, file)
+    )
   }
 
   def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
