@@ -112,5 +112,9 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
+  def testEmptyJavaClass(): Unit = {
+    doTestEmptyToFile("<selection>public class Test {}</selection>", "class Test {}")
+  }
+
   override val fromLangExtension: String = ".txt"
 }
