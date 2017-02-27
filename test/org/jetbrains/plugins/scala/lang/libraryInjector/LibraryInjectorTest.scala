@@ -5,6 +5,7 @@ import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.testFramework.ModuleTestCase
 import org.jetbrains.plugins.scala.PerfCycleTests
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.debugger._
+import org.jetbrains.plugins.scala.lang.libraryInjector.LibraryInjectorTest.InjectorLibraryLoader
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.junit.Assert.assertTrue
@@ -23,9 +25,18 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
-  private var librariesLoader: Option[CompositeLibrariesLoader] = None
-
   override implicit val version: ScalaVersion = Scala_2_11
+
+  override implicit protected def project: Project = getProject
+
+  override implicit protected def module: Module = getModule
+
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaLibraryLoader(isIncludeReflectLibrary = true),
+    JdkLoader(getTestProjectJdk),
+    SourcesLoader(project.getBasePath),
+    InjectorLibraryLoader()
+  )
 
   override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
 
@@ -35,32 +46,15 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
     CompilerTestUtil.enableExternalCompiler()
     DebuggerTestUtil.enableCompileServer(true)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
-  }
 
-  import LibraryInjectorTest._
-
-  override def setUpModule(): Unit = {
-    super.setUpModule()
-
-    implicit val project = getProject
-    implicit val module = getModule
-
-    librariesLoader = Some(CompositeLibrariesLoader(
-      ScalaLibraryLoader(isIncludeReflectLibrary = true),
-      JdkLoader(getTestProjectJdk),
-      SourcesLoader(project.getBasePath),
-      InjectorLibraryLoader()
-    ))
-    librariesLoader.foreach(_.init)
+    setUpLibraries()
   }
 
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(getProject)
     CompileServerLauncher.instance.stop()
 
-    librariesLoader.foreach(_.clean())
-    librariesLoader = None
-
+    tearDownLibraries()
     super.tearDown()
   }
 

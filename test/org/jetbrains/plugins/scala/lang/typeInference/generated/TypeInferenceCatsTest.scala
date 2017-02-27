@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.typeInference.generated
 
-import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders.{CatsLoader, ThirdPartyLibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
@@ -9,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
   */
 class TypeInferenceCatsTest extends TypeInferenceTestBase {
 
-  override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
+  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
     Array(CatsLoader()(module))
 
   override protected def folderPath: String = super.folderPath + "cats/"

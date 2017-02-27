@@ -23,17 +23,3 @@ object LibraryLoader {
     }
 }
 
-case class CompositeLibrariesLoader(private val loaders: LibraryLoader*)
-                                   (implicit val module: Module) extends LibraryLoader {
-
-  def init(implicit version: ScalaVersion): Unit =
-    loaders.foreach(_.init)
-
-  override def clean(): Unit =
-    loaders.foreach(_.clean())
-}
-
-object CompositeLibrariesLoader {
-  def apply(loaders: Array[LibraryLoader])(implicit module: Module): CompositeLibrariesLoader =
-    CompositeLibrariesLoader(loaders: _*)
-}

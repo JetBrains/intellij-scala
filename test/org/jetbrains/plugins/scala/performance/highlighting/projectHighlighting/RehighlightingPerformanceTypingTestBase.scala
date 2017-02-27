@@ -23,7 +23,13 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
 
   var myCodeInsightTestFixture: CodeInsightTestFixture = _
 
-  private var librariesLoader: Option[CompositeLibrariesLoader] = None
+  override def getFixture: CodeInsightTestFixture = myCodeInsightTestFixture
+
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaLibraryLoader(),
+    JdkLoader(),
+    SourcesLoader(getTestDataPath + "/")
+  )
 
   override def setUp(): Unit = {
     super.setUp()
@@ -43,25 +49,14 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
     myCodeInsightTestFixture = IdeaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fakeFixture)
     myCodeInsightTestFixture.setUp()
 
-    implicit val project = myCodeInsightTestFixture.getProject
-    implicit val module = myCodeInsightTestFixture.getModule
-
-    librariesLoader = Some(CompositeLibrariesLoader(
-      ScalaLibraryLoader(),
-      JdkLoader(),
-      SourcesLoader(getTestDataPath + "/")
-    ))
-    librariesLoader.foreach(_.init)
+    setUpLibraries()
   }
-
 
   override def tearDown(): Unit = {
     myCodeInsightTestFixture.tearDown()
     myCodeInsightTestFixture = null
 
-    librariesLoader.foreach(_.clean())
-    librariesLoader = None
-
+    tearDownLibraries()
     super.tearDown()
   }
 

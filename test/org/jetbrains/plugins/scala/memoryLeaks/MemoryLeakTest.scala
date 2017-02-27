@@ -20,8 +20,8 @@ import com.intellij.testFramework.{LeakHunter, PlatformTestCase}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{CompositeLibrariesLoader, JdkLoader, ScalaLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
+import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.debugger.Scala_2_10
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -33,7 +33,7 @@ import scala.collection.JavaConverters._
 /**
   * @author Nikolay.Tropin
   */
-class MemoryLeakTest extends PlatformTestCase with DefaultScalaSdkOwner {
+class MemoryLeakTest extends PlatformTestCase {
 
   protected val testDataPath = new File(TestUtils.getTestDataPath, "memoryLeaks").getPath
 
@@ -46,30 +46,36 @@ class MemoryLeakTest extends PlatformTestCase with DefaultScalaSdkOwner {
 
   override protected def setUpProject() {}
 
-  //from com.intellij.ide.ProjectLeakTest
-  protected def loadAndSetupProject(path: String): Project = {
-    val project: Project = ProjectManager.getInstance.loadAndOpenProject(path)
+  private def loadAndSetupProject(path: String): Project = {
+    val project = ProjectManager.getInstance.loadAndOpenProject(path)
     assertNotNull(project)
+
     do {
       UIUtil.dispatchAllInvocationEvents()
     } while (DumbService.getInstance(project).isDumb)
+
     myProject = project
-    val startupManager: StartupManagerImpl = StartupManager.getInstance(project).asInstanceOf[StartupManagerImpl]
-    val passed: Boolean = startupManager.postStartupActivityPassed
-    assertTrue(passed)
+    StartupManager.getInstance(project) match {
+      case manager: StartupManagerImpl => assertTrue(manager.postStartupActivityPassed)
+    }
+
     assertTrue(project.isOpen)
-    ActionManager.getInstance.asInstanceOf[ActionManagerImpl].preloadActions(new EmptyProgressIndicator)
-    val actionGroup: ActionGroup = ActionManager.getInstance.getAction(IdeActions.GROUP_MAIN_TOOLBAR).asInstanceOf[ActionGroup]
-    val toolbar: ActionToolbar = ActionManager.getInstance.createActionToolbar(ActionPlaces.MAIN_TOOLBAR, actionGroup, true)
-    toolbar.updateActionsImmediately()
+    ActionManager.getInstance match {
+      case manager: ActionManagerImpl =>
+        manager.preloadActions(new EmptyProgressIndicator)
+
+        val actionGroup = manager.getAction(IdeActions.GROUP_MAIN_TOOLBAR).asInstanceOf[ActionGroup]
+        manager.createActionToolbar(ActionPlaces.MAIN_TOOLBAR, actionGroup, true).updateActionsImmediately()
+    }
+
     UIUtil.dispatchAllInvocationEvents()
     myProject = null
     project
   }
 
-  private def createLibrariesLoaders(implicit project: Project) = {
+  private def librariesLoaders(implicit project: Project): Seq[LibraryLoader] = {
     implicit val module = ModuleManager.getInstance(project).getModules()(0)
-    CompositeLibrariesLoader(
+    Seq(
       ScalaLibraryLoader(),
       JdkLoader()
     )
@@ -83,13 +89,12 @@ class MemoryLeakTest extends PlatformTestCase with DefaultScalaSdkOwner {
 
   def testLeaksAfterProjectDispose(): Unit = {
     implicit val project = loadAndSetupProject(projectPath)
-
-    val libraryLoaders = createLibrariesLoaders
-    libraryLoaders.init
+    val loaders = librariesLoaders
+    loaders.foreach(_.init(Scala_2_10))
 
     doSomeWork
 
-    libraryLoaders.clean()
+    loaders.foreach(_.clean())
 
     val allRoots = allRootsForProject
 

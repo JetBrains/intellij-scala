@@ -4,7 +4,7 @@ package base
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{CompositeLibrariesLoader, JdkLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 
 /**
@@ -13,26 +13,21 @@ import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
   */
 
 abstract class ScalaLightCodeInsightFixtureTestAdapter
-  extends LightCodeInsightFixtureTestCase with TestFixtureProvider with DefaultScalaSdkOwner {
-
-  private var librariesLoader: Option[CompositeLibrariesLoader] = None
+  extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner {
 
   override def getFixture: CodeInsightTestFixture = myFixture
+
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaLibraryLoader(),
+    JdkLoader()
+  )
 
   override protected def setUp(): Unit = {
     super.setUp()
 
     if (loadScalaLibrary) {
       getFixture.allowTreeAccessForAllFiles()
-
-      implicit val module = getFixture.getModule
-      implicit val project = getProject
-
-      librariesLoader = Some(CompositeLibrariesLoader(
-        ScalaLibraryLoader(),
-        JdkLoader()
-      ))
-      librariesLoader.foreach(_.init)
+      setUpLibraries()
     }
   }
 
@@ -46,8 +41,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   }
 
   protected override def tearDown(): Unit = {
-    librariesLoader.foreach(_.clean())
-    librariesLoader = None
+    tearDownLibraries()
     super.tearDown()
   }
 }

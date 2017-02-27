@@ -1,5 +1,10 @@
 package org.jetbrains.plugins.scala.debugger
 
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.TestFixtureProvider
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
+
 /**
  * @author Nikolay.Tropin
  */
@@ -30,9 +35,21 @@ case object Scala_2_12 extends ScalaVersion {
 
 trait ScalaSdkOwner {
   implicit val version: ScalaVersion
+
+  implicit protected def project: Project
+
+  implicit protected def module: Module
+
+  protected def librariesLoaders: Seq[LibraryLoader]
+
+  protected def setUpLibraries(): Unit =
+    librariesLoaders.foreach(_.init)
+
+  protected def tearDownLibraries(): Unit =
+    librariesLoaders.foreach(_.clean())
 }
 
 // Java compatibility
-trait DefaultScalaSdkOwner extends ScalaSdkOwner {
+trait DefaultScalaSdkOwner extends ScalaSdkOwner with TestFixtureProvider {
   override implicit val version: ScalaVersion = Scala_2_10
 }

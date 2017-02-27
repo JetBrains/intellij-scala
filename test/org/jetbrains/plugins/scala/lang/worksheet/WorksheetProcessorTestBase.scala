@@ -23,7 +23,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
-    addLibraries()
+    setUpLibraries()
   }
 
   override protected def useCompileServer: Boolean = true

@@ -10,23 +10,19 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 
   import ScalaMetaLibrariesOwner._
 
-  protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] = {
-    implicit val m = module
-
-    Array(
-      MetaCommonLoader(),
-      MetaDialectsLoader(),
-      MetaInlineLoader(),
-      MetaInputsLoader(),
-      MetaParsersLoader(),
-      MetaQuasiquotesLoader(),
-      MetaScalametaLoader(),
-      MetaTokenizersLoader(),
-      MetaTokensLoader(),
-      MetaTransversersLoader(),
-      MetaTreesLoader()
-    )
-  }
+  protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = Array(
+    MetaCommonLoader(),
+    MetaDialectsLoader(),
+    MetaInlineLoader(),
+    MetaInputsLoader(),
+    MetaParsersLoader(),
+    MetaQuasiquotesLoader(),
+    MetaScalametaLoader(),
+    MetaTokenizersLoader(),
+    MetaTokensLoader(),
+    MetaTransversersLoader(),
+    MetaTreesLoader()
+  )
 }
 
 object ScalaMetaLibrariesOwner {
@@ -82,4 +78,5 @@ object ScalaMetaLibrariesOwner {
   private case class MetaTreesLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "trees"
   }
+
 }

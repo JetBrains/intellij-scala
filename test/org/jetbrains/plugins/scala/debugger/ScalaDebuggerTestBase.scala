@@ -47,7 +47,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       def run() {
         ScalaDebuggerTestBase.super.setUp()
         checkOrAddAllSourceFiles()
-        addLibraries()
+        setUpLibraries()
       }
     })
   }

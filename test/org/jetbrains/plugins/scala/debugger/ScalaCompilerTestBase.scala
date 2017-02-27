@@ -9,6 +9,8 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
@@ -31,7 +33,6 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
 
   private var deleteProjectAtTearDown = false
-  private var librariesLoader: Option[CompositeLibrariesLoader] = None
 
   override def setUp(): Unit = {
     super.setUp()
@@ -66,19 +67,15 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
     }
   }
 
-  protected def addLibraries(loadReflect: Boolean = true): Unit = {
-    implicit val project = getProject
-    implicit val module = getModule
+  override implicit protected def project: Project = getProject
 
-    val libraryLoaders = Seq(
-      ScalaLibraryLoader(loadReflect),
-      JdkLoader(getTestProjectJdk),
-      SourcesLoader(getSourceRootDir.getCanonicalPath)
-    ) ++ additionalLibraries
+  override implicit protected def module: Module = getModule
 
-    librariesLoader = Some(CompositeLibrariesLoader(libraryLoaders: _*))
-    librariesLoader.foreach(_.init)
-  }
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaLibraryLoader(isIncludeReflectLibrary = true),
+    JdkLoader(getTestProjectJdk),
+    SourcesLoader(getSourceRootDir.getCanonicalPath)
+  ) ++ additionalLibraries
 
   protected def additionalLibraries: Seq[ThirdPartyLibraryLoader] = Seq.empty
 
@@ -94,8 +91,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
           CompileServerLauncher.instance.stop()
           val baseDir = getBaseDir
 
-          librariesLoader.foreach(_.clean())
-          librariesLoader = None
+          tearDownLibraries()
 
           ScalaCompilerTestBase.super.tearDown()
 

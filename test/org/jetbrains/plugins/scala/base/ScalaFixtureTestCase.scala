@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, CodeInsightTestFixture}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{CompositeLibrariesLoader, JdkLoader, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
 
 /**
@@ -11,31 +11,24 @@ import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
   */
 
 abstract class ScalaFixtureTestCase
-  extends CodeInsightFixtureTestCase with TestFixtureProvider with DefaultScalaSdkOwner {
-
-  private var librariesLoader: Option[CompositeLibrariesLoader] = None
+  extends CodeInsightFixtureTestCase with DefaultScalaSdkOwner {
 
   protected val includeReflectLibrary: Boolean = false
 
   override def getFixture: CodeInsightTestFixture = myFixture
 
+  override def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaLibraryLoader(includeReflectLibrary),
+    JdkLoader()
+  )
+
   override protected def setUp(): Unit = {
     super.setUp()
-
-    implicit val project = getProject
-    implicit val module = myFixture.getModule
-
-    librariesLoader = Some(CompositeLibrariesLoader(
-      ScalaLibraryLoader(includeReflectLibrary),
-      JdkLoader()
-    ))
-    librariesLoader.foreach(_.init)
+    setUpLibraries()
   }
 
   override def tearDown(): Unit = {
-    librariesLoader.foreach(_.clean())
-    librariesLoader = None
-
+    tearDownLibraries()
     super.tearDown()
   }
 }

@@ -5,13 +5,21 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.base.libraryLoaders.*;
+import org.jetbrains.plugins.scala.base.libraryLoaders.JdkLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.JdkLoader$;
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
 import org.jetbrains.plugins.scala.debugger.ScalaSdkOwner;
 import org.jetbrains.plugins.scala.debugger.ScalaVersion;
 import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
+import scala.collection.JavaConversions$;
+import scala.collection.Seq;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -20,8 +28,6 @@ import org.junit.runners.AllTests;
 public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase implements ScalaSdkOwner {
     @NonNls
     private static final String DATA_PATH = "/introduceVariable/data";
-
-    private CompositeLibrariesLoader myLibrariesLoader = null;
 
     @Override
     public ScalaVersion version() {
@@ -37,22 +43,50 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase imp
     }
 
     @Override
+    public Project project() {
+        return getProject();
+    }
+
+    @Override
+    public Module module() {
+        return ModuleManager.getInstance(project()).getModules()[0];
+    }
+
+    @Override
+    public Seq<LibraryLoader> librariesLoaders() {
+        return JavaConversions$.MODULE$.asScalaBuffer(libraryLoadersAdapter());
+    }
+
+    private List<LibraryLoader> libraryLoadersAdapter() {
+        Module module = module();
+
+        List<LibraryLoader> result = new ArrayList<LibraryLoader>();
+        result.add(new ScalaLibraryLoader(false, module, project()));
+        result.add(new JdkLoader(JdkLoader$.MODULE$.apply$default$1(), module));
+        return result;
+    }
+
+    @Override
+    public void setUpLibraries() {
+        for (LibraryLoader libraryLoader : libraryLoadersAdapter()) {
+            libraryLoader.init(version());
+        }
+    }
+
+    @Override
+    public void tearDownLibraries() {
+        for (LibraryLoader libraryLoader : libraryLoadersAdapter()) {
+            libraryLoader.clean();
+        }
+    }
+
+    @Override
     protected void setUp(Project project) {
         super.setUp(project);
-        Module module = ModuleManager.getInstance(project).getModules()[0];
-
-        LibraryLoader[] loaders = new LibraryLoader[2];
-        loaders[0] = new ScalaLibraryLoader(false, module, project);
-        loaders[1] = new JdkLoader(JdkLoader$.MODULE$.apply$default$1(), module);
-
-        myLibrariesLoader = CompositeLibrariesLoader$.MODULE$.apply(loaders, module);
-        myLibrariesLoader.init(version());
+        setUpLibraries();
     }
 
     public void tearDown() throws Exception {
-        if (myLibrariesLoader != null) {
-            myLibrariesLoader.clean();
-            myLibrariesLoader = null;
-        }
+        tearDownLibraries();
     }
 }

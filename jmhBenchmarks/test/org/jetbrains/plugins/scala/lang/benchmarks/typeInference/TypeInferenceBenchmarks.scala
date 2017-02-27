@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.benchmarks.typeInference
 
-import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 
 /**
@@ -31,21 +30,21 @@ class UnapplySeqLocalTypeInference extends TypeInferenceBenchmarkBase("UnapplySe
 class UnapplySeqWithImplicitParam extends TypeInferenceBenchmarkBase("UnapplySeqWithImplicitParam")
 
 class SprayRouting extends TypeInferenceBenchmarkBase("SprayRouting") {
-  override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
+  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
     Array(SprayLoader()(module))
 }
 
 class Scalaz extends TypeInferenceBenchmarkBase("Scalaz") {
-  override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
+  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
     Array(ScalaZCoreLoader()(module))
 }
 
 class Slick extends TypeInferenceBenchmarkBase("Slick") {
-  override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
+  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
     Array(SlickLoader()(module))
 }
 
 class Cats extends TypeInferenceBenchmarkBase("Cats") {
-  override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
+  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
     Array(CatsLoader()(module))
 }

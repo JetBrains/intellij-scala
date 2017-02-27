@@ -11,21 +11,28 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.testFramework.LightPlatformCodeInsightTestCase;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.base.libraryLoaders.*;
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.SourcesLoader;
+import org.jetbrains.plugins.scala.base.libraryLoaders.ThirdPartyLibraryLoader;
 import org.jetbrains.plugins.scala.debugger.ScalaSdkOwner;
 import org.jetbrains.plugins.scala.debugger.ScalaVersion;
 import org.jetbrains.plugins.scala.debugger.Scala_2_10$;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import scala.collection.JavaConversions$;
+import scala.collection.Seq;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Alexander Podkhalyuzin
  */
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase implements ScalaSdkOwner {
-    private CompositeLibrariesLoader myLibrariesLoader = null;
+
+    private static final ThirdPartyLibraryLoader[] EMPTY_LOADERS_ARRAY = new ThirdPartyLibraryLoader[0];
 
     protected String rootPath() {
         return null;
@@ -50,23 +57,54 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     }
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        Module module = getModule();
+    public Project project() {
+        return getProject();
+    }
 
-        ArrayList<LibraryLoader> libraryLoaders = new ArrayList<LibraryLoader>();
-        libraryLoaders.add(new ScalaLibraryLoader(isIncludeReflectLibrary(), module, getProject()));
+    @Override
+    public Module module() {
+        return getModule();
+    }
+
+    @Override
+    public Seq<LibraryLoader> librariesLoaders() {
+        return JavaConversions$.MODULE$.asScalaBuffer(librariesLoadersAdapter());
+    }
+
+    private List<LibraryLoader> librariesLoadersAdapter() {
+        Module module = module();
+
+        ArrayList<LibraryLoader> result = new ArrayList<LibraryLoader>();
+        result.add(new ScalaLibraryLoader(isIncludeReflectLibrary(), module, project()));
 
         String path = rootPath();
         if (path != null) {
-            libraryLoaders.add(new SourcesLoader(path, module));
+            result.add(new SourcesLoader(path, module));
         }
 
-        libraryLoaders.addAll(Arrays.asList(additionalLibraries(module)));
+        result.addAll(Arrays.asList(additionalLibraries()));
 
-        LibraryLoader[] loaders = libraryLoaders.toArray(new LibraryLoader[libraryLoaders.size()]);
-        myLibrariesLoader = CompositeLibrariesLoader$.MODULE$.apply(loaders, module);
-        myLibrariesLoader.init(version());
+        return result;
+    }
+
+    @Override
+    public void setUpLibraries() {
+        for (LibraryLoader libraryLoader : librariesLoadersAdapter()) {
+            libraryLoader.init(version());
+        }
+    }
+
+    @Override
+    public void tearDownLibraries() {
+        for (LibraryLoader libraryLoader : librariesLoadersAdapter()) {
+            libraryLoader.clean();
+        }
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        setUpLibraries();
 
         TestUtils.disableTimerThread();
         //libLoader.clean();
@@ -80,8 +118,8 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         return false;
     }
 
-    protected ThirdPartyLibraryLoader[] additionalLibraries(Module module) {
-        return new ThirdPartyLibraryLoader[0];
+    protected ThirdPartyLibraryLoader[] additionalLibraries() {
+        return EMPTY_LOADERS_ARRAY;
     }
 
     protected VirtualFile getVFileAdapter() {
@@ -123,11 +161,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
     @Override
     protected void tearDown() throws Exception {
-        if (myLibrariesLoader != null) {
-            myLibrariesLoader.clean();
-            myLibrariesLoader = null;
-        }
-
+        tearDownLibraries();
         super.tearDown();
     }
 }

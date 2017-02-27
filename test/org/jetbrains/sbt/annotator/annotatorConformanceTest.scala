@@ -2,10 +2,9 @@ package org.jetbrains.sbt.annotator
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.annotator.SbtAnnotator.isTypeAllowed
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.junit.Assert.assertTrue
@@ -14,8 +13,8 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
 
   // maybe we can contruct a context without loading a file
   private lazy val file: SbtFileImpl = loadTestFile()
-  private lazy implicit val project: Project = file.getProject
-  private lazy implicit val typeSystem: TypeSystem = project.typeSystem
+  override protected lazy implicit val project: Project = file.getProject
+  protected lazy implicit val typeSystem: TypeSystem = project.typeSystem
 
   override protected def setUp(): Unit = {
     super.setUp()
