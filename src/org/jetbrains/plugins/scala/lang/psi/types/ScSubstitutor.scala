@@ -5,7 +5,6 @@ package types
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 /**
@@ -126,12 +126,21 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
   }
 
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
+    @tailrec
+    def hasFollower(th: ScSubstitutor, s: ScSubstitutor): Boolean = th.follower match {
+      case None => false
+      case Some(f) => (f eq s) || hasFollower(f, s)
+    }
+
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
-    if (this.isEmpty) s
-    else if (s.isEmpty) this
+
+    val trivialOrRecursive = s == null || s.isEmpty || (s eq this) || (level == 0 && hasFollower(this, s))
+
+    if (trivialOrRecursive) this
+    else if (this.isEmpty) s
     else {
-      val newFollower = Option(if (follower.nonEmpty) follower.get followed(s, level + 1) else s)
+      val newFollower = Option(if (follower.nonEmpty) follower.get.followed(s, level + 1) else s)
       ScSubstitutor(tvMap, aliasesMap, updateThisType, newFollower, depMethodTypes)
     }
   }
