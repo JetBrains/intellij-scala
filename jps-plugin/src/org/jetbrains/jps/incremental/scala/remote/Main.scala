@@ -1,13 +1,14 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import java.io.{File, PrintStream}
+import java.io._
 import java.util.{Timer, TimerTask}
 
 import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.local.{LocalServer, WorksheetInProcessRunnerFactory}
+import org.jetbrains.jps.incremental.scala.local.LocalServer
+import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 
 /**
  * @author Pavel Fatin
@@ -15,13 +16,13 @@ import org.jetbrains.jps.incremental.scala.local.{LocalServer, WorksheetInProces
  */
 object Main {
   private val Server = new LocalServer()
-  private val worksheetFactory = new WorksheetInProcessRunnerFactory
+  private val worksheetServer = new WorksheetServer
 
   private var shutdownTimer: Timer = null
 
   def nailMain(context: NGContext) {
     cancelShutdown()
-    make(context.getArgs.toSeq, context.out, false)
+    make(context.getArgs.toSeq, context.out, standalone = false)
     resetShutdownTimer(context)
   }
   
@@ -64,9 +65,12 @@ object Main {
         Arguments.from(strings)
       }
       
-      Server.compile(args.sbtData, args.compilerData, args.compilationData, client)
+      if (!worksheetServer.isRepl(args)) Server.compile(args.sbtData, args.compilerData, args.compilationData, client)
 
-      if (!hasErrors) worksheetFactory.getRunner(out, standalone).loadAndRun(args, client)
+      if (!hasErrors) worksheetServer.loadAndRun(args, out, client, standalone)
+    } catch {
+      case e: Throwable => 
+        client.trace(e)
     } finally {
       System.setOut(oldOut)
     }
