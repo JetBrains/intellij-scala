@@ -736,5 +736,15 @@ package object extensions {
     }
   }
 
+  /* Calls each funtion with `v` as an argument, returns `v` (replicates Kotlin's "apply").
+     Useful to avoid defining a temporary variable and then repeating its name.
+     See also: |>
+     TODO: convert to a macro
+    */
+  def applyTo[T](v: T)(fs: (T => Any)*): T = {
+    fs.foreach(_.apply(v))
+    v
+  }
+
   val ChildOf = Parent
 }
