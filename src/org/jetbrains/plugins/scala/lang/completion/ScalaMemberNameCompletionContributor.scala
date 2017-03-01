@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -36,12 +37,12 @@ class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
           case _ => false
         }
         parameters.getOriginalFile.getVirtualFile match {
-          case null =>
-          case vFile if shouldCompleteFileName =>
+          case vFile: VirtualFile if shouldCompleteFileName =>
             val fileName = vFile.getNameWithoutExtension
             if (!classesNames.contains(fileName) && !objectNames.contains(fileName)) {
               result.addElement(LookupElementBuilder.create(fileName))
             }
+          case _ =>
         }
         position.getContext match {
           case _: ScClass | _: ScTrait =>
