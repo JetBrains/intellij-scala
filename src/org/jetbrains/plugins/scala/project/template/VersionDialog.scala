@@ -31,10 +31,7 @@ class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
     val platform = myPlatform.getSelectedItem.asInstanceOf[Platform]
 
     val versions = extensions.withProgressSynchronously(s"Fetching available ${platform.name} versions") { _ =>
-      platform match {
-        case Platform.Scala => Versions.loadScalaVersions
-        case Platform.Dotty => Versions.loadDottyVersions
-      }
+      Versions.loadScalaVersions(platform)
     }
 
     if (versions.length == 0) {

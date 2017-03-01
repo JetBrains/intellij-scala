@@ -10,6 +10,8 @@ sealed abstract class Platform(val name: String, private[project] val proxy: Pla
 }
 
 object Platform {
+  val Default: Platform = Scala
+
   def from(proxy: PlatformProxy): Platform = proxy match {
     case PlatformProxy.Scala => Scala
     case PlatformProxy.Dotty => Dotty

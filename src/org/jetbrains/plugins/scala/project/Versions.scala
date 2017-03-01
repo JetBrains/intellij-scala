@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project
 
 import com.intellij.util.net.HttpConfigurable
+import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 
 import scala.io.Source
 import scala.util.Try
@@ -16,9 +17,10 @@ object Versions  {
 
   val DefaultSbtVersion: String = Entity.Sbt.defaultVersion
 
-  def loadScalaVersions: Array[String] = loadVersionsOf(Entity.Scala)
-
-  def loadDottyVersions: Array[String] = loadVersionsOf(Entity.Dotty)
+  def loadScalaVersions(platform: Platform): Array[String] = platform match {
+    case Scala => loadVersionsOf(Entity.Scala)
+    case Dotty => loadVersionsOf(Entity.Dotty)
+  }
 
   def loadSbtVersions: Array[String] = loadVersionsOf(Entity.Sbt)
 
