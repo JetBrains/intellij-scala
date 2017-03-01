@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
  * 2014-10-07
  */
 
-abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[File], outputDir: File) {
+abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[File], outputDir: File, needCheck: Boolean = true) {
 
-  checkFilesToCompile(filesToCompile)
+  if (needCheck) checkFilesToCompile(filesToCompile)
 
   def this(module: Module, fileToCompile: File, outputDir: File) = {
     this(module, Seq(fileToCompile), outputDir)
@@ -46,7 +46,7 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
     case Right(data) => data
   }
 
-  private val sourceRoot = filesToCompile.head.getParentFile
+  private val sourceRoot = filesToCompile.head.getAbsoluteFile.getParentFile
 
   private val scalaParameters = compilerSettings.toOptions.toArray
 
