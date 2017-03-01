@@ -156,9 +156,7 @@ class TypeAnnotationInspection extends AbstractInspection {
 
   private class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {
     def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit = {
-      invokeLater {
-        TypeAnnotationUtil.showTypeAnnotationsSettings(project)
-      }
+      TypeAnnotationUtil.showTypeAnnotationsSettings(project)
     }
   }
 }
