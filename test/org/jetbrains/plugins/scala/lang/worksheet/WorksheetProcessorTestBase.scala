@@ -37,7 +37,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
     val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(defaultFileName(WORKSHEET_EXTENSION), ScalaLanguage.INSTANCE, text)
     val doc = PsiDocumentManager.getInstance(myProject).getDocument(psiFile)
 
-    WorksheetSourceProcessor.processInner(psiFile.asInstanceOf[ScalaFile], Option(doc), 0) match {
+    WorksheetSourceProcessor.processDefaultInner(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
       case Left((code, _)) =>
         val src = new File(getBaseDir.getCanonicalPath, "src")
         assert(src.exists(), "Cannot find src dir")
