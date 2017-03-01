@@ -210,6 +210,10 @@ lazy val packagedPluginDir = settingKey[File]("Path to packaged, but not yet com
 
 packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
 
+lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
+
+iLoopWrapperPath := baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala"
+
 lazy val pluginPackagerCommunity =
   newProject("pluginPackagerCommunity")
   .settings(
@@ -240,7 +244,9 @@ lazy val pluginPackagerCommunity =
         Library(Dependencies.bundledJline,
           "lib/jps/jline.jar"),
         Directory(sdkDirectory.value / "dotty",
-          "lib/jps")
+          "lib/jps"),
+        Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ), 
+          "lib/jps/repl-interface-sources.jar")
       )
       val launcher = Seq(
         Library(Dependencies.sbtStructureExtractor012,
@@ -305,4 +311,13 @@ updateIdea := {
       IO.deleteIfEmpty(Set(baseDir))
       updateIdeaTask(baseDir, newBuild, Seq.empty, streams.value)
   }
+}
+
+lazy val packILoopWrapper = taskKey[Unit]("Packs in repl-interface-sources.jar repl interface for worksheet repl mode")
+
+packILoopWrapper := {
+  val fn = iLoopWrapperPath.value
+  
+  IO.zip(Seq((fn, fn.getName)), 
+    baseDirectory.in(BuildRef(file(".").toURI)).value / "out" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
 }
