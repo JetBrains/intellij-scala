@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package worksheet.processor
 
+import java.io.File
+
 import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.notification.NotificationType
@@ -9,6 +11,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.{PsiErrorElement, PsiFile}
 import com.intellij.ui.content.{ContentFactory, MessageView}
@@ -19,107 +22,121 @@ import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server._
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
 
 /**
- * User: Dmitry Naydanov
- * Date: 1/15/14
- */
-class WorksheetCompiler {
-  /**
-   * @param callback (Name, AddToClasspath)
-   */
-  def compileAndRun(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit,
-                    ifEditor: Option[Editor], auto: Boolean) {
-    import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler._
-    
-    val worksheetVirtual = worksheetFile.getVirtualFile
-    val (iteration, tempFile, outputDir) = WorksheetBoundCompilationInfo.updateOrCreate(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
+  * User: Dmitry Naydanov
+  * Date: 1/15/14
+  *
+  * @param callback (Name, AddToClasspath)
+  */
+class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (String, String) => Unit, auto: Boolean) {
+  import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler._
+  
+  private val project = worksheetFile.getProject
+  private val runType = getRunType(project)
+  private val isRepl = WorksheetCompiler isWorksheetReplMode worksheetFile
+  private val worksheetVirtual = worksheetFile.getVirtualFile
+  private val module = RunWorksheetAction getModuleFor worksheetFile
 
-    val project = worksheetFile.getProject
+  private def onError(msg: String) {
+    NotificationUtil.builder(project, msg).setGroup(
+      "Scala").setNotificationType(NotificationType.ERROR).setTitle(CONFIG_ERROR_HEADER).show()
+  }
 
-    val runType = getRunType(project)
+  private def createCompilerTask =
+    new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
 
-    if (runType != NonServer)
-      CompileServerLauncher.ensureServerRunning(project)
+  private def runCompilerTask(task: CompilerTask, className: String, code: String, printer: WorksheetEditorPrinterBase, 
+                              tempFile: File, outputDir: File) {
+    val afterCompileRunnable = if (runType == OutOfProcessServer) new Runnable {
+      override def run(): Unit = callback(className, outputDir.getAbsolutePath)
+    } else EMPTY_RUNNABLE
+
+    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, printer, None, auto)
+
+    FileUtil.writeToFile(tempFile, code)
+
+    task.start(new Runnable {
+      override def run() {
+        try {
+          new RemoteServerConnector(
+            module, tempFile, outputDir, className, None, true
+          ).compileAndRun(afterCompileRunnable, worksheetVirtual, consumer)
+        }
+        catch {
+          case ex: IllegalArgumentException => onError(ex.getMessage)
+        }
+      }
+    }, EMPTY_RUNNABLE)
+  }
+  
+  private def runDumbTask(task: CompilerTask, printer: WorksheetEditorPrinterBase, 
+                          replModeArgs: Option[ReplModeArgs]) {
+    val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, printer, None)
+    task.start(new Runnable {
+      override def run(): Unit = {
+        new RemoteServerConnector(module, new File(""), new File(""), "", replModeArgs, false).compileAndRun(
+          EMPTY_RUNNABLE, worksheetVirtual, consumer)
+      }
+    }, EMPTY_RUNNABLE)
+  }
+
+
+  def compileAndRun() {
+    if (module == null) {
+      onError("Can't find Scala module to run")
+      return
+    }
+
+    val (iteration, tempFile, outputDir) = 
+      if (!isRepl) WorksheetBoundCompilationInfo.updateOrCreate(worksheetVirtual.getCanonicalPath, worksheetFile.getName)
+      else (0, null, null)
+    if (runType != NonServer) CompileServerLauncher.ensureServerRunning(project)
 
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
     if (oldContent != null) contentManager.removeContent(oldContent, true)
 
-    WorksheetSourceProcessor.process(worksheetFile, ifEditor, iteration) match {
+    WorksheetSourceProcessor.process(worksheetFile, Option(editor), iteration, isRepl) match {
+      case Left((code, "")) => 
+        val task = createCompilerTask
+        val worksheetPrinter = 
+          WorksheetEditorPrinterFactory.newWorksheetUiFor(editor, worksheetFile, isRepl = true)
+        
+        runDumbTask(task, worksheetPrinter, Some(ReplModeArgs(worksheetVirtual.getCanonicalPath, code)))
       case Left((code, name)) =>
-        FileUtil.writeToFile(tempFile, code)
+        val task = createCompilerTask
+        val worksheetPrinter = WorksheetEditorPrinterFactory.newWorksheetUiFor(editor, worksheetFile, isRepl = false)
 
-        val task = new CompilerTask(project, s"Worksheet ${worksheetFile.getName} compilation", false, false, false, false)
-
-        val worksheetPrinter =
-          WorksheetEditorPrinter.newWorksheetUiFor(editor, worksheetVirtual)
-        worksheetPrinter.scheduleWorksheetUpdate()
-
-        val onError = (msg: String) => {
-          NotificationUtil.builder(project, msg).setGroup(
-            "Scala").setNotificationType(NotificationType.ERROR).setTitle(CONFIG_ERROR_HEADER).show()
-        }
-
-        val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, worksheetPrinter, None, auto)
-
-        task.start(new Runnable {
-          override def run() {
-            //todo smth with exit code
-            try {
-              val module = RunWorksheetAction getModuleFor worksheetFile
-              
-              if (module == null) onError("Can't find Scala module to run") else new RemoteServerConnector(
-                module, tempFile, outputDir, name
-              ).compileAndRun(new Runnable {
-                override def run() {
-                  if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
-                }
-              }, worksheetVirtual, consumer)
-            }
-            catch {
-              case ex: IllegalArgumentException => onError(ex.getMessage)
-            }
-          }
-        }, new Runnable {override def run() {}})
+        runCompilerTask(task, name, code, worksheetPrinter, tempFile, outputDir)
       case Right(errorMessage: PsiErrorElement) =>
         if (auto) return
         val pos = editor.offsetToLogicalPosition(errorMessage.getTextOffset)
 
-        val treeError = new CompilerErrorTreeView(project, null)
-
-        ApplicationManager.getApplication.invokeLater(new Runnable {
-          override def run() {
-            val file = errorMessage.getContainingFile.getVirtualFile
-            if (file == null || !file.isValid) return
-
-            treeError.addMessage(MessageCategory.ERROR, Array(errorMessage.getErrorDescription),
-              file, pos.line, pos.column, null)
-
-            val errorContent = ContentFactory.SERVICE.getInstance.createContent(treeError.getComponent, ERROR_CONTENT_NAME, true)
-            contentManager addContent errorContent
-            contentManager setSelectedContent errorContent
-
-            MigrationApiImpl.openMessageView(project, errorContent, treeError)
-            editor.getCaretModel moveToLogicalPosition pos
-          }
-        })
-
+        WorksheetCompiler.showCompilationError(errorMessage.getContainingFile.getVirtualFile, pos.line, pos.column, 
+          project, () => {editor.getCaretModel moveToLogicalPosition pos}, Array(errorMessage.getErrorDescription))
       case _ =>
     }
   }
 }
 
 object WorksheetCompiler extends WorksheetPerFileConfig {
+  private val EMPTY_RUNNABLE = new Runnable {
+    override def run(): Unit = {}
+  }
+
   private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)
+  private val IS_WORKSHEET_REPL_MODE = new FileAttribute("IsWorksheetReplMode", 1, true)
   private val ERROR_CONTENT_NAME = "Worksheet errors"
 
   val CONFIG_ERROR_HEADER = "Worksheet configuration error:"
 
   def getCompileKey: Key[String] = Key.create[String]("scala.worksheet.compilation")
+
   def getOriginalFileKey: Key[String] = Key.create[String]("scala.worksheet.original.file")
 
   def isMakeBeforeRun(file: PsiFile): Boolean = isEnabled(file, MAKE_BEFORE_RUN)
@@ -127,9 +144,15 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   def setMakeBeforeRun(file: PsiFile, isMake: Boolean): Unit = {
     setEnabled(file, MAKE_BEFORE_RUN, isMake)
   }
-  
+
+  def isWorksheetReplMode(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE)
+
+  def setWorksheetReplMode(file: PsiFile, isRepl: Boolean): Unit = {
+    setEnabled(file, IS_WORKSHEET_REPL_MODE, isRepl)
+  }
+
   def getModuleForCpName(file: PsiFile): Option[String] = FileAttributeUtilCache.readAttribute(CP_MODULE_NAME, file)
-  
+
   def setModuleForCpName(file: PsiFile, moduleName: String): Unit = FileAttributeUtilCache.writeAttribute(CP_MODULE_NAME, file, moduleName)
 
   def getRunType(project: Project): WorksheetMakeType = {
@@ -139,5 +162,26 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
       else OutOfProcessServer
     }
     else NonServer
+  }
+  
+  def showCompilationError(file: VirtualFile, line: Int, column: Int, project: Project, onShow: () => Unit, msg: Array[String]) {
+    val treeError = new CompilerErrorTreeView(project, null)
+    val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
+    
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run(): Unit = {
+        if (file == null || !file.isValid) return
+
+        treeError.addMessage(MessageCategory.ERROR, msg, file, line, column, null)
+
+        val errorContent = ContentFactory.SERVICE.getInstance.createContent(treeError.getComponent, ERROR_CONTENT_NAME, true)
+        contentManager addContent errorContent
+        contentManager setSelectedContent errorContent
+
+        MigrationApiImpl.openMessageView(project, errorContent, treeError)
+        
+        onShow()
+      }
+    })
   }
 }
