@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -217,7 +217,8 @@ object PatternAnnotatorUtil {
         case Some(srr) =>
           srr.getElement match {
             case fun: ScFunction if fun.parameters.count(!_.isImplicitParameter) == 1 =>
-              Some(srr.substitutor.subst(fun.paramTypes.head))
+              fun.parametersTypes.headOption
+                .map(srr.substitutor.subst)
             case _ => None
           }
         case None => None

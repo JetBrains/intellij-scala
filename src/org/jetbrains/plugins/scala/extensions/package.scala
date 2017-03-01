@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
@@ -58,15 +59,11 @@ package object extensions {
 
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
-    import org.jetbrains.plugins.scala.extensions.PsiMethodExt._
+    import PsiMethodExt._
 
-    def isAccessor: Boolean = {
-      hasNoParams && hasQueryLikeName && !hasVoidReturnType
-    }
+    def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
 
-    def isMutator: Boolean = {
-      hasVoidReturnType || hasMutatorLikeName
-    }
+    def isMutator: Boolean = hasVoidReturnType || hasMutatorLikeName
 
     def hasQueryLikeName: Boolean = {
       def startsWith(name: String, prefix: String) =
@@ -87,7 +84,19 @@ package object extensions {
 
     def hasVoidReturnType: Boolean = repr.getReturnType == PsiType.VOID
 
-    def hasNoParams: Boolean = repr.getParameterList.getParameters.isEmpty
+    def parameters: Seq[PsiParameter] =
+      repr.getParameterList.getParameters
+
+    def parametersTypes: Seq[ScType] = repr match {
+      case scalaFunction: ScFunction =>
+        scalaFunction.parameters
+          .map(_.getType(TypingContext.empty).getOrNothing)
+      case _ =>
+        parameters.map(_.getType)
+          .map(_.toScType()(repr.typeSystem))
+    }
+
+    def isParameterless: Boolean = parameters.isEmpty
   }
 
   object PsiMethodExt {
