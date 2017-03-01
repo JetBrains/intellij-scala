@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.conversion.copy.{Association, SingularCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -41,6 +42,8 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
     if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+
+    val scope = file.getResolveScope
     if (!file.isInstanceOf[ScalaFile]) return
 
     val (text, _, _) = value match {
@@ -66,7 +69,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
         extensions.inWriteAction {
           val project = javaCodeWithContext.project
 
-          createFileWithAdditionalImports(javaCodeWithContext).foreach { javaFile =>
+          createFileWithAdditionalImports(javaCodeWithContext, scope).foreach { javaFile =>
             val convertedText = convert(javaFile, javaCodeWithContext.context, project)
             ConverterUtil.performePaste(editor, bounds, convertedText, project)
 
@@ -112,10 +115,10 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
   }
 
 
-  def createFileWithAdditionalImports(codeWithContext: CodeWithContext): Option[PsiJavaFile] = {
+  def createFileWithAdditionalImports(codeWithContext: CodeWithContext, scope: GlobalSearchScope): Option[PsiJavaFile] = {
     codeWithContext
       .javaFile
-      .map(new AdditioinalImportsResolver(_).addImports())
+      .map(new AdditionalImportsResolver(_, scope).addImports())
   }
 
   sealed class CopyContext(val prefix: String, val postfix: String)

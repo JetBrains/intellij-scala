@@ -2,14 +2,21 @@ package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import com.intellij.codeInsight.daemon.impl.quickfix.ImportClassFix
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiElementFilter, PsiTreeUtil}
 
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by Kate Ustyuzhanina on 12/27/16.
+  *
+  * Try to add additional imports to temp java file, using [[ImportClassFix]]
+  * @param javaFile - temp file from [[TextJavaCopyPastePostProcessor]] created from text
+  * @param scope - javaFile creates with Project & Libraries scope, specify this parameter
+  *                to filter additional imports by scope.
   */
-class AdditioinalImportsResolver(javaFile: PsiJavaFile) {
+class AdditionalImportsResolver(javaFile: PsiJavaFile, scope: GlobalSearchScope) {
   def addImports(): PsiJavaFile = {
     val project = javaFile.getProject
 
@@ -29,6 +36,9 @@ class AdditioinalImportsResolver(javaFile: PsiJavaFile) {
     // TODO: support imports in current scope (add To already defined)
     val alreadyResolvedNames = new ArrayBuffer[String]
 
+    def isClassInScope(clazz: PsiClass): Boolean =
+      scope.contains(clazz.getContainingFile.getVirtualFile)
+
     def handleReference(reference: PsiJavaCodeReferenceElement, allImports: PsiImportList): Unit = {
       def createImportStatement(clazz: PsiClass): PsiImportStatement = {
         PsiElementFactory.SERVICE.getInstance(project).createImportStatement(clazz)
@@ -37,17 +47,17 @@ class AdditioinalImportsResolver(javaFile: PsiJavaFile) {
       val refName = reference.getReferenceName
       if (!(failedToResolveNames.contains(refName) || alreadyResolvedNames.contains(refName))) {
         val importClassFix = new ImportClassFix(reference)
-        val calssesToImport = importClassFix.getClassesToImport
-        if (calssesToImport.size() == 1) {
+        val classesToImport = importClassFix.getClassesToImport.filter(isClassInScope)
+        if (classesToImport.length == 1) {
           alreadyResolvedNames += refName
-          allImports.add(createImportStatement(calssesToImport.get(0)))
+          allImports.add(createImportStatement(classesToImport.head))
         } else {
           failedToResolveNames += refName
         }
       }
     }
 
-    unresolvedRefs.foreach(el => handleReference(el, javaFile.getImportList))
+    unresolvedRefs.reverse.foreach(el => handleReference(el, javaFile.getImportList))
 
     javaFile
   }
