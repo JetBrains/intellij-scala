@@ -10,7 +10,7 @@ class A {
   val array: Array[Int] = null
   val array1: Array[Int] = null
 
-  def foo(arr: Array[Int], arr1: Array[Int]) {
+  def foo(arr: Array[Int], arr1: Array[Int]): Unit = {
   }
 }
 */

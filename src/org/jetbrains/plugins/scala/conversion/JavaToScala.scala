@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -344,14 +343,18 @@ object JavaToScala {
           }
         }
 
+        def convertMethodReturnType =
+          if (m.getReturnType != PsiType.VOID || ScalaCodeStyleSettings.getInstance(m.getProject).ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT)
+            Some(convertPsiToIntermdeiate(m.getReturnTypeElement, externalProperties))
+          else None
+
         if (m.isConstructor) {
           ConstructorSimply(handleModifierList(m), m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
             m.parameters.map(convertPsiToIntermdeiate(_, externalProperties)), body)
         } else {
           val name = convertPsiToIntermdeiate(m.getNameIdentifier, externalProperties)
           MethodConstruction(handleModifierList(m), name, m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
-            m.parameters.map(convertPsiToIntermdeiate(_, externalProperties)), body,
-            if (m.getReturnType != PsiType.VOID) convertPsiToIntermdeiate(m.getReturnTypeElement, externalProperties) else null)
+            m.parameters.map(convertPsiToIntermdeiate(_, externalProperties)), body, convertMethodReturnType)
         }
       case c: PsiClass => createClass(c, externalProperties)
       case p: PsiParenthesizedExpression =>

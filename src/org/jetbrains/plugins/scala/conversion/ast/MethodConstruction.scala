@@ -6,7 +6,7 @@ package org.jetbrains.plugins.scala.conversion.ast
   */
 case class MethodConstruction(modifiers: IntermediateNode, name: IntermediateNode, typeParams: Seq[IntermediateNode],
                               params: Seq[IntermediateNode], body: Option[IntermediateNode],
-                              retType: IntermediateNode) extends IntermediateNode
+                              retType: Option[IntermediateNode]) extends IntermediateNode
 
 
 trait Constructor

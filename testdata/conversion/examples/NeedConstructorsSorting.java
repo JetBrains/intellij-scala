@@ -28,7 +28,7 @@ class C {
 
   final val u: Int = 67
 
-  def foo() {
+  def foo(): Unit = {
     System.out.println("foo")
   }
 

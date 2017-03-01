@@ -21,7 +21,7 @@ import java.util
 
 
 object Imports {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val fList: util.List[File] = new util.ArrayList[File]
     val fSet: util.Set[File] = new util.HashSet[File]
     import scala.collection.JavaConversions._

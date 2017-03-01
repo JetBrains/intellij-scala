@@ -39,7 +39,7 @@ public class LambdaExpression {
 
 /*
 class LambdaExpression {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val integers: util.List[Integer] = new util.ArrayList[Integer]
     integers.forEach((i: Integer) => System.out.println(i))
     integers.forEach((i: Integer) => System.out.println(i))

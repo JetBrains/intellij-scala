@@ -432,7 +432,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
   }
 
   def visitMethod(modifiers: IntermediateNode, name: IntermediateNode, typeParams: Seq[IntermediateNode],
-                  params: Seq[IntermediateNode], body: Option[IntermediateNode], retType: IntermediateNode): Unit = {
+                  params: Seq[IntermediateNode], body: Option[IntermediateNode], retType: Option[IntermediateNode]): Unit = {
     visit(modifiers)
     printer.append("def ")
     visit(name)
@@ -441,16 +441,15 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       printWithSeparator(typeParams, ", ", "[", "]")
     }
 
+    printWithSeparator(params, ", ", "(", ")", params.nonEmpty || (retType.contains(TypeConstruction("Unit")) || retType.isEmpty))
 
-    printWithSeparator(params, ", ", "(", ")", params.nonEmpty || (params.isEmpty && retType == null))
-
-    if (retType != null) {
+    retType.foreach { rt =>
       printer.append(": ")
-      visit(retType)
+      visit(rt)
     }
 
     body.foreach { b =>
-      if (retType != null) printer.append(" = ")
+      if (retType.isDefined) printer.append(" = ")
       printBodyWithCurlyBracketes(b, () => visit(b))
     }
   }

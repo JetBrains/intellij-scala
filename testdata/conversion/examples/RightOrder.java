@@ -10,10 +10,10 @@ class C {
   var s: String = ""
   final val smth: Int = 123
 
-  def m1() {
+  def m1(): Unit = {
   }
 
-  def m2() {
+  def m2(): Unit = {
   }
 }
  */
