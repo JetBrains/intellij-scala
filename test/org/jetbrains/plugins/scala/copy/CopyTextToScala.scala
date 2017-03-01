@@ -93,6 +93,17 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
+  def testPrefixedExpression(): Unit = {
+    val fromText ="""<selection>Arrays.asList("peter", "anna", "mike", "xenia");</selection>""".stripMargin
+    val expected =
+      """
+        |import java.util
+        |
+        |util.Arrays.asList("peter", "anna", "mike", "xenia")
+      """.stripMargin
+    doTestEmptyToFile(fromText, expected)
+  }
+
   def testJavaMethodWithoutLatestCurlyBrackets(): Unit ={
     val fromText =
       """

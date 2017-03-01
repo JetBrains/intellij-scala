@@ -200,9 +200,19 @@ object JavaToScala {
         ForeachStatement(name, iteratedValue, body, isJavaCollection)
       case r: PsiReferenceExpression =>
         val args = Option(r.getParameterList).map(convertPsiToIntermdeiate(_, externalProperties))
-        val refName = if (externalProperties.isInstanceOf[WithReferenceExpression]) {
-          fieldParameterMap.getOrElse(r.getReferenceName, r.getReferenceName)
-        } else r.getReferenceName
+
+        def nameForReference: String = {
+          val nameWithPrefix: String = if (textMode && r.getQualifier == null) r.resolve() match {
+            case clazz: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(clazz)
+            case _ => r.getReferenceName
+          } else r.getReferenceName
+
+          if (externalProperties.isInstanceOf[WithReferenceExpression])
+            fieldParameterMap.getOrElse(r.getReferenceName, nameWithPrefix)
+          else nameWithPrefix
+        }
+
+        val refName: String = nameForReference
 
         var iResult = JavaCodeReferenceStatement(None, args, refName)
         if (r.getQualifierExpression != null) {
@@ -222,11 +232,8 @@ object JavaToScala {
           }
         }
 
-//        JavaCodeReferenceStatement(None, args, refName)
-
         handleAssociations(r, iResult)
         iResult
-
       case p: PsiJavaCodeReferenceElement =>
         val qualifier = Option(p.getQualifier).map(convertPsiToIntermdeiate(_, externalProperties))
         val args = Option(p.getParameterList).map(convertPsiToIntermdeiate(_, externalProperties))
