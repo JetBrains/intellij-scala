@@ -12,7 +12,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiFileFactory}
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, TopComponentAction}
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
  * @author Ksenia.Sautina
@@ -35,7 +35,7 @@ class RunMacrosheetAction extends AnAction with TopComponentAction {
     val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
     psiFile match {
       case file: ScalaFile =>
-        val viewer = WorksheetEditorPrinter.newMacrosheetUiFor(editor, file.getVirtualFile).getViewerEditor
+        val viewer = WorksheetEditorPrinterFactory.newMacrosheetUiFor(editor, file).getViewerEditor
 
         val project = e.getProject
 

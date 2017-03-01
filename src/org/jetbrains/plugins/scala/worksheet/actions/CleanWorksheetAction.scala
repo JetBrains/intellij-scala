@@ -16,8 +16,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
  * @author Ksenia.Sautina
@@ -36,7 +36,7 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
     if (editor == null || file == null) return
 
     val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
-    val viewer =  WorksheetViewerInfo.getViewer(editor)
+    val viewer =  WorksheetCache.getInstance(project).getViewer(editor)
     
     if (psiFile == null || viewer == null) return
 
@@ -55,13 +55,6 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
         editor.getSettings.setFoldingOutlineShown(true)
       }
     }
-  }
-
-  override def update(e: AnActionEvent) {
-    val presentation = e.getPresentation
-    presentation.setIcon(AllIcons.Actions.GC)
-
-    updateInner(presentation, e.getProject)
   }
 
   override def actionIcon = AllIcons.Actions.GC
@@ -86,7 +79,7 @@ object CleanWorksheetAction {
   def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project) {
     val rightDocument = rightEditor.getDocument
     
-    WorksheetEditorPrinter.deleteWorksheetEvaluation(node.getPsi.asInstanceOf[ScalaFile])
+    WorksheetEditorPrinterFactory.deleteWorksheetEvaluation(node.getPsi.asInstanceOf[ScalaFile])
 
     if (rightDocument != null && !project.isDisposed) {
       ApplicationManager.getApplication runWriteAction new Runnable {

@@ -12,7 +12,7 @@ import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldRegionDelegate
 
 /**
@@ -22,24 +22,18 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldRegionDelegate
  */
 class CopyWorksheetAction extends AnAction with TopComponentAction {
   def actionPerformed(e: AnActionEvent) {
-    val editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+    val project = e.getProject
+    val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
     if (editor == null) return
 
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
-    val viewer = WorksheetViewerInfo.getViewer(editor)
+    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    val viewer = WorksheetCache.getInstance(project).getViewer(editor)
     if (psiFile == null || viewer == null) return
 
     var s = createMerged(editor, viewer)
     s = StringUtil.convertLineSeparators(s)
     val contents: StringSelection = new StringSelection(s)
     CopyPasteManager.getInstance.setContents(contents)
-  }
-
-  override def update(e: AnActionEvent) {
-    val presentation = e.getPresentation
-    presentation.setIcon(AllIcons.Actions.Copy)
-
-    updateInner(presentation, e.getProject)
   }
 
   private def createMerged(editor: Editor, viewer: Editor): String = {

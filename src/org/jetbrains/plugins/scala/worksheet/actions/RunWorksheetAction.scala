@@ -27,9 +27,9 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
 
 /**
  * @author Ksenia.Sautina
@@ -43,15 +43,14 @@ class RunWorksheetAction extends AnAction with TopComponentAction {
   }
 
   override def update(e: AnActionEvent) {
-    val presentation = e.getPresentation
-    presentation.setIcon(AllIcons.Actions.Execute)
+    super.update(e)
+    
     val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
+    
     if (shortcuts.nonEmpty) {
       val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
-      presentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
+      e.getPresentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
     }
-
-    updateInner(presentation, e.getProject)
   }
 
   override def actionIcon = AllIcons.Actions.Execute
@@ -78,9 +77,9 @@ object RunWorksheetAction {
 
     psiFile match {
       case file: ScalaFile if file.isWorksheetFile =>
-        val viewer = WorksheetViewerInfo getViewer editor
+        val viewer = WorksheetCache.getInstance(project) getViewer editor
 
-        if (viewer != null) {
+        if (viewer != null && !WorksheetCompiler.isWorksheetReplMode(file)) { 
           ApplicationManager.getApplication.invokeAndWait(new Runnable {
             override def run() {
               scala.extensions.inWriteAction {
@@ -92,13 +91,13 @@ object RunWorksheetAction {
         }
 
         def runnable() = {
-          new WorksheetCompiler().compileAndRun(editor, file, (className: String, addToCp: String) => {
+          new WorksheetCompiler(editor, file, (className: String, addToCp: String) => {
             ApplicationManager.getApplication invokeLater new Runnable {
               override def run() {
                 executeWorksheet(file.getName, project, file.getContainingFile, className, addToCp)
               }
             }
-          }, Option(editor), auto)
+          }, auto).compileAndRun()
         }
 
         if (WorksheetCompiler isMakeBeforeRun psiFile) {
@@ -114,6 +113,7 @@ object RunWorksheetAction {
     }
   }
 
+  //FYI: repl mode works only if we use compiler server and run worksheet with "InProcess" setting
   def executeWorksheet(name: String, project: Project, file: PsiFile, mainClassName: String, addToCp: String) {
     val virtualFile = file.getVirtualFile
     val params = createParameters(getModuleFor(file), mainClassName, Option(project.getBaseDir) map (_.getPath) getOrElse "", addToCp, "",
@@ -160,11 +160,14 @@ object RunWorksheetAction {
   }
 
   private def setUpUiAndRun(handler: OSProcessHandler, file: PsiFile) {
-    val virtualFile = file.getVirtualFile
-
     val editor = EditorHelper openInEditor file
+    
+    val scalaFile = file match {
+      case sc: ScalaFile => sc
+      case _ => return 
+    }
 
-    val worksheetPrinter = WorksheetEditorPrinter.newWorksheetUiFor(editor, virtualFile)
+    val worksheetPrinter =  WorksheetEditorPrinterFactory.newWorksheetUiFor(editor, scalaFile, isRepl = false)
 
     val myProcessListener: ProcessAdapter = new ProcessAdapter {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
@@ -178,9 +181,7 @@ object RunWorksheetAction {
       }
     }
 
-    worksheetPrinter.scheduleWorksheetUpdate()
     handler.addProcessListener(myProcessListener)
-
     handler.startNotify()
   }
   
