@@ -6,15 +6,15 @@ import javax.swing.event.{ChangeEvent, ChangeListener}
 import javax.swing._
 
 import com.intellij.application.options.ModulesComboBox
-import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, CopyWorksheetAction, RunWorksheetAction, InteractiveStatusDisplay}
+import org.jetbrains.plugins.scala.worksheet.actions.{CleanWorksheetAction, CopyWorksheetAction, InteractiveStatusDisplay, RunWorksheetAction}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 
@@ -70,6 +70,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
       addSplitter()
       addChild(panel, createMakeProjectChb(file))
       addChild(panel, createAutoRunChb(file))
+      addChild(panel, createReplModeChb(file))
 
       
       addSplitter()
@@ -83,6 +84,8 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
 
     Option(statusDisplayN)
   }
+  
+  private def findPsiFile(vFile: VirtualFile): Option[PsiFile] = Option(PsiManager getInstance project findFile vFile)
   
   private def createSelectClassPathList(defaultModule: Option[String], file: VirtualFile) = {
     val modulesBox = new ModulesComboBox()
@@ -102,7 +105,7 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
 
         if (m == null) return
 
-        WorksheetCompiler.setModuleForCpName(PsiManager getInstance project findFile file, m.getName)
+        findPsiFile(file).foreach(psi => WorksheetCompiler.setModuleForCpName(psi, m.getName))
       }
     })
 
@@ -114,26 +117,41 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
   def createMakeProjectChb(file: VirtualFile): JCheckBox = {
     createCheckBox(
       "Make project",
-      WorksheetCompiler.isMakeBeforeRun(PsiManager getInstance project findFile file),
+      findPsiFile(file).exists(WorksheetCompiler.isMakeBeforeRun) ,
       box =>  new ChangeListener {
         override def stateChanged(e: ChangeEvent) {
-          WorksheetCompiler.setMakeBeforeRun(PsiManager getInstance project findFile file, box.isSelected)
+          findPsiFile(file).foreach(psi => WorksheetCompiler.setMakeBeforeRun(psi, box.isSelected))
         }
       }
     )
   }
 
   def createAutoRunChb(file: VirtualFile): JCheckBox = {
-    val psiFile = PsiManager getInstance project findFile file
-
     import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner._
-    
+    val psiOpt = findPsiFile(file)
+
     createCheckBox(
       "Interactive Mode",
-      if (isSetEnabled(psiFile)) true else if (isSetDisabled(psiFile)) false else ScalaProjectSettings.getInstance(project).isInteractiveMode,
+      psiOpt match {
+        case Some(psiFile) if isSetEnabled(psiFile) => true
+        case Some(psiFile) if isSetDisabled(psiFile) => false
+        case _ => ScalaProjectSettings.getInstance(project).isInteractiveMode
+      },
       box => new ChangeListener {
         override def stateChanged(e: ChangeEvent) {
-          WorksheetAutoRunner.setAutorun(psiFile, box.isSelected)
+          findPsiFile(file).foreach(psi => WorksheetAutoRunner.setAutorun(psi, box.isSelected))
+        }
+      }
+    )
+  }
+  
+  def createReplModeChb(file: VirtualFile): JCheckBox = {
+    createCheckBox(
+      "Use REPL Mode",
+      findPsiFile(file).exists(WorksheetCompiler.isWorksheetReplMode),
+      box => new ChangeListener {
+        override def stateChanged(e: ChangeEvent) {
+          findPsiFile(file).foreach(psi => WorksheetCompiler.setWorksheetReplMode(psi, box.isSelected))
         }
       }
     )

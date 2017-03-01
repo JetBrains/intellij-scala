@@ -4,6 +4,7 @@ package worksheet.interactive
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.problems.WolfTheProblemSolver
@@ -11,8 +12,9 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
+import org.jetbrains.plugins.scala.worksheet.actions.{RunWorksheetAction, WorksheetFileHook}
+import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetCompiler, WorksheetPerFileConfig}
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 
 /**
@@ -66,18 +68,39 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
     val listener = listeners remove document
     if (listener != null) document removeDocumentListener listener
   }
+  
+  def replExecuted(document: Document, offset: Int) {
+    listeners.get(document) match {
+      case myAdapter: MyDocumentAdapter =>
+        myAdapter.updateOffset(offset)
+      case _ => 
+    }
+  }
 
   private class MyDocumentAdapter(document: Document) extends DocumentAdapter {
-    val documentManager = PsiDocumentManager getInstance project
+    private val documentManager: PsiDocumentManager = PsiDocumentManager getInstance project
+    private var lastProcessedOffset = 0
 
     @inline private def isDisabledOn(file: PsiFile) = {
       WorksheetAutoRunner.isSetDisabled(file) || !settings.isInteractiveMode && !WorksheetAutoRunner.isSetEnabled(file)
     }
 
+    def updateOffset(offset: Int) {
+      lastProcessedOffset = offset
+    }
+    
     override def documentChanged(e: DocumentEvent) {
       if (project.isDisposed) return
 
       val psiFile = documentManager getPsiFile document
+      
+      if (WorksheetCompiler isWorksheetReplMode psiFile) {
+        if (e.getOffset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (
+          ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None) )
+        
+        return
+      }
+      
       if (isDisabledOn(psiFile)) return
 
       val virtualFile = psiFile.getVirtualFile

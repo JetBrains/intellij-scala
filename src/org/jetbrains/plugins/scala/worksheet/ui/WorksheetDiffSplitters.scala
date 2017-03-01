@@ -20,7 +20,6 @@ import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.collection.convert.wrapAsJava
-import scala.collection.mutable
 
 /**
  * User: Dmitry.Naydanov
@@ -98,7 +97,7 @@ object WorksheetDiffSplitters {
 
         Option(PsiDocumentManager.getInstance(editor1.getProject) getCachedPsiFile editor1.getDocument) foreach {
           case file: ScalaFile =>
-            WorksheetEditorPrinter.saveOnlyRatio(file, f)
+            WorksheetEditorPrinterFactory.saveOnlyRatio(file, f)
           case _ =>
         }
       }
