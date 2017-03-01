@@ -14,6 +14,7 @@ import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.{Comparing, Ref}
 import com.intellij.psi.{util => _, _}
 import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.plugins.scala.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -127,7 +128,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
                     while (i < args.length && flag) {
                       if (args(i) eq expression) {
                         val param: java.lang.Integer = args.length - i - 1
-                        val parameters = method.getParameterList.getParameters
+                        val parameters = method.parameters
                         if (i + paramsCount >= args.length && method != null &&
                           method.getParameterList.getParametersCount == i + 2 &&
                           parameters(i + 1).isVarArgs) {

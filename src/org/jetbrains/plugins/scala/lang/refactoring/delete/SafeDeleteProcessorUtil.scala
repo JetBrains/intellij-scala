@@ -198,7 +198,7 @@ object SafeDeleteProcessorUtil {
   }
 
   def isTheOnlyEmptyDefaultConstructor(constructor: PsiMethod): Boolean = {
-    if (constructor.getParameterList.getParameters.length > 0) return false
+    if (constructor.parameters.nonEmpty) return false
     val body: PsiCodeBlock = constructor.getBody
     if (body != null && body.getStatements.length > 0) return false
     constructor.containingClass.getConstructors.length == 1

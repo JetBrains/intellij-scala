@@ -94,7 +94,7 @@ object ResolveUtils {
       m match {
         case f: FakePsiMethod => f.params.toSeq
         case _ =>
-          m.getParameterList.getParameters.map { param =>
+          m.parameters.map { param =>
             val scType = s.subst(param.paramType())
             Parameter("", None, scType, scType, isDefault = false, isRepeated = param.isVarArgs, isByName = false, param.index, Some(param))
           }

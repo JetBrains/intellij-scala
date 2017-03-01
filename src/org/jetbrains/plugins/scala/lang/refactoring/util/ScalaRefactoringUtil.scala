@@ -281,8 +281,7 @@ object ScalaRefactoringUtil {
         ref.resolve() match {
           case fun: ScFunction if fun.paramClauses.clauses.nonEmpty &&
             fun.paramClauses.clauses.head.isImplicit => copyExpr
-          case fun: ScFunction if fun.parameters.nonEmpty => liftMethod
-          case meth: PsiMethod if meth.getParameterList.getParameters.nonEmpty => liftMethod
+          case method: PsiMethod if method.parameters.nonEmpty => liftMethod
           case _ => copyExpr
         }
       case _ => copyExpr

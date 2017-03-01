@@ -5,7 +5,7 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -52,8 +52,8 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
         con match {
           case owner: ScModifierListOwner =>
             if (owner.hasModifierProperty(PsiModifier.PUBLIC)) {
-              val params = con.getParameterList.getParameters
-              val firstParam = params(0)
+              val params = con.parameters
+              val firstParam = params.head
               val psiManager = ScalaPsiManager.instance(project)
               val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map").orNull
               val mapClass = ScalaType.designator(mapPsiClass)

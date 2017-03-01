@@ -244,7 +244,7 @@ trait ApplicationAnnotator {
     case f: ScFunction =>
       if (f.parameters.isEmpty) "" else formatParamClauses(f.paramClauses)
     case m: PsiMethod =>
-      val params: Array[PsiParameter] = m.getParameterList.getParameters
+      val params = m.parameters
       if (params.isEmpty) "" else formatJavaParams(params)
     case syn: ScSyntheticFunction =>
       if (syn.paramClauses.isEmpty) "" else syn.paramClauses.map(formatSyntheticParams).mkString

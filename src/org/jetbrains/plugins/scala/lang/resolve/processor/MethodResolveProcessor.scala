@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
-import scala.collection.{Set, mutable}
+import scala.collection.Set
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
@@ -247,7 +247,7 @@ object MethodResolveProcessor {
           case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore =>
             addExpectedTypeProblems()
             ConformanceExtResult(problems)
-          case method: PsiMethod if method.getParameterList.getParameters.isEmpty ||
+          case method: PsiMethod if method.parameters.isEmpty ||
             isUnderscore =>
             addExpectedTypeProblems()
             ConformanceExtResult(problems)
@@ -657,7 +657,7 @@ object MethodResolveProcessor {
                 fun.paramClauses.clauses.head.parameters.length == 1
               case p: ScPrimaryConstructor if p.parameterList.clauses.nonEmpty =>
                 p.parameterList.clauses.head.parameters.length == 1
-              case m: PsiMethod => m.getParameterList.getParameters.length == 1
+              case m: PsiMethod => m.parameters.length == 1
               case _ => false
             }
           }).map(r => r.copy(tuplingUsed = true))

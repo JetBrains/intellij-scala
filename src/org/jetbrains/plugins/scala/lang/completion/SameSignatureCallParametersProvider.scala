@@ -84,7 +84,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                   else Seq.empty
                 case ScalaResolveResult(method: PsiMethod, subst) =>
                   if (index != 0) Seq.empty
-                  else method.getParameterList.getParameters.toSeq.map { p =>
+                  else method.parameters.toSeq.map { p =>
                     (p.name, subst.subst(p.getType.toScType()))
                   }
                 case _ => Seq.empty
@@ -129,7 +129,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                 clazz.getConstructors.toSeq.map {
                   case c: PsiMethod =>
                     if (index != 0) Seq.empty
-                    else c.getParameterList.getParameters.toSeq.map {
+                    else c.parameters.map {
                       case p: PsiParameter =>
                         (p.name, subst.subst(p.getType.toScType()))
                     }

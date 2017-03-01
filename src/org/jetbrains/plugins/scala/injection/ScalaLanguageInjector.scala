@@ -237,7 +237,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
               val parameters = f.parameters
               if (parameters.isEmpty) None else Some(parameters.get(index.min(parameters.size - 1)))
             case Some(m: PsiMethod) =>
-              val parameters = m.getParameterList.getParameters
+              val parameters = m.parameters
               if (parameters.isEmpty) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
             case _ => None
           }

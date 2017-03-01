@@ -532,7 +532,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
       val params = method match {
         case fun: ScMethodLike => fun.effectiveParameterClauses.flatMap(_.parameters)
-        case m: PsiMethod => m.getParameterList.getParameters.toSeq
+        case m: PsiMethod => m.parameters
         case _ => return arguments
       }
 

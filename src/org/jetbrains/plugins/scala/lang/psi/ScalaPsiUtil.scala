@@ -1516,8 +1516,8 @@ object ScalaPsiUtil {
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(Parameter(_))
               case ResolvesTo(method: PsiMethod) =>
-                method.getParameterList.getParameters match {
-                  case Array(p) => Some(Parameter(p))
+                method.parameters match {
+                  case Seq(p) => Some(Parameter(p))
                   case _ => None
                 }
               case _ => None
@@ -2008,7 +2008,7 @@ object ScalaPsiUtil {
         else singleAbstract.map { method =>
           implicit val elementScope = ElementScope(method.getProject, scalaScope)
           val returnType = method.getReturnType
-          val parametersTypes = method.getParameterList.getParameters.map {
+          val parametersTypes = method.parameters.map {
             _.getTypeElement.getType
           }
 

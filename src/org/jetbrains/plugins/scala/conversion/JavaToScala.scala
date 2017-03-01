@@ -7,7 +7,7 @@ import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi._
+import com.intellij.psi.{PsiLambdaExpression, _}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
@@ -16,13 +16,12 @@ import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMethodExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
-import com.intellij.psi.PsiLambdaExpression
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -53,7 +52,7 @@ object JavaToScala {
       def correspondedConstructorParams: Seq[PsiParameter] = {
         val constructor = Option(PsiTreeUtil.getParentOfType(usage, classOf[PsiMethod]))
         if (constructor.isDefined && constructor.get.isConstructor) {
-          constructor.get.getParameterList.getParameters
+          constructor.get.parameters
         } else {
           Seq[PsiParameter]()
         }
@@ -347,11 +346,11 @@ object JavaToScala {
 
         if (m.isConstructor) {
           ConstructorSimply(handleModifierList(m), m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
-            m.getParameterList.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)), body)
+            m.parameters.map(convertPsiToIntermdeiate(_, externalProperties)), body)
         } else {
           val name = convertPsiToIntermdeiate(m.getNameIdentifier, externalProperties)
           MethodConstruction(handleModifierList(m), name, m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
-            m.getParameterList.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)), body,
+            m.parameters.map(convertPsiToIntermdeiate(_, externalProperties)), body,
             if (m.getReturnType != PsiType.VOID) convertPsiToIntermdeiate(m.getReturnTypeElement, externalProperties) else null)
         }
       case c: PsiClass => createClass(c, externalProperties)
@@ -786,7 +785,7 @@ object JavaToScala {
       }
 
       def createContructor: PrimaryConstruction = {
-        val params = constructor.getParameterList.getParameters
+        val params = constructor.parameters
         val updatedParams = new ArrayBuffer[IntermediateNode]()
         val dropStatements = new ArrayBuffer[PsiExpressionStatement]()
         for (param <- params) {

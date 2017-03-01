@@ -488,7 +488,7 @@ object Compatibility {
         res
 
       case method: PsiMethod =>
-        val parameters: Seq[PsiParameter] = method.getParameterList.getParameters.toSeq
+        val parameters: Seq[PsiParameter] = method.parameters
 
         val excess = exprs.length - parameters.length
 
