@@ -48,11 +48,8 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
   
   protected def isVersionMoreSpecific(lessSpecific: Version, moreSpecific: Version, strict: Boolean = false): Boolean = {
     if (lessSpecific == moreSpecific) return !strict
-    lessSpecific.digitsIterator.zip(moreSpecific.digitsIterator).foreach {
-      case (a, b) => if (a != b) return false
-    }
-    true
-  } 
+    lessSpecific.digitGroups.zip(moreSpecific.digitGroups).forall(==)
+  }
 
   override def acceptsFrom(from: Library): Boolean = extractVersion(from).exists {
     version => versionFrom.contains(version) || (

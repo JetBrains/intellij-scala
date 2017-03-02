@@ -31,7 +31,7 @@ object Versions  {
       .getOrElse(entity.hardcodedVersions)
       .map(Version(_))
       .filter(_ >= entity.minVersion)
-      .sorted(implicitly[Ordering[Version]].reverse)
+      .sortWith(_ >= _)
       .map(_.number)
       .toArray
   }
@@ -58,16 +58,16 @@ object Versions  {
     val Scala = Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("2.8.0"),
-      Seq("2.8.2", "2.9.3", "2.10.6", "2.11.8"))
+      Seq("2.8.2", "2.9.3", "2.10.6", "2.11.8", "2.12.1"))
 
     val Sbt = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
       Version("0.12.0"),
       Seq("0.12.4", "0.13.13"))
 
-    val Dotty = Entity(s"https://oss.jfrog.org/artifactory/oss-snapshot-local/me/d-d/dotty_2.11",
+    val Dotty = Entity(s"http://repo1.maven.org/maven2/ch/epfl/lamp/dotty_2.11/",
       """.+>(\d+.\d+.+)/<.*""".r,
       Version("0.1-SNAPSHOT"),
-      Seq("0.1-SNAPSHOT"))
+      Seq("0.1.1-SNAPSHOT"))
   }
 }

@@ -195,7 +195,7 @@ private object SbtModuleBuilder {
         .stripMargin
 
     case Dotty =>
-      """scalaVersion := "0.1.1-20170108-add9a03-NIGHTLY"
+      s"""scalaVersion := "$scalaVersion"
         |
         |scalaOrganization := "ch.epfl.lamp"
         |
