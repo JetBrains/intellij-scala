@@ -88,11 +88,13 @@ class ILoopWrapperFactory {
     val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
     val iLoopInheritor = getOrCompileReplLoopFile(sbtData, scalaInstance, client)
     
-    val allJars = (compilerJars.library +: compilerJars.compiler +: compilerJars.extra) ++ worksheetArgs.outputDirs 
+    val allJars = compilerJars.library +: compilerJars.compiler +: compilerJars.extra
     val loader = new URLClassLoader(Path.toURLs(allJars :+ iLoopInheritor))
     
     val clazz = loader.loadClass("org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperImpl")
-    val inst = clazz.getConstructor(classOf[PrintWriter], classOf[Iterable[String]]).newInstance(out, allJars).asInstanceOf[ILoopWrapper]
+    val inst = clazz.getConstructor(classOf[PrintWriter], classOf[Iterable[String]]).newInstance(
+      out, allJars ++ worksheetArgs.outputDirs ++ worksheetArgs.classpathUrls.map(u => new File(u.toURI)).filter(_.exists())
+    ).asInstanceOf[ILoopWrapper]
     
     inst.init()
     inst
