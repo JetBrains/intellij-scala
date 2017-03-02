@@ -514,20 +514,41 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
 
   def visitParameters(modifiers: IntermediateNode, name: IntermediateNode,
                       scCompType: IntermediateNode, isVar: Option[Boolean], isArray: Boolean): Any = {
+    //used in catch clauses cathce(TypeA | TypeB e)
+    def visitDisjunctionType(disjunctionTypeConstructions: DisjunctionTypeConstructions): Unit = {
+      visit(name)
+      printer.append("@(")
+
+      disjunctionTypeConstructions.parts.foreach{ `type` =>
+        printer.append("_: ")
+        visit(`type`)
+        printer.append(" | ")
+      }
+
+      printer.delete(3)
+
+      printer.append(")")
+    }
+
     visit(modifiers)
     if (isVar.isDefined) {
       if (isVar.get) printer.append("var ")
       else printer.append("val ")
     }
-    visit(name)
 
-    if (!scCompType.isInstanceOf[EmptyConstruction]) {
-      printer.append(": ")
-      visit(scCompType)
-    }
+    scCompType match {
+      case disjuncit: DisjunctionTypeConstructions => visitDisjunctionType(disjuncit)
+      case _ =>
+        visit(name)
 
-    if (isArray) {
-      printer.append("*")
+        if (!scCompType.isInstanceOf[EmptyConstruction]) {
+          printer.append(": ")
+          visit(scCompType)
+        }
+
+        if (isArray) {
+          printer.append("*")
+        }
     }
   }
 
@@ -622,15 +643,15 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       printer.append(")")
       printer.space()
       printBodyWithCurlyBracketes(w, () => {
-              body.foreach { b =>
-                printBodyWithCurlyBracketes(b, () => visit(b))
-              }
+        body.foreach { b =>
+          visit(b)
+        }
 
-              update.foreach { u =>
-                printer.newLine()
-                printBodyWithCurlyBracketes(u, () => visit(u))
-              }
-            })
+        update.foreach { u =>
+          printer.newLine()
+          visit(u)
+        }
+      })
     }
 
     initialization.foreach { i =>
@@ -661,6 +682,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
         printer.append("case ")
         visit(parameter)
         printer.append(s" $arrow ")
+        printer.newLine()
         visit(block)
       }
       printer.append("}")

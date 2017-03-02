@@ -1,11 +1,10 @@
-public class TestJava {
+public class TryMultipleCatch {
     public static void main(String[] args) {
         /*start*/
         try {
-        } catch (ClassCastException e) {
+        } catch (ClassCastException | RuntimeException e) {
             System.out.println(e.getMessage);
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage);
+            e.printStackTrace();
         } finally {
             System.out.println("c");
         }
@@ -17,9 +16,8 @@ public class TestJava {
 try {
 }
 catch {
-  case e: ClassCastException =>
+  case e@(_: ClassCastException | _: RuntimeException) =>
     System.out.println(e.getMessage)
-  case e: RuntimeException =>
-    System.out.println(e.getMessage)
+    e.printStackTrace()
 } finally System.out.println("c")
 */

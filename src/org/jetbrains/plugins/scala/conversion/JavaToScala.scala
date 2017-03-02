@@ -7,10 +7,10 @@ import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiLambdaExpression, _}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import com.intellij.psi.{PsiLambdaExpression, _}
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
@@ -100,6 +100,10 @@ object JavaToScala {
                                    textMode: Boolean = false): IntermediateNode = {
     Option(`type`).map {
       case _: PsiLambdaParameterType => EmptyConstruction()
+      case _: PsiDisjunctionType =>
+        DisjunctionTypeConstructions(
+          PsiTreeUtil.getChildrenOfType(psiElement, classOf[PsiTypeElement])
+            .map(t => convertTypePsiToIntermediate(t.getType, t, project)))
       case t =>
         val iNode = TypeConstruction.createIntermediateTypePresentation(t, project)
         handleAssociations(psiElement, iNode)
@@ -445,7 +449,8 @@ object JavaToScala {
         }
         val tryBlock = Option(t.getTryBlock).map((c: PsiCodeBlock) => convertPsiToIntermdeiate(c, externalProperties))
         val catches = t.getCatchSections.map((cb: PsiCatchSection) =>
-          (convertPsiToIntermdeiate(cb.getParameter, externalProperties), convertPsiToIntermdeiate(cb.getCatchBlock, externalProperties)))
+          (convertPsiToIntermdeiate(cb.getParameter, externalProperties),
+            convertPsiToIntermdeiate(cb.getCatchBlock, externalProperties)))
         val finallys = Option(t.getFinallyBlock).map((f: PsiCodeBlock) => f.getStatements.map(convertPsiToIntermdeiate(_, externalProperties)).toSeq)
         TryCatchStatement(resourcesVariables, tryBlock, catches, finallys, ScalaPsiUtil.functionArrow(t.getProject))
       case p: PsiPrefixExpression =>
@@ -517,6 +522,10 @@ object JavaToScala {
   implicit def psiToOptTextRange(psiElement: PsiElement): Option[TextRange] = {
     Option(psiElement).map(_.getTextRange)
   }
+
+//  implicit def typeToOptTextRange(psiType: PsiType): Option[TextRange] = {
+//    Option(psiType).map(_.)
+//  }
 
   val fieldParameterMap = new mutable.HashMap[String, String]()
 

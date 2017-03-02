@@ -35,5 +35,7 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testTryCatch(): Unit = doTest()
 
+  def testTryMultipleCatch(): Unit = doTest()
+
   def testWithComments() = doTest()
 }

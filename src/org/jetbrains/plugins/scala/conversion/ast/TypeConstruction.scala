@@ -81,6 +81,10 @@ case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode w
     iNode.asInstanceOf[TypedElement].getType
 }
 
+case class DisjunctionTypeConstructions(parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
+  override def getType: TypeConstruction = this.asInstanceOf[TypeConstruction]
+}
+
 case class TypeParameterConstruction(name: IntermediateNode, typez: Seq[IntermediateNode]) extends IntermediateNode
 
 case class TypeParameters(data: Seq[IntermediateNode]) extends IntermediateNode
