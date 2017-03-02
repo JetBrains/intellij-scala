@@ -514,19 +514,17 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
 
   def visitParameters(modifiers: IntermediateNode, name: IntermediateNode,
                       scCompType: IntermediateNode, isVar: Option[Boolean], isArray: Boolean): Any = {
-    //used in catch clauses cathce(TypeA | TypeB e)
     def visitDisjunctionType(disjunctionTypeConstructions: DisjunctionTypeConstructions): Unit = {
       visit(name)
       printer.append("@(")
 
-      disjunctionTypeConstructions.parts.foreach{ `type` =>
+      disjunctionTypeConstructions.parts.foreach { `type` =>
         printer.append("_: ")
         visit(`type`)
         printer.append(" | ")
       }
 
       printer.delete(3)
-
       printer.append(")")
     }
 

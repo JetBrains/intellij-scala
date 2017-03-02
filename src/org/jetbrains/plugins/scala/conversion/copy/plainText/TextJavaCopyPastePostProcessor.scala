@@ -29,12 +29,18 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
   }
 
   override protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
-    if (!content.isDataFlavorSupported(ConverterUtil.ConvertedCode.Flavor) && content.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+    def copyInsideIde: Boolean =
+      content
+        .getTransferDataFlavors
+        .exists { flavor =>
+          classOf[TextBlockTransferableData]
+            .isAssignableFrom(flavor.getRepresentationClass)
+        }
+
+    if (content.isDataFlavorSupported(DataFlavor.stringFlavor) && !copyInsideIde) {
       val text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
       new ConverterUtil.ConvertedCode(text, Array.empty[Association], false)
-    } else {
-      null
-    }
+    } else null
   }
 
   override protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,

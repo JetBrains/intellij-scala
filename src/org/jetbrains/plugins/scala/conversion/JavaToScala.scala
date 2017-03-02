@@ -523,10 +523,6 @@ object JavaToScala {
     Option(psiElement).map(_.getTextRange)
   }
 
-//  implicit def typeToOptTextRange(psiType: PsiType): Option[TextRange] = {
-//    Option(psiType).map(_.)
-//  }
-
   val fieldParameterMap = new mutable.HashMap[String, String]()
 
   def createClass(inClass: PsiClass, externalProperties: ExternalProperties)
