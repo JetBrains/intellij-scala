@@ -166,7 +166,8 @@ trait IntegrationTest {
 
     semaphore.waitFor()
 
-    assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
+    assert(testTreeRoot.isDefined)
+    assert(testTreeCheck(testTreeRoot.get))
 
     if (checkOutputs) {
       assert(res == expectedText)
