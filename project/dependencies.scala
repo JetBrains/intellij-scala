@@ -46,6 +46,7 @@ object Dependencies {
   val bundledJline: ModuleID = "org.jetbrains" % "jline" % "1.0.0"
   val incrementalCompiler: ModuleID = "org.jetbrains" % "incremental-compiler" % "1.0.0"
   val sbtInterface: ModuleID = "org.jetbrains" % "sbt-interface" % "1.0.0"
+  val dottyInterface: ModuleID = "ch.epfl.lamp" % "dotty-interfaces" % "0.1.1-20170227-179a5d6-NIGHTLY"
 }
 
 object DependencyGroups {

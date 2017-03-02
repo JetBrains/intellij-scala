@@ -65,8 +65,7 @@ lazy val jpsPlugin =
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
-    libraryDependencies ++= Seq(Dependencies.nailgun) ++ DependencyGroups.sbtBundled,
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "dotty")
+    libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.dottyInterface) ++ DependencyGroups.sbtBundled
   )
 
 lazy val compilerSettings =
@@ -243,9 +242,9 @@ lazy val pluginPackagerCommunity =
           "lib/jps/sbt-interface.jar"),
         Library(Dependencies.bundledJline,
           "lib/jps/jline.jar"),
-        Directory(sdkDirectory.value / "dotty",
-          "lib/jps"),
-        Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ), 
+        Library(Dependencies.dottyInterface,
+          "lib/jps/dotty-intefaces.jar"),
+        Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ),
           "lib/jps/repl-interface-sources.jar")
       )
       val launcher = Seq(
@@ -317,7 +316,7 @@ lazy val packILoopWrapper = taskKey[Unit]("Packs in repl-interface-sources.jar r
 
 packILoopWrapper := {
   val fn = iLoopWrapperPath.value
-  
-  IO.zip(Seq((fn, fn.getName)), 
+
+  IO.zip(Seq((fn, fn.getName)),
     baseDirectory.in(BuildRef(file(".").toURI)).value / "out" / "plugin" / "Scala" / "lib" / "jps" / "repl-interface-sources.jar")
 }

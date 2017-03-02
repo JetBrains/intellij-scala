@@ -46,6 +46,7 @@ object Artifact {
     ScalaReflect,
     DottyCompiler,
     DottyInterfaces,
+    DottyLibrary,
     JLine
   )
 
@@ -82,7 +83,9 @@ object Artifact {
 
   // Dotty
 
-  case object DottyCompiler extends Artifact("dotty_2.11")
+  case object DottyCompiler extends Artifact("dotty-compiler_2.11")
+
+  case object DottyLibrary extends Artifact("dotty-library_2.11")
 
   case object DottyInterfaces extends Artifact("dotty-interfaces")
 

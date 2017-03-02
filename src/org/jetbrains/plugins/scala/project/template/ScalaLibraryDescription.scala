@@ -13,10 +13,11 @@ import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContaine
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.VfsUtilCore.virtualToIoFile
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.project.template.Artifact._
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author Pavel Fatin
@@ -99,9 +100,9 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     val scalaFiles = (root / "cache" / "org.scala-lang").allFiles
 
     val dottyFiles = scalaFiles ++
-      (root / "cache" / "me.d-d").allFiles ++
-      (root / "cache" / "jline").allFiles :+
-      CompileServerLauncher.dottyInterfacesJar
+      (root / "cache" / "me.d-d" / "scala-compiler" / "jars").allFiles ++
+      (root / "cache" / "ch.epfl.lamp").allFiles ++
+      (root / "cache" / "jline").allFiles
 
     scalaSdksIn(scalaFiles) ++ dottySdksIn(dottyFiles)
   }
@@ -115,22 +116,34 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   }
 
   private def dottySdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
-    val components = Component.discoverIn(files, Artifact.DottyArtifacts)
-      .filter(isDottyComponent)
+    val allComponents = Component.discoverIn(files, Artifact.DottyArtifacts)
+    val patchedCompilers = allComponents.collect {
+      case c @ Component(ScalaCompiler, _, _, file) if file.getAbsolutePath.contains("me.d-d") => c //patched scalac
+    }
+    val scalaCompiler =
+      if (patchedCompilers.isEmpty) return Nil
+      else patchedCompilers.maxBy(_.version)
 
-    ScalaSdkDescriptor.from(components).right.toSeq
-  }
-
-  private[this] def isDottyComponent(component: Component): Boolean = {
-    (component.artifact, component.version) match {
-      case (ScalaLibrary | ScalaReflect, Some(Version("2.11.5"))) => true
-      case (ScalaCompiler, Some(Version("2.11.5-20151022-113908-7fb0e653fd"))) => true
-      case (DottyCompiler, Some(Version("0.1-SNAPSHOT"))) => true
-      case (JLine, Some(Version("2.12"))) => true
-      case (DottyInterfaces, _) => true
-      case _ => false
+    val dottyComponents: mutable.HashMap[Version, Seq[Component]] = mutable.HashMap.empty
+    val other = ArrayBuffer[Component]()
+    for {
+      component <- allComponents
+      ver <- component.version
+    } {
+      component.artifact match {
+        case ScalaLibrary | ScalaReflect if ver == Version("2.11.5") => other += component
+        case JLine if ver == Version("2.12") => other += component
+        case DottyInterfaces | DottyCompiler | DottyLibrary => dottyComponents.update(ver, component +: dottyComponents.getOrElse(ver, Nil))
+        case _ =>
+      }
+    }
+    dottyComponents.values.toSeq.map { dc =>
+      ScalaSdkDescriptor.from(scalaCompiler +: other ++: dc)
+    }.collect {
+      case Right(sdk) => sdk
     }
   }
+
 }
 
 case class SdkChoice(sdk: ScalaSdkDescriptor, source: String)

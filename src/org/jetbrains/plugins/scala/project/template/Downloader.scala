@@ -59,8 +59,7 @@ object Downloader {
       "updateClassifiers")
 
     case Platform.Dotty => Seq(
-      """set resolvers := Seq("JFrog OSS Snapshots" at "https://oss.jfrog.org/artifactory/oss-snapshot-local")""",
-      """set libraryDependencies := Seq("me.d-d" % "dotty_2.11" % "0.1-SNAPSHOT")""",
+      s"""set libraryDependencies := Seq("ch.epfl.lamp" % "dotty_2.11" % "$version" % "scala-tool")""",
       "updateClassifiers")
   }
 }

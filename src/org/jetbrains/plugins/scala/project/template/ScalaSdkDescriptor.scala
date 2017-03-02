@@ -88,8 +88,12 @@ object ScalaSdkDescriptor {
       val librarySources = sourceComponents.filter(it => libraryArtifacts.contains(it.artifact))
       val libraryDocs = docComponents.filter(it => libraryArtifacts.contains(it.artifact))
 
-      val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary)
-        .flatMap(_.version)
+      val libraryVersion = platform match {
+        case Dotty =>
+          binaryComponents.find(_.artifact == DottyCompiler).flatMap(_.version)
+        case _ =>
+          binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version)
+      }
 
       val descriptor = ScalaSdkDescriptor(
         platform,
@@ -109,7 +113,7 @@ object ScalaSdkDescriptor {
                                       (implicit platform: Platform): Set[Artifact] =
     Set(ScalaLibrary, ScalaCompiler) ++ (platform match {
       case Scala if reflectRequired => Set(ScalaReflect)
-      case Dotty => Set(ScalaReflect, DottyCompiler, DottyInterfaces, JLine)
+      case Dotty => Set(ScalaReflect, DottyCompiler, DottyInterfaces, DottyLibrary, JLine)
       case _ => Set.empty[Artifact]
     })
 
