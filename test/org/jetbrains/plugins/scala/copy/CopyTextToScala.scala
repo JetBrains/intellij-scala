@@ -20,9 +20,15 @@ class CopyTextToScala extends CopyTestBase() {
   }
 
   def testWrapWithFunction(): Unit ={
-    val fromText = "<selection>assert true : \"Invocation of 'paste' operation for specific caret is not supported\";</selection>"
+    val fromText =
+      """
+        |<selection>assert true : "Invocation of 'paste' operation for specific caret is not supported";</selection>
+      """.stripMargin
 
-    val expected = "assert(true, \"Invocation of 'paste' operation for specific caret is not supported\")"
+    val expected =
+      """
+        |assert(true, "Invocation of 'paste' operation for specific caret is not supported)"
+      """.stripMargin
     doTestEmptyToFile(fromText, expected)
   }
 
@@ -35,7 +41,7 @@ class CopyTextToScala extends CopyTestBase() {
       """.stripMargin
 
     val expected =
-      """def doExecute() {
+      """def doExecute(): Unit = {
         |  assert(true, "Invocation of 'paste' operation for specific caret is not supported")
         |}""".stripMargin
 
@@ -84,7 +90,7 @@ class CopyTextToScala extends CopyTestBase() {
 
     val expected =
       """object Test {
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
         |    System.out.println("hello")
         |    System.out.println(" how are you?")
         |  }
@@ -116,7 +122,7 @@ class CopyTextToScala extends CopyTestBase() {
 
 
     val expected =
-      """def main(args: Array[String]) {
+      """def main(args: Array[String]): Unit = {
         |  System.out.println("hello")
         |  System.out.println(" how are you?")
         |}""".stripMargin

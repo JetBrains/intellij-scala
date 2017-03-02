@@ -5,6 +5,7 @@ import java.lang.Boolean
 
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
@@ -30,7 +31,8 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
   override protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
     def copyInsideIde: Boolean =
-      content
+      if (ApplicationManager.getApplication.isUnitTestMode) false
+      else content
         .getTransferDataFlavors
         .exists { flavor =>
           classOf[TextBlockTransferableData]
