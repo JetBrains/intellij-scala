@@ -121,18 +121,16 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     ScalaSdkDescriptor.from(components).right.toSeq
   }
 
-  private[this] def isDottyComponent(component: Component): Boolean =
-    component.version
-      .map((component.artifact, _))
-      .exists {
-        case (ScalaLibrary | ScalaReflect, Version("2.11.5")) => true
-        case (ScalaCompiler, Version("2.11.5-20151022-113908-7fb0e653fd")) => true
-        case (DottyCompiler, Version("0.1-SNAPSHOT")) => true
-        case (JLine, Version("2.12")) => true
-        case (DottyInterfaces, _) => true
-        case _ => false
-      }
-
+  private[this] def isDottyComponent(component: Component): Boolean = {
+    (component.artifact, component.version) match {
+      case (ScalaLibrary | ScalaReflect, Some(Version("2.11.5"))) => true
+      case (ScalaCompiler, Some(Version("2.11.5-20151022-113908-7fb0e653fd"))) => true
+      case (DottyCompiler, Some(Version("0.1-SNAPSHOT"))) => true
+      case (JLine, Some(Version("2.12"))) => true
+      case (DottyInterfaces, _) => true
+      case _ => false
+    }
+  }
 }
 
 case class SdkChoice(sdk: ScalaSdkDescriptor, source: String)
