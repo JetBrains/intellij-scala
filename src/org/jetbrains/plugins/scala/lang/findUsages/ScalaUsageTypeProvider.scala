@@ -3,12 +3,12 @@ package lang
 package findUsages
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.isAncestor
+import com.intellij.usages.impl.rules.UsageType._
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, getParentOfType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScReferenceElement}
@@ -25,127 +25,44 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.language.implicitConversions
 
 final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
-  def getUsageType(element: PsiElement): UsageType = getUsageType(element, null)
 
-  def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType = {
-    import ScalaUsageTypeProvider._
-    import UsageType._
+  import ScalaUsageTypeProvider._
 
-    def isAncestor(parent: PsiElement): Boolean = PsiTreeUtil.isAncestor(parent, element, false)
+  def getUsageType(element: PsiElement): UsageType =
+    getUsageType(element, UsageTarget.EMPTY_ARRAY)
 
-    def isSomeAncestor(parent: Option[PsiElement]): Boolean = parent.exists(PsiTreeUtil.isAncestor(_, element, false))
-
-    def typeArgsUsageType(ta: ScTypeArgs) = ta match {
-      case ChildOf(ScGenericCall(ref: ScReferenceExpression, Seq(_))) =>
-        ref.refName match {
-          case "isInstanceOf" => CLASS_INSTANCE_OF
-          case "asInstanceOf" => CLASS_CAST_TO
-          case "classOf" => CLASS_CLASS_OBJECT_ACCESS
-          case _ => TYPE_PARAMETER
-        }
-      case _ => TYPE_PARAMETER
-    }
-
-    def templateParentsUsageType(tp: ScTemplateParents) = {
-      ScalaPsiUtil.getParentOfType(tp, classOf[ScTemplateDefinition], classOf[ScAnnotation]) match {
-        case newTd: ScNewTemplateDefinition =>
-          if (newTd.extendsBlock.isAnonymousClass) Some(CLASS_ANONYMOUS_NEW_OPERATOR)
-          else Some(CLASS_NEW_OPERATOR)
-        case _: ScTemplateDefinition => Some(CLASS_EXTENDS_IMPLEMENTS_LIST)
-        case _ => None
-      }
-    }
-
-    def refExprUsage(ref: ScReferenceExpression) = {
-      val rr = ref.bind().map(srr => srr.innerResolveResult.getOrElse(srr))
-
-      rr match {
-        case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "apply" && ref.refName != "apply" => Some(methodApply)
-        case Some(ScalaResolveResult(fun: ScFunctionDefinition, _)) if isAncestor(fun) => Some(RECURSION)
-        case _ => None
-      }
-    }
-
-    def forType(te: ScTypeElement): Option[UsageType] = {
-      te.getParent match {
-        case f: ScFunction if f.returnTypeElement.contains(te) => Some(CLASS_METHOD_RETURN_TYPE)
-        case v: ScValue if v.typeElement.contains(te) => Some(if (v.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION)
-        case v: ScVariable if v.typeElement.contains(te) => Some(if (v.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION)
-        case cp: ScClassParameter if cp.isEffectiveVal && cp.typeElement.contains(te) => Some(CLASS_FIELD_DECLARATION)
-        case ts: ScTypedStmt if ts.typeElement.contains(te) => Some(typedStatement)
-        case _: ScSelfTypeElement => Some(selfType)
-        case _: ScTypeAliasDeclaration | _: ScTypeParam => Some(typeBound)
-        case _: ScTypeAliasDefinition => Some(typeAlias)
-        case _ => None
-      }
-    }
-
-    def forPattern(pattern: ScPattern): Option[UsageType] = {
-      PsiTreeUtil.getParentOfType(pattern, classOf[ScCatchBlock]) match {
-        case null =>
-        case ScCatchBlock(clauses) if clauses.caseClauses.flatMap(_.pattern).exists(isAncestor) => return Some(CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION)
-        case _ =>
-      }
-      pattern match {
-        case ScTypedPattern(te) if isAncestor(te) => Some(classTypedPattern)
-        case _: ScConstructorPattern | _: ScInfixPattern => Some(extractor)
-        case _ => None
-      }
-    }
-
-    def usageType(parent: PsiElement): Option[UsageType] = {
-      parent match {
-        case _: ScImportExpr => Some(CLASS_IMPORT)
-        case ta: ScTypeArgs => Some(typeArgsUsageType(ta))
-        case tp: ScTemplateParents => templateParentsUsageType(tp)
-        case param: ScParameter if isAncestor(param) => Some(CLASS_METHOD_PARAMETER_DECLARATION)
-        case p: ScPattern => forPattern(p)
-        case te: ScTypeElement => forType(te)
-        case _: ScInterpolatedStringPartReference => Some(prefixInterpolatedString)
-        case ref: ScReferenceExpression => refExprUsage(ref)
-        case a: ScAnnotationExpr if isSomeAncestor(a.constr.reference) => Some(ANNOTATION)
-        case t: ScThisReference if isSomeAncestor(t.reference) => Some(thisReference)
-        case s: ScSuperReference if isSomeAncestor(s.reference) => Some(DELEGATE_TO_SUPER)
-        case _: ScAccessModifier => Some(accessModifier)
-        case p: ScPackaging if isSomeAncestor(p.reference) => Some(packageClause)
-        case assign: ScAssignStmt if isAncestor(assign.getLExpression) =>
-          if (assign.isNamedParameter) Some(namedParameter)
-          else Some(WRITE)
-        case MethodValue(_) => Some(functionExpression)
-        case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => Some(READ)
-        case si: ScSelfInvocation if !isAncestor(si.args.orNull) => Some(secondaryConstructor)
-        case _ => None
-      }
-    }
-
-    if (element.containingScalaFile.isDefined) {
-
-      /** Classify an element found by [[org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher]] */
+  // TODO more of these, including Scala specific: case class/object, pattern match, type ascription, ...
+  def getUsageType(element: PsiElement, targets: Array[UsageTarget]): UsageType =
+    element.containingScalaFile.flatMap { _ =>
       (element, targets) match {
-        case (ref: ScReferenceElement, Array(only: PsiElementUsageTarget)) =>
-          def isConstructorPatternParam(elem: PsiElement) = elem match {
-            case bp: ScBindingPattern if PsiTreeUtil.getParentOfType(bp, classOf[ScConstructorPattern], classOf[ScInfixPattern]) != null => true
-            case _ => false
-          }
-
-          if (isConstructorPatternParam(ref.resolve()) && !ref.isReferenceTo(only.getElement)) {
-            return parameterInPattern
-          }
+        case (referenceElement: ScReferenceElement, Array(only: PsiElementUsageTarget))
+          if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
+          Some(parameterInPattern)
         case _ =>
+          element.withParentsInFile
+            .flatMap(usageType)
+            .headOption
       }
-
-      val result = element.withParentsInFile.flatMap(usageType).headOption
-
-      result.orNull
-
-      // TODO more of these, including Scala specific: case class/object, pattern match, type ascription, ...
-
-    } else null
-  }
+    }.orNull
 }
 
 object ScalaUsageTypeProvider {
-  private implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
+
+  def referenceExpressionUsageType(expression: ScReferenceExpression): UsageType = {
+    def resolvedElement(result: ScalaResolveResult) =
+      result.innerResolveResult
+        .getOrElse(result).element
+
+    import ScFunction.Name.Apply
+    expression.bind()
+      .map(resolvedElement)
+      .collect {
+        case function: ScFunction if function.name == Apply && expression.refName != Apply => methodApply
+        case definition: ScFunctionDefinition if isAncestor(definition, expression, false) => RECURSION
+      }.orNull
+  }
+
+  implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
 
   val extractor: UsageType = "Extractor"
   val classTypedPattern: UsageType = "Typed Pattern"
@@ -162,4 +79,91 @@ object ScalaUsageTypeProvider {
   val typeBound: UsageType = "Type bound"
   val typeAlias: UsageType = "Type alias"
   val secondaryConstructor: UsageType = "Secondary constructor"
+
+  private def usageType(element: PsiElement): Option[UsageType] =
+    Option(nullableUsageType(element))
+
+  private def isConstructorPatternReference(element: ScReferenceElement): Boolean = element.resolve() match {
+    case pattern: ScBindingPattern => getParentOfType(pattern, classOf[ScConstructorPattern], classOf[ScInfixPattern]) != null
+    case _ => false
+  }
+
+  private[this] def nullableUsageType(element: PsiElement): UsageType = {
+    def isAppropriate(parent: PsiElement): Boolean = isAncestor(parent, element, false)
+
+    def existsAppropriate(maybeParent: Option[PsiElement]): Boolean = maybeParent.exists(isAppropriate)
+
+    element match {
+      case _: ScImportExpr => CLASS_IMPORT
+      case typeArgs: ScTypeArgs => typeArgsUsageType(typeArgs)
+      case templateParents: ScTemplateParents => templateParentsUsageType(templateParents)
+      case parameter: ScParameter if isAppropriate(parameter) => CLASS_METHOD_PARAMETER_DECLARATION
+      case pattern: ScPattern => forPattern(pattern)
+      case typeElement: ScTypeElement => typeUsageType(typeElement)
+      case _: ScInterpolatedStringPartReference => prefixInterpolatedString
+      case expression: ScReferenceExpression => referenceExpressionUsageType(expression)
+      case expression: ScAnnotationExpr if existsAppropriate(expression.constr.reference) => ANNOTATION
+      case reference: ScThisReference if existsAppropriate(reference.reference) => thisReference
+      case reference: ScSuperReference if existsAppropriate(reference.reference) => DELEGATE_TO_SUPER
+      case _: ScAccessModifier => accessModifier
+      case packaging: ScPackaging if existsAppropriate(packaging.reference) => packageClause
+      case assignment: ScAssignStmt if isAppropriate(assignment.getLExpression) =>
+        if (assignment.isNamedParameter) namedParameter else WRITE
+      case MethodValue(_) => functionExpression
+      case _: ScBlock | _: ScTemplateBody | _: ScEarlyDefinitions => READ
+      case invocation: ScSelfInvocation if !isAppropriate(invocation.args.orNull) => secondaryConstructor
+      case _ => null
+    }
+  }
+
+  private[this] def typeArgsUsageType(typeArguments: ScTypeArgs): UsageType =
+    Option(typeArguments.getParent).collect {
+      case ScGenericCall(reference: ScReferenceExpression, Seq(_)) => reference.refName
+    }.collect {
+      case "isInstanceOf" => CLASS_INSTANCE_OF
+      case "asInstanceOf" => CLASS_CAST_TO
+      case "classOf" => CLASS_CLASS_OBJECT_ACCESS
+    }.getOrElse(TYPE_PARAMETER)
+
+  private[this] def templateParentsUsageType(tp: ScTemplateParents): UsageType =
+    getParentOfType(tp, classOf[ScTemplateDefinition], classOf[ScAnnotation]) match {
+      case templateDefinition: ScNewTemplateDefinition =>
+        if (templateDefinition.extendsBlock.isAnonymousClass) CLASS_ANONYMOUS_NEW_OPERATOR else CLASS_NEW_OPERATOR
+      case _: ScTemplateDefinition => CLASS_EXTENDS_IMPLEMENTS_LIST
+      case _ => null
+    }
+
+  private[this] def forPattern(pattern: ScPattern): UsageType =
+    Option(getParentOfType(pattern, classOf[ScCatchBlock]))
+      .collect {
+        case ScCatchBlock(clauses) => clauses
+      }
+      .filter(_.caseClauses.flatMap(_.pattern).exists(isAncestor(_, pattern, false)))
+      .map(_ => CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION)
+      .getOrElse {
+        pattern match {
+          case ScTypedPattern(typeElement) if isAncestor(typeElement, pattern, false) => classTypedPattern
+          case _: ScConstructorPattern | _: ScInfixPattern => extractor
+          case _ => null
+        }
+      }
+
+  private[this] def typeUsageType(typeElement: ScTypeElement): UsageType = {
+    def isAppropriate(maybeTypeElement: Option[ScTypeElement]) = maybeTypeElement.contains(typeElement)
+
+    typeElement.getParent match {
+      case function: ScFunction if isAppropriate(function.returnTypeElement) =>
+        CLASS_METHOD_RETURN_TYPE
+      case valueOrVariable: ScValueOrVariable if isAppropriate(valueOrVariable.typeElement) =>
+        if (valueOrVariable.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION
+      case classParameter: ScClassParameter if isAppropriate(classParameter.typeElement) && classParameter.isEffectiveVal =>
+        CLASS_FIELD_DECLARATION
+      case typedStmt: ScTypedStmt if isAppropriate(typedStmt.typeElement) =>
+        typedStatement
+      case _: ScSelfTypeElement => selfType
+      case _: ScTypeAliasDeclaration | _: ScTypeParam => typeBound
+      case _: ScTypeAliasDefinition => typeAlias
+      case _ => null
+    }
+  }
 }
