@@ -3,10 +3,12 @@ package worksheet.processor
 
 import java.io.File
 
+import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.compiler.progress.CompilerTask
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -71,6 +73,10 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
         }
       }
     }, EMPTY_RUNNABLE)
+    
+    if (shouldShowReplWarning(worksheetFile)) task.addMessage(
+      new CompilerMessageImpl(project, CompilerMessageCategory.WARNING, "Worksheet can be executed in REPL mode only in compile server process.")
+    ) 
   }
   
   private def runDumbTask(task: CompilerTask, printer: WorksheetEditorPrinterBase, 
@@ -145,7 +151,9 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     setEnabled(file, MAKE_BEFORE_RUN, isMake)
   }
 
-  def isWorksheetReplMode(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE)
+  def isWorksheetReplMode(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) == InProcessServer
+  
+  def shouldShowReplWarning(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) != InProcessServer
 
   def setWorksheetReplMode(file: PsiFile, isRepl: Boolean): Unit = {
     setEnabled(file, IS_WORKSHEET_REPL_MODE, isRepl)
