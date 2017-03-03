@@ -40,7 +40,7 @@ object ScalaLanguageLevel {
   def from(proxy: ScalaLanguageLevelProxy): ScalaLanguageLevel = ProxyToLevel(proxy)
 
   def from(version: Version): Option[ScalaLanguageLevel] =
-    ScalaLanguageLevel.Values.find(it => version.number.startsWith(it.version))
+    ScalaLanguageLevel.Values.find(it => version.versionString.startsWith(it.version))
 
   object Snapshot extends ScalaLanguageLevel(0, "SNAPSHOT")
 

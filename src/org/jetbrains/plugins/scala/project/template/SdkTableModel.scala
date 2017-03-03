@@ -21,7 +21,7 @@ class SdkTableModel extends ListTableModel[SdkChoice](
     override def getPreferredStringValue = "Scala"
   },
   new ColumnInfo[SdkChoice, String]("Version") {
-    override def valueOf(item: SdkChoice): String = item.sdk.version.map(_.number).getOrElse("Unknown")
+    override def valueOf(item: SdkChoice): String = item.sdk.version.map(_.versionString).getOrElse("Unknown")
 
     override def getPreferredStringValue = "2.11.0"
   },

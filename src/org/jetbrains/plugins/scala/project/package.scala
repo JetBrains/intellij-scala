@@ -196,7 +196,7 @@ package object project {
     implicit def toLibrary(v: ScalaSdk): Library = v.library
 
     def documentationUrlFor(version: Option[Version]): String =
-      "http://www.scala-lang.org/api/" + version.map(_.number).getOrElse("current") + "/"
+      "http://www.scala-lang.org/api/" + version.map(_.versionString).getOrElse("current") + "/"
   }
 
   implicit class ProjectPsiElementExt(val element: PsiElement) extends AnyVal {

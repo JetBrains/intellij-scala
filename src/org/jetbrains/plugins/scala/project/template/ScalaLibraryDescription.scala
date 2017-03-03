@@ -100,7 +100,7 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     val scalaFiles = (root / "cache" / "org.scala-lang").allFiles
 
     val dottyFiles = scalaFiles ++
-      (root / "cache" / "me.d-d" / "scala-compiler" / "jars").allFiles ++
+      (root / "cache" / "me.d-d" / "scala-compiler").allFiles ++
       (root / "cache" / "ch.epfl.lamp").allFiles ++
       (root / "cache" / "jline").allFiles
 
@@ -116,31 +116,32 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   }
 
   private def dottySdksIn(files: Seq[File]): Seq[ScalaSdkDescriptor] = {
-    val allComponents = Component.discoverIn(files, Artifact.DottyArtifacts)
-    val patchedCompilers = allComponents.collect {
-      case c @ Component(ScalaCompiler, _, _, file) if file.getAbsolutePath.contains("me.d-d") => c //patched scalac
-    }
-    val scalaCompiler =
-      if (patchedCompilers.isEmpty) return Nil
-      else patchedCompilers.maxBy(_.version)
+    val components = Component.discoverIn(files, Artifact.DottyArtifacts)
 
-    val dottyComponents: mutable.HashMap[Version, Seq[Component]] = mutable.HashMap.empty
-    val other = ArrayBuffer[Component]()
-    for {
-      component <- allComponents
-      ver <- component.version
-    } {
-      component.artifact match {
-        case ScalaLibrary | ScalaReflect if ver == Version("2.11.5") => other += component
-        case JLine if ver == Version("2.12") => other += component
-        case DottyInterfaces | DottyCompiler | DottyLibrary => dottyComponents.update(ver, component +: dottyComponents.getOrElse(ver, Nil))
-        case _ =>
-      }
+    val patchedCompilers = components.filter {
+      case Component(ScalaCompiler, Kind.Binaries, _, file) if file.getAbsolutePath.contains("me.d-d") => true
+      case _ => false
     }
-    dottyComponents.values.toSeq.map { dc =>
-      ScalaSdkDescriptor.from(scalaCompiler +: other ++: dc)
-    }.collect {
-      case Right(sdk) => sdk
+
+    if (patchedCompilers.isEmpty) Seq.empty
+    else {
+      val compilerComponent = patchedCompilers.maxBy(_.version)
+
+      val dottyComponents = components.filter {
+        case Component(DottyInterfaces | DottyCompiler | DottyLibrary, _, Some(_), _) => true
+        case _ => false
+      }
+
+      val otherComponents = components.filter {
+        case Component(ScalaLibrary | ScalaReflect, _, Some(Version("2.11.5")), _) => true
+        case Component(JLine, _, Some(Version("2.12")), _) => true
+        case _ => false
+      }
+
+      dottyComponents.groupBy(_.version).values
+        .map(components => ScalaSdkDescriptor.from(components ++ otherComponents :+ compilerComponent))
+        .flatMap(_.right.toSeq)
+        .toSeq
     }
   }
 

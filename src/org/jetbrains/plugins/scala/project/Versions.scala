@@ -32,7 +32,7 @@ object Versions  {
       .map(Version(_))
       .filter(_ >= entity.minVersion)
       .sortWith(_ >= _)
-      .map(_.number)
+      .map(_.versionString)
       .toArray
   }
 
