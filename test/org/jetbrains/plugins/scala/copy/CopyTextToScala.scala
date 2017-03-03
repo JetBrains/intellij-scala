@@ -27,7 +27,7 @@ class CopyTextToScala extends CopyTestBase() {
 
     val expected =
       """
-        |assert(true, "Invocation of 'paste' operation for specific caret is not supported)"
+        |assert(true, "Invocation of 'paste' operation for specific caret is not supported")
       """.stripMargin
     doTestEmptyToFile(fromText, expected)
   }
