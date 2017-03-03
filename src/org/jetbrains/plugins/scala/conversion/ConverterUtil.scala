@@ -135,7 +135,7 @@ object ConverterUtil {
 
     val parentAtOffset =
       Option(javaFile.findElementAt(startOffset))
-        .map(_.parents)
+        .map(e => Iterator(e) ++ e.parentsInFile)
         .getOrElse(Iterator.empty)
         .dropWhile(parentIsValid)
 

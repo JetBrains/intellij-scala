@@ -48,6 +48,24 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
+  def testWrapWithClass2(): Unit = {
+    val fromText =
+      """
+        |<selection>int i = 6;
+        |boolean a = false;
+        |String s = "false";</selection>
+      """.stripMargin
+
+    val expected =
+      """
+        |val i: Int = 6
+        |val a: Boolean = false
+        |val s: String = "false"
+      """.stripMargin
+
+    doTestEmptyToFile(fromText, expected)
+  }
+
   def testAsFile(): Unit ={
     val fromText =
       """
