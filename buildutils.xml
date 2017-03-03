@@ -81,7 +81,24 @@
         </move>
     </target>
 
+    <target name="rename.dotty-interfaces">
+        <move todir="out/plugin/Scala/lib/jps">
+            <fileset dir="out/plugin/Scala/lib/jps">
+                <include name="dotty-interfaces*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="dotty-interfaces.jar"/>
+        </move>
+    </target>
+
     <target name="idea.postbuild"
-            depends="rename.scala.library,rename.sbt.structure.0.12,rename.sbt.structure.0.13,rename.sbt.launch,
-            rename.compiler-interface-sources,rename.incremental-compiler,rename.sbt-interface,rename.jline,rename.nailgun"/>
+            depends="rename.scala.library,
+                     rename.sbt.structure.0.12,
+                     rename.sbt.structure.0.13,
+                     rename.sbt.launch,
+                     rename.compiler-interface-sources,
+                     rename.incremental-compiler,
+                     rename.sbt-interface,
+                     rename.jline,
+                     rename.nailgun,
+                     rename.dotty-interfaces"/>
 </project>

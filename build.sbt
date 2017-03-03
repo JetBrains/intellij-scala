@@ -243,7 +243,7 @@ lazy val pluginPackagerCommunity =
         Library(Dependencies.bundledJline,
           "lib/jps/jline.jar"),
         Library(Dependencies.dottyInterface,
-          "lib/jps/dotty-intefaces.jar"),
+          "lib/jps/dotty-interfaces.jar"),
         Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ),
           "lib/jps/repl-interface-sources.jar")
       )
