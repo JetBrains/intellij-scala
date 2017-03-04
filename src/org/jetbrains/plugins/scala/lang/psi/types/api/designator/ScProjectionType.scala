@@ -100,14 +100,8 @@ class ScProjectionType private(val projected: ScType,
     case _ => None
   }
 
-  private var hash: Int = -1
-
-  //noinspection HashCodeUsesVar
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
-    }
-    hash
+  override lazy val hashCode: Int = {
+    projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
   }
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)

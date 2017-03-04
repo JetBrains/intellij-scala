@@ -101,13 +101,8 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
 
   override val name = nameAndId._1
 
-  private var hash: Int = -1
-
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = Seq(name, arguments, lowerType, upperType, psiTypeParameter).map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-    }
-    hash
+  override lazy val hashCode: Int = {
+    Seq(name, arguments, lowerType, upperType, psiTypeParameter).map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 
   def isInvariant: Boolean = psiTypeParameter match {
