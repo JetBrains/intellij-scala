@@ -52,6 +52,7 @@ class ILoopWrapperFactory {
         
         client.foreach(_.progress("Worksheet execution started"))
         out.println(REPL_START)
+        out.flush()
 
         val code = new String(Base64 decode replArgs.codeChunk, "UTF-8")
         val statements = code split Pattern.quote("\n$\n$\n")
