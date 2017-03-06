@@ -716,9 +716,11 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
   }
 
   def visitSwitchStatement(expession: Option[IntermediateNode], body: Option[IntermediateNode]): Unit = {
-    if (expession.isDefined) visit(expession.get)
+    expession.foreach(visit)
     printer.append(" match ")
-    if (body.isDefined) visit(body.get)
+    body.foreach { b =>
+      printBodyWithCurlyBracketes(b, () => visit(b))
+    }
   }
 
   def visitSwitchLabelStatement(caseValue: Option[IntermediateNode], arrow: String): PrettyPrinter = {

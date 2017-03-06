@@ -29,6 +29,8 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testPolyadic() = doTest()
 
+  def testSwitch() = doTest()
+
   def testToByteToInt() = doTest()
 
   def testTryWithResources(): Unit = doTest()
