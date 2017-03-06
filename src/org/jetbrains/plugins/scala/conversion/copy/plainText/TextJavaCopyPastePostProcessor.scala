@@ -31,13 +31,14 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
 
   override protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
     def copyInsideIde: Boolean =
-      if (ApplicationManager.getApplication.isUnitTestMode) false
-      else content
-        .getTransferDataFlavors
-        .exists { flavor =>
-          classOf[TextBlockTransferableData]
-            .isAssignableFrom(flavor.getRepresentationClass)
-        }
+      if (ApplicationManager.getApplication.isUnitTestMode && !TextJavaCopyPastePostProcessor.insideIde) false
+      else
+        content
+          .getTransferDataFlavors
+          .exists { flavor =>
+            classOf[TextBlockTransferableData]
+              .isAssignableFrom(flavor.getRepresentationClass)
+          }
 
     if (content.isDataFlavorSupported(DataFlavor.stringFlavor) && !copyInsideIde) {
       val text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
@@ -159,4 +160,9 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
     else if (asExpression.parseWithContextAsJava) Some(asExpression)
     else None
   }
+}
+
+object TextJavaCopyPastePostProcessor {
+  //use for tests only
+  var insideIde: Boolean = true
 }
