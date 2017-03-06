@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong
 import com.intellij.ProjectTopics
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker}
@@ -361,6 +362,8 @@ class ScalaPsiManager(val project: Project) {
         case _ =>
       }
 
+      ScalaPsiManager.LOG.debug(s"Clear caches on psi change: $event")
+
       CachesUtil.updateModificationCount(event.getParent)
       clearOnChange()
       val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
@@ -403,6 +406,8 @@ class ScalaPsiManager(val project: Project) {
 object ScalaPsiManager {
   val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
 
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
+
   def instance(project: Project): ScalaPsiManager = project.getComponent(classOf[ScalaPsiManagerComponent]).instance
 
   private def subscribeToRootsChange(project: Project) = {
@@ -410,6 +415,7 @@ object ScalaPsiManager {
       def beforeRootsChange(event: ModuleRootEvent) {}
 
       def rootsChanged(event: ModuleRootEvent) {
+        LOG.debug("Clear caches on root change")
         val manager = ScalaPsiManager.instance(project)
         manager.clearOnChange()
         manager.clearOnOutOfCodeBlockChange()
@@ -421,6 +427,7 @@ object ScalaPsiManager {
   private def registerLowMemoryWatcher(project: Project) = {
     LowMemoryWatcher.register(new Runnable {
       def run(): Unit = {
+        LOG.debug("Clear caches on low memory")
         val manager = ScalaPsiManager.instance(project)
         manager.clearOnLowMemory()
       }
