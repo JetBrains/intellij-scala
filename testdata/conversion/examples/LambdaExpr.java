@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /*start*/
-public class LambdaExpression {
+class LambdaExpression {
     public void main(String[] args) {
         List<Integer> integers = new ArrayList<Integer>();
         integers.forEach((Integer i) -> System.out.println(i));

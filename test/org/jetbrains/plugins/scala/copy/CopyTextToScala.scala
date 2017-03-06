@@ -1,11 +1,18 @@
 package org.jetbrains.plugins.scala.copy
 
+import org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor.insideIde
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
   * Created by Kate Ustuyzhanina on 12/28/16.
   */
 class CopyTextToScala extends CopyTestBase() {
+  override protected def doTest(fromText: String, toText: String, expectedText: String): Unit = {
+    insideIde = false
+    super.doTest(fromText, toText, expectedText)
+    insideIde = true
+  }
+
   override protected def setUp(): Unit = {
     super.setUp()
     ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
@@ -44,6 +51,24 @@ class CopyTextToScala extends CopyTestBase() {
       """def doExecute(): Unit = {
         |  assert(true, "Invocation of 'paste' operation for specific caret is not supported")
         |}""".stripMargin
+
+    doTestEmptyToFile(fromText, expected)
+  }
+
+  def testWrapWithClass2(): Unit = {
+    val fromText =
+      """
+        |<selection>int i = 6;
+        |boolean a = false;
+        |String s = "false";</selection>
+      """.stripMargin
+
+    val expected =
+      """
+        |val i: Int = 6
+        |val a: Boolean = false
+        |val s: String = "false"
+      """.stripMargin
 
     doTestEmptyToFile(fromText, expected)
   }
