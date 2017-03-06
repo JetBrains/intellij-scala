@@ -43,13 +43,13 @@ public class JavaSpecs2Runner {
     int i = 0;
     String[] newArgs  = TestRunnerUtil.getNewArgs(args);
     while (i < newArgs.length) {
-      if (newArgs[i].equals("-s")) {
+      if (newArgs[i].equals(TestRunnerUtil.specs2ClassKey)) {
         ++i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
           classes.add(newArgs[i]);
           ++i;
         }
-      } else if (newArgs[i].equals("-testName")) {
+      } else if (newArgs[i].equals(TestRunnerUtil.specs2TestNameKey)) {
         ++i;
         testName = TestRunnerUtil.unescapeTestName(newArgs[i]);
         ++i;
@@ -185,7 +185,7 @@ public class JavaSpecs2Runner {
     }
   }
 
-  static void runSpecs2_new(Object runnerArgsArray, JavaSpecs2Notifier notifier) {
+  private static void runSpecs2_new(Object runnerArgsArray, JavaSpecs2Notifier notifier) {
     runWithNotifierRunner(runnerArgsArray, true, notifier);
   }
 

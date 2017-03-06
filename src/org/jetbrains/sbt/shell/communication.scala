@@ -33,7 +33,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     * Queue an sbt command for execution in the sbt shell.
     */
   def command(cmd: String, eventHandler: EventHandler = _=>(), showShell: Boolean = true): Future[ProjectTaskResult] = {
-    val eventHandler: EventHandler = _ => ()
     val listener = new CommandListener(eventHandler)
     if (showShell) process.openShellRunner()
     initCommunication(process.acquireShellProcessHandler)

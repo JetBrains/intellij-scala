@@ -39,15 +39,18 @@ import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
+import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * @author Ksenia.Sautina
@@ -104,6 +107,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   def getWorkingDirectory: String = ExternalizablePath.localPathValue(workingDirectory)
 
+  def allowsSbtRun: Boolean = false
+
   def setTestClassPath(s: String) {
     testClassPath = s
   }
@@ -146,6 +151,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   var classRegexps: Array[String] = Array.empty
   @BeanProperty
   var testRegexps: Array[String] = Array.empty
+  @BeanProperty
+  var useSbt: Boolean = false
+
+  private var sbtParams = ""
 
   def splitTests: Array[String] = testName.split("\n").filter(!_.isEmpty)
 
@@ -181,6 +190,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     setShowProgressMessages(configuration.getShowProgressMessages)
     setClassRegexps(configuration.getClassRegexps)
     setTestRegexps(configuration.getTestRegexps)
+    setUseSbt(configuration.getUseSbt)
   }
 
   def getClazz(path: String, withDependencies: Boolean): PsiClass = {
@@ -245,6 +255,11 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   def getValidModules: java.util.List[Module] = getProject.modulesWithScala
+
+  protected val classKey = "-s"
+  protected val testNameKey = "-testName"
+  protected def getDefaultSbtParams = ""
+  protected def modifySbtSettings(comm: SbtShellCommunication): Unit = {}
 
   override def getModules: Array[Module] = {
     ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
@@ -407,15 +422,17 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     }
     for ((className, tests) <- classToTests) {
       if (tests.nonEmpty) {
-        add("-s")
+        add(classKey)
         add(className)
       }
       for (test <- tests) {
-        add("-testName")
+        add(testNameKey)
         add(test)
       }
     }
   }
+
+  private def addParametersString(pString: String, add: String => Unit): Unit = ParametersList.parse(pString).foreach(add)
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
     def classNotFoundError() {
@@ -526,12 +543,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
         params.setMainClass(mainClass)
 
-        def addParameters(add: String => Unit) = {
+        def addParameters(add: String => Unit, after: Unit => Unit) = {
+
           if (getFailedTests == null) {
             if (testKind == TestKind.REGEXP) {
               addRegexps(add)
             } else {
-              add("-s")
+              add(classKey)
               for (cl <- getClasses) {
                 add(cl)
               }
@@ -539,7 +557,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                 //this is a "by-name" test for single suite, better fail in a known manner then do something undefined
                 assert(getClasses.size == 1)
                 for (test <- splitTests) {
-                  add("-testName")
+                  add(testNameKey)
                   add(test)
                   for (testParam <- getAdditionalTestParams(test)) {
                     params.getVMParametersList.addParametersString(testParam)
@@ -563,30 +581,31 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             add("-C")
             add(reporterClass)
           }
+          after()
         }
 
-        if (JdkUtil.useDynamicClasspath(getProject)) {
+        val (myAdd, myAfter): (String => Unit, Unit => Unit) =
+          if (JdkUtil.useDynamicClasspath(getProject) && !useSbt) {
           try {
             val fileWithParams: File = File.createTempFile("abstracttest", ".tmp")
             val outputStream = new FileOutputStream(fileWithParams)
             val printer: PrintStream = new PrintStream(outputStream)
-            addParameters(printer.println)
-
-            val parms: Array[String] = ParametersList.parse(getTestArgs)
-            for (parm <- parms) {
-              printer.println(parm)
-            }
-
-            printer.close()
             params.getProgramParametersList.add("@" + fileWithParams.getPath)
+
+            (printer.println, _ => printer.close())
           }
           catch {
             case ioException: IOException => throw new ExecutionException("Failed to create dynamic classpath file with command-line args.", ioException)
           }
+        } else if (useSbt) {
+          sbtParams += getDefaultSbtParams
+          (sbtParams += " " + _, _ => ())
         } else {
-          addParameters(params.getProgramParametersList.add)
-          params.getProgramParametersList.addParametersString(getTestArgs)
+          (params.getProgramParametersList.add(_), _ => ())
         }
+
+        addParametersString(getTestArgs, myAdd)
+        addParameters(myAdd, myAfter)
 
         for (ext <- Extensions.getExtensions(RunConfigurationExtension.EP_NAME)) {
           ext.updateJavaParameters(currentConfiguration, params, getRunnerSettings)
@@ -596,7 +615,15 @@ abstract class AbstractTestRunConfiguration(val project: Project,
       }
 
       override def execute(executor: Executor, runner: ProgramRunner[_ <: RunnerSettings]): ExecutionResult = {
-        val processHandler = startProcess
+        val processHandler = if (useSbt) {
+          //use a process running sbt
+          val sbtProcessManager = SbtProcessManager.forProject(project)
+          //make sure the process is initialized
+          val shellRunner = sbtProcessManager.openShellRunner()
+          //TODO: this null is really weird
+//          SbtProcessHandlerWrapper(shellRunner createProcessHandler null)
+          shellRunner.createProcessHandler(null)
+        } else startProcess()
         val runnerSettings = getRunnerSettings
         if (getConfiguration == null) setConfiguration(currentConfiguration)
         val config = getConfiguration
@@ -628,6 +655,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
           override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
         })
+        if (useSbt) {
+          val comm = SbtShellCommunication.forProject(project)
+          Future[Unit] {
+            modifySbtSettings(comm)
+            comm.command("test-only " + sbtParams, new SbtTestEventHandler(processHandler), showShell = false)
+          }(ExecutionContext.global)
+        }
         res
       }
     }
@@ -649,6 +683,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     JDOMExternalizer.write(element, "testName", testName)
     JDOMExternalizer.write(element, "testKind", if (testKind != null) testKind.toString else TestKind.CLASS.toString)
     JDOMExternalizer.write(element, "showProgressMessages", showProgressMessages.toString)
+    JDOMExternalizer.write(element, "useSbt", useSbt)
     val classRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map{case ((c, _), i) => (i.toString, c)}:_*)
     val testRegexps: Map[String, String] = Map(zippedRegexps.zipWithIndex.map{case ((_, t), i) => (i.toString, t)}:_*)
     JDOMExternalizer.writeMap(element, classRegexps, "classRegexps", "pattern")
@@ -686,6 +721,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     testName = Option(JDOMExternalizer.readString(element, "testName")).getOrElse("")
     testKind = TestKind.fromString(Option(JDOMExternalizer.readString(element, "testKind")).getOrElse("Class"))
     showProgressMessages = JDOMExternalizer.readBoolean(element, "showProgressMessages")
+    useSbt = JDOMExternalizer.readBoolean(element, "useSbt")
   }
 }
 

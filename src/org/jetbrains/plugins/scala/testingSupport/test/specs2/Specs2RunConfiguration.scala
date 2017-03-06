@@ -4,22 +4,23 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.plugins.scala.testingSupport.test._
 
 
 /**
- * @author Ksenia.Sautina
- * @since 5/17/12
- */
+  * @author Ksenia.Sautina
+  * @since 5/17/12
+  */
 
 class Specs2RunConfiguration(override val project: Project,
                              override val configurationFactory: ConfigurationFactory,
                              override val name: String)
-        extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.specs2ConfigurationProducer) {
+  extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.specs2ConfigurationProducer) {
 
   override def getAdditionalTestParams(testName: String): Seq[String] = Seq("-Dspecs2.ex=\"\\A" + testName + "\\Z\"")
 
-  override def suitePaths = Specs2Util.suitePaths
+  override def suitePaths: List[String] = Specs2Util.suitePaths
 
   override def mainClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
 
@@ -30,6 +31,10 @@ class Specs2RunConfiguration(override val project: Project,
   override def currentConfiguration: Specs2RunConfiguration = Specs2RunConfiguration.this
 
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+
+  override val getDefaultSbtParams: String = "-notifier org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Notifier"
+  override protected val classKey: String = TestRunnerUtil.specs2ClassKey
+  override protected val testNameKey: String = TestRunnerUtil.specs2TestNameKey
 }
 
 object Specs2RunConfiguration extends SuiteValidityChecker {

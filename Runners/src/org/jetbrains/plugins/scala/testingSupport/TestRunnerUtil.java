@@ -175,4 +175,6 @@ public class TestRunnerUtil {
     }
   }
 
+  public static final String specs2ClassKey = "-- -specName";
+  public static final String specs2TestNameKey = "-- -ex";
 }

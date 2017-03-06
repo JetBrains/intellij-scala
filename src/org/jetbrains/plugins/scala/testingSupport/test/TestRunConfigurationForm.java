@@ -99,19 +99,19 @@ public class TestRunConfigurationForm {
   private void $$$setupUI$$$() {
     createUIComponents();
     myPanel = new JPanel();
-    myPanel.setLayout(new GridLayoutManager(12, 1, new Insets(0, 0, 0, 0), -1, -1));
+    myPanel.setLayout(new GridLayoutManager(13, 1, new Insets(0, 0, 0, 0), -1, -1));
     final Spacer spacer1 = new Spacer();
-    myPanel.add(spacer1, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    myPanel.add(spacer1, new GridConstraints(12, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JLabel label1 = new JLabel();
     label1.setText("VM parameters:");
-    myPanel.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myPanel.add(label1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     VMParamsTextField = new RawCommandLineEditor();
-    myPanel.add(VMParamsTextField, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myPanel.add(VMParamsTextField, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label2 = new JLabel();
     label2.setText("Test options:");
-    myPanel.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myPanel.add(label2, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     testOptionsTextField = new RawCommandLineEditor();
-    myPanel.add(testOptionsTextField, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myPanel.add(testOptionsTextField, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(10, 1, new Insets(0, 0, 0, 0), -1, -1));
     myPanel.add(panel1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -159,21 +159,24 @@ public class TestRunConfigurationForm {
     panel1.add(regexpPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final JLabel label5 = new JLabel();
     label5.setText("Use classpath and SDK of module:");
-    myPanel.add(label5, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myPanel.add(label5, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     moduleComboBox = new JComboBox();
-    myPanel.add(moduleComboBox, new GridConstraints(9, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myPanel.add(moduleComboBox, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JLabel label6 = new JLabel();
     label6.setText("Working directory:");
-    myPanel.add(label6, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myPanel.add(label6, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     workingDirectoryField = new TextFieldWithBrowseButton();
-    myPanel.add(workingDirectoryField, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myPanel.add(workingDirectoryField, new GridConstraints(8, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     myShowProgressMessagesCheckBox = new JCheckBox();
     myShowProgressMessagesCheckBox.setText("Print information messages to console");
     myShowProgressMessagesCheckBox.setMnemonic('P');
     myShowProgressMessagesCheckBox.setDisplayedMnemonicIndex(0);
-    myPanel.add(myShowProgressMessagesCheckBox, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myPanel.add(myShowProgressMessagesCheckBox, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     environmentVariables = new EnvironmentVariablesComponent();
-    myPanel.add(environmentVariables, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    myPanel.add(environmentVariables, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    useSbtCheckBox = new JCheckBox();
+    useSbtCheckBox.setText("Use sbt");
+    myPanel.add(useSbtCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
   }
 
   /**
@@ -210,6 +213,7 @@ public class TestRunConfigurationForm {
   private JLabel regexpLabel;
   private JScrollPane testNameScrollPane;
   private JPanel regexpPanel;
+  private JCheckBox useSbtCheckBox;
 
   public static enum TestKind {
     ALL_IN_PACKAGE, CLASS, TEST_NAME, REGEXP;
@@ -285,6 +289,15 @@ public class TestRunConfigurationForm {
       case REGEXP:
         setRegexpEnabled();
     }
+    if (configuration.allowsSbtRun()) {
+      setSbtVisible(true);
+      useSbtCheckBox.addItemListener(new ItemListener() {
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+          configuration.setUseSbt(useSbtCheckBox.isSelected());
+        }
+      });
+    }
 
     kindComboBox.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent e) {
@@ -324,6 +337,10 @@ public class TestRunConfigurationForm {
     }
   }
 
+  private void setSbtVisible(boolean visible) {
+    useSbtCheckBox.setVisible(visible);
+  }
+
   private void setPackageVisible(boolean visible) {
     testPackageLabel.setVisible(visible);
     testPackageTextField.setVisible(visible);
@@ -354,6 +371,7 @@ public class TestRunConfigurationForm {
     setClassVisible(false);
     setTestNameVisible(false);
     setRegexpVisible(false);
+    setSbtVisible(false);
   }
 
   private void setPackageEnabled() {
@@ -399,6 +417,10 @@ public class TestRunConfigurationForm {
       case REGEXP:
         setRegexpEnabled();
     }
+    if (configuration.allowsSbtRun()) {
+      setSbtVisible(true);
+    }
+    setUseSbt(configuration.useSbt());
     setWorkingDirectory(configuration.getWorkingDirectory());
     myModuleSelector.applyTo(configuration);
     searchForTestsComboBox.setSelectedItem(configuration.getSearchTest());
@@ -459,6 +481,10 @@ public class TestRunConfigurationForm {
     workingDirectoryField.setText(s);
   }
 
+  public void setUseSbt(boolean b) {
+    useSbtCheckBox.setSelected(b);
+  }
+
   public void setRegexps(String[] classRegexps, String[] testRegexps) {
     final DefaultTableModel model = (DefaultTableModel) regexpTable.getModel();
     for (int i = 0; i < Math.max(classRegexps.length, testRegexps.length); i++) {
@@ -483,6 +509,10 @@ public class TestRunConfigurationForm {
 
   public String[] getTestRegexps() {
     return getRegexpTableColumn(1);
+  }
+
+  public Boolean getUseSbt() {
+    return useSbtCheckBox.isSelected();
   }
 
   public String getTestName() {

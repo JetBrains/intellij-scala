@@ -12,16 +12,17 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
 
 /**
- * @author Ksenia.Sautina
- * @since 5/17/12
- */
+  * @author Ksenia.Sautina
+  * @since 5/17/12
+  */
 
 class ScalaTestRunConfiguration(override val project: Project,
                                 override val configurationFactory: ConfigurationFactory,
                                 override val name: String)
-    extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
+  extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
 
   override def suitePaths: List[String] = ScalaTestUtil.suitePaths
 
@@ -34,6 +35,17 @@ class ScalaTestRunConfiguration(override val project: Project,
   override def currentConfiguration: ScalaTestRunConfiguration = ScalaTestRunConfiguration.this
 
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+
+  override def allowsSbtRun: Boolean = true
+
+  override def modifySbtSettings(comm: SbtShellCommunication): Unit = {
+    val handler = SettingQueryHandler("testOptions", "", comm)
+    val opts = handler.getSettingValue()
+    if (!opts.contains("-oDU")) {
+      //there might be some duplication, but it should be fine
+      handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
+    }
+  }
 }
 
 object ScalaTestRunConfiguration extends SuiteValidityChecker {
