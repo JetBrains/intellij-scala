@@ -675,7 +675,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     }
 
     if (catchStatements.nonEmpty) {
-      printer.append("\ncatch {\n")
+      printer.append(" catch {\n")
       catchStatements.foreach { case (parameter, block) =>
         printer.append("case ")
         visit(parameter)

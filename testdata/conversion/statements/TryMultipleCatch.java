@@ -14,8 +14,7 @@ public class TryMultipleCatch {
 
 /*
 try {
-}
-catch {
+} catch {
   case e@(_: ClassCastException | _: ArrayIndexOutOfBoundsException) =>
     System.out.println(e.getMessage)
     e.printStackTrace()
