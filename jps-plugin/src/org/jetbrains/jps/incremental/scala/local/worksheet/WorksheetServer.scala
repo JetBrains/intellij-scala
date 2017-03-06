@@ -41,11 +41,15 @@ class WorksheetServer {
   private def parseWorksheetArgs(argsString: Array[String], args: Arguments): Option[WorksheetArgs] = {
     @inline def error(msg: String) = throw new IllegalArgumentException(msg)
 
-    def pathToFile(path: String, varName: String): File = {
-      if (path == null) error(s"$varName is null")
-
-      val f = new File(path)
-      if (!f.exists()) error(s"Can't find file for $varName with path $path") else f
+    def pathToFile(path: String): Option[File] = Option(path).map {
+      p => new File(p)
+    } filter(_.exists())
+    
+    def validate(fileOpt: Option[File], argName: String): File = {
+      fileOpt match {
+        case Some(file) => if (file.exists()) file else error(s"$argName with value ${file.getAbsolutePath} doesn't exist")
+        case _ => error(s"$argName is null")
+      }
     }
 
     val replArgs = argsString.lastOption match {
@@ -53,16 +57,16 @@ class WorksheetServer {
         if (argsString.length < 7) error(s"Invalid arg count: expected at least 7, but got ${argsString.length}")
         Some(ReplArgs(argsString(argsString.length - 3), argsString(argsString.length - 2)))
       case Some(_) =>
-        if (argsString.length < 4) error(s"Invalid arg count: expected at least 4, bit got ${argsString.length}")
+        if (argsString.length < 4) error(s"Invalid arg count: expected at least 4, but got ${argsString.length}")
         None
       case None => return None
     }
-
+    
     Some(WorksheetArgs(
       compiledClassName = argsString(0),
-      pathToRunners = pathToFile(argsString(1), "pathToRunners"),
-      worksheetTemp = pathToFile(argsString(2), "worksheetTempFile"),
-      outputDirs = argsString.slice(3, argsString.length - 3).zipWithIndex.map { case (p, i) => pathToFile(p, s"outputDirs[$i]") },
+      pathToRunners = validate(pathToFile(argsString(1)), "pathToRunners"),
+      worksheetTemp = validate(pathToFile(argsString(2)), "worksheetTempFile"),
+      outputDirs = argsString.slice(3, argsString.length - 3).flatMap(path => pathToFile(path)),
       replArgs,
       args.compilationData.sources.headOption.orNull.getName,
       args.compilerData.compilerJars.getOrElse(error("Cannot find compiler jars")),
