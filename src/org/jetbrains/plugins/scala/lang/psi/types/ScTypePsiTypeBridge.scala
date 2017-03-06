@@ -144,15 +144,12 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           case _ => createType(valClass)
         }
       case ScDesignatorType(c: PsiClass) => createType(c)
+      case ScalaArrayOf(arg) => new PsiArrayType(toPsiType(arg))
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) =>
-        if (c.qualifiedName == "scala.Array" && args.length == 1)
-          new PsiArrayType(toPsiType(args.head))
-        else {
-          val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
-            case (s, (targ, tp)) => s.put(tp, toPsiType(targ, noPrimitives = true, skolemToWildcard = true))
-          }
-          createType(c, subst)
+        val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
+          case (s, (targ, tp)) => s.put(tp, toPsiType(targ, noPrimitives = true, skolemToWildcard = true))
         }
+        createType(c, subst)
       case ParameterizedType(proj@ScProjectionType(_, _, _), args) => proj.actualElement match {
         case c: PsiClass =>
           if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiType(args.head))
