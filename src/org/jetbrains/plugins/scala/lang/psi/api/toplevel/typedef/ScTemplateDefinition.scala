@@ -138,9 +138,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     import scala.collection.JavaConversions._
     PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases).toList.sortBy(myPair =>
       myPair.first match {
-        case wrapper: ScFunctionWrapper if wrapper.function.isInstanceOf[ScFunctionDeclaration] => 1
-        case wrapper: ScFunctionWrapper if wrapper.function.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
-          case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.function) => 0
+        case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDeclaration] => 1
+        case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
+          case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.delegate) => 0
           case _ => 1
         }
         case _ => 1

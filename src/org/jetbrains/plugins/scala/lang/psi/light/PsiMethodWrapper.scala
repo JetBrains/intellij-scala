@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import java.util
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiSuperMethodImplUtil
 import com.intellij.psi.impl.light.LightMethod
@@ -79,4 +80,29 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
 
   override final def getHierarchicalMethodSignature: HierarchicalMethodSignature =
     PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this)
+}
+
+trait NavigablePsiElementWrapper extends NavigatablePsiElement {
+  val delegate: NavigatablePsiElement
+
+  override final def navigate(requestFocus: Boolean): Unit =
+    delegate.navigate(requestFocus)
+
+  override final def canNavigate: Boolean =
+    delegate.canNavigate
+
+  override final def canNavigateToSource: Boolean =
+    delegate.canNavigateToSource
+
+  override def getPrevSibling: PsiElement =
+    delegate.getPrevSibling
+
+  override def getNextSibling: PsiElement =
+    delegate.getNextSibling
+
+  override def getTextRange: TextRange =
+    delegate.getTextRange
+
+  override def getTextOffset: Int =
+    delegate.getTextOffset
 }
