@@ -48,8 +48,6 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
 
 } with PsiMethodWrapper(typedDefinition.getManager, method, containingClass) {
 
-  override def getNavigationElement: PsiElement = this
-
   override def canNavigate: Boolean = typedDefinition.canNavigate
 
   override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource

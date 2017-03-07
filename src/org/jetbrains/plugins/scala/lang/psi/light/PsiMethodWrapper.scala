@@ -11,11 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.light.LightUtil.javaTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
- * @author Alefas
- * @since 05.04.12
- */
-abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containingClass: PsiClass) extends
-  LightMethod(manager, method, containingClass, containingClass.getLanguage) {
+  * @author Alefas
+  * @since 05.04.12
+  */
+abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containingClass: PsiClass)
+  extends LightMethod(manager, method, containingClass, containingClass.getLanguage) {
 
   implicit def elementScope: ElementScope = ElementScope(containingClass)
 
@@ -49,6 +49,12 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
     getReturnTypeElement
     method.getSignature(substitutor)
   }
+
+  override final def getNavigationElement: PsiElement =
+    super.getNavigationElement
+
+  override final def setNavigationElement(navigationElement: PsiElement): Unit =
+    super.setNavigationElement(navigationElement)
 
   override final def findDeepestSuperMethods(): Array[PsiMethod] =
     PsiSuperMethodImplUtil.findDeepestSuperMethods(this)

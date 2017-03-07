@@ -28,8 +28,6 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
 
 } with PsiMethodWrapper(constr.getManager, method, containingClass) {
 
-  override def getNavigationElement: PsiElement = this
-
   override def canNavigate: Boolean = constr.canNavigate
 
   override def canNavigateToSource: Boolean = constr.canNavigateToSource
@@ -95,8 +93,6 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   }
 
 } with PsiMethodWrapper(function.getManager, method, containingClass) {
-
-  override def getNavigationElement: PsiElement = this
 
   override def canNavigate: Boolean = function.canNavigate
 

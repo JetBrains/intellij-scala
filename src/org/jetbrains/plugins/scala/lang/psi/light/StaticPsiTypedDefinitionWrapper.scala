@@ -22,8 +22,6 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
 
 } with PsiMethodWrapper(typedDefinition.getManager, method, containingClass) {
 
-  override def getNavigationElement: PsiElement = this
-
   override def navigate(requestFocus: Boolean): Unit = typedDefinition.navigate(requestFocus)
 
   override def canNavigate: Boolean = typedDefinition.canNavigate
