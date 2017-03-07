@@ -107,7 +107,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
         hasErrors = true
         false
       case outputLine => 
-        outputBuffer.append(if (hasErrors) line else outputLine)
+        outputBuffer.append(if (hasErrors) line else augmentLine(outputLine))
         if (!outputLine.endsWith("\n")) outputBuffer.append("\n")
         false
     }
@@ -193,6 +193,15 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     currentFile = file
   }
   
+  private def augmentLine(inputLine: String): String = {
+    val idx = inputLine.indexOf("$Lambda$")
+    
+    if (idx == -1) inputLine else {
+      val until = Math.min(inputLine.length, LAMBDA_LENGTH + idx + 1)
+      inputLine.substring(idx, until) + "<function>"
+    }
+  }
+  
   private def processError() {
     val currentPsi = psiToProcess.dequeue()
     val offset = currentPsi.getTextOffset
@@ -218,6 +227,8 @@ object WorksheetIncrementalEditorPrinter {
   private val REPL_LAST_CHUNK_PROCESSED = "$$worksheet$$repl$$last$$chunk$$processed$$"
   
   private val CONSOLE_ERROR_START = "<console>:"
+  
+  private val LAMBDA_LENGTH = 32
   
   case class ErrorInfo(msg: String)
   
