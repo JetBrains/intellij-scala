@@ -46,7 +46,7 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
     LightUtil.createJavaMethod(methodText, containingClass, typedDefinition.getProject)
   }
 
-} with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
+} with PsiMethodWrapper(typedDefinition.getManager, method, containingClass) {
 
   override def getNavigationElement: PsiElement = this
 

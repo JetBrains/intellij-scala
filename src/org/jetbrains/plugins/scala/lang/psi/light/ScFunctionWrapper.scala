@@ -26,7 +26,7 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
     LightUtil.createJavaMethod(methodText, containingClass, constr.getProject)
   }
 
-} with LightMethodAdapter(constr.getManager, method, containingClass) with LightScalaMethod {
+} with PsiMethodWrapper(constr.getManager, method, containingClass) {
 
   override def getNavigationElement: PsiElement = this
 
@@ -94,7 +94,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     LightUtil.createJavaMethod(methodText, containingClass, function.getProject)
   }
 
-} with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
+} with PsiMethodWrapper(function.getManager, method, containingClass) {
 
   override def getNavigationElement: PsiElement = this
 

@@ -15,7 +15,7 @@ class EmptyPrivateConstructor(o: PsiClass) extends {
     }.get + "() {}"
     LightUtil.createJavaMethod(constructorText, o, o.getProject)
   }
-} with LightMethodAdapter(o.getManager, method, o) {
+} with PsiMethodWrapper(o.getManager, method, o) {
 
   override def getParent: PsiElement = o
 

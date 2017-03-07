@@ -14,28 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * @author Alefas
  * @since 05.04.12
  */
-
-trait LightScalaMethod
-
-abstract class LightMethodAdapter(manager: PsiManager, method: PsiMethod, containingClass: PsiClass) extends
+abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containingClass: PsiClass) extends
   LightMethod(manager, method, containingClass, containingClass.getLanguage) {
 
   implicit def elementScope: ElementScope = ElementScope(containingClass)
-
-  override def findDeepestSuperMethods(): Array[PsiMethod] = PsiSuperMethodImplUtil.findDeepestSuperMethods(this)
-
-  override def findDeepestSuperMethod(): PsiMethod = PsiSuperMethodImplUtil.findDeepestSuperMethod(this)
-
-  override def findSuperMethods(): Array[PsiMethod] = PsiSuperMethodImplUtil.findSuperMethods(this)
-
-  override def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiSuperMethodImplUtil.findSuperMethods(this, checkAccess)
-
-  override def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiSuperMethodImplUtil.findSuperMethods(this, parentClass)
-
-  override def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): util.List[MethodSignatureBackedByPsiMethod] =
-    PsiSuperMethodImplUtil.findSuperMethodSignaturesIncludingStatic(this, checkAccess)
-
-  override def getHierarchicalMethodSignature: HierarchicalMethodSignature = PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this)
 
   protected def returnType: ScType
 
@@ -67,4 +49,25 @@ abstract class LightMethodAdapter(manager: PsiManager, method: PsiMethod, contai
     getReturnTypeElement
     method.getSignature(substitutor)
   }
+
+  override final def findDeepestSuperMethods(): Array[PsiMethod] =
+    PsiSuperMethodImplUtil.findDeepestSuperMethods(this)
+
+  override final def findDeepestSuperMethod(): PsiMethod =
+    PsiSuperMethodImplUtil.findDeepestSuperMethod(this)
+
+  override final def findSuperMethods(): Array[PsiMethod] =
+    PsiSuperMethodImplUtil.findSuperMethods(this)
+
+  override final def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] =
+    PsiSuperMethodImplUtil.findSuperMethods(this, checkAccess)
+
+  override final def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] =
+    PsiSuperMethodImplUtil.findSuperMethods(this, parentClass)
+
+  override final def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): util.List[MethodSignatureBackedByPsiMethod] =
+    PsiSuperMethodImplUtil.findSuperMethodSignaturesIncludingStatic(this, checkAccess)
+
+  override final def getHierarchicalMethodSignature: HierarchicalMethodSignature =
+    PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this)
 }

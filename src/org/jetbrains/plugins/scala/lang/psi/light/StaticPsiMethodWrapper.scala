@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.Key
-import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi._
+import com.intellij.psi.impl.light.LightModifierList
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -14,7 +14,7 @@ import _root_.scala.collection.immutable.HashMap
   * @since 27.02.12
   */
 class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: PsiClass)
-  extends LightMethodAdapter(method.getManager, method, containingClass) with LightScalaMethod {
+  extends PsiMethodWrapper(method.getManager, method, containingClass) {
   setNavigationElement(method)
 
   override def hasModifierProperty(name: String): Boolean = {
