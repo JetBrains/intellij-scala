@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -23,8 +23,6 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
   override def canNavigate: Boolean = function.canNavigate
 
   override def canNavigateToSource: Boolean = function.canNavigateToSource
-
-  override def getParent: PsiElement = containingClass
 
   override protected def returnType: ScType = {
     if (!function.isConstructor) function.returnType.getOrElse(StdType.AnyRef)

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
@@ -31,8 +31,6 @@ class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
   override def getTextRange: TextRange = typedDefinition.getTextRange
 
   override def getTextOffset: Int = typedDefinition.getTextOffset
-
-  override def getParent: PsiElement = containingClass
 
   override def isWritable: Boolean = getContainingFile.isWritable
 

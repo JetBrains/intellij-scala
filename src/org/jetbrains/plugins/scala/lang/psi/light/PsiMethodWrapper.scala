@@ -56,6 +56,9 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
   override final def setNavigationElement(navigationElement: PsiElement): Unit =
     super.setNavigationElement(navigationElement)
 
+  override final def getParent: PsiElement =
+    containingClass
+
   override final def findDeepestSuperMethods(): Array[PsiMethod] =
     PsiSuperMethodImplUtil.findDeepestSuperMethods(this)
 

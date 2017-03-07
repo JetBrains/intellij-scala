@@ -58,8 +58,6 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
 
   override def getTextOffset: Int = typedDefinition.getTextOffset
 
-  override def getParent: PsiElement = containingClass
-
   override def hasModifierProperty(name: String): Boolean = {
     name match {
       case "abstract" if isInterface => true

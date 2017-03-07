@@ -17,8 +17,6 @@ class EmptyPrivateConstructor(o: PsiClass) extends {
   }
 } with PsiMethodWrapper(o.getManager, method, o) {
 
-  override def getParent: PsiElement = o
-
   override protected def returnType: ScType = null
 
   override protected def parameterListText: String = "()"

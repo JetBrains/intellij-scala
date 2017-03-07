@@ -36,8 +36,6 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
 
   override def getTextRange: TextRange = constr.getTextRange
 
-  override def getParent: PsiElement = containingClass
-
   override def getTextOffset: Int = constr.getTextOffset
 
   override protected def returnType: ScType = {
@@ -99,8 +97,6 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   override def canNavigateToSource: Boolean = function.canNavigateToSource
 
   override def navigate(requestFocus: Boolean): Unit = function.navigate(requestFocus)
-
-  override def getParent: PsiElement = containingClass
 
   override def getTextOffset: Int = function.getTextOffset
 
