@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBl
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
- * Jason Zaugg
- */
+  * Jason Zaugg
+  */
 
 class RemoveBracesIntention extends PsiElementBaseIntentionAction {
   def getFamilyName = "Remove braces"
@@ -51,11 +51,19 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
       case funDef: ScFunctionDefinition if !funDef.hasUnitResultType =>
         funDef.body.filter(isAncestorOfElement)
       case tryBlock: ScTryBlock if tryBlock.hasRBrace =>
+        def couldRemoveBraces(block: ScTryBlock): Boolean = {
+          val blockStatements = block.statements
+          blockStatements.length == 1 && (blockStatements.head match {
+            case b: ScBlock => b.statements.length == 1
+            case _ => true
+          })
+        }
+
         // special handling for try block, which itself is parent to the (optional) pair of braces.
         val lBrace = tryBlock.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tLBRACE))
         val rBrace = tryBlock.getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE))
         (lBrace, rBrace) match {
-          case (Array(lBraceNode), Array(rBraceNode)) if tryBlock.statements.length == 1 =>
+          case (Array(lBraceNode), Array(rBraceNode)) if couldRemoveBraces(tryBlock) =>
             val action = () => {
               Seq(lBraceNode, rBraceNode).foreach(tryBlock.getNode.removeChild)
               CodeEditUtil.markToReformat(tryBlock.getParent.getNode, true)

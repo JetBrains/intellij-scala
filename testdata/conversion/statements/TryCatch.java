@@ -2,6 +2,8 @@ public class TestJava {
     public static void main(String[] args) {
         /*start*/
         try {
+            System.out.println("sout1 ");
+            System.out.println("sout2 ");
         } catch (ClassCastException e) {
             System.out.println(e.getMessage);
         } catch (RuntimeException e) {
@@ -15,8 +17,9 @@ public class TestJava {
 
 /*
 try {
-}
-catch {
+  System.out.println("sout1 ")
+  System.out.println("sout2 ")
+} catch {
   case e: ClassCastException =>
     System.out.println(e.getMessage)
   case e: RuntimeException =>
