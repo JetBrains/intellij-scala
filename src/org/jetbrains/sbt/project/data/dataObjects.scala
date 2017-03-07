@@ -87,7 +87,8 @@ object SbtCommandData {
 }
 
 
-case class ModuleExtData(scalaVersion: Option[Version],
+case class ModuleExtData(scalaOrganization: String,
+                         scalaVersion: Option[Version],
                          scalacClasspath: Seq[File],
                          scalacOptions: Seq[String],
                          jdk: Option[Sdk],

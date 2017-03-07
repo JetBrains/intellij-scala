@@ -231,4 +231,6 @@ package object project {
   val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
 
   val ScalaLibraryName: String = "scala-library"
+
+  val DottyLibraryName: String = "dotty-library"
 }

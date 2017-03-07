@@ -15,7 +15,8 @@ import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.CommonProcessors.CollectProcessor
-import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, ScalaLibraryName, ScalaLibraryProperties, ScalaLibraryType, ScalaSdk}
+import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
+import org.jetbrains.plugins.scala.project.{DottyLibraryName, Platform, ScalaLanguageLevel, ScalaLibraryName, ScalaLibraryProperties, ScalaLibraryType, ScalaSdk}
 
 import scala.collection.JavaConversions._
 
@@ -89,10 +90,14 @@ trait Importer[E] {
   def getScalaLibraries: Set[Library] =
     modelsProvider.getAllLibraries.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName))).toSet
 
-  def getScalaLibraries(module: Module): Set[Library] = {
+  def getScalaLibraries(module: Module, platform: Platform): Set[Library] = {
+    val libraryName = platform match {
+      case Scala => ScalaLibraryName
+      case Dotty => DottyLibraryName
+    }
     val collector = new CollectProcessor[Library]()
     getModifiableRootModel(module).orderEntries().librariesOnly().forEachLibrary(collector)
-    collector.getResults.toSet.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName)))
+    collector.getResults.toSet.filter(l => Option(l.getName).exists(_.contains(libraryName)))
   }
 
   def executeProjectChangeAction(action: => Unit): Unit =
@@ -100,8 +105,13 @@ trait Importer[E] {
       override def execute(): Unit = action
     })
 
-  def convertToScalaSdk(library: Library, languageLevel: ScalaLanguageLevel, compilerClasspath: Seq[File]): ScalaSdk = {
+  def convertToScalaSdk(library: Library,
+                        platform: Platform,
+                        languageLevel: ScalaLanguageLevel,
+                        compilerClasspath: Seq[File]): ScalaSdk = {
+
     val properties = new ScalaLibraryProperties()
+    properties.platform = platform
     properties.languageLevel = languageLevel
     properties.compilerClasspath = compilerClasspath
 
