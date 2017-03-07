@@ -10,10 +10,10 @@ import com.intellij.psi.PsiElement
   * User: Alexander Podkhalyuzin
   * Date: 02.03.2009
   */
-abstract class FunctionParameterInfoTestBase extends ParameterInfoTestBase {
+abstract class FunctionParameterInfoTestBase extends ParameterInfoTestBase[PsiElement] {
 
   override protected def folderPath: String = super.folderPath + "functionParameterInfo/"
 
-  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[_ <: PsiElement, Any, _ <: PsiElement] =
+  override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[PsiElement, Any, _ <: PsiElement] =
     new ScalaFunctionParameterInfoHandler
 }
