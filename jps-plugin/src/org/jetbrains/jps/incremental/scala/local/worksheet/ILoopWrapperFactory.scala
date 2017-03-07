@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
 import java.io.{File, OutputStream, PrintWriter}
-import java.net.URLClassLoader
+import java.net.{URLClassLoader, URLDecoder}
 import java.util.regex.Pattern
 
 import com.intellij.util.Base64
@@ -45,13 +45,18 @@ class ILoopWrapperFactory {
         
         val out = inst.getOutputWriter match {
           case up: MyUpdatePrintWriter => 
-            up.updateOut(outStream)
+            up updateOut outStream
             up
           case other => other
         }
         
+        def print(txt: String) {
+          out println txt
+          out.flush()
+        }
+        
         client.foreach(_.progress("Worksheet execution started"))
-        out.println(REPL_START)
+        print(REPL_START)
         out.flush()
 
         val code = new String(Base64 decode replArgs.codeChunk, "UTF-8")
@@ -74,13 +79,11 @@ class ILoopWrapperFactory {
 
             stmtProcessed()
             
-            out.println(REPL_CHUNK_END)
-            out.flush()
+            print(REPL_CHUNK_END)
             if (!shouldContinue) return 
         }
         
-        out.println(REPL_LAST_CHUNK_PROCESSED)
-        out.flush()
+        print(REPL_LAST_CHUNK_PROCESSED)
     }
   }
   
@@ -137,7 +140,7 @@ class ILoopWrapperFactory {
     
     if (resource == null) return None
     
-    val url = resource.toString.stripPrefix("jar:file:")
+    val url = URLDecoder.decode(resource.toString.stripPrefix("jar:file:"), "UTF-8")
     val idx = url.indexOf(".jar!")
     if (idx == -1) return None
     
