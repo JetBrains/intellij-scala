@@ -2,10 +2,8 @@ package org.jetbrains.sbt.shell.action
 
 import javax.swing.Icon
 
-import com.intellij.execution.{ExecutionManager, Executor}
-import com.intellij.execution.console.ProcessBackedConsoleExecuteActionHandler
-import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.RunContentDescriptor
+import com.intellij.execution.{ExecutionManager, Executor}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, IdeActions, Presentation}
 import com.intellij.openapi.project.DumbAwareAction
