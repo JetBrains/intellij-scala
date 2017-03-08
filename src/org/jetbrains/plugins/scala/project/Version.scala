@@ -9,7 +9,7 @@ case class Version(presentation: String) extends Comparable[Version] {
 
   def compareTo(other: Version): Int = {
     groups.zip(other.groups).collectFirst {
-      case (a, b) if a != b => a.compareTo(b)
+      case (g1, g2) if g1 != g2 => g1.compareTo(g2)
     } getOrElse {
       groups.lengthCompare(other.groups.length)
     }
@@ -23,16 +23,14 @@ case class Version(presentation: String) extends Comparable[Version] {
 
   def <=(other: Version): Boolean = compareTo(other) <= 0
 
-  /*
-   Returns whether all the comparable parts are equal, e.g:
-     2.10   ~=  2.10
-     2.10   ~=  2.10.1
-     2.10.1 ~=  2.10
-
-     2.10  !~=  2.11
-  */
-  def ~=(version: Version): Boolean =
-    groups.zip(version.groups).forall(==)
+  // Returns whether this version is equal to or more specific than the other version
+  def ~=(other: Version): Boolean = {
+    groups.zip(other.groups).collectFirst {
+      case (g1, g2) if !(g1 ~= g2) => false
+    } getOrElse {
+      groups.lengthCompare(other.groups.length) >= 0
+    }
+  }
 
   def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
 }
@@ -41,16 +39,24 @@ object Version {
   def abbreviate(presentation: String): String = presentation.split('-').take(2).mkString("-")
 }
 
-private case class Group(numbers: Seq[Int]) extends Comparable[Group] {
+private case class Group(numbers: List[Int]) extends Comparable[Group] {
   override def compareTo(other: Group): Int = {
     numbers.zip(other.numbers).collectFirst {
-      case (a, b) if a != b => a.compareTo(b)
+      case (n1, n2) if n1 != n2 => n1.compareTo(n2)
     } getOrElse {
       numbers.lengthCompare(other.numbers.size)
+    }
+  }
+
+  def ~=(other: Group): Boolean = {
+    numbers.zip(other.numbers).collectFirst {
+      case (n1, n2) if n1 != n2 => false
+    } getOrElse {
+      numbers.lengthCompare(other.numbers.length) >= 0
     }
   }
 }
 
 private object Group {
-  def apply(presentation: String): Group = Group(presentation.split('.').map(_.toInt))
+  def apply(presentation: String): Group = Group(presentation.split('.').map(_.toInt).toList)
 }
