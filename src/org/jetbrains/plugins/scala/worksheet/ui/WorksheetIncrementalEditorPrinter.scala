@@ -106,6 +106,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
         outputBuffer.append(info.msg).append("\n")
         hasErrors = true
         false
+      case "" => //do nothing
+        false
       case outputLine => 
         outputBuffer.append(if (hasErrors) line else augmentLine(outputLine))
         if (!outputLine.endsWith("\n")) outputBuffer.append("\n")

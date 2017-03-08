@@ -50,13 +50,14 @@ class ILoopWrapperFactory {
           case other => other
         }
         
-        def print(txt: String) {
+        def printService(txt: String) {
+          out.println()
           out println txt
           out.flush()
         }
         
         client.foreach(_.progress("Worksheet execution started"))
-        print(REPL_START)
+        printService(REPL_START)
         out.flush()
 
         val code = new String(Base64 decode replArgs.codeChunk, "UTF-8")
@@ -79,11 +80,11 @@ class ILoopWrapperFactory {
 
             stmtProcessed()
             
-            print(REPL_CHUNK_END)
+            printService(REPL_CHUNK_END)
             if (!shouldContinue) return 
         }
         
-        print(REPL_LAST_CHUNK_PROCESSED)
+        printService(REPL_LAST_CHUNK_PROCESSED)
     }
   }
   
@@ -214,6 +215,11 @@ object ILoopWrapperFactory {
 
     private case class ReplSession(id: String, wrapper: ILoopWrapper)
   }
+  
+//  class MyUrlClassLoader(urls: Array[URL]) extends URLClassLoader(urls) {
+//    override def loadClass(name: String, resolve: Boolean): Class[_] =
+//      if (name.startsWith("scala.util.Properties")) findClass(name) else super.loadClass(name, resolve)
+//  }
   
   case class Command(eqString: String, action: ILoopWrapper => Unit)
   
