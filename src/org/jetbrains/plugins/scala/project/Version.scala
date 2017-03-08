@@ -41,6 +41,8 @@ case class Version(presentation: String) extends AnyVal with Comparable[Version]
 object Version {
   private val IntegerPattern = "\\d+".r
 
+  def abbreviate(presentation: String): String = presentation.split('-').take(2).mkString("-")
+
   private def findNumbers(s: String): Seq[Int] = IntegerPattern.findAllIn(s).toSeq.map(_.toInt)
 
   private def compareGroups(l: Seq[Int], r: Seq[Int]): Int = {
