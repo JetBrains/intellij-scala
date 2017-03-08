@@ -21,24 +21,24 @@ import ScalaStdLibHandler._
   * User: Dmitry.Naydanov
   * Date: 06.09.16.
   */
-class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(SCALA_LIBRARY_2_11), Seq(SCALA_LIBRARY_2_12), true) {
+class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(Version_2_11), Seq(Version_2_12), true) {
   override def getMigrators(from: Library, to: LibraryData): Iterable[ScalaLibraryMigrator] = {
-    if(extractVersion(from).exists(v => isVersionMoreSpecific(SCALA_LIBRARY_2_11, v)) && 
-      extractVersion(to).exists(v => isVersionMoreSpecific(SCALA_LIBRARY_2_12, v))) Seq(new StdLib211to212) else Seq.empty
+    if(extractVersion(from).exists(_ ~= Version_2_11) &&
+      extractVersion(to).exists(_ ~= Version_2_12)) Seq(new StdLib211to212) else Seq.empty
   }
-  
-  
+
+
   private class StdLib211to212 extends ScalaLibraryMigrator {
     private val samInspection = new ConvertExpressionToSAMInspection
-    
+
     override def migrateGlobal(projectStructure: MigrationApiService): Option[MigrationReport] = {
       val project = projectStructure.getProject
       val sdksModel = new ProjectSdksModel
-      
+
       projectStructure.onEdt {
         sdksModel.reset(project)
         if (JdkVersionUtil.getVersion(sdksModel.getProjectSdk.getVersionString) == JavaSdkVersion.JDK_1_8) return None
-        
+
         val sdks = sdksModel.getSdks
 
         sdks.find(sdk => JdkVersionUtil.getVersion(sdk.getVersionString) == JavaSdkVersion.JDK_1_8) match {
@@ -47,7 +47,7 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
           case None => MigrationReport.createSingleMessageReport(MigrationReport.Warning, "No JDK 1.8 found. Scala 2.12 supports Java 1.8 only")
         }
       }
-      
+
       None
     }
 
@@ -66,6 +66,6 @@ class ScalaStdLibHandler extends VersionedArtifactHandlerBase(ScalaLibrary, Seq(
 }
 
 object ScalaStdLibHandler {
-  val SCALA_LIBRARY_2_11 = Version("2.11")
-  val SCALA_LIBRARY_2_12 = Version("2.12")
+  val Version_2_11 = Version("2.11")
+  val Version_2_12 = Version("2.12")
 }
