@@ -39,7 +39,7 @@ object Version {
   def abbreviate(presentation: String): String = presentation.split('-').take(2).mkString("-")
 }
 
-private case class Group(numbers: List[Int]) extends Comparable[Group] {
+private case class Group(numbers: Seq[Int]) extends Comparable[Group] {
   override def compareTo(other: Group): Int = {
     numbers.zip(other.numbers).collectFirst {
       case (n1, n2) if n1 != n2 => n1.compareTo(n2)
@@ -58,5 +58,8 @@ private case class Group(numbers: List[Int]) extends Comparable[Group] {
 }
 
 private object Group {
-  def apply(presentation: String): Group = Group(presentation.split('.').map(_.toInt).toList)
+  private val IntegerPattern = "\\d+".r
+
+  def apply(presentation: String): Group =
+    Group(IntegerPattern.findAllIn(presentation).map(_.toInt).toSeq)
 }
