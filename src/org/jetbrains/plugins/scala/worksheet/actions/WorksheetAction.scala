@@ -23,6 +23,10 @@ trait WorksheetAction {
     if (project == null) return 
 
     val editor = FileEditorManager.getInstance(project).getSelectedTextEditor
+    if (editor == null) {
+      ScalaActionUtil.disablePresentation(presentation)
+      return
+    } 
 
     extensions.inReadAction {
       PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
