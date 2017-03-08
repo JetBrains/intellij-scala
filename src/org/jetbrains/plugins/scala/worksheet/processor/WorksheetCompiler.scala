@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
-import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.{ReplModeArgs, WorksheetCache}
 import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetEditorPrinterFactory}
 
@@ -117,6 +117,8 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
         val task = createCompilerTask
         val worksheetPrinter = WorksheetEditorPrinterFactory.newWorksheetUiFor(editor, worksheetFile, isRepl = false)
 
+        WorksheetCache.getInstance(project).removePrinter(editor)
+        
         runCompilerTask(task, name, code, worksheetPrinter, tempFile, outputDir)
       case Right(errorMessage: PsiErrorElement) =>
         if (auto) return
