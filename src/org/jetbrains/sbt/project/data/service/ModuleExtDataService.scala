@@ -57,11 +57,11 @@ object ModuleExtDataService {
                                   compilerVersion: Version,
                                   compilerClasspath: Seq[File]): Unit = {
 
-      val platfrom = compilerOrganization match {
+      val platform = compilerOrganization match {
         case "ch.epfl.lamp" => Platform.Dotty
         case _ => Platform.Default
       }
-      val scalaLibraries = getScalaLibraries(module, platfrom)
+      val scalaLibraries = getScalaLibraries(module, platform)
       if (scalaLibraries.nonEmpty) {
         val scalaLibrary = scalaLibraries
           .find(_.scalaVersion.contains(compilerVersion))
@@ -69,15 +69,15 @@ object ModuleExtDataService {
 
         scalaLibrary match {
           case Some(library) if !library.isScalaSdk =>
-            val langaugeLevel = platfrom match {
+            val languageLevel = platform match {
               case Scala => library.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
               case Dotty => ScalaLanguageLevel.Snapshot
             }
-            val classpath = platfrom match {
+            val classpath = platform match {
               case Scala => compilerClasspath
               case Dotty => compilerClasspath.filterNot(_.getName.startsWith("sbt-interface-"))
             }
-            convertToScalaSdk(library, platfrom, langaugeLevel, classpath)
+            convertToScalaSdk(library, platform, languageLevel, classpath)
           case None =>
             showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.versionString, module.getName))
           case _ => // do nothing
