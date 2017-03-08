@@ -1,11 +1,11 @@
 import sbt._
-
+import meta.Shared
 
 object Versions {
   val scalaVersion = "2.11.6"
   val sbtVersion = "0.13.13"
   val ideaVersion = "171.3566.24"
-  val sbtStructureVersion = "7.0.0-5-g0cbc1e0"
+  val sbtStructureVersion: String = Shared.sbtStructureVersion
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
