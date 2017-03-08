@@ -47,7 +47,7 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
     invokeLater {
       inWriteAction {
         CleanWorksheetAction.resetScrollModel(viewer)
-        
+        WorksheetCache.getInstance(project).removePrinter(editor)
         CleanWorksheetAction.cleanWorksheet(psiFile.getNode, editor, viewer, project)
 
         parent.remove(splitPane)
