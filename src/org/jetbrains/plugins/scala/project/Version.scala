@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala
 package project
 
-import org.jetbrains.plugins.scala.project.Version._
-
 /**
  * @author Pavel Fatin
  */
-case class Version(presentation: String) extends AnyVal with Comparable[Version] {
-  private def groups: Seq[Seq[Int]] =
-    presentation.split('-').map(findNumbers)
+case class Version(presentation: String) extends Comparable[Version] {
+  private val groups: Seq[Group] = presentation.split('-').map(Group(_))
 
-  def compareTo(other: Version): Int = { //0.1.1 > 0.1-20170107
+  def compareTo(other: Version): Int = {
     groups.zip(other.groups).collectFirst {
-      case (a, b) if a != b => compareGroups(a, b)
-    } getOrElse {0}
+      case (a, b) if a != b => a.compareTo(b)
+    } getOrElse {
+      groups.lengthCompare(other.groups.length)
+    }
   }
 
   def >(other: Version): Boolean = compareTo(other) > 0
@@ -39,18 +38,19 @@ case class Version(presentation: String) extends AnyVal with Comparable[Version]
 }
 
 object Version {
-  private val IntegerPattern = "\\d+".r
-
   def abbreviate(presentation: String): String = presentation.split('-').take(2).mkString("-")
+}
 
-  private def findNumbers(s: String): Seq[Int] = IntegerPattern.findAllIn(s).toSeq.map(_.toInt)
-
-  private def compareGroups(l: Seq[Int], r: Seq[Int]): Int = {
-    l.zip(r).collectFirst {
+private case class Group(numbers: Seq[Int]) extends Comparable[Group] {
+  override def compareTo(other: Group): Int = {
+    numbers.zip(other.numbers).collectFirst {
       case (a, b) if a != b => a.compareTo(b)
     } getOrElse {
-      l.size.compareTo(r.size)  //0.1.1 > 0.1
+      numbers.lengthCompare(other.numbers.size)
     }
   }
 }
 
+private object Group {
+  def apply(presentation: String): Group = Group(presentation.split('.').map(_.toInt))
+}
