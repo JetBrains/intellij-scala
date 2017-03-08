@@ -6,10 +6,10 @@ import org.jetbrains.plugins.scala.project.Version._
 /**
  * @author Pavel Fatin
  */
-case class Version(versionString: String) extends AnyVal with Comparable[Version] {
+case class Version(presentation: String) extends AnyVal with Comparable[Version] {
 
   def groups: Seq[Seq[Int]] = {
-    versionString.split('-').map(findNumbers)
+    presentation.split('-').map(findNumbers)
   }
 
   def compareTo(other: Version): Int = { //0.1.1 > 0.1-20170107

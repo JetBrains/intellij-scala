@@ -79,7 +79,7 @@ object ModuleExtDataService {
             }
             convertToScalaSdk(library, platform, languageLevel, classpath)
           case None =>
-            showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.versionString, module.getName))
+            showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.presentation, module.getName))
           case _ => // do nothing
         }
       }
