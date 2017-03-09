@@ -37,5 +37,5 @@ private object Group {
   private val IntegerPattern = "\\d+".r
 
   def apply(presentation: String): Group =
-    Group(IntegerPattern.findAllIn(presentation).map(_.toInt).toSeq)
+    Group(IntegerPattern.findAllIn(presentation).map(_.toInt).toList)
 }
