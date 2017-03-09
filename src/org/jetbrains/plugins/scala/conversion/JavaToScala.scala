@@ -328,6 +328,8 @@ object JavaToScala {
         val name = convertPsiToIntermdeiate(l.getNameIdentifier, externalProperties)
         LocalVariable(handleModifierList(l), name, convertTypePsiToIntermediate(l.getType, l.getTypeElement, l.getProject),
           needVar, initalizer)
+      case enumConstant: PsiEnumConstant =>
+        EnumConstruction(convertPsiToIntermdeiate(enumConstant.getNameIdentifier, externalProperties))
       case f: PsiField =>
         val modifiers = handleModifierList(f)
         val needVar = isVar(f, Option(f.getContainingClass))
@@ -546,20 +548,16 @@ object JavaToScala {
       var forClass = new ArrayBuffer[PsiMember]()
       var forObject = new ArrayBuffer[PsiMember]()
       for (method <- inClass.getMethods) {
-        if (method.hasModifierProperty("static")) {
-          forObject += method
-        } else forClass += method
+        if (method.hasModifierProperty("static") || inClass.isEnum) forObject += method else forClass += method
       }
+
       val serialVersionUID = serialVersion(inClass)
       for (field <- inClass.getFields if !serialVersionUID.contains(field)) {
-        if (field.hasModifierProperty("static")) {
-          forObject += field
-        } else forClass += field
+        if (field.hasModifierProperty("static") || inClass.isEnum) forObject += field else forClass += field
       }
+
       for (clazz <- inClass.getInnerClasses) {
-        if (clazz.hasModifierProperty("static")) {
-          forObject += clazz
-        } else forClass += clazz
+        if (clazz.hasModifierProperty("static") || inClass.isEnum) forObject += clazz else forClass += clazz
       }
 
       forClass = forClass.sortBy(_.getTextOffset)
@@ -570,9 +568,9 @@ object JavaToScala {
     val name = convertPsiToIntermdeiate(inClass.getNameIdentifier, externalProperties)
     def handleObject(objectMembers: Seq[PsiMember]): IntermediateNode = {
       def handleAsEnum(modifiers: IntermediateNode): IntermediateNode = {
-        Enum(name, modifiers,
-          objectMembers.filter(_.isInstanceOf[PsiEnumConstant]).map((el: PsiMember) => el.getName))
+        Enum(name, modifiers, objectMembers.map(m => convertPsiToIntermdeiate(m, externalProperties)))
       }
+
       def handleAsObject(modifiers: IntermediateNode): IntermediateNode = {
         val membersOut = objectMembers.filter(!_.isInstanceOf[PsiEnumConstant]).map(convertPsiToIntermdeiate(_, externalProperties))
         val initializers = inClass.getInitializers.map((x: PsiClassInitializer) => convertPsiToIntermdeiate(x.getBody, externalProperties))
@@ -588,10 +586,7 @@ object JavaToScala {
         try {
           val modifiers = handleModifierList(inClass)
           val updatedModifiers = modifiers.asInstanceOf[ModifiersConstruction].without(ModifierType.ABSTRACT)
-          if (inClass.isEnum)
-            handleAsEnum(updatedModifiers)
-          else
-            handleAsObject(updatedModifiers)
+          if (inClass.isEnum) handleAsEnum(updatedModifiers) else handleAsObject(updatedModifiers)
         } finally {
           context.get().pop()
         }
