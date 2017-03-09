@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -17,7 +18,7 @@ class WorksheetInterpretExprsIterator(file: ScalaFile, ifEditor: Option[Editor],
   
   
   def collectAll(acc: PsiElement => Unit, onError: Option[PsiErrorElement => Unit]) {
-    var current = start
+    var current = start.parentsInFile.toList.lastOption.getOrElse(start)
     
     while (current != null) {
       current match {
