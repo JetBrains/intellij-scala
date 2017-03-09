@@ -96,9 +96,9 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     val prefix = pat.ref.refName
     val patternText = escapeQQ(pat)
     val qqDialect = if (pat.isMultiLineString)
-      scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = true)
+      scala.meta.dialects.QuasiquotePat(m.Dialect.standards("Scala211"), multiline = true)
     else
-      scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = false)
+      scala.meta.dialects.QuasiquotePat(m.Dialect.standards("Scala211"), multiline = false)
     parseQQExpr(prefix, patternText, qqDialect) match {
       case Parsed.Success(qqparts) =>
         val parts = collectQQParts(qqparts)
