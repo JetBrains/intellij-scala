@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.project
 
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+
+import org.jetbrains.plugins.scala.extensions
 import org.junit.Assert._
 import org.junit.Test
 
@@ -71,5 +74,11 @@ class VersionTest {
 
     assertFalse(Version("1") ~= Version("1-1"))
     assertTrue(Version("1-1") ~= Version("1"))
+  }
+
+  @Test
+  def serialization(): Unit = {
+    extensions.using(new ObjectOutputStream(new ByteArrayOutputStream(1024)))(
+      _.writeObject(Version("1.2.3")))
   }
 }
