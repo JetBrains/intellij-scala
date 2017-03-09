@@ -102,9 +102,7 @@ class WorksheetCompiler(editor: Editor, worksheetFile: ScalaFile, callback: (Str
       else (0, null, null)
     if (runType != NonServer) CompileServerLauncher.ensureServerRunning(project)
 
-    val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
-    val oldContent = contentManager findContent ERROR_CONTENT_NAME
-    if (oldContent != null) contentManager.removeContent(oldContent, true)
+    WorksheetCompiler.removeOldMessageContent(project)
 
     WorksheetSourceProcessor.process(worksheetFile, Option(editor), iteration, isRepl) match {
       case Left((code, "")) => 
@@ -174,24 +172,65 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
     else NonServer
   }
   
-  def showCompilationError(file: VirtualFile, line: Int, column: Int, project: Project, onShow: () => Unit, msg: Array[String]) {
-    val treeError = new CompilerErrorTreeView(project, null)
+  sealed trait CompilationMessageSeverity {
+    def toType: Int
+    def isFatal: Boolean = false
+  }
+  
+  object ErrorSeverity extends CompilationMessageSeverity {
+    override def toType: Int = MessageCategory.ERROR
+    override def isFatal = true
+  }
+  
+  object WarningSeverity extends CompilationMessageSeverity {
+    override def toType: Int = MessageCategory.WARNING
+  }
+  
+  object InfoSeverity extends CompilationMessageSeverity {
+    override def toType: Int = MessageCategory.INFORMATION
+  }
+
+  def showCompilationMessage(file: VirtualFile, severity: CompilationMessageSeverity, line: Int, column: Int, 
+                             project: Project, onShow: () => Unit, msg: Array[String]) {
     val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
+
+    def addMessageToView(treeView: CompilerErrorTreeView) = treeView.addMessage(severity.toType, msg, file, line, column, null)
     
     ApplicationManager.getApplication.invokeLater(new Runnable {
       override def run(): Unit = {
         if (file == null || !file.isValid) return
-
-        treeError.addMessage(MessageCategory.ERROR, msg, file, line, column, null)
-
-        val errorContent = ContentFactory.SERVICE.getInstance.createContent(treeError.getComponent, ERROR_CONTENT_NAME, true)
-        contentManager addContent errorContent
-        contentManager setSelectedContent errorContent
-
-        MigrationApiImpl.openMessageView(project, errorContent, treeError)
         
+        val (currentContent, treeError) = {
+          Option(contentManager findContent ERROR_CONTENT_NAME) match {
+            case Some(old) if old.getComponent.isInstanceOf[CompilerErrorTreeView] =>
+              val oldView = old.getComponent.asInstanceOf[CompilerErrorTreeView]
+              addMessageToView(oldView)
+              (old, oldView)
+            case None =>
+              val newView = new CompilerErrorTreeView(project, null)
+              addMessageToView(newView)
+              val errorContent = ContentFactory.SERVICE.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
+              contentManager addContent errorContent
+              (errorContent, newView)
+          }
+        }
+
+        contentManager setSelectedContent currentContent
+        MigrationApiImpl.openMessageView(project, currentContent, treeError)
+
         onShow()
       }
     })
+  }
+  
+  def showCompilationError(file: VirtualFile, line: Int, column: Int, 
+                           project: Project, onShow: () => Unit, msg: Array[String]): Unit = {
+    showCompilationMessage(file, ErrorSeverity, line, column, project, onShow, msg)
+  }
+  
+  private def removeOldMessageContent(project: Project) {
+    val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
+    val oldContent = contentManager findContent ERROR_CONTENT_NAME
+    if (oldContent != null) contentManager.removeContent(oldContent, true)
   }
 }
