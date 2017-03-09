@@ -665,7 +665,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           val handler = new SbtTestEventHandler(processHandler)
           (if (useUiWithSbt) modifySbtSettingsForUi(comm) else Future(true)) flatMap {
             //TODO: meaningful report if settings were not set correctly
-            _: Boolean => Future.sequence(commands.map(comm.command(_, handler, showShell = false)))
+            _: Boolean => Future.sequence(commands.map(comm.command(_, {},
+              SbtShellCommunication.listenerAggregator(handler), showShell = false)))
           } onComplete {_ => handler.closeRoot()}
         }
         res
