@@ -13,6 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeEx
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.concurrent.Future
 
 /**
   * @author Ksenia.Sautina
@@ -36,16 +39,21 @@ class ScalaTestRunConfiguration(override val project: Project,
 
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
 
-  override def allowsSbtRun: Boolean = true
+  override def allowsSbtUiRun: Boolean = true
 
-  override def modifySbtSettings(comm: SbtShellCommunication): Unit = {
-    val handler = SettingQueryHandler("testOptions", "", comm)
-    val opts = handler.getSettingValue()
-    if (!opts.contains("-oDU")) {
-      //there might be some duplication, but it should be fine
-      handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
-    }
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Boolean] = {
+    val handler = SettingQueryHandler("testOptions", "Test", comm)
+    val parallelHandler = SettingQueryHandler("parallelExecution", "Test", comm)
+    for {
+      opts <- handler.getSettingValue()
+      optsSet <- if (!opts.contains("-oDU")) handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
+        else Future(true)
+      pOpts <- parallelHandler.getSettingValue()
+      pOptsSet <- if (!pOpts.contains("false")) parallelHandler.setSettingValue("false") else Future(true)
+    } yield optsSet && pOptsSet
   }
+
+  override protected def sbtTestNameKey = " -- -t "
 }
 
 object ScalaTestRunConfiguration extends SuiteValidityChecker {

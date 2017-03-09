@@ -43,13 +43,13 @@ public class JavaSpecs2Runner {
     int i = 0;
     String[] newArgs  = TestRunnerUtil.getNewArgs(args);
     while (i < newArgs.length) {
-      if (newArgs[i].equals(TestRunnerUtil.specs2ClassKey)) {
+      if (newArgs[i].equals("-s")) {
         ++i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
           classes.add(newArgs[i]);
           ++i;
         }
-      } else if (newArgs[i].equals(TestRunnerUtil.specs2TestNameKey)) {
+      } else if (newArgs[i].equals("-testName")) {
         ++i;
         testName = TestRunnerUtil.unescapeTestName(newArgs[i]);
         ++i;
@@ -195,7 +195,7 @@ public class JavaSpecs2Runner {
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
-    if (!testName.equals("")) runnerArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
+    if (!testName.equals("")) runnerArgs.add("-Dspecs2.ex=\"\\A" + testName + "\\Z\"");
     runnerArgs.addAll(argsArray);
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
     if (isSpecs2_3) {

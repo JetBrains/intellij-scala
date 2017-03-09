@@ -65,6 +65,7 @@ abstract class TestConfigurationProducer(configurationType: ConfigurationType) e
             configuration.setShowConsoleOnStdOut(cfg.isShowConsoleOnStdOut)
             configuration.setTestKind(cfg.getTestKind)
             configuration.setUseSbt(cfg.getUseSbt)
+            configuration.setUseUiWithSbt(cfg.getUseUiWithSbt)
             true
           }
         case _ =>

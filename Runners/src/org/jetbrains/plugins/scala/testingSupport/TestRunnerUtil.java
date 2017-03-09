@@ -174,7 +174,4 @@ public class TestRunnerUtil {
       this.expectedIndex = expectedIndex;
     }
   }
-
-  public static final String specs2ClassKey = "-- -specName";
-  public static final String specs2TestNameKey = "-- -ex";
 }
