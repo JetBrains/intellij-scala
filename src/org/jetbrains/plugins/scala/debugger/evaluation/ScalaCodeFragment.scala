@@ -128,6 +128,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
       ScalaFileType.INSTANCE, getText)
     clone.provider = provider.clone().asInstanceOf[SingleRootFileViewProvider]
     clone.provider.forceCachedPsi(clone)
+    clone.setOriginalFile(this)
     clone
   }
 }
