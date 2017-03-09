@@ -17,7 +17,7 @@ class UTestTestFramework extends AbstractTestFramework {
 
   def getMnemonic: Char = 'm'
 
-  override def generateObjectTests = true
+  override def getTestFileTemplateName = "uTest Object"
 
   override protected def getLibraryDependencies(scalaVersion: Option[String]): Seq[String] = scalaVersion match {
     case Some(v) if v.startsWith("2.11") => Seq("\"com.lihaoyi\" % \"utest_2.11\" % \"latest.integration\"")
