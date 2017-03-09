@@ -39,6 +39,7 @@ object ScalaPostfixTemplateProvider {
     new ScalaParenthesizedExpressionPostfixTemplate,
     new ScalaReturnPostfixTemplate,
     new ScalaPrintlnPostfixTemplate,
+    new ScalaPrintlnPostfixTemplate("prtln"),
     new ScalaThrowExceptionPostfixTemplate,
     new ScalaWhilePostfixTemplate,
     new ScalaDoWhilePostfixTemplate,
