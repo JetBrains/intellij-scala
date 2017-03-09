@@ -48,6 +48,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
             case Success(result, _) => createComponent(result)
             case _ => createJavaObject
           }
+          case _ => createJavaObject
         }
       case refinedType@DottyRefinedType(ScDesignatorType(clazz: PsiClass), _, _) if clazz.qualifiedName == "scala.Array" =>
         refinedType.typeArguments match {
