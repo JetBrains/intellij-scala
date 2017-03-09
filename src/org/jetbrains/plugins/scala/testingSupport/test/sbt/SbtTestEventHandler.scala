@@ -39,10 +39,11 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends EventHandler {
       (if (isSuite) s" duration='${SbtTestEventHandler.getDuration(matcher.group(2))}'" else "") + "]\n")
   }
 
+  def closeRoot(): Unit = processHandler.destroyProcess()
+
   override def apply(se: ShellEvent): Unit = se match {
     case TaskStart =>
     case TaskComplete =>
-      processHandler.destroyProcess()
     case SbtShellCommunication.Output(output) =>
       import SbtTestEventHandler._
       import TestRunnerUtil._

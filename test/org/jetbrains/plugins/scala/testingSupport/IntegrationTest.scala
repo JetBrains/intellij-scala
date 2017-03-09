@@ -54,7 +54,7 @@ trait IntegrationTest {
         val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
         presentation.isInstanceOf[TestItemRepresentation] && presentation.getPresentableText == nodeName &&
           presentation.asInstanceOf[TestItemRepresentation].testStatus == status &&
-          parentName.map(currentParentName == _).getOrElse(true)
+          parentName.forall(currentParentName == _)
       } ||
         root.getChildren.toList.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))
     }
