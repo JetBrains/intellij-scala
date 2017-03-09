@@ -4,10 +4,11 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
@@ -53,4 +54,6 @@ object Specs2RunConfiguration extends SuiteValidityChecker {
 
   override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean =
     !isScalaObject(clazz) && AbstractTestRunConfiguration.lackSuitableConstructor(clazz)
+
+  override protected[test] def isInvalidClass(clazz: PsiClass): Boolean = !clazz.isInstanceOf[ScClass] && !clazz.isInstanceOf[ScObject]
 }

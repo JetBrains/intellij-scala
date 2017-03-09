@@ -736,13 +736,15 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
 trait SuiteValidityChecker {
   protected[test] def isInvalidSuite(clazz: PsiClass, suiteClass: PsiClass): Boolean = {
-    !clazz.isInstanceOf[ScClass] || {
+    isInvalidClass(clazz) || {
       val list: PsiModifierList = clazz.getModifierList
       list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
     } || !ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)
   }
 
   protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean
+
+  protected[test] def isInvalidClass(clazz: PsiClass): Boolean = !clazz.isInstanceOf[ScClass]
 }
 
 object AbstractTestRunConfiguration extends SuiteValidityChecker {
