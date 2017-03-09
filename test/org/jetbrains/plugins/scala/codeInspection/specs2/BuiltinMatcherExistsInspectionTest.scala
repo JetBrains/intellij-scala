@@ -5,9 +5,9 @@ import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickF
 
 class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
 
-  protected val annotation = InspectionBundle.message("specs2.use.builtin.matcher")
+  protected val annotation: String = InspectionBundle.message("specs2.use.builtin.matcher")
   private val hint = InspectionBundle.message("specs2.builtin.matcher.alternative.exists")
-  protected val classOfInspection = classOf[BuiltinMatcherExistsInspection]
+  protected val classOfInspection: Class[BuiltinMatcherExistsInspection] = classOf[BuiltinMatcherExistsInspection]
 
   //OperationOnCollectionInspectionBase
   def testMustBeSomeSimplification(): Unit = {
@@ -131,5 +131,5 @@ class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
     }
   }
 
-  override protected val description: String = InspectionBundle.message("specs2.builtin.matcher.alternative.exists")
+  override protected val description: String = InspectionBundle.message("specs2.use.builtin.matcher")
 }
