@@ -21,14 +21,15 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
     MetaTokenizersLoader(),
     MetaTokensLoader(),
     MetaTransversersLoader(),
-    MetaTreesLoader()
+    MetaTreesLoader(),
+    MetaSemanticLoader()
   )
 }
 
 object ScalaMetaLibrariesOwner {
 
   abstract class MetaBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
-    override protected val version: String = "1.3.0"
+    override protected val version: String = "1.6.0"
     override protected val vendor: String = "org.scalameta"
 
     override protected def path(implicit version: ScalaVersion): String =
@@ -77,6 +78,10 @@ object ScalaMetaLibrariesOwner {
 
   private case class MetaTreesLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "trees"
+  }
+
+  private case class MetaSemanticLoader(implicit val module: Module) extends MetaBaseLoader {
+    override protected val name: String = "semantic"
   }
 
 }
