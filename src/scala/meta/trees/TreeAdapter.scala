@@ -90,7 +90,7 @@ trait TreeAdapter {
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
-    m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toTypeParams: _*), toType(t.aliasedType))
+    m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toTypeParams: _*), toType(t.aliasedTypeElement.get))
   }
 
   def toTypeDecl(t: ScTypeAliasDeclaration): m.Decl.Type = {
