@@ -195,8 +195,11 @@ public class JavaSpecs2Runner {
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
-    if (!testName.equals("")) runnerArgs.add("-Dspecs2.ex=\"\\A" + testName + "\\Z\"");
     runnerArgs.addAll(argsArray);
+    if (!testName.equals("")) {
+      runnerArgs.add("-ex");
+      runnerArgs.add("\"\\A" + testName + "\\Z\"");
+    }
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
     if (isSpecs2_3) {
       runSpecs2_new(runnerArgsArray, notifier);
