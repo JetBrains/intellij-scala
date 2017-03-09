@@ -273,6 +273,8 @@ trait TreeAdapter {
     import p.expr._
     import p.expr.xml._
     e match {
+      case t: ScLiteral if t.isSymbol && paradiseCompatibilityHacks =>
+        m.Term.Apply(m.Term.Select(m.Term.Name("scala"), m.Term.Name("Symbol")), Seq(literal(t)))
       case t: ScLiteral =>
         literal(t)
       case t: ScUnitExpr =>
@@ -476,7 +478,7 @@ trait TreeAdapter {
       case ScLiteral(b: java.lang.Byte)       => Lit(b)
       case ScLiteral(s: String)               => Lit(s)
       case ScLiteral(null)                    => Lit(null)
-      case _ if l.isSymbol                    => Lit(l.getValue.asInstanceOf[Symbol])
+      case _ if l.isSymbol                    => Lit(l.getValue.asInstanceOf[Symbol].name) // symbol literals in meta contain a string as their value
       case other => other ?!
     }
     res
