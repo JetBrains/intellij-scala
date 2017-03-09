@@ -21,10 +21,10 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
-import org.jetbrains.sbt.shell.SbtShellCommunication.{Output, TaskComplete, TaskStart}
+import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import scala.collection.JavaConverters._
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
@@ -33,6 +33,7 @@ import scala.util.{Failure, Success}
   * Created by jast on 2016-11-25.
   */
 class SbtProjectTaskRunner extends ProjectTaskRunner {
+  import SbtProjectTaskRunner._
 
   // FIXME should be based on a config option
   // will override the usual jps build thingies
@@ -120,20 +121,32 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
           indicator.setFraction(0) // TODO how does the fraction thing work?
           indicator.setText("queued sbt build ...")
 
-          val handler: SbtShellCommunication.EventHandler = {
-            case TaskStart =>
-              indicator.setIndeterminate(true)
-              indicator.setFraction(0.1)
-              indicator.setText("building ...")
-            case Output(text) =>
-              indicator.setText2(text)
-            case TaskComplete =>
+          val resultAggregator: (TaskResultData,ShellEvent) => TaskResultData = { (data,event) =>
+            event match {
+              case TaskStart =>
+                indicator.setIndeterminate(true)
+                indicator.setFraction(0.1)
+                indicator.setText("building ...")
+              case Output(text) =>
+                indicator.setText2(text)
+              case TaskComplete =>
+            }
+
+            taskResultAggregator(data,event)
           }
+
+          val defaultTaskResult = TaskResultData(aborted = false, 0, 0)
 
           // TODO consider running module build tasks separately
           // may require collecting results individually and aggregating
           // and shell communication should do proper queueing
-          val commandFuture = shell.command(command, handler)
+          val commandFuture = shell.command(command, defaultTaskResult, resultAggregator, showShell = true)
+            .map(data => new ProjectTaskResult(data.aborted, data.errors, data.warnings))
+            .recover {
+              case _ =>
+                // TODO some kind of feedback / rethrow
+                new ProjectTaskResult(true, 1, 0)
+            }
             .andThen {
               case Success(taskResult) =>
                 // TODO progress monitoring
@@ -170,6 +183,23 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
     )
   }
 
+}
+
+object SbtProjectTaskRunner {
+
+  private case class TaskResultData(aborted: Boolean, errors: Int, warnings: Int)
+
+  private val taskResultAggregator: EventAggregator[TaskResultData] = (result, event) =>
+    event match {
+      case TaskStart => result
+      case TaskComplete => result
+      case Output(text) =>
+        if (text startsWith "[error]")
+          result.copy(errors = result.errors+1)
+        else if (text startsWith "[warning]")
+          result.copy(warnings = result.warnings+1)
+        else result
+    }
 }
 
 private abstract class CommandTask(project: Project) extends
