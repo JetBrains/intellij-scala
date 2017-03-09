@@ -6,13 +6,13 @@ import com.intellij.execution.process.{ProcessHandler, ProcessOutputTypes}
 import com.intellij.execution.ui.ConsoleViewContentType
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.SbtShellCommunication.{EventHandler, ShellEvent, TaskComplete, TaskStart}
+import org.jetbrains.sbt.shell.SbtShellCommunication.{ShellEvent, TaskComplete, TaskStart}
 
 /**
   * @author Roman.Shein
   *         Date: 20.02.2017
   */
-class SbtTestEventHandler(processHandler: ProcessHandler) extends EventHandler {
+class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[ShellEvent, Unit] {
   private var currentId = 0
   private var idStack = List[Int](0)
   private var testCount = 0
