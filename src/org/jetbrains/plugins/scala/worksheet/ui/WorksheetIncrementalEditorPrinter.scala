@@ -212,7 +212,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     outputBuffer.clear()
 
     val (msg, horizontalOffset) = ReplError.extractInfoFromAllText(str).getOrElse((str, 0))
-    val position = originalEditor.offsetToLogicalPosition(offset + horizontalOffset)
+    val position = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset + horizontalOffset) }
     
     WorksheetCompiler.showCompilationError(getScalaFile.getVirtualFile, position.line, position.column, project, 
       () => {originalEditor.getCaretModel moveToLogicalPosition position}, msg.split('\n'))
