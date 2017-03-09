@@ -19,7 +19,7 @@ class SbtTestEventHandler(processHandler: ProcessHandler) extends Function1[Shel
 
   protected def report(message: String): Unit = {
     processHandler.notifyTextAvailable(message, SbtTestEventHandler.processOutputType)
-    println(message)
+//    println(message)
   }
 
   protected def openScope(matcher: Matcher, isSuite: Boolean): Unit = {
