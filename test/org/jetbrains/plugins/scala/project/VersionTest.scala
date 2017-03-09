@@ -8,7 +8,7 @@ import org.junit.Test
   */
 class VersionTest {
   @Test
-  def comarison(): Unit = {
+  def comparison(): Unit = {
     assertEquals(0, Version("1").compareTo(Version("1")))
     assertEquals(0, Version("1.1").compareTo(Version("1.1")))
     assertEquals(0, Version("1.1.1").compareTo(Version("1.1.1")))
@@ -27,7 +27,7 @@ class VersionTest {
   }
 
   @Test
-  def comarisonGroups(): Unit = {
+  def comparisonGroups(): Unit = {
     assertEquals(0, Version("1-1").compareTo(Version("1-1")))
 
     assertEquals(-1, Version("1-1").compareTo(Version("2-1")))
