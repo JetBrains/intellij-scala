@@ -196,7 +196,7 @@ package object project {
     implicit def toLibrary(v: ScalaSdk): Library = v.library
 
     def documentationUrlFor(version: Option[Version]): String =
-      "http://www.scala-lang.org/api/" + version.map(_.versionString).getOrElse("current") + "/"
+      "http://www.scala-lang.org/api/" + version.map(_.presentation).getOrElse("current") + "/"
   }
 
   implicit class ProjectPsiElementExt(val element: PsiElement) extends AnyVal {
@@ -231,4 +231,6 @@ package object project {
   val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
 
   val ScalaLibraryName: String = "scala-library"
+
+  val DottyLibraryName: String = "dotty-library"
 }

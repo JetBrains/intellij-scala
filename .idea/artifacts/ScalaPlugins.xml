@@ -25,7 +25,8 @@
           <element id="library" level="project" name="SBT: org.jetbrains:jline:1.0.0:jar" />
           <element id="library" level="project" name="SBT: org.jetbrains:sbt-interface:1.0.0:jar" />
           <element id="library" level="project" name="SBT: org.jetbrains:incremental-compiler:1.0.0:jar" />
-          <element id="library" level="project" name="SBT: ch.epfl.lamp:dotty-interfaces:0.1.1-20170227-179a5d6-NIGHTLY:jar" />        </element>
+          <element id="library" level="project" name="SBT: ch.epfl.lamp:dotty-interfaces:0.1.1-20170227-179a5d6-NIGHTLY:jar" />
+        </element>
         <element id="archive" name="compiler-settings.jar">
           <element id="module-output" name="compilerSettings" />
         </element>
@@ -56,12 +57,12 @@
         <element id="library" level="project" name="SBT: org.scalameta:tokens_2.11:1.3.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:transversers_2.11:1.3.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:trees_2.11:1.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-4-ga73b109:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-5-g0cbc1e0:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.13:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-4-ga73b109:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-4-ga73b109:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-5-g0cbc1e0:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-5-g0cbc1e0:jar" />
       </element>
     </root>
   </artifact>

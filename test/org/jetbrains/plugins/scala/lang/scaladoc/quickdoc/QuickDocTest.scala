@@ -37,7 +37,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val member = td flatMap (c => c.members.find(_.getName == elementName))
     if (member.isEmpty) Assert.fail()
     else member foreach {
-      case m: ScFunctionWrapper => generateByElement(m.function, assumedTest)
+      case m: ScFunctionWrapper => generateByElement(m.delegate, assumedTest)
       case member: ScMember => generateByElement(member, assumedTest)
     }
   }

@@ -69,7 +69,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx {
     def unapply(ref: PsiReferenceExpression): Option[ScReferencePattern] = {
       ref.resolve() match {
         case wrapper: PsiTypedDefinitionWrapper if wrapper.getName endsWith setterSuffix =>
-          wrapper.typedDefinition match {
+          wrapper.delegate match {
             case refPattern: ScReferencePattern if ScalaPsiUtil.nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
             case _ => None
           }

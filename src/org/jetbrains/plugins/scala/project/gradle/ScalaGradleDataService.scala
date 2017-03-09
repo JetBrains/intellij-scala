@@ -64,14 +64,14 @@ private object ScalaGradleDataService {
 
       val scalaLibraryOption = scalaLibraries.find(_.scalaVersion.contains(compilerVersion))
       if (scalaLibraryOption.isEmpty) {
-        showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion.versionString, module.getName))
+        showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion.presentation, module.getName))
         return
       }
       val scalaLibrary = scalaLibraryOption.get
 
       if (!scalaLibrary.isScalaSdk) {
         val languageLevel = scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
-        convertToScalaSdk(scalaLibrary, languageLevel, compilerClasspath)
+        convertToScalaSdk(scalaLibrary, Platform.Default, languageLevel, compilerClasspath)
       }
     }
 

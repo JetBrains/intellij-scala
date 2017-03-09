@@ -13,6 +13,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
+import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -44,15 +45,23 @@ object ModuleExtDataService {
         data = dataNode.getData
       } {
         module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
-        data.scalaVersion.foreach(version => configureScalaSdk(module, version, data.scalacClasspath))
+        data.scalaVersion.foreach(version => configureScalaSdk(module, data.scalaOrganization, version, data.scalacClasspath))
         configureOrInheritSdk(module, data.jdk)
         configureLanguageLevel(module, data.javacOptions)
         configureJavacOptions(module, data.javacOptions)
       }
     }
 
-    private def configureScalaSdk(module: Module, compilerVersion: Version, compilerClasspath: Seq[File]): Unit = {
-      val scalaLibraries = getScalaLibraries(module)
+    private def configureScalaSdk(module: Module,
+                                  compilerOrganization: String,
+                                  compilerVersion: Version,
+                                  compilerClasspath: Seq[File]): Unit = {
+
+      val platform = compilerOrganization match {
+        case "ch.epfl.lamp" => Platform.Dotty
+        case _ => Platform.Default
+      }
+      val scalaLibraries = getScalaLibraries(module, platform)
       if (scalaLibraries.nonEmpty) {
         val scalaLibrary = scalaLibraries
           .find(_.scalaVersion.contains(compilerVersion))
@@ -60,9 +69,17 @@ object ModuleExtDataService {
 
         scalaLibrary match {
           case Some(library) if !library.isScalaSdk =>
-            convertToScalaSdk(library, library.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default), compilerClasspath)
+            val languageLevel = platform match {
+              case Scala => library.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
+              case Dotty => ScalaLanguageLevel.Snapshot
+            }
+            val classpath = platform match {
+              case Scala => compilerClasspath
+              case Dotty => compilerClasspath.filterNot(_.getName.startsWith("sbt-interface-"))
+            }
+            convertToScalaSdk(library, platform, languageLevel, classpath)
           case None =>
-            showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.versionString, module.getName))
+            showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.presentation, module.getName))
           case _ => // do nothing
         }
       }

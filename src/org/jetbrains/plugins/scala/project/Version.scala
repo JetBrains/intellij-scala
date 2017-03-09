@@ -1,21 +1,18 @@
 package org.jetbrains.plugins.scala
 package project
 
-import org.jetbrains.plugins.scala.project.Version._
-
 /**
  * @author Pavel Fatin
  */
-case class Version(versionString: String) extends AnyVal with Comparable[Version] {
+case class Version(presentation: String) extends Comparable[Version] {
+  private val groups: Seq[Group] = presentation.split('-').map(Group(_))
 
-  def groups: Seq[Seq[Int]] = {
-    versionString.split('-').map(findNumbers)
-  }
-
-  def compareTo(other: Version): Int = { //0.1.1 > 0.1-20170107
+  def compareTo(other: Version): Int = {
     groups.zip(other.groups).collectFirst {
-      case (a, b) if a != b => compareGroups(a, b)
-    } getOrElse {0}
+      case (g1, g2) if g1 != g2 => g1.compareTo(g2)
+    } getOrElse {
+      groups.lengthCompare(other.groups.length)
+    }
   }
 
   def >(other: Version): Boolean = compareTo(other) > 0
@@ -26,20 +23,43 @@ case class Version(versionString: String) extends AnyVal with Comparable[Version
 
   def <=(other: Version): Boolean = compareTo(other) <= 0
 
+  // Returns whether this version is equal to or more specific than the other version
+  def ~=(other: Version): Boolean = {
+    groups.zip(other.groups).collectFirst {
+      case (g1, g2) if !(g1 ~= g2) => false
+    } getOrElse {
+      groups.lengthCompare(other.groups.length) >= 0
+    }
+  }
+
   def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
 }
 
 object Version {
-  private val IntegerPattern = "\\d+".r
+  def abbreviate(presentation: String): String = presentation.split('-').take(2).mkString("-")
+}
 
-  private def findNumbers(s: String): Seq[Int] = IntegerPattern.findAllIn(s).toSeq.map(_.toInt)
-
-  private def compareGroups(l: Seq[Int], r: Seq[Int]): Int = {
-    l.zip(r).collectFirst {
-      case (a, b) if a != b => a.compareTo(b)
+private case class Group(numbers: Seq[Int]) extends Comparable[Group] {
+  override def compareTo(other: Group): Int = {
+    numbers.zip(other.numbers).collectFirst {
+      case (n1, n2) if n1 != n2 => n1.compareTo(n2)
     } getOrElse {
-      l.size.compareTo(r.size)  //0.1.1 > 0.1
+      numbers.lengthCompare(other.numbers.size)
+    }
+  }
+
+  def ~=(other: Group): Boolean = {
+    numbers.zip(other.numbers).collectFirst {
+      case (n1, n2) if n1 != n2 => false
+    } getOrElse {
+      numbers.lengthCompare(other.numbers.length) >= 0
     }
   }
 }
 
+private object Group {
+  private val IntegerPattern = "\\d+".r
+
+  def apply(presentation: String): Group =
+    Group(IntegerPattern.findAllIn(presentation).map(_.toInt).toSeq)
+}

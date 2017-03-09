@@ -188,9 +188,14 @@ object JavaToScala {
           Option(s.getCaseValue).map(convertPsiToIntermdeiate(_, externalProperties))
         SwitchLabelStatement(caseValue, ScalaPsiUtil.functionArrow(s.getProject))
       case s: PsiSwitchStatement =>
+        def statements = Option(s.getBody).map(_.getStatements)
+
+        def defaultStatement = SwitchLabelStatement(Some(LiteralExpression("_")), ScalaPsiUtil.functionArrow(s.getProject))
+
         val expr = Option(s.getExpression).map(convertPsiToIntermdeiate(_, externalProperties))
         val body = Option(s.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
-        SwitchStatemtnt(expr, body)
+
+        if (statements.exists(_.length == 0)) SwitchStatemtnt(expr, Some(defaultStatement)) else SwitchStatemtnt(expr, body)
       case p: PsiPackageStatement => PackageStatement(convertPsiToIntermdeiate(p.getPackageReference, externalProperties))
       case f: PsiForeachStatement =>
         val tp = Option(f.getIteratedValue).flatMap((e: PsiExpression) => Option(e.getType))
