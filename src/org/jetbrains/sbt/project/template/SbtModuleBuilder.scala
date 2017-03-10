@@ -12,7 +12,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemBundle, ExternalSystemUtil}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
@@ -86,7 +86,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
     val resolveJavadocsCheckBox       = new JCheckBox(SbtBundle("sbt.settings.resolveJavadocs"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
-    val createContentDirsCheckBox     = new JCheckBox(ExternalSystemBundle.message("settings.label.create.empty.content.root.directories"))
 
     val step = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
@@ -102,11 +101,10 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         getExternalProjectSettings.setResolveJavadocs(resolveJavadocsCheckBox.isSelected)
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setUseAutoImport(false)
-        getExternalProjectSettings.setCreateEmptyContentRootDirectories(createContentDirsCheckBox.isSelected)
+        getExternalProjectSettings.setCreateEmptyContentRootDirectories(false)
       }
     }
 
-    createContentDirsCheckBox.setSelected(true)
     resolveClassifiersCheckBox.setSelected(true)
     resolveJavadocsCheckBox.setSelected(false)
     resolveSbtClassifiersCheckBox.setSelected(false)
@@ -119,7 +117,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionComboBox)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionPanel)
-    settingsStep.addSettingsField("", createContentDirsCheckBox)
 
     val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
     downloadPanel.add(resolveClassifiersCheckBox)
@@ -139,6 +136,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     if (!buildFile.createNewFile() ||
             !projectDir.mkdir() ||
             !pluginsFile.createNewFile()) return
+
+    (root / "src" / "main" / "scala").mkdirs()
+    (root / "src" / "test" / "scala").mkdirs()
 
     writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name, platform, scalaVersion))
     writeToFile(pluginsFile, SbtModuleBuilder.PluginsDefinition)
