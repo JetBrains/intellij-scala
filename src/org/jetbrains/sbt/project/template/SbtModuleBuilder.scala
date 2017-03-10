@@ -127,18 +127,15 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   private def createProjectTemplateIn(root: File, name: String, platform: Platform, scalaVersion: String, sbtVersion: String) {
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory
-    val pluginsFile = projectDir / Sbt.PluginsFile
     val propertiesFile = projectDir / Sbt.PropertiesFile
 
     if (!buildFile.createNewFile() ||
-            !projectDir.mkdir() ||
-            !pluginsFile.createNewFile()) return
+            !projectDir.mkdir()) return
 
     (root / "src" / "main" / "scala").mkdirs()
     (root / "src" / "test" / "scala").mkdirs()
 
     writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name, platform, scalaVersion))
-    writeToFile(pluginsFile, SbtModuleBuilder.PluginsDefinition)
     writeToFile(propertiesFile, SbtModuleBuilder.formatSbtProperties(sbtVersion))
   }
 
@@ -205,9 +202,6 @@ private object SbtModuleBuilder {
         |scalaCompilerBridgeSource := ("ch.epfl.lamp" % "dotty-sbt-bridge" % scalaVersion.value % "component").sources()"""
         .stripMargin
   }
-
-  
-  def PluginsDefinition = "logLevel := Level.Warn"
 
   def formatSbtProperties(sbtVersion: String) = s"sbt.version = $sbtVersion"
 }
