@@ -71,7 +71,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACES_AROUND_AT_IN_PATTERNS = false;
   public boolean NEWLINE_AFTER_ANNOTATIONS = false;
   public boolean ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false;
-  public boolean KEEP_COMMENTS_ON_SAME_LINE = false;
+  public boolean KEEP_COMMENTS_ON_SAME_LINE = true;
   public boolean SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false;
   public int CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = 0;
 

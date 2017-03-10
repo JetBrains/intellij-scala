@@ -12,16 +12,20 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.concurrent.Future
 
 /**
- * @author Ksenia.Sautina
- * @since 5/17/12
- */
+  * @author Ksenia.Sautina
+  * @since 5/17/12
+  */
 
 class ScalaTestRunConfiguration(override val project: Project,
                                 override val configurationFactory: ConfigurationFactory,
                                 override val name: String)
-    extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
+  extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
 
   override def suitePaths: List[String] = ScalaTestUtil.suitePaths
 
@@ -34,6 +38,22 @@ class ScalaTestRunConfiguration(override val project: Project,
   override def currentConfiguration: ScalaTestRunConfiguration = ScalaTestRunConfiguration.this
 
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+
+  override def allowsSbtUiRun: Boolean = true
+
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Boolean] = {
+    val handler = SettingQueryHandler("testOptions", "Test", comm)
+    val parallelHandler = SettingQueryHandler("parallelExecution", "Test", comm)
+    for {
+      opts <- handler.getSettingValue()
+      optsSet <- if (!opts.contains("-oDU")) handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
+        else Future(true)
+      pOpts <- parallelHandler.getSettingValue()
+      pOptsSet <- if (!pOpts.contains("false")) parallelHandler.setSettingValue("false") else Future(true)
+    } yield optsSet && pOptsSet
+  }
+
+  override protected def sbtTestNameKey = " -- -t "
 }
 
 object ScalaTestRunConfiguration extends SuiteValidityChecker {

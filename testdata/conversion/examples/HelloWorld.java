@@ -10,8 +10,7 @@ public class HelloWorld {
 /*
 package java
 
-object HelloWorld {
-  // method main(): ALWAYS the APPLICATION entry point
+object HelloWorld { // method main(): ALWAYS the APPLICATION entry point
   def main(args: Array[String]): Unit = {
     System.out.println("Hello World!")
   }

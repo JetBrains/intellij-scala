@@ -9,35 +9,35 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 trait FunSpecGenerator extends ScalaTestTestCase {
   val funSpecClassName = "FunSpecTest"
 
-  val funSpecFileName = funSpecClassName + ".scala"
+  val funSpecFileName: String = funSpecClassName + ".scala"
 
-  addSourceFile("FunSpecTest.scala",
-    """
-      |import org.scalatest._
-      |
-      |class FunSpecTest extends FunSpec {
-      |  describe("FunSpecTest") {
-      |    it ("should launch single test") {
-      |      print(">>TEST: OK<<")
-      |    }
-      |
-      |    it ("should not launch other tests") {
-      |      print(">>TEST: FAILED<<")
-      |    }
-      |  }
-      |
-      |  describe("OtherScope") {
-      |    it ("is here") {}
-      |  }
-      |
-      |  describe("emptyScope") {}
-      |
-      |  describe("taggedScope") {
-      |    it ("is tagged", FunSpecTag) {}
-      |  }
-      |}
-      |
-      |object FunSpecTag extends Tag("MyTag")
+  addSourceFile(funSpecFileName,
+    s"""
+       |import org.scalatest._
+       |
+       |class $funSpecClassName extends FunSpec {
+       |  describe("FunSpecTest") {
+       |    it ("should launch single test") {
+       |      print(">>TEST: OK<<")
+       |    }
+       |
+       |    it ("should not launch other tests") {
+       |      print(">>TEST: FAILED<<")
+       |    }
+       |  }
+       |
+       |  describe("OtherScope") {
+       |    it ("is here") {}
+       |  }
+       |
+       |  describe("emptyScope") {}
+       |
+       |  describe("taggedScope") {
+       |    it ("is tagged", FunSpecTag) {}
+       |  }
+       |}
+       |
+       |object FunSpecTag extends Tag("MyTag")
     """.stripMargin.trim()
   )
 }
