@@ -9,6 +9,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
+import SbtUtil._
 
 /**
  * @author Nikolay Obedin
@@ -46,10 +47,6 @@ class SbtRunnerTest extends UsefulTestCase {
   def testSbtLaunch_0_13_11(): Unit =
     doTestSbtLauncherVersionDetection("0.13.11")
 
-  //TODO
-//  def testSbtLaunch_0_13_12(): Unit =
-//    doTestSbtLauncherVersionDetection("0.13.12")
-
   def testSbtLaunch_0_13_13(): Unit =
     doTestSbtLauncherVersionDetection("0.13.13")
 
@@ -57,14 +54,14 @@ class SbtRunnerTest extends UsefulTestCase {
     val expectedVersion = "1.0.0"
     val launcherFile = generateMockLauncher(expectedVersion)
     assertTrue(launcherFile.exists())
-    val actualVersion = SbtRunner.detectSbtVersion(tmpDirFile, launcherFile)
+    val actualVersion = detectSbtVersion(tmpDirFile, launcherFile)
     assertEquals(expectedVersion, actualVersion)
   }
 
   def testEmptyMockLauncher(): Unit = {
     val launcherFile = generateJarFileWithEntries()
     assertTrue(launcherFile.exists())
-    val actualVersion = SbtRunner.detectSbtVersion(tmpDirFile, launcherFile)
+    val actualVersion = detectSbtVersion(tmpDirFile, launcherFile)
     assertEquals(Sbt.LatestVersion, actualVersion)
   }
 
@@ -73,7 +70,7 @@ class SbtRunnerTest extends UsefulTestCase {
   private def doTestSbtLauncherVersionDetection(sbtVersion: String): Unit = {
     val sbtLaunchJar = getSbtLaunchJarForVersion(sbtVersion)
     assertTrue(s"$sbtLaunchJar is not found. Make sure it is downloaded by Ivy.", sbtLaunchJar.exists())
-    val actualVersion = SbtRunner.detectSbtVersion(tmpDirFile, sbtLaunchJar)
+    val actualVersion = detectSbtVersion(tmpDirFile, sbtLaunchJar)
     assertEquals(sbtVersion, actualVersion)
   }
 
