@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
   */
 abstract class TypeParameterInfoTestBase extends ParameterInfoTestBase[ScTypeArgs] {
 
-  override protected def folderPath: String = super.folderPath + "typeParameterInfo/"
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}typeParameterInfo/"
 
   override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScTypeArgs, Any, _ <: PsiElement] =
     new ScalaTypeParameterInfoHandler

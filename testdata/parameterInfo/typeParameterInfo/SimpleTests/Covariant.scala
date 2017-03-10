@@ -1,4 +1,4 @@
 class Covariant[-T]
 
-new Covariant[/*caret*/]
+new Covariant[<caret>]
 //-T

@@ -1,4 +1,4 @@
 class ScalaConstructorA
 
-new ScalaConstructorA(/*caret*/)
+new ScalaConstructorA(<caret>)
 // <no parameters>

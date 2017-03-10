@@ -3,5 +3,6 @@ class A {
 }
 
 object B extends A
-B[Int /*caret*/]
+
+B[Int<caret>]
 // a

@@ -4,7 +4,7 @@ class GenericUpdate[T] {
 }
 
 val x = new GenericUpdate[Int]
-x(/*caret*/)
+x(<caret>)
 /*
 x: Boolean
 x: Int

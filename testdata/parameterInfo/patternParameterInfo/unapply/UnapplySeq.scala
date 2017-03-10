@@ -6,7 +6,7 @@ object UnapplySeq {
     val root = <root>content</root>;
 
     root match {
-      case Elem(_, "root", /*caret*/_, _, child @_*) => Console.print(child)
+      case Elem(_, "root", <caret>_, _, child @_*) => Console.print(child)
     }
   }
 }

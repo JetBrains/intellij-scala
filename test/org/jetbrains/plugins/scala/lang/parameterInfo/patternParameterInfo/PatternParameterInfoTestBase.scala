@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPatternArgumentL
   */
 abstract class PatternParameterInfoTestBase extends ParameterInfoTestBase[ScPatternArgumentList] {
 
-  override protected def folderPath = super.folderPath + "patternParameterInfo/"
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}patternParameterInfo/"
 
   override protected def createHandler: ParameterInfoHandlerWithTabActionSupport[ScPatternArgumentList, Any, _ <: PsiElement] =
     new ScalaPatternParameterInfoHandler
