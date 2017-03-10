@@ -29,7 +29,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
     getFixture.configureByFile(filePath)
   }
 
-  protected final def doTest(): Unit = {
+  protected final def doTest(testUpdate: Boolean = true): Unit = {
     val file = configureFile()
     val offset = getFixture.getCaretOffset
 
@@ -41,9 +41,11 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
     val expected = expectedSignatures(lastElement())
     assertTrue(expected.contains(actual))
 
-    //todo test correct parameter index after moving caret
-    val actualAfterUpdate = handleUpdateUI(handler, context)
-    assertTrue(expected.contains(actualAfterUpdate))
+    if (testUpdate) {
+      //todo test correct parameter index after moving caret
+      val actualAfterUpdate = handleUpdateUI(handler, context)
+      assertTrue(expected.contains(actualAfterUpdate))
+    }
   }
 
   private def handleUI(handler: ParameterInfoHandler[Owner, Any],
