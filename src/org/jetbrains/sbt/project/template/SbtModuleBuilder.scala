@@ -86,7 +86,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
     val resolveJavadocsCheckBox       = new JCheckBox(SbtBundle("sbt.settings.resolveJavadocs"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
-    val useAutoImportCheckBox         = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
     val createContentDirsCheckBox     = new JCheckBox(ExternalSystemBundle.message("settings.label.create.empty.content.root.directories"))
 
     val step = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
@@ -102,7 +101,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         getExternalProjectSettings.setResolveClassifiers(resolveClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setResolveJavadocs(resolveJavadocsCheckBox.isSelected)
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
-        getExternalProjectSettings.setUseAutoImport(useAutoImportCheckBox.isSelected)
+        getExternalProjectSettings.setUseAutoImport(false)
         getExternalProjectSettings.setCreateEmptyContentRootDirectories(createContentDirsCheckBox.isSelected)
       }
     }
@@ -120,7 +119,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionComboBox)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionPanel)
-    settingsStep.addSettingsField("", useAutoImportCheckBox)
     settingsStep.addSettingsField("", createContentDirsCheckBox)
 
     val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
