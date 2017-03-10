@@ -18,7 +18,7 @@ class CopyTextToScala extends CopyTestBase() {
     ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
   }
 
-  def testWrapWithExpression(): Unit ={
+  def testWrapWithExpression(): Unit = {
     val fromText = "<selection>new double[]{1.0, 2, 3};</selection>"
 
     val expected = "Array[Double](1.0, 2, 3)"
@@ -26,7 +26,7 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testWrapWithFunction(): Unit ={
+  def testWrapWithFunction(): Unit = {
     val fromText =
       """
         |<selection>assert true : "Invocation of 'paste' operation for specific caret is not supported";</selection>
@@ -39,7 +39,7 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testWrapWithClass(): Unit ={
+  def testWrapWithClass(): Unit = {
     val fromText =
       """
         |<selection>public void doExecute() {
@@ -73,7 +73,7 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testAsFile(): Unit ={
+  def testAsFile(): Unit = {
     val fromText =
       """
         |<selection>import java.io.File;
@@ -102,7 +102,7 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testJavaFileWithoutSemicolon(): Unit ={
+  def testJavaFileWithoutSemicolon(): Unit = {
     val fromText =
       """
         |<selection>class Test {
@@ -135,7 +135,7 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testJavaMethodWithoutLatestCurlyBrackets(): Unit ={
+  def testJavaMethodWithoutLatestCurlyBrackets(): Unit = {
     val fromText =
       """
         |class Test {
@@ -157,6 +157,17 @@ class CopyTextToScala extends CopyTestBase() {
   def testEmptyJavaClass(): Unit = {
     doTestEmptyToFile("<selection>public class Test {}</selection>", "class Test {}")
   }
+
+  /** ****************** Valid scala code. No conversion expected. ******************/
+
+  def testNoConversion1(): Unit = {
+    doTestEmptyToFile("<selection>class Test {}</selection>", "class Test {}")
+  }
+
+  def testNoConversion2(): Unit = {
+    doTestEmptyToFile("<selection>class Test extends Any</selection>", "class Test extends Any")
+  }
+
 
   override val fromLangExtension: String = ".txt"
 }

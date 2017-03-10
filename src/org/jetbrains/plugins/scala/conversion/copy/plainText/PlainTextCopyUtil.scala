@@ -27,13 +27,13 @@ object PlainTextCopyUtil {
 
     def isOneWord(text: String): Boolean = !text.trim.contains(" ")
 
-    if (withLastSemicolon(text)) false
+    if (withLastSemicolon(text) || isJavaClassWithPublic(text, project)) false
     else if (isOneWord(text)) true
-    else {
-      createScalaFile(text, project).exists(isParsedCorrectly) &&
-        !createJavaFile(text, project).exists(isParsedCorrectly)
-    }
+    else createScalaFile(text, project).exists(isParsedCorrectly)
   }
+
+  def isJavaClassWithPublic(text: String, project: Project): Boolean =
+    createJavaFile(text, project).exists(_.getClasses.exists(_.hasModifierProperty("public")))
 
   def isValidJavaFile(text: String, project: Project): Boolean = createJavaFile(text, project).exists(isParsedCorrectly)
 
