@@ -1812,7 +1812,6 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL6267() = {
-    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
 
     val before =
       """
@@ -1824,6 +1823,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL6267_1() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = false
     val before =
       """
         |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
@@ -2377,7 +2377,6 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL4269() = {
-    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
     val before =
       """
         |object HelloWorld { // A sample application object
@@ -2392,6 +2391,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL4269_1() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = false
     val before =
       """
         |object HelloWorld { // A sample application object
