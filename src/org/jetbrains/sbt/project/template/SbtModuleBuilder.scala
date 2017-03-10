@@ -84,7 +84,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     })
 
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
-    val resolveJavadocsCheckBox       = new JCheckBox(SbtBundle("sbt.settings.resolveJavadocs"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
 
     val step = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
@@ -98,7 +97,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
 
         getExternalProjectSettings.setResolveClassifiers(resolveClassifiersCheckBox.isSelected)
-        getExternalProjectSettings.setResolveJavadocs(resolveJavadocsCheckBox.isSelected)
+        getExternalProjectSettings.setResolveJavadocs(false)
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setUseAutoImport(false)
         getExternalProjectSettings.setCreateEmptyContentRootDirectories(false)
@@ -106,7 +105,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     }
 
     resolveClassifiersCheckBox.setSelected(true)
-    resolveJavadocsCheckBox.setSelected(false)
     resolveSbtClassifiersCheckBox.setSelected(false)
 
     val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
@@ -120,7 +118,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
     downloadPanel.add(resolveClassifiersCheckBox)
-    downloadPanel.add(resolveJavadocsCheckBox)
     downloadPanel.add(resolveSbtClassifiersCheckBox)
     settingsStep.addSettingsField("Download:", downloadPanel)
 
