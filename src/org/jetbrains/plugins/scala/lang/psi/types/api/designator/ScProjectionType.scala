@@ -18,11 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, CachedWithRecursionGuard$, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.collection.Set
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -81,9 +79,9 @@ class ScProjectionType private(val projected: ScType,
     case _ => false
   }) && super.isStable
 
-  override private[types] def designatorSingletonType = super.designatorSingletonType.map(actualSubst.subst)
+  override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
 
-  override private[types] def designated(implicit withoutAliases: Boolean) = actualElement match {
+  override private[types] def designated(implicit withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = actualElement match {
     case definition: ScTypeAliasDefinition if withoutAliases =>
       definition.aliasedType().toOption.flatMap {
         actualSubst.subst(_).extractDesignated
@@ -91,7 +89,7 @@ class ScProjectionType private(val projected: ScType,
     case _ => Some(actual)
   }
 
-  override private[types] def classType(project: Project, visitedAlias: HashSet[ScTypeAlias]) = actualElement match {
+  override private[types] def classType(project: Project, visitedAlias: Set[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] = actualElement match {
     case clazz: PsiClass => Some(clazz, actualSubst)
     case definition: ScTypeAliasDefinition if !visitedAlias.contains(definition) =>
       definition.aliasedType.toOption.flatMap {
@@ -112,7 +110,7 @@ class ScProjectionType private(val projected: ScType,
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res
@@ -153,7 +151,7 @@ class ScProjectionType private(val projected: ScType,
     }
 
     import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-    def processType(kinds: Set[ResolveTargets.Value] = ValueSet(CLASS),
+    def processType(kinds: collection.Set[ResolveTargets.Value] = ValueSet(CLASS),
                     default: Boolean = !superReference): Option[(PsiNamedElement, ScSubstitutor)] = {
       def elementClazz: Option[PsiClass] = element match {
         case named: ScBindingPattern => Option(named.containingClass)

@@ -21,15 +21,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
-import scala.collection.immutable.{HashSet, ListMap}
+import scala.collection.immutable.ListMap
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     designator match {
       case ScDesignatorType(ta: ScTypeAlias) =>
-        val existingWildcards = ta.lowerBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty) ++
-          (if (ta.isDefinition) HashSet.empty else ta.upperBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty))
+        val existingWildcards = ta.lowerBound.map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
+          (if (ta.isDefinition) Set.empty else ta.upperBound.map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
@@ -43,8 +43,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
 
-        val existingWildcards = ta.lowerBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty) ++
-          (if (ta.isDefinition) HashSet.empty else ta.upperBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty))
+        val existingWildcards = ta.lowerBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
+          (if (ta.isDefinition) Set.empty else ta.upperBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),

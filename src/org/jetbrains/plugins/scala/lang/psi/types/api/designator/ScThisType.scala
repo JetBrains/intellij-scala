@@ -9,8 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt, ScUndefinedSubstitutor, api}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-import scala.collection.immutable.HashSet
-
 /**
   * @author adkozlov
   */
@@ -37,7 +35,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
 
   override private[types] def designatorSingletonType = None
 
-  override private[types] def classType(project: Project, visitedAlias: HashSet[ScTypeAlias]) =
+  override private[types] def classType(project: Project, visitedAlias: Set[ScTypeAlias]) =
     Some(element, ScSubstitutor(this))
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)

@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
-
 /**
   * @author adkozlov
   */
@@ -70,13 +68,13 @@ package object types {
     }
 
     def extractClassType(project: Project = null,
-                         visitedAlias: HashSet[ScTypeAlias] = HashSet.empty)
+                         visitedAlias: Set[ScTypeAlias] = Set.empty)
                         (implicit typeSystem: TypeSystem): Option[(PsiClass, ScSubstitutor)] = {
       typeSystem.bridge.extractClassType(scType, project, visitedAlias)
     }
 
     @tailrec
-    final def removeAliasDefinitions(visited: HashSet[ScType] = HashSet.empty, expandableOnly: Boolean = false): ScType = {
+    final def removeAliasDefinitions(visited: Set[ScType] = Set.empty, expandableOnly: Boolean = false): ScType = {
       if (visited.contains(scType)) {
         return scType
       }

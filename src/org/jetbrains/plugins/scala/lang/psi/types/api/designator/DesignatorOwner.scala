@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeExt}
 
-import scala.collection.immutable.HashSet
-
 /**
   * @author adkozlov
   */
@@ -47,7 +45,7 @@ trait DesignatorOwner extends ValueType with TypeInTypeSystem {
   }
 
   private[types] def classType(project: Project,
-                               visitedAlias: HashSet[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] = element match {
+                               visitedAlias: Set[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] = element match {
     case clazz: PsiClass => Some(clazz, ScSubstitutor.empty)
     case definition: ScTypeAliasDefinition if !visitedAlias.contains(definition) =>
       definition.aliasedType.toOption.flatMap {

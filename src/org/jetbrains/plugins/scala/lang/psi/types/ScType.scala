@@ -6,7 +6,6 @@ package types
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 trait ScType {
@@ -41,7 +40,7 @@ trait ScType {
   protected def unpackedTypeInner: ScType = {
     val existingWildcards = ScExistentialType.existingWildcards(this)
     val wildcards = new ArrayBuffer[ScExistentialArgument]
-    val quantified = recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+    val quantified = recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
       case (s: ScExistentialArgument, _, data) if !data.contains(s.name) =>
         val name = ScExistentialType.fixExistentialArgumentName(s.name, existingWildcards)
         if (!wildcards.exists(_.name == name)) wildcards += ScExistentialArgument(name, s.args, s.lower, s.upper)
@@ -78,7 +77,7 @@ trait ScType {
    *
    * default implementation for types, which don't contain other types.
    */
-  def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType] = HashSet.empty): ScType = {
+  def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType] = Set.empty): ScType = {
     val res = update(this)
     if (res._1) res._2
     else this

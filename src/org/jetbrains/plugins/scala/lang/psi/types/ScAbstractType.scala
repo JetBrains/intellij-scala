@@ -6,7 +6,7 @@ package types
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 
-import scala.collection.immutable.HashSet
+
 
 /**
  * This type works like undefined type, but you cannot use this type
@@ -52,7 +52,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
 
   override def removeAbstracts: ScType = simplifyType
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res

@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwne
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.collection.immutable.HashSet
-
 /**
   * @author adkozlov
   */
@@ -24,7 +22,7 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     */
   def toScType(`type`: PsiType,
                treatJavaObjectAsAny: Boolean)
-              (implicit visitedRawTypes: HashSet[PsiClass],
+              (implicit visitedRawTypes: Set[PsiClass],
                paramTopLevel: Boolean): ScType = `type` match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
@@ -93,7 +91,7 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
 
   def extractClassType(`type`: ScType,
                        project: Project = null,
-                       visitedAlias: HashSet[ScTypeAlias] = HashSet.empty): Option[(PsiClass, ScSubstitutor)] =
+                       visitedAlias: Set[ScTypeAlias] = Set.empty): Option[(PsiClass, ScSubstitutor)] =
     `type` match {
       case nonValueType: NonValueType =>
         nonValueType.inferValueType.extractClassType(project, visitedAlias)
