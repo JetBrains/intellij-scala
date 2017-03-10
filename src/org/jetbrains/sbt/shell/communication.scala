@@ -126,7 +126,7 @@ object SbtShellCommunication {
 
   /** Convenience aggregator wrapper that is executed for the side effects.
     * The final result will just be the value of the last invocation. */
-  def listenerAggregator(listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
+  def listenerAggregator[A](listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
     listener(e)
 }
 
