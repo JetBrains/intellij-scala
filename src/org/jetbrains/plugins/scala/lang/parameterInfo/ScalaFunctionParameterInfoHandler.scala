@@ -684,10 +684,3 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 object ScalaFunctionParameterInfoHandler {
   case class AnnotationParameters(seq: Seq[(String, ScType, PsiAnnotationMemberValue)])
 }
-
-object ParameterInfoUtil {
-  /**
-   * Light green colour. Used for current resolve context showing.
-   */
-  val highlightedColor = new Color(231, 254, 234)
-}
