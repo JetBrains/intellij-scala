@@ -23,7 +23,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
-import org.jetbrains.plugins.scala.project.{Platform, Versions}
+import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
@@ -67,6 +67,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     sbtVersionComboBox.setItems(sbtVersions)
     scalaPlatformComboBox.setItems(Platform.Values)
+
+    scalaVersionComboBox.setTextRenderer(Version.abbreviate)
 
     def loadScalaVersions(): Array[String] = {
       def platform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
