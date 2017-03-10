@@ -123,6 +123,8 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "1.9.2",
+    "org.scalatest" % "scalatest_2.11" % "3.0.1",
+    "org.scalactic" % "scalactic_2.11" % "3.0.1",
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0",
