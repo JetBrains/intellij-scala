@@ -69,7 +69,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with OverridingAnnotator with ValueClassAnnotator with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    val typeAware = isAdvancedHighlightingEnabled(element)
+    val typeAware = isAdvancedHighlightingEnabled(element) && !element.isInDottyModule
 
     val (compiled, isInSources) = element.getContainingFile match {
       case file: ScalaFile =>
