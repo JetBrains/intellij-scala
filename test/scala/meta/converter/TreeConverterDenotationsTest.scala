@@ -73,20 +73,4 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
     """.stripMargin
     )
   }
-
-  // FIXME: disabled until semantics engine is implemented
-  def testBackwardLookup(): Unit = {
-    return
-    import scala.meta.internal.{ast => m, semantic => h}
-    val tree = convert(
-      """
-        |java.lang.System.exit(1)
-      """.stripMargin)
-    tree match {
-      case Term.Apply(fun, args) => fun match {
-        case Term.Select(qual, name) => semanticContext.fromSymbol(name.denot.symbols.head)
-      }
-    }
-  }
-
 }

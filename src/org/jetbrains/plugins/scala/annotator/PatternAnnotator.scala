@@ -196,8 +196,8 @@ object PatternAnnotatorUtil {
 
     object arrayType {
       def unapply(scType: ScType): Option[ScType] = scType match {
-        case ParameterizedType(ScDesignatorType(elem: ScClass), Seq(arg))
-          if elem.qualifiedName == "scala.Array" => Some(arg)
+        case ScalaArrayOf(arg) => Some(arg)
+        case JavaArrayType(arg) => Some(arg)
         case _ => None
       }
     }
