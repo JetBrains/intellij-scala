@@ -13,11 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
-import scala.collection.immutable.HashSet
 import scala.collection.mutable
 
 object BaseTypes {
-  def get(t: ScType, notAll: Boolean = false, visitedAliases: HashSet[ScTypeAlias] = HashSet.empty)
+  def get(t: ScType, notAll: Boolean = false, visitedAliases: Set[ScTypeAlias] = Set.empty)
          (implicit typeSystem: TypeSystem = ScalaTypeSystem): Seq[ScType] = {
     ProgressManager.checkCanceled()
     t match {

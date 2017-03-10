@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, 
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
+
 
 /**
  * @author Alexander Podkhalyuzin
@@ -161,11 +161,11 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   def getTypeNoResolve: PsiType = PsiType.VOID
 
   @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
-  def isDefaultParam: Boolean = calcIsDefaultParam(this, HashSet.empty)
+  def isDefaultParam: Boolean = calcIsDefaultParam(this, Set.empty)
 
 
   @tailrec
-  private def calcIsDefaultParam(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
+  private def calcIsDefaultParam(param: ScParameter, visited: Set[ScParameter]): Boolean = {
     if (param.baseDefaultParam) return true
     if (visited.contains(param)) return false
     getSuperParameter match {

@@ -7,8 +7,6 @@ import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
-import scala.collection.immutable.HashSet
-
 /**
   * @author adkozlov
   */
@@ -27,7 +25,7 @@ trait ParameterizedType extends TypeInTypeSystem with ValueType {
   override def removeAbstracts = ParameterizedType(designator.removeAbstracts,
     typeArguments.map(_.removeAbstracts))
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res

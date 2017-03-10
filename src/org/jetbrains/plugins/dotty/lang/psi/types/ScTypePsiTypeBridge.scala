@@ -5,14 +5,13 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypePsiTypeBridge.toPsiType
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScalaArrayOf}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScalaArrayOf}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 import scala.collection.JavaConversions._
-import scala.collection.immutable.HashSet
+
 
 /**
   * @author adkozlov
@@ -22,7 +21,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
 
   override def toScType(`type`: PsiType,
                         treatJavaObjectAsAny: Boolean)
-                       (implicit visitedRawTypes: HashSet[PsiClass],
+                       (implicit visitedRawTypes: Set[PsiClass],
                         paramTopLevel: Boolean): ScType = `type` match {
     case _: PsiClassType => Any
     case _: PsiWildcardType => Any

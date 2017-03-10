@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
-import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -99,7 +98,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         }
       case Some(e) =>
         val m = new mutable.HashMap[String, ScExistentialArgument]
-        def existize(t: ScType, visited: HashSet[ScType]): ScType = {
+        def existize(t: ScType, visited: Set[ScType]): ScType = {
           if (visited.contains(t)) return t
           val visitedWithT = visited + t
           t match {
@@ -170,7 +169,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case _ => t
           }
         }
-        val t = existize(e.getType(TypingContext.empty).getOrAny, HashSet.empty)
+        val t = existize(e.getType(TypingContext.empty).getOrAny, Set.empty)
         if (m.isEmpty) t else new ScExistentialType(t, m.values.toList).simplify()
     }
     Success(inner, Some(this))

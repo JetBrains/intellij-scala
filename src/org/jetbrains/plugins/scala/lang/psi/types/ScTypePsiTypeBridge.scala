@@ -18,14 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
 
 object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
   override implicit lazy val typeSystem = ScalaTypeSystem
 
   override def toScType(psiType: PsiType,
                         treatJavaObjectAsAny: Boolean)
-                       (implicit visitedRawTypes: HashSet[PsiClass],
+                       (implicit visitedRawTypes: Set[PsiClass],
                         paramTopLevel: Boolean): ScType = {
     psiType match {
       case classType: PsiClassType =>
@@ -93,7 +92,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       maybeLower.getOrElse(Nothing), maybeUpper.getOrElse(Any))
 
   private def createParameter(wildcardType: PsiWildcardType, index: Int = 0, maybeUpper: => Option[ScType] = None)
-                             (implicit visitedRawTypes: HashSet[PsiClass],
+                             (implicit visitedRawTypes: Set[PsiClass],
                               paramTopLevel: Boolean): ScExistentialArgument =
     createParameter(wildcardType.lower, wildcardType.upper.orElse(maybeUpper), index)
 
@@ -212,7 +211,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
 
   override def extractClassType(`type`: ScType,
                                 project: Project,
-                                visitedAlias: HashSet[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] =
+                                visitedAlias: Set[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] =
     `type` match {
       case ScExistentialType(quantified, _) =>
         quantified.extractClassType(project, visitedAlias)
