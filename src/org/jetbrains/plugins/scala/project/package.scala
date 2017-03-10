@@ -204,6 +204,8 @@ package object project {
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
+    def isInDottyModule: Boolean = module.exists(_.hasDotty)
+
     @deprecated("legacy code, use scalaLanguageLevelOrDefault", "14.10.14")
     def languageLevel: ScalaLanguageLevel = {
       @tailrec

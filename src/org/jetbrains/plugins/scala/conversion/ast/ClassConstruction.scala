@@ -25,4 +25,4 @@ case class AnonymousClass(mType: IntermediateNode, args: IntermediateNode, body:
   override def getType: TypeConstruction = mType.asInstanceOf[TypedElement].getType
 }
 
-case class Enum(name: IntermediateNode, modifiers: IntermediateNode, enumConstants: Seq[String]) extends IntermediateNode
+case class Enum(name: IntermediateNode, modifiers: IntermediateNode, enumConstants: Seq[IntermediateNode]) extends IntermediateNode

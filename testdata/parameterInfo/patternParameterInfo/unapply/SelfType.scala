@@ -5,7 +5,7 @@ trait Unapply {
 object X {
   Self: Unapply =>
   22 match {
-    case Self(/*caret*/) =>
+    case Self(<caret>) =>
   }
 }
 //Int

@@ -3,5 +3,5 @@ object Q {
 }
 
 val q = Q
-val s = q[/*caret*/]("a")
+val s = q[<caret>]("a")
 // A <: String

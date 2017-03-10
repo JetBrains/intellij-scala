@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.meta.Dialect
+import scala.meta.inputs.Input
 import scala.meta.parsers.{ParseException, Parsed}
 
 /**
@@ -45,9 +47,9 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
       case _ => ""
     }
     val qqdialect = if (joined.contains("\n"))
-      m.Dialect.forName("QuasiquoteTerm(Scala211, Multi)")
+      scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = true)
     else
-      m.Dialect.forName("QuasiquoteTerm(Scala211, Single)")
+      scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = false)
     val typeStrings = parseQQExpr(stringContextApplicationRef.refName, joined, qqdialect) match {
       case Parsed.Success(qqparts) =>
         val parts = collectQQParts(qqparts)
@@ -69,9 +71,9 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     ProgressManager.checkCanceled()
     val patternText = escapeQQ(pat)
     val qqdialect = if (pat.isMultiLineString)
-      m.Dialect.forName("QuasiquoteTerm(Scala211, Multi)")
+      scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = true)
     else
-      m.Dialect.forName("QuasiquoteTerm(Scala211, Single)")
+      scala.meta.dialects.QuasiquoteTerm(m.Dialect.standards("Scala211"), multiline = false)
     val prefix = pat.reference.map(_.refName).getOrElse(throw new ParseException(null, s"Failed to get QQ ref in ${pat.getText}"))
     try {
       val parsed = parseQQExpr(prefix, patternText, qqdialect)
@@ -94,9 +96,9 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
     val prefix = pat.ref.refName
     val patternText = escapeQQ(pat)
     val qqDialect = if (pat.isMultiLineString)
-      m.Dialect.forName("QuasiquotePat(Scala211, Multi)")
+      scala.meta.dialects.QuasiquotePat(m.Dialect.standards("Scala211"), multiline = true)
     else
-      m.Dialect.forName("QuasiquotePat(Scala211, Single)")
+      scala.meta.dialects.QuasiquotePat(m.Dialect.standards("Scala211"), multiline = false)
     parseQQExpr(prefix, patternText, qqDialect) match {
       case Parsed.Success(qqparts) =>
         val parts = collectQQParts(qqparts)
@@ -108,7 +110,7 @@ object QuasiquoteInferUtil extends scala.meta.quasiquotes.QuasiquoteParsers {
   }
 
   private def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): Parsed[m.Tree] = {
-    val p = dialect(text)
+    val p: (Dialect, Input) = dialect(text)
     prefix match {
       // FIXME: this seems wrong - reference q parser only parses Stat or Ctor, however this way many qqs couldn't be parsed
       case "q"          => p.parse[m.Stat].orElse(p.parse[m.Source])

@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.project
 
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+
+import org.jetbrains.plugins.scala.extensions
 import org.junit.Assert._
 import org.junit.Test
 
@@ -8,7 +11,7 @@ import org.junit.Test
   */
 class VersionTest {
   @Test
-  def comarison(): Unit = {
+  def comparison(): Unit = {
     assertEquals(0, Version("1").compareTo(Version("1")))
     assertEquals(0, Version("1.1").compareTo(Version("1.1")))
     assertEquals(0, Version("1.1.1").compareTo(Version("1.1.1")))
@@ -27,7 +30,7 @@ class VersionTest {
   }
 
   @Test
-  def comarisonGroups(): Unit = {
+  def comparisonGroups(): Unit = {
     assertEquals(0, Version("1-1").compareTo(Version("1-1")))
 
     assertEquals(-1, Version("1-1").compareTo(Version("2-1")))
@@ -71,5 +74,11 @@ class VersionTest {
 
     assertFalse(Version("1") ~= Version("1-1"))
     assertTrue(Version("1-1") ~= Version("1"))
+  }
+
+  @Test
+  def serialization(): Unit = {
+    extensions.using(new ObjectOutputStream(new ByteArrayOutputStream(1024)))(
+      _.writeObject(Version("1.2.3")))
   }
 }

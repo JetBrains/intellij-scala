@@ -1,4 +1,4 @@
 def foo(x: Int = 45) = x
 
-foo(/*caret*/)
+foo(<caret>)
 //x: Int = 45

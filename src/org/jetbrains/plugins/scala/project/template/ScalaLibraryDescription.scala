@@ -16,8 +16,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.project.template.Artifact._
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author Pavel Fatin
@@ -26,12 +24,12 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
   def getSuitableLibraryKinds: util.Set[ScalaLibraryKind.type] = Collections.singleton(ScalaLibraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
-    implicit val ordering = implicitly[Ordering[Version]].reverse
+    val lt = (a: ScalaSdkDescriptor, b: ScalaSdkDescriptor) => a.version > b.version
 
     def sdks = localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project")) ++
-      systemSdks.sortBy(_.version).map(SdkChoice(_, "System")) ++
-      ivySdks.sortBy(_.version).map(SdkChoice(_, "Ivy")) ++
-      mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
+      systemSdks.sortWith(lt).map(SdkChoice(_, "System")) ++
+      ivySdks.sortWith(lt).map(SdkChoice(_, "Ivy")) ++
+      mavenSdks.sortWith(lt).map(SdkChoice(_, "Maven"))
 
     val dialog = new SdkSelectionDialog(parentComponent, () => sdks.sortBy(_.sdk.platform).asJava)
 
@@ -119,13 +117,13 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     val components = Component.discoverIn(files, Artifact.DottyArtifacts)
 
     val patchedCompilers = components.filter {
-      case Component(ScalaCompiler, Kind.Binaries, _, file) if file.getAbsolutePath.contains("me.d-d") => true
+      case Component(ScalaCompiler, Kind.Binaries, Some(_), file) if file.getAbsolutePath.contains("me.d-d") => true
       case _ => false
     }
 
     if (patchedCompilers.isEmpty) Seq.empty
     else {
-      val compilerComponent = patchedCompilers.maxBy(_.version)
+      val compilerComponent = patchedCompilers.maxBy(_.version.get)
 
       val dottyComponents = components.filter {
         case Component(DottyInterfaces | DottyCompiler | DottyLibrary, _, Some(_), _) => true

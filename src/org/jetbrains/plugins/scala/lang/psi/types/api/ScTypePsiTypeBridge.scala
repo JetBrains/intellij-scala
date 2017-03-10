@@ -6,8 +6,9 @@ import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -128,6 +129,7 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
 
   protected def factory(implicit elementScope: ElementScope): PsiElementFactory =
     JavaPsiFacade.getInstance(elementScope.project).getElementFactory
+
 }
 
 object ExtractClass {
@@ -137,5 +139,13 @@ object ExtractClass {
 
   def unapply(`type`: ScType, project: Project): Option[PsiClass] = {
     unapply(`type`)(project.typeSystem)
+  }
+}
+
+object ScalaArrayOf {
+  def unapply(scType: ScType): Option[ScType] = scType match {
+    case ParameterizedType(ScDesignatorType(cl: ScClass), Seq(arg))
+      if cl.qualifiedName == "scala.Array" => Some(arg)
+    case _ => None
   }
 }

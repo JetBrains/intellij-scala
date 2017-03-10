@@ -12,7 +12,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
-import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemBundle, ExternalSystemUtil}
+import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
@@ -23,7 +23,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Platform.{Dotty, Scala}
-import org.jetbrains.plugins.scala.project.{Platform, Versions}
+import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
@@ -68,6 +68,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     sbtVersionComboBox.setItems(sbtVersions)
     scalaPlatformComboBox.setItems(Platform.Values)
 
+    scalaVersionComboBox.setTextRenderer(Version.abbreviate)
+
     def loadScalaVersions(): Array[String] = {
       def platform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
       withProgressSynchronously(s"Fetching ${platform.name} versions")(_ => Versions.loadScalaVersions(platform))
@@ -82,10 +84,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     })
 
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
-    val resolveJavadocsCheckBox       = new JCheckBox(SbtBundle("sbt.settings.resolveJavadocs"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
-    val useAutoImportCheckBox         = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
-    val createContentDirsCheckBox     = new JCheckBox(ExternalSystemBundle.message("settings.label.create.empty.content.root.directories"))
 
     val step = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
@@ -98,16 +97,14 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
 
         getExternalProjectSettings.setResolveClassifiers(resolveClassifiersCheckBox.isSelected)
-        getExternalProjectSettings.setResolveJavadocs(resolveJavadocsCheckBox.isSelected)
+        getExternalProjectSettings.setResolveJavadocs(false)
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
-        getExternalProjectSettings.setUseAutoImport(useAutoImportCheckBox.isSelected)
-        getExternalProjectSettings.setCreateEmptyContentRootDirectories(createContentDirsCheckBox.isSelected)
+        getExternalProjectSettings.setUseAutoImport(false)
+        getExternalProjectSettings.setCreateEmptyContentRootDirectories(false)
       }
     }
 
-    createContentDirsCheckBox.setSelected(true)
     resolveClassifiersCheckBox.setSelected(true)
-    resolveJavadocsCheckBox.setSelected(false)
     resolveSbtClassifiersCheckBox.setSelected(false)
 
     val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
@@ -118,12 +115,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionComboBox)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionPanel)
-    settingsStep.addSettingsField("", useAutoImportCheckBox)
-    settingsStep.addSettingsField("", createContentDirsCheckBox)
 
     val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
     downloadPanel.add(resolveClassifiersCheckBox)
-    downloadPanel.add(resolveJavadocsCheckBox)
     downloadPanel.add(resolveSbtClassifiersCheckBox)
     settingsStep.addSettingsField("Download:", downloadPanel)
 
@@ -133,15 +127,15 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   private def createProjectTemplateIn(root: File, name: String, platform: Platform, scalaVersion: String, sbtVersion: String) {
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory
-    val pluginsFile = projectDir / Sbt.PluginsFile
     val propertiesFile = projectDir / Sbt.PropertiesFile
 
     if (!buildFile.createNewFile() ||
-            !projectDir.mkdir() ||
-            !pluginsFile.createNewFile()) return
+            !projectDir.mkdir()) return
+
+    (root / "src" / "main" / "scala").mkdirs()
+    (root / "src" / "test" / "scala").mkdirs()
 
     writeToFile(buildFile, SbtModuleBuilder.formatProjectDefinition(name, platform, scalaVersion))
-    writeToFile(pluginsFile, SbtModuleBuilder.PluginsDefinition)
     writeToFile(propertiesFile, SbtModuleBuilder.formatSbtProperties(sbtVersion))
   }
 
@@ -208,9 +202,6 @@ private object SbtModuleBuilder {
         |scalaCompilerBridgeSource := ("ch.epfl.lamp" % "dotty-sbt-bridge" % scalaVersion.value % "component").sources()"""
         .stripMargin
   }
-
-  
-  def PluginsDefinition = "logLevel := Level.Warn"
 
   def formatSbtProperties(sbtVersion: String) = s"sbt.version = $sbtVersion"
 }
