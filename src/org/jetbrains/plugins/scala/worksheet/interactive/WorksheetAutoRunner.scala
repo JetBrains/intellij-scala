@@ -97,8 +97,6 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       if (WorksheetCompiler isWorksheetReplMode psiFile) {
         if (e.getOffset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (
           ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None) )
-        
-        return
       }
       
       if (isDisabledOn(psiFile)) return
