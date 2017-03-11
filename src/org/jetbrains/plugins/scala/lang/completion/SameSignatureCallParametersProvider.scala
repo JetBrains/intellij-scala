@@ -3,9 +3,9 @@ package lang.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import com.intellij.patterns.PlatformPatterns
+import com.intellij.patterns.{PlatformPatterns, PsiElementPattern}
+import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiMethod, PsiParameter}
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
@@ -18,9 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -29,10 +28,10 @@ import scala.collection.mutable.ArrayBuffer
  * @since 03.09.13
  */
 class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
-  val constructorFilter = PlatformPatterns.psiElement().withParent(classOf[ScReferenceExpression]).
+  val constructorFilter: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement().withParent(classOf[ScReferenceExpression]).
           withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScConstructor])
 
-  val superCallFilter = PlatformPatterns.psiElement().withParent(classOf[ScReferenceExpression]).
+  val superCallFilter: PsiElementPattern.Capture[PsiElement] = PlatformPatterns.psiElement().withParent(classOf[ScReferenceExpression]).
           withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScMethodCall])
 
   extend(CompletionType.BASIC, constructorFilter, new CompletionProvider[CompletionParameters]() {
@@ -76,18 +75,8 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
             val function = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
             if (function != null && function.name == ref.refName) {
               val variants = ref.getSimpleVariants(implicits = false, filterNotNamedVariants = false)
-              val signatures = variants.toSeq.map {
-                case ScalaResolveResult(fun: ScMethodLike, subst) =>
-                  val params = fun.effectiveParameterClauses
-                  if (params.length > index) params(index).effectiveParameters.map(p =>
-                    (p.name, subst.subst(p.getType(TypingContext.empty).getOrAny)))
-                  else Seq.empty
-                case ScalaResolveResult(method: PsiMethod, subst) =>
-                  if (index != 0) Seq.empty
-                  else method.parameters.toSeq.map { p =>
-                    (p.name, subst.subst(p.getType.toScType()))
-                  }
-                case _ => Seq.empty
+              val signatures = variants.toSeq.collect {
+                case ScalaResolveResult(method: ScMethodLike, subst) => paramsInClause(method, subst, index)
               }.filter(_.length > 1)
 
               if (signatures.isEmpty) return
@@ -113,27 +102,17 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
         typeElement.getType(TypingContext.empty) match {
           case Success(tp, _) =>
             val project = position.getProject
-            implicit val typeSystem = project.typeSystem
+
             val signatures = tp.extractClassType(project) match {
               case Some((clazz: ScClass, subst)) if !clazz.hasTypeParameters || (clazz.hasTypeParameters &&
                       typeElement.isInstanceOf[ScParameterizedTypeElement]) =>
-                clazz.constructors.toSeq.map {
-                  case fun: ScMethodLike =>
-                    val params = fun.effectiveParameterClauses
-                    if (params.length > index) params(index).effectiveParameters.map(p =>
-                      (p.name, subst.subst(p.getType(TypingContext.empty).getOrAny)))
-                    else Seq.empty
-                }.filter(_.length > 1)
-              case Some((clazz: PsiClass, subst)) if !clazz.hasTypeParameters || (clazz.hasTypeParameters &&
-                      typeElement.isInstanceOf[ScParameterizedTypeElement]) =>
-                clazz.getConstructors.toSeq.map {
-                  case c: PsiMethod =>
-                    if (index != 0) Seq.empty
-                    else c.parameters.map {
-                      case p: PsiParameter =>
-                        (p.name, subst.subst(p.getType.toScType()))
-                    }
-                }.filter(_.length > 1)
+                val constructors = clazz match {
+                  case c: ScClass => c.constructors
+                  case _ => clazz.getConstructors.toSeq
+                }
+                constructors
+                  .map(paramsInClause(_, subst, index))
+                  .filter(_.length > 1)
               case _ => Seq.empty
             }
 
@@ -146,6 +125,22 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
           case _ =>
         }
       case _ =>
+    }
+  }
+
+  private def paramsInClause(m: PsiMethod, subst: ScSubstitutor, clauseIndex: Int): Seq[(String, ScType)] = {
+    implicit val typeSystem = m.typeSystem
+    m match {
+      case fun: ScMethodLike =>
+        val clauses = fun.effectiveParameterClauses
+        if (clauses.length > clauseIndex) clauses(clauseIndex).effectiveParameters.map(p =>
+          (p.name, subst.subst(p.getType(TypingContext.empty).getOrAny)))
+        else Seq.empty
+      case _ =>
+        if (clauseIndex != 0) Seq.empty
+        else m.parameters.map { p =>
+          (p.name, subst.subst(p.getType.toScType()))
+        }
     }
   }
 
