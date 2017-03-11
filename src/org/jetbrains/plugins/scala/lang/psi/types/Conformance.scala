@@ -44,7 +44,7 @@ object Conformance extends api.Conformance {
         right.extractClassType() match {
           case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, substitutor)
           case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
-            left.extractClass() match {
+            left.extractClass(rClass.getProject) match {
               case Some(lClass) =>
                 if (rClass.qualifiedName == "java.lang.Object") {
                   return conformsInner(left, AnyRef, visited, substitutor, checkWeak)
@@ -1544,7 +1544,7 @@ object Conformance extends api.Conformance {
             case r => r
           }
       }
-      tp.extractClassType() match {
+      tp.extractClassType(leftClass.getProject) match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
         case Some((clazz: PsiClass, _)) if condition(clazz) =>
           if (res == null) res = tp

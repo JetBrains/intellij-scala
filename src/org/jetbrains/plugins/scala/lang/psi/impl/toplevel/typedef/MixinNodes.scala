@@ -552,7 +552,7 @@ object MixinNodes {
         }
       }
       tp = updateTp(tp)
-      tp.extractClassType() match {
+      tp.extractClassType(project.orNull) match {
         case Some((clazz, subst)) =>
           val lin = linearization(clazz)
           val newIterator = lin.reverseIterator

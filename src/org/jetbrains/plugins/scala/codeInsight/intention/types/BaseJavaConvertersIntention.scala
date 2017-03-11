@@ -33,31 +33,31 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
     implicit val typeSystem = p.typeSystem
     Option(getTargetExpression(element)) exists {
       scExpr =>
-        def properTargetCollection = isProperTargetCollection(scExpr.getTypeAfterImplicitConversion().tr)
+        def properTargetCollection = isProperTargetCollection(scExpr.getTypeAfterImplicitConversion().tr, p)
         def parentNonConvertedCollection = scExpr match {
-          case Parent(parent: ScExpression) => !isAlreadyConvertedCollection(parent.getTypeAfterImplicitConversion().tr)
+          case Parent(parent: ScExpression) => !isAlreadyConvertedCollection(parent.getTypeAfterImplicitConversion().tr, p)
           case _ => true
         }
         properTargetCollection && parentNonConvertedCollection
     }
   }
 
-  def isProperTargetCollection(typeResult: TypeResult[ScType])
+  def isProperTargetCollection(typeResult: TypeResult[ScType], project: Project)
                               (implicit typeSystem: TypeSystem): Boolean =
     typeResult.exists {
       scType =>
-        scType.extractClass() exists {
+        scType.extractClass(project) exists {
           psiClass =>
             val superNames: Set[String] = allSupers(psiClass)
             superNames.exists(i => targetCollections.contains(i))
         }
     }
 
-  def isAlreadyConvertedCollection(typeResult: TypeResult[ScType])
+  def isAlreadyConvertedCollection(typeResult: TypeResult[ScType], project: Project)
                                   (implicit typeSystem: TypeSystem): Boolean =
     typeResult.exists {
       scType =>
-        scType.extractClass() exists {
+        scType.extractClass(project) exists {
           psiClass => alreadyConvertedPrefixes.exists(prefix => psiClass.getQualifiedName.startsWith(prefix))
         }
     }

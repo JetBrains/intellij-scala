@@ -1967,7 +1967,7 @@ object ScalaPsiUtil {
       else validConstructor && selfTypeCorrectIfScala212
     }
 
-    expected.extractClassType().flatMap {
+    expected.extractClassType(element.getProject).flatMap {
       case (templDef: ScTemplateDefinition, substitutor) =>
         if (!isSAMable(templDef)) None
         else {

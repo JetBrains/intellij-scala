@@ -166,14 +166,14 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
       case ScalaVariableOfTypeMacro.iterableId if scType.canonicalText.startsWith("_root_.scala.Array") =>
         array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
       case ScalaVariableOfTypeMacro.iterableId =>
-        scType.extractClass() match {
+        scType.extractClass(project) match {
           case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty =>
               array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
           case _ =>
         }
       case  _ =>
         for (expr <- exprs) {
-          if ((scType.extractClass() match {
+          if ((scType.extractClass(project) match {
             case Some(x) => x.qualifiedName
             case None => ""
           }) == expr) array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
