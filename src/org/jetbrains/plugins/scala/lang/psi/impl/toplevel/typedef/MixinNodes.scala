@@ -540,9 +540,11 @@ object MixinNodes {
     while (iterator.hasNext) {
       var tp = iterator.next()
       @tailrec
-      def updateTp(tp: ScType): ScType = {
+      def updateTp(tp: ScType, depth: Int = 0): ScType = {
         tp.isAliasType match {
-          case Some(AliasType(_, _, Success(upper, _))) => updateTp(upper)
+          case Some(AliasType(_, _, Success(upper, _))) =>
+            if (tp != upper && depth < 100) updateTp(upper, depth + 1)
+            else tp
           case _ =>
             tp match {
               case ex: ScExistentialType => ex.quantified
