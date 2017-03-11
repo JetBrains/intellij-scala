@@ -85,30 +85,6 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     }
   }
 
-  def extractClass(`type`: ScType,
-                   project: Project = null): Option[PsiClass] =
-    extractClassType(`type`, project).map(_._1)
-
-  def extractClassType(`type`: ScType,
-                       project: Project = null,
-                       visitedAlias: Set[ScTypeAlias] = Set.empty): Option[(PsiClass, ScSubstitutor)] =
-    `type` match {
-      case nonValueType: NonValueType =>
-        nonValueType.inferValueType.extractClassType(project, visitedAlias)
-      case designatorOwner: DesignatorOwner =>
-        designatorOwner.classType(project, visitedAlias)
-      case parameterizedType: ParameterizedType =>
-        parameterizedType.designator.extractClassType(project, visitedAlias).map {
-          case (clazz, substitutor) => (clazz, substitutor.followed(parameterizedType.substitutor))
-        }
-      case stdType: StdType =>
-        stdType.asClass(Option(project).getOrElse(DecompilerUtil.obtainProject))
-          .map {
-            (_, ScSubstitutor.empty)
-          }
-      case _ => None
-    }
-
   protected def createType(psiClass: PsiClass,
                            substitutor: PsiSubstitutor = PsiSubstitutor.EMPTY,
                            raw: Boolean = false)
@@ -131,12 +107,12 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
 }
 
 object ExtractClass {
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[PsiClass] = {
+  def unapply(`type`: ScType): Option[PsiClass] = {
     `type`.extractClass()
   }
 
   def unapply(`type`: ScType, project: Project): Option[PsiClass] = {
-    unapply(`type`)(project.typeSystem)
+    `type`.extractClass(project)
   }
 }
 

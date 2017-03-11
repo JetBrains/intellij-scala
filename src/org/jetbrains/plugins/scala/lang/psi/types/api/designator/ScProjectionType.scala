@@ -81,23 +81,6 @@ class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
 
-  override private[types] def designated(implicit withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = actualElement match {
-    case definition: ScTypeAliasDefinition if withoutAliases =>
-      definition.aliasedType().toOption.flatMap {
-        actualSubst.subst(_).extractDesignated
-      }
-    case _ => Some(actual)
-  }
-
-  override private[types] def classType(project: Project, visitedAlias: Set[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] = actualElement match {
-    case clazz: PsiClass => Some(clazz, actualSubst)
-    case definition: ScTypeAliasDefinition if !visitedAlias.contains(definition) =>
-      definition.aliasedType.toOption.flatMap {
-        actualSubst.subst(_).extractClassType(project, visitedAlias + definition)
-      }
-    case _ => None
-  }
-
   private var hash: Int = -1
 
   //noinspection HashCodeUsesVar

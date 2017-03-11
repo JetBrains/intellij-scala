@@ -122,7 +122,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     implicit val typeSystem = elementScope.typeSystem
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
-      extractClass(proj.projected) match {
+      proj.projected.extractClass(elementScope.project) match {
         case Some(outer) => outer.hasTypeParameters
         case _ => false
       }
@@ -202,20 +202,5 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case _ => super.toPsiType(`type`, noPrimitives, skolemToWildcard)
     }
   }
-
-  @tailrec
-  override def extractClass(`type`: ScType, project: Project): Option[PsiClass] = `type` match {
-    case ParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
-    case _ => super.extractClass(`type`, project)
-  }
-
-  override def extractClassType(`type`: ScType,
-                                project: Project,
-                                visitedAlias: Set[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] =
-    `type` match {
-      case ScExistentialType(quantified, _) =>
-        quantified.extractClassType(project, visitedAlias)
-      case _ => super.extractClassType(`type`, project, visitedAlias)
-    }
 }
 

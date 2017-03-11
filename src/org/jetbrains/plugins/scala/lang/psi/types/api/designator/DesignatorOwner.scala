@@ -35,22 +35,4 @@ trait DesignatorOwner extends ValueType with TypeInTypeSystem {
     case definition: ScTypedDefinition if definition.isStable => definition.getType().toOption
     case _ => None
   }
-
-  private[types] def designated(implicit withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = element match {
-    case definition: ScTypeAliasDefinition if withoutAliases =>
-      definition.aliasedType().toOption.flatMap {
-        _.extractDesignated
-      }
-    case _ => Some(element, ScSubstitutor.empty)
-  }
-
-  private[types] def classType(project: Project,
-                               visitedAlias: Set[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] = element match {
-    case clazz: PsiClass => Some(clazz, ScSubstitutor.empty)
-    case definition: ScTypeAliasDefinition if !visitedAlias.contains(definition) =>
-      definition.aliasedType.toOption.flatMap {
-        _.extractClassType(project, visitedAlias + definition)
-      }
-    case _ => None
-  }
 }

@@ -35,9 +35,6 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
 
   override private[types] def designatorSingletonType = None
 
-  override private[types] def classType(project: Project, visitedAlias: Set[ScTypeAlias]) =
-    Some(element, ScSubstitutor(this))
-
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     (this, `type`) match {
