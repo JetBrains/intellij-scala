@@ -18,6 +18,7 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
     case error: Error => true
     case _ => false
   }
+  def warningAnnotations = annotations.collect { case e: Warning => e }
 
   private var myAnnotations = List[Message]()
 
@@ -42,7 +43,10 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
 
   def createInformationAnnotation(elt: PsiElement, message: String) = FakeAnnotation
 
-  def createWarningAnnotation(range: TextRange, message: String) = FakeAnnotation
+  def createWarningAnnotation(range: TextRange, message: String) = {
+    myAnnotations ::= WarningWithRange(range, message)
+    FakeAnnotation
+  }
 
   def createWarningAnnotation(node: ASTNode, message: String) = FakeAnnotation
 
