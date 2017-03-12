@@ -41,7 +41,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     sbtMajorVersion match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case "0.13" => Seq(
-        """resolvers += Resolver.url("jb-structure-extractor-0.13", url(s"http://dl.bintray.com/jetbrains/sbt-plugins"))(sbt.Patterns("[organisation]/[module]/scala_2.10/sbt_0.13/[revision]/[type]s/[artifact](-[classifier]).[ext]"))""",
+        """resolvers += Resolver.url("jb-structure-extractor-0.13", url(s"http://dl.bintray.com/jetbrains/sbt-plugins"))(sbt.Patterns(false,"[organisation]/[module]/scala_2.10/sbt_0.13/[revision]/[type]s/[artifact](-[classifier]).[ext]"))""",
           s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor-0-13" % "$sbtStructureVersion")"""
         ) // works for 0.13.5+, for older versions it will be ignored
       case "1.0" => Seq.empty // TODO build and publish extractor for sbt 1.0
