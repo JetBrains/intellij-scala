@@ -240,15 +240,15 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
             var tp = oldTp
             def update(typez: ScType): ScType = {
-              typez.extractDesignated(withoutAliases = true) match {
-                case Some((t: ScTypeDefinition, _)) =>
+              typez.extractDesignated(expandAliases = true) match {
+                case Some(t: ScTypeDefinition) =>
                   if (t == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp
                   else {
                     t.selfType match {
                       case Some(selfType) =>
-                        selfType.extractDesignated(withoutAliases = true) match {
-                          case Some((cl: PsiClass, _)) =>
+                        selfType.extractDesignated(expandAliases = true) match {
+                          case Some(cl: PsiClass) =>
                             if (cl == clazz) tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
                             else null
@@ -258,7 +258,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                                 val iter = types.iterator
                                 while (iter.hasNext) {
                                   val tps = iter.next()
-                                  tps.extractClass()(ScalaTypeSystem) match {
+                                  tps.extractClass() match {
                                     case Some(cl) =>
                                       if (cl == clazz) return tp
                                     case _ =>
@@ -271,7 +271,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                       case None => null
                     }
                   }
-                case Some((cl: PsiClass, _)) =>
+                case Some(cl: PsiClass) =>
                   typez match {
                     case t: TypeParameterType => return update(t.upperType.v)
                     case p@ParameterizedType(_, _) =>
@@ -284,7 +284,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                   if (cl == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
                   else null
-                case Some((named: ScTypedDefinition, _)) =>
+                case Some(named: ScTypedDefinition) =>
                   update(named.getType(TypingContext.empty).getOrAny)
                 case _ =>
                   typez match {
@@ -292,7 +292,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                       val iter = types.iterator
                       while (iter.hasNext) {
                         val tps = iter.next()
-                        tps.extractClass()(ScalaTypeSystem) match {
+                        tps.extractClass() match {
                           case Some(cl) =>
                             if (cl == clazz) return tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) return tp

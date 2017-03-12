@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.Set
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 //todo: remove all argumentClauses, we need just one of them
@@ -549,19 +548,19 @@ object MethodResolveProcessor {
         val processor = new CollectMethodsProcessor(ref, "apply")
         processor.processType(substitutor.subst(tp), ref.asInstanceOf[ScalaPsiElement])
         val cands = processor.candidatesS.map(rr => (r.copy(innerResolveResult = Some(rr)), cleanTypeArguments))
-        if (cands.isEmpty) HashSet((r, false)) else cands
+        if (cands.isEmpty) Set((r, false)) else cands
       }
 
       if (argumentClauses.isEmpty) Set((r, false))
       else {
         r.element match {
-          case f: ScFunction if f.hasParameterClause => HashSet((r, false))
+          case f: ScFunction if f.hasParameterClause => Set((r, false))
           case b: ScTypedDefinition if argumentClauses.nonEmpty =>
             val tpe = b.getType().toOption
-            tpe.map(applyMethodsFor).getOrElse(HashSet.empty)
+            tpe.map(applyMethodsFor).getOrElse(Set.empty)
           case b: PsiField => // See SCL-3055
             applyMethodsFor(b.getType.toScType())
-          case _ => HashSet((r, false))
+          case _ => Set((r, false))
         }
       }
     }
@@ -675,7 +674,7 @@ object MethodResolveProcessor {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses.head.length
       if (filtered.size == 1) return filtered
       MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered, hasTypeParametersCall = typeArgElements.nonEmpty) match {
-        case Some(r) => HashSet(r)
+        case Some(r) => Set(r)
         case None => filtered
       }
     }

@@ -3,5 +3,5 @@ class ClassApply {
 }
 
 val t = new ClassApply
-t(/*caret*/)
+t(<caret>)
 //x: Int

@@ -1,5 +1,5 @@
 val s = ""
-s.indexOf(/*caret*/)
+s.indexOf(<caret>)
 /*
 ch: Int
 ch: Int, fromIndex: Int

@@ -39,7 +39,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case _: ScPrimaryConstructor => true
       case _: ScTypeParam => true
       case _: PsiClassWrapper => true
-      case _: LightScalaMethod => true
+      case _: PsiMethodWrapper => true
       case _ => false
     }
   }

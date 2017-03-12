@@ -23,7 +23,7 @@ object IllegalInheritance extends AnnotatorPart[ScTemplateDefinition] {
     implicit val typeSystem = definition.typeSystem
     definition.selfTypeElement.flatMap(_.getType(TypingContext.empty).toOption).
       orElse(definition.getType(TypingContext.empty).toOption).foreach { ownType =>
-      definition.refs.foreach {
+      AnnotatorPart.superRefsWithSubst(definition).foreach {
         case (refElement, Some((SelfType(Some(aType)), subst)))  =>
           val anotherType = subst.subst(aType)
           if (!ownType.conforms(anotherType))

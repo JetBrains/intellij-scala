@@ -34,4 +34,6 @@ class Specs2TestFramework extends AbstractTestFramework {
     Seq("\"-Yrangepos\"")
 
   override def getSuitePaths: Seq[String] = Specs2Util.suitePaths
+
+  override def getTestFileTemplateName = "Specs2 Class"
 }

@@ -589,10 +589,7 @@ object TypeDefinitionMembers {
                 case c: ScCompoundType =>
                   getSignatures(c, Some(clazzType), clazz)
                 case tp =>
-                  val cl = tp.extractClassType(clazz.getProject) match {
-                    case Some((selfClazz, _)) => selfClazz
-                    case _ => clazz
-                  }
+                  val cl = tp.extractClass(td.getProject).getOrElse(clazz)
                   getSignatures(cl)
               }
             case _ =>
@@ -616,10 +613,7 @@ object TypeDefinitionMembers {
               case c: ScCompoundType =>
                 getTypes(c, Some(clazzType), clazz)
               case tp =>
-                val cl = tp.extractClassType(clazz.getProject) match {
-                  case Some((selfClazz, _)) => selfClazz
-                  case _ => clazz
-                }
+                val cl = tp.extractClass(td.getProject).getOrElse(clazz)
                 getTypes(cl)
             }
           case _ =>

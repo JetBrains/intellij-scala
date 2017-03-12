@@ -1,78 +1,126 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io._
+import java.io.{FileNotFoundException, _}
 import java.nio.charset.Charset
-import java.util.Properties
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.jar.JarFile
 
 import com.intellij.execution.process.OSProcessHandler
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.structure.SbtRunner._
+import org.jetbrains.sbt.shell.SbtShellCommunication
+import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, Output, TaskComplete, TaskStart}
 
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Try}
 import scala.xml.{Elem, XML}
 
 /**
  * @author Pavel Fatin
  */
 class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[String, String],
-                customLauncher: Option[File], customStructureFile: Option[File]) {
+                customLauncher: Option[File], customStructureJar: Option[File],
+                id: ExternalSystemTaskId,
+                listener: ExternalSystemTaskNotificationListener) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(getDefaultLauncher)
+  private def sbtStructureJar(sbtVersion: String) = customStructureJar.getOrElse(LauncherDir / s"sbt-structure-$sbtVersion.jar")
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
   def cancel(): Unit =
     cancellationFlag.set(true)
 
-  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveJavadocs: Boolean, resolveSbtClassifiers: Boolean)
-          (listener: (String) => Unit): Try[Elem] = {
+  def read(directory: File, options: Seq[String], importFromShell: Boolean): Try[(Elem, String)] = {
 
-    val options = download.seq("download") ++
-            resolveClassifiers.seq("resolveClassifiers") ++
-            resolveJavadocs.seq("resolveJavadocs") ++
-            resolveSbtClassifiers.seq("resolveSbtClassifiers")
+    if (SbtLauncher.exists()) {
 
-    checkLauncherPresence.fold(read0(directory, options.mkString(", "))(listener))(it => Failure(new FileNotFoundException(it)))
-  }
+      val sbtVersion = detectSbtVersion(directory, SbtLauncher)
+      val majorSbtVersion = majorVersion(sbtVersion)
+      val useShellImport = importFromShell && shellImportSupported(sbtVersion)
 
-  private def read0(directory: File, options: String)(listener: (String) => Unit): Try[Elem] = {
-    val sbtVersion = detectSbtVersion(directory, SbtLauncher)
-    val majorSbtVersion = numbersOf(sbtVersion).take(2).mkString(".")
+      if (importSupported(sbtVersion)) usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
 
-    if (compare(sbtVersion, SinceSbtVersion) < 0) {
-      val message = s"SBT $SinceSbtVersion+ required. Please update the project definition"
-      Failure(new UnsupportedOperationException(message))
-    } else {
-      read1(directory, majorSbtVersion, options, listener)
+        val messageResult: Try[String] =
+          if (useShellImport) dumpFromShell(structureFile, options)
+          else runDumpProcess(directory, structureFile, options: Seq[String], majorSbtVersion)
+
+        messageResult.flatMap { messages =>
+          if (structureFile.length > 0) Try {
+            val elem = XML.load(structureFile.toURI.toURL)
+            (elem, messages)
+          }
+          else Failure(SbtException.fromSbtLog(messages))
+        }
+
+      } else {
+        val message = s"SBT $sinceSbtVersion+ required. Please update project build.properties."
+        Failure(new UnsupportedOperationException(message))
+      }
+    }
+    else {
+      val error = s"SBT launcher not found at ${SbtLauncher.getCanonicalPath}"
+      Failure(new FileNotFoundException(error))
     }
   }
 
-  private def checkLauncherPresence: Option[String] = check("SBT launcher", SbtLauncher)
+  private val statusUpdate = (message:String) =>
+    listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
 
-  private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
+  private def dumpFromShell(structureFile: File, options: Seq[String]): Try[String] = {
+    val project = id.findProject()
+    val shell = SbtShellCommunication.forProject(project)
 
-  private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit): Try[Elem] = {
-    val pluginFile = customStructureFile.getOrElse(LauncherDir / s"sbt-structure-$sbtVersion.jar")
+    val fileString = structureFile.getAbsolutePath
+    val optString = options.mkString(" ")
+    val cmd = s";reload; */*:dumpStructureTo $fileString $optString"
+    val output =
+      shell.command(cmd, new StringBuilder, messageAggregator(id, statusUpdate), showShell = true)
 
-    usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
-      val setCommands = Seq(
-        s"""shellPrompt := { _ => "" }""",
-        s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
-        s"""SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$options""""
-      ).mkString("set _root_.scala.collection.Seq(", ",", ")")
+    Await.ready(output, Duration.Inf)
+    output.value.get.map(_.toString())
+  }
 
-      val sbtCommands = Seq(
-        setCommands,
-        s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.CreateTasks""",
-        "*/*:dump-structure",
-        "exit"
-      ).mkString(";",";","")
+  /** Aggregates (messages, warnings) and updates external system listener. */
+  private def messageAggregator(id: ExternalSystemTaskId, statusUpdate: String=>Unit): EventAggregator[StringBuilder] = {
+    case (m,TaskStart) => m
+    case (m,TaskComplete) => m
+    case (messages, Output(message)) =>
+      statusUpdate(message)
+      messages.append("\n").append(message)
+      messages
+  }
 
-      val processCommandsRaw =
-        path(vmExecutable) +:
+  private def shellImportSupported(sbtVersion: String): Boolean =
+    versionCompare(sbtVersion, sinceSbtVersionShell) >= 0
+  
+  private def importSupported(sbtVersion: String): Boolean =
+    versionCompare(sbtVersion, sinceSbtVersion) >= 0
+
+  private def runDumpProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: String): Try[String] = {
+
+    val optString = options.mkString(", ")
+
+    val pluginJar = sbtStructureJar(sbtVersion)
+
+    val setCommands = Seq(
+      s"""shellPrompt := { _ => "" }""",
+      s"""SettingKey[_root_.scala.Option[_root_.sbt.File]]("sbt-structure-output-file") in _root_.sbt.Global := _root_.scala.Some(_root_.sbt.file("${path(structureFile)}"))""",
+      s"""SettingKey[_root_.java.lang.String]("sbt-structure-options") in _root_.sbt.Global := "$optString""""
+    ).mkString("set _root_.scala.collection.Seq(", ",", ")")
+
+    val sbtCommands = Seq(
+      setCommands,
+      s"""apply -cp "${path(pluginJar)}" org.jetbrains.sbt.CreateTasks""",
+      "*/*:dump-structure",
+      "exit"
+    ).mkString(";",";","")
+
+    val processCommandsRaw =
+      path(vmExecutable) +:
         "-Djline.terminal=jline.UnsupportedTerminal" +:
         "-Dsbt.log.noformat=true" +:
         "-Dfile.encoding=UTF-8" +:
@@ -80,30 +128,24 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         "-jar" :+
         path(SbtLauncher)
 
-      val processCommands = processCommandsRaw.filterNot(_.isEmpty)
+    val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
-      Try {
-        val processBuilder = new ProcessBuilder(processCommands.asJava)
-        processBuilder.directory(directory)
-        processBuilder.environment().putAll(environment.asJava)
-        val process = processBuilder.start()
-        using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
-          writer.println(sbtCommands)
-          writer.flush()
-          val result = handle(process, listener)
-          result.map { output =>
-            if (structureFile.length > 0)
-              Success(XML.load(structureFile.toURI.toURL))
-            else
-              Failure(SbtException.fromSbtLog(output))
-          }.getOrElse(Failure(new ImportCancelledException))
-        }
-      }.flatten
-    }
+    Try {
+      val processBuilder = new ProcessBuilder(processCommands.asJava)
+      processBuilder.directory(directory)
+      processBuilder.environment().putAll(environment.asJava)
+      val process = processBuilder.start()
+      val result = using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
+        writer.println(sbtCommands)
+        writer.flush()
+        handle(process, statusUpdate)
+      }
+      result.getOrElse("no output from sbt shell process available")
+    }.orElse(Failure(SbtRunner.ImportCancelledException))
   }
 
-  private def handle(process: Process, listener: (String) => Unit): Option[String] = {
-    val output = new StringBuffer()
+  private def handle(process: Process, statusUpdate: String=>Unit): Try[String] = {
+    val output = StringBuilder.newBuilder
 
     val processListener: (OutputType, String) => Unit = {
       case (OutputType.StdOut, text) =>
@@ -113,27 +155,28 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
           writer.close()
         } else {
           output.append(text)
-          listener(text)  
+          statusUpdate(text)
         }
       case (OutputType.StdErr, text) =>
         output.append(text)
-        listener(text)
+        statusUpdate(text)
     }
 
-    val handler = new OSProcessHandler(process, "SBT import", Charset.forName("UTF-8"))
-    handler.addProcessListener(new ListenerAdapter(processListener))
-    handler.startNotify()
+    Try {
+      val handler = new OSProcessHandler(process, "SBT import", Charset.forName("UTF-8"))
+      handler.addProcessListener(new ListenerAdapter(processListener))
+      handler.startNotify()
 
-    var processEnded = false
-    while (!processEnded && !cancellationFlag.get())
-      processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
+      var processEnded = false
+      while (!processEnded && !cancellationFlag.get())
+        processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
 
-    if (!processEnded) {
-      handler.setShouldDestroyProcessRecursively(false)
-      handler.destroyProcess()
-      None
-    } else {
-      Some(output.toString)
+      if (!processEnded) {
+        // task was cancelled
+        handler.setShouldDestroyProcessRecursively(false)
+        handler.destroyProcess()
+        throw ImportCancelledException
+      } else output.toString()
     }
   }
 
@@ -141,7 +184,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 }
 
 object SbtRunner {
-  class ImportCancelledException extends Exception
+  case object ImportCancelledException extends Exception
 
   val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
@@ -153,83 +196,7 @@ object SbtRunner {
 
   def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
 
-  private val SinceSbtVersion = "0.12.4"
+  private val sinceSbtVersion = "0.12.4"
+  private val sinceSbtVersionShell = "0.13.5"
 
-  private def numbersOf(version: String): Seq[String] = version.split("\\.").toSeq
-
-  private def compare(v1: String, v2: String): Int = numbersOf(v1).zip(numbersOf(v2)).foldLeft(0) {
-    case (acc, (i1, i2)) if acc == 0 => i1.compareTo(i2)
-    case (acc, _) => acc
-  }
-
-  private[structure] def detectSbtVersion(directory: File, sbtLauncher: File): String =
-    sbtVersionIn(directory)
-      .orElse(sbtVersionInBootPropertiesOf(sbtLauncher))
-      .orElse(implementationVersionOf(sbtLauncher))
-      .getOrElse(Sbt.LatestVersion)
-
-  private def implementationVersionOf(jar: File): Option[String] =
-    readManifestAttributeFrom(jar, "Implementation-Version")
-
-  private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
-    val jar = new JarFile(file)
-    try {
-      Option(jar.getJarEntry("META-INF/MANIFEST.MF")).flatMap { entry =>
-        val input = new BufferedInputStream(jar.getInputStream(entry))
-        val manifest = new java.util.jar.Manifest(input)
-        val attributes = manifest.getMainAttributes
-        Option(attributes.getValue(name))
-      }
-    }
-    finally {
-      jar.close()
-    }
-  }
-
-  private def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
-    val appProperties = readSectionFromBootPropertiesOf(jar, sectionName = "app")
-    for {
-      name <- appProperties.get("name")
-      if name == "sbt"
-      versionStr <- appProperties.get("version")
-      version <- "\\d+(\\.\\d+)+".r.findFirstIn(versionStr)
-    } yield version
-  }
-
-  private def readSectionFromBootPropertiesOf(launcherFile: File, sectionName: String): Map[String, String] = {
-    val Property = "^\\s*(\\w+)\\s*:(.+)".r.unanchored
-
-    def findProperty(line: String): Option[(String, String)] = {
-      line match {
-        case Property(name, value) => Some((name, value.trim))
-        case _ => None
-      }
-    }
-
-    val jar = new JarFile(launcherFile)
-    try {
-      Option(jar.getEntry("sbt/sbt.boot.properties")).fold(Map.empty[String, String]) { entry =>
-        val lines = scala.io.Source.fromInputStream(jar.getInputStream(entry)).getLines()
-        val sectionLines = lines
-          .dropWhile(_.trim != s"[$sectionName]").drop(1)
-          .takeWhile(!_.trim.startsWith("["))
-        sectionLines.flatMap(findProperty).toMap
-      }
-    } finally {
-      jar.close()
-    }
-  }
-
-  private def sbtVersionIn(directory: File): Option[String] = {
-    val propertiesFile = directory / "project" / "build.properties"
-    if (propertiesFile.exists()) readPropertyFrom(propertiesFile, "sbt.version") else None
-  }
-
-  private def readPropertyFrom(file: File, name: String): Option[String] = {
-    using(new BufferedInputStream(new FileInputStream(file))) { input =>
-      val properties = new Properties()
-      properties.load(input)
-      Option(properties.getProperty(name))
-    }
-  }
 }

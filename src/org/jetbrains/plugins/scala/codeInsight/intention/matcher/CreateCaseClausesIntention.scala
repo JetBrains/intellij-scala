@@ -140,15 +140,16 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
       case x: ScMatchStmt if x.caseClauses.isEmpty =>
         val project = element.getProject
         implicit val typeSystem = project.typeSystem
-        val classType: Option[(PsiClass, ScSubstitutor)] = x.expr.flatMap(_.getType(TypingContext.empty).toOption).
-          flatMap(_.extractClassType(project))
+        val clazz = x.expr
+          .flatMap(_.getType(TypingContext.empty).toOption)
+          .flatMap(_.extractClass(project))
 
-        classType match {
-          case Some((cls: ScTypeDefinition, _)) if cls.hasModifierProperty("sealed") =>
+        clazz match {
+          case Some(cls: ScTypeDefinition) if cls.hasModifierProperty("sealed") =>
             Some(addMatchClausesForSealedClass(x, x.expr.get, cls), " for variants of sealed type")
-          case Some((cls: PsiClass, _)) if cls.isEnum =>
+          case Some(cls: PsiClass) if cls.isEnum =>
             Some(addMatchClausesForEnum(x, x.expr.get, cls), " for variants of java enum")
-          case Some((cls: PsiClass, _)) if !cls.hasFinalModifier =>
+          case Some(cls: PsiClass) if !cls.hasFinalModifier =>
             Some(addMatchClausesForCaseClassesAndObjects(x, x.expr.get, cls), " for inherited objects and case classes")
           case _ => None
         }

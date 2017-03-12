@@ -77,7 +77,7 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
             case ref: PsiReference => ref.resolve() match {
               case fakeMethod: FakePsiMethod if fakeMethod.navElement == element =>
                 if (!consumer.process(ref)) return false
-              case wrapper: PsiTypedDefinitionWrapper if wrapper.typedDefinition == element =>
+              case wrapper: PsiTypedDefinitionWrapper if wrapper.delegate == element =>
                 if (!consumer.process(ref)) return false
               case _ =>
             }

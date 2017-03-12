@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2;
 
 import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil;
+import org.specs2.runner.ClassRunner$;
 import org.specs2.runner.NotifierRunner;
 import testingSupport.specs2.MyNotifierRunner;
 
@@ -64,6 +65,15 @@ public class JavaSpecs2Runner {
           failedTests.add(newArgs[i]);
           ++i;
         }
+      } else if (newArgs[i].equals("-C")) {
+        ++i;
+        String reporterName = newArgs[i];
+        if (!reporterName.equals(reporterQualName)) {
+          //don't duplicate the reporter
+          specialArgs.add("-notifier");
+          specialArgs.add(reporterName);
+        }
+        ++i;
       } else {
         specialArgs.add(newArgs[i]);
         ++i;
@@ -97,8 +107,9 @@ public class JavaSpecs2Runner {
     final String runnerFQN = "org.specs2.NotifierRunner";
 
     try {
-      NotifierRunner runner = new NotifierRunner(notifier);
-      Method method = runner.getClass().getMethod("main", String[].class);
+      ClassRunner$ runner = ClassRunner$.MODULE$;
+//      NotifierRunner runner = new NotifierRunner(notifier);
+      Method method = runner.getClass().getMethod("run", String[].class);
       method.invoke(runner, runnerArgsArray);
     } catch (NoSuchMethodException e) {
       if (verbose) {
@@ -185,7 +196,7 @@ public class JavaSpecs2Runner {
     }
   }
 
-  static void runSpecs2_new(Object runnerArgsArray, JavaSpecs2Notifier notifier) {
+  private static void runSpecs2_new(Object runnerArgsArray, JavaSpecs2Notifier notifier) {
     runWithNotifierRunner(runnerArgsArray, true, notifier);
   }
 
@@ -195,8 +206,16 @@ public class JavaSpecs2Runner {
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
     List<String> runnerArgs = new ArrayList<String>();
     runnerArgs.add(className);
-    if (!testName.equals("")) runnerArgs.add("-Dspecs2.ex="+ "\"" + testName + "\"");
     runnerArgs.addAll(argsArray);
+    if (isSpecs2_3) {
+      //there is a bug with specs2 v3.1+: notifier does not get passed properly through NotifierRunner
+      runnerArgs.add("-notifier");
+      runnerArgs.add(reporterQualName);
+    }
+    if (!testName.equals("")) {
+      runnerArgs.add("-ex");
+      runnerArgs.add("\"\\A" + testName + "\\Z\"");
+    }
     Object runnerArgsArray = runnerArgs.toArray(new String[runnerArgs.size()]);
     if (isSpecs2_3) {
       runSpecs2_new(runnerArgsArray, notifier);

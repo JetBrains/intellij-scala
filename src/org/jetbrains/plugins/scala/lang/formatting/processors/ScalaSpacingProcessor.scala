@@ -345,7 +345,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     if (scalaSettings.KEEP_COMMENTS_ON_SAME_LINE &&
       (rightNode.getElementType == ScalaTokenTypes.tLINE_COMMENT || FormatterUtil.isCommentGrabbingPsi(rightPsi) &&
-      rightPsi.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLINE_COMMENT)) {
+      rightPsi.getFirstChild.getNode.getElementType == ScalaTokenTypes.tLINE_COMMENT) &&
+      leftPsi.nextSibling.filter(_.isInstanceOf[PsiWhiteSpace]).exists(psi => !getText(psi.getNode, fileText).contains("\n")) ) {
       return COMMON_SPACING
     }
 

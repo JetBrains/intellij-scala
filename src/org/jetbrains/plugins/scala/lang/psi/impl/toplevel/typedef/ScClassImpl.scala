@@ -15,7 +15,6 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{CLASS_DEFINITION, PRIMARY_CONSTRUCTOR}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -35,10 +34,10 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * @author Alexander.Podkhalyuzin
- */
+  * @author Alexander.Podkhalyuzin
+  */
 
-class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+class ScClassImpl private(stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
   extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
 
   def this(node: ASTNode) =
@@ -72,20 +71,22 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
+
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                                  state: ResolveState,
+                                                  lastParent: PsiElement,
+                                                  place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
     constructor match {
       case Some(constr) if place != null && PsiTreeUtil.isContextAncestor(constr, place, false) =>
-        //ignore, should be processed in ScParameters
+      //ignore, should be processed in ScParameters
       case _ =>
         for (p <- parameters) {
           ProgressManager.checkCanceled()
-          if (processor.isInstanceOf[BaseProcessor]) { // don't expose class parameters to Java.
+          if (processor.isInstanceOf[BaseProcessor]) {
+            // don't expose class parameters to Java.
             if (!processor.execute(p, state)) return false
           }
         }
@@ -101,13 +102,13 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   override def isCase: Boolean = hasModifierProperty("case")
 
-  override def getMethods: Array[PsiMethod] = {
+  override def getMethods: Array[PsiMethod] =
     getAllMethods.filter(_.containingClass == this)
-  }
 
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     val names = new mutable.HashSet[String]
+
     res ++= getConstructors
 
     TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
@@ -125,7 +126,8 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     }
 
 
-    if (isCase) { //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
+    if (isCase) {
+      //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
       val caseClassGeneratedFunctions = Array(
         "def canEqual(that: Any): Boolean = ???",
         "def equals(that: Any): Boolean = ???",
@@ -147,6 +149,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
             res += method
           }
         }
+
         TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o) { node =>
           this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
         }
@@ -161,15 +164,11 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     res.toArray
   }
 
-  override def getConstructors: Array[PsiMethod] = {
-    val buffer = new ArrayBuffer[PsiMethod]
-    buffer ++= functions.filter(_.isConstructor).flatMap(_.getFunctionWrappers(isStatic = false, isInterface = false, Some(this)))
-    constructor match {
-      case Some(x) => buffer ++= x.getFunctionWrappers
-      case _ =>
-    }
-    buffer.toArray
-  }
+  override def getConstructors: Array[PsiMethod] =
+    constructor.toArray
+      .flatMap(_.getFunctionWrappers) ++
+      secondaryConstructors
+        .flatMap(_.getFunctionWrappers(isStatic = false, isInterface = false, Some(this)))
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
     val buf = new ArrayBuffer[PsiMethod]
@@ -185,7 +184,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
               buf += method
             } catch {
               case _: Exception =>
-                //do not add methods if class has wrong signature.
+              //do not add methods if class has wrong signature.
             }
           }
         case None =>
@@ -198,9 +197,9 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     val x = constructor.getOrElse(return "")
     val className = name
     val paramString = (if (x.parameterList.clauses.length == 1 &&
-      x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
+      x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map { c =>
       val start = if (c.isImplicit) "(implicit " else "("
-      c.parameters.map{ p =>
+      c.parameters.map { p =>
         val paramType = p.typeElement match {
           case Some(te) => te.getText
           case None => "Any"

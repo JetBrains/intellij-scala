@@ -1,4 +1,4 @@
 class ScalaGenericExtends[T <: ScalaGenericExtends[T]]
 
-new ScalaGenericExtends[/*caret*/]
+new ScalaGenericExtends[<caret>]
 //T <: ScalaGenericExtends[T]

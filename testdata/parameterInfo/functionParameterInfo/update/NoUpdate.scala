@@ -5,5 +5,5 @@ class NoUpdate {
 }
 
 val x = new NoUpdate
-2 + x(/*caret*/)
+2 + x(<caret>)
 //x: Int

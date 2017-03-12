@@ -7,7 +7,7 @@ class ThisScalaConstructor {
   }
 }
 
-new ThisScalaConstructor(/*caret*/)
+new ThisScalaConstructor(<caret>)
 /*
 <no parameters>
 x: Boolean

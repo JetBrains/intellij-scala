@@ -4,7 +4,7 @@ trait Unapply {
 
 def foo(A: Any with Unapply) {
   22 match {
-    case A(/*caret*/) =>
+    case A(<caret>) =>
   }
 }
 //Int

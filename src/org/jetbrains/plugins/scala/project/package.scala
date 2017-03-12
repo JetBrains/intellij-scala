@@ -196,13 +196,15 @@ package object project {
     implicit def toLibrary(v: ScalaSdk): Library = v.library
 
     def documentationUrlFor(version: Option[Version]): String =
-      "http://www.scala-lang.org/api/" + version.map(_.versionString).getOrElse("current") + "/"
+      "http://www.scala-lang.org/api/" + version.map(_.presentation).getOrElse("current") + "/"
   }
 
   implicit class ProjectPsiElementExt(val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)
+
+    def isInDottyModule: Boolean = module.exists(_.hasDotty)
 
     @deprecated("legacy code, use scalaLanguageLevelOrDefault", "14.10.14")
     def languageLevel: ScalaLanguageLevel = {
@@ -231,4 +233,6 @@ package object project {
   val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
 
   val ScalaLibraryName: String = "scala-library"
+
+  val DottyLibraryName: String = "dotty-library"
 }

@@ -52,7 +52,7 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
 
   override def defns(ref: Ref): Seq[Member] = {
     ref match {
-      case pname: m.Name => getDefns(pname)
+//      case pname: m.Name => getDefns(pname)
       case m.Term.Select(_, pname) => defns(pname)
       case m.Type.Select(_, pname) => defns(pname)
       case m.Type.Project(_, pname) => defns(pname)
@@ -66,9 +66,9 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
 
   override def members(tpe: Type): Seq[Member] = {
     tpe match {
-      case tp@m.Type.Name(value) => getMembers(tp)
+//      case tp@m.Type.Name(value) => getMembers(tp)
       case tp@m.Type.Apply(tpe, _) => members(tpe)
-      case m.Type.Select(_, name) => getMembers(name)
+//      case m.Type.Select(_, name) => getMembers(name)
       case tp:m.Type.Function => ???
         // TODO: what should we even return in case of function?
         // Scala's FunctionN type via Type.Name? Or type.Function? In second case we can't have a bijective map
@@ -107,23 +107,7 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
     }
   }
 
-  override def supermembers(member : Member) : Seq[Member] = {
-    val name = member match {
-      case t@m.Defn.Class(_, name, _, _, _) => name
-      case t@m.Defn.Object(_, name, _)   => name
-      case t@m.Defn.Trait(_, name, _, _, _) => name
-      case other => unreachable(s"Can't get parents of a non-class tree: $other")
-    }
-    val psi = name.denot.symbols.map(fromSymbol)
-    val parents = psi.map {
-      case t: ScTemplateDefinition =>
-        t.supers.map(ideaToMeta(_).asInstanceOf[m.Member])
-      case t: PsiClass => t.getSupers.map(ideaToMeta(_).asInstanceOf[m.Member]).toSeq
-      case other => unreachable(s"Can't get parents of a non-class psi: $other")
-    }
-    parents.flatten
-  }
-
+  override def supermembers(member : Member) : Seq[Member] = ???
   override def submembers(member: Member): Seq[Member] = ???
 
 }

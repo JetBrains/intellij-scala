@@ -60,15 +60,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     getLastChild.asInstanceOf[ScExtendsBlock]
   }
 
-  def refs: Seq[(ScTypeElement, Option[(PsiClass, ScSubstitutor)])] = {
-    extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
-      val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap {
-        _.extractClassType(getProject)
-      }
-      (refElement, tuple)
-    }
-  }
-
   def innerExtendsListTypes: Array[PsiClassType] = {
     val eb = extendsBlock
     if (eb != null) {
@@ -138,9 +129,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     import scala.collection.JavaConversions._
     PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases).toList.sortBy(myPair =>
       myPair.first match {
-        case wrapper: ScFunctionWrapper if wrapper.function.isInstanceOf[ScFunctionDeclaration] => 1
-        case wrapper: ScFunctionWrapper if wrapper.function.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
-          case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.function) => 0
+        case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDeclaration] => 1
+        case wrapper: ScFunctionWrapper if wrapper.delegate.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
+          case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.delegate) => 0
           case _ => 1
         }
         case _ => 1

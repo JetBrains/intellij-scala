@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
-import scala.collection.immutable.HashSet
-
 /**
  * @author ilyas
  */
@@ -111,7 +109,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)),
     isImplicit)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res
@@ -261,7 +259,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           psiTypeParameter)
     })
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res

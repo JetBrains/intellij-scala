@@ -41,7 +41,7 @@ object ResolveProcessor {
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
         t.aliasedType(TypingContext.empty) match {
           case Success(tp, _) =>
-            tp.extractClass(Option(place).map(_.getProject).orNull) match {
+            tp.extractClass(t.getProject) match {
               case Some(_: ScObject) => defaultForTypeAlias(t)
               case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
                 "Class:" + td.qualifiedName

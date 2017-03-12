@@ -5,7 +5,7 @@ import javax.swing.JComponent
 
 import com.intellij.openapi.ui.Messages
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.plugins.scala.project.{Platform, Versions}
+import org.jetbrains.plugins.scala.project.{Platform, Version, Versions}
 
 /**
   * @author Pavel Fatin
@@ -22,6 +22,8 @@ class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
       updateVersions()
     }
   })
+
+  myVersion.setTextRenderer(Version.abbreviate)
 
   updateVersions()
 

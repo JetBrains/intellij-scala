@@ -148,14 +148,10 @@ public class ScalaTestRunner {
     boolean useVersionFromOptions = false;
     boolean isOlderScalaVersionFromOptions = false;
     int i = 0;
-    int classIndex = 0;
     String[] newArgs = TestRunnerUtil.getNewArgs(args);
     while (i < newArgs.length) {
       if (newArgs[i].equals("-s")) {
-        argsArray.add(newArgs[i]);
         ++i;
-        argsArray.add("empty");
-        classIndex = i;
         while (i < newArgs.length && !newArgs[i].startsWith("-")) {
           classes.add(newArgs[i]);
           ++i;
@@ -192,7 +188,6 @@ public class ScalaTestRunner {
         ++i;
       }
     }
-    String[] arga = argsArray.toArray(new String[argsArray.size()]);
     Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
         loadClass(reporterQualName);
     Reporter reporter = (Reporter) reporterClass.newInstance();
@@ -204,8 +199,10 @@ public class ScalaTestRunner {
         i += 2;
       }
     } else if (testNames.isEmpty()) {
+      String[] arga = argsArray.toArray(new String[argsArray.size() + 2]);
+      arga[arga.length - 2] = "-s";
       for (String clazz : classes) {
-        arga[classIndex] = clazz;
+        arga[arga.length - 1] = clazz;
         TestRunnerUtil.configureReporter(reporterQualName, showProgressMessages);
         Runner.run(arga);
       }

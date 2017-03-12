@@ -17,4 +17,6 @@ class SbtExecutionSettings(val realProjectPath: String,
                            val jdk: Option[String],
                            val resolveClassifiers: Boolean,
                            val resolveJavadocs: Boolean,
-                           val resolveSbtClassifiers: Boolean) extends ExternalSystemExecutionSettings
+                           val resolveSbtClassifiers: Boolean,
+                           val useShellForImport: Boolean
+                          ) extends ExternalSystemExecutionSettings

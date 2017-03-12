@@ -9,13 +9,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.task.ProjectTaskResult
 import org.jetbrains.ide.PooledThreadExecutor
+import org.jetbrains.plugins.scala.lang.psi.api.base.A
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationLong}
 import scala.concurrent.{Future, Promise}
-import scala.util.Success
+import scala.util.{Success, Try}
 
 /**
   * Created by jast on 2016-11-06.
@@ -27,29 +28,24 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   private val shellPromptReady = new AtomicBoolean(false)
   private val communicationActive = new AtomicBoolean(false)
   private val shellQueueReady = new Semaphore(1)
-  private val commands = new LinkedBlockingQueue[(String, CommandListener)]()
+  private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
 
-  /**
-    * Queue an sbt command for execution in the sbt shell.
-    */
-  def command(cmd: String, eventHandler: EventHandler = _=>(), showShell: Boolean = true): Future[ProjectTaskResult] = {
-    val eventHandler: EventHandler = _ => ()
-    val listener = new CommandListener(eventHandler)
+  /** Queue an sbt command for execution in the sbt shell, returning a Future[String] containing the entire shell output. */
+  def command(cmd: String, showShell: Boolean = true): Future[String] =
+    command(cmd, StringBuilder.newBuilder, messageAggregator, showShell).map(_.toString())
+
+  /** Queue an sbt command for execution in the sbt shell. */
+  def command[A](cmd: String,
+                 default: A,
+                 eventHandler: EventAggregator[A],
+                 showShell: Boolean): Future[A] = {
+    val listener = new CommandListener(default, eventHandler)
     if (showShell) process.openShellRunner()
     initCommunication(process.acquireShellProcessHandler)
-    queueCommand(cmd, listener)
-  }
-
-  private def queueCommand(cmd: String, listener: CommandListener) = {
-
     commands.put((cmd, listener))
-
-    listener.future.recover {
-      case _ =>
-        // TODO some kind of feedback / rethrow
-        new ProjectTaskResult(true, 1, 0)
-    }
+    listener.future
   }
+
 
   /** Start processing command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
@@ -77,7 +73,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
 
         process.attachListener(listener)
 
-        process.withWriter { shell =>
+        process.usingWriter { shell =>
           shell.println(cmd)
           shell.flush()
         }
@@ -115,53 +111,51 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
 object SbtShellCommunication {
   def forProject(project: Project): SbtShellCommunication = project.getComponent(classOf[SbtShellCommunication])
 
-  type EventHandler = ShellEvent => Unit
-
   sealed trait ShellEvent
   case object TaskStart extends ShellEvent
   case object TaskComplete extends ShellEvent
   case class Output(line: String) extends ShellEvent
+
+  type EventAggregator[A] = (A, ShellEvent) => A
+
+  /** Aggregates the output of a shell task. */
+  val messageAggregator: EventAggregator[StringBuilder] = (builder, e) => e match {
+    case TaskStart | TaskComplete => builder
+    case Output(text) => builder.append("\n", text)
+  }
+
+  /** Convenience aggregator wrapper that is executed for the side effects.
+    * The final result will just be the value of the last invocation. */
+  def listenerAggregator[A](listener: ShellEvent => A): EventAggregator[A] = (_,e) =>
+    listener(e)
 }
 
+private[shell] class CommandListener[A](default: A, aggregator: EventAggregator[A]) extends LineListener {
 
-private[shell] class CommandListener(eventHandler: EventHandler) extends LineListener {
+  private val promise = Promise[A]()
+  private var a: A = default
 
-  private var success = false
-  private var errors = 0
-  private var warnings = 0
+  private def aggregate(event: ShellEvent) = {
+    a = aggregator(a, event)
+  }
 
-  private val promise = Promise[ProjectTaskResult]()
+  def future: Future[A] = promise.future
 
-  def future: Future[ProjectTaskResult] = promise.future
-
-  override def startNotified(event: ProcessEvent): Unit = eventHandler(TaskStart)
+  override def startNotified(event: ProcessEvent): Unit = aggregate(TaskStart)
 
   override def processTerminated(event: ProcessEvent): Unit = {
-    val res = new ProjectTaskResult(true, errors, warnings)
     // TODO separate event type for completion by termination?
-    eventHandler(TaskComplete)
-    promise.complete(Success(res))
+    aggregate(TaskComplete)
+    promise.complete(Try(a))
   }
 
   override def onLine(text: String): Unit = {
 
-    if (text startsWith "[error]") {
-      success = false
-      errors += 1
-    } else if (text startsWith "[warning]") {
-      warnings += 1
-    }
-    else if (text contains "[success]")
-      success = true
-      // TODO running multiple tasks at once will output multiple success lines, so this may negate previous errors
-
     if (!promise.isCompleted && promptReady(text)) {
-      val res = new ProjectTaskResult(false, errors, warnings)
-
-      eventHandler(TaskComplete)
-      promise.complete(Success(res))
+      aggregate(TaskComplete)
+      promise.complete(Success(a))
     } else {
-      eventHandler(Output(text))
+      aggregate(Output(text))
     }
   }
 }

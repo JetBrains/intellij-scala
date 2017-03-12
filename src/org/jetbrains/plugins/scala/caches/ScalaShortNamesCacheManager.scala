@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.light.LightScalaMethod
+import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -167,7 +167,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     def javaMethods: Seq[PsiMethod] = {
       PsiShortNamesCache.getInstance(project).getMethodsByName(cleanName, scope).filter {
         case _: ScFunction => false
-        case _: LightScalaMethod => false
+        case _: PsiMethodWrapper => false
         case _ => true
       }.toSeq
     }

@@ -6,6 +6,6 @@ object X {
   val A: Any with Unapply = null
 }
 22 match {
-  case X.A(/*caret*/) =>
+  case X.A(<caret>) =>
 }
 //Int

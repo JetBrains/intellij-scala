@@ -33,6 +33,7 @@ lazy val scalaCommunity: Project =
   .enablePlugins(SbtIdeaPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "project" / "meta",
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6",

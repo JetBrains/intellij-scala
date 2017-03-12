@@ -4,7 +4,6 @@ package lang.rearranger
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-import scala.collection.immutable.HashSet
 import scala.collection.{immutable, mutable}
 
 /**
@@ -81,7 +80,7 @@ class ScalaArrangementParseInfo {
     val result: ScalaArrangementDependency = new ScalaArrangementDependency(entry)
     var toProcess: List[(ScFunction, ScalaArrangementDependency)] = List[(ScFunction, ScalaArrangementDependency)]()
     toProcess = (method, result)::toProcess
-    var usedMethods = HashSet[ScFunction]()
+    var usedMethods = Set.empty[ScFunction]
     while (toProcess.nonEmpty) {
       val (depenenceSource, dependency) = toProcess.head
       toProcess = toProcess.tail

@@ -1,2 +1,3 @@
-List(1).foldLeft(""){/*caret*/}
+List(1).foldLeft("") {
+  <caret>}
 //f: (B, Int) => B

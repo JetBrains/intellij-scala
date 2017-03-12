@@ -48,4 +48,10 @@ class UTestRunConfiguration(override val project: Project,
   override def errorMessage: String = "utest is not specified"
 
   override def currentConfiguration: UTestRunConfiguration = UTestRunConfiguration.this
+
+  override protected def sbtClassKey = " -- "
+
+  override protected def sbtTestNameKey = ""
+
+  override protected def escapeTestName(test: String): String = test.stripPrefix("tests").replace("\\", ".")
 }

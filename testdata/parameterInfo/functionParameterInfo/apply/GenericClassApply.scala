@@ -3,5 +3,5 @@ class GenericClassApply[T] {
 }
 
 val y = new GenericClassApply[Int]
-y(/*caret*/)
+y(<caret>)
 //x: Int

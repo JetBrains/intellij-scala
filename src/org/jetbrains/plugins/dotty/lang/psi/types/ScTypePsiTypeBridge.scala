@@ -6,12 +6,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScalaArrayOf}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 
 import scala.collection.JavaConversions._
-import scala.collection.immutable.HashSet
+
 
 /**
   * @author adkozlov
@@ -21,7 +21,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
 
   override def toScType(`type`: PsiType,
                         treatJavaObjectAsAny: Boolean)
-                       (implicit visitedRawTypes: HashSet[PsiClass],
+                       (implicit visitedRawTypes: Set[PsiClass],
                         paramTopLevel: Boolean): ScType = `type` match {
     case _: PsiClassType => Any
     case _: PsiWildcardType => Any
@@ -47,6 +47,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
             case Success(result, _) => createComponent(result)
             case _ => createJavaObject
           }
+          case _ => createJavaObject
         }
       case refinedType@DottyRefinedType(ScDesignatorType(clazz: PsiClass), _, _) if clazz.qualifiedName == "scala.Array" =>
         refinedType.typeArguments match {
@@ -58,6 +59,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                   toPsiType(scType, noPrimitives = true, skolemToWildcard = true))
               })
         }
+      case ScalaArrayOf(arg) => new PsiArrayType(toPsiType(arg))
       case _ => super.toPsiType(`type`, noPrimitives, skolemToWildcard)
     }
   }

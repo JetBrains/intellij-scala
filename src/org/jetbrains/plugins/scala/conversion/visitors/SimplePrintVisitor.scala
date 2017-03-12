@@ -26,7 +26,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       companion, extendsList) => visitClass(c, name, primaryConstructor, bodyElements,
         modifiers, typeParams, initalizers, classType, companion, extendsList)
       case a@AnonymousClass(mType, args, body, extendsList) => visitAnonymousClass(a, mType, args, body, extendsList)
-      case e@Enum(name, modifiers, enumConstants: Seq[String]) => visitEnum(e, name, modifiers, enumConstants)
+      case e@Enum(name, modifiers, members) => visitEnum(e, name, modifiers, members)
       case ArrayAccess(expression, idxExpression) => visitArrayAccess(expression, idxExpression)
       case c@ClassCast(operand, castType, isPrimitive) => visitCastType(c, operand, castType, isPrimitive)
       case ArrayInitializer(expresions: Seq[IntermediateNode]) => visitArrayInitalizer(expresions)
@@ -86,6 +86,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case SwitchLabelStatement(caseValue, arrow) => visitSwitchLabelStatement(caseValue, arrow)
       case SynchronizedStatement(lock, body) => visitSynchronizedStatement(lock, body)
       case ExpressionListStatement(exprs) => visitExpressionListStatement(exprs)
+      case EnumConstruction(name) => visit(name)
       case NotSupported(n, msg) => visitNotSupported(n, msg)
       case EmptyConstruction() =>
     }
@@ -201,7 +202,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     printBodyWithCurlyBracketes(ac, () => printWithSeparator(body, " "))
   }
 
-  def visitEnum(e: Enum, name: IntermediateNode, modifiers: IntermediateNode, enumConstants: Seq[String]): Unit = {
+  def visitEnum(e: Enum, name: IntermediateNode, modifiers: IntermediateNode, members: Seq[IntermediateNode]): Unit = {
     visit(modifiers)
     printer.append("object ")
     visit(name)
@@ -212,15 +213,14 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       visit(name)
       printer.append(" = Value\n")
 
+      val enumConstants = members.collect { case el: EnumConstruction => el }
       if (enumConstants.nonEmpty) {
         printer.append("val ")
-        for (str <- enumConstants) {
-          printer.append(str)
-          printer.append(", ")
-        }
-        printer.delete(2)
+        printWithSeparator(enumConstants, ",")
         printer.append(" = Value\n")
       }
+
+      members.filter(!_.isInstanceOf[EnumConstruction]).foreach(visit)
     }
 
     printBodyWithCurlyBracketes(e, visitEnumBody)

@@ -269,21 +269,5 @@ trait TypeAdapter {
   }
 
 
-  def fromType(tpe: m.Type): ptype.ScType = {
-    typeCache.getOrElseUpdate(tpe, {
-      tpe match {
-        case n:m.Type.Name =>
-          val psi = fromSymbol(n.denot.symbols.head)
-          psi match {
-            case td: p.toplevel.typedef.ScTemplateDefinition =>
-              td.getType(TypingContext.empty).get
-            case other =>
-              other ???
-          }
-        case _ =>
-          ???
-      }
-    }
-    )
-  }
+  def fromType(tpe: m.Type): ptype.ScType = ???
 }

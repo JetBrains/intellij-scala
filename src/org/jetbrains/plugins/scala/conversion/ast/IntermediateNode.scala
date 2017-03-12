@@ -12,7 +12,7 @@ import scala.collection.mutable.ArrayBuffer
 abstract class IntermediateNode {
   def escapeKeyword(name: String): String = ScalaNamesUtil.escapeKeyword(name)
 
-  val comments = Comments.apply
+  val comments: Comments = Comments.apply
 
   def setComments(c: Comments): Unit = {
     comments.beforeComments ++= c.beforeComments
@@ -20,11 +20,11 @@ abstract class IntermediateNode {
     comments.latestCommtets ++= c.latestCommtets
   }
 
-  def setAfterComments(c: ArrayBuffer[LiteralExpression]) = {
+  def setAfterComments(c: Seq[LiteralExpression]): Unit = {
     comments.afterComments ++= c
   }
 
-  def setBeforeComments(c: ArrayBuffer[LiteralExpression]) = {
+  def setBeforeComments(c: Seq[LiteralExpression]): Unit = {
     comments.beforeComments ++= c
   }
 }

@@ -1,4 +1,4 @@
 class Contravariant[-T]
 
-new Contravariant[/*caret*/]
+new Contravariant[<caret>]
 //-T

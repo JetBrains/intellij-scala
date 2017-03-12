@@ -5,6 +5,6 @@ object test {
 object test2 {
   import test.{AAA => BBB}
 
-  val x = BBB(/*caret*/)
+  val x = BBB(<caret>)
 }
 //i: Int

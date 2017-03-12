@@ -1,2 +1,2 @@
-new java.util.ArrayList[/*caret*/]
+new java.util.ArrayList[<caret>]
 //E

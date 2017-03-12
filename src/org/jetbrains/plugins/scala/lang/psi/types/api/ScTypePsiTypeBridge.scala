@@ -6,12 +6,11 @@ import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.project.ProjectExt
-
-import scala.collection.immutable.HashSet
 
 /**
   * @author adkozlov
@@ -23,7 +22,7 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     */
   def toScType(`type`: PsiType,
                treatJavaObjectAsAny: Boolean)
-              (implicit visitedRawTypes: HashSet[PsiClass],
+              (implicit visitedRawTypes: Set[PsiClass],
                paramTopLevel: Boolean): ScType = `type` match {
     case arrayType: PsiArrayType =>
       JavaArrayType(arrayType.getComponentType.toScType())
@@ -86,30 +85,6 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     }
   }
 
-  def extractClass(`type`: ScType,
-                   project: Project = null): Option[PsiClass] =
-    extractClassType(`type`, project).map(_._1)
-
-  def extractClassType(`type`: ScType,
-                       project: Project = null,
-                       visitedAlias: HashSet[ScTypeAlias] = HashSet.empty): Option[(PsiClass, ScSubstitutor)] =
-    `type` match {
-      case nonValueType: NonValueType =>
-        nonValueType.inferValueType.extractClassType(project, visitedAlias)
-      case designatorOwner: DesignatorOwner =>
-        designatorOwner.classType(project, visitedAlias)
-      case parameterizedType: ParameterizedType =>
-        parameterizedType.designator.extractClassType(project, visitedAlias).map {
-          case (clazz, substitutor) => (clazz, substitutor.followed(parameterizedType.substitutor))
-        }
-      case stdType: StdType =>
-        stdType.asClass(Option(project).getOrElse(DecompilerUtil.obtainProject))
-          .map {
-            (_, ScSubstitutor.empty)
-          }
-      case _ => None
-    }
-
   protected def createType(psiClass: PsiClass,
                            substitutor: PsiSubstitutor = PsiSubstitutor.EMPTY,
                            raw: Boolean = false)
@@ -128,14 +103,23 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
 
   protected def factory(implicit elementScope: ElementScope): PsiElementFactory =
     JavaPsiFacade.getInstance(elementScope.project).getElementFactory
+
 }
 
 object ExtractClass {
-  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[PsiClass] = {
+  def unapply(`type`: ScType): Option[PsiClass] = {
     `type`.extractClass()
   }
 
   def unapply(`type`: ScType, project: Project): Option[PsiClass] = {
-    unapply(`type`)(project.typeSystem)
+    `type`.extractClass(project)
+  }
+}
+
+object ScalaArrayOf {
+  def unapply(scType: ScType): Option[ScType] = scType match {
+    case ParameterizedType(ScDesignatorType(cl: ScClass), Seq(arg))
+      if cl.qualifiedName == "scala.Array" => Some(arg)
+    case _ => None
   }
 }

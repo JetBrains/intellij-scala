@@ -5,5 +5,5 @@ trait MapLike[A, B] {
 trait Map[AA, BB] extends MapLike[AA, BB]
 
 val intmap: Map[Int, Int] = null
-intmap(/*caret*/)
+intmap(<caret>)
 //a: Int

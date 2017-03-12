@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
@@ -15,100 +14,68 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
-class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVarargs: Boolean = false, forDefault: Option[Int] = None) extends {
+class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVarargs: Boolean = false, forDefault: Option[Int] = None) extends {
   val containingClass: PsiClass = {
-      val res: PsiClass = constr.containingClass
-      assert(res != null, s"Method: ${constr.getText}\nhas null containing class. \nContaining file text: ${constr.getContainingFile.getText}")
-      res
+    val res: PsiClass = delegate.containingClass
+    assert(res != null, s"Method: ${delegate.getText}\nhas null containing class. \nContaining file text: ${delegate.getContainingFile.getText}")
+    res
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(constr, isStatic = forDefault.isDefined, isInterface = false, None, isJavaVarargs, forDefault)
-    LightUtil.createJavaMethod(methodText, containingClass, constr.getProject)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic = forDefault.isDefined, isInterface = false, None, isJavaVarargs, forDefault)
+    LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with LightMethodAdapter(constr.getManager, method, containingClass) with LightScalaMethod {
-
-  override def getNavigationElement: PsiElement = this
-
-  override def canNavigate: Boolean = constr.canNavigate
-
-  override def canNavigateToSource: Boolean = constr.canNavigateToSource
-
-  override def navigate(requestFocus: Boolean): Unit = constr.navigate(requestFocus)
-
-  override def getTextRange: TextRange = constr.getTextRange
-
-  override def getParent: PsiElement = containingClass
-
-  override def getTextOffset: Int = constr.getTextOffset
+} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
 
   override protected def returnType: ScType = {
     forDefault match {
       case Some(i) =>
-        val param = constr.parameters(i - 1)
+        val param = delegate.parameters(i - 1)
         param.getType(TypingContext.empty).getOrAny
       case _ => null
     }
   }
 
   override protected def parameterListText: String = {
-    val substitutor = ScFunctionWrapper.getSubstitutor(None, constr)
-    ScFunctionWrapper.parameterListText(constr, substitutor, forDefault, isJavaVarargs)
+    val substitutor = ScFunctionWrapper.getSubstitutor(None, delegate)
+    ScFunctionWrapper.parameterListText(delegate, substitutor, forDefault, isJavaVarargs)
   }
-
-  override def getPrevSibling: PsiElement = constr.getPrevSibling
-
-  override def getNextSibling: PsiElement = constr.getNextSibling
 
   override def isWritable: Boolean = getContainingFile.isWritable
 }
 
 /**
- * Represnts Scala functions for Java. It can do it in many ways including
- * default parameters. For example (forDefault = Some(1)):
- * def foo(x: Int = 1) generates method foo$default$1.
+  * Represnts Scala functions for Java. It can do it in many ways including
+  * default parameters. For example (forDefault = Some(1)):
+  * def foo(x: Int = 1) generates method foo$default$1.
   *
   * @author Alefas
- * @since 27.02.12
- */
-class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface: Boolean,
+  * @since 27.02.12
+  */
+class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface: Boolean,
                         cClass: Option[PsiClass], isJavaVarargs: Boolean = false,
                         forDefault: Option[Int] = None) extends {
   val containingClass: PsiClass = {
     if (cClass.isDefined) cClass.get
     else {
-      var res: PsiClass = function.containingClass
+      var res: PsiClass = delegate.containingClass
       if (isStatic) {
         res match {
           case o: ScObject => res = o.fakeCompanionClassOrCompanionClass
           case _ =>
         }
       }
-      assert(res != null, "Method: " + function.getText + "\nhas null containing class. isStatic: " + isStatic +
-        "\nContaining file text: " + function.getContainingFile.getText)
+      assert(res != null, "Method: " + delegate.getText + "\nhas null containing class. isStatic: " + isStatic +
+        "\nContaining file text: " + delegate.getContainingFile.getText)
       res
     }
   }
   val method: PsiMethod = {
-    val methodText = ScFunctionWrapper.methodText(function, isStatic, isInterface, cClass, isJavaVarargs, forDefault)
-    LightUtil.createJavaMethod(methodText, containingClass, function.getProject)
+    val methodText = ScFunctionWrapper.methodText(delegate, isStatic, isInterface, cClass, isJavaVarargs, forDefault)
+    LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with LightMethodAdapter(function.getManager, method, containingClass) with LightScalaMethod {
-
-  override def getNavigationElement: PsiElement = this
-
-  override def canNavigate: Boolean = function.canNavigate
-
-  override def canNavigateToSource: Boolean = function.canNavigateToSource
-
-  override def navigate(requestFocus: Boolean): Unit = function.navigate(requestFocus)
-
-  override def getParent: PsiElement = containingClass
-
-  override def getTextOffset: Int = function.getTextOffset
-
-  override def getTextRange: TextRange = function.getTextRange
+} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {
@@ -118,20 +85,16 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     }
   }
 
-  override def getPrevSibling: PsiElement = function.getPrevSibling
-
-  override def getNextSibling: PsiElement = function.getNextSibling
-
   override protected def parameterListText: String = {
-    val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, function)
-    ScFunctionWrapper.parameterListText(function, substitutor, forDefault, isJavaVarargs)
+    val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, delegate)
+    ScFunctionWrapper.parameterListText(delegate, substitutor, forDefault, isJavaVarargs)
   }
 
   override protected def returnType: ScType = {
-    val isConstructor = function.isConstructor && forDefault.isEmpty
+    val isConstructor = delegate.isConstructor && forDefault.isEmpty
     if (isConstructor) null
     else {
-      val typeParameters = function.typeParameters
+      val typeParameters = delegate.typeParameters
       val generifySubst: ScSubstitutor =
         if (typeParameters.nonEmpty) {
           val methodTypeParameters = getTypeParameters
@@ -145,34 +108,34 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
           } else ScSubstitutor.empty
         } else ScSubstitutor.empty
 
-      val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, function)
+      val substitutor: ScSubstitutor = ScFunctionWrapper.getSubstitutor(cClass, delegate)
       val scalaType = forDefault match {
         case Some(i) =>
-          val param = function.parameters(i - 1)
+          val param = delegate.parameters(i - 1)
           val paramType = substitutor.subst(param.getType(TypingContext.empty).getOrAny)
           generifySubst.subst(paramType)
         case None =>
-          val retType = substitutor.subst(function.returnType.getOrAny)
+          val retType = substitutor.subst(delegate.returnType.getOrAny)
           generifySubst.subst(retType)
       }
       scalaType
     }
   }
 
-  override def getNameIdentifier: PsiIdentifier = function.getNameIdentifier
+  override def getNameIdentifier: PsiIdentifier = delegate.getNameIdentifier
 
   override def isWritable: Boolean = getContainingFile.isWritable
 
   override def setName(name: String): PsiElement = {
-    if (forDefault.isEmpty && !function.isConstructor) function.setName(name)
+    if (forDefault.isEmpty && !delegate.isConstructor) delegate.setName(name)
     else this
   }
 }
 
 object ScFunctionWrapper {
   /**
-   * This is for Java only.
-   */
+    * This is for Java only.
+    */
   def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass],
                  isJavaVarargs: Boolean, forDefault: Option[Int] = None): String = {
     val builder = new StringBuilder
@@ -254,7 +217,7 @@ object ScFunctionWrapper {
           case td: ScTypeDefinition =>
             td.signaturesByName(function.name).find(_.method == function) match {
               case Some(sign) => sign.substitutor
-              case _          => ScSubstitutor.empty
+              case _ => ScSubstitutor.empty
             }
           case _ => ScSubstitutor.empty
         }

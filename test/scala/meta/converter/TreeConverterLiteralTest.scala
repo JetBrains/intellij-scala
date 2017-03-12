@@ -3,6 +3,8 @@ package scala.meta.converter
 import scala.meta.TreeConverterTestBaseNoLibrary
 import scala.meta._
 
+import scala.collection.immutable.Seq
+
 class TreeConverterLiteralTest extends  TreeConverterTestBaseNoLibrary {
   
   def testTrue() {
@@ -64,7 +66,7 @@ class TreeConverterLiteralTest extends  TreeConverterTestBaseNoLibrary {
   def testSymbol() {
     doTest(
       "'foo'",
-      Lit('foo)
+      Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit("foo")))
     )
   }
   

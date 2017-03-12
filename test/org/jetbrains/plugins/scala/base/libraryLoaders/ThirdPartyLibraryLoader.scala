@@ -124,6 +124,13 @@ case class ScalaXmlLoader(implicit val module: Module) extends IvyLibraryLoaderA
   override protected val ivyType: IvyType = Bundles
 }
 
+case class ScalacticLoader(override protected val version: String,
+                           override protected val ivyType: IvyType = Jars)
+                          (implicit val module: Module) extends IvyLibraryLoaderAdapter {
+  override protected val name: String = "scalactic"
+  override protected val vendor: String = "org.scalactic"
+}
+
 case class UTestLoader(override protected val version: String)
                       (implicit val module: Module) extends IvyLibraryLoaderAdapter {
   override protected val name: String = "utest"

@@ -4,13 +4,9 @@
     <buildFile url="file://$PROJECT_DIR$/src/org/jetbrains/plugins/scala/lang/lexer/core/build.xml">
       <maximumStackSize value="64" />
     </buildFile>
-    <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/parameterInfo/patternParameterInfo/PatternParameterTestsGenerator.xml">
-      <maximumStackSize value="32" />
-    </buildFile>
     <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/autoImport/AutoImportTestsGenerator.xml">
       <maximumStackSize value="32" />
     </buildFile>
-    <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/parameterInfo/functionParameterInfo/FunctionParameterTestsGenerator.xml" />
     <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/optimize/OptimizeImportsTestsGenerator.xml" />
     <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/completion/CompletionTestsGenerator.xml" />
     <buildFile url="file://$PROJECT_DIR$/test/org/jetbrains/plugins/scala/lang/checkers/checkPrivateAccess/CheckPrivateAccessTestsGenerator.xml" />

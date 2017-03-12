@@ -1,4 +1,4 @@
 class ScalaViewBound[U <% Int]
 
-new ScalaViewBound[/*caret*/]
+new ScalaViewBound[<caret>]
 //U <% Int

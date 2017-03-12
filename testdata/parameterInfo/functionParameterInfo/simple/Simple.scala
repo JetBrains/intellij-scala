@@ -3,5 +3,5 @@ class Simple {
 }
 
 val y = new Simple
-y.addOne(/*caret*/)
+y.addOne(<caret>)
 //x: Int

@@ -3,5 +3,5 @@ class A {
 }
 
 val a = new A
-a[Int /*caret*/] // TODO
+a[Int<caret>] // TODO
 // a

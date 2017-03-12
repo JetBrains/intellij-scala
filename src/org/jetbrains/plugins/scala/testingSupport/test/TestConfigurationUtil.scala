@@ -26,7 +26,7 @@ object TestConfigurationUtil {
   def packageSettings(element: PsiElement, location: Location[_ <: PsiElement],
                       confFactory: AbstractTestRunConfigurationFactory,
                       displayName: String): RunnerAndConfigurationSettings = {
-    val pack: PsiPackage = element match { 
+    val pack: PsiPackage = element match {
       case dir: PsiDirectory => JavaRuntimeConfigurationProducerBase.checkPackage(dir)
       case pack: PsiPackage => pack
     }

@@ -673,9 +673,9 @@ object ScalaPsiUtil {
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
           case _ =>
-            tp.extractClassType(project) match {
-              case Some((obj: ScObject, _)) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
-              case Some((clazz, _)) if !visited.contains(clazz) =>
+            tp.extractClass(project) match {
+              case Some(obj: ScObject) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
+              case Some(clazz) if !visited.contains(clazz) =>
                 getCompanionModule(clazz) match {
                   case Some(obj: ScObject) =>
                     tp match {
@@ -1967,7 +1967,7 @@ object ScalaPsiUtil {
       else validConstructor && selfTypeCorrectIfScala212
     }
 
-    expected.extractClassType().flatMap {
+    expected.extractClassType(element.getProject).flatMap {
       case (templDef: ScTemplateDefinition, substitutor) =>
         if (!isSAMable(templDef)) None
         else {

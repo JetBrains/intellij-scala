@@ -654,7 +654,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         context.setCurrentParameter(index)
         context.setHighlightedParameter(el)
 
-        if (!(context.getObjectsToView sameElements elementsForParameterInfo(args))) {
+        if (!equivalent(context.getObjectsToView, elementsForParameterInfo(args))) {
           context.removeHint()
 
           ShowParameterInfoHandler.invoke(context.getProject, context.getEditor, context.getFile, context.getOffset, null, false)
@@ -663,15 +663,24 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     }
     args.element
   }
+
+  private def equivalent(seq1: Seq[AnyRef], seq2: Seq[AnyRef]): Boolean = {
+    seq1.size == seq2.size && seq1.zip(seq2).forall(equivObjectsToView)
+  }
+
+  private def equivObjectsToView(tuple: (AnyRef, AnyRef)): Boolean = tuple match {
+    case (s1: String, s2: String) =>
+      s1 == s2
+    case ((a1: AnnotationParameters, i1: Int), (a2: AnnotationParameters, i2: Int)) =>
+      i1 == i2 && a1 == a2
+    case ((sign1: PhysicalSignature, i1: Int), (sign2: PhysicalSignature, i2: Int)) =>
+      i1 == i2 && sign1.method == sign2.method
+    case ((pc1: ScPrimaryConstructor, _: ScSubstitutor, i1: Int), (pc2: ScPrimaryConstructor, _: ScSubstitutor, i2: Int)) =>
+      i1 == i2 && pc1 == pc2
+    case _ => false
+  }
 }
 
 object ScalaFunctionParameterInfoHandler {
   case class AnnotationParameters(seq: Seq[(String, ScType, PsiAnnotationMemberValue)])
-}
-
-object ParameterInfoUtil {
-  /**
-   * Light green colour. Used for current resolve context showing.
-   */
-  val highlightedColor = new Color(231, 254, 234)
 }

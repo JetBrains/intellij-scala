@@ -43,7 +43,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   private val resolveClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
-  private val resolveJavadocsCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveJavadocs"))
   private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
   private val useSbtShellCheckBox = new JCheckBox(SbtBundle("sbt.settings.useShell"))
 
@@ -53,7 +52,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
     downloadPanel.add(resolveClassifiersCheckBox)
-    downloadPanel.add(resolveJavadocsCheckBox)
     downloadPanel.add(resolveSbtClassifiersCheckBox)
     content.add(new JLabel("Download:"), labelConstraints)
     content.add(downloadPanel, fillLineConstraints)
@@ -81,7 +79,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     selectedJdkName != settings.jdkName ||
       resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
       resolveSbtClassifiersCheckBox.isSelected != settings.resolveSbtClassifiers ||
-      resolveJavadocsCheckBox.isSelected != settings.resolveJavadocs ||
       useSbtShellCheckBox.isSelected != settings.useSbtShell
   }
 
@@ -93,7 +90,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
     resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
-    resolveJavadocsCheckBox.setSelected(settings.resolveJavadocs)
     useSbtShellCheckBox.setSelected(settings.useSbtShell)
   }
 
@@ -105,7 +101,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
-    settings.resolveJavadocs = resolveJavadocsCheckBox.isSelected
     settings.useSbtShell = useSbtShellCheckBox.isSelected
   }
 

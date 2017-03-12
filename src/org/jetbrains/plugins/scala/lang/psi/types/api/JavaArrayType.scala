@@ -5,8 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType, api}
 
-import scala.collection.immutable.HashSet
-
 case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) extends ValueType with TypeInTypeSystem {
 
   def getParameterizedType(implicit elementScope: ElementScope): Option[ValueType] = {
@@ -20,7 +18,7 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
   override def removeAbstracts = JavaArrayType(argument.removeAbstracts)
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType),
-                               visited: HashSet[ScType]): ScType = {
+                               visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res

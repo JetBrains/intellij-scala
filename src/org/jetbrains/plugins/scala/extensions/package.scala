@@ -41,7 +41,6 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.language.higherKinds
@@ -324,7 +323,7 @@ package object extensions {
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
-    def toScType(visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
+    def toScType(visitedRawTypes: Set[PsiClass] = Set.empty,
                  paramTopLevel: Boolean = false,
                  treatJavaObjectAsAny: Boolean = true)
                 (implicit typeSystem: TypeSystem): ScType =
@@ -333,18 +332,18 @@ package object extensions {
 
   implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
     def lower(implicit typeSystem: TypeSystem,
-              visitedRawTypes: HashSet[PsiClass],
+              visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isSuper) Some(`type`.getSuperBound) else None)
 
     def upper(implicit typeSystem: TypeSystem,
-              visitedRawTypes: HashSet[PsiClass],
+              visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isExtends) Some(`type`.getExtendsBound) else None)
 
     private def bound(maybeBound: Option[PsiType])
                      (implicit typeSystem: TypeSystem,
-                      visitedRawTypes: HashSet[PsiClass],
+                      visitedRawTypes: Set[PsiClass],
                       paramTopLevel: Boolean) = maybeBound map {
       _.toScType(visitedRawTypes, paramTopLevel = paramTopLevel)
     }
@@ -417,7 +416,7 @@ package object extensions {
             m.containingClass match {
               case t: ScTrait =>
                 val linearization = MixinNodes.linearization(clazz)
-                  .flatMap(_.extractClass(clazz.getProject)(clazz.typeSystem))
+                  .flatMap(_.extractClass(clazz.getProject))
                 var index = linearization.indexWhere(_ == t)
                 while (index >= 0) {
                   val cl = linearization(index)

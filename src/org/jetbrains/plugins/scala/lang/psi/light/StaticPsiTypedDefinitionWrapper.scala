@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -9,43 +8,34 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
- * @author Alefas
- * @since 28.02.12
- */
-class StaticPsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition,
-                                       role: PsiTypedDefinitionWrapper.DefinitionRole.DefinitionRole,
-                                       containingClass: PsiClassWrapper) extends {
+  * @author Alefas
+  * @since 28.02.12
+  */
+class StaticPsiTypedDefinitionWrapper(val delegate: ScTypedDefinition,
+                                      role: PsiTypedDefinitionWrapper.DefinitionRole.DefinitionRole,
+                                      containingClass: PsiClassWrapper) extends {
   val method: PsiMethod = {
-    val methodText = StaticPsiTypedDefinitionWrapper.methodText(typedDefinition, role, containingClass)
-    LightUtil.createJavaMethod(methodText, containingClass, typedDefinition.getProject)
+    val methodText = StaticPsiTypedDefinitionWrapper.methodText(delegate, role, containingClass)
+    LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
-
-  override def getNavigationElement: PsiElement = this
-
-  override def navigate(requestFocus: Boolean): Unit = typedDefinition.navigate(requestFocus)
-
-  override def canNavigate: Boolean = typedDefinition.canNavigate
-
-  override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource
-
-  override def getTextRange: TextRange = typedDefinition.getTextRange
-
-  override def getTextOffset: Int = typedDefinition.getTextOffset
-
-  override def getParent: PsiElement = containingClass
+} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
 
   override def isWritable: Boolean = getContainingFile.isWritable
 
-  override protected def returnType: ScType = PsiTypedDefinitionWrapper.typeFor(typedDefinition, role)
+  override def getPrevSibling: PsiElement = null
+
+  override def getNextSibling: PsiElement = null
+
+  override protected def returnType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
 
   override protected def parameterListText: String = {
-    PsiTypedDefinitionWrapper.parameterListText(typedDefinition, role, Some(containingClass))
+    PsiTypedDefinitionWrapper.parameterListText(delegate, role, Some(containingClass))
   }
 }
 
 object StaticPsiTypedDefinitionWrapper {
+
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
   def methodText(b: ScTypedDefinition, role: DefinitionRole, containingClass: PsiClassWrapper): String = {

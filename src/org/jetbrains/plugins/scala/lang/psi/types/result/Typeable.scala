@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types.result
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-import scala.collection.immutable.HashSet
-
 /**
  * An entity, which may return a type and pass a context of typing while looking for others' type.
  *
@@ -40,7 +38,7 @@ trait TypingContext {
   def isUndefined = false
 
   def apply(named: ScNamedElement): TypingContext = new TypingContext {
-    def visited: HashSet[ScNamedElement] = HashSet(self.visited.toSeq: _*) + named
+    def visited: Set[ScNamedElement] = self.visited + named
   }
 
   def apply(seq: Seq[ScNamedElement]): TypingContext = seq.foldLeft(TypingContext.empty)((ctx, elem) => ctx(elem))

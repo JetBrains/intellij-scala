@@ -18,14 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
 
 object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
   override implicit lazy val typeSystem = ScalaTypeSystem
 
   override def toScType(psiType: PsiType,
                         treatJavaObjectAsAny: Boolean)
-                       (implicit visitedRawTypes: HashSet[PsiClass],
+                       (implicit visitedRawTypes: Set[PsiClass],
                         paramTopLevel: Boolean): ScType = {
     psiType match {
       case classType: PsiClassType =>
@@ -93,7 +92,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       maybeLower.getOrElse(Nothing), maybeUpper.getOrElse(Any))
 
   private def createParameter(wildcardType: PsiWildcardType, index: Int = 0, maybeUpper: => Option[ScType] = None)
-                             (implicit visitedRawTypes: HashSet[PsiClass],
+                             (implicit visitedRawTypes: Set[PsiClass],
                               paramTopLevel: Boolean): ScExistentialArgument =
     createParameter(wildcardType.lower, wildcardType.upper.orElse(maybeUpper), index)
 
@@ -123,7 +122,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     implicit val typeSystem = elementScope.typeSystem
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
-      extractClass(proj.projected) match {
+      proj.projected.extractClass(elementScope.project) match {
         case Some(outer) => outer.hasTypeParameters
         case _ => false
       }
@@ -144,15 +143,12 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           case _ => createType(valClass)
         }
       case ScDesignatorType(c: PsiClass) => createType(c)
+      case ScalaArrayOf(arg) => new PsiArrayType(toPsiType(arg))
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) =>
-        if (c.qualifiedName == "scala.Array" && args.length == 1)
-          new PsiArrayType(toPsiType(args.head))
-        else {
-          val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
-            case (s, (targ, tp)) => s.put(tp, toPsiType(targ, noPrimitives = true, skolemToWildcard = true))
-          }
-          createType(c, subst)
+        val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
+          case (s, (targ, tp)) => s.put(tp, toPsiType(targ, noPrimitives = true, skolemToWildcard = true))
         }
+        createType(c, subst)
       case ParameterizedType(proj@ScProjectionType(_, _, _), args) => proj.actualElement match {
         case c: PsiClass =>
           if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiType(args.head))
@@ -206,20 +202,5 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case _ => super.toPsiType(`type`, noPrimitives, skolemToWildcard)
     }
   }
-
-  @tailrec
-  override def extractClass(`type`: ScType, project: Project): Option[PsiClass] = `type` match {
-    case ParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
-    case _ => super.extractClass(`type`, project)
-  }
-
-  override def extractClassType(`type`: ScType,
-                                project: Project,
-                                visitedAlias: HashSet[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] =
-    `type` match {
-      case ScExistentialType(quantified, _) =>
-        quantified.extractClassType(project, visitedAlias)
-      case _ => super.extractClassType(`type`, project, visitedAlias)
-    }
 }
 

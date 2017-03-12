@@ -16,6 +16,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
@@ -156,6 +157,11 @@ object MetaExpansionsManager {
       try {
         val converted = converter.ideaToMeta(annotee)
         val convertedAnnot = converter.toAnnotCtor(annot)
+        val typeArgs = annot.typeElement match {
+          case pe: ScParameterizedTypeElement => pe.typeArgList.typeArgs.map(converter.toType)
+          case _ => Nil
+        }
+        val compiledArgs = Seq(convertedAnnot.asInstanceOf[AnyRef]) ++ typeArgs ++ Seq(converted.asInstanceOf[AnyRef])
         val clazz = getCompiledMetaAnnotClass(annot)
         clazz match {
           case Some(outer) =>
@@ -165,7 +171,7 @@ object MetaExpansionsManager {
             val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
             meth.setAccessible(true)
             try {
-              val result = meth.invoke(inst, convertedAnnot.asInstanceOf[AnyRef], converted.asInstanceOf[AnyRef])
+              val result = meth.invoke(inst, compiledArgs:_*)
               Right(result.asInstanceOf[Tree])
             } catch {
               case pc: ProcessCanceledException => throw pc

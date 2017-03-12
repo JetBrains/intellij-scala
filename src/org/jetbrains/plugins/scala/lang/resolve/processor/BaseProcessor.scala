@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 
-import scala.collection.immutable.HashSet
 import scala.collection.{Set, mutable}
 
 object BaseProcessor {
@@ -154,8 +153,8 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   def processType(t: ScType, place: PsiElement, state: ResolveState = ResolveState.initial(),
                   updateWithProjectionSubst: Boolean = true,
                   //todo ugly recursion breakers, maybe we need general for type? What about performance?
-                  visitedProjections: HashSet[PsiNamedElement] = HashSet.empty,
-                  visitedTypeParameter: HashSet[TypeParameterType] = HashSet.empty): Boolean = {
+                  visitedProjections: Set[PsiNamedElement] = Set.empty,
+                  visitedTypeParameter: Set[TypeParameterType] = Set.empty): Boolean = {
     ProgressManager.checkCanceled()
 
     t match {
@@ -225,7 +224,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             if (visitedTypeParameter.contains(tpt)) return true
             processType(p.substitutor.subst(upper.v), place,
               state.put(ScSubstitutor.key, ScSubstitutor(p)), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter + tpt)
-          case _ => p.extractDesignated(withoutAliases = false) match {
+          case _ => p.extractDesignatedType(expandAliases = false) match {
             case Some((designator, subst)) =>
               processElement(designator, subst, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
             case None => true
@@ -279,7 +278,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   }
 
   private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState,
-                             visitedProjections: HashSet[PsiNamedElement], visitedTypeParameter: HashSet[TypeParameterType]): Boolean = {
+                             visitedProjections: Set[PsiNamedElement], visitedTypeParameter: Set[TypeParameterType]): Boolean = {
     val subst = state.get(ScSubstitutor.key)
     val compound = state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY) //todo: looks like ugly workaround
     val newSubst =

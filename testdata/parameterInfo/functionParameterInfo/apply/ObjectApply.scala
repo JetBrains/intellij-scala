@@ -3,7 +3,7 @@ object ObjectApply {
   def apply(x: Double, y: Int) = x/y
 }
 
-ObjectApply(/*caret*/)
+ObjectApply(<caret>)
 /*
 x: Double, y: Int
 x: Int

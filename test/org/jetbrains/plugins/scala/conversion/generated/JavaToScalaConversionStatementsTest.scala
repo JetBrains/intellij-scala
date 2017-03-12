@@ -31,6 +31,8 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testSwitch() = doTest()
 
+  def testEmptySwitch() = doTest()
+
   def testToByteToInt() = doTest()
 
   def testTryWithResources(): Unit = doTest()

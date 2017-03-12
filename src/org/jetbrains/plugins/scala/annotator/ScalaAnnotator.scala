@@ -69,7 +69,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with OverridingAnnotator with ValueClassAnnotator with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
-    val typeAware = isAdvancedHighlightingEnabled(element)
+    val typeAware = isAdvancedHighlightingEnabled(element) && !element.isInDottyModule
 
     val (compiled, isInSources) = element.getContainingFile match {
       case file: ScalaFile =>
@@ -105,29 +105,25 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitParameterizedTypeElement(parameterized: ScParameterizedTypeElement) {
-        val tp = parameterized.typeElement.getTypeNoConstructor(TypingContext.empty)
-        tp match {
-          case Success(res, _) =>
-            res.extractDesignated(withoutAliases = false) match {
-              case Some((t: ScTypeParametersOwner, _)) =>
-                val typeParametersLength = t.typeParameters.length
-                val argsLength = parameterized.typeArgList.typeArgs.length
-                if (typeParametersLength != argsLength) {
-                  val error = "Wrong number of type parameters. Expected: " + typeParametersLength + ", actual: " + argsLength
-                  val leftBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tLSQBRACKET)
-                  if (leftBracket != null) {
-                    val annotation = holder.createErrorAnnotation(leftBracket, error)
-                    annotation.setHighlightType(ProblemHighlightType.ERROR)
-                  }
-                  val rightBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tRSQBRACKET)
-                  if (rightBracket != null) {
-                    val annotation = holder.createErrorAnnotation(rightBracket, error)
-                    annotation.setHighlightType(ProblemHighlightType.ERROR)
-                  }
-                }
-              case _ =>
+        val typeParamOwner = parameterized.typeElement.getTypeNoConstructor().toOption
+          .flatMap(_.extractDesignated(expandAliases = false))
+          .collect {case t: ScTypeParametersOwner => t}
+        typeParamOwner.foreach { t =>
+          val typeParametersLength = t.typeParameters.length
+          val argsLength = parameterized.typeArgList.typeArgs.length
+          if (typeParametersLength != argsLength) {
+            val error = "Wrong number of type parameters. Expected: " + typeParametersLength + ", actual: " + argsLength
+            val leftBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tLSQBRACKET)
+            if (leftBracket != null) {
+              val annotation = holder.createErrorAnnotation(leftBracket, error)
+              annotation.setHighlightType(ProblemHighlightType.ERROR)
             }
-          case _ =>
+            val rightBracket = parameterized.typeArgList.getNode.findChildByType(ScalaTokenTypes.tRSQBRACKET)
+            if (rightBracket != null) {
+              val annotation = holder.createErrorAnnotation(rightBracket, error)
+              annotation.setHighlightType(ProblemHighlightType.ERROR)
+            }
+          }
         }
         super.visitParameterizedTypeElement(parameterized)
       }

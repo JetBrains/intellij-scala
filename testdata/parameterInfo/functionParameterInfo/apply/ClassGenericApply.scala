@@ -4,7 +4,7 @@ class ClassGenericApply {
 }
 
 val y = new ClassGenericApply
-y[Double](/*caret*/5)
+y[Double](<caret>5)
 /*
 x: Double
 x: Int

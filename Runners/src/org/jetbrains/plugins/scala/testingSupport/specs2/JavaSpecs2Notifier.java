@@ -138,4 +138,8 @@ public class JavaSpecs2Notifier implements Notifier {
     ascend();
     //exampleSuccess(name, 0);
   }
+
+  public void stepStarted(String location) {}
+  public void stepSuccess(long duration) {}
+  public void stepError(String message, String location, Throwable f, long duration) {}
 }

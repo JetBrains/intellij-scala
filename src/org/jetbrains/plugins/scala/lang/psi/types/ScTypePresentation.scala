@@ -4,6 +4,7 @@ package psi
 package types
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -211,8 +212,8 @@ object ScTypePresentation extends api.ScTypePresentation {
         case namedType: NamedType => namedType.name
         case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
         case f@FunctionType(ret, params) if t.isAliasType.isEmpty =>
-          val projectOption = f.extractClass().map(_.getProject)
-          val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
+          val project = DecompilerUtil.obtainProject
+          val arrow = ScalaPsiUtil.functionArrow(project)
           typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
           clazz.name + ".this" + typeTail(needDotType)

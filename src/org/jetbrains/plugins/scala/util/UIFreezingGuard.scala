@@ -25,7 +25,9 @@ class UIFreezingGuard extends ApplicationComponent {
   private val periodMs = 10
 
   override def initComponent(): Unit = {
-    JobScheduler.getScheduler.scheduleWithFixedDelay(cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
+    if (enabled) {
+      JobScheduler.getScheduler.scheduleWithFixedDelay(cancelOnUserInput(), periodMs, periodMs, TimeUnit.MILLISECONDS)
+    }
   }
 
   private def cancelOnUserInput(): Unit = {
@@ -42,12 +44,14 @@ class UIFreezingGuard extends ApplicationComponent {
 
 object UIFreezingGuard {
 
+  private val enabled = System.getProperty("idea.ProcessCanceledException") != "disabled"
+
   //used only from EDT
   private var isGuarded: Boolean = false
 
   //used in macro!
   def withResponsibleUI[T](body: => T): T = {
-    if (!isAlreadyGuarded) {
+    if (!isAlreadyGuarded && enabled) {
       val start = System.currentTimeMillis()
       try {
         isGuarded = true
@@ -89,7 +93,7 @@ object UIFreezingGuard {
   //Use with care! Can cause bugs if result is cached upper in the stack.
   def withTimeout[T](timeoutMs: Long, default: => T)(computation: => T): T = {
     val application = ApplicationManager.getApplication
-    if (!application.isDispatchThread || application.isUnitTestMode) return computation
+    if (!enabled || !application.isDispatchThread || application.isUnitTestMode) return computation
 
     val startTime = System.currentTimeMillis()
     try {

@@ -368,7 +368,7 @@ object ScPattern {
               if (argIndex < args.length - 1) return Some(subst.subst(args(argIndex)))
               val lastArg = args.last
               (lastArg +: BaseTypes.get(lastArg)).find {
-                case ParameterizedType(des, seqArgs) => seqArgs.length == 1 && des.extractClass().exists {
+                case ParameterizedType(des, seqArgs) => seqArgs.length == 1 && des.extractClass(fun.getProject).exists {
                   _.qualifiedName == "scala.collection.Seq"
                 }
                 case _ => false
@@ -460,11 +460,12 @@ object ScPattern {
     }
 
     val level = place.scalaLanguageLevelOrDefault
+    val project = place.getProject
     if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {
         case ParameterizedType(des, args) =>
-          des.extractClass() match {
+          des.extractClass(project) match {
             case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
                     clazz.qualifiedName == "scala.Some" =>
               if (args.length == 1) {
@@ -473,7 +474,6 @@ object ScPattern {
                   if (productChance.length <= 1) Seq(tp)
                   else {
                     val productFqn = "scala.Product" + productChance.length
-                    val project = place.getProject
                     (for {
                       productClass <- ScalaPsiManager.instance(project).getCachedClass(place.getResolveScope, productFqn)
                       clazz <- tp.extractClass(project)

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -15,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
  * User: Alefas
  * Date: 18.02.12
  */
-class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean,
+class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boolean, isInterface: Boolean,
                                 role: DefinitionRole.DefinitionRole,
                                 cClass: Option[PsiClass] = None) extends {
   val containingClass: PsiClass = {
     val result = cClass.getOrElse {
-      typedDefinition.nameContext match {
+      delegate.nameContext match {
         case s: ScMember =>
           val res = Option(s.containingClass).orElse(s.syntheticContainingClass).orNull
           if (isStatic) {
@@ -34,33 +33,19 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
     }
 
     if (result == null) {
-      val message = "Containing class is null: " + typedDefinition.getContainingFile.getText + "\n" +
-        "typed Definition: " + typedDefinition.getTextRange.getStartOffset
+      val message = "Containing class is null: " + delegate.getContainingFile.getText + "\n" +
+        "typed Definition: " + delegate.getTextRange.getStartOffset
       throw new RuntimeException(message)
     }
     result
   }
 
   val method: PsiMethod = {
-    val methodText = PsiTypedDefinitionWrapper.methodText(typedDefinition, isStatic, isInterface, role)
-    LightUtil.createJavaMethod(methodText, containingClass, typedDefinition.getProject)
+    val methodText = PsiTypedDefinitionWrapper.methodText(delegate, isStatic, isInterface, role)
+    LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with LightMethodAdapter(typedDefinition.getManager, method, containingClass) with LightScalaMethod {
-
-  override def getNavigationElement: PsiElement = this
-
-  override def canNavigate: Boolean = typedDefinition.canNavigate
-
-  override def canNavigateToSource: Boolean = typedDefinition.canNavigateToSource
-
-  override def navigate(requestFocus: Boolean): Unit = typedDefinition.navigate(requestFocus)
-
-  override def getTextRange: TextRange = typedDefinition.getTextRange
-
-  override def getTextOffset: Int = typedDefinition.getTextOffset
-
-  override def getParent: PsiElement = containingClass
+} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {
@@ -69,22 +54,18 @@ class PsiTypedDefinitionWrapper(val typedDefinition: ScTypedDefinition, isStatic
     }
   }
 
-  override def getPrevSibling: PsiElement = typedDefinition.getPrevSibling
-
-  override def getNextSibling: PsiElement = typedDefinition.getNextSibling
-
-  override def getNameIdentifier: PsiIdentifier = typedDefinition.getNameIdentifier
+  override def getNameIdentifier: PsiIdentifier = delegate.getNameIdentifier
 
   override def isWritable: Boolean = getContainingFile.isWritable
 
   override def setName(name: String): PsiElement = {
-    if (role == DefinitionRole.SIMPLE_ROLE) typedDefinition.setName(name)
+    if (role == DefinitionRole.SIMPLE_ROLE) delegate.setName(name)
     else this
   }
 
-  override protected def returnType: ScType = PsiTypedDefinitionWrapper.typeFor(typedDefinition, role)
+  override protected def returnType: ScType = PsiTypedDefinitionWrapper.typeFor(delegate, role)
 
-  override protected def parameterListText: String = PsiTypedDefinitionWrapper.parameterListText(typedDefinition, role, None)
+  override protected def parameterListText: String = PsiTypedDefinitionWrapper.parameterListText(delegate, role, None)
 }
 
 object PsiTypedDefinitionWrapper {

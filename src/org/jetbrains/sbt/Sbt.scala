@@ -17,8 +17,6 @@ object Sbt {
 
   val BuildFile = "build.sbt"
 
-  val PluginsFile = "plugins.sbt"
-
   val PropertiesFile = "build.properties"
 
   val ProjectDirectory = "project"

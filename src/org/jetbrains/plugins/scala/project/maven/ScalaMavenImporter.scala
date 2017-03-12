@@ -66,7 +66,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
               .filter(_.getName.contains("scala-library"))
               .find(_.scalaVersion.contains(compilerVersion))
               .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
-              compilerVersion.versionString + " for module " + module.getName))
+              compilerVersion.presentation + " for module " + module.getName))
 
       if (!scalaLibrary.isScalaSdk) {
         val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
@@ -119,7 +119,7 @@ private object ScalaMavenImporter {
 }
 
 private class ScalaConfiguration(project: MavenProject) {
-  private def versionNumber = compilerVersion.map(_.versionString).getOrElse("unknown")
+  private def versionNumber = compilerVersion.map(_.presentation).getOrElse("unknown")
 
   private def scalaCompilerId = new MavenId("org.scala-lang", "scala-compiler", versionNumber)
 

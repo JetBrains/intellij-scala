@@ -21,15 +21,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
-import scala.collection.immutable.{HashSet, ListMap}
+import scala.collection.immutable.ListMap
 
 class ScParameterizedType private(val designator: ScType, val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     designator match {
       case ScDesignatorType(ta: ScTypeAlias) =>
-        val existingWildcards = ta.lowerBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty) ++
-          (if (ta.isDefinition) HashSet.empty else ta.upperBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty))
+        val existingWildcards = ta.lowerBound.map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
+          (if (ta.isDefinition) Set.empty else ta.upperBound.map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
@@ -43,8 +43,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
 
-        val existingWildcards = ta.lowerBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty) ++
-          (if (ta.isDefinition) HashSet.empty else ta.upperBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty))
+        val existingWildcards = ta.lowerBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty) ++
+          (if (ta.isDefinition) Set.empty else ta.upperBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(Set.empty))
 
         val genericSubst = ScalaPsiUtil.
           typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
@@ -85,7 +85,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     designator match {
       case TypeParameterType(args, _, _, _) =>
         forParams(args.iterator, ScSubstitutor.empty, (p: TypeParameterType) => p)
-      case _ => designator.extractDesignated(withoutAliases = false) match {
+      case _ => designator.extractDesignatedType(expandAliases = false) match {
         case Some((owner: ScTypeParametersOwner, s)) =>
           forParams(owner.typeParameters.iterator, s, (typeParam: ScTypeParam) => TypeParameterType(typeParam, None))
         case Some((owner: PsiTypeParameterListOwner, s)) =>
@@ -100,8 +100,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        val des = designator.extractDesignated(withoutAliases = false) match {
-          case Some((n: ScTypeParametersOwner, _)) =>
+        val des = designator.extractDesignated(expandAliases = false) match {
+          case Some(n: ScTypeParametersOwner) =>
             n.typeParameters.map {
               case tp if tp.isContravariant => -1
               case tp if tp.isCovariant => 1

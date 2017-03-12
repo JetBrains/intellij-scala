@@ -122,7 +122,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new ModuleExtNode(ModuleExtData(Some(Version("2.11.5")), Seq.empty, Seq.empty, None, Seq.empty))
+      arbitraryNodes += new ModuleExtNode(ModuleExtData("org.scala-lang", Some(Version("2.11.5")), Seq.empty, Seq.empty, None, Seq.empty))
     }.build.toDataNode
 
     importProjectData(testProject)
@@ -185,7 +185,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         libraryDependencies += newScalaLibrary
-        arbitraryNodes += new ModuleExtNode(ModuleExtData(Some(Version(evictedVersion)), Seq.empty, Seq.empty, None, Seq.empty))
+        arbitraryNodes += new ModuleExtNode(ModuleExtData("org.scala-lang", Some(Version(evictedVersion)), Seq.empty, Seq.empty, None, Seq.empty))
       }
     }.build.toDataNode
 
@@ -198,12 +198,12 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
   }
 
   private def generateScalaProject(scalaVersion: String, scalaLibraryVersion: Option[String], scalacOptions: Seq[String]): DataNode[ProjectData] =
-    generateProject(Some(scalaVersion), scalaLibraryVersion, scalacOptions, None, Seq.empty)
+    generateProject("org.scala-lang", Some(scalaVersion), scalaLibraryVersion, scalacOptions, None, Seq.empty)
 
   private def generateJavaProject(jdk: Option[Sdk], javacOptions: Seq[String]): DataNode[ProjectData] =
-    generateProject(None, None, Seq.empty, jdk, javacOptions)
+    generateProject("org.scala-lang", None, None, Seq.empty, jdk, javacOptions)
 
-  private def generateProject(scalaVersion: Option[String], scalaLibraryVersion: Option[String], scalacOptions: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String]): DataNode[ProjectData] =
+  private def generateProject(scalaOrganization: String, scalaVersion: Option[String], scalaLibraryVersion: Option[String], scalacOptions: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String]): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -220,7 +220,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         scalaLibrary.foreach(libraryDependencies += _)
-        arbitraryNodes += new ModuleExtNode(ModuleExtData(scalaVersion.map(Version(_)), Seq.empty, scalacOptions, jdk, javacOptions))
+        arbitraryNodes += new ModuleExtNode(ModuleExtData(scalaOrganization, scalaVersion.map(Version(_)), Seq.empty, scalacOptions, jdk, javacOptions))
       }
     }.build.toDataNode
 

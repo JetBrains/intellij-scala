@@ -7,7 +7,7 @@ import com.intellij.ide.hierarchy.`type`.JavaTypeHierarchyProvider
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-import scala.collection.immutable.HashSet
+
 
 /**
  * User: Alexander Podkhalyuzin
@@ -17,13 +17,13 @@ class ScalaTypeHierarchyProvider extends JavaTypeHierarchyProvider {
   override def createHierarchyBrowser(target: PsiElement): HierarchyBrowser = {
     target match {
       case clazz: ScTypeDefinition =>
-        collectSupers(clazz, new HashSet[ScTypeDefinition])
+        collectSupers(clazz, Set.empty[ScTypeDefinition])
       case _ =>
     }
     super.createHierarchyBrowser(target)
   }
 
-  def collectSupers(clazz: ScTypeDefinition, visited: HashSet[ScTypeDefinition]) {
+  def collectSupers(clazz: ScTypeDefinition, visited: Set[ScTypeDefinition]) {
     clazz.supers.foreach {
       case clazz: ScTypeDefinition =>
         if (visited.contains(clazz)) {

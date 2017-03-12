@@ -77,9 +77,8 @@ case class ScCompoundType(components: Seq[ScType],
       case (s: String, sign) => (s, sign.updateTypes(_.removeAbstracts))
     })
 
-  import scala.collection.immutable.{HashSet => IHashSet}
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: IHashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res

@@ -147,6 +147,8 @@ object TestNodeProvider {
 
   private val scMethodCallDefaultArg = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List
     ("void"))
+  private val scMethodCallDefaultArgScalaTest3 = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"),
+    List("java.lang.Object"))
 
   private def getMethodCallTestName(expr: ScMethodCall) =
   //TODO: this is horrible
@@ -217,7 +219,8 @@ object TestNodeProvider {
   }
 
   private def checkClauses(clauses: Seq[ScParameterClause], paramNames: List[String]*): Boolean = {
-    clauses.length == paramNames.length && (clauses zip paramNames).forall {
+    val filteredClauses = clauses.filterNot(_.parameters.forall(_.isImplicitParameter))
+    filteredClauses.length == paramNames.length && (filteredClauses zip paramNames).forall {
       case (clause, names) =>
         clause.parameters.length == names.length && (clause.parameters zip names).forall {
           case (param, name) => param.getType.getCanonicalText == name
@@ -265,7 +268,8 @@ object TestNodeProvider {
 
   private def extractScalaTestScInfixExpr(expr: ScInfixExpr, entry: ExtractEntry, project: Project):
   Option[TestStructureViewElement] = {
-    if (entry.canIgnore && (checkScInfixExpr(expr, "ignore", List("void")) || checkIgnoreExpr(expr))) {
+    if (entry.canIgnore && (checkScInfixExpr(expr, "ignore", List("void")) ||
+      checkScInfixExpr(expr, "ignore", List("java.lang.Object")) || checkIgnoreExpr(expr))) {
       Some(ignoredScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
     } else if (checkScInfixExpr(expr, "is", List("org.scalatest.PendingNothing")) || checkPendingInfixExpr(expr)) {
       Some(pendingScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
@@ -340,11 +344,14 @@ object TestNodeProvider {
 
   private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry, project: Project):
   Option[TestStructureViewElement] = {
-    if (entry.canIgnore && checkScMethodCall(expr, "ignore", scMethodCallDefaultArg: _*)) {
+    if (entry.canIgnore && (checkScMethodCall(expr, "ignore", scMethodCallDefaultArg: _*) ||
+      checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3: _*))) {
       Some(ignoredScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
     } else if (entry.canPend && checkMethodCallPending(expr)) {
       Some(pendingScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
-    } else if (checkScMethodCall(expr, entry.funName, entry.args: _*) || checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg:_*)) {
+    } else if (checkScMethodCall(expr, entry.funName, entry.args: _*) ||
+      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg:_*) ||
+      checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArgScalaTest3:_*)) {
       Some(new TestStructureViewElement(expr, getMethodCallTestName(expr), entry.children(())))
     } else None
   }
@@ -354,22 +361,28 @@ object TestNodeProvider {
   private def extractFreeSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractFreeSpec, project)
     extractScalaTestScInfixExpr(expr, ExtractEntry("$minus", true, false, _ => children, List("void")), project).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project))
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project)).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project))
   }
 
   private def extractFlatSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
-    extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project)
+    extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project))
   }
 
   private def extractWordSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractWordSpec, project)
     extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project)).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("should", false, false, _ => children, List("void"),
       List("org.scalatest.words.StringVerbBlockRegistration")), project)).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("should", false, false, _ => children, List("void")), project)).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("must", false, false, _ => children, List("void"),
       List("org.scalatest.words.StringVerbBlockRegistration")), project)).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("must", false, false, _ => children, List("void")), project)).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("can", false, false, _ => children, List("void"),
       List("org.scalatest.words.StringVerbBlockRegistration")), project)).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("can", false, false, _ => children, List("void")), project)).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("when", false, false, _ => children, List("void")), project)).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("which", false, false, _ => children, List("void")), project))
   }
@@ -378,21 +391,25 @@ object TestNodeProvider {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFunSpec, project)
     extractScMethodCall(expr, ExtractEntry("describe", true, true, _ => children, List("java.lang.String"), List("void")),
       project).orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg:_*), project)).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3:_*), project)).
       orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*), project))
   }
 
   private def extractFeatureSpec(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFeatureSpec, project)
     extractScMethodCall(expr, ExtractEntry("feature", true, false, _ => children, List("java.lang.String"), List("void")), project).
-      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArg:_*), project))
+      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArg:_*), project)).
+      orElse(extractScMethodCall(expr, ExtractEntry("scenario", true, true, scMethodCallDefaultArgScalaTest3:_*), project))
   }
 
   private def extractPropSpec(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
-    extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg:_*), project)
+    extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg: _*), project).
+      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3: _*), project))
   }
 
   private def extractFunSuite(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
-    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*), project)
+    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*), project).
+      orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3:_*), project))
   }
 
   //-----Specs2-----

@@ -33,7 +33,7 @@ case class ScalaSdkDescriptor(platform: Platform,
     properties.compilerClasspath = compilerFiles
 
     val name = platform match {
-      case Scala => "scala-sdk-" + version.map(_.versionString).getOrElse("Unknown")
+      case Scala => "scala-sdk-" + version.map(_.presentation).getOrElse("Unknown")
       case Dotty => "dotty-sdk"
     }
 

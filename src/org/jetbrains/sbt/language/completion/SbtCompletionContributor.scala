@@ -33,6 +33,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, afterInfixOperator, new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       if (parameters.getOriginalFile.getFileType.getName != Sbt.Name) return
+      val project = parameters.getPosition.getProject
 
       val place     = positionFromParameters(parameters)
       val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]
@@ -47,7 +48,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
 
       implicit val typeSystem = place.typeSystem
 
-      def qualifiedName(t: ScType) = t.extractClass().map(_.qualifiedName).getOrElse("")
+      def qualifiedName(t: ScType) = t.extractClass(project).map(_.qualifiedName).getOrElse("")
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
       def extractSeqType: Option[ScType] = {
@@ -129,11 +130,11 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       }
 
       // Get results from companion objects and static fields from java classes/enums
-      expectedType.extractClass() match {
+      expectedType.extractClass(project) match {
         case Some(clazz: ScTypeDefinition) =>
           expectedType match {
             case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
-              proj.extractClass() foreach collectAndApplyVariants
+              proj.extractClass(project) foreach collectAndApplyVariants
             case _ => // do nothing
           }
           ScalaPsiUtil.getCompanionModule(clazz) foreach collectAndApplyVariants

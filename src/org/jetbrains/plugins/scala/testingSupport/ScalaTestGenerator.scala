@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala
 package testingSupport
 
+import java.util.Properties
+
 import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtil}
+import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
@@ -11,7 +14,7 @@ import com.intellij.refactoring.util.classMembers.MemberInfo
 import com.intellij.testIntegration.TestFramework
 import com.intellij.testIntegration.createTest.{CreateTestDialog, TestGenerator}
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction
+import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.Def
@@ -46,12 +49,34 @@ class ScalaTestGenerator extends TestGenerator {
 
   override def toString: String = ScalaLanguage.INSTANCE.getDisplayName
 
+  private def createTestFileFromTemplate(d: CreateTestDialog, project: Project): PsiFile = {
+    //copy-paste from JavaTestGenerator
+    val templateName = d.getSelectedTestFrameworkDescriptor match {
+      case f: AbstractTestFramework => f.getTestFileTemplateName
+      case _ => ScalaFileTemplateUtil.SCALA_CLASS
+    }
+    val fileTemplate = FileTemplateManager.getInstance(project).getCodeTemplate(templateName)
+    val defaultProperties = FileTemplateManager.getInstance(project).getDefaultProperties
+    val properties = new Properties(defaultProperties)
+    properties.setProperty(FileTemplate.ATTRIBUTE_NAME, d.getClassName)
+    val targetClass = d.getTargetClass
+    if (targetClass != null && targetClass.isValid) properties.setProperty(FileTemplate.ATTRIBUTE_CLASS_NAME, targetClass.getQualifiedName)
+    try {
+      FileTemplateUtil.createFromTemplate(fileTemplate, d.getClassName, properties, d.getTargetDirectory) match {
+        case file: PsiFile => file
+        case _ => null
+      }
+    }
+    catch {
+      case _: Exception => null
+    }
+  }
+
   private def generateTestInternal(project: Project, d: CreateTestDialog): PsiFile = {
     IdeDocumentHistory.getInstance(project).includeCurrentPlaceAsChangePlace()
-    val file = NewScalaTypeDefinitionAction.createFromTemplate(d.getTargetDirectory, d.getClassName, d.getSelectedTestFrameworkDescriptor match {
-      case f: AbstractTestFramework if f.generateObjectTests => "Scala Object"
-      case _ => "Scala Class"
-    })
+
+    val file = createTestFileFromTemplate(d, project)
+    if (file == null) return file
     val typeDefinition = file.depthFirst().filterByType(classOf[ScTypeDefinition]).next()
     val fqName = d.getSuperClassName
     if (fqName != null) {

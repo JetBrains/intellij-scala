@@ -51,8 +51,10 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
       """
         |val fooOpToId: _root_.cats.arrow.FunctionK[FooOp, Id] = new _root_.cats.arrow.FunctionK[FooOp, Id] {
         |  def apply[A](fooOp: FooOp[A]): Id[A] = fooOp match {
-        |    case StringOp(string) => Right(string)
-        |    case AOp(a) => Left(())
+        |    case StringOp(string) =>
+        |      Right(string)
+        |    case AOp(a) =>
+        |      Left(())
         |  }
         |}""".stripMargin.trim
     checkExpansionEquals(code, expansion)

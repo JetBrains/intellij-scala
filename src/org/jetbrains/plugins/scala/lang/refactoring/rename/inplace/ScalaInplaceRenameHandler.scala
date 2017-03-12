@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.light.{LightScalaMethod, PsiClassWrapper}
+import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
@@ -30,7 +30,7 @@ trait ScalaInplaceRenameHandler {
   def renameProcessor(element: PsiElement): RenamePsiElementProcessor = {
     val isScalaElement = element match {
       case null => false
-      case _: LightScalaMethod | _: PsiClassWrapper => true
+      case _: PsiMethodWrapper | _: PsiClassWrapper => true
       case _ => element.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
     }
     val processor = if (isScalaElement) RenamePsiElementProcessor.forElement(element) else null

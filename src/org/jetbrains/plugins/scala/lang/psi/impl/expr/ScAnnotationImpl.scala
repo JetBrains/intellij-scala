@@ -42,7 +42,7 @@ class ScAnnotationImpl private(stub: StubElement[ScAnnotation], nodeType: IEleme
   def getParameterList: PsiAnnotationParameterList = this
 
   private def getClazz: Option[PsiClass] =
-    typeElement.getType().getOrAny.extractClass()
+    typeElement.getType().getOrAny.extractClass(getProject)
 
   def getQualifiedName: String = getClazz.map {
     _.qualifiedName

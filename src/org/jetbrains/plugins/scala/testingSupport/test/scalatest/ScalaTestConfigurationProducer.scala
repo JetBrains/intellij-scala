@@ -146,7 +146,7 @@ class ScalaTestConfigurationProducer extends {
                       params.head.getType(TypingContext.empty) match {
                         case Success(Unit, _) => failedToCheck = false
                         case Success(tp, _) =>
-                          tp.extractClass()(fun.typeSystem) match {
+                          tp.extractClass(fun.getProject) match {
                             case Some(psiClass) if psiClass.qualifiedName == "java.lang.String" =>
                               call.argumentExpressions.head match {
                                 case l: ScLiteral if l.isString =>

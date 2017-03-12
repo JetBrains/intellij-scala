@@ -4,22 +4,25 @@ package testingSupport.test.specs2
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 /**
- * @author Ksenia.Sautina
- * @since 5/17/12
- */
+  * @author Ksenia.Sautina
+  * @since 5/17/12
+  */
 
 class Specs2RunConfiguration(override val project: Project,
                              override val configurationFactory: ConfigurationFactory,
                              override val name: String)
-        extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.specs2ConfigurationProducer) {
+  extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.specs2ConfigurationProducer) {
 
-  override def getAdditionalTestParams(testName: String): Seq[String] = Seq("-Dspecs2.ex=\"\\A" + testName + "\\Z\"")
-
-  override def suitePaths = Specs2Util.suitePaths
+  override def suitePaths: List[String] = Specs2Util.suitePaths
 
   override def mainClass = "org.jetbrains.plugins.scala.testingSupport.specs2.JavaSpecs2Runner"
 
@@ -30,6 +33,20 @@ class Specs2RunConfiguration(override val project: Project,
   override def currentConfiguration: Specs2RunConfiguration = Specs2RunConfiguration.this
 
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = Specs2RunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+
+  override protected def sbtClassKey = " -- -specname "
+  override protected def sbtTestNameKey = " -- -ex "
+
+  override def allowsSbtUiRun: Boolean = true
+
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Boolean] = {
+    val handler = SettingQueryHandler("testOptions", "", comm)
+    for {
+      opts <- handler.getSettingValue()
+      optsSet <- if (!opts.contains("-oDU")) handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
+        else Future(true)
+    } yield optsSet
+  }
 }
 
 object Specs2RunConfiguration extends SuiteValidityChecker {
@@ -37,4 +54,6 @@ object Specs2RunConfiguration extends SuiteValidityChecker {
 
   override protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean =
     !isScalaObject(clazz) && AbstractTestRunConfiguration.lackSuitableConstructor(clazz)
+
+  override protected[test] def isInvalidClass(clazz: PsiClass): Boolean = !clazz.isInstanceOf[ScClass] && !clazz.isInstanceOf[ScObject]
 }

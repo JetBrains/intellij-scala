@@ -190,8 +190,8 @@ object ScalaAfterNewCompletionUtil {
                                insertHandler: InsertHandler[LookupElement],
                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
                               (implicit typeSystem: TypeSystem) {
-    typez.extractClassType(place.getProject) match {
-      case Some((clazz, _)) =>
+    typez.extractClass(place.getProject) match {
+      case Some(clazz) =>
         //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
         val searchScope =
           if (clazz.getUseScope.isInstanceOf[LocalSearchScope]) GlobalSearchScope.allScope(place.getProject)

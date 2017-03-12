@@ -71,7 +71,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
         val tuplePattern = names.mkParenString
         Some(tuplePattern)
       case _ =>
-        expectedType.flatMap(_.extractDesignated(withoutAliases = true)).map(_._1) match {
+        expectedType.flatMap(_.extractDesignated(expandAliases = true)) match {
           case Some(cls: ScClass) if cls.isCase =>
             cls.constructor match {
               case Some(primaryConstructor) =>
