@@ -52,24 +52,16 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
 
   override def removeAbstracts: ScType = simplifyType
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
+  override def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScAbstractType = {
+    try {
+      ScAbstractType(
+        parameterType.recursiveUpdate(update, visited).asInstanceOf[TypeParameterType],
+        lower.recursiveUpdate(update, visited),
+        upper.recursiveUpdate(update, visited)
+      )
     }
-    val newVisited = visited + this
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        try {
-          ScAbstractType(parameterType.recursiveUpdate(update, newVisited).asInstanceOf[TypeParameterType], lower.recursiveUpdate(update, newVisited),
-            upper.recursiveUpdate(update, newVisited))
-        }
-        catch {
-          case _: ClassCastException => throw new RecursiveUpdateException
-        }
+    catch {
+      case _: ClassCastException => throw new RecursiveUpdateException
     }
   }
 

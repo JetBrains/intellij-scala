@@ -41,23 +41,14 @@ case class ScExistentialType(quantified: ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.withoutAbstracts))
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    val newVisited = visited + this
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        try {
-          ScExistentialType(quantified.recursiveUpdate(update, newVisited),
-            wildcards.map(_.recursiveUpdateNoUpdate(update, newVisited)))
-        } catch {
-          case _: ClassCastException => throw new RecursiveUpdateException
-        }
+  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ScExistentialType = {
+    try {
+      ScExistentialType(
+        quantified.recursiveUpdate(update, visited),
+        wildcards.map(_.updateSubtypes(update, visited))
+      )
+    } catch {
+      case _: ClassCastException => throw new RecursiveUpdateException
     }
   }
 
@@ -476,21 +467,8 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
   extends NamedType with ValueType {
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
-  def recursiveUpdateNoUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScExistentialArgument = {
+  override def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScExistentialArgument = {
     ScExistentialArgument(name, args, lower.recursiveUpdate(update, visited), upper.recursiveUpdate(update, visited))
-  }
-
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    update(this) match {
-      case (true, res) => res
-      case _ => recursiveUpdateNoUpdate(update, visited)
-    }
   }
 
   def recursiveVarianceUpdateModifiableNoUpdate[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),

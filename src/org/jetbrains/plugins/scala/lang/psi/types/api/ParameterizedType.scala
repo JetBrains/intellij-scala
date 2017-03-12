@@ -25,20 +25,11 @@ trait ParameterizedType extends TypeInTypeSystem with ValueType {
   override def removeAbstracts = ParameterizedType(designator.removeAbstracts,
     typeArguments.map(_.removeAbstracts))
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    val newVisited = visited + this
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        ParameterizedType(designator.recursiveUpdate(update, newVisited),
-          typeArguments.map(_.recursiveUpdate(update, newVisited)))
-    }
+  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ValueType = {
+    ParameterizedType(
+      designator.recursiveUpdate(update, visited),
+      typeArguments.map(_.recursiveUpdate(update, visited))
+    )
   }
 
   override def typeDepth: Int = {
