@@ -37,6 +37,8 @@ class AdjustTypesTests extends AdjustTypesTestBase {
   def testImportedInnerClass() = doTest()
 
   def testInheritedTypeInObject() = doTest()
+
+  def testRecursiveTypeAlias() = doTest()
 }
 
 class AdjustCatsTypeTest extends AdjustTypesTestBase {
