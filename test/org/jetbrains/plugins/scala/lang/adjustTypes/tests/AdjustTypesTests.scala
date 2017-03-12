@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.adjustTypes.tests
 
-import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders.{CatsLoader, ThirdPartyLibraryLoader}
 import org.jetbrains.plugins.scala.lang.adjustTypes.AdjustTypesTestBase
 
@@ -42,7 +41,7 @@ class AdjustTypesTests extends AdjustTypesTestBase {
 
 class AdjustCatsTypeTest extends AdjustTypesTestBase {
 
-  override protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] =
+  override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
     Array(CatsLoader()(module))
 
   def testSCL10006() = doTest()

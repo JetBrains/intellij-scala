@@ -38,11 +38,7 @@ public abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsight
 
   @Override
   protected void setUp() throws Exception {
-    setUp(TestUtils.DEFAULT_SCALA_SDK_VERSION);
-  }
-
-  protected void setUp(TestUtils.ScalaSdkVersion version) throws Exception {
-    super.setUp(version);
+    super.setUp();
 
     String extention = ".scala";
     String fileName = getTestName(false);

@@ -215,7 +215,15 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
           this
         }
         element match {
-          case c: PsiClass => bindToType(ClassTypeToImport(c))
+          case c: PsiClass =>
+            val suitableKinds = getKinds(incomplete = false)
+            if (!ResolveUtils.kindMatches(element, suitableKinds)) {
+              ScalaPsiUtil.getCompanionModule(c) match {
+                case Some(companion) => bindToType(ClassTypeToImport(companion))
+                case None => bindToType(ClassTypeToImport(c))
+              }
+            }
+            else bindToType(ClassTypeToImport(c))
           case ta: ScTypeAlias =>
             if (ta.containingClass != null && ScalaPsiUtil.hasStablePath(ta)) {
               bindToType(TypeAliasToImport(ta))
@@ -244,7 +252,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScReferenceElement
     }
   }
 
-  private def reportWrongKind(c: TypeToImport, suitableKinds: Set[_root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.Value]): Nothing = {
+  private def reportWrongKind(c: TypeToImport, suitableKinds: Set[ResolveTargets.Value]): Nothing = {
     val contextText = if (getContext != null)
       if (getContext.getContext != null)
         if (getContext.getContext.getContext != null)

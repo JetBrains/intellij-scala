@@ -21,11 +21,9 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
-import com.intellij.pom.java.LanguageLevel;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.testFramework.ThreadTracker;
@@ -124,38 +122,8 @@ public class TestUtils {
     return JavaSdk.getInstance().createJdk("java sdk", path, false);
   }
 
-  public enum ScalaSdkVersion {
-    _2_10("2.10", "2.10.6"), _2_11("2.11", "2.11.7"), _2_11_8("2.11", "2.11.8"), _2_12("2.12", "2.12.0");
-    private String major;
-    private String minor;
-
-    ScalaSdkVersion(String major, String minor) {
-      this.major = major;
-      this.minor = minor;
-    }
-
-    public String getMinor() {
-      return minor;
-    }
-
-    public String getMajor() {
-      return major;
-    }
-  }
-
-  public static final ScalaSdkVersion DEFAULT_SCALA_SDK_VERSION = ScalaSdkVersion._2_10;
-
-  public static String getScalaLibraryPath() {
-    return getScalaLibraryPath(DEFAULT_SCALA_SDK_VERSION);
-  }
-
   public static String getScalaLibrarySrc() {
-    return getScalaLibrarySrc(DEFAULT_SCALA_SDK_VERSION);
-  }
-
-  public static String getScalaLibrarySrc(ScalaSdkVersion version) {
-    String fileName = "scala-library-" + version.getMinor() + "-sources.jar";
-    return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/" + fileName;
+    return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/scala-library-2.10.6-sources.jar";
   }
 
   public static String getIvyCachePath() {
@@ -165,19 +133,8 @@ public class TestUtils {
     return result.replace("\\", "/");
   }
 
-  public static String getScalaLibraryPath(ScalaSdkVersion version) {
-    String fileName = "scala-library-" + version.getMinor() + ".jar";
-    return getIvyCachePath() + "/org.scala-lang/scala-library/jars/" + fileName;
-  }
-
-  public static String getScalaCompilerPath(ScalaSdkVersion version) {
-    String fileName = "scala-compiler-" + version.getMinor() + ".jar";
-    return getIvyCachePath() + "/org.scala-lang/scala-compiler/jars/" + fileName;
-  }
-
-  public static String getScalaReflectPath(ScalaSdkVersion version) {
-    String fileName = "scala-reflect-" + version.getMinor() + ".jar";
-    return getIvyCachePath() + "/org.scala-lang/scala-reflect/jars/" + fileName;
+  public static String getScalaLibraryPath() {
+    return getIvyCachePath() + "/org.scala-lang/scala-library/jars/scala-library-2.10.6.jar";
   }
 
   public static String removeBeginMarker(String text) {
@@ -270,10 +227,6 @@ public class TestUtils {
     Assert.assertNotNull("Test output points to null", input.size() > 1);
 
     return input;
-  }
-
-  public static void setLanguageLevel(Project project, LanguageLevel level) {
-    LanguageLevelProjectExtension.getInstance(project).setLanguageLevel(level);
   }
 
 

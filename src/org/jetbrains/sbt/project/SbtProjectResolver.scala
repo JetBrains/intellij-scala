@@ -8,6 +8,7 @@ import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, Ext
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.project.Version
@@ -17,10 +18,15 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
+import org.jetbrains.sbt.shell.SbtShellCommunication
+import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, Output, TaskComplete, TaskStart}
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.{structure => sbtStructure}
+import org.jetbrains.sbt.{runner, structure => sbtStructure}
 
-import scala.util.{Failure, Success}
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.{Failure, Success, Try}
+import scala.xml.Elem
 
 /**
  * @author Pavel Fatin
@@ -28,7 +34,7 @@ import scala.util.{Failure, Success}
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
   //noinspection ConvertNullInitializerToUnderscore
-  private var runner: SbtRunner = null
+  private var myRunner: Option[SbtRunner] = None
 
   protected var taskListener: TaskListener = SilentTaskListener
 
@@ -37,41 +43,48 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
                          isPreview: Boolean,
                          settings: SbtExecutionSettings,
                          listener: ExternalSystemTaskNotificationListener): DataNode[ESProjectData] = {
+
+    taskListener = new ExternalTaskListener(listener, id)
+
     val root = {
       val file = new File(settings.realProjectPath)
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
-                           settings.customLauncher, settings.customSbtStructureFile)
+    val options = dumpOptions(!isPreview, settings)
 
-    taskListener = new ExternalTaskListener(listener, id)
+    val runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
+      settings.customLauncher, settings.customSbtStructureFile, id, listener)
+    myRunner = Option(runner)
 
-    var warnings = new StringBuilder()
+    val results = runner.read(new File(root), options, importFromShell = settings.useShellForImport)
 
-    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers,
-        settings.resolveJavadocs, settings.resolveSbtClassifiers) { message =>
-      if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
-        warnings ++= message
+    results
+      .map { case (elem, messages) =>
+        val warnings = messages.lines.filter(isWarningOrError)
+        if (warnings.nonEmpty)
+          listener.onTaskOutput(id, WarningMessage(warnings.mkString("\n")), false)
+
+        val data = elem.deserialize[sbtStructure.StructureData].right.get
+        convert(root, data, settings.jdk).toDataNode
       }
-
-      listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
-    } match {
-      case Failure(errors) => errors match {
-        case _ : SbtRunner.ImportCancelledException => return null
-        case _ => throw new ExternalSystemException(errors)
+      .recover {
+        case SbtRunner.ImportCancelledException => null // sorry, ExternalSystem expects a null when resolving is not possible
+        case x: Throwable => throw new ExternalSystemException(x)
       }
-      case Success(node) => node
-    }
+      .getOrElse(null)
 
-    if (warnings.nonEmpty) {
-      listener.onTaskOutput(id, WarningMessage(warnings.toString), false)
-    }
-
-    val data = xml.deserialize[sbtStructure.StructureData].right.get
-
-    convert(root, data, settings.jdk).toDataNode
   }
+
+  private def dumpOptions(download: Boolean, settings: SbtExecutionSettings): Seq[String] = {
+    download.seq("download") ++
+      settings.resolveClassifiers.seq("resolveClassifiers") ++
+      settings.resolveJavadocs.seq("resolveJavadocs") ++
+      settings.resolveSbtClassifiers.seq("resolveSbtClassifiers")
+  }
+
+  private def isWarningOrError(message: String) =
+    message.startsWith("[error] ") || message.startsWith("[warn] ")
 
   private def convert(root: String, data: sbtStructure.StructureData, settingsJdk: Option[String]): Node[ESProjectData] = {
     val projects = data.projects
@@ -183,13 +196,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
+    val scalaOrganization = project.scala.map(_.organization).getOrElse("org.scala-lang")
     val scalaVersion = project.scala.map(s => Version(s.version))
     val scalacClasspath = project.scala.fold(Seq.empty[File])(s => s.jars)
     val scalacOptions = project.scala.fold(Seq.empty[String])(_.options)
     val javacOptions = project.java.fold(Seq.empty[String])(_.options)
     val jdk = project.android.map(android => Android(android.targetVersion))
       .orElse(project.java.flatMap(java => java.home.map(JdkByHome)))
-    new ModuleExtNode(ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions))
+    new ModuleExtNode(ModuleExtData(scalaOrganization, scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions))
   }
 
 
@@ -425,11 +439,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       DependencyScope.COMPILE
   }
 
-  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean = {
-    if (runner != null)
-      runner.cancel()
-    false
-  }
+  def cancelTask(taskId: ExternalSystemTaskId, listener: ExternalSystemTaskNotificationListener): Boolean =
+    myRunner.exists { r => r.cancel(); true }
 }
 
 object SbtProjectResolver {

@@ -1,19 +1,17 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType}
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
-
 /**
   * @author adkozlov
   */
@@ -64,19 +62,36 @@ package object types {
       elementScope.typeSystem.bridge.toPsiType(scType, noPrimitives = noPrimitives)
     }
 
-    def extractClass(project: Project = null)
-                    (implicit typeSystem: TypeSystem): Option[PsiClass] = {
-      typeSystem.bridge.extractClass(scType, project)
+    /**
+      * Returns named element associated with type.
+      * If withoutAliases is true expands alias definitions first
+      *
+      * @param expandAliases need to expand alias or not
+      * @return element and substitutor
+      */
+    def extractDesignatedType(expandAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
+      new DesignatorExtractor(expandAliases, needSubstitutor = true)
+        .extractFrom(scType)
+    }
+
+    def extractDesignated(expandAliases: Boolean): Option[PsiNamedElement] = {
+      new DesignatorExtractor(expandAliases, needSubstitutor = false)
+        .extractFrom(scType).map(_._1)
     }
 
     def extractClassType(project: Project = null,
-                         visitedAlias: HashSet[ScTypeAlias] = HashSet.empty)
-                        (implicit typeSystem: TypeSystem): Option[(PsiClass, ScSubstitutor)] = {
-      typeSystem.bridge.extractClassType(scType, project, visitedAlias)
+                         visitedAlias: Set[ScTypeAlias] = Set.empty): Option[(PsiClass, ScSubstitutor)] = {
+      new ClassTypeExtractor(project, needSubstitutor = true)
+        .extractFrom(scType)
+    }
+
+    def extractClass(project: Project = null): Option[PsiClass] = {
+      new ClassTypeExtractor(project, needSubstitutor = false)
+        .extractFrom(scType).map(_._1)
     }
 
     @tailrec
-    final def removeAliasDefinitions(visited: HashSet[ScType] = HashSet.empty, expandableOnly: Boolean = false): ScType = {
+    final def removeAliasDefinitions(visited: Set[ScType] = Set.empty, expandableOnly: Boolean = false): ScType = {
       if (visited.contains(scType)) {
         return scType
       }
@@ -99,31 +114,6 @@ package object types {
     }
 
     def tryExtractDesignatorSingleton: ScType = extractDesignatorSingleton.getOrElse(scType)
-
-    /**
-      * Returns named element associated with type.
-      * If withoutAliases is true expands alias definitions first
-      *
-      * @param withoutAliases need to expand alias or not
-      * @return element and substitutor
-      */
-    def extractDesignated(implicit withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = scType match {
-      case nonValueType: NonValueType =>
-        nonValueType.inferValueType.extractDesignated
-      case designatorOwner: DesignatorOwner =>
-        designatorOwner.designated
-      case parameterizedType: ParameterizedType =>
-        parameterizedType.designator.extractDesignated.map {
-          case (element, substitutor) => (element, substitutor.followed(parameterizedType.substitutor))
-        }
-      case stdType: StdType =>
-        stdType.asClass(DecompilerUtil.obtainProject).map {
-          (_, ScSubstitutor.empty)
-        }
-      case TypeParameterType(_, _, _, psiTypeParameter) =>
-        Some(psiTypeParameter, ScSubstitutor.empty)
-      case _ => None
-    }
   }
 
   implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {
@@ -134,6 +124,82 @@ package object types {
     def lub(checkWeak: Boolean = true)(implicit typeSystem: TypeSystem): ScType = {
       typeSystem.bounds.glb(types, checkWeak)
     }
+  }
+
+  private trait Extractor[T <: PsiNamedElement] {
+    def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(T, ScSubstitutor)]
+    def expandAliases: Boolean
+    def project: Project
+    def needSubstitutor: Boolean
+
+    def extractFrom(scType: ScType,
+                    visitedAliases: Set[ScTypeAliasDefinition] = Set.empty): Option[(T, ScSubstitutor)] = {
+
+      def needExpand(definition: ScTypeAliasDefinition) = expandAliases && !visitedAliases(definition)
+
+      scType match {
+        case nonValueType: NonValueType =>
+          extractFrom(nonValueType.inferValueType, visitedAliases)
+        case thisType: ScThisType => filter(thisType.element, ScSubstitutor(thisType))
+        case projType: ScProjectionType =>
+          val actualSubst = projType.actualSubst
+          val actualElement = projType.actualElement
+          actualElement match {
+            case definition: ScTypeAliasDefinition if needExpand(definition) =>
+              definition.aliasedType.toOption match {
+                case Some(ParameterizedType(des, _)) if !needSubstitutor =>
+                  extractFrom(actualSubst.subst(des), visitedAliases + definition)
+                case Some(tp) =>
+                  extractFrom(actualSubst.subst(tp), visitedAliases + definition)
+                case _ => None
+              }
+            case _ => filter(actualElement, actualSubst)
+          }
+        case designatorOwner: DesignatorOwner =>
+          designatorOwner.element match {
+            case definition: ScTypeAliasDefinition if needExpand(definition) =>
+              definition.aliasedType.toOption.flatMap {
+                extractFrom(_, visitedAliases + definition)
+              }
+            case elem => filter(elem, ScSubstitutor.empty)
+          }
+        case parameterizedType: ParameterizedType =>
+          extractFrom(parameterizedType.designator, visitedAliases).map {
+            case (element, substitutor) =>
+              val withFollower = if (needSubstitutor) substitutor.followed(parameterizedType.substitutor) else ScSubstitutor.empty
+              (element, withFollower)
+          }
+        case stdType: StdType =>
+          stdType.asClass(project).flatMap {
+            filter(_, ScSubstitutor.empty)
+          }
+        case ScExistentialType(quantified, _) =>
+          extractFrom(quantified, visitedAliases)
+        case TypeParameterType(_, _, _, psiTypeParameter) =>
+          filter(psiTypeParameter, ScSubstitutor.empty)
+        case _ => None
+      }
+    }
+  }
+
+  private class DesignatorExtractor(override val expandAliases: Boolean, override val needSubstitutor: Boolean) extends Extractor[PsiNamedElement] {
+    override def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiNamedElement, ScSubstitutor)] =
+      Some(named, subst)
+
+    override def project: Project = DecompilerUtil.obtainProject
+  }
+
+  private class ClassTypeExtractor(givenProject: Project, override val needSubstitutor: Boolean) extends Extractor[PsiClass] {
+    override def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiClass, ScSubstitutor)] =
+      named match {
+        case _: PsiTypeParameter => None
+        case c: PsiClass => Some(c, subst)
+        case _ => None
+      }
+
+    override def project: Project = Option(givenProject).getOrElse(DecompilerUtil.obtainProject)
+
+    override val expandAliases: Boolean = true
   }
 
 }

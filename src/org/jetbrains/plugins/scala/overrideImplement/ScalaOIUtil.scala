@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.collection.JavaConversions
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -115,7 +114,7 @@ object ScalaOIUtil {
 
 
   def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
-                              visited: HashSet[PsiClass] = new HashSet) : Boolean = {
+                              visited: Set[PsiClass] = Set.empty) : Boolean = {
     if (visited.contains(clazz)) return false
     clazz match {
       case td: ScTypeDefinition if td.isCase =>
@@ -129,7 +128,7 @@ object ScalaOIUtil {
           })
       case x: ScTemplateDefinition =>
         implicit val typeSystem = x.typeSystem
-        x.superTypes.map(_.extractClass()).find {
+        x.superTypes.map(_.extractClass(x.getProject)).find {
           case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
           case _ => false
         } match {

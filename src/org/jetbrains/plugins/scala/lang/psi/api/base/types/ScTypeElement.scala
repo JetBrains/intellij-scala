@@ -24,7 +24,7 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
     ModCount.getBlockModificationCount)
   def getType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
 
-  def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = getType(ctx)
+  def getTypeNoConstructor(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getType(ctx)
 
   def getNonValueType(ctx: TypingContext, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = innerType(ctx)
 

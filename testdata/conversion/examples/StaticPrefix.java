@@ -13,7 +13,7 @@ object TestJava {
 }
 
 class TestJava {
-  def test() {
+  def test(): Unit = {
     TestJava.foo
   }
 }

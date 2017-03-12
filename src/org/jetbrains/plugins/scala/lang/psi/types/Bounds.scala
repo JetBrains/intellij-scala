@@ -49,7 +49,7 @@ object Bounds extends api.Bounds {
   }
 
   def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
-    lub(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
+    lubInner(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
   }
 
   def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
@@ -90,12 +90,12 @@ object Bounds extends api.Bounds {
     else (td - 1) max (bd - 3)
   }
 
-  private class Options(_tp: ScType) extends {
-    val tp = _tp match {
+  private class Options(_tp: ScType) {
+    val tp: ScType = _tp match {
       case ex: ScExistentialType => ex.quantified
       case other => other
     }
-  } with AnyRef {
+
     private val typeNamedElement: Option[(PsiNamedElement, ScSubstitutor)] = {
       tp.extractClassType() match {
         case None =>
@@ -109,22 +109,29 @@ object Bounds extends api.Bounds {
 
     def isEmpty: Boolean = typeNamedElement.isEmpty
 
-    val projectionOption = {
-      def projectionOption(tp: ScType): Option[ScType] = tp match {
-        case ParameterizedType(des, _) => projectionOption(des)
-        case proj@ScProjectionType(p, _, _) => proj.actualElement match {
-          case _: PsiClass => Some(p)
-          case t: ScTypeAliasDefinition =>
-            projectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
-          case _: ScTypeAliasDeclaration => Some(p)
-          case _ => None
-        }
-        case ScDesignatorType(t: ScTypeAliasDefinition) =>
-          projectionOption(t.aliasedType(TypingContext.empty).getOrElse(return None))
+    val projectionOption: Option[ScType] = projectionOptionImpl(tp)
+
+    @tailrec
+    private def projectionOptionImpl(tp: ScType): Option[ScType] = tp match {
+      case ParameterizedType(des, _) => projectionOptionImpl(des)
+      case proj@ScProjectionType(p, _, _) => proj.actualElement match {
+        case _: PsiClass => Some(p)
+        case t: ScTypeAliasDefinition =>
+          t.aliasedType(TypingContext.empty).toOption match {
+            case None => None
+            case Some(aliased) => projectionOptionImpl(proj.actualSubst.subst(aliased))
+          }
+        case _: ScTypeAliasDeclaration => Some(p)
         case _ => None
       }
-      projectionOption(tp)
+      case ScDesignatorType(t: ScTypeAliasDefinition) =>
+        t.aliasedType(TypingContext.empty).toOption match {
+          case None => None
+          case Some(aliased) => projectionOptionImpl(aliased)
+        }
+      case _ => None
     }
+
     def getSubst: ScSubstitutor = typeNamedElement.get._2
 
     def getSuperOptions: Seq[Options] = {
@@ -178,7 +185,7 @@ object Bounds extends api.Bounds {
 
     def superSubstitutor(bClass: Options): Option[ScSubstitutor] = {
       def superSubstitutor(base: PsiClass, drv: PsiClass, drvSubst: ScSubstitutor,
-                                   visited: mutable.Set[PsiClass]): Option[ScSubstitutor] = {
+                           visited: mutable.Set[PsiClass]): Option[ScSubstitutor] = {
         if (base.getManager.areElementsEquivalent(base, drv)) Some(drvSubst) else {
           if (visited.contains(drv)) None else {
             visited += drv
@@ -229,11 +236,11 @@ object Bounds extends api.Bounds {
     }
   }
 
-  private def lub(seq: Seq[ScType], checkWeak: Boolean, stopAddingUpperBound: Boolean): ScType = {
-    seq.reduce((l: ScType, r: ScType) => lub(l, r, lubDepth(Seq(l, r)), checkWeak)(stopAddingUpperBound))
+  private def lubInner(l: ScType, r: ScType, checkWeak: Boolean, stopAddingUpperBound: Boolean): ScType = {
+    lubInner(l, r, lubDepth(Seq(l, r)), checkWeak)(stopAddingUpperBound)
   }
 
-  private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
+  private def lubInner(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
     if (conforms(t1, t2, checkWeak)) t2
     else if (conforms(t2, t1, checkWeak)) t1
     else {
@@ -249,13 +256,14 @@ object Bounds extends api.Bounds {
             lub(t1, t.getType(TypingContext.empty).getOrAny, checkWeak)
           case (ex: ScExistentialType, _) => lub(ex.quantified, t2, checkWeak).unpackedType
           case (_, ex: ScExistentialType) => lub(t1, ex.quantified, checkWeak).unpackedType
-          case (TypeParameterType(Nil, _, upper, _), _) => lub(upper.v, t2, checkWeak)
-          case (_, TypeParameterType(Nil, _, upper, _)) => lub(t1, upper.v, checkWeak)
-          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
+          case (TypeParameterType(Nil, _, upper, _), _) if !stopAddingUpperBound => lub(upper.v, t2, checkWeak)
+          case (_, TypeParameterType(Nil, _, upper, _)) if !stopAddingUpperBound => lub(t1, upper.v, checkWeak)
+          case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2))
+            if !stopAddingUpperBound =>
             ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
-          case (ScExistentialArgument(name, args, lower, upper), r) =>
+          case (ScExistentialArgument(name, args, lower, upper), r) if !stopAddingUpperBound =>
             ScExistentialArgument(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
-          case (r, ScExistentialArgument(name, args, lower, upper)) =>
+          case (r, ScExistentialArgument(name, args, lower, upper)) if !stopAddingUpperBound =>
             ScExistentialArgument(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (_: ValType, _: ValType) => AnyVal
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
@@ -317,7 +325,7 @@ object Bounds extends api.Bounds {
                   new ScCompoundType(many.toSeq, Map.empty, Map.empty)
               }
             }
-            //todo: refinement for compound types
+          //todo: refinement for compound types
         }
       }
       lubWithExpandedAliases(t1, t2).unpackedType
@@ -336,22 +344,18 @@ object Bounds extends api.Bounds {
       } else {
         (substed1, substed2) match {
           case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(_, _, lower2, upper2)) =>
-            val newLub = if (stopAddingUpperBound) Any else lub(Seq(upper, upper2), checkWeak, stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) Any else lubInner(upper, upper2, checkWeak, stopAddingUpperBound = true)
             (ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), newLub), None)
           case (ScExistentialArgument(name, args, lower, upper), _) =>
-            val newLub = if (stopAddingUpperBound) Any else lub(Seq(upper, substed2), checkWeak, stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed2, checkWeak, stopAddingUpperBound = true)
             (ScExistentialArgument(name, args, glb(lower, substed2), newLub), None)
           case (_, ScExistentialArgument(name, args, lower, upper)) =>
-            val newLub = if (stopAddingUpperBound) Any else lub(Seq(upper, substed1), checkWeak, stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) Any else lubInner(upper, substed1, checkWeak, stopAddingUpperBound = true)
             (ScExistentialArgument(name, args, glb(lower, substed1), newLub), None)
           case _ =>
             val newGlb = glb(substed1, substed2)
             if (!stopAddingUpperBound) {
-              //don't calculate the lub of the types themselves, but of the components of their compound types (if existing)
-              // example: the lub of "_ >: Int with Double <: AnyVal" & Long we need here should be AnyVal, not Any
-              def getTypesForLubEvaluation(t: ScType) = Seq(t)
-              val typesToCover = getTypesForLubEvaluation(substed1) ++ getTypesForLubEvaluation(substed2)
-              val newLub = lub(typesToCover, checkWeak = false, stopAddingUpperBound = true)
+              val newLub = lubInner(substed1, substed2, checkWeak = false, stopAddingUpperBound = true)
               val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)
               (ex, Some(ex))
             } else {
@@ -380,7 +384,7 @@ object Bounds extends api.Bounds {
           val substed1 = tp1.typeArguments.apply(i)
           val substed2 = tp2.typeArguments.apply(i)
           resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
-            case scp: ScTypeParam if scp.isCovariant => if (depth > 0) lub(substed1, substed2, depth - 1, checkWeak) else Any
+            case scp: ScTypeParam if scp.isCovariant => if (depth > 0) lubInner(substed1, substed2, depth - 1, checkWeak) else Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
             case _ =>
               val (v, ex) = calcForTypeParamWithoutVariance(substed1, substed2, depth, checkWeak, count = wildcards.length + 1)

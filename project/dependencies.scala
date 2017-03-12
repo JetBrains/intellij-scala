@@ -1,11 +1,11 @@
 import sbt._
-
+import meta.Shared
 
 object Versions {
-  val scalaVersion = "2.11.6"
+  val scalaVersion = "2.11.8"
   val sbtVersion = "0.13.13"
-  val ideaVersion = "171.3566.24"
-  val sbtStructureVersion = "7.0.0-4-ga73b109"
+  val ideaVersion = "171.3780.15"
+  val sbtStructureVersion: String = Shared.sbtStructureVersion
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -38,14 +38,15 @@ object Dependencies {
 
   val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
-  val macroParadise: ModuleID = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
-  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "1.3.0" withSources()
+  val macroParadise: ModuleID = "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full
+  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "1.6.0" withSources()
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val compilerInterfaceSources: ModuleID = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
   val bundledJline: ModuleID = "org.jetbrains" % "jline" % "1.0.0"
   val incrementalCompiler: ModuleID = "org.jetbrains" % "incremental-compiler" % "1.0.0"
   val sbtInterface: ModuleID = "org.jetbrains" % "sbt-interface" % "1.0.0"
+  val dottyInterface: ModuleID = "ch.epfl.lamp" % "dotty-interfaces" % "0.1.1-20170227-179a5d6-NIGHTLY"
 }
 
 object DependencyGroups {
@@ -122,6 +123,8 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "1.9.2",
+    "org.scalatest" % "scalatest_2.11" % "3.0.1",
+    "org.scalactic" % "scalactic_2.11" % "3.0.1",
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0",
@@ -131,7 +134,8 @@ object DependencyGroups {
     "org.typelevel" %% "cats" % "0.4.0",
     "org.scalameta" % "paradise_2.11.8" % "3.0.0-M5" exclude("org.scalameta", "scalameta_2.11"),
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
-    "com.typesafe.play" % "play_2.10" % "2.4.10"
+    "com.typesafe.play" % "play_2.10" % "2.4.10",
+    "com.typesafe.akka" % "akka-actor_2.11" % "2.4.17"
   )
 
   val testScalaLibraryDownloader = Seq(

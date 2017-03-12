@@ -2,42 +2,38 @@ package scala.meta
 
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyLibraryLoaderAdapter, ThirdPartyLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.ScalaVersion
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_11_8}
 
-trait ScalaMetaLibrariesOwner extends ScalaVersion {
+trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
 
-  protected override def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11_8
+  override implicit val version: ScalaVersion = Scala_2_11_8
 
   import ScalaMetaLibrariesOwner._
 
-  protected def additionalLibraries(module: Module): Array[ThirdPartyLibraryLoader] = {
-    implicit val m = module
-
-    Array(
-      MetaCommonLoader(),
-      MetaDialectsLoader(),
-      MetaInlineLoader(),
-      MetaInputsLoader(),
-      MetaParsersLoader(),
-      MetaQuasiquotesLoader(),
-      MetaScalametaLoader(),
-      MetaTokenizersLoader(),
-      MetaTokensLoader(),
-      MetaTransversersLoader(),
-      MetaTreesLoader()
-    )
-  }
+  protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] = Array(
+    MetaCommonLoader(),
+    MetaDialectsLoader(),
+    MetaInlineLoader(),
+    MetaInputsLoader(),
+    MetaParsersLoader(),
+    MetaQuasiquotesLoader(),
+    MetaScalametaLoader(),
+    MetaTokenizersLoader(),
+    MetaTokensLoader(),
+    MetaTransversersLoader(),
+    MetaTreesLoader(),
+    MetaSemanticLoader()
+  )
 }
 
 object ScalaMetaLibrariesOwner {
 
   abstract class MetaBaseLoader(implicit module: Module) extends IvyLibraryLoaderAdapter {
-    override protected val version: String = "1.3.0"
+    override protected val version: String = "1.6.0"
     override protected val vendor: String = "org.scalameta"
 
-    override protected def path(implicit version: ScalaSdkVersion): String =
-      super.path(ScalaSdkVersion._2_11_8)
+    override protected def path(implicit version: ScalaVersion): String =
+      super.path(Scala_2_11_8)
   }
 
   private case class MetaCommonLoader(implicit val module: Module) extends MetaBaseLoader {
@@ -83,4 +79,9 @@ object ScalaMetaLibrariesOwner {
   private case class MetaTreesLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "trees"
   }
+
+  private case class MetaSemanticLoader(implicit val module: Module) extends MetaBaseLoader {
+    override protected val name: String = "semantic"
+  }
+
 }

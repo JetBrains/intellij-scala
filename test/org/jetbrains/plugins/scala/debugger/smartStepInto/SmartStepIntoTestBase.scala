@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import com.intellij.debugger.actions.SmartStepTarget
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 
@@ -10,9 +10,13 @@ import scala.collection.JavaConverters._
 /**
  * @author Nikolay.Tropin
  */
-class SmartStepIntoTest extends SmartStepIntoTestBase with ScalaVersion_2_11
+class SmartStepIntoTest extends SmartStepIntoTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
 
-class SmartStepIntoTest_212 extends SmartStepIntoTestBase with ScalaVersion_2_12 {
+class SmartStepIntoTest_212 extends SmartStepIntoTestBase {
+  override implicit val version: ScalaVersion = Scala_2_12
+
   override def testByNameArgument(): Unit = {
     runDebugger() {
       waitForBreakpoint()

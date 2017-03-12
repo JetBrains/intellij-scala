@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.javaHighlighting
 
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_12}
 
 /**
   * @author Alefas
@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
   */
 class JavaHighlightingScala2_12Test extends JavaHighlightingTestBase {
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_12
+  override implicit val version: ScalaVersion = Scala_2_12
 
   def testSCL11016(): Unit = {
     val java =

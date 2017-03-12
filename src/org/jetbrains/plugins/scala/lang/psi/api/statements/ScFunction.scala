@@ -269,8 +269,6 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def clauses: Option[ScParameters] = Some(paramClauses)
 
-  def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
-
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
 
@@ -515,7 +513,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         case Some(annotation) =>
           annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
             _.getType(TypingContext.empty) match {
-              case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
+              case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass(getProject) match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                   arg.toPsiType() match {
                     case c: PsiClassType => Seq(c)

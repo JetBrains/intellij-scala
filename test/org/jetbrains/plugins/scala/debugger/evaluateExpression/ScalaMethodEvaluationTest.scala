@@ -1,16 +1,19 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
-
+import org.jetbrains.plugins.scala.debugger._
 
 /**
  * User: Alefas
  * Date: 17.10.11
  */
 
-class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase with ScalaVersion_2_11
+class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
 
-class ScalaMethodEvaluationTest_212 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12
+class ScalaMethodEvaluationTest_212 extends ScalaMethodEvaluationTestBase {
+  override implicit val version: ScalaVersion = Scala_2_12
+}
 
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   

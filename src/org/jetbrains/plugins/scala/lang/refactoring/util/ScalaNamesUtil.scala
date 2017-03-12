@@ -102,7 +102,7 @@ object ScalaNamesUtil {
       case ScalaNamesUtil.isBacktickedName(s) => s
       case _ => name
     }
-    NameTransformer.encode(toEncode)
+    Option(toEncode).map(NameTransformer.encode).orNull
   }
 
   def clean(name: String): String = {
@@ -110,7 +110,7 @@ object ScalaNamesUtil {
       case ScalaNamesUtil.isBacktickedName(s) => s
       case _ => name
     }
-    NameTransformer.decode(toDecode)
+    Option(toDecode).map(NameTransformer.decode).orNull
   }
 
   def cleanFqn(fqn: String): String =

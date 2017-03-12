@@ -1,17 +1,24 @@
 package org.jetbrains.plugins.scala.copy
 
+import org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor.insideIde
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
   * Created by Kate Ustuyzhanina on 12/28/16.
   */
 class CopyTextToScala extends CopyTestBase() {
+  override protected def doTest(fromText: String, toText: String, expectedText: String): Unit = {
+    insideIde = false
+    super.doTest(fromText, toText, expectedText)
+    insideIde = true
+  }
+
   override protected def setUp(): Unit = {
     super.setUp()
     ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
   }
 
-  def testWrapWithExpression(): Unit ={
+  def testWrapWithExpression(): Unit = {
     val fromText = "<selection>new double[]{1.0, 2, 3};</selection>"
 
     val expected = "Array[Double](1.0, 2, 3)"
@@ -19,14 +26,20 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testWrapWithFunction(): Unit ={
-    val fromText = "<selection>assert true : \"Invocation of 'paste' operation for specific caret is not supported\";</selection>"
+  def testWrapWithFunction(): Unit = {
+    val fromText =
+      """
+        |<selection>assert true : "Invocation of 'paste' operation for specific caret is not supported";</selection>
+      """.stripMargin
 
-    val expected = "assert(true, \"Invocation of 'paste' operation for specific caret is not supported\")"
+    val expected =
+      """
+        |assert(true, "Invocation of 'paste' operation for specific caret is not supported")
+      """.stripMargin
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testWrapWithClass(): Unit ={
+  def testWrapWithClass(): Unit = {
     val fromText =
       """
         |<selection>public void doExecute() {
@@ -35,14 +48,32 @@ class CopyTextToScala extends CopyTestBase() {
       """.stripMargin
 
     val expected =
-      """def doExecute() {
+      """def doExecute(): Unit = {
         |  assert(true, "Invocation of 'paste' operation for specific caret is not supported")
         |}""".stripMargin
 
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testAsFile(): Unit ={
+  def testWrapWithClass2(): Unit = {
+    val fromText =
+      """
+        |<selection>int i = 6;
+        |boolean a = false;
+        |String s = "false";</selection>
+      """.stripMargin
+
+    val expected =
+      """
+        |val i: Int = 6
+        |val a: Boolean = false
+        |val s: String = "false"
+      """.stripMargin
+
+    doTestEmptyToFile(fromText, expected)
+  }
+
+  def testAsFile(): Unit = {
     val fromText =
       """
         |<selection>import java.io.File;
@@ -71,7 +102,7 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testJavaFileWithoutSemicolon(): Unit ={
+  def testJavaFileWithoutSemicolon(): Unit = {
     val fromText =
       """
         |<selection>class Test {
@@ -84,7 +115,7 @@ class CopyTextToScala extends CopyTestBase() {
 
     val expected =
       """object Test {
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
         |    System.out.println("hello")
         |    System.out.println(" how are you?")
         |  }
@@ -93,7 +124,18 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile(fromText, expected)
   }
 
-  def testJavaMethodWithoutLatestCurlyBrackets(): Unit ={
+  def testPrefixedExpression(): Unit = {
+    val fromText ="""<selection>Arrays.asList("peter", "anna", "mike", "xenia");</selection>""".stripMargin
+    val expected =
+      """
+        |import java.util
+        |
+        |util.Arrays.asList("peter", "anna", "mike", "xenia")
+      """.stripMargin
+    doTestEmptyToFile(fromText, expected)
+  }
+
+  def testJavaMethodWithoutLatestCurlyBrackets(): Unit = {
     val fromText =
       """
         |class Test {
@@ -105,12 +147,27 @@ class CopyTextToScala extends CopyTestBase() {
 
 
     val expected =
-      """def main(args: Array[String]) {
+      """def main(args: Array[String]): Unit = {
         |  System.out.println("hello")
         |  System.out.println(" how are you?")
         |}""".stripMargin
     doTestEmptyToFile(fromText, expected)
   }
+
+  def testEmptyJavaClass(): Unit = {
+    doTestEmptyToFile("<selection>public class Test {}</selection>", "class Test {}")
+  }
+
+  /** ****************** Valid scala code. No conversion expected. ******************/
+
+  def testNoConversion1(): Unit = {
+    doTestEmptyToFile("<selection>class Test {}</selection>", "class Test {}")
+  }
+
+  def testNoConversion2(): Unit = {
+    doTestEmptyToFile("<selection>class Test extends Any</selection>", "class Test extends Any")
+  }
+
 
   override val fromLangExtension: String = ".txt"
 }

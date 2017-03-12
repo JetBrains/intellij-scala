@@ -204,7 +204,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     val paramClauses = this.reference.flatMap(r => Option(r.resolve())) match {
       case Some(pc: ScPrimaryConstructor) => pc.parameterList.clauses.map(_.parameters)
       case Some(fun: ScFunction) if fun.isConstructor => fun.parameterList.clauses.map(_.parameters)
-      case Some(m: PsiMethod) if m.isConstructor => Seq(m.getParameterList.getParameters.toSeq)
+      case Some(m: PsiMethod) if m.isConstructor => Seq(m.parameters)
       case _ => Seq.empty
     }
     (for {

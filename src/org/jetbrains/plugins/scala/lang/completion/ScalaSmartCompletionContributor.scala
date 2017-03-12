@@ -190,7 +190,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           def checkTypeProjection(tp: ScType) {
             tp match {
               case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
-                proj.extractClass() match {
+                proj.extractClass(place.getProject) match {
                   case Some(o: ScObject) if ResolveUtils.isAccessible(o, place, forCompletion = true) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
                   case _ =>
                 }
@@ -199,7 +199,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           }
           @tailrec
           def checkType(tp: ScType) {
-            tp.extractClass() match {
+            tp.extractClass(place.getProject) match {
               case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
                 tp match {
                   case ParameterizedType(_, Seq(scType)) => checkType(scType)

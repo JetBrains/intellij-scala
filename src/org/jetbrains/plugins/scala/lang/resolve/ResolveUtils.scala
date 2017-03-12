@@ -94,7 +94,7 @@ object ResolveUtils {
       m match {
         case f: FakePsiMethod => f.params.toSeq
         case _ =>
-          m.getParameterList.getParameters.map { param =>
+          m.parameters.map { param =>
             val scType = s.subst(param.paramType())
             Parameter("", None, scType, scType, isDefault = false, isRepeated = param.isVarArgs, isByName = false, param.index, Some(param))
           }
@@ -427,7 +427,7 @@ object ResolveUtils {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
           def isInheritorOrSame(tp: ScType): Boolean = {
-            tp.extractClass()(te.typeSystem) match {
+            tp.extractClass(placeTd.getProject) match {
               case Some(clazz) =>
                 if (clazz == td) return true
                 if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, td)) return true

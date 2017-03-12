@@ -189,7 +189,7 @@ object InferUtil {
         def checkManifest(fun: ScalaResolveResult => Unit) {
           val result = paramType match {
             case p@ParameterizedType(des, Seq(_)) =>
-              des.extractClass() match {
+              des.extractClass(place.getProject) match {
                 case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
                   //do not throw, it's safe
                   new ScalaResolveResult(clazz, p.substitutor)
@@ -489,13 +489,7 @@ object InferUtil {
                               case _ => false
                             }
                           }
-                          tp.extractDesignated(withoutAliases = false) match {
-                            case Some((named, _)) => checkNamed(named, typeParams)
-                            case _ => tp match {
-                              case tpt: TypeParameterType => checkNamed(tpt.psiTypeParameter, typeParams)
-                              case _ => false
-                            }
-                          }
+                          tp.extractDesignated(expandAliases = false).exists(checkNamed(_, typeParams))
                       }
                     }
                     tp.psiTypeParameter match {

@@ -109,10 +109,11 @@ class CopyJavaToScala extends CopyTestBase() {
         |import java.util
         |import java.util.{ArrayList, HashSet, List, Set}
         |
+        |
         |object Test {
         |
         |  private class Inner {
-        |    private[qwert] def foo() {
+        |    private[qwert] def foo(): Unit = {
         |      val st: util.Set[String] = new util.HashSet[String]
         |    }
         |  }

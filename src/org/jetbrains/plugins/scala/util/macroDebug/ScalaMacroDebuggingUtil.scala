@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterFactory
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -152,8 +152,13 @@ object ScalaMacroDebuggingUtil {
 
   def expandMacros(project: Project) {
     val sourceEditor = FileEditorManager.getInstance(project).getSelectedTextEditor
-    val macroEditor = WorksheetEditorPrinter.newMacrosheetUiFor(sourceEditor,
-      PsiDocumentManager.getInstance(project).getPsiFile(sourceEditor.getDocument).getVirtualFile).getViewerEditor
+    
+    val scalaPsiFile = PsiDocumentManager.getInstance(project).getPsiFile(sourceEditor.getDocument) match {
+      case sc: ScalaFile => sc
+      case _ => return 
+    }
+    
+    val macroEditor = WorksheetEditorPrinterFactory.newMacrosheetUiFor(sourceEditor, scalaPsiFile).getViewerEditor
     val macrosheetFile = PsiDocumentManager.getInstance(project).getPsiFile(macroEditor.getDocument)
 
     copyTextBetweenEditors(sourceEditor, macroEditor, project)

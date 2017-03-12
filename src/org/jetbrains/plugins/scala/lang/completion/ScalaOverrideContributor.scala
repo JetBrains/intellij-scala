@@ -12,13 +12,12 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.overrideImplement._
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
@@ -154,9 +153,6 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false): String = {
-    ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
-      ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
-
     implicit val manager = classMember.getElement.getManager
     val text: String = classMember match {
       case mm: ScMethodMember =>

@@ -26,7 +26,7 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
 
   
   protected def extractVersion(files: Seq[File]): Option[Version] =
-  Component.discoverIn(Set(getArtifact), files).find {
+  Component.discoverIn(files, Set(getArtifact)).find {
       component => component.artifact.prefix == myArtifact.prefix
     }.flatMap(_.version)
   
@@ -45,14 +45,6 @@ abstract class VersionedArtifactHandlerBase(val myArtifact: Artifact, versionFro
     
     extractVersion(ioFiles.toSeq)
   }
-  
-  protected def isVersionMoreSpecific(lessSpecific: Version, moreSpecific: Version, strict: Boolean = false): Boolean = {
-    if (lessSpecific == moreSpecific) return !strict
-    lessSpecific.digitsIterator.zip(moreSpecific.digitsIterator).foreach {
-      case (a, b) => if (a != b) return false
-    }
-    true
-  } 
 
   override def acceptsFrom(from: Library): Boolean = extractVersion(from).exists {
     version => versionFrom.contains(version) || (

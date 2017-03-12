@@ -17,8 +17,6 @@ class StopWorksheetAction(exec: CompilationProcess) extends AnAction with TopCom
     exec.stop()
   }
 
-  override def update(e: AnActionEvent): Unit = super.update(e)
-
   override def actionIcon: Icon = AllIcons.Actions.Suspend
 
   override def bundleKey = "worksheet.stop.button"

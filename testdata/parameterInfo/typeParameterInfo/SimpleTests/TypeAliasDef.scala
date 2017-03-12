@@ -3,5 +3,5 @@ trait X[U] {
 }
 
 val x: X[String] = null
-("", ""): x.Pair[String /*caret*/]
+("", ""): x.Pair[String<caret>]
 // a <: String

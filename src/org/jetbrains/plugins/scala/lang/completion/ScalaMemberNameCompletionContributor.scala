@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -20,7 +21,6 @@ class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
     new CompletionProvider[CompletionParameters]() {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
         val position = positionFromParameters(parameters)
-        val fileName = parameters.getOriginalFile.getVirtualFile.getNameWithoutExtension
         val classesNames: mutable.HashSet[String] = mutable.HashSet.empty
         val objectNames: mutable.HashSet[String] = mutable.HashSet.empty
         val parent = position.getContext.getContext
@@ -36,8 +36,13 @@ class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
           case _: ScPackaging => true
           case _ => false
         }
-        if (shouldCompleteFileName && !classesNames.contains(fileName) && !objectNames.contains(fileName)) {
-          result.addElement(LookupElementBuilder.create(fileName))
+        parameters.getOriginalFile.getVirtualFile match {
+          case vFile: VirtualFile if shouldCompleteFileName =>
+            val fileName = vFile.getNameWithoutExtension
+            if (!classesNames.contains(fileName) && !objectNames.contains(fileName)) {
+              result.addElement(LookupElementBuilder.create(fileName))
+            }
+          case _ =>
         }
         position.getContext match {
           case _: ScClass | _: ScTrait =>

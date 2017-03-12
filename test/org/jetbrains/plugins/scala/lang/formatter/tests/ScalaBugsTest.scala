@@ -1787,8 +1787,31 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL6913_2() = {
+    getScalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = ScalaCodeStyleSettings.NEW_LINE_FOR_MULTIPLE_ARGUMENTS
+    getCommonSettings.CALL_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |val fears = List("spiders", "heights", "many spiders", "complex SQL",
+        |  "losing at StarCraft", "EMPs")
+      """.stripMargin
+
+    val after =
+      """
+        |val fears = List(
+        |  "spiders",
+        |  "heights",
+        |  "many spiders",
+        |  "complex SQL",
+        |  "losing at StarCraft",
+        |  "EMPs")
+      """.stripMargin
+
+    doTextTest(before, after)
+  }
+
   def testSCL6267() = {
-    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
 
     val before =
       """
@@ -1800,6 +1823,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL6267_1() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = false
     val before =
       """
         |import net.liftweb.json.JsonDSL.{symbol2jvalue => _, _} // collision with Matcher's have 'symbol implicit
@@ -2353,7 +2377,6 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL4269() = {
-    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = true
     val before =
       """
         |object HelloWorld { // A sample application object
@@ -2368,6 +2391,7 @@ bars foreach {case (x, y) => list.add(x + y)}
   }
 
   def testSCL4269_1() = {
+    getScalaSettings.KEEP_COMMENTS_ON_SAME_LINE = false
     val before =
       """
         |object HelloWorld { // A sample application object

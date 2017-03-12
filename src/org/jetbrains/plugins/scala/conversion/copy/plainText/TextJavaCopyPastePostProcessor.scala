@@ -5,17 +5,17 @@ import java.lang.Boolean
 
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.conversion.copy.{Association, SingularCopyPastePostProcessor}
 import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
 /**
@@ -30,19 +30,30 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
   }
 
   override protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
-    if (!content.isDataFlavorSupported(ConverterUtil.ConvertedCode.Flavor) && content.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+    def copyInsideIde: Boolean =
+      if (ApplicationManager.getApplication.isUnitTestMode && !TextJavaCopyPastePostProcessor.insideIde) false
+      else
+        content
+          .getTransferDataFlavors
+          .exists { flavor =>
+            classOf[TextBlockTransferableData]
+              .isAssignableFrom(flavor.getRepresentationClass)
+          }
+
+    if (content.isDataFlavorSupported(DataFlavor.stringFlavor) && !copyInsideIde) {
       val text = content.getTransferData(DataFlavor.stringFlavor).asInstanceOf[String]
       new ConverterUtil.ConvertedCode(text, Array.empty[Association], false)
-    } else {
-      null
-    }
+    } else null
   }
 
   override protected def processTransferableData0(project: Project, editor: Editor, bounds: RangeMarker,
                                                   caretOffset: Int, ref: Ref[Boolean], value: TextBlockTransferableData): Unit = {
 
     if (!ScalaProjectSettings.getInstance(project).isEnableJavaToScalaConversion) return
-    if (!PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument).isInstanceOf[ScalaFile]) return
+    val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+
+    val scope = file.getResolveScope
+    if (!file.isInstanceOf[ScalaFile]) return
 
     val (text, _, _) = value match {
       case code: ConverterUtil.ConvertedCode => (code.data, code.associations, code.showDialog)
@@ -67,20 +78,17 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
         extensions.inWriteAction {
           val project = javaCodeWithContext.project
 
-          createFileWithAdditionalImports(javaCodeWithContext).foreach { javaFile =>
+          createFileWithAdditionalImports(javaCodeWithContext, scope).foreach { javaFile =>
             val convertedText = convert(javaFile, javaCodeWithContext.context, project)
+            ConverterUtil.performePaste(editor, bounds, convertedText, project)
 
-            ConverterUtil.replaceByConvertedCode(editor, bounds, convertedText)
-
-            editor.getCaretModel.moveToOffset(bounds.getStartOffset + convertedText.length)
-
-            ConverterUtil.withSpecialStyleIn(project) {
-              val manager = CodeStyleManager.getInstance(project)
-              manager.reformatText(
+            CodeStyleManager.getInstance(project)
+              .reformatText(
                 PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument),
                 bounds.getStartOffset, bounds.getStartOffset + convertedText.length
               )
-            }
+
+            ConverterUtil.cleanCode(file, project, bounds.getStartOffset, bounds.getEndOffset)
           }
         }
       }
@@ -108,21 +116,18 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
         javaFile
       ).filterNot(el => el.isInstanceOf[PsiImportList] || el.isInstanceOf[PsiPackageStatement])
 
-    val scalaFile = new ScalaCodeFragment(project, JavaToScala.convertPsisToText(elementsToConvert))
-
-    ConverterUtil.runInspections(scalaFile, project, 0, scalaFile.getText.length)
-    TypeAnnotationUtil.removeAllTypeAnnotationsIfNeeded(ConverterUtil.collectTopElements(0, scalaFile.getText.length, scalaFile))
+    val scalaFileText = JavaToScala.convertPsisToText(elementsToConvert)
 
     newLine(convertStatement(javaFile.getPackageStatement)) +
-      newLine(convertStatement(javaFile.getImportList)) +
-      scalaFile.getText
+      convertStatement(javaFile.getImportList) +
+      scalaFileText
   }
 
 
-  def createFileWithAdditionalImports(codeWithContext: CodeWithContext): Option[PsiJavaFile] = {
+  def createFileWithAdditionalImports(codeWithContext: CodeWithContext, scope: GlobalSearchScope): Option[PsiJavaFile] = {
     codeWithContext
       .javaFile
-      .map(new AdditioinalImportsResolver(_).addImports())
+      .map(new AdditionalImportsResolver(_, scope).addImports())
   }
 
   sealed class CopyContext(val prefix: String, val postfix: String)
@@ -155,4 +160,9 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
     else if (asExpression.parseWithContextAsJava) Some(asExpression)
     else None
   }
+}
+
+object TextJavaCopyPastePostProcessor {
+  //use for tests only
+  var insideIde: Boolean = true
 }

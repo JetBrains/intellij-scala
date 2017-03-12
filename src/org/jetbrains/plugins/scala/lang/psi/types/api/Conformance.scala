@@ -9,7 +9,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.lang.psi.types._
 
-import scala.collection.immutable.HashSet
+
 
 /**
   * @author adkozlov
@@ -28,7 +28,7 @@ trait Conformance extends TypeSystemOwner {
     * val x: l = (y: r)
     */
   final def conformsInner(left: ScType, right: ScType,
-                          visited: Set[PsiClass] = HashSet.empty,
+                          visited: Set[PsiClass] = Set.empty,
                           substitutor: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
                           checkWeak: Boolean = false): Result = {
     ProgressManager.checkCanceled()

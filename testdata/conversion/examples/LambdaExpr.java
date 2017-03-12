@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /*start*/
-public class LambdaExpression {
+class LambdaExpression {
     public void main(String[] args) {
         List<Integer> integers = new ArrayList<Integer>();
         integers.forEach((Integer i) -> System.out.println(i));
@@ -39,7 +39,7 @@ public class LambdaExpression {
 
 /*
 class LambdaExpression {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     val integers: util.List[Integer] = new util.ArrayList[Integer]
     integers.forEach((i: Integer) => System.out.println(i))
     integers.forEach((i: Integer) => System.out.println(i))

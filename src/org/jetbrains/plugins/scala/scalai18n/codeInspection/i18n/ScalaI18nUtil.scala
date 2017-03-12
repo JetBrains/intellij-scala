@@ -16,7 +16,7 @@ import com.intellij.openapi.util.{Key, Ref, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiMethodExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
@@ -101,13 +101,13 @@ object ScalaI18nUtil {
       processed = new mutable.HashSet[PsiMethod]
     }
     processed.add(method)
-    val params: Array[PsiParameter] = method.getParameterList.getParameters
+    val params = method.parameters
     var param: PsiParameter = null
     if (idx >= params.length) {
-      if (params.length == 0) {
+      if (params.isEmpty) {
         return false
       }
-      val lastParam: PsiParameter = params(params.length - 1)
+      val lastParam: PsiParameter = params.last
       if (lastParam.isVarArgs) {
         param = lastParam
       }

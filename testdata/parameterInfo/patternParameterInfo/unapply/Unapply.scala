@@ -3,6 +3,6 @@ object Unapply {
 }
 
 22 match {
-  case Unapply(/*caret*/) =>
+  case Unapply(<caret>) =>
 }
 //Int

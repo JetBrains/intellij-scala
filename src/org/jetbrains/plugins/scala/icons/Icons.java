@@ -72,4 +72,6 @@ public interface Icons {
 
   Icon ERROR = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/error.png");
   Icon WARNING = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/warning.png");
+
+  Icon LIGHTBEND_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/lightbend_logo.png");
 }

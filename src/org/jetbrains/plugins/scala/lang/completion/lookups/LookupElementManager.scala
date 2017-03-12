@@ -60,12 +60,12 @@ object LookupElementManager {
 
         qualifierType match {
           case _ if !isPredef && !usedImportForElement =>
-            qualifierType.extractDesignated(withoutAliases = false) match {
-              case Some((named, _)) =>
+            qualifierType.extractDesignated(expandAliases = false) match {
+              case Some(named) =>
                 named match {
                   case cl: PsiClass => Some(cl)
                   case tp: Typeable =>
-                    tp.getType(TypingContext.empty).map(_.extractClass()(tp.typeSystem)).getOrElse(None)
+                    tp.getType(TypingContext.empty).toOption.flatMap(_.extractClass(tp.getProject))
                   case _ => None
                 }
               case _ => None

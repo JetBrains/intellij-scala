@@ -13,37 +13,48 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{CompilerProjectExtension, ModuleRootAdapter, ModuleRootEvent}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, JavaCodeInsightFixtureTestCase}
+import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{EdtTestUtil, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.ThrowableRunnable
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.DisposableScalaLibraryLoader
-import org.jetbrains.plugins.scala.base.libraryLoaders.CompositeLibrariesLoader
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
-import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil
+import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-import org.jetbrains.plugins.scala.{TestFixtureProvider, extensions}
 import org.junit.Assert
 
 import scala.meta.ScalaMetaLibrariesOwner
 import scala.meta.ScalaMetaLibrariesOwner.MetaBaseLoader
 
-abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with TestFixtureProvider with ScalaMetaLibrariesOwner {
+abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner {
 
   import MetaAnnotationTestBase._
 
-  override def getFixture: CodeInsightTestFixture = myFixture
-
   private var deleteProjectAtTearDown = false
 
+  override implicit lazy val project: Project = getProject
+
+  private lazy val metaDirectory = inWriteAction {
+    val baseDir = project.getBaseDir
+    baseDir.findChild("meta") match {
+      case null => baseDir.createChildDirectory(null, "meta")
+      case directory => directory
+    }
+  }
+
+  override implicit lazy val module: Module = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", metaDirectory)
+
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
+
+  override def librariesLoaders: Seq[LibraryLoader] =
+    Seq(new DisposableScalaLibraryLoader()) ++ additionalLibraries
 
   override def setUp(): Unit = {
     super.setUp()
@@ -61,35 +72,31 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   }
 
   def compileMetaSource(source: String = FileUtil.loadFile(new File(getTestDataPath, s"${getTestName(false)}.scala"))): List[String] = {
-    implicit val project = getProject
+    setUpLibraries()
+    enableParadisePlugin()
 
-    val root = extensions.inWriteAction {
-      val baseDir = project.getBaseDir
-      Option(baseDir.findChild("meta")).getOrElse(baseDir.createChildDirectory(null, "meta"))
-    }
-
-    implicit val metaModule = PsiTestUtil.addModule(project, JavaModuleType.getModuleType, "meta", root)
-    implicit val version = scalaSdkVersion
-
-    CompositeLibrariesLoader(
-      new DisposableScalaLibraryLoader() +: additionalLibraries(metaModule)
-    ).init
-
-    enableParadisePlugin(metaModule)
-
-    extensions.inWriteAction {
+    inWriteAction {
       val modifiableRootModel = myModule.modifiableModel
-      modifiableRootModel.addModuleOrderEntry(metaModule)
+      modifiableRootModel.addModuleOrderEntry(module)
       modifiableRootModel.commit()
     }
 
-    VfsTestUtil.createFile(root, "meta.scala", source)
+    VfsTestUtil.createFile(metaDirectory, "meta.scala", source)
     try {
       make()
     } finally {
       shutdownCompiler()
     }
   }
+
+  private def enableParadisePlugin(): Unit = {
+    val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
+    val settings = profile.getSettings
+
+    settings.plugins :+= MetaParadiseLoader()(module).path
+    profile.setSettings(settings)
+  }
+
 
   def checkExpansionEquals(code: String, expectedExpansion: String): Unit = {
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
@@ -208,26 +215,16 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
 object MetaAnnotationTestBase {
 
-  private def enableParadisePlugin(module: Module)
-                                  (implicit project: Project,
-                                   version: ScalaSdkVersion): Unit = {
-    val profile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
-    val settings = profile.getSettings
-
-    settings.plugins :+= MetaParadiseLoader()(module).path
-    profile.setSettings(settings)
-  }
-
   private case class MetaParadiseLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "paradise"
-    override protected val version: String = "3.0.0-M5"
+    override protected val version: String = "3.0.0-M7"
 
-    override protected def folder(implicit version: ScalaSdkVersion): String =
-      s"${name}_${version.getMinor}"
+    override protected def folder(implicit version: ScalaVersion): String =
+      s"${name}_${version.minor}"
 
-    override def path(implicit version: ScalaSdkVersion): String = super.path
+    override def path(implicit version: ScalaVersion): String = super.path
 
-    override def init(implicit version: ScalaSdkVersion): Unit = {}
+    override def init(implicit version: ScalaVersion): Unit = {}
   }
 
   private def refreshVfs(path: String): Unit = {

@@ -1,14 +1,18 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
-import org.jetbrains.plugins.scala.debugger.{ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger._
 
 /**
  * @author Nikolay.Tropin
  */
 
-class GetAllClassesTest extends GetAllClassesTestBase with ScalaVersion_2_11
+class GetAllClassesTest extends GetAllClassesTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
 
-class GetAllClassesTest_212 extends GetAllClassesTest_212_Base with ScalaVersion_2_12
+class GetAllClassesTest_212 extends GetAllClassesTest_212_Base {
+  override implicit val version: ScalaVersion = Scala_2_12
+}
 
 abstract class GetAllClassesTest_212_Base extends GetAllClassesTestBase {
 

@@ -625,7 +625,7 @@ object ScalaPsiElementFactory {
           val omitParamList = paramCount == 0 && method.hasQueryLikeName
 
           if (!omitParamList) {
-            val params = for (param <- method.getParameterList.getParameters) yield {
+            val params = for (param <- method.parameters) yield {
               val paramName = param.name match {
                 case null => param match {
                   case param: ClsParameterImpl => param.getStub.getName

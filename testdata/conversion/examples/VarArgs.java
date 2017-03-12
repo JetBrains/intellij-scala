@@ -10,7 +10,7 @@ public class VarArgs {
 package java
 
 object VarArgs {
-  def x(args: String*) {
+  def x(args: String*): Unit = {
     x("one", "two", "three")
   }
 }

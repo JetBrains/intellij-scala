@@ -1,15 +1,20 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger._
 
 /**
  * Nikolay.Tropin
  * 8/2/13
  */
 
-class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase with ScalaVersion_2_11
-class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTest_212_Base with ScalaVersion_2_12
+class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
+
+class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTest_212_Base {
+  override implicit val version: ScalaVersion = Scala_2_12
+}
 
 abstract class InAnonFunEvaluationTest_212_Base extends InAnonFunEvaluationTestBase {
   //todo SCL-9139

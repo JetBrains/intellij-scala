@@ -19,7 +19,7 @@ import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLanguageLevel, ScalaModule}
+import org.jetbrains.plugins.scala.project.{Platform, ProjectExt, ScalaLanguageLevel, ScalaModule}
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -198,7 +198,7 @@ object CompileServerLauncher {
   }
 
   def bootClasspath(project: Project): Seq[File] = {
-    val dottySdk = project.scalaModules.map(_.sdk).find(_.isDottySdk)
+    val dottySdk = project.scalaModules.map(_.sdk).find(_.platform == Platform.Dotty)
     dottySdk.toSeq.flatMap(_.compilerClasspath)
   }
 

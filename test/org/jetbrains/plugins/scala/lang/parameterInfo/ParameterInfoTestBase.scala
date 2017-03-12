@@ -3,90 +3,105 @@ package lang
 package parameterInfo
 
 import java.awt.Color
-import java.io.File
 
 import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
-import com.intellij.lang.parameterInfo.{ParameterInfoHandlerWithTabActionSupport, ParameterInfoUIContext}
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.openapi.util.io.FileUtil
+import com.intellij.lang.parameterInfo.{ParameterInfoHandlerWithTabActionSupport, ParameterInfoUIContext, _}
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem, VirtualFile}
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil.getParentOfType
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.testFramework.utils.parameterInfo.MockUpdateParameterInfoContext
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 import scala.collection.mutable
 
-abstract class ParameterInfoTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  protected def folderPath = baseRootPath() + "parameterInfo/"
+  override def getTestDataPath: String = TestUtils.getTestDataPath + "/parameterInfo/"
 
-  protected def createHandler: ParameterInfoHandlerWithTabActionSupport[_ <: PsiElement, Any, _ <: PsiElement]
+  protected def createHandler: ParameterInfoHandlerWithTabActionSupport[Owner, Any, _ <: PsiElement]
 
   import ParameterInfoTestBase._
 
-  protected final def doTest(): Unit = {
-    val filename = getTestName(false) + ".scala"
-
-    val filePath = folderPath + filename
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assertNotNull(s"File $filePath not found.", file)
-
-    val fileText = FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8)
-    configureFromFileTextAdapter(filename, fileText)
-
-    val offset = fileText.indexOf(CARET_MARKER)
-    assertNotEquals("Caret not found", offset, -1)
-
-    val context = createInfoContext(file, offset)
-    val actual = handleUI(findElementAt(offset), context)
-
-    val expected = expectedSignatures(findElementAt())
-    assertTrue(expected.contains(actual))
+  protected def configureFile(): PsiFile = {
+    val filePath = s"$getTestDataPath${getTestName(false)}.scala"
+    getFixture.configureByFile(filePath)
   }
 
-  private def handleUI(element: PsiElement,
-                       context: ShowParameterInfoContext): Seq[String] = {
+  protected final def doTest(testUpdate: Boolean = true): Unit = {
+    val file = configureFile()
+    val offset = getFixture.getCaretOffset
+
+    val context = new ShowParameterInfoContext(getEditor, getProject, file, offset, -1)
     val handler = createHandler
-    handler.findElementForParameterInfo(context)
 
-    val items = mutable.SortedSet.empty[String]
-    val parameterOwner = getParentOfType(element, handler.getArgumentListClass)
+    val actual = handleUI(handler, context)
 
-    context.getItemsToShow.foreach { item =>
-      val uiContext = createInfoUIContext(parameterOwner) {
-        items += _
+    val expected = expectedSignatures(lastElement())
+    assertTrue(expected.contains(actual))
+
+    if (testUpdate) {
+      //todo test correct parameter index after moving caret
+      val actualAfterUpdate = handleUpdateUI(handler, context)
+      assertTrue(expected.contains(actualAfterUpdate))
+    }
+  }
+
+  private def handleUI(handler: ParameterInfoHandler[Owner, Any],
+                       context: CreateParameterInfoContext): Seq[String] = {
+    val parameterOwner = handler.findElementForParameterInfo(context)
+    uiStrings(context.getItemsToShow, handler, parameterOwner)
+  }
+
+  private def handleUpdateUI(handler: ParameterInfoHandler[Owner, Any],
+                             context: CreateParameterInfoContext): Seq[String] = {
+    val updatedContext = updateContext(context)
+    val parameterOwner = handler.findElementForUpdatingParameterInfo(updatedContext)
+
+    updatedContext.setParameterOwner(parameterOwner)
+    handler.updateParameterInfo(parameterOwner, updatedContext)
+
+    uiStrings(updatedContext.getObjectsToView, handler, parameterOwner)
+  }
+
+  private def updateContext(context: CreateParameterInfoContext): UpdateParameterInfoContext = {
+    val itemsToShow = context.getItemsToShow
+    new MockUpdateParameterInfoContext(getEditor, getFile, itemsToShow) {
+      private var items: Array[AnyRef] = itemsToShow
+
+      override def getObjectsToView: Array[AnyRef] = items
+
+      override def removeHint(): Unit = {
+        items = Array.empty
       }
-      handler.updateUI(item, uiContext)
     }
-
-    items.toSeq.flatMap(normalize)
   }
 
-  private def createInfoContext(file: VirtualFile, offset: Int) = {
-    val project = getProjectAdapter
-    val descriptor = new OpenFileDescriptor(project, file, offset)
-    val editor = FileEditorManager.getInstance(project).openTextEditor(descriptor, false)
-    new ShowParameterInfoContext(editor, project, getFileAdapter, offset, -1)
-  }
-
-  private def findElementAt(offset: Int = -1) = {
-    val file = getFileAdapter
-    val newOffset = offset match {
-      case -1 => file.getTextLength - 1
-      case _ => offset
-    }
-    file.findElementAt(newOffset)
+  private def lastElement() = {
+    val file = getFile
+    file.findElementAt(file.getTextLength - 1)
   }
 }
 
 object ParameterInfoTestBase {
-  private val CARET_MARKER = "/*caret*/"
 
-  private def createInfoUIContext(parameterOwner: PsiElement)
-                                 (consume: String => Unit) = new ParameterInfoUIContext {
+  private def uiStrings[Owner <: PsiElement](items: Seq[AnyRef],
+                                             handler: ParameterInfoHandler[Owner, Any],
+                                             parameterOwner: Owner): Seq[String] = {
+    val result = mutable.SortedSet.empty[String]
+    items.foreach { item =>
+      val uiContext = createInfoUIContext(parameterOwner) {
+        result += _
+      }
+      handler.updateUI(item, uiContext)
+    }
+
+    result.toSeq.flatMap(normalize)
+  }
+
+  private[this] def createInfoUIContext[Owner <: PsiElement](parameterOwner: Owner)
+                                                            (consume: String => Unit) = new ParameterInfoUIContext {
     def getParameterOwner: PsiElement = parameterOwner
 
     def setupUIComponentPresentation(text: String, highlightStartOffset: Int, highlightEndOffset: Int,
@@ -117,7 +132,7 @@ object ParameterInfoTestBase {
       .map(normalize)
   }
 
-  private def normalize(string: String) =
+  private[this] def normalize(string: String) =
     StringUtil.convertLineSeparators(string)
       .split('\n')
       .map(_.trim)

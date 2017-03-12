@@ -39,8 +39,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.language.higherKinds
@@ -58,15 +58,11 @@ package object extensions {
 
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
-    import org.jetbrains.plugins.scala.extensions.PsiMethodExt._
+    import PsiMethodExt._
 
-    def isAccessor: Boolean = {
-      hasNoParams && hasQueryLikeName && !hasVoidReturnType
-    }
+    def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
 
-    def isMutator: Boolean = {
-      hasVoidReturnType || hasMutatorLikeName
-    }
+    def isMutator: Boolean = hasVoidReturnType || hasMutatorLikeName
 
     def hasQueryLikeName: Boolean = {
       def startsWith(name: String, prefix: String) =
@@ -87,7 +83,19 @@ package object extensions {
 
     def hasVoidReturnType: Boolean = repr.getReturnType == PsiType.VOID
 
-    def hasNoParams: Boolean = repr.getParameterList.getParameters.isEmpty
+    def parameters: Seq[PsiParameter] =
+      repr.getParameterList.getParameters
+
+    def parametersTypes: Seq[ScType] = repr match {
+      case scalaFunction: ScFunction =>
+        scalaFunction.parameters
+          .map(_.getType(TypingContext.empty).getOrNothing)
+      case _ =>
+        parameters.map(_.getType)
+          .map(_.toScType()(repr.typeSystem))
+    }
+
+    def isParameterless: Boolean = parameters.isEmpty
   }
 
   object PsiMethodExt {
@@ -315,7 +323,7 @@ package object extensions {
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
-    def toScType(visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
+    def toScType(visitedRawTypes: Set[PsiClass] = Set.empty,
                  paramTopLevel: Boolean = false,
                  treatJavaObjectAsAny: Boolean = true)
                 (implicit typeSystem: TypeSystem): ScType =
@@ -324,18 +332,18 @@ package object extensions {
 
   implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
     def lower(implicit typeSystem: TypeSystem,
-              visitedRawTypes: HashSet[PsiClass],
+              visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isSuper) Some(`type`.getSuperBound) else None)
 
     def upper(implicit typeSystem: TypeSystem,
-              visitedRawTypes: HashSet[PsiClass],
+              visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isExtends) Some(`type`.getExtendsBound) else None)
 
     private def bound(maybeBound: Option[PsiType])
                      (implicit typeSystem: TypeSystem,
-                      visitedRawTypes: HashSet[PsiClass],
+                      visitedRawTypes: Set[PsiClass],
                       paramTopLevel: Boolean) = maybeBound map {
       _.toScType(visitedRawTypes, paramTopLevel = paramTopLevel)
     }
@@ -408,7 +416,7 @@ package object extensions {
             m.containingClass match {
               case t: ScTrait =>
                 val linearization = MixinNodes.linearization(clazz)
-                  .flatMap(_.extractClass(clazz.getProject)(clazz.typeSystem))
+                  .flatMap(_.extractClass(clazz.getProject))
                 var index = linearization.indexWhere(_ == t)
                 while (index >= 0) {
                   val cl = linearization(index)
@@ -734,6 +742,16 @@ package object extensions {
     } finally {
       source.close()
     }
+  }
+
+  /* Calls each funtion with `v` as an argument, returns `v` (replicates Kotlin's "apply").
+     Useful to avoid defining a temporary variable and then repeating its name.
+     See also: |>
+     TODO: convert to a macro
+    */
+  def applyTo[T](v: T)(fs: (T => Any)*): T = {
+    fs.foreach(_.apply(v))
+    v
   }
 
   val ChildOf = Parent

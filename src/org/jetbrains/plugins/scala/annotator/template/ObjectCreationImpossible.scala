@@ -22,9 +22,9 @@ object ObjectCreationImpossible extends AnnotatorPart[ScTemplateDefinition] {
 
     if (!isNew && !isObject) return
 
-    val refs = definition.refs
+    val refs = AnnotatorPart.superRefs(definition)
 
-    val hasAbstract = refs.flatMap(_._2.toSeq).exists(t => isAbstract(t._1))
+    val hasAbstract = refs.flatMap(_._2).exists(isAbstract)
 
     if(hasAbstract) {
       refs.headOption.foreach {

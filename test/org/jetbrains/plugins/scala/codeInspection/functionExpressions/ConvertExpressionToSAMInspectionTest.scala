@@ -4,8 +4,8 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -24,7 +24,7 @@ class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
     defaultProfile.setSettings(newSettings)
   }
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override implicit val version: ScalaVersion = Scala_2_11
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
 

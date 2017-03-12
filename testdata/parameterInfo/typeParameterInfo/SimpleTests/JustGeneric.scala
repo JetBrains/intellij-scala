@@ -1,4 +1,4 @@
 class JustGeneric[T, G]
 
-new JustGeneric[Int, /*caret*/]
+new JustGeneric[Int, <caret>]
 //T, G

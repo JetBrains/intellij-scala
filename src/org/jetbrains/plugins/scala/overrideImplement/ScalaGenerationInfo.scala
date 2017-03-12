@@ -160,7 +160,7 @@ object ScalaGenerationInfo {
           clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
         case method: PsiMethod =>
           if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""
-          else method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
+          else method.parameters.map(paramText).mkString("(", ", ", ")")
       }
     }
     superOrSelfQual + methodName + parametersText
@@ -204,7 +204,7 @@ object ScalaGenerationInfo {
     val m = createOverrideImplementMethod(sign, needsOverride, body,
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC, withAnnotation = false)(method.getManager)
 
-    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m)
+    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)
     val added = td.addMember(m, Option(anchor))
     TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
@@ -224,11 +224,14 @@ object ScalaGenerationInfo {
     val addOverride = needsOverride || toAddOverrideToImplemented
     val m = createOverrideImplementVariable(value, substitutor, addOverride, isVal, comment)(value.getManager)
 
-    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m)
+    TypeAnnotationUtil.removeTypeAnnotationIfNeeded(m, typeAnnotationsPolicy)
     m
   }
 
   def toAddOverrideToImplemented: Boolean =
     if (ApplicationManager.getApplication.isUnitTestMode) false
     else ScalaApplicationSettings.getInstance.ADD_OVERRIDE_TO_IMPLEMENTED
+
+  def typeAnnotationsPolicy: ScalaApplicationSettings.ReturnTypeLevel =
+    ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
 }

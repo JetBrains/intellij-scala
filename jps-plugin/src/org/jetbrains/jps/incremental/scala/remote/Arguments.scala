@@ -10,6 +10,8 @@ import org.jetbrains.jps.incremental.scala.remote.Arguments._
 
 /**
  * @author Pavel Fatin
+  *         
+  * @param worksheetFiles see org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.worksheetArgs         
  */
 case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationData: CompilationData, worksheetFiles: Seq[String]) {
   def asStrings: Seq[String] = {

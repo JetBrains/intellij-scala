@@ -2,7 +2,7 @@ package scala.meta
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 
 import scala.meta.semantic.IDEAContext
 
@@ -20,10 +20,12 @@ abstract class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAda
 
 abstract class TreeConverterTestBaseNoLibrary extends TreeConverterTestBase {
   override def loadScalaLibrary = false
+
 //  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }
 
 abstract class TreeConverterTestBaseWithLibrary extends TreeConverterTestBase {
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override implicit val version: ScalaVersion = Scala_2_11
+
 //  override def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }

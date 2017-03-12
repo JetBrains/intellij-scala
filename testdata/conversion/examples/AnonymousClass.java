@@ -9,9 +9,9 @@ public class AnonymousClass {
 }
 /*
 class AnonymousClass {
-  def foo() {
+  def foo(): Unit = {
     new Runnable() {
-      override def run() {
+      override def run(): Unit = {
       }
     }
   }

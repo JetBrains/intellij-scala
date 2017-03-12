@@ -47,7 +47,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       def run() {
         ScalaDebuggerTestBase.super.setUp()
         checkOrAddAllSourceFiles()
-        addLibraries()
+        setUpLibraries()
       }
     })
   }
@@ -165,7 +165,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     }
     computeForDir(srcDir)
     computeForDir(outDir)
-    new Checksums(result, scalaSdkVersion.getMinor)
+    new Checksums(result, version.minor)
   }
 
 
@@ -209,7 +209,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   private def testDataProjectIsValid(): Boolean = {
     sameSourceFiles() && loadChecksums() &&
-      checksums.scalaVersion == scalaSdkVersion.getMinor &&
+      checksums.scalaVersion == version.minor &&
       checksums.fileToMd5.keys.forall(checkFile) &&
       getImlFile != null
   }

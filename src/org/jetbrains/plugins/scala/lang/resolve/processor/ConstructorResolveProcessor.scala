@@ -59,7 +59,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
           orDefault()
         case definition: ScTypeAliasDefinition =>
           val result = definition.aliasedType.toOption.toSeq flatMap {
-            _.extractClassType()
+            _.extractClassType(definition.getProject)
           } flatMap {
             case (clazz, substitutor) =>
               constructors(clazz, defaultSubstitutor.followed(substitutor))

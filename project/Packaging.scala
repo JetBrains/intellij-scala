@@ -23,6 +23,12 @@ object Packaging {
     files foreach { case (from, to) => IO.copyFile(from, destination / to)}
   }
 
+  def putInTempJar(file: File): File = {
+    val zipFile = File.createTempFile("sbt-another-one-temp-jar", ".jar", IO.temporaryDirectory)
+    IO.zip(Seq((file, file.getName)), zipFile)
+    zipFile
+  }
+  
   def compressPackagedPlugin(source: File, destination: File): Unit =
     IO.zip((source.getParentFile ***) pair (relativeTo(source.getParentFile), false), destination)
 

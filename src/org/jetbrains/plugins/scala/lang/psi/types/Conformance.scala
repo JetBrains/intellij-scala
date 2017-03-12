@@ -44,7 +44,7 @@ object Conformance extends api.Conformance {
         right.extractClassType() match {
           case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, substitutor)
           case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
-            left.extractClass() match {
+            left.extractClass(rClass.getProject) match {
               case Some(lClass) =>
                 if (rClass.qualifiedName == "java.lang.Object") {
                   return conformsInner(left, AnyRef, visited, substitutor, checkWeak)
@@ -283,8 +283,8 @@ object Conformance extends api.Conformance {
             result = (false, undefinedSubst)
             return
           }
-          l.extractDesignated(withoutAliases = false) match {
-            case Some((el, _)) =>
+          l.extractDesignated(expandAliases = false) match {
+            case Some(el) =>
               val flag = el.elementScope.getCachedClass("scala.NotNull")
                 .map {
                   ScDesignatorType(_)
@@ -912,8 +912,8 @@ object Conformance extends api.Conformance {
           result = (false, undefinedSubst)
           return
         }
-        des1.extractDesignated(withoutAliases = true) match {
-          case Some((ownerDesignator, _)) =>
+        des1.extractDesignated(expandAliases = true) match {
+          case Some(ownerDesignator) =>
             val parametersIterator = ownerDesignator match {
               case td: ScTypeParametersOwner => td.typeParameters.iterator
               case ownerDesignator: PsiTypeParameterListOwner => ownerDesignator.getTypeParameters.iterator
@@ -1544,7 +1544,7 @@ object Conformance extends api.Conformance {
             case r => r
           }
       }
-      tp.extractClassType() match {
+      tp.extractClassType(leftClass.getProject) match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
         case Some((clazz: PsiClass, _)) if condition(clazz) =>
           if (res == null) res = tp

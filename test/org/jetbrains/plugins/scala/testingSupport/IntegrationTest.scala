@@ -54,7 +54,7 @@ trait IntegrationTest {
         val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
         presentation.isInstanceOf[TestItemRepresentation] && presentation.getPresentableText == nodeName &&
           presentation.asInstanceOf[TestItemRepresentation].testStatus == status &&
-          parentName.map(currentParentName == _).getOrElse(true)
+          parentName.forall(currentParentName == _)
       } ||
         root.getChildren.toList.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))
     }
@@ -166,7 +166,8 @@ trait IntegrationTest {
 
     semaphore.waitFor()
 
-    assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
+    assert(testTreeRoot.isDefined)
+    assert(testTreeCheck(testTreeRoot.get))
 
     if (checkOutputs) {
       assert(res == expectedText)

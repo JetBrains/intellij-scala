@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.debugger.stepOver
 
-import org.jetbrains.plugins.scala.debugger.ScalaVersion_2_11
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 
 
 /**
  * @author Nikolay.Tropin
  */
 
-class StepOverTest_2_11 extends StepOverTest with ScalaVersion_2_11
+class StepOverTest_2_11 extends StepOverTest {
+  override implicit val version: ScalaVersion = Scala_2_11
+}
 
 abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("Simple.scala",

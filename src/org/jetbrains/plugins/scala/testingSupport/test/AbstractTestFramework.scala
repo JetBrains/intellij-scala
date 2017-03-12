@@ -59,7 +59,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
 
   override def getLanguage: Language = ScalaLanguage.INSTANCE
 
-  def generateObjectTests = false
+  def getTestFileTemplateName: String
 
   protected def getLibraryDependencies(scalaVersion: Option[String]): Seq[String]
 

@@ -262,7 +262,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       oldIdx = paramInfo.getOldIndex
       if oldIdx >= 0
       oldName = changeInfo.getOldParameterNames()(oldIdx)
-      parameters = method.getParameterList.getParameters
+      parameters = method.parameters
       if parameters.length > oldIdx
       param = parameters(oldIdx)
       newName = paramInfo.getName

@@ -2,6 +2,7 @@ package scala.meta.trees
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -119,7 +120,7 @@ trait TypeAdapter {
         case t: ScFunctionDefinition => ???
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
-          m.Type.Function(Seq(t.paramTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType))//.setTypechecked
+          m.Type.Function(Seq(t.parametersTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)) //.setTypechecked
         case t: ScParameter if dumbMode =>
           m.Type.Name(t.getText)
         case t: ScParameter =>
@@ -268,21 +269,5 @@ trait TypeAdapter {
   }
 
 
-  def fromType(tpe: m.Type): ptype.ScType = {
-    typeCache.getOrElseUpdate(tpe, {
-      tpe match {
-        case n:m.Type.Name =>
-          val psi = fromSymbol(n.denot.symbols.head)
-          psi match {
-            case td: p.toplevel.typedef.ScTemplateDefinition =>
-              td.getType(TypingContext.empty).get
-            case other =>
-              other ???
-          }
-        case _ =>
-          ???
-      }
-    }
-    )
-  }
+  def fromType(tpe: m.Type): ptype.ScType = ???
 }

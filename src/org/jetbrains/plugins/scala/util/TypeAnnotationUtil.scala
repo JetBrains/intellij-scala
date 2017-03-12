@@ -12,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -23,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel
+import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeLevel.{ADD, BY_CODE_STYLE, REMOVE}
 
 /**
   * Created by kate on 7/14/16.
@@ -182,23 +183,27 @@ object TypeAnnotationUtil {
     }
   }
 
-  def removeTypeAnnotationIfNeeded(element: ScalaPsiElement): Unit = {
-    val state = ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY
-  
+  def removeTypeAnnotationIfNeeded(element: ScalaPsiElement,
+                                   state: ScalaApplicationSettings.ReturnTypeLevel = ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE): Unit = {
+    val applicationSettings = ScalaApplicationSettings.getInstance()
     state match {
-      case ReturnTypeLevel.ADD => //nothing
-      case ReturnTypeLevel.REMOVE | ReturnTypeLevel.BY_CODE_STYLE =>
+      case ADD => //nothing
+      case REMOVE | BY_CODE_STYLE =>
         getTypeElement(element) match {
-          case Some(typeElement) if (state == ReturnTypeLevel.REMOVE) || ((state == ReturnTypeLevel.BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
+          case Some(typeElement)
+            if (applicationSettings.SPECIFY_RETURN_TYPE_EXPLICITLY == REMOVE) ||
+              ((applicationSettings.SPECIFY_RETURN_TYPE_EXPLICITLY == BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
+
             AddOnlyStrategy.withoutEditor.removeTypeAnnotation(typeElement)
           case _ =>
         }
     }
   }
-  
-  def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement]): Unit = {
+
+  def removeAllTypeAnnotationsIfNeeded(elements: Seq[PsiElement],
+                                       state: ScalaApplicationSettings.ReturnTypeLevel = ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE): Unit = {
     elements.foreach(_.depthFirst().foreach {
-      case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement)
+      case scalaPsiElement: ScalaPsiElement => removeTypeAnnotationIfNeeded(scalaPsiElement, state)
       case _ =>
     })
   }
@@ -226,22 +231,24 @@ object TypeAnnotationUtil {
     val configurable: Configurable = visitor.find(groups: _*)
         
     assert(configurable != null, "Cannot find configurable: " + classOf[CodeStyleSchemesConfigurable].getName)
-    
-    ShowSettingsUtil.getInstance.editConfigurable(project, configurable, new Runnable() {
-      def run() {
-        val codeStyleMainPanel: CodeStyleMainPanel = configurable.createComponent.asInstanceOf[CodeStyleMainPanel]
-        assert(codeStyleMainPanel != null, "Cannot find Code Style main panel")
 
-        codeStyleMainPanel.getPanels.headOption.foreach { panel =>
-          val selectedPanel = panel.getSelectedPanel
-          assert(selectedPanel != null)
-          selectedPanel match {
-            case tab: ScalaTabbedCodeStylePanel => tab.changeTab("Type Annotations")
-            case _ =>
+    extensions.invokeLater {
+      ShowSettingsUtil.getInstance.editConfigurable(project, configurable, new Runnable() {
+        def run() {
+          val codeStyleMainPanel: CodeStyleMainPanel = configurable.createComponent.asInstanceOf[CodeStyleMainPanel]
+          assert(codeStyleMainPanel != null, "Cannot find Code Style main panel")
+
+          codeStyleMainPanel.getPanels.headOption.foreach { panel =>
+            val selectedPanel = panel.getSelectedPanel
+            assert(selectedPanel != null)
+            selectedPanel match {
+              case tab: ScalaTabbedCodeStylePanel => tab.changeTab("Type Annotations")
+              case _ =>
+            }
           }
         }
-      }
-    })
+      })
+    }
   }
   
   def createTypeAnnotationsHLink(project: Project , msg: String): HyperlinkLabel = {

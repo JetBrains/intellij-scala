@@ -107,7 +107,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
                     if (function.name == name && resolved != function) {
                       flag = true
                     } else if (resolved == function) {
-                      if (function.getParameterList.getParameters.length == 0) {
+                      if (function.parameters.isEmpty) {
                         buf.append("()")
                         start = start + 2
                       }
@@ -116,7 +116,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
                     if (method.name == name && resolved != method) {
                       flag = true
                     } else if (resolved == method) {
-                      if (method.getParameterList.getParameters.isEmpty) {
+                      if (method.parameters.isEmpty) {
                         buf.append("()")
                         start = start + 2
                       }

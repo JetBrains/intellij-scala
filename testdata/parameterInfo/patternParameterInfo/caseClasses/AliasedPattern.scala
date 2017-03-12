@@ -7,7 +7,7 @@ object test2 {
 
   val x = BBB(1)
   x match {
-    case BBB(/*caret*/)
+    case BBB(<caret>)
   }
 }
 //i: Int

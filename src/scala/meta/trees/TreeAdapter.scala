@@ -90,7 +90,7 @@ trait TreeAdapter {
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
-    m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toTypeParams: _*), toType(t.aliasedType))
+    m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toTypeParams: _*), toType(t.aliasedTypeElement.get))
   }
 
   def toTypeDecl(t: ScTypeAliasDeclaration): m.Decl.Type = {
@@ -273,6 +273,8 @@ trait TreeAdapter {
     import p.expr._
     import p.expr.xml._
     e match {
+      case t: ScLiteral if t.isSymbol && paradiseCompatibilityHacks =>
+        m.Term.Apply(m.Term.Select(m.Term.Name("scala"), m.Term.Name("Symbol")), Seq(literal(t)))
       case t: ScLiteral =>
         literal(t)
       case t: ScUnitExpr =>
@@ -476,7 +478,7 @@ trait TreeAdapter {
       case ScLiteral(b: java.lang.Byte)       => Lit(b)
       case ScLiteral(s: String)               => Lit(s)
       case ScLiteral(null)                    => Lit(null)
-      case _ if l.isSymbol                    => Lit(l.getValue.asInstanceOf[Symbol])
+      case _ if l.isSymbol                    => Lit(l.getValue.asInstanceOf[Symbol].name) // symbol literals in meta contain a string as their value
       case other => other ?!
     }
     res

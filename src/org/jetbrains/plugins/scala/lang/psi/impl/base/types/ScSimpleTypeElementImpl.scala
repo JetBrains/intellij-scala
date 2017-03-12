@@ -74,7 +74,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }),
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
-          (Seq(m.getParameterList.getParameters.map { p =>
+          (Seq(m.parameters.map { p =>
             Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)
           }), false)
       }

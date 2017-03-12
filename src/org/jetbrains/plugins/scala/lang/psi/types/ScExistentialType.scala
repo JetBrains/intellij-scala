@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -42,7 +41,7 @@ case class ScExistentialType(quantified: ScType,
   override def removeAbstracts = ScExistentialType(quantified.removeAbstracts, 
     wildcards.map(_.withoutAbstracts))
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res
@@ -161,7 +160,7 @@ case class ScExistentialType(quantified: ScType,
   def wildcardsMap(): mutable.HashMap[ScExistentialArgument, Seq[ScType]] = {
     val res = mutable.HashMap.empty[ScExistentialArgument, Seq[ScType]]
     //todo: use recursiveVarianceUpdateModifiable?
-    def checkRecursive(tp: ScType, rejected: HashSet[String]) {
+    def checkRecursive(tp: ScType, rejected: Set[String]) {
       tp match {
         case JavaArrayType(argument) => checkRecursive(argument, rejected)
         case ScAbstractType(tpt, lower, upper) =>
@@ -217,17 +216,17 @@ case class ScExistentialType(quantified: ScType,
         case _ =>
       }
     }
-    checkRecursive(this, HashSet.empty)
+    checkRecursive(this, Set.empty)
     wildcards.foreach {
       case ScExistentialArgument(_, _, lower, upper) =>
-        checkRecursive(lower, HashSet.empty)
-        checkRecursive(upper, HashSet.empty)
+        checkRecursive(lower, Set.empty)
+        checkRecursive(upper, Set.empty)
     }
     res
   }
 
   //todo: use recursiveVarianceUpdateModifiable?
-  private def updateRecursive(tp: ScType, rejected: HashSet[String] = HashSet.empty, variance: Int = 1)
+  private def updateRecursive(tp: ScType, rejected: Set[String] = Set.empty, variance: Int = 1)
                              (implicit update: (Int, ScExistentialArgument, ScType) => ScType): ScType = {
     if (variance == 0) return tp //optimization
     tp match {
@@ -385,7 +384,7 @@ case class ScExistentialType(quantified: ScType,
       }
       res
     }
-    val res = updateRecursive(this, HashSet.empty, 1) {
+    val res = updateRecursive(this, Set.empty, 1) {
       case (variance, arg, tp) =>
         variance match {
           case 1 if !hasWildcards(arg.upper)=>
@@ -440,7 +439,7 @@ object ScExistentialType {
     ScExistentialType(ex, List(ex))
   }
 
-  def existingWildcards(tp: ScType): HashSet[String] = {
+  def existingWildcards(tp: ScType): Set[String] = {
     val existingWildcards = new mutable.HashSet[String]
     tp.recursiveUpdate({
       case ex: ScExistentialType =>
@@ -448,20 +447,20 @@ object ScExistentialType {
         (false, ex)
       case t => (false, t)
     })
-    HashSet[String](existingWildcards.toSeq: _*)
+    existingWildcards.toSet
   }
 
   @tailrec
-  def fixExistentialArgumentName(name: String, existingWildcards: HashSet[String]): String = {
+  def fixExistentialArgumentName(name: String, existingWildcards: Set[String]): String = {
     if (existingWildcards.contains(name)) {
       fixExistentialArgumentName(name + "$u", existingWildcards) //todo: fix it for name == "++"
     } else name
   }
 
-  def fixExistentialArgumentNames(tp: ScType, existingWildcards: HashSet[String]): ScType = {
+  def fixExistentialArgumentNames(tp: ScType, existingWildcards: Set[String]): ScType = {
     if (existingWildcards.isEmpty) tp
     else {
-      tp.recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+      tp.recursiveVarianceUpdateModifiable[Set[String]](Set.empty, {
         case (s: ScExistentialArgument, _, data) if !data.contains(s.name) =>
           val name = fixExistentialArgumentName(s.name, existingWildcards)
           (true, ScExistentialArgument(name, s.args, s.lower, s.upper), data)
@@ -477,11 +476,11 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
   extends NamedType with ValueType {
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
-  def recursiveUpdateNoUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScExistentialArgument = {
+  def recursiveUpdateNoUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScExistentialArgument = {
     ScExistentialArgument(name, args, lower.recursiveUpdate(update, visited), upper.recursiveUpdate(update, visited))
   }
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
+  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
     if (visited.contains(this)) {
       return update(this) match {
         case (true, res) => res

@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11, Scala_2_12}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -542,7 +542,7 @@ abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with As
 
 class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_12
+  override implicit val version: ScalaVersion = Scala_2_12
 
   def testFunctionSAM() {
     val code =
@@ -709,7 +709,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase {
 
 class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase {
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override implicit val version: ScalaVersion = Scala_2_11
 
   protected override def setUp() {
     super.setUp()

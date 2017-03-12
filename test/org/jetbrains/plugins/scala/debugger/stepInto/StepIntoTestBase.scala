@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.debugger.stepInto
 
 import com.intellij.debugger.settings.DebuggerSettings
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
+import org.jetbrains.plugins.scala.debugger._
 
 /**
  * @author Nikolay.Tropin
  */
 
-class StepIntoTest extends StepIntoTestBase with ScalaVersion_2_11 {
+class StepIntoTest extends StepIntoTestBase {
+  override implicit val version: ScalaVersion = Scala_2_11
+
   override def testPrivateMethodUsedInLambda(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -17,7 +19,9 @@ class StepIntoTest extends StepIntoTestBase with ScalaVersion_2_11 {
   }
 }
 
-class StepIntoTest_212 extends StepIntoTestBase with ScalaVersion_2_12
+class StepIntoTest_212 extends StepIntoTestBase {
+  override implicit val version: ScalaVersion = Scala_2_12
+}
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   def doStepInto(): Unit = {

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package lang.typeInference.generated
 
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion, Scala_2_11}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * @author Alefas
@@ -11,11 +11,7 @@ import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 class TypeInferenceNewExtractorsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "newExtractors/"
 
-  protected override def getDefaultScalaSDKVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
-
-  protected override def setUp() {
-    super.setUp()
-  }
+  override implicit val version: ScalaVersion = Scala_2_11
 
   def testUnapply() {doTest()}
   def testUnapply2() {doTest()}

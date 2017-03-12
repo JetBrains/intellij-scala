@@ -5,16 +5,17 @@ import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.testFramework.ModuleTestCase
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
-import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
+import org.jetbrains.plugins.scala.debugger._
+import org.jetbrains.plugins.scala.lang.libraryInjector.LibraryInjectorTest.InjectorLibraryLoader
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import org.junit.Assert.assertTrue
 import org.junit.experimental.categories.Category
 
@@ -22,11 +23,20 @@ import org.junit.experimental.categories.Category
   * Created by mucianm on 16.03.16.
   */
 @Category(Array(classOf[PerfCycleTests]))
-class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
+class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
-  private var librariesLoader: Option[CompositeLibrariesLoader] = None
+  override implicit val version: ScalaVersion = Scala_2_11
 
-  override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+  override implicit protected def project: Project = getProject
+
+  override implicit protected def module: Module = getModule
+
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
+    ScalaLibraryLoader(isIncludeReflectLibrary = true),
+    JdkLoader(getTestProjectJdk),
+    SourcesLoader(project.getBasePath),
+    InjectorLibraryLoader()
+  )
 
   override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
 
@@ -36,33 +46,15 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
     CompilerTestUtil.enableExternalCompiler()
     DebuggerTestUtil.enableCompileServer(true)
     DebuggerTestUtil.forceJdk8ForBuildProcess()
-  }
 
-  import LibraryInjectorTest._
-
-  override def setUpModule(): Unit = {
-    super.setUpModule()
-
-    implicit val project = getProject
-    implicit val module = getModule
-    implicit val version = scalaSdkVersion
-
-    librariesLoader = Some(CompositeLibrariesLoader(
-      ScalaLibraryLoader(isIncludeReflectLibrary = true),
-      JdkLoader(getTestProjectJdk),
-      SourcesLoader(project.getBasePath),
-      InjectorLibraryLoader()
-    ))
-    librariesLoader.foreach(_.init)
+    setUpLibraries()
   }
 
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(getProject)
     CompileServerLauncher.instance.stop()
 
-    librariesLoader.foreach(_.clean())
-    librariesLoader = None
-
+    tearDownLibraries()
     super.tearDown()
   }
 
@@ -81,7 +73,7 @@ object LibraryInjectorTest {
   case class InjectorLibraryLoader(implicit val module: Module) extends ThirdPartyLibraryLoader {
     override protected val name: String = "injector"
 
-    override protected def path(implicit sdkVersion: ScalaSdkVersion): String = {
+    override protected def path(implicit sdkVersion: ScalaVersion): String = {
       val tmpDir = ScalaUtil.createTmpDir("injectorTestLib")
       InjectorLibraryLoader.simpleInjector.zip(tmpDir).getAbsolutePath
     }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.base.libraryLoaders
 
-import org.jetbrains.plugins.scala.util.TestUtils.{ScalaSdkVersion, getIvyCachePath}
+import org.jetbrains.plugins.scala.debugger.ScalaVersion
+import org.jetbrains.plugins.scala.util.TestUtils.getIvyCachePath
 
 /**
   * @author adkozlov
@@ -13,12 +14,12 @@ trait IvyLibraryLoader extends LibraryLoader {
   protected val vendor: String
   protected val ivyType: IvyType = Jars
 
-  protected def path(implicit version: ScalaSdkVersion): String =
+  protected def path(implicit version: ScalaVersion): String =
     s"$getIvyCachePath/$vendor/$folder/$ivyType/$fileName.jar"
 
-  protected def folder(implicit version: ScalaSdkVersion): String
+  protected def folder(implicit version: ScalaVersion): String
 
-  protected def fileName(implicit version: ScalaSdkVersion): String
+  protected def fileName(implicit version: ScalaVersion): String
 }
 
 object IvyLibraryLoader {

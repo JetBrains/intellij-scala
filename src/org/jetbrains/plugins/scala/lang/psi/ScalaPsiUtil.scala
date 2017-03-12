@@ -673,9 +673,9 @@ object ScalaPsiUtil {
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
           case _ =>
-            tp.extractClassType(project) match {
-              case Some((obj: ScObject, _)) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
-              case Some((clazz, _)) if !visited.contains(clazz) =>
+            tp.extractClass(project) match {
+              case Some(obj: ScObject) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
+              case Some(clazz) if !visited.contains(clazz) =>
                 getCompanionModule(clazz) match {
                   case Some(obj: ScObject) =>
                     tp match {
@@ -1516,8 +1516,8 @@ object ScalaPsiUtil {
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(Parameter(_))
               case ResolvesTo(method: PsiMethod) =>
-                method.getParameterList.getParameters match {
-                  case Array(p) => Some(Parameter(p))
+                method.parameters match {
+                  case Seq(p) => Some(Parameter(p))
                   case _ => None
                 }
               case _ => None
@@ -1967,7 +1967,7 @@ object ScalaPsiUtil {
       else validConstructor && selfTypeCorrectIfScala212
     }
 
-    expected.extractClassType().flatMap {
+    expected.extractClassType(element.getProject).flatMap {
       case (templDef: ScTemplateDefinition, substitutor) =>
         if (!isSAMable(templDef)) None
         else {
@@ -2008,7 +2008,7 @@ object ScalaPsiUtil {
         else singleAbstract.map { method =>
           implicit val elementScope = ElementScope(method.getProject, scalaScope)
           val returnType = method.getReturnType
-          val parametersTypes = method.getParameterList.getParameters.map {
+          val parametersTypes = method.parameters.map {
             _.getTypeElement.getType
           }
 

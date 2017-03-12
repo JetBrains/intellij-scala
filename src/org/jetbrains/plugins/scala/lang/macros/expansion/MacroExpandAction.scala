@@ -17,6 +17,7 @@ import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteCommandAction}
@@ -45,8 +46,9 @@ class MacroExpandAction extends AnAction {
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument).asInstanceOf[ScalaFile]
     val offset = sourceEditor.getCaretModel.getOffset
-    val element = ScalaPsiUtil.getParentOfType(psiFile.findElementAt(offset), false, classOf[ScAnnotation]).asInstanceOf[ScAnnotation]
-    expandMetaAnnotation(element)
+    val annot = PsiTreeUtil.getParentOfType(psiFile.findElementAt(offset), classOf[ScAnnotation], false)
+    if (annot != null)
+      expandMetaAnnotation(annot)
     //    expandSerialized(e, sourceEditor, psiFile)
   }
 
@@ -233,8 +235,8 @@ class MacroExpandAction extends AnAction {
       module.scalaCompilerSettings.loadState(state)
 
       windowGroup.createNotification(
-          """Macro debugging options have been enabled for current module
-            |Please recompile the file to gather macro expansions""".stripMargin, NotificationType.INFORMATION)
+        """Macro debugging options have been enabled for current module
+          |Please recompile the file to gather macro expansions""".stripMargin, NotificationType.INFORMATION)
         .notify(e.getProject)
     }
   }

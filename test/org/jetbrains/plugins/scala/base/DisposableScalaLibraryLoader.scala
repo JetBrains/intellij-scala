@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil.findJdk8
-import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.debugger.ScalaVersion
 
 /** Special version of library loader whose lifecycle is managed automatically by IDEA disposer mechanism.
   *
@@ -19,7 +19,7 @@ class DisposableScalaLibraryLoader(implicit project: Project, module: Module)
 
   private val jdkLoader = JdkLoader(findJdk8())
 
-  override def init(implicit version: TestUtils.ScalaSdkVersion): Unit = {
+  override def init(implicit version: ScalaVersion): Unit = {
     super.init
     jdkLoader.init
   }

@@ -22,22 +22,34 @@ import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase
 
 /**
   * User: Dmitry Naydanov
  * Date: 1/28/14
  */
-class RemoteServerConnector(module: Module, worksheet: File, output: File, worksheetClassName: String)
-        extends RemoteServerConnectorBase(module: Module, worksheet: File, output: File) {
+class RemoteServerConnector(module: Module, worksheet: File, output: File, worksheetClassName: String, 
+  replArgs: Option[ReplModeArgs], needsCheck: Boolean) extends RemoteServerConnectorBase(module: Module, Seq(worksheet), output, needsCheck) {
 
-  val runType = WorksheetCompiler.getRunType(module.getProject)
+  val runType: WorksheetMakeType = WorksheetCompiler.getRunType(module.getProject)
 
+  /**
+    * Args (for running in compile server process only)
+    * 0. Compiled class name to execute 
+    * 1. Path to scala-plugin-runners.jar (needed to load MacroPrinter for types)
+    * 2. Output - path to temp file, where processed worksheet code is written
+    * 3. Output dir for compiled worksheet (i.e. for compiled temp file with processed code)
+    * 4. Original worksheet file path. Used as id of REPL session on compile server (iff REPL enabled)
+    * 5. Code chunk to interpret (iff REPL enabled)
+    * 6. "replenabled" - iff/if REPL mode enabled
+    */
   override val worksheetArgs: Array[String] =
-    if (runType != OutOfProcessServer)
-      Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
-    else Array.empty[String]
+    if (runType != OutOfProcessServer) {
+      val base = Array(worksheetClassName, runnersJar.getAbsolutePath, output.getAbsolutePath) ++ outputDirs
+      replArgs.map(ra => base ++ Array(ra.path, ra.codeChunk, "replenabled")).getOrElse(base)
+    } else Array.empty[String]
 
   def compileAndRun(callback: Runnable, originalFile: VirtualFile, consumer: OuterCompilerInterface): ExitCode = {
 
@@ -91,9 +103,8 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
     } 
   }
 
-  private def outputDirs = (ModuleRootManager.getInstance(module).getDependencies :+ module).map {
-    case m => CompilerPaths.getModuleOutputPath(m, false)
-  }
+  private def outputDirs = (ModuleRootManager.getInstance(module).getDependencies :+ module).map(
+    m => CompilerPaths.getModuleOutputPath(m, false))
 }
 
 object RemoteServerConnector {
@@ -167,7 +178,7 @@ object RemoteServerConnector {
     def trace(thr: Throwable)
   }
   
-  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: WorksheetEditorPrinter,
+  class CompilerInterfaceImpl(task: CompilerTask, worksheetPrinter: WorksheetEditorPrinterBase,
                               indicator: Option[ProgressIndicator], auto: Boolean = false) extends OuterCompilerInterface {
     override def progress(text: String, done: Option[Float]) {
       if (auto) return

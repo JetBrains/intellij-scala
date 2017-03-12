@@ -108,7 +108,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     val startPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x, visibleRectangle.y))
     val myStartOffset = editor.logicalPositionToOffset(startPosition)
     val endPosition = editor.xyToLogicalPosition(new Point(visibleRectangle.x + visibleRectangle.width, visibleRectangle.y + visibleRectangle.height))
-    val myEndOffset = editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0))
+    val myEndOffset = myStartOffset max editor.logicalPositionToOffset(new LogicalPosition(endPosition.line + 1, 0))
     new TextRange(myStartOffset, myEndOffset)
   }
 

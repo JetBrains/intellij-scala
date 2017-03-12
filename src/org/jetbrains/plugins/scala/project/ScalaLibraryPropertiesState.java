@@ -10,13 +10,17 @@ import java.util.Arrays;
  */
 public class ScalaLibraryPropertiesState {
   // We have to rely on the Java's enumeration for serialization
+  public PlatformProxy platform = null;
+
+  // We have to rely on the Java's enumeration for serialization
   public ScalaLanguageLevelProxy languageLevel = null;
 
   public ScalaLibraryPropertiesState() {
-    this(ScalaLanguageLevel.Default().proxy());
+    this(PlatformProxy.Scala, ScalaLanguageLevel.Default().proxy());
   }
 
-  public ScalaLibraryPropertiesState(ScalaLanguageLevelProxy languageLevel) {
+  public ScalaLibraryPropertiesState(PlatformProxy platform, ScalaLanguageLevelProxy languageLevel) {
+    this.platform = platform;
     this.languageLevel = languageLevel;
   }
 

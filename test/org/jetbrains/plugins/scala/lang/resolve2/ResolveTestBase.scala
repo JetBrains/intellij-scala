@@ -7,8 +7,6 @@ import junit.framework._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * Pavel.Fatin, 02.02.2010
@@ -35,13 +33,8 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
   var references: List[PsiReference] = List()
 
 
-  override def setUp() {
-    setUp(TestUtils.DEFAULT_SCALA_SDK_VERSION)
-  }
-
-
-  override def setUp(version: ScalaSdkVersion) {
-    super.setUp(version)
+  override def setUp(): Unit = {
+    super.setUp()
     configureReferences()
   }
 

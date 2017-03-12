@@ -5,23 +5,27 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.test._
+import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.concurrent.Future
 
 /**
- * @author Ksenia.Sautina
- * @since 5/17/12
- */
+  * @author Ksenia.Sautina
+  * @since 5/17/12
+  */
 
 class ScalaTestRunConfiguration(override val project: Project,
                                 override val configurationFactory: ConfigurationFactory,
                                 override val name: String)
-    extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
+  extends AbstractTestRunConfiguration(project, configurationFactory, name, TestConfigurationUtil.scalaTestConfigurationProducer) {
 
   override def suitePaths: List[String] = ScalaTestUtil.suitePaths
 
@@ -34,6 +38,22 @@ class ScalaTestRunConfiguration(override val project: Project,
   override def currentConfiguration: ScalaTestRunConfiguration = ScalaTestRunConfiguration.this
 
   protected[test] override def isInvalidSuite(clazz: PsiClass): Boolean = ScalaTestRunConfiguration.isInvalidSuite(clazz, getSuiteClass)
+
+  override def allowsSbtUiRun: Boolean = true
+
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Boolean] = {
+    val handler = SettingQueryHandler("testOptions", "Test", comm)
+    val parallelHandler = SettingQueryHandler("parallelExecution", "Test", comm)
+    for {
+      opts <- handler.getSettingValue()
+      optsSet <- if (!opts.contains("-oDU")) handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
+        else Future(true)
+      pOpts <- parallelHandler.getSettingValue()
+      pOptsSet <- if (!pOpts.contains("false")) parallelHandler.setSettingValue("false") else Future(true)
+    } yield optsSet && pOptsSet
+  }
+
+  override protected def sbtTestNameKey = " -- -t "
 }
 
 object ScalaTestRunConfiguration extends SuiteValidityChecker {
@@ -52,8 +72,8 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
         con match {
           case owner: ScModifierListOwner =>
             if (owner.hasModifierProperty(PsiModifier.PUBLIC)) {
-              val params = con.getParameterList.getParameters
-              val firstParam = params(0)
+              val params = con.parameters
+              val firstParam = params.head
               val psiManager = ScalaPsiManager.instance(project)
               val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map").orNull
               val mapClass = ScalaType.designator(mapPsiClass)

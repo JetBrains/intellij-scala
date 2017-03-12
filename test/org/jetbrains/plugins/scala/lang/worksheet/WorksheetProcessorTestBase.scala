@@ -9,9 +9,8 @@ import com.intellij.psi.{PsiDocumentManager, PsiFileFactory}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.ScalaFileType.WORKSHEET_EXTENSION
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ThirdPartyLibraryLoader}
-import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.debugger.{ScalaCompilerTestBase, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetSourceProcessor
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.junit.Assert.assertNotNull
@@ -24,7 +23,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
-    addLibraries()
+    setUpLibraries()
   }
 
   override protected def useCompileServer: Boolean = true
@@ -38,7 +37,7 @@ abstract class WorksheetProcessorTestBase extends ScalaCompilerTestBase {
     val psiFile = PsiFileFactory.getInstance(myProject).createFileFromText(defaultFileName(WORKSHEET_EXTENSION), ScalaLanguage.INSTANCE, text)
     val doc = PsiDocumentManager.getInstance(myProject).getDocument(psiFile)
 
-    WorksheetSourceProcessor.processInner(psiFile.asInstanceOf[ScalaFile], Option(doc), 0) match {
+    WorksheetSourceProcessor.processDefaultInner(psiFile.asInstanceOf[ScalaFile], Option(doc)) match {
       case Left((code, _)) =>
         val src = new File(getBaseDir.getCanonicalPath, "src")
         assert(src.exists(), "Cannot find src dir")
@@ -71,7 +70,7 @@ object WorksheetProcessorTestBase {
 
     import MacroPrinterLoader.CLASS_NAME
 
-    override def init(implicit version: TestUtils.ScalaSdkVersion): Unit = {
+    override def init(implicit version: ScalaVersion): Unit = {
       val printerClazz = classLoader.loadClass(CLASS_NAME)
       assertNotNull(s"Worksheet printer class $CLASS_NAME is null", printerClazz)
 
@@ -87,7 +86,7 @@ object WorksheetProcessorTestBase {
       LibraryLoader.storePointers()
     }
 
-    override protected def path(implicit version: TestUtils.ScalaSdkVersion): String =
+    override protected def path(implicit version: ScalaVersion): String =
       throw new UnsupportedOperationException
   }
 

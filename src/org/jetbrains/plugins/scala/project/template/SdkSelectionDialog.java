@@ -5,10 +5,8 @@ import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.intellij.util.ui.ListTableModel;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.extensions.package$;
-import org.jetbrains.plugins.scala.project.Versions$;
+import org.jetbrains.plugins.scala.project.Platform;
 import scala.Function0;
 import scala.Function1;
 import scala.Option;
@@ -35,29 +33,17 @@ public class SdkSelectionDialog extends JDialog {
     private TableView<SdkChoice> myTable;
 
     private final JComponent myParent;
-    private final Function0<List<SdkChoice>> myProvider;
-    private final ListTableModel<SdkChoice> myTableModel = getSdkTableModel();
+    private Function0<List<SdkChoice>> myProvider;
+    private final SdkTableModel myTableModel = new SdkTableModel();
+    private ScalaSdkDescriptor mySelectedSdk;
 
-    protected ListTableModel<SdkChoice> getSdkTableModel() {
-        return new SdkTableModel();
-    }
-
-    private SdkDescriptor mySelectedSdk;
-
-    public SdkSelectionDialog(JComponent parent,
-                              Function0<List<SdkChoice>> provider) {
-        this(parent, provider, true);
-    }
-
-    public SdkSelectionDialog(JComponent parent,
-                              Function0<List<SdkChoice>> provider,
-                              boolean canBrowse) {
+    public SdkSelectionDialog(JComponent parent, Function0<List<SdkChoice>> provider) {
         super((Window) parent.getTopLevelAncestor());
 
         myParent = parent;
         myProvider = provider;
 
-        setTitle(format("Select JAR's for the new %s SDK", getLanguageName()));
+        setTitle("Select JAR's for the new Scala SDK");
 
         setContentPane(contentPane);
         setModal(true);
@@ -73,7 +59,6 @@ public class SdkSelectionDialog extends JDialog {
                 onBrowse();
             }
         });
-        buttonBrowse.setVisible(canBrowse);
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
@@ -123,45 +108,23 @@ public class SdkSelectionDialog extends JDialog {
         return -1;
     }
 
-    protected void setDownloadButtonText(String text) {
-        buttonDownload.setText(text);
-    }
-
-    protected String getLanguageName() {
-        return "Scala";
-    }
-
     private void onDownload() {
-        String languageName = getLanguageName();
-        String[] scalaVersions = package$.MODULE$.withProgressSynchronously(
-                format("Fetching available %s versions", languageName), fetchVersions());
+        VersionDialog dialog = new VersionDialog(contentPane);
 
-        if (scalaVersions.length == 0) {
-            Messages.showErrorDialog(contentPane, "No versions available for download",
-                    format("Error Downloading %s %s", getLanguageName(), "libraries"));
-        }
-        else if (scalaVersions.length == 1) {
-            downloadVersionWithProgress(scalaVersions[0]);
-        }
-        else {
-            final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
-                    "Download (via SBT)", format("%s version:", languageName), scalaVersions);
-
-            if (dialog.showAndGet()) {
-                downloadVersionWithProgress(dialog.getSelectedValue());
-            }
+        if (dialog.showAndGet()) {
+            downloadVersionWithProgress(dialog.selectedPlatform(), dialog.selectedVersion());
         }
     }
 
-    private void downloadVersionWithProgress(String version) {
+    private void downloadVersionWithProgress(Platform platform, String version) {
         Try<BoxedUnit> result = package$.MODULE$.withProgressSynchronouslyTry(
-                format("Downloading %s %s (via SBT)", getLanguageName(), version),
-                downloadVersion(version));
+                format("Downloading %s %s", platform.name(), version),
+                downloadVersion(platform, version));
 
         if (result.isFailure()) {
             Throwable exception = ((Failure) result).exception();
             Messages.showErrorDialog(contentPane, exception.getMessage(),
-                    format("Error Downloading %s %s", getLanguageName(), version));
+                    format("Error Downloading %s %s", platform.name(), version));
             return;
         }
 
@@ -175,32 +138,23 @@ public class SdkSelectionDialog extends JDialog {
         }
     }
 
-    protected Function1<Function1<String, BoxedUnit>, BoxedUnit> downloadVersion(final String version) {
+    private Function1<Function1<String, BoxedUnit>, BoxedUnit> downloadVersion(final Platform platform, final String version) {
         return new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
             @Override
             public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
-                Downloader$.MODULE$.downloadScala(version, listener);
+                Downloader$.MODULE$.downloadScala(platform, version, listener);
                 return BoxedUnit.UNIT;
             }
         };
     }
 
     private void onBrowse() {
-        Option<SdkDescriptor> result = SdkSelection$.MODULE$.chooseScalaSdkFiles(myTable);
+        Option<ScalaSdkDescriptor> result = SdkSelection.chooseScalaSdkFiles(myTable);
 
         if (result.isDefined()) {
             mySelectedSdk = result.get();
             dispose();
         }
-    }
-
-    protected Function1<Function1<String, BoxedUnit>, String[]> fetchVersions() {
-        return new AbstractFunction1<Function1<String, BoxedUnit>, String[]>() {
-            @Override
-            public String[] apply(Function1<String, BoxedUnit> listener) {
-                return Versions$.MODULE$.loadScalaVersions();
-            }
-        };
     }
 
     private void onOK() {
@@ -215,7 +169,7 @@ public class SdkSelectionDialog extends JDialog {
         dispose();
     }
 
-    public SdkDescriptor open() {
+    public ScalaSdkDescriptor open() {
         pack();
         setLocationRelativeTo(myParent.getTopLevelAncestor());
         setVisible(true);

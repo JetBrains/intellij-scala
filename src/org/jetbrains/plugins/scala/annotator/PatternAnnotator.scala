@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -10,16 +10,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -61,7 +59,7 @@ object PatternAnnotator {
 
     val neverMatches = !PatternAnnotatorUtil.matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
-    def isEliminatedByErasure = (exprType.extractClass(), patType.extractClass()) match {
+    def isEliminatedByErasure = (exprType.extractClass(pattern.getProject), patType.extractClass()) match {
       case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
       case _ => false
     }
@@ -183,7 +181,7 @@ object PatternAnnotatorUtil {
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType)
                     (implicit typeSystem: TypeSystem): Boolean = {
-    def abstraction(scType: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
+    def abstraction(scType: ScType, visited: Set[ScType] = Set.empty): ScType = {
       if (visited.contains(scType)) {
         return scType
       }
@@ -196,8 +194,8 @@ object PatternAnnotatorUtil {
 
     object arrayType {
       def unapply(scType: ScType): Option[ScType] = scType match {
-        case ParameterizedType(ScDesignatorType(elem: ScClass), Seq(arg))
-          if elem.qualifiedName == "scala.Array" => Some(arg)
+        case ScalaArrayOf(arg) => Some(arg)
+        case JavaArrayType(arg) => Some(arg)
         case _ => None
       }
     }
@@ -217,7 +215,8 @@ object PatternAnnotatorUtil {
         case Some(srr) =>
           srr.getElement match {
             case fun: ScFunction if fun.parameters.count(!_.isImplicitParameter) == 1 =>
-              Some(srr.substitutor.subst(fun.paramTypes.head))
+              fun.parametersTypes.headOption
+                .map(srr.substitutor.subst)
             case _ => None
           }
         case None => None

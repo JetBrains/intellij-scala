@@ -4,6 +4,8 @@ package project.template
 import java.lang.Boolean
 
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.Version
 
 /**
  * @author Pavel Fatin
@@ -14,8 +16,14 @@ class SdkTableModel extends ListTableModel[SdkChoice](
 
     override def getPreferredStringValue = "Maven"
   },
+  new ColumnInfo[SdkChoice, String]("Platform") {
+    override def valueOf(item: SdkChoice): String = item.sdk.platform.name
+
+    override def getPreferredStringValue = "Scala"
+  },
   new ColumnInfo[SdkChoice, String]("Version") {
-    override def valueOf(item: SdkChoice): String = item.sdk.version.map(_.number).getOrElse("Unknown")
+    override def valueOf(item: SdkChoice): String =
+      item.sdk.version.map(_.presentation |> Version.abbreviate).getOrElse("Unknown")
 
     override def getPreferredStringValue = "2.11.0"
   },

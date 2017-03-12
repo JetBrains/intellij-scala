@@ -26,7 +26,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       companion, extendsList) => visitClass(c, name, primaryConstructor, bodyElements,
         modifiers, typeParams, initalizers, classType, companion, extendsList)
       case a@AnonymousClass(mType, args, body, extendsList) => visitAnonymousClass(a, mType, args, body, extendsList)
-      case e@Enum(name, modifiers, enumConstants: Seq[String]) => visitEnum(e, name, modifiers, enumConstants)
+      case e@Enum(name, modifiers, members) => visitEnum(e, name, modifiers, members)
       case ArrayAccess(expression, idxExpression) => visitArrayAccess(expression, idxExpression)
       case c@ClassCast(operand, castType, isPrimitive) => visitCastType(c, operand, castType, isPrimitive)
       case ArrayInitializer(expresions: Seq[IntermediateNode]) => visitArrayInitalizer(expresions)
@@ -86,6 +86,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case SwitchLabelStatement(caseValue, arrow) => visitSwitchLabelStatement(caseValue, arrow)
       case SynchronizedStatement(lock, body) => visitSynchronizedStatement(lock, body)
       case ExpressionListStatement(exprs) => visitExpressionListStatement(exprs)
+      case EnumConstruction(name) => visit(name)
       case NotSupported(n, msg) => visitNotSupported(n, msg)
       case EmptyConstruction() =>
     }
@@ -201,7 +202,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     printBodyWithCurlyBracketes(ac, () => printWithSeparator(body, " "))
   }
 
-  def visitEnum(e: Enum, name: IntermediateNode, modifiers: IntermediateNode, enumConstants: Seq[String]): Unit = {
+  def visitEnum(e: Enum, name: IntermediateNode, modifiers: IntermediateNode, members: Seq[IntermediateNode]): Unit = {
     visit(modifiers)
     printer.append("object ")
     visit(name)
@@ -212,15 +213,14 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       visit(name)
       printer.append(" = Value\n")
 
+      val enumConstants = members.collect { case el: EnumConstruction => el }
       if (enumConstants.nonEmpty) {
         printer.append("val ")
-        for (str <- enumConstants) {
-          printer.append(str)
-          printer.append(", ")
-        }
-        printer.delete(2)
+        printWithSeparator(enumConstants, ",")
         printer.append(" = Value\n")
       }
+
+      members.filter(!_.isInstanceOf[EnumConstruction]).foreach(visit)
     }
 
     printBodyWithCurlyBracketes(e, visitEnumBody)
@@ -432,7 +432,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
   }
 
   def visitMethod(modifiers: IntermediateNode, name: IntermediateNode, typeParams: Seq[IntermediateNode],
-                  params: Seq[IntermediateNode], body: Option[IntermediateNode], retType: IntermediateNode): Unit = {
+                  params: Seq[IntermediateNode], body: Option[IntermediateNode], retType: Option[IntermediateNode]): Unit = {
     visit(modifiers)
     printer.append("def ")
     visit(name)
@@ -441,16 +441,15 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       printWithSeparator(typeParams, ", ", "[", "]")
     }
 
+    printWithSeparator(params, ", ", "(", ")", params.nonEmpty || (retType.contains(TypeConstruction("Unit")) || retType.isEmpty))
 
-    printWithSeparator(params, ", ", "(", ")", params.nonEmpty || (params.isEmpty && retType == null))
-
-    if (retType != null) {
+    retType.foreach { rt =>
       printer.append(": ")
-      visit(retType)
+      visit(rt)
     }
 
     body.foreach { b =>
-      if (retType != null) printer.append(" = ")
+      if (retType.isDefined) printer.append(" = ")
       printBodyWithCurlyBracketes(b, () => visit(b))
     }
   }
@@ -515,20 +514,39 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
 
   def visitParameters(modifiers: IntermediateNode, name: IntermediateNode,
                       scCompType: IntermediateNode, isVar: Option[Boolean], isArray: Boolean): Any = {
+    def visitDisjunctionType(disjunctionTypeConstructions: DisjunctionTypeConstructions): Unit = {
+      visit(name)
+      printer.append("@(")
+
+      disjunctionTypeConstructions.parts.foreach { `type` =>
+        printer.append("_: ")
+        visit(`type`)
+        printer.append(" | ")
+      }
+
+      printer.delete(3)
+      printer.append(")")
+    }
+
     visit(modifiers)
     if (isVar.isDefined) {
       if (isVar.get) printer.append("var ")
       else printer.append("val ")
     }
-    visit(name)
 
-    if (!scCompType.isInstanceOf[EmptyConstruction]) {
-      printer.append(": ")
-      visit(scCompType)
-    }
+    scCompType match {
+      case disjuncit: DisjunctionTypeConstructions => visitDisjunctionType(disjuncit)
+      case _ =>
+        visit(name)
 
-    if (isArray) {
-      printer.append("*")
+        if (!scCompType.isInstanceOf[EmptyConstruction]) {
+          printer.append(": ")
+          visit(scCompType)
+        }
+
+        if (isArray) {
+          printer.append("*")
+        }
     }
   }
 
@@ -623,15 +641,15 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       printer.append(")")
       printer.space()
       printBodyWithCurlyBracketes(w, () => {
-              body.foreach { b =>
-                printBodyWithCurlyBracketes(b, () => visit(b))
-              }
+        body.foreach { b =>
+          visit(b)
+        }
 
-              update.foreach { u =>
-                printer.newLine()
-                printBodyWithCurlyBracketes(u, () => visit(u))
-              }
-            })
+        update.foreach { u =>
+          printer.newLine()
+          visit(u)
+        }
+      })
     }
 
     initialization.foreach { i =>
@@ -657,11 +675,12 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     }
 
     if (catchStatements.nonEmpty) {
-      printer.append("\ncatch {\n")
+      printer.append(" catch {\n")
       catchStatements.foreach { case (parameter, block) =>
         printer.append("case ")
         visit(parameter)
         printer.append(s" $arrow ")
+        printer.newLine()
         visit(block)
       }
       printer.append("}")
@@ -697,9 +716,11 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
   }
 
   def visitSwitchStatement(expession: Option[IntermediateNode], body: Option[IntermediateNode]): Unit = {
-    if (expession.isDefined) visit(expession.get)
+    expession.foreach(visit)
     printer.append(" match ")
-    if (body.isDefined) visit(body.get)
+    body.foreach { b =>
+      printBodyWithCurlyBracketes(b, () => visit(b))
+    }
   }
 
   def visitSwitchLabelStatement(caseValue: Option[IntermediateNode], arrow: String): PrettyPrinter = {

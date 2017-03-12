@@ -3,28 +3,16 @@ package project.template
 
 import javax.swing.JComponent
 
-import com.intellij.openapi.fileChooser.{FileChooser, FileChooserDescriptor}
+import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VfsUtilCore
 
 /**
  * @author Pavel Fatin
  */
-object SdkSelection extends SdkSelection {
-  override protected val SdkDescriptor = ScalaSdkDescriptor
-
-  override protected def filesChooserDescriptor = new ScalaFilesChooserDescriptor
-
-  def chooseScalaSdkFiles(parentComponent: JComponent): Option[SdkDescriptor] = chooseSdkFiles(parentComponent)
-}
-
-trait SdkSelection {
-  protected val SdkDescriptor: SdkDescriptorCompanion
-
-  protected def filesChooserDescriptor: FileChooserDescriptor
-
-  protected def chooseSdkFiles(parentComponent: JComponent): Option[SdkDescriptor] = {
-    browse(parentComponent).flatMap {
+object SdkSelection {
+  def chooseScalaSdkFiles(parentComponent: JComponent): Option[ScalaSdkDescriptor] = {
+    SdkSelection.browse(parentComponent).flatMap {
       case Left(message) =>
         Messages.showErrorDialog(parentComponent, message)
         None
@@ -32,15 +20,15 @@ trait SdkSelection {
     }
   }
 
-  protected def browse(parent: JComponent): Option[Either[String, SdkDescriptor]] = {
-    val virtualFiles = FileChooser.chooseFiles(filesChooserDescriptor, parent, null, null).toSeq
+  def browse(parent: JComponent): Option[Either[String, ScalaSdkDescriptor]] = {
+    val virtualFiles = FileChooser.chooseFiles(new ScalaFilesChooserDescriptor(), parent, null, null).toSeq
 
     val files = virtualFiles.map(VfsUtilCore.virtualToIoFile)
 
     val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
 
-    val components = Component.discoverIn(allFiles)
+    val components = Component.discoverIn(allFiles, Artifact.ScalaArtifacts)
 
-    if (files.nonEmpty) Some(SdkDescriptor.from(components)) else None
+    if (files.nonEmpty) Some(ScalaSdkDescriptor.from(components)) else None
   }
 }

@@ -6,6 +6,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.PsiErrorElementImpl
+import com.intellij.util.Base64
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -14,11 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTupleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
+import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -34,6 +38,8 @@ object WorksheetSourceProcessor {
   val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */ "
 
   val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
+  
+  val REPL_DELIMITER = "\n$\n$\n"
 
   private val PRINT_ARRAY_NAME = "print$$$Worksheet$$$Array$$$"
   private val runPrinterName = "worksheet$$run$$printer"
@@ -69,13 +75,28 @@ object WorksheetSourceProcessor {
   /**
     * @return (Code, Main class name)
     */
-  def process(srcFile: ScalaFile, ifEditor: Option[Editor], iNum: Int): Either[(String, String), PsiErrorElement] = 
-    processInner(srcFile, ifEditor.map(_.getDocument), iNum)
+  def process(srcFile: ScalaFile, ifEditor: Option[Editor], iNum: Int, isRepl: Boolean = false): Either[(String, String), PsiErrorElement] = 
+    if (!isRepl) processDefaultInner(srcFile, ifEditor.map(_.getDocument), iNum) else processIncrementalInner(srcFile, ifEditor)
+  
+  
+  def processIncrementalInner(srcFile: ScalaFile, ifEditor: Option[Editor]): Either[(String, String), PsiErrorElement] = {
+    val allExprs = mutable.ListBuffer[String]()
+    val lastProcessed = ifEditor.flatMap(
+      e => WorksheetCache.getInstance(srcFile.getProject).getLastProcessedIncremental(e))
+    if (lastProcessed.isEmpty) allExprs += ":reset"
+
+    new WorksheetInterpretExprsIterator(srcFile, ifEditor, lastProcessed).collectAll(
+      psi => allExprs += psi.getText, Some(e => return Right(e)))
+    
+    if (allExprs.isEmpty) return Right(new PsiErrorElementImpl("No available expressions"))
+    
+    Left((Base64.encode((allExprs mkString REPL_DELIMITER).getBytes), ""))
+  }
   
   /**
    * @return (Code, Main class name)
    */
-  def processInner(srcFile: ScalaFile, ifDoc: Option[Document], iterNumber: Int = 0): Either[(String, String), PsiErrorElement] = {
+  def processDefaultInner(srcFile: ScalaFile, ifDoc: Option[Document], iterNumber: Int = 0): Either[(String, String), PsiErrorElement] = {
     if (!srcFile.isWorksheetFile) return Right(null)
     
     val name = s"A$$A$iterNumber"
@@ -100,7 +121,7 @@ object WorksheetSourceProcessor {
     } getOrElse dflt
 
     val macroPrinterName = withCompilerVersion("MacroPrinter210", "MacroPrinter211", "", "MacroPrinter")
-    val classPrologue = name // s"$name ${if (iterNumber > 0) s"extends A${iterNumber - 1}" }" //todo disabled until I implement incremental code generation
+    val classPrologue = name
     val objectPrologue = s"$packStmt ${if (project.hasDotty) "" else s" import _root_.org.jetbrains.plugins.scala.worksheet.$macroPrinterName\n\n"} object $name { \n"
 
     val classRes = new StringBuilder(s"final class $classPrologue { \n")
@@ -148,7 +169,7 @@ object WorksheetSourceProcessor {
 
     @tailrec
     def isObjectOk(psi: PsiElement): Boolean = psi match {
-      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment  => isObjectOk(psi.getNextSibling)
+      case _: ScImportStmt | _: PsiWhiteSpace | _: PsiComment | _: ScPackaging => isObjectOk(psi.getNextSibling)
       case obj: ScObject => obj.extendsBlock.templateParents.isEmpty && isObjectOk(obj.getNextSibling)//isOk(psi.getNextSibling) - for compatibility with Eclipse. Its worksheet proceeds with expressions inside first object found
       case _: PsiClass if isEclipseMode => isObjectOk(psi.getNextSibling)
       case null => true
@@ -394,7 +415,7 @@ object WorksheetSourceProcessor {
       resCount += 1
     }
 
-    protected def processWhiteSpace(ws: PsiWhiteSpace) {
+    protected def processWhiteSpace(ws: PsiElement) {
       val count = countNls(ws.getText)
       for (_ <- 1 until count) objectBuilder append getPrintMethodName append "()\n"
     }
@@ -424,6 +445,7 @@ object WorksheetSourceProcessor {
         case comment: PsiComment => 
           processComment(comment)
           appendCommentToClass(comment)
+        case pack: ScPackaging => processWhiteSpace(pack)
         case otherExpr: ScExpression => processOtherExpr(otherExpr)
         case ws: PsiWhiteSpace => processWhiteSpace(ws)
         case error: PsiErrorElement => return Right(error)

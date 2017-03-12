@@ -7,27 +7,27 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaLibraryLoader.{ScalaCompilerLoader, ScalaLibraryLoaderAdapter, ScalaReflectLoader, ScalaRuntimeLoader}
-import org.jetbrains.plugins.scala.debugger.ScalaVersion_2_10
-import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+import org.jetbrains.plugins.scala.debugger.{ScalaSdkOwner, ScalaVersion, Scala_2_10}
+import org.jetbrains.sbt.MockSbt._
 
 /**
   * @author Nikolay Obedin
   * @since 7/27/15.
   */
-trait MockSbt extends ScalaVersion_2_10 {
+trait MockSbt extends ScalaSdkOwner {
 
   implicit val sbtVersion: String
 
-  protected def addSbtLibrary(implicit module: Module): Unit = {
-    import MockSbt._
+  override implicit val version: ScalaVersion = Scala_2_10
 
-    val loaders = Seq(ScalaCompilerLoader(), ScalaRuntimeLoader(), ScalaReflectLoader(),
-      SbtCollectionsLoader(), SbtInterfaceLoader(), SbtIOLoader(), SbtIvyLoader(), SbtLoggingLoader(),
-      SbtMainLoader(), SbtMainSettingsLoader(), SbtProcessLoader(), SbtLoader())
+  override protected def librariesLoaders: Seq[ScalaLibraryLoaderAdapter] = Seq(
+    ScalaCompilerLoader(), ScalaRuntimeLoader(), ScalaReflectLoader(),
+    SbtCollectionsLoader(), SbtInterfaceLoader(), SbtIOLoader(), SbtIvyLoader(), SbtLoggingLoader(),
+    SbtMainLoader(), SbtMainSettingsLoader(), SbtProcessLoader(), SbtLoader()
+  )
 
-    implicit val version = scalaSdkVersion
-
-    val classPath = loaders.map(urlForLibraryRoot)
+  override protected def setUpLibraries(): Unit = {
+    val classPath = librariesLoaders.map(MockSbt.urlForLibraryRoot)
 
     import scala.collection.JavaConversions._
     ModuleRootModificationUtil.addModuleLibrary(module, "sbt", classPath, Seq.empty[String])
@@ -39,7 +39,7 @@ trait MockSbt extends ScalaVersion_2_10 {
 object MockSbt {
 
   private def urlForLibraryRoot(loader: ScalaLibraryLoaderAdapter)
-                               (implicit version: ScalaSdkVersion): String = {
+                               (implicit version: ScalaVersion): String = {
     val file = new File(loader.path)
     VfsUtil.getUrlForLibraryRoot(file)
   }
@@ -47,7 +47,7 @@ object MockSbt {
   private abstract class SbtBaseLoader(implicit val version: String, val module: Module) extends ScalaLibraryLoaderAdapter {
     override protected val vendor: String = "org.scala-sbt"
 
-    override protected def fileName(implicit version: ScalaSdkVersion): String =
+    override protected def fileName(implicit version: ScalaVersion): String =
       s"$name-${this.version}"
   }
 

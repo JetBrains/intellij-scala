@@ -6,6 +6,7 @@ import java.io.File
 import com.intellij.ide.startup.impl.StartupManagerImpl
 import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.startup.StartupManager
@@ -14,7 +15,7 @@ import com.intellij.psi.PsiManager
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.annotator.{Error, _}
-import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
@@ -31,12 +32,25 @@ import scala.collection.JavaConverters._
 
 abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
 
+  override implicit protected def project: Project = getProject
+
+  override implicit protected lazy val module: Module = inWriteAction {
+    val moduleName = getModule.getName + Sbt.BuildModuleSuffix + ".iml"
+    val module = ModuleManager.getInstance(project).newModule(moduleName, SbtModuleType.instance.getId)
+    ModuleRootModificationUtil.setModuleSdk(module, getTestProjectJdk)
+    module
+  }
+
   override protected def setUp(): Unit = {
     super.setUp()
-    addSbtLibrary(createBuildModule())
+    setUpLibraries()
     addTestFileToModuleSources()
     setUpProjectSettings()
-    inWriteAction(StartupManager.getInstance(getProject).asInstanceOf[StartupManagerImpl].startCacheUpdate())
+    inWriteAction {
+      StartupManager.getInstance(getProject) match {
+        case manager: StartupManagerImpl => manager.startCacheUpdate()
+      }
+    }
   }
 
   override def loadTestFile(): SbtFileImpl = {
@@ -68,13 +82,6 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
     val annotator = new SbtAnnotator
     annotator.annotate(file, mock)
     mock.annotations
-  }
-
-  private def createBuildModule(): Module = inWriteAction {
-    val moduleName = getModule.getName + Sbt.BuildModuleSuffix + ".iml"
-    val module = ModuleManager.getInstance(getProject).newModule(moduleName, SbtModuleType.instance.getId)
-    ModuleRootModificationUtil.setModuleSdk(module, getTestProjectJdk)
-    module
   }
 
   private def setUpProjectSettings(): Unit = {

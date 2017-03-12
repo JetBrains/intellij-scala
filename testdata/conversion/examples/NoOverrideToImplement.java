@@ -6,7 +6,7 @@ class Test implements Runnable {
 }
 /*
 class Test extends Runnable {
-  def run() {
+  def run(): Unit = {
     System.out.println("lallala")
   }
 }
