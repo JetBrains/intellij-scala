@@ -17,18 +17,8 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
 
   override def removeAbstracts = JavaArrayType(argument.removeAbstracts)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType),
-                               visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    update(this) match {
-      case (true, res) => res
-      case _ => JavaArrayType(argument.recursiveUpdate(update, visited + this))
-    }
+  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): JavaArrayType = {
+    JavaArrayType(argument.recursiveUpdate(update, visited))
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T,

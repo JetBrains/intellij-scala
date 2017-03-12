@@ -109,21 +109,12 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)),
     isImplicit)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    val newVisited = visited + this
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        ScMethodType(returnType.recursiveUpdate(update, newVisited),
-          params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update, newVisited))),
-          isImplicit)
-    }
+  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ScMethodType = {
+    ScMethodType(
+      returnType.recursiveUpdate(update, visited),
+      params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update, visited))),
+      isImplicit
+    )
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
@@ -259,29 +250,16 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           psiTypeParameter)
     })
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    val newVisited = visited + this
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        def innerUpdate(`type`: ScType) =
-          `type`.recursiveUpdate(update, newVisited)
-
-        ScTypePolymorphicType(innerUpdate(internalType),
-          typeParameters.map {
-            case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
-              TypeParameter(parameters, // TODO: ?
-                Suspension(innerUpdate(lowerType.v)),
-                Suspension(innerUpdate(upperType.v)),
-                psiTypeParameter)
-          })
-    }
+  override def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
+    ScTypePolymorphicType(
+      internalType.recursiveUpdate(update, visited),
+      typeParameters.map {
+        case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
+          TypeParameter(parameters, // TODO: ?
+            Suspension(lowerType.v.recursiveUpdate(update, visited)),
+            Suspension(upperType.v.recursiveUpdate(update, visited)),
+            psiTypeParameter)
+      })
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),

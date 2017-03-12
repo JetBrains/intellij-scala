@@ -93,18 +93,8 @@ class ScProjectionType private(val projected: ScType,
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        ScProjectionType(projected.recursiveUpdate(update, visited + this), element, superReference)
-    }
+  override def updateSubtypes(update: (ScType) => (Boolean, ScType), visited: Set[ScType]): ScType = {
+    ScProjectionType(projected.recursiveUpdate(update, visited), element, superReference)
   }
 
   override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),

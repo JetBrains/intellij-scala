@@ -77,11 +77,15 @@ trait ScType {
    *
    * default implementation for types, which don't contain other types.
    */
-  def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType] = Set.empty): ScType = {
-    val res = update(this)
-    if (res._1) res._2
-    else this
+  final def recursiveUpdate(update: ScType => (Boolean, ScType), visited: Set[ScType] = Set.empty): ScType = {
+    update(this) match {
+      case (true, res) => res
+      case _ if visited.contains(this) => this
+      case _ => updateSubtypes(update, visited + this)
+    }
   }
+
+  def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScType = this
 
   def recursiveVarianceUpdate(update: (ScType, Int) => (Boolean, ScType), variance: Int = 1): ScType = {
     recursiveVarianceUpdateModifiable[Unit]((), (tp, v, _) => {
@@ -92,9 +96,10 @@ trait ScType {
 
   def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
                                            variance: Int = 1): ScType = {
-    val res = update(this, variance, data)
-    if (res._1) res._2
-    else this
+    update(this, variance, data) match {
+      case (true, res, _) => res
+      case _ => this
+    }
   }
 
   def visitType(visitor: TypeVisitor)
