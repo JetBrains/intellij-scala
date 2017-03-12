@@ -9,9 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldE
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
-import scala.annotation.tailrec
+import scala.util.control.NoStackTrace
 /**
   * @author adkozlov
   */
@@ -90,22 +91,30 @@ package object types {
         .extractFrom(scType).map(_._1)
     }
 
-    @tailrec
-    final def removeAliasDefinitions(visited: Set[ScType] = Set.empty, expandableOnly: Boolean = false): ScType = {
-      if (visited.contains(scType)) {
-        return scType
-      }
+    def removeAliasDefinitions(expandableOnly: Boolean = false): ScType = {
+      def needExpand(ta: ScTypeAliasDefinition) = !expandableOnly || shouldExpand(ta)
 
-      var updated = false
-      val result = scType.recursiveUpdate {
-        `type` => `type`.isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, _, upper)) if !expandableOnly || shouldExpand(ta) =>
-            updated = true
-            (true, upper.getOrAny)
-          case _ => (false, `type`)
+      def innerUpdate(tp: ScType, visited: Set[ScType]): ScType = {
+        tp.recursiveUpdate {
+          `type` => `type`.isAliasType match {
+            case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_, _))) if needExpand(ta) =>
+              (true, Any)
+            case Some(AliasType(ta: ScTypeAliasDefinition, _, Success(upper, _))) if needExpand(ta) =>
+              if (visited.contains(`type`)) throw RecursionException
+              val updated =
+                try innerUpdate(upper, visited + `type`)
+                catch {
+                  case RecursionException =>
+                    if (visited.nonEmpty) throw RecursionException
+                    else `type`
+                }
+              (true, updated)
+            case _ => (false, `type`)
+          }
         }
       }
-      if (updated) result.removeAliasDefinitions(visited + scType, expandableOnly) else scType
+
+      innerUpdate(scType, Set.empty)
     }
 
     def extractDesignatorSingleton: Option[ScType] = scType match {
@@ -202,4 +211,5 @@ package object types {
     override val expandAliases: Boolean = true
   }
 
+  private object RecursionException extends NoStackTrace
 }
