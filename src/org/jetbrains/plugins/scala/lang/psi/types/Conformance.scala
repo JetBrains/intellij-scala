@@ -283,8 +283,8 @@ object Conformance extends api.Conformance {
             result = (false, undefinedSubst)
             return
           }
-          l.extractDesignated(withoutAliases = false) match {
-            case Some((el, _)) =>
+          l.extractDesignated(expandAliases = false) match {
+            case Some(el) =>
               val flag = el.elementScope.getCachedClass("scala.NotNull")
                 .map {
                   ScDesignatorType(_)
@@ -912,8 +912,8 @@ object Conformance extends api.Conformance {
           result = (false, undefinedSubst)
           return
         }
-        des1.extractDesignated(withoutAliases = true) match {
-          case Some((ownerDesignator, _)) =>
+        des1.extractDesignated(expandAliases = true) match {
+          case Some(ownerDesignator) =>
             val parametersIterator = ownerDesignator match {
               case td: ScTypeParametersOwner => td.typeParameters.iterator
               case ownerDesignator: PsiTypeParameterListOwner => ownerDesignator.getTypeParameters.iterator

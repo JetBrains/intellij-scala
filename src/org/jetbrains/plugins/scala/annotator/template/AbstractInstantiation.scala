@@ -22,13 +22,12 @@ object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
 
     if(!newObject || hasEarlyBody || hasBody) return
 
-    val refs = definition.refs
+    val refs = AnnotatorPart.superRefs(definition)
 
-    if (refs.isEmpty) return
-    if (refs.tail.nonEmpty) return
+    if (refs.size != 1) return
 
     refs.headOption.foreach {
-      case (refElement, Some((psiClass, _))) if isAbstract(psiClass) =>
+      case (refElement, Some(psiClass)) if isAbstract(psiClass) =>
         holder.createErrorAnnotation(refElement,
           "%s %s is abstract; cannot be instantiated".format(kindOf(psiClass), psiClass.name))
       case _ =>

@@ -224,7 +224,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
             if (visitedTypeParameter.contains(tpt)) return true
             processType(p.substitutor.subst(upper.v), place,
               state.put(ScSubstitutor.key, ScSubstitutor(p)), visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter + tpt)
-          case _ => p.extractDesignated(withoutAliases = false) match {
+          case _ => p.extractDesignatedType(expandAliases = false) match {
             case Some((designator, subst)) =>
               processElement(designator, subst, place, state, visitedProjections = visitedProjections, visitedTypeParameter = visitedTypeParameter)
             case None => true

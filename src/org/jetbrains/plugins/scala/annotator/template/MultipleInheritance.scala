@@ -16,8 +16,7 @@ object MultipleInheritance extends AnnotatorPart[ScTemplateDefinition] {
   def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
 
   def annotate(definition: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean) {
-    definition.refs.map{case (s: ScTypeElement, o: Option[(PsiClass, ScSubstitutor)]) => (s, o.map(_._1))}.
-      groupBy(_._2).foreach {
+    AnnotatorPart.superRefs(definition).groupBy(_._2).foreach {
       case (Some(psiClass), entries) if isMixable(psiClass) && entries.size > 1 =>
         entries.map(_._1).foreach { refElement =>
           holder.createErrorAnnotation(refElement,

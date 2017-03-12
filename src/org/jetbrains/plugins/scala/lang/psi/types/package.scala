@@ -66,20 +66,28 @@ package object types {
       * Returns named element associated with type.
       * If withoutAliases is true expands alias definitions first
       *
-      * @param withoutAliases need to expand alias or not
+      * @param expandAliases need to expand alias or not
       * @return element and substitutor
       */
-    def extractDesignated(implicit withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
-      new DesignatorExtractor(withoutAliases).extractFrom(scType)
+    def extractDesignatedType(expandAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
+      new DesignatorExtractor(expandAliases, needSubstitutor = true)
+        .extractFrom(scType)
     }
 
-    def extractClass(project: Project = null): Option[PsiClass] = {
-      extractClassType(project).map(_._1)
+    def extractDesignated(expandAliases: Boolean): Option[PsiNamedElement] = {
+      new DesignatorExtractor(expandAliases, needSubstitutor = false)
+        .extractFrom(scType).map(_._1)
     }
 
     def extractClassType(project: Project = null,
                          visitedAlias: Set[ScTypeAlias] = Set.empty): Option[(PsiClass, ScSubstitutor)] = {
-      new ClassTypeExtractor(project).extractFrom(scType)
+      new ClassTypeExtractor(project, needSubstitutor = true)
+        .extractFrom(scType)
+    }
+
+    def extractClass(project: Project = null): Option[PsiClass] = {
+      new ClassTypeExtractor(project, needSubstitutor = false)
+        .extractFrom(scType).map(_._1)
     }
 
     @tailrec
@@ -119,63 +127,70 @@ package object types {
   }
 
   private trait Extractor[T <: PsiNamedElement] {
-    def isAppropriate(named: PsiNamedElement, subst: ScSubstitutor): Option[(T, ScSubstitutor)]
+    def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(T, ScSubstitutor)]
     def expandAliases: Boolean
     def project: Project
+    def needSubstitutor: Boolean
 
     def extractFrom(scType: ScType,
                     visitedAliases: Set[ScTypeAliasDefinition] = Set.empty): Option[(T, ScSubstitutor)] = {
 
-      def expandAlias(definition: ScTypeAliasDefinition) = expandAliases && !visitedAliases(definition)
+      def needExpand(definition: ScTypeAliasDefinition) = expandAliases && !visitedAliases(definition)
 
       scType match {
         case nonValueType: NonValueType =>
           extractFrom(nonValueType.inferValueType, visitedAliases)
-        case thisType: ScThisType => isAppropriate(thisType.element, ScSubstitutor(thisType))
+        case thisType: ScThisType => filter(thisType.element, ScSubstitutor(thisType))
         case projType: ScProjectionType =>
           val actualSubst = projType.actualSubst
           val actualElement = projType.actualElement
           actualElement match {
-            case definition: ScTypeAliasDefinition if expandAlias(definition) =>
-              definition.aliasedType.toOption.flatMap { tp =>
-                extractFrom(actualSubst.subst(tp), visitedAliases + definition)
+            case definition: ScTypeAliasDefinition if needExpand(definition) =>
+              definition.aliasedType.toOption match {
+                case Some(ParameterizedType(des, _)) if !needSubstitutor =>
+                  extractFrom(actualSubst.subst(des), visitedAliases + definition)
+                case Some(tp) =>
+                  extractFrom(actualSubst.subst(tp), visitedAliases + definition)
+                case _ => None
               }
-            case _ => isAppropriate(actualElement, actualSubst)
+            case _ => filter(actualElement, actualSubst)
           }
         case designatorOwner: DesignatorOwner =>
           designatorOwner.element match {
-            case definition: ScTypeAliasDefinition if expandAlias(definition) =>
+            case definition: ScTypeAliasDefinition if needExpand(definition) =>
               definition.aliasedType.toOption.flatMap {
                 extractFrom(_, visitedAliases + definition)
               }
-            case elem => isAppropriate(elem, ScSubstitutor.empty)
+            case elem => filter(elem, ScSubstitutor.empty)
           }
         case parameterizedType: ParameterizedType =>
           extractFrom(parameterizedType.designator, visitedAliases).map {
-            case (element, substitutor) => (element, substitutor.followed(parameterizedType.substitutor))
+            case (element, substitutor) =>
+              val withFollower = if (needSubstitutor) substitutor.followed(parameterizedType.substitutor) else ScSubstitutor.empty
+              (element, withFollower)
           }
         case stdType: StdType =>
           stdType.asClass(project).flatMap {
-            isAppropriate(_, ScSubstitutor.empty)
+            filter(_, ScSubstitutor.empty)
           }
         case ScExistentialType(quantified, _) =>
           extractFrom(quantified, visitedAliases)
         case TypeParameterType(_, _, _, psiTypeParameter) =>
-          isAppropriate(psiTypeParameter, ScSubstitutor.empty)
+          filter(psiTypeParameter, ScSubstitutor.empty)
         case _ => None
       }
     }
   }
 
-  private class DesignatorExtractor(override val expandAliases: Boolean) extends Extractor[PsiNamedElement] {
-    override def isAppropriate(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiNamedElement, ScSubstitutor)] =
+  private class DesignatorExtractor(override val expandAliases: Boolean, override val needSubstitutor: Boolean) extends Extractor[PsiNamedElement] {
+    override def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiNamedElement, ScSubstitutor)] =
       Some(named, subst)
 
     override def project: Project = DecompilerUtil.obtainProject
   }
 
-  private class ClassTypeExtractor(givenProject: Project) extends Extractor[PsiClass] {
-    override def isAppropriate(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiClass, ScSubstitutor)] =
+  private class ClassTypeExtractor(givenProject: Project, override val needSubstitutor: Boolean) extends Extractor[PsiClass] {
+    override def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiClass, ScSubstitutor)] =
       named match {
         case _: PsiTypeParameter => None
         case c: PsiClass => Some(c, subst)

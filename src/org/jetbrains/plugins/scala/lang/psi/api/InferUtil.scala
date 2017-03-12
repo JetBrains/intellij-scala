@@ -489,13 +489,7 @@ object InferUtil {
                               case _ => false
                             }
                           }
-                          tp.extractDesignated(withoutAliases = false) match {
-                            case Some((named, _)) => checkNamed(named, typeParams)
-                            case _ => tp match {
-                              case tpt: TypeParameterType => checkNamed(tpt.psiTypeParameter, typeParams)
-                              case _ => false
-                            }
-                          }
+                          tp.extractDesignated(expandAliases = false).exists(checkNamed(_, typeParams))
                       }
                     }
                     tp.psiTypeParameter match {

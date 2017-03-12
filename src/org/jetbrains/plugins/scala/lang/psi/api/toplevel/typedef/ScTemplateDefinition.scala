@@ -60,15 +60,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     getLastChild.asInstanceOf[ScExtendsBlock]
   }
 
-  def refs: Seq[(ScTypeElement, Option[(PsiClass, ScSubstitutor)])] = {
-    extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
-      val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap {
-        _.extractClassType(getProject)
-      }
-      (refElement, tuple)
-    }
-  }
-
   def innerExtendsListTypes: Array[PsiClassType] = {
     val eb = extendsBlock
     if (eb != null) {
