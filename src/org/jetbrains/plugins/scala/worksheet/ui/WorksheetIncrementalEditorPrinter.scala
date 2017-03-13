@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.ui
 
+import java.util.regex.Pattern
+
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
@@ -25,8 +27,10 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   private var currentFile = file
   
   private var hasErrors = false
+  private var hasMessages = false
 
   private val outputBuffer = new StringBuilder
+  private val messagesBuffer = new StringBuilder
   private val psiToProcess = mutable.Queue[PsiElement]()
   
   private val inputToOutputMapping = mutable.ListBuffer[(Int, Int)]()
@@ -74,12 +78,14 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   
   private def countNewLines(str: String) = StringUtil countNewLines str
   
-  private def clearErrors() {
+  private def clearMessages() {
+    hasMessages = false
     hasErrors = false
   }
   
   private def clearBuffer() {
     outputBuffer.clear()
+    messagesBuffer.clear()
   }
   
   override def getScalaFile: ScalaFile = currentFile
@@ -89,7 +95,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
       case REPL_START => 
         fetchNewPsi()
         if (lastProcessed.isEmpty) cleanFoldings()
-        clearErrors()
+        clearMessages()
         clearBuffer()
         false
       case REPL_LAST_CHUNK_PROCESSED => 
@@ -97,21 +103,24 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
         refreshLastMarker()
         true
       case REPL_CHUNK_END => 
-        if (hasErrors) {
-          refreshLastMarker()
-          processError()
-        } else flushBuffer()
+        if (hasErrors) refreshLastMarker() 
+        flushBuffer()
+
         hasErrors
-      case ReplError(info) => 
-        outputBuffer.append(info.msg).append("\n")
-        hasErrors = true
+      case ReplMessage(info) => 
+        messagesBuffer.append(info.msg).append("\n")
+        hasMessages = true
         false
       case "" => //do nothing
         false
-      case outputLine => 
-        outputBuffer.append(if (hasErrors) line else augmentLine(outputLine))
-        if (!outputLine.endsWith("\n")) outputBuffer.append("\n")
-        false
+      case outputLine =>
+        if (hasMessages) {
+          messagesBuffer.append(line).append("\n")
+          outputLine == "^" && {hasMessages = false; processMessage()}
+        } else {
+          outputBuffer.append(augmentLine(outputLine)).append("\n")
+          false
+        }
     }
   }
 
@@ -203,19 +212,35 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
       inputLine.substring(idx, until) + "<function>"
     }
   }
-  
-  private def processError() {
-    val currentPsi = psiToProcess.dequeue()
-    val offset = currentPsi.getTextOffset
-    val str = outputBuffer.toString().trim
 
-    outputBuffer.clear()
-
-    val (msg, horizontalOffset) = ReplError.extractInfoFromAllText(str).getOrElse((str, 0))
-    val position = originalEditor.offsetToLogicalPosition(offset + horizontalOffset)
+  /**
+    * 
+    * @return true if error and should stop
+    */
+  private def processMessage(): Boolean = {
+    if (psiToProcess.isEmpty) return false
     
-    WorksheetCompiler.showCompilationError(getScalaFile.getVirtualFile, position.line, position.column, project, 
-      () => {originalEditor.getCaretModel moveToLogicalPosition position}, msg.split('\n'))
+    val currentPsi = psiToProcess.head
+    val offset = currentPsi.getTextOffset
+    val str = messagesBuffer.toString().trim
+
+    messagesBuffer.clear()
+
+    val MessageInfo(msg, horizontalOffset, severity) = ReplMessage.extractInfoFromAllText(str).getOrElse((str, 0))
+    val position = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset + horizontalOffset) }
+
+    val isFatal = severity.isFatal
+    val onError = if (isFatal) () => {originalEditor.getCaretModel moveToLogicalPosition position} else () => {}
+    
+    WorksheetCompiler.showCompilationMessage(
+      getScalaFile.getVirtualFile, severity, position.line, position.column, project, onError, msg.split('\n').map(_.trim).filter(_.length > 0))
+    
+    if (isFatal) {
+      hasErrors = true
+      psiToProcess.dequeue()
+    }
+    
+    hasErrors
   }
   
   private def refreshLastMarker() {
@@ -229,25 +254,39 @@ object WorksheetIncrementalEditorPrinter {
   private val REPL_LAST_CHUNK_PROCESSED = "$$worksheet$$repl$$last$$chunk$$processed$$"
   
   private val CONSOLE_ERROR_START = "<console>:"
+  private val CONSOLE_MESSAGE_PATTERN = {
+    val regex = Pattern.quote("<console>:") + "\\s*\\d+" + Pattern.quote(":") + "\\s*"
+    Pattern.compile(regex)
+  }
   
   private val LAMBDA_LENGTH = 32
   
-  case class ErrorInfo(msg: String)
+  case class MessageStart(msg: String)
+  case class MessageInfo(text: String, horOffset: Int, severity: WorksheetCompiler.CompilationMessageSeverity)
   
-  object ReplError {
-    def unapply(arg: String): Option[ErrorInfo] = {
+  object ReplMessage {
+    def unapply(arg: String): Option[MessageStart] = {
       if (arg startsWith CONSOLE_ERROR_START) {
-        val i = arg.indexOf("error: ")
-        if (i != -1) Option(ErrorInfo(arg.substring(i))) else None 
+        val matcher = CONSOLE_MESSAGE_PATTERN.matcher(arg)
+        if (!matcher.find()) return None
+        
+        Option(MessageStart(arg substring matcher.end())) 
       } else None
     } 
     
-    def extractInfoFromAllText(text: String): Option[(String, Int)] = {
-      val i = text.indexOf("error: ")
-      val j = text.lastIndexOf('\n')
-      if (i == -1 || j == -1) None else {
-        Option((text.substring(i, j), text.length - 1 - j - CONSOLE_ERROR_START.length))
+    def extractInfoFromAllText(text: String): Option[MessageInfo] = {
+      val (nt, severity) = text match {
+        case error if error.startsWith("error: ") =>
+          (error.substring("error: ".length), WorksheetCompiler.ErrorSeverity)
+        case warning if warning.startsWith("warning: ") =>
+          (warning.substring("warning: ".length), WorksheetCompiler.WarningSeverity)
+        case _ => return None
       }
+
+      val j = nt.lastIndexOf('\n')
+      if (j == -1) return None
+
+      Option(MessageInfo(nt.substring(0, j), nt.length - 1 - j - CONSOLE_ERROR_START.length, severity))
     }
   }
 }
