@@ -169,8 +169,8 @@ class IvyIndex(val root: String, val name: String) extends ResolverIndex {
 
     def artifacts: Stream[ArtifactInfo] = listArtifacts(cacheDir)
 
-    private val ivyFileFilter = new FilenameFilter {
-      override def accept(dir: File, name: String): Boolean = name.endsWith(".xml")
+    private val ivyFileFilter = new FileFilter {
+      override def accept(file: File): Boolean = file.name.endsWith(".xml") && file.lastModified() > innerTimestamp
     }
 
     private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
