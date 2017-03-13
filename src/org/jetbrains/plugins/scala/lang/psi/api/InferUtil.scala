@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -266,30 +266,41 @@ object InferUtil {
     if (!expr.isInstanceOf[ScExpression]) return nonValueType
 
     // interim fix for SCL-3905.
-    def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false): ScType = {
-      expectedType match {
-        case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
-          && !mt.returnType.conforms(expectedType) =>
-          implicit val elementScope = mt.elementScope
+    def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false,
+                                  fromMethodInvoaction: Boolean = false): ScType = {
+      implicit val elementScope = mt.elementScope
+      expr match {
+        case invocation: MethodInvocation if !fromMethodInvoaction =>
           mt.returnType match {
-            case methodType: ScMethodType => return mt.copy(
-              returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
-            case _ =>
+            case methodType: ScMethodType => mt.copy(
+              returnType = applyImplicitViewToResult(methodType, expectedType, fromSAM, fromMethodInvoaction = true)
+            )
+            case _ => mt
           }
-          val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
-          dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.returnType))
-          val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
+        case _ =>
+          expectedType match {
+            case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
+              && !mt.returnType.conforms(expectedType) =>
+              mt.returnType match {
+                case methodType: ScMethodType => return mt.copy(
+                  returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
+                case _ =>
+              }
+              val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
+              dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.returnType))
+              val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
 
-          expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
+              expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
-          ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)
-        case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) &&
-          (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
-          //we do this to update additional expression, so that implicits work correctly
-          //@see SingleAbstractMethodTest.testEtaExpansionImplicit
-          val requiredSAMType = ScalaPsiUtil.toSAMType(tp, expr)
-          applyImplicitViewToResult(mt, requiredSAMType, fromSAM = true)
-        case _ => mt
+              ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)
+            case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) &&
+              (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
+              //we do this to update additional expression, so that implicits work correctly
+              //@see SingleAbstractMethodTest.testEtaExpansionImplicit
+              val requiredSAMType = ScalaPsiUtil.toSAMType(tp, expr)
+              applyImplicitViewToResult(mt, requiredSAMType, fromSAM = true)
+            case _ => mt
+          }
       }
     }
 

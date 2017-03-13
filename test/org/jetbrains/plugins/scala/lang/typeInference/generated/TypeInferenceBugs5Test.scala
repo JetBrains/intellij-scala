@@ -1021,4 +1021,15 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
         |//Tier2.Tier3
       """.stripMargin)
   }
+
+  def testSCL9432(): Unit = doTest {
+    """
+      |object SCL9432 {
+      |  def f(int: Int): Option[Int] = if (int % 2 == 0) Some(int) else None
+      |  def g(as: List[Int])(b: Int): Option[Int] = if (as contains b) None else f(b)
+      |  /*start*/List(1) flatMap g(List(2, 4))/*end*/
+      |}
+      |//List[Int]
+    """.stripMargin.trim
+  }
 }
