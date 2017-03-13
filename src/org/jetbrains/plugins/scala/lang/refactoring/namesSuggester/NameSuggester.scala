@@ -26,17 +26,21 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * @author Alexander Podkhalyuzin
- * @since 26.06.2008
- */
+  * @author Alexander Podkhalyuzin
+  * @since 26.06.2008
+  */
 
 object NameSuggester {
   private def emptyValidator(project: Project) = new NameValidator {
     def getProject(): Project = project
+
     def validateName(name: String, increaseNumber: Boolean): String = name
   }
-  def suggestNames(expr: ScExpression): Array[String] = suggestNames(expr, emptyValidator(expr.getProject))
-  def suggestNames(expr: ScExpression, validator: NameValidator): Array[String] = {
+
+  def suggestNames(expr: ScExpression): Set[String] =
+    suggestNames(expr, emptyValidator(expr.getProject))
+
+  def suggestNames(expr: ScExpression, validator: NameValidator): Set[String] = {
     val names = new ArrayBuffer[String]
 
     val types = new ArrayBuffer[ScType]()
@@ -46,26 +50,30 @@ object NameSuggester {
     expr.getTypeIgnoreBaseType.foreach(types += _)
     if (typez != null && typez == Unit) types += typez
 
-    for (tpe <- types.reverse) {generateNamesByType(tpe)(names, validator)}
+    for (tpe <- types.reverse) {
+      generateNamesByType(tpe)(names, validator)
+    }
     generateNamesByExpr(expr)(names, validator)
 
     val result = (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
-    }).toList.reverse.toArray
-    if (result.length > 0) result
-    else Array(validator.validateName("value", increaseNumber = true))
+    }).toList.reverse
+
+    if (result.nonEmpty) result.toSet
+    else Set(validator.validateName("value", increaseNumber = true))
   }
 
-  def suggestNamesByType(typez: ScType): Array[String] = {
+  def suggestNamesByType(typez: ScType): Set[String] = {
     val names = new ArrayBuffer[String]
     generateNamesByType(typez)(names, emptyValidator(DecompilerUtil.obtainProject))
     val result = names.map {
       case "class" => "clazz"
       case s => s
     }.filter(name => name != "" && ScalaNamesUtil.isIdentifier(name))
+
     if (result.isEmpty) {
-      Array("value")
-    } else result.reverse.toArray
+      Set("value")
+    } else result.reverse.toSet
   }
 
   private def add(s: String)(implicit validator: NameValidator, names: ArrayBuffer[String]) {
@@ -87,6 +95,7 @@ object NameSuggester {
                                   withPlurals: Boolean = true) {
     val project = validator.getProject()
     implicit val typeSystem = project.typeSystem
+
     def addPlurals(arg: ScType) {
       def addPlural(s: String) {
         if (!withPlurals) add(s)
@@ -98,6 +107,7 @@ object NameSuggester {
           }
         }
       }
+
       arg match {
         case valType: ValType => addPlural(valType.name.toLowerCase)
         case TupleType(_) => addPlural("tuple")
@@ -152,10 +162,12 @@ object NameSuggester {
         val baseMapClassName = "scala.collection.GenMap"
         val baseJavaMapClassName = "java.util.Map"
         val eitherClassName = "scala.util.Either"
+
         def isInheritor(c: PsiClass, baseFqn: String) = {
           val baseClass = JavaPsiFacade.getInstance(project).findClass(baseFqn, GlobalSearchScope.allScope(project))
           baseClass != null && (c.isInheritor(baseClass, true) || ScEquivalenceUtil.areClassesEquivalent(c, baseClass))
         }
+
         val needPrefix = Map(
           "scala.Option" -> "maybe",
           "scala.Some" -> "some",

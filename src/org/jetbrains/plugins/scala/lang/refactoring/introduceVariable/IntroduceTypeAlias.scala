@@ -114,15 +114,15 @@ trait IntroduceTypeAlias {
       def runInplace() = {
         def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean) {
           val replaceAllOccurrences = true
+
+          import scala.collection.JavaConversions._
           val suggestedNames = scopeItem.availableNames
 
-          import scala.collection.JavaConversions.asJavaCollection
-          val suggestedNamesSet = new util.LinkedHashSet[String](suggestedNames.toIterable)
           val allOccurrences = OccurrenceData(typeElement, replaceAllOccurrences, isReplaceOccurrenceIncompanionObject = false,
             isReplaceOccurrenceInInheritors = false, scopeItem)
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
-            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), scopeItem)
+            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames.head, scopeItem)
 
           CommandProcessor.getInstance.executeCommand(project, new Runnable {
             def run() {
@@ -153,7 +153,7 @@ trait IntroduceTypeAlias {
                     ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
                       namedElement.getName, scopeItem)
 
-                  typeAliasIntroducer.performInplaceRefactoring(suggestedNamesSet)
+                  typeAliasIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames))
                 }
               }
             }
@@ -227,7 +227,7 @@ trait IntroduceTypeAlias {
       case packageScope: PackageScopeItem =>
         packageScope.fileEncloser match {
           case suggestedDirectory: PsiDirectory =>
-            createAndGetPackageObjectBody(typeElement, suggestedDirectory, packageScope.needDirectoryCreating, scope.getName)
+            createAndGetPackageObjectBody(typeElement, suggestedDirectory, packageScope.needDirectoryCreating, scope.name)
           case _ =>
            packageScope.fileEncloser
         }

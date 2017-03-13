@@ -72,8 +72,7 @@ object ScalaCompletionUtil {
       }
     }
     for (param <- params) {
-      val names = NameSuggester.suggestNamesByType(param)
-      var name = if (names.length == 0) "x" else names(0)
+      var name = NameSuggester.suggestNamesByType(param).headOption.getOrElse("x")
       if (contains(name)) {
         var count = 0
         var newName = name + count

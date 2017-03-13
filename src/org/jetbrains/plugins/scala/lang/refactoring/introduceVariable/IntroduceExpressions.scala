@@ -74,9 +74,8 @@ trait IntroduceExpressions {
         val callback = new Pass[OccurrencesChooser.ReplaceChoice] {
           def pass(replaceChoice: OccurrencesChooser.ReplaceChoice) {
             val replaceAll = OccurrencesChooser.ReplaceChoice.NO != replaceChoice
-            val suggestedNames: Array[String] = NameSuggester.suggestNames(expr, validator)
-            import scala.collection.JavaConversions.asJavaCollection
-            val suggestedNamesSet = new util.LinkedHashSet[String](suggestedNames.toIterable)
+            val suggestedNames = NameSuggester.suggestNames(expr, validator)
+
             val asVar = false
             val forceInferType = expr match {
               case _: ScFunctionExpr => Some(true)
@@ -85,7 +84,7 @@ trait IntroduceExpressions {
 //            val needExplicitType = forceInferType.getOrElse(ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE)
             val selectedType = types(0)
             val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] =
-              introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames(0), selectedType,
+              introduceVariable(startOffset, endOffset, file, editor, expr, occurrences, suggestedNames.head, selectedType,
                 replaceAll, asVar)
             CommandProcessor.getInstance.executeCommand(project, new Runnable {
               def run() {
@@ -106,7 +105,9 @@ trait IntroduceExpressions {
                     val variableIntroducer =
                       new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement,
                         INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType)
-                    variableIntroducer.performInplaceRefactoring(suggestedNamesSet)
+
+                    import scala.collection.JavaConversions._
+                    variableIntroducer.performInplaceRefactoring(new util.LinkedHashSet[String](suggestedNames))
                   }
                 }
               }
@@ -389,7 +390,7 @@ trait IntroduceExpressions {
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
-    val possibleNames = NameSuggester.suggestNames(expr, validator)
+    val possibleNames = NameSuggester.suggestNames(expr, validator).toArray
     val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames, expr)
     dialog.show()
     if (!dialog.isOK) {

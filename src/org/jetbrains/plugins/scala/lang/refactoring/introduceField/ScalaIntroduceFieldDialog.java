@@ -35,6 +35,7 @@ import java.awt.event.*;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -267,7 +268,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
   }
 
-  private void setUpNameComboBox(String[] possibleNames) {
+  private void setUpNameComboBox(Set<String> possibleNames) {
 
       final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.INSTANCE, myNameComboBox);
 

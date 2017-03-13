@@ -149,7 +149,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
             if (!param.name.isEmpty) param.name
             else param.nameInCode match {
               case Some(n) => n
-              case None => NameSuggester.suggestNamesByType(param.paramType)(0)
+              case None => NameSuggester.suggestNamesByType(param.paramType).head
             }
           paramsBuf = paramsBuf :+ paramName
           arg.replaceExpression(createExpressionFromText(paramName)(arg.getManager), removeParenthesis = true)

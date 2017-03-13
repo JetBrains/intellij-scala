@@ -28,7 +28,9 @@ class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
   val canBeInitLocalOneOccurrence: Boolean = ifc.canBeInitLocally(replaceAll = false)
   val canBeInitLocally: Boolean = canBeInitLocalIfReplaceAll || canBeInitLocalOneOccurrence
 
-  var name: String = ifc.possibleNames(0)
+  import scala.collection.JavaConversions._
+
+  var name: String = ifc.possibleNames.head
   var scType: ScType = ifc.types(0)
   def setName(s: String) {name = s}
   def setType(t: ScType) {scType = t}

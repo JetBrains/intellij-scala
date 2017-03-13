@@ -182,7 +182,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
         case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr, validator)
         case _ => NameSuggester.suggestNamesByType(types(0))
       }
-      possibleNames(0)
+      possibleNames.head
     }
 
     val (occurrences, mainOcc) = elems match {

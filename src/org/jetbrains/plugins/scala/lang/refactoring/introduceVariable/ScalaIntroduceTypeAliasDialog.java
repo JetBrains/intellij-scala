@@ -32,6 +32,7 @@ import java.awt.event.*;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 
 public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements NamedDialog {
@@ -72,7 +73,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         this.editor = editor;
         this.inheritanceDataMap = new HashMap<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>>();
 
-        setUpNameComboBox(currentScope.getAvailableNames());
+        setUpNameComboBox(currentScope.availableNames());
         setUpScopeComboBox(possibleScopes, mainScope);
 
         setModal(true);
@@ -94,7 +95,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         ScalaValidator validator = null;
         if (currentScope instanceof PackageScopeItem) {
             PackageScopeItem packageScopeItem = (PackageScopeItem) currentScope;
-            currentScope = ScopeSuggester.handleOnePackage(myTypeElement, packageScopeItem.getName(),
+            currentScope = ScopeSuggester.handleOnePackage(myTypeElement, packageScopeItem.name(),
                     (PsiDirectory) packageScopeItem.fileEncloser(), conflictsReporter, myTypeElement.getProject(), editor,
                     isReplaceAllOccurrences(), getEnteredName());
 
@@ -115,7 +116,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         return myNameComboBox;
     }
 
-    private void setUpNameComboBox(String[] possibleNames) {
+    private void setUpNameComboBox(Set<String> possibleNames) {
 
         final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.INSTANCE, myNameComboBox);
 
@@ -155,7 +156,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         }
     }
 
-    private void updateNameComboBox(String[] possibleNames) {
+    private void updateNameComboBox(Set<String> possibleNames) {
         myNameComboBox.removeAllItems();
         for (String possibleName : possibleNames) {
             myNameComboBox.addItem(possibleName);
@@ -272,7 +273,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                 ScopeItem item = (ScopeItem) event.getItem();
                 currentScope = item;
                 setUpOccurrences(item);
-                updateNameComboBox(item.getAvailableNames());
+                updateNameComboBox(item.availableNames());
             }
         }
     }

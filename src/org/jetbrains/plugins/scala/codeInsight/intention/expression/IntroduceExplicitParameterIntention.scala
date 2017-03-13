@@ -104,13 +104,10 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
           }
         })
 
-      var un = names(0)
-      if (macros.contains(un)) {
-        if (names.length > 1) {
-          un = names(1)
-        } else {
-          un = "value"
-        }
+      val un = names.toList match {
+        case head :: _ if !macros.contains(head) => head
+        case _ :: head :: _ => head
+        case _ => "value"
       }
 
       usedNames.add(un)

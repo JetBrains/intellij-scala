@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import java.{util => ju}
+
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -21,10 +23,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
 import scala.annotation.tailrec
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-
 
 /**
  * Created by Kate Ustyuzhanina
@@ -108,7 +110,8 @@ object ScopeSuggester {
     if ((scPackage != null) && owners.isEmpty && !noContinue) {
       val allPackages = getAllAvailablePackages(scPackage.fullPackageName, currentElement)
       for ((resultPackage, resultDirectory) <- allPackages) {
-        result += PackageScopeItem(resultPackage.getQualifiedName, resultDirectory, needDirectoryCreating = false, Array(NameSuggester.suggestNamesByType(currentElement.calcType).apply(0).capitalize))
+        val suggested = NameSuggester.suggestNamesByType(currentElement.calcType).map(_.capitalize).head
+        result += PackageScopeItem(resultPackage.getQualifiedName, resultDirectory, needDirectoryCreating = false, Set(suggested))
       }
     }
 
@@ -275,10 +278,9 @@ object ScopeSuggester {
     val validator = ScalaCompositeTypeValidator(allValidators.toList, conflictsReporter, project, typeElement,
       occurrences.isEmpty, containinDirectory, containinDirectory)
 
-    val suggested = inputName
-    val possibleNames = Array(validator.validateName(suggested, increaseNumber = true))
+    val possibleName = validator.validateName(inputName, increaseNumber = true)
 
-    val result = PackageScopeItem(inPackage.getName, fileEncloser, needNewDir, possibleNames.toArray)
+    val result = PackageScopeItem(inPackage.getName, fileEncloser, needNewDir, Set(possibleName))
 
     result.occurrences = occurrences
     result.validator = validator
@@ -288,20 +290,16 @@ object ScopeSuggester {
 }
 
 
-abstract class ScopeItem(name: String, availableNames: Array[String]) {
-  def getName: String = name
-
-  def getAvailableNames: Array[String] = availableNames
-
+abstract class ScopeItem(val name: String, val availableNames: ju.Set[String]) {
   override def toString: String = name
 }
 
-case class SimpleScopeItem(name: String,
+case class SimpleScopeItem(override val name: String,
                            fileEncloser: PsiElement,
                            usualOccurrences: Array[ScTypeElement],
                            occurrencesInCompanion: Array[ScTypeElement],
                            typeValidator: ScalaTypeValidator,
-                           availableNames: Array[String]) extends ScopeItem(name, availableNames) {
+                           override val availableNames: ju.Set[String]) extends ScopeItem(name, availableNames) {
 
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
   val usualOccurrencesRanges = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
@@ -319,11 +317,11 @@ case class SimpleScopeItem(name: String,
         PsiTreeUtil.findElementOfClassAtRange(containigFile, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
     }
 
-    val newNames = if ((newName == "") || availableNames.contains(newName)) {
-      availableNames
-    } else {
-      newName +: availableNames
-    }
+    val newNames: mutable.Set[String] = availableNames ++ (newName match {
+      case "" => Set.empty
+      case n if availableNames.contains(n) => Set.empty
+      case n => Set(n)
+    })
 
     val updatedFileEncloser = fileEncloserRange match {
       case (range, containingFile) =>
@@ -350,10 +348,10 @@ case class SimpleScopeItem(name: String,
   }
 }
 
-case class PackageScopeItem(name: String,
+case class PackageScopeItem(override val name: String,
                             fileEncloser: PsiElement,
                             needDirectoryCreating: Boolean,
-                            availableNames: Array[String]) extends ScopeItem(name, availableNames) {
+                            override val availableNames: ju.Set[String]) extends ScopeItem(name, availableNames) {
   var occurrences = Array[ScTypeElement]()
   var validator: ScalaCompositeTypeValidator = null
 
