@@ -109,6 +109,9 @@ package object extensions {
   implicit class TraversableExt[CC[X] <: Traversable[X], A](val value: CC[A]) extends AnyVal {
     private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
+    def foreachDefined(pf: PartialFunction[A, Unit]): Unit =
+      value.foreach(pf.applyOrElse(_, (_: A) => Unit))
+
     def filterBy[T](aClass: Class[T])(implicit cbf: CanBuildTo[T, CC]): CC[T] =
       value.filter(aClass.isInstance(_)).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
 
