@@ -115,8 +115,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     val sbtCommands = Seq(
       setCommands,
       s"""apply -cp "${path(pluginJar)}" org.jetbrains.sbt.CreateTasks""",
-      "*/*:dump-structure",
-      "exit"
+      "*/*:dump-structure"
     ).mkString(";",";","")
 
     val processCommandsRaw =
@@ -137,6 +136,8 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
       val process = processBuilder.start()
       val result = using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
         writer.println(sbtCommands)
+        // exit needs to be in a separate command, otherwise it will never execute when a previous command in the chain errors
+        writer.println("exit")
         writer.flush()
         handle(process, statusUpdate)
       }

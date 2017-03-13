@@ -4,11 +4,10 @@ package project
 import java.io.File
 
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
-import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListener}
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ExternalSystemProjectResolver
 import com.intellij.openapi.module.StdModuleTypes
-import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.project.Version
@@ -18,15 +17,10 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
-import org.jetbrains.sbt.shell.SbtShellCommunication
-import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, Output, TaskComplete, TaskStart}
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.{runner, structure => sbtStructure}
+import org.jetbrains.sbt.{structure => sbtStructure}
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.util.{Failure, Success, Try}
-import scala.xml.Elem
+import scala.util.{Failure, Success}
 
 /**
  * @author Pavel Fatin
@@ -68,11 +62,14 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         val data = elem.deserialize[sbtStructure.StructureData].right.get
         convert(root, data, settings.jdk).toDataNode
       }
-      .recover {
-        case SbtRunner.ImportCancelledException => null // sorry, ExternalSystem expects a null when resolving is not possible
-        case x: Throwable => throw new ExternalSystemException(x)
+      .recoverWith {
+        case SbtRunner.ImportCancelledException =>
+          // sorry, ExternalSystem expects a null when resolving is not possible
+          Success(null)
+        case x: Exception =>
+          Failure(new ExternalSystemException(x))
       }
-      .getOrElse(null)
+      .get // ok to throw here, that's the way ExternalSystem likes it
 
   }
 
