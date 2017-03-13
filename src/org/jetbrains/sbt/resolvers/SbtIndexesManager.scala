@@ -29,18 +29,22 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
 
   private val indexes = new mutable.HashMap[String, ResolverIndex]()
 
-  def updateWithProgress(resolvers: Seq[SbtResolver]): Unit = {
-    implicit val p = project
+  private def doUpdateResolverIndexWithProgress(name: String, index: ResolverIndex): Unit = {
     ProgressManager.getInstance().run(new Task.Backgroundable(project, "Updating indexes") {
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setIndeterminate(true)
-        resolvers.foreach {
-          res =>
-            indicator.setText(s"Updating: ${res.root}")
-            res.getIndex(p).doUpdate(Some(indicator))
-        }
+        indicator.setText(s"Updating: $name")
+        index.doUpdate(Some(indicator))(project)
       }
     })
+  }
+
+  def updateWithProgress(resolvers: Seq[SbtResolver]): Unit = {
+    resolvers.foreach(r => doUpdateResolverIndexWithProgress(r.name, r.getIndex(project)))
+  }
+
+  def updateLocalIvyIndex(): Unit = {
+    indexes.values.collect({case i: IvyIndex => doUpdateResolverIndexWithProgress("Local Ivy cache", i)})
   }
 
   def getIvyIndex(name: String, root: String): ResolverIndex = {
