@@ -4,6 +4,7 @@ package project.template
 import java.awt.FlowLayout
 import java.awt.event.{ActionEvent, ActionListener}
 import java.io.File
+import javax.swing.border.EmptyBorder
 import javax.swing.{Box, JCheckBox, JLabel, JPanel}
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
@@ -118,6 +119,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     )
 
     val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
+      _.setBorder(new EmptyBorder(1, 0, 0, 0)),
       _.add(scalaPlatformComboBox),
       _.add(Box.createHorizontalStrut(4)),
       _.add(scalaVersionComboBox),
