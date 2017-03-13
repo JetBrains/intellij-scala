@@ -173,8 +173,6 @@
             <reference ref="Scala.Sbt.ShowTask"/>
             <reference ref="Scala.Sbt.InspectTask"/>
             <reference ref="Scala.Sbt.Help"/>
-            <separator/>
-            <reference id="ExternalSystem.AssignShortcut"/>
         </group>
 
         <group id="Scala.Sbt.SettingMenu" popup="true">
@@ -183,8 +181,6 @@
             <reference ref="Scala.Sbt.ShowSetting"/>
             <reference ref="Scala.Sbt.InspectSetting"/>
             <reference ref="Scala.Sbt.Help"/>
-            <separator/>
-            <reference id="ExternalSystem.AssignShortcut"/>
         </group>
 
         <group id="Scala.Sbt.CommandMenu" popup="true">
@@ -192,8 +188,6 @@
             <separator/>
             <reference ref="Scala.Sbt.RunCommand"/>
             <reference ref="Scala.Sbt.Help"/>
-            <separator/>
-            <reference id="ExternalSystem.AssignShortcut"/>
         </group>
 
     </actions>
