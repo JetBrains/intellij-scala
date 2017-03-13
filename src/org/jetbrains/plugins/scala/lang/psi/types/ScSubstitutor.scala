@@ -258,7 +258,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                                 val iter = types.iterator
                                 while (iter.hasNext) {
                                   val tps = iter.next()
-                                  tps.extractClass() match {
+                                  tps.extractClass(clazz.getProject) match {
                                     case Some(cl) =>
                                       if (cl == clazz) return tp
                                     case _ =>
@@ -292,7 +292,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                       val iter = types.iterator
                       while (iter.hasNext) {
                         val tps = iter.next()
-                        tps.extractClass() match {
+                        tps.extractClass(clazz.getProject) match {
                           case Some(cl) =>
                             if (cl == clazz) return tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) return tp

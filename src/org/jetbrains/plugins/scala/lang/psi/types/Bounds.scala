@@ -198,7 +198,7 @@ object Bounds extends api.Bounds {
             val iterator = superTypes.iterator
             while(iterator.hasNext) {
               val st = iterator.next()
-              st.extractClassType() match {
+              st.extractClassType(base.getProject) match {
                 case None =>
                 case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
                   case None =>
