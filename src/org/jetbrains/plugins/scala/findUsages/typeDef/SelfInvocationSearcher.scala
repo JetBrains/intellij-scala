@@ -18,10 +18,12 @@ class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearc
   override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
     queryParameters.getElementToSearch match {
       case ml: ScMethodLike if inReadAction(ml.isConstructor) =>
-        val clazz = inReadAction(ml.containingClass)
-        if (clazz != null) {
+        val localScope = inReadAction {
+          Option(ml.containingClass).map(new LocalSearchScope(_))
+        }
+
+        localScope.forall { scope =>
           val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(queryParameters.getProject)
-          val scope = new LocalSearchScope(clazz)
           val processor = new TextOccurenceProcessor {
             def execute(element: PsiElement, offsetInElement: Int): Boolean = {
               inReadAction {
@@ -34,7 +36,6 @@ class SelfInvocationSearcher extends QueryExecutor[PsiReference, ReferencesSearc
           }
           helper.processElementsWithWord(processor, scope, "this", UsageSearchContext.IN_CODE, true)
         }
-        else true
       case _ => true
     }
   }
