@@ -84,11 +84,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       }
     })
 
-    val resolveClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.downloadSources")))(
+    val resolveClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
       _.setToolTipText("Download Scala standard library sources (useful for editing the source code)")
     )
 
-    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.downloadSources")))(
+    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.sources")))(
       _.setToolTipText("Download SBT sources (useful for editing the project definition)")
     )
 
@@ -129,9 +129,13 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     settingsStep.addSettingsField(SbtBundle("sbt.settings.sbt"), sbtVersionPanel)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scala"), scalaVersionPanel)
 
-    // TODO Remove the label patching when the External System will use the concise labels natively
+    // TODO Remove the label patching when the External System will use the concise and proper labels natively
     Option(sbtVersionPanel.getParent).foreach { parent =>
       parent.getComponents.toSeq.foreachDefined {
+        case label: JLabel if label.getText == "Project SDK:" =>
+          label.setText("JDK:")
+          label.setDisplayedMnemonic('J')
+
         case label: JLabel if label.getText.startsWith("Project ") && label.getText.length > 8 =>
           label.setText(label.getText.substring(8) |> (s => s.substring(0, 1).toUpperCase + s.substring(1)))
       }
