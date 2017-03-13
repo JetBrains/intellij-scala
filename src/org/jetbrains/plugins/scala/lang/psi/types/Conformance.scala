@@ -416,9 +416,8 @@ object Conformance extends api.Conformance {
               val projected1 = proj1.projected
               val projected2 = proj2.projected
               result = conformsInner(projected1, projected2, visited, undefinedSubst)
-            case param: ScParameterizedType if param.designator.isInstanceOf[ScProjectionType] =>
+            case param@ParameterizedType(projDes: ScProjectionType, _) =>
               //TODO this looks overcomplicated. Improve the code.
-              val projDes = param.designator.asInstanceOf[ScProjectionType]
               def cutProj(p: ScType, acc: List[ScProjectionType]): ScType = {
                 if (acc.isEmpty) p else acc.foldLeft(p){
                   case (proj, oldProj) => ScProjectionType(proj, oldProj.element, oldProj.superReference)
