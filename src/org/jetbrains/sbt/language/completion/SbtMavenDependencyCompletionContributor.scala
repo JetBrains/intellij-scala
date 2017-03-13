@@ -113,7 +113,8 @@ class SbtMavenDependencyCompletionContributor extends ScalaCompletionContributor
         case (_, oper, _) if oper == "+=" || oper == "++=" => // empty completion from scratch
           completeGroup(cleanText)
         case (lop, oper, ScLiteralImpl.string(artifact)) if lop == place.getContext && isValidOp(oper) =>
-          completeGroup(artifact)
+          val versionSuffix = if (oper == "%%") s"_${place.scalaLanguageLevelOrDefault.version}" else ""
+          completeGroup(artifact + versionSuffix)
         case (ScLiteralImpl.string(group), oper, rop) if rop == place.getContext && isValidOp(oper) =>
           if (oper == "%%")
             completeArtifact(group, stripVersion = true)
