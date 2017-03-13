@@ -83,8 +83,13 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       }
     })
 
-    val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
-    val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
+    val resolveClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.downloadSources")))(
+      _.setToolTipText("Download Scala standard library sources (useful for editing the source code)")
+    )
+
+    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle("sbt.settings.downloadSources")))(
+      _.setToolTipText("Download SBT sources (useful for editing the project definition)")
+    )
 
     val step = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
@@ -107,19 +112,20 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     resolveClassifiersCheckBox.setSelected(true)
     resolveSbtClassifiersCheckBox.setSelected(false)
 
+    val sbtVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
+      _.add(sbtVersionComboBox),
+      _.add(resolveSbtClassifiersCheckBox)
+    )
+
     val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
       _.add(scalaPlatformComboBox),
       _.add(Box.createHorizontalStrut(4)),
-      _.add(scalaVersionComboBox)
+      _.add(scalaVersionComboBox),
+      _.add(resolveClassifiersCheckBox)
     )
 
-    settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionComboBox)
-    settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionPanel)
-
-    val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
-    downloadPanel.add(resolveClassifiersCheckBox)
-    downloadPanel.add(resolveSbtClassifiersCheckBox)
-    settingsStep.addSettingsField("Download:", downloadPanel)
+    settingsStep.addSettingsField(SbtBundle("sbt.settings.sbt"), sbtVersionPanel)
+    settingsStep.addSettingsField(SbtBundle("sbt.settings.scala"), scalaVersionPanel)
 
     step
   }
