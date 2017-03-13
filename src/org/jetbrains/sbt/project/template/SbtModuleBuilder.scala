@@ -4,7 +4,7 @@ package project.template
 import java.awt.FlowLayout
 import java.awt.event.{ActionEvent, ActionListener}
 import java.io.File
-import javax.swing.{Box, JCheckBox, JPanel}
+import javax.swing.{Box, JCheckBox, JLabel, JPanel}
 
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationManager
@@ -126,6 +126,14 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     settingsStep.addSettingsField(SbtBundle("sbt.settings.sbt"), sbtVersionPanel)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scala"), scalaVersionPanel)
+
+    // TODO Remove the label patching when the External System will use the concise labels natively
+    Option(sbtVersionPanel.getParent).foreach { parent =>
+      parent.getComponents.toSeq.foreachDefined {
+        case label: JLabel if label.getText.startsWith("Project ") && label.getText.length > 8 =>
+          label.setText(label.getText.substring(8) |> (s => s.substring(0, 1).toUpperCase + s.substring(1)))
+      }
+    }
 
     step
   }
