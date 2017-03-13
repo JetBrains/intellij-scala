@@ -52,43 +52,47 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
     }
   }
 
+  val unindexedNotifier = new Consumer[util.List[MavenIndex]] {
+    override def consume(mavenIndexes: util.List[MavenIndex]): Unit = {
+      import scala.collection.JavaConversions._
+
+      if (project.isDisposed) return
+      val sbtRepos = (new SbtMavenRepositoryProvider).getRemoteRepositories(project).map(_.getUrl).toSet
+      val unindexedRepos = mavenIndexes.filter(idx => idx.getUpdateTimestamp == -1 && sbtRepos.contains(idx.getRepositoryPathOrUrl))
+      if (unindexedRepos.isEmpty) return
+      val title = s"<b>${unindexedRepos.length} Unindexed maven repositories found</b>"
+      val message =
+        s"""
+          |If you want to use dependency completion, click
+          |<b><a href="#open">here</a></b>, select required repositories and press "Update" button. <a href="#disable">Disable...</a>
+          """.stripMargin
+      val notificationData = createIndexerNotification(title, message)
+      ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notificationData)
+    }
+  }
+
   private def setupMavenIndexes(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
     try {
-      MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(new Consumer[util.List[MavenIndex]] {
-        override def consume(mavenIndexes: util.List[MavenIndex]): Unit = {
-          import scala.collection.JavaConversions._
-
-          if (project.isDisposed) return
-
-          val sbtRepos = (new SbtMavenRepositoryProvider).getRemoteRepositories(project).map(_.getUrl).toSet
-          val unindexedRepos = mavenIndexes.filter(idx => idx.getUpdateTimestamp == -1 && sbtRepos.contains(idx.getRepositoryPathOrUrl))
-          if (unindexedRepos.isEmpty) return
-
-          val title = s"<b>${unindexedRepos.length} Unindexed maven repositories found</b>"
-          val message = s"""
-             |If you want to use dependency completion, click
-             |<b><a href="#open">here</a></b>, select required repositories and press "Update" button. <a href="#disable">Disable...</a>
-          """.stripMargin
-          val notificationData = createIndexerNotification(title, message)
-          ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notificationData)
-        }
-      })
-    } catch {
-      // if maven support is disabled, only check local ivy index(es)
-      case e:NoClassDefFoundError if e.getMessage.contains("MavenProjectIndicesManager") =>
-        val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project).toSet
-          .filter(i => i.getIndex(project).isInstanceOf[IvyIndex] && i.getIndex(project).getUpdateTimeStamp(project) == -1)
-        if (outdatedIvyIndexes.isEmpty) return
-
-        val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"
-        val message = s"""
-                         |Update repositories <b><a href="#open">here</a></b> to use dependency completion.
-                         |Enable Maven plugin to use extra indexes.<a href="#disable">Disable...</a>
-          """.stripMargin
-        val notificationData = createIndexerNotification(title, message)
-        ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notificationData)
+//      MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(unindexedNotifier)
+      MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(null)
+    } catch {  // if maven support is disabled, only check local ivy index(es)
+      case e:NoClassDefFoundError if e.getMessage.contains("MavenProjectIndicesManager") => notifyDisabledMavenPlugin()
     }
+  }
+
+  private def notifyDisabledMavenPlugin(): Unit = {
+    val outdatedIvyIndexes = SbtResolverUtils.getProjectResolvers(project).toSet
+      .filter(i => i.getIndex(project).isInstanceOf[IvyIndex] && i.getIndex(project).getUpdateTimeStamp(project) == -1)
+    if (outdatedIvyIndexes.isEmpty) return
+    val title = s"<b>${outdatedIvyIndexes.size} Unindexed Ivy repositories found</b>"
+    val message =
+      s"""
+         |Update repositories <b><a href="#open">here</a></b> to use dependency completion.
+         |Enable Maven plugin to use extra indexes.<a href="#disable">Disable...</a>
+          """.stripMargin
+    val notificationData = createIndexerNotification(title, message)
+    ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notificationData)
   }
 
   def createIndexerNotification(title: String, message: String): NotificationData = {
@@ -134,6 +138,6 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
 
   override def projectOpened(): Unit = {
     // disabled feature as too annoying
-    //   setupMavenIndexes()
+       setupMavenIndexes()
   }
 }
