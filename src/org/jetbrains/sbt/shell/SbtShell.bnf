@@ -16,23 +16,31 @@
     DOUBLE_COLON="::"
     SEMICOLON=";"
     SLASH="/"
+    // sbt commands can have pretty much any syntax, just exclude stuff used by key syntax for sanity
+    ID="regexp:[^\s{}:;/]+"
+    URISTRING="regexp:\{[A-Za-z0-9._~:/?#@!$&'()*+,;=`.\[\]-]+\}"
     OPEN_BRACE="{"
     CLOSE_BRACE="}"
-    space="regexp:\s+"
-    id="regexp:\w+" // TODO scala identifier
+    ANYCHAR="regexp:[^;\s]"
   ]
 }
 
-private sbtShellLine ::= (thing | things)
+private sbtShellLine ::= commandOrKey | chainedCommands?
 
-private thing ::= scopedKey | command
+private commandOrKey ::= (scopedKey | command) (params)*
+private chainedCommands ::= (SEMICOLON commandOrKey)+
+private id ::= ID
+// hacky way to allow arbitrary strings and still have lexer tokens for key syntax. only the ; shall stay reserved
+private anything ::= (COLON | DOUBLE_COLON | SLASH | ID | URISTRING | OPEN_BRACE | CLOSE_BRACE | ANYCHAR)+
 
-private things ::= (SEMICOLON thing)+
+scopedKey ::= uri? (projectId SLASH)? (config COLON)? (intask DOUBLE_COLON)? key
 
-scopedKey ::= (OPEN_BRACE uri CLOSE_BRACE)? (projectId SLASH)? (config COLON)? (intask DOUBLE_COLON)? key
+command ::= id
 
-// FIXME proper uri syntax
-uri ::= id
+params ::= anything
+
+// TODO proper uri syntax (see https://tools.ietf.org/html/rfc3986#appendix-A)
+uri ::= URISTRING
 
 projectId ::= id
 
@@ -42,5 +50,3 @@ intask ::= id
 
 key ::= id
 
-// TODO explicitly support builtin commands, have fallback syntax for the rest
-command ::= id (space id)*

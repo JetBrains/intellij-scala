@@ -1,15 +1,15 @@
 // This is a generated file. Not intended for manual editing.
 package org.jetbrains.sbt.shell.grammar.impl;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.sbt.shell.grammar.SbtShellUri;
-import org.jetbrains.sbt.shell.grammar.SbtShellVisitor;
-import org.jetbrains.annotations.NotNull;
-
-import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.ID;
+import com.intellij.psi.util.PsiTreeUtil;
+import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import org.jetbrains.sbt.shell.grammar.*;
 
 public class SbtShellUriImpl extends ASTWrapperPsiElement implements SbtShellUri {
 
@@ -28,8 +28,8 @@ public class SbtShellUriImpl extends ASTWrapperPsiElement implements SbtShellUri
 
   @Override
   @NotNull
-  public PsiElement getId() {
-    return findNotNullChildByType(ID);
+  public PsiElement getUristring() {
+    return findNotNullChildByType(URISTRING);
   }
 
 }

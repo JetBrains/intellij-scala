@@ -18,9 +18,7 @@ object SbtShellLanguage extends Language("sbtShell") {
   override def isCaseSensitive: Boolean = true
 }
 
-class SbtShellTokenType(@NotNull @NonNls debugName: String) extends IElementType(debugName, SbtShellLanguage) {
-  override def toString: String = "SbtShellTokenType." + super.toString
-}
+class SbtShellTokenType(@NotNull @NonNls debugName: String) extends IElementType(debugName, SbtShellLanguage)
 
 class SbtShellElementType(@NotNull @NonNls debugName: String) extends IElementType(debugName, SbtShellLanguage)
 

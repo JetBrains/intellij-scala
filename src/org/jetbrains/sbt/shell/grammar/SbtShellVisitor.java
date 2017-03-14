@@ -1,9 +1,9 @@
 // This is a generated file. Not intended for manual editing.
 package org.jetbrains.sbt.shell.grammar;
 
-import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiElement;
 
 public class SbtShellVisitor extends PsiElementVisitor {
 
@@ -20,6 +20,10 @@ public class SbtShellVisitor extends PsiElementVisitor {
   }
 
   public void visitKey(@NotNull SbtShellKey o) {
+    visitPsiElement(o);
+  }
+
+  public void visitParams(@NotNull SbtShellParams o) {
     visitPsiElement(o);
   }
 
