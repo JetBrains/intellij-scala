@@ -147,13 +147,18 @@ object RemoteServerConnector {
       val line1 = line.map(i => i - 4).map(_.toInt)
       val column1 = column.map(_ + 1 - differ).map(_.toInt)
 
+      import BuildMessage.Kind._
+
       val category = kind match {
-        case BuildMessage.Kind.INFO => CompilerMessageCategory.INFORMATION
-        case BuildMessage.Kind.ERROR => 
+        case INFO | JPS_INFO | OTHER =>
+          CompilerMessageCategory.INFORMATION
+        case ERROR =>
           hasErrors = true
           CompilerMessageCategory.ERROR
-        case BuildMessage.Kind.PROGRESS => CompilerMessageCategory.STATISTICS
-        case BuildMessage.Kind.WARNING => CompilerMessageCategory.WARNING
+        case PROGRESS =>
+          CompilerMessageCategory.STATISTICS
+        case WARNING =>
+          CompilerMessageCategory.WARNING
       }
       
       consumer.message(
