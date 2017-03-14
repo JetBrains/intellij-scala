@@ -5,7 +5,7 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import scala.util.Try
 
 /**
@@ -22,8 +22,8 @@ object ScalaSyntheticProvider {
     if (!isScala) return false
 
     typeComponent match {
+      case _ if hasSpecialization(typeComponent) && !isMacroDefined(typeComponent) => true
       case m: Method if m.isConstructor && ScalaPositionManager.isAnonfunType(m.declaringType()) => true
-      case m: Method if hasSpecializationMethod(m) && !isMacroDefined(m) => true
       case m: Method if isDefaultArg(m) => true
       case m: Method if isTraitForwarder(m) => true
       case m: Method if m.name().endsWith("$adapted") => true
@@ -36,17 +36,22 @@ object ScalaSyntheticProvider {
     }
   }
 
-  private def hasSpecializationMethod(method: Method): Boolean = {
-    val methods = method.declaringType().methods().asScala
-    val name = method.name()
-    def checkName(cand: Method): Boolean = {
-      val candName = cand.name()
-      candName.takeWhile(_ != '$') == name && candName.contains("$mc") && candName.endsWith("$sp")
+  def unspecializedName(s: String): Option[String] = """.*(?=\$mc\w+\$sp)""".r.findFirstIn(s)
+
+  def hasSpecialization(tc: TypeComponent, refType: Option[ReferenceType] = None): Boolean = {
+    val referenceType = refType.getOrElse(tc.declaringType())
+
+    val name = tc.name()
+    val candidates: Seq[TypeComponent] = tc match {
+      case _: Method => referenceType.methods()
+      case _: Field => referenceType.allFields()
+      case _ => Seq.empty
     }
-    methods.exists { m =>
-      method.signature() == m.signature() && checkName(m)
-    }
+
+    candidates.exists(c => unspecializedName(c.name()).contains(name))
   }
+
+  def isSpecialization(tc: TypeComponent): Boolean = unspecializedName(tc.name()).nonEmpty
 
   private val defaultArgPattern = """\$default\$\d+""".r
 
@@ -100,19 +105,19 @@ object ScalaSyntheticProvider {
         val implMethods = it.methodsByName(m.name + "$")
         if (implMethods.isEmpty) false
         else {
-          val typeNames = m.argumentTypeNames().asScala
+          val typeNames = m.argumentTypeNames()
           val argCount = typeNames.size
-          implMethods.asScala.exists { impl =>
-            val implTypeNames = impl.argumentTypeNames().asScala
+          implMethods.exists { impl =>
+            val implTypeNames = impl.argumentTypeNames()
             val implArgCount = implTypeNames.size
             implArgCount == argCount + 1 && implTypeNames.tail == typeNames ||
               implArgCount == argCount && implTypeNames == typeNames
           }
         }
       case ct: ClassType =>
-        val interfaces = ct.allInterfaces().asScala
+        val interfaces = ct.allInterfaces()
         val vm = ct.virtualMachine()
-        val allTraitImpls = vm.allClasses().asScala.filter(_.name().endsWith("$class"))
+        val allTraitImpls = vm.allClasses().filter(_.name().endsWith("$class"))
         for {
           interface <- interfaces
           traitImpl <- allTraitImpls
@@ -129,7 +134,7 @@ object ScalaSyntheticProvider {
     val simpleName = m.name.stripSuffix("_$eq")
     m.declaringType() match {
       case ct: ClassType if ct.fieldByName(simpleName) != null =>
-        ct.allInterfaces().asScala.exists(_.name() == "scala.DelayedInit")
+        ct.allInterfaces().exists(_.name() == "scala.DelayedInit")
       case _ => false
     }
   }

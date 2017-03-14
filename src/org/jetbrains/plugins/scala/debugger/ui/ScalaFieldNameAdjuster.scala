@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.debugger.ui
 
 import com.intellij.debugger.ui.tree.{FieldDescriptor, NodeDescriptor, NodeDescriptorNameAdjuster}
 import com.sun.jdi.{ClassType, ReferenceType}
+import org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster.objectSuffix
 
@@ -57,8 +58,11 @@ class ScalaFieldNameAdjuster extends NodeDescriptorNameAdjuster {
           val stripped = name.stripSuffix(objectSuffix)
           stripped.drop(stripped.lastIndexOf('$') + 1)
         }
+        val unspecializedName = ScalaSyntheticProvider.unspecializedName(name)
 
-        if (isScalaObject)
+        if (unspecializedName.nonEmpty)
+          unspecializedName.get
+        else if (isScalaObject)
           s"[object] ${lastPart(name)}"
         else if (isLocalFromOuterField)
           name.takeWhile(_ != '$')
