@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
@@ -36,6 +35,8 @@ import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 import java.util.Set;
+
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -549,7 +550,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void updateOkStatus() {
     String text = getEnteredName();
-    setOKActionEnabled(ScalaNamesUtil.isIdentifier(text));
+    setOKActionEnabled(isIdentifier(text, null));
   }
 
   private void fireNameDataChanged() {

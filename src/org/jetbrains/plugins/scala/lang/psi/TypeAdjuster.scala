@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -121,7 +122,7 @@ object TypeAdjuster extends ApplicationAdapter {
       }
 
       private def cannotCreateTypeElement(withoutThisText: String) = {
-        withoutThisText.startsWith("type") && !ScalaNamesUtil.isIdentifier(withoutThisText.take(5))
+        withoutThisText.startsWith("type") && !isIdentifier(withoutThisText.take(5))
       }
     }
 

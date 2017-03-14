@@ -13,6 +13,7 @@ import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.util.PairProcessor
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -44,7 +45,8 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
     }
   }
 
-  override def isIdentifier(newName: String, language: Language): Boolean = ScalaNamesUtil.isIdentifier(newName)
+  override def isIdentifier(newName: String, language: Language): Boolean =
+    ScalaNamesValidator.isIdentifier(newName)
 
   override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
     handler match {

@@ -34,10 +34,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConverters._
@@ -270,7 +270,7 @@ class ScalaChangeSignatureDialog(val project: Project,
     val paramNames = paramItems.map(_.parameter.name)
     val names = if (myNameField.isEnabled) getMethodName +: paramNames else paramNames
     problems ++= names.collect {
-      case name if !ScalaNamesUtil.isIdentifier(name) => s"$name is not a valid scala identifier"
+      case name if !isIdentifier(name) => s"$name is not a valid scala identifier"
     }
 
     val namesWithIndices = paramNames.zipWithIndex

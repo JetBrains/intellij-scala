@@ -14,6 +14,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
 import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 
@@ -129,7 +130,8 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   }
 
-  override def isIdentifier(newName: String, language: Language): Boolean = ScalaNamesUtil.isIdentifier(newName)
+  override def isIdentifier(newName: String, language: Language): Boolean =
+    ScalaNamesValidator.isIdentifier(newName)
 
   override def createInplaceRenamerToRestart(variable: PsiNamedElement, editor: Editor, initialName: String): VariableInplaceRenamer =
     new ScalaMemberInplaceRenamer(variable, getSubstituted, editor, initialName, oldName)

@@ -14,7 +14,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -99,11 +99,11 @@ class ActivatorProjectBuilder extends
       override def validate(): Boolean = {
         val context = settingsStep.getContext
 
-        if (context.isCreatingNewProject && !ScalaNamesUtil.isIdentifier(context.getProjectName) && context.getProjectName != null)
+        if (context.isCreatingNewProject && !isIdentifier(context.getProjectName))
           error("SBT Project name must be valid Scala identifier")
 
         val text = settingsStep.getModuleNameField.getText
-        if (text == null || !ScalaNamesUtil.isIdentifier(text))
+        if (!isIdentifier(text))
           error("SBT Project name must be valid Scala identifier")
 
         true

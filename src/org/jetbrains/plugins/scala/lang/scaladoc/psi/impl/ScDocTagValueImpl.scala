@@ -10,13 +10,14 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, ResolveResult}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiElementImpl, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -67,7 +68,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScReferenceElementImpl(node) with
   }
 
   override def handleElementRename(newElementName: String): PsiElement = {
-    if (!ScalaNamesUtil.isIdentifier(newElementName)) return this
+    if (!isIdentifier(newElementName)) return this
     val doc = FileDocumentManager.getInstance().getDocument(getContainingFile.getVirtualFile)
     PsiDocumentManager.getInstance(getProject).doPostponedOperationsAndUnblockDocument(doc)
     val range: TextRange = getFirstChild.getTextRange

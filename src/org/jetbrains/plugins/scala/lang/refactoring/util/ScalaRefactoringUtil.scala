@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypePa
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -909,7 +910,7 @@ object ScalaRefactoringUtil {
 
         if (replaceAsInjection) {
           val withNextChar = file.getText.substring(newRange.getStartOffset, newRange.getEndOffset + 1)
-          val needBraces = ScalaNamesUtil.isIdentifier(withNextChar) && withNextChar.last != '$'
+          val needBraces = isIdentifier(withNextChar) && withNextChar.last != '$'
           val text = if (needBraces) s"$${$newString}" else s"$$$newString"
           shift += (if (needBraces) 2 else 1)
           document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)

@@ -48,6 +48,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -58,15 +59,15 @@ import scala.reflect.ClassTag
 class ScalaPsiElementFactoryImpl(implicit val manager: PsiManager) extends JVMElementFactory {
   def createDocCommentFromText(text: String): PsiDocComment = ???
 
-  def isValidClassName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+  def isValidClassName(name: String): Boolean = isIdentifier(name)
 
-  def isValidMethodName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+  def isValidMethodName(name: String): Boolean = isIdentifier(name)
 
-  def isValidParameterName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+  def isValidParameterName(name: String): Boolean = isIdentifier(name)
 
-  def isValidFieldName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+  def isValidFieldName(name: String): Boolean = isIdentifier(name)
 
-  def isValidLocalVariableName(name: String): Boolean = ScalaNamesUtil.isIdentifier(name)
+  def isValidLocalVariableName(name: String): Boolean = isIdentifier(name)
 
   def createConstructor(name: String, context: PsiElement): PsiMethod = ???
 
@@ -569,7 +570,7 @@ object ScalaPsiElementFactory {
                 val name = param.name
                 param.typeElement match {
                   case Some(x) =>
-                    val colon = if (ScalaNamesUtil.isIdentifier(name + ":")) " : " else ": "
+                    val colon = this.colon(name)
                     val typeText = substitutor.subst(x.getType(TypingContext.empty).getOrAny).canonicalText
                     val arrow = ScalaPsiUtil.functionArrow(param.getProject)
                     name + colon + (if (param.isCallByNameParameter) arrow else "") + typeText + (if (param.isRepeatedParameter) "*" else "")
@@ -591,8 +592,7 @@ object ScalaPsiElementFactory {
             case (true, Some(scType)) =>
               var text = scType.canonicalText
               if (text == "_root_.java.lang.Object") text = "AnyRef"
-              val needWhitespace = method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty && ScalaNamesUtil.isIdentifier(method.name + ":")
-              val colon = if (needWhitespace) " : " else ": "
+              val colon = this.colon(method.name, flag = method.paramClauses.clauses.isEmpty && method.typeParameters.isEmpty)
               s"$colon$text = $inBody"
             case _ =>
               " = " + inBody
@@ -682,6 +682,9 @@ object ScalaPsiElementFactory {
     }
   }
 
+  private def colon(name: String, flag: Boolean = true) =
+    (if (flag && isIdentifier(s"$name:")) " " else "") + ": "
+
   private def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
                                                body: String, needsOverride: Boolean,
                                                isVal: Boolean, needsInferType: Boolean): String = {
@@ -690,7 +693,7 @@ object ScalaPsiElementFactory {
     val modifiersText = if (modOwner != null) modOwner.getModifierList.getText + " " else ""
     val keyword = if (isVal) "val " else "var "
     val name = variable.name
-    val colon = if (ScalaNamesUtil.isIdentifier(name + ":")) " : " else ": "
+    val colon = this.colon(name)
     val typeText = if (needsInferType)
       substitutor.subst(variable.getType(TypingContext.empty).getOrAny).canonicalText else ""
     s"$overrideText$modifiersText$keyword$name$colon$typeText = $body"

@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.lang.refactoring.util
-
+package org.jetbrains.plugins.scala
+package lang
+package refactoring
+package util
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiNamedElement, PsiElement}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
 /**
  * Created by Kate Ustyuzhanina on 8/5/15.
@@ -50,7 +53,7 @@ abstract class ScalaValidator(conflictsReporter: ConflictsReporter,
     if (!increaseNumber) return ""
     var i = 1
     res = name + i
-    if (!ScalaNamesUtil.isIdentifier(res)) {
+    if (!isIdentifier(res)) {
       res = name + name.last
       while (!isOKImpl(res, allOcc = true).isEmpty) {
         res = name + name.last

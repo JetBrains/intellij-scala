@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod;
 
 //import com.intellij.openapi.editor.event.DocumentEvent;
+
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -20,7 +21,6 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 import scala.Option;
@@ -35,6 +35,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -125,9 +127,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void updateOkStatus() {
-    setOKActionEnabled(ScalaNamesUtil.isIdentifier(getMethodName()) &&
-            (isPublic() || getVisibilityEncloser().equals("") || ScalaNamesUtil.isIdentifier(getVisibilityEncloser())) &&
-            (isTuple() || ScalaNamesUtil.isIdentifier(getMultipleOutputEncloser())));
+    setOKActionEnabled(isIdentifier(getMethodName(), null) &&
+            (isPublic() || getVisibilityEncloser().equals("") || isIdentifier(getVisibilityEncloser(), null)) &&
+            (isTuple() || isIdentifier(getMultipleOutputEncloser(), null)));
   }
 
   private String getVisibilityEncloser() {

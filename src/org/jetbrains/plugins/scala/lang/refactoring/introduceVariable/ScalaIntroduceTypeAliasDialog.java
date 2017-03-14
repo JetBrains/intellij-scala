@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier;
+
 
 public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements NamedDialog {
     private JPanel contentPane;
@@ -287,7 +289,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private void updateOkStatus() {
         String text = getEnteredName();
-        setOKActionEnabled(ScalaNamesUtil.isIdentifier(text));
+        setOKActionEnabled(isIdentifier(text, null));
     }
 
     private void fireNameDataChanged() {

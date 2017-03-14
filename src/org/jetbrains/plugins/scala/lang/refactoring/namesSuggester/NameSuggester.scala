@@ -18,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
+import org.jetbrains.plugins.scala.lang.refactoring.util.NameValidator
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -55,7 +56,7 @@ object NameSuggester {
     }
     generateNamesByExpr(expr)(names, validator)
 
-    val result = (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
+    val result = (for (name <- names if name != "" && isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
     }).toList.reverse
 
@@ -69,8 +70,7 @@ object NameSuggester {
     val result = names.map {
       case "class" => "clazz"
       case s => s
-    }.filter(name => name != "" && ScalaNamesUtil.isIdentifier(name))
-
+    }.filter(name => name != "" && isIdentifier(name))
     if (result.isEmpty) {
       Set("value")
     } else result.reverse.toSet
@@ -255,7 +255,7 @@ object NameSuggester {
         generateNamesByExpr(x.getEffectiveInvokedExpr)
       case l: ScLiteral if l.isString =>
         l.getValue match {
-          case s: String if ScalaNamesUtil.isIdentifier(s.toLowerCase) => add(s.toLowerCase)
+          case s: String if isIdentifier(s.toLowerCase) => add(s.toLowerCase)
           case _ =>
         }
       case _ => expr.getContext match {
