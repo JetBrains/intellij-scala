@@ -42,7 +42,10 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotationHolder {
 
   def createInformationAnnotation(elt: PsiElement, message: String) = FakeAnnotation
 
-  def createWarningAnnotation(range: TextRange, message: String) = FakeAnnotation
+  def createWarningAnnotation(range: TextRange, message: String) = {
+    myAnnotations ::= WarningWithRange(range, message)
+    FakeAnnotation
+  }
 
   def createWarningAnnotation(node: ASTNode, message: String) = FakeAnnotation
 
