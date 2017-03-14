@@ -290,6 +290,8 @@ object JavaToScala {
           convertPsiToIntermdeiate(i.getOperand, externalProperties),
           convertPsiToIntermdeiate(i.getCheckType, externalProperties))
       case m: PsiMethodCallExpression =>
+        def isSuper: Boolean = m.getMethodExpression.getQualifierExpression.isInstanceOf[PsiSuperExpression]
+
         m.getMethodExpression.resolve() match {
           case method: PsiMethod if method.getName == "parseInt" && m.getArgumentList.getExpressions.length == 1 &&
             method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Integer" =>
@@ -303,7 +305,7 @@ object JavaToScala {
             method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Math" =>
             MethodCallExpression.build(
               convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties), ".round", null)
-          case method: PsiMethod if method.getName == "equals" && m.getTypeArguments.isEmpty
+          case method: PsiMethod if method.getName == "equals" && m.getTypeArguments.isEmpty && !isSuper
             && m.getArgumentList.getExpressions.length == 1 =>
             MethodCallExpression.build(
               Option(m.getMethodExpression.getQualifierExpression).map(convertPsiToIntermdeiate(_, externalProperties))
