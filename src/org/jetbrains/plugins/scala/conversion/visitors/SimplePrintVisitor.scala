@@ -387,7 +387,9 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
         }
       case _ if !isPostfix =>
         printer.append(signType)
+        printer.append("(")
         visit(operand)
+        printer.append(")")
     }
   }
 
