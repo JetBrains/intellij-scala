@@ -62,7 +62,8 @@ class ILoopWrapperFactoryHandler {
       new File(f.getParent, "repl-interface-sources.jar")
     }
 
-    val replLabel = s"repl-wrapper-${CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")}-${sbtData.javaClassVersion}.jar"
+    val replLabel = 
+      s"repl-wrapper-${CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")}-${sbtData.javaClassVersion}-$WRAPPER_VERSION.jar"
     val targetFile = new File(home, replLabel)
 
     if (!targetFile.exists()) {
@@ -86,9 +87,10 @@ class ILoopWrapperFactoryHandler {
 }
 
 object ILoopWrapperFactoryHandler {
+  private val WRAPPER_VERSION = 1
   private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory"
 
-  protected def findContainingJar(clazz: Class[_]): Option[File] = {
+  private def findContainingJar(clazz: Class[_]): Option[File] = {
     val resource = clazz.getResource('/' + clazz.getName.replace('.', '/') + ".class")
 
     if (resource == null) return None
@@ -100,27 +102,27 @@ object ILoopWrapperFactoryHandler {
     Option(new File(url.substring(0, idx + 4))).filter(_.exists())
   }
 
-  protected def getBaseJars(compilerJars: CompilerJars): Seq[File] = {
-    val jars = compilerJars.library +: compilerJars.compiler +: compilerJars.extra
-
-    findContainingJar(this.getClass) flatMap {
-      jar1 =>
-        findContainingJar(classOf[FileUtil]) flatMap (
-          jar2 =>
-            findContainingJar(classOf[ThreadLocalPrintStream]) flatMap (
-              jar3 =>
-                findContainingJar(classOf[WorksheetOutputEvent]) map (jar4 => jars :+ jar1 :+ jar2 :+ jar3 :+ jar4)
-              )
-          )
-    } getOrElse jars
+  private def findContainingJars(classes: Seq[Class[_]]): Seq[File] = {
+    (Seq[File]() /: classes) {
+      case (cur, cl) => findContainingJar(cl).map(cur :+ _) getOrElse cur
+    }
   }
 
-  protected def createIsolatingClassLoader(fromJars: Seq[File]): URLClassLoader = {
+  private def getBaseJars(compilerJars: CompilerJars): Seq[File] = {
+    val jars =
+      compilerJars.library +: compilerJars.compiler +: compilerJars.extra
+    val additionalJars =
+      findContainingJars(Seq(this.getClass, classOf[FileUtil], classOf[ThreadLocalPrintStream], classOf[WorksheetOutputEvent]))
+    
+    jars ++ additionalJars
+  }
+
+  private def createIsolatingClassLoader(fromJars: Seq[File]): URLClassLoader = {
     new URLClassLoader(Path.toURLs(fromJars), sbt.classpath.ClasspathUtilities.rootLoader)
   }
 
   //We need this method as scala std lib converts scala collections to its own wrappers with asJava method
-  protected def scalaToJava[T](seq: Seq[T]): util.List[T] = {
+  private def scalaToJava[T](seq: Seq[T]): util.List[T] = {
     val al = new util.ArrayList[T]()
     seq.foreach(al.add)
     al
