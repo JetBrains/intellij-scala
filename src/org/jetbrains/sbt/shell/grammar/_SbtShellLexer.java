@@ -5,6 +5,8 @@ package org.jetbrains.sbt.shell.grammar;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
+import static com.intellij.psi.TokenType.BAD_CHARACTER;
+import static com.intellij.psi.TokenType.WHITE_SPACE;
 import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
 
 
@@ -53,8 +55,9 @@ public class _SbtShellLexer implements FlexLexer {
 
   /* The ZZ_CMAP_A table has 640 entries */
   static final char ZZ_CMAP_A[] = zzUnpackCMap(
-    "\11\0\5\2\22\0\1\2\16\0\1\6\12\3\1\4\1\5\5\0\32\3\4\0\1\3\1\0\32\3\1\7\1\0"+
-    "\1\10\7\0\1\1\32\0\1\1\337\0\1\1\177\0\13\1\35\0\2\1\5\0\1\1\57\0\1\1\40\0");
+    "\11\0\5\1\22\0\1\1\1\4\1\0\2\4\1\0\11\4\1\5\12\4\1\7\1\6\1\0\1\4\1\0\35\4"+
+    "\1\0\1\4\1\0\34\4\1\3\1\0\1\2\1\4\6\0\1\1\32\0\1\1\337\0\1\1\177\0\13\1\35"+
+    "\0\2\1\5\0\1\1\57\0\1\1\40\0");
 
   /** 
    * Translates DFA states to action switch labels.
@@ -62,11 +65,11 @@ public class _SbtShellLexer implements FlexLexer {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\1\0\1\1\2\2\1\3\1\4\1\5\1\6\1\7"+
-    "\1\10\1\11\1\12";
+    "\1\0\1\1\1\2\1\3\1\4\1\5\1\6\1\7"+
+    "\1\0\1\10\1\11";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[12];
+    int [] result = new int[11];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -91,11 +94,11 @@ public class _SbtShellLexer implements FlexLexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\11\0\11\0\22\0\33\0\44\0\11\0\11"+
-    "\0\11\0\11\0\22\0\11";
+    "\0\0\0\10\0\20\0\30\0\40\0\30\0\30\0\50"+
+    "\0\60\0\30\0\30";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[12];
+    int [] result = new int[11];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -118,11 +121,12 @@ public class _SbtShellLexer implements FlexLexer {
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\2\1\3\1\4\1\5\1\6\1\7\1\10\1\11"+
-    "\1\12\13\0\1\13\11\0\1\5\11\0\1\14\4\0";
+    "\1\2\1\3\1\4\1\5\1\2\1\6\1\7\1\10"+
+    "\1\2\3\0\1\2\4\0\1\3\22\0\4\11\7\0"+
+    "\1\12\2\0\1\13\1\0\4\11";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[45];
+    int [] result = new int[56];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -160,10 +164,10 @@ public class _SbtShellLexer implements FlexLexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\2\11\3\1\4\11\1\1\1\11";
+    "\1\0\2\1\1\11\1\1\2\11\1\1\1\0\2\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[12];
+    int [] result = new int[11];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -469,45 +473,41 @@ public class _SbtShellLexer implements FlexLexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
-            { return com.intellij.psi.TokenType.BAD_CHARACTER;
-            }
-          case 11: break;
-          case 2: 
-            { return com.intellij.psi.TokenType.WHITE_SPACE;
-            }
-          case 12: break;
-          case 3: 
             { return ID;
             }
-          case 13: break;
+          case 10: break;
+          case 2: 
+            { return WHITE_SPACE;
+            }
+          case 11: break;
+          case 3: 
+            { return CLOSE_BRACE;
+            }
+          case 12: break;
           case 4: 
-            { return COLON;
+            { return OPEN_BRACE;
+            }
+          case 13: break;
+          case 5: 
+            { return SLASH;
             }
           case 14: break;
-          case 5: 
+          case 6: 
             { return SEMICOLON;
             }
           case 15: break;
-          case 6: 
-            { return SLASH;
+          case 7: 
+            { return COLON;
             }
           case 16: break;
-          case 7: 
-            { return OPEN_BRACE;
-            }
-          case 17: break;
           case 8: 
-            { return CLOSE_BRACE;
-            }
-          case 18: break;
-          case 9: 
-            { return SPACE;
-            }
-          case 19: break;
-          case 10: 
             { return DOUBLE_COLON;
             }
-          case 20: break;
+          case 17: break;
+          case 9: 
+            { return URISTRING;
+            }
+          case 18: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }
