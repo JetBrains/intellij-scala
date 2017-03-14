@@ -1,14 +1,13 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /*start*/
 class LambdaExpression {
     public void main(String[] args) {
-        List<Integer> integers = new ArrayList<Integer>();
-        integers.forEach((Integer i) -> System.out.println(i));
+        Optional<Integer> integers = Optional.of(12);
+        integers.filter((Integer i) -> booleanFunction(i));
 
-        integers.forEach((i) -> System.out.println(i));
+        integers.filter((i) -> booleanFunction(i));
 
         example(integers, n -> {
             System.out.println("test");
@@ -32,17 +31,21 @@ class LambdaExpression {
         });
     }
 
-    int example(List<Integer> numbers, Predicate<Integer> p) {
+    int example(Optional<Integer> numbers, Predicate<Integer> p) {
         return 0;
+    }
+
+    boolean booleanFunction(int i) {
+        return i % 2 == 0;
     }
 }/*end*/
 
 /*
 class LambdaExpression {
   def main(args: Array[String]): Unit = {
-    val integers: util.List[Integer] = new util.ArrayList[Integer]
-    integers.forEach((i: Integer) => System.out.println(i))
-    integers.forEach((i: Integer) => System.out.println(i))
+    val integers: Optional[Integer] = Optional.of(12)
+    integers.filter((i: Integer) => booleanFunction(i))
+    integers.filter((i: Integer) => booleanFunction(i))
     example(integers, (n: Integer) => {
       def foo(n: Integer) = {
         System.out.println("test")
@@ -67,5 +70,8 @@ class LambdaExpression {
     })
   }
 
-  def example(numbers: util.List[Integer], p: Predicate[Integer]): Int = 0
-}*/
+  def example(numbers: Optional[Integer], p: Predicate[Integer]): Int = 0
+
+  def booleanFunction(i: Int): Boolean = i % 2 == 0
+}
+*/
