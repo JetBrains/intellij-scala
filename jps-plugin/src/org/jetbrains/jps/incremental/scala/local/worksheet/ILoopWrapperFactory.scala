@@ -6,7 +6,6 @@ import java.util
 import java.util.regex.Pattern
 import java.util.{Base64, Comparator, PriorityQueue}
 
-import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory._
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer.MyUpdatePrintWriter
 import org.jetbrains.jps.incremental.scala.local.worksheet.compatibility.WorksheetArgsJava
