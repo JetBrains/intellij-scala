@@ -9,14 +9,16 @@ import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.StdReplTags.tagOfIMain
 import scala.tools.nsc.interpreter.{ILoop, IMain, NamedParam, Results}
 
+import scala.collection.JavaConverters._
+
 /**
   * User: Dmitry.Naydanov
   * Date: 27.01.17.
   */
-class ILoopWrapperImpl(out: PrintWriter, projectFullCp: Iterable[String]) extends ILoop(None, out) with ILoopWrapper {
+class ILoopWrapperImpl(out: PrintWriter, projectFullCp: java.util.List[String]) extends ILoop(None, out) with ILoopWrapper {
   override def init(): Unit = {
     val mySettings = new Settings
-    mySettings.classpath.value = projectFullCp.mkString(File.pathSeparator)
+    mySettings.classpath.value = projectFullCp.asScala.mkString(File.pathSeparator)
     mySettings.usejavacp.value = true
     
     this.settings = mySettings
