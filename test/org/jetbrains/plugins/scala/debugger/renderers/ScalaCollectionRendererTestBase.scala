@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.debugger.friendlyCollections
+package org.jetbrains.plugins.scala.debugger.renderers
 
 import java.util
 
@@ -24,65 +24,8 @@ class ScalaCollectionRendererTest_212 extends ScalaCollectionRendererTestBase {
   override implicit val version: ScalaVersion = Scala_2_12
 }
 
-abstract class ScalaCollectionRendererTestBase extends ScalaDebuggerTestCase {
+abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   private val UNIQUE_ID = "uniqueID"
-
-  private def renderLabelAndChildren(variableName: String): (String, List[String]) = {
-    import scala.collection.JavaConversions._
-
-    val frameTree = new ThreadsDebuggerTree(getProject)
-    Disposer.register(getTestRootDisposable, frameTree)
-    var testVariableChildren: util.List[DebuggerTreeNode] = null
-
-    val testVariable = managed[LocalVariableDescriptorImpl] {
-      val context = evaluationContext()
-      val testVariable = localVar(frameTree, context, variableName)
-      val renderer = testVariable.getRenderer(getDebugProcess)
-      testVariable.setRenderer(renderer)
-      testVariable.updateRepresentation(context, DescriptorLabelListener.DUMMY_LISTENER)
-      val value = testVariable.calcValue(context)
-      renderer.buildChildren(value, new ChildrenBuilder {
-        def setChildren(children: util.List[DebuggerTreeNode]) {testVariableChildren = children}
-
-        def getDescriptorManager: NodeDescriptorFactory = frameTree.getNodeFactory
-
-        def getNodeManager: NodeManager = frameTree.getNodeFactory
-
-        def setRemaining(remaining: Int) {}
-
-        def initChildrenArrayRenderer(renderer: ArrayRenderer) {}
-
-        def getParentDescriptor: ValueDescriptor = testVariable
-      }, context)
-
-      testVariable
-    }
-
-    managed{testVariableChildren map (_.getDescriptor) foreach {
-      case impl: NodeDescriptorImpl =>
-        impl.updateRepresentation(evaluationContext(), DescriptorLabelListener.DUMMY_LISTENER)
-      case a => println(a)
-    }}
-
-    //<magic>
-    evalResult(variableName)
-    //</magic> 
-
-    managed {
-      (testVariable.getLabel, (testVariableChildren map {_.getDescriptor.getLabel}).toList)
-    }
-  }
-
-  private def localVar(frameTree: DebuggerTree, evaluationContext: EvaluationContextImpl, name: String) = {
-    try {
-      val frameProxy = evaluationContext.getFrameProxy
-      val local = frameTree.getNodeFactory.getLocalVariableDescriptor(null, frameProxy visibleVariableByName name)
-      local setContext evaluationContext
-      local
-    } catch {
-      case e: EvaluateException => null
-    }
-  }
 
   protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String) = {
     import org.junit.Assert._
