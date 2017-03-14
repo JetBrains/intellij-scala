@@ -2,15 +2,18 @@ package org.jetbrains.plugins.scala
 package conversion
 
 
+import java.util.regex.Pattern
+
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.psi.{PsiLambdaExpression, _}
+import org.jetbrains.plugins.hocon.JavaInterop.collectionAsScalaIterableConverter
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
@@ -20,6 +23,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiMet
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
@@ -597,6 +601,27 @@ object JavaToScala {
       }
     }
 
+    def couldFindInstancesForClass: Boolean = {
+      def isParentValid(ref: PsiReference): Boolean =
+        Option(ref.getElement).flatMap(element => Option(PsiTreeUtil.getParentOfType(element, classOf[PsiNewExpression], classOf[ScConstructor]))).exists {
+          case n: PsiNewExpression if Option(n.getClassReference).exists(_ == ref) => true
+          case e: ScConstructor if e.reference.contains(ref) => true
+          case _ => false
+        }
+
+      def withInstances =
+        ReferencesSearch
+          .search(inClass, GlobalSearchScope.projectScope(inClass.getProject))
+          .findAll()
+          .asScala
+          .exists(psiReference => isParentValid(psiReference))
+
+      if (textMode) {
+        val p = Pattern.compile(s"new\\s+${inClass.getName}")
+        p.matcher(inClass.getContainingFile.getText).find()
+      } else withInstances
+    }
+
     def handleAsClass(classMembers: Seq[PsiMember], objectMembers: Seq[PsiMember],
                       companionObject: IntermediateNode, extendList: Seq[(PsiClassType, PsiJavaCodeReferenceElement)]): IntermediateNode = {
 
@@ -665,7 +690,7 @@ object JavaToScala {
           convertTypePsiToIntermediate(a, b, inClass.getProject)
         }
 
-      if (classMembers.nonEmpty || objectMembers.isEmpty || extendList.nonEmpty) {
+      if (classMembers.nonEmpty || objectMembers.isEmpty || extendList.nonEmpty || couldFindInstancesForClass) {
         context.get().push((false, inClass.qualifiedName))
         try {
           inClass match {
