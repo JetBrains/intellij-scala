@@ -12,6 +12,7 @@ import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 import com.intellij.openapi.util.Condition
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Pavel Fatin
@@ -60,8 +61,16 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     optionPanel.add(useSbtShellCheckBox)
     content.add(optionPanel, fillLineConstraints)
 
+    // TODO Remove the patching when the External System will provide this functionality natively
+    content.getComponents.toSeq.foreachDefined {
+      case checkbox: JCheckBox if checkbox.getText.startsWith("Use auto-import") ||
+        checkbox.getText.startsWith("Create directories") =>
+
+        Option(checkbox.getParent).foreach(_.remove(checkbox))
+    }
+
     if (context == Context.Wizard) {
-      val label = new JLabel("Project \u001BSDK:")
+      val label = new JLabel("Project \u001BJDK:")
       label.setLabelFor(jdkComboBox)
 
       val jdkPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
