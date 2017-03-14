@@ -10,7 +10,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilerJars, SbtData}
 import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogger}
 import org.jetbrains.jps.incremental.scala.remote.{Arguments, WorksheetOutputEvent}
-import sbt.Path
+import sbt.{Path, ScalaInstance}
 import sbt.compiler.{AnalyzingCompiler, RawCompiler}
 
 /**
@@ -20,25 +20,26 @@ import sbt.compiler.{AnalyzingCompiler, RawCompiler}
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
   
-  private var replFactory: Option[(Class[_], Any)] = None
+  private var replFactory: Option[(Class[_], Any, String)] = None
 
   def loadReplWrapperAndRun(commonArguments: Arguments, out: OutputStream, client: Option[Client]) {
     val compilerJars = commonArguments.compilerData.compilerJars.orNull
+    val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
+    val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, scalaInstance, client)
+    val scalaVersion = findScalaVersionIn(scalaInstance)
     
     replFactory match {
-      case Some(_) =>
-      case None =>
+      case Some((_, _, oldVersion)) if oldVersion == scalaVersion =>
+      case _ =>
         val loader = createIsolatingClassLoader(getBaseJars(compilerJars))
         val clazz = loader.loadClass(REPL_FQN)
-        replFactory = Option((clazz, clazz.newInstance()))
+        replFactory = Option((clazz, clazz.newInstance(), scalaVersion))
     }
-
-    val iLoopFile = getOrCompileReplLoopFile(commonArguments.sbtData, compilerJars, client)
 
     client.foreach(_ progress "Running REPL...")
     
     replFactory foreach {
-      case (clazz, instance) =>
+      case (clazz, instance, _) =>
         val m =
           clazz.getDeclaredMethod(
             "loadReplWrapperAndRun", 
@@ -54,8 +55,7 @@ class ILoopWrapperFactoryHandler {
     }
   }
   
-  protected def getOrCompileReplLoopFile(sbtData: SbtData, compilerJars: CompilerJars, client: Option[Client]): File = {
-    val scalaInstance = CompilerFactoryImpl.createScalaInstance(compilerJars)
+  protected def getOrCompileReplLoopFile(sbtData: SbtData, scalaInstance: ScalaInstance, client: Option[Client]): File = {
     val home = sbtData.interfacesHome
     val interfaceJar = sbtData.interfaceJar
 
@@ -65,7 +65,7 @@ class ILoopWrapperFactoryHandler {
     }
 
     val replLabel = 
-      s"repl-wrapper-${CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")}-${sbtData.javaClassVersion}-$WRAPPER_VERSION.jar"
+      s"repl-wrapper-${findScalaVersionIn(scalaInstance)}-${sbtData.javaClassVersion}-$WRAPPER_VERSION.jar"
     val targetFile = new File(home, replLabel)
 
     if (!targetFile.exists()) {
@@ -91,6 +91,9 @@ class ILoopWrapperFactoryHandler {
 object ILoopWrapperFactoryHandler {
   private val WRAPPER_VERSION = 1
   private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory"
+  
+  private def findScalaVersionIn(scalaInstance: ScalaInstance): String = 
+    CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")
 
   private def findContainingJar(clazz: Class[_]): Option[File] = {
     val resource = clazz.getResource('/' + clazz.getName.replace('.', '/') + ".class")
