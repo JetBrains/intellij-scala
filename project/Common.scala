@@ -12,7 +12,8 @@ object Common {
       unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
       unmanagedSourceDirectories in Test += baseDirectory.value / "test",
       unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
-      libraryDependencies += Dependencies.junitInterface
+      libraryDependencies += Dependencies.junitInterface,
+      updateOptions := updateOptions.value.withCachedResolution(true)
     )
 
   def newProject(projectName: String): Project =
