@@ -23,15 +23,18 @@ class ILoopWrapperFactory {
 
   /**
     * We need it for ClassLoading magic. 
-    * This is entry point for the factory. Invoked via reflection in ILoopWrapperFactoryHandler 
+    * This is entry point for the factory. Invoked via reflection in ILoopWrapperFactoryHandler
+    * Hack with client as comparable is f ugly but works 
     */
   def loadReplWrapperAndRun(worksheetArgsString: util.List[String], nameForSt: String,
                             library: File, compiler: File, extra: util.List[File], classpath: util.List[File],
-                            outStream: OutputStream, iLoopFile: File) {
+                            outStream: OutputStream, iLoopFile: File, clientProvider: Comparable[String]) {
     val argsJava = WorksheetArgsJava.constructArgsFrom(worksheetArgsString, nameForSt, library, compiler, extra, classpath)
     WorksheetServer.patchSystemOut(outStream)
     
-    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, None) //todo client  
+    val onProgress: String => Unit = if (clientProvider == null) (_: String) => () else (msg: String) => clientProvider.compareTo(msg) 
+    
+    loadReplWrapperAndRun(argsJava, outStream, iLoopFile, onProgress)   
   }
 
   /**
@@ -40,14 +43,14 @@ class ILoopWrapperFactory {
     * @param worksheetArgs worksheet specific extracted args; contains sessionId to be associated with wrapper. 
     *                      In current impl it is path to .sc file (for "real" files) or !SCRATCH!\filename for light worksheets 
     * @param outStream     OutputStream that will be used for printing the result of input code execution
-    * @param client        Client for displaying progress (if we must compile wrapper class)
+    * @param onProgress    Client method for displaying progress (if we must compile wrapper class)
     * @return REPL wrapper for worksheet, cached or newly created
     */
-  private def loadReplWrapperAndRun(worksheetArgs: WorksheetArgsJava, outStream: OutputStream, iLoopFile: File, client: Option[Client]) {
+  private def loadReplWrapperAndRun(worksheetArgs: WorksheetArgsJava, outStream: OutputStream, iLoopFile: File, onProgress: String => Unit) {
     val replArgs = worksheetArgs.getReplArgs
     if (replArgs == null) return
     
-    client.foreach(_.progress("Retrieving REPL instance..."))
+    onProgress("Retrieving REPL instance...")
     
     val inst = cache.getOrCreate(
       replArgs.getSessionId, 
@@ -68,33 +71,30 @@ class ILoopWrapperFactory {
       out.flush()
     }
     
-    client.foreach(_.progress("Worksheet execution started"))
+    onProgress("Worksheet execution started")
     printService(REPL_START)
     out.flush()
 
     val code = new String(Base64.getDecoder.decode(replArgs.getCodeChunk), "UTF-8")
     val statements = code split Pattern.quote("\n$\n$\n")
 
-    val stmtCount = statements.length
-    var count = 1.0f
-
-    def stmtProcessed() {
-      client.foreach(_.progress("Executing worksheet...", Some(count / stmtCount)))
-      count += 1
-    }
+//    val stmtCount = statements.length
+//    var count = 1.0f
+//    def stmtProcessed() {
+//      client.foreach(_.progress("Executing worksheet...", Some(count / stmtCount)))
+//      count += 1
+//    }
     
     var j = 0 // Compatibility 2.11 <-> 2.12 . We can't use ArrayOps and case classes with >1 args, so no foreach and no for with until
     
     while (j < statements.length) {
       statements.apply(j) match {
         case CommandExtractor(action) =>
-          stmtProcessed()
           action(inst)
         case codeChunk =>
           val shouldContinue = codeChunk.trim.length == 0 || inst.processChunk(codeChunk)
 
-          stmtProcessed()
-
+          onProgress("Executing worksheet...")
           printService(REPL_CHUNK_END)
           if (!shouldContinue) return
       } 
