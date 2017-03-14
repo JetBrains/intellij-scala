@@ -191,9 +191,7 @@ object TypeAnnotationUtil {
       case REMOVE | BY_CODE_STYLE =>
         getTypeElement(element) match {
           case Some(typeElement)
-            if (applicationSettings.SPECIFY_RETURN_TYPE_EXPLICITLY == REMOVE) ||
-              ((applicationSettings.SPECIFY_RETURN_TYPE_EXPLICITLY == BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
-
+            if (state == REMOVE) || ((state == BY_CODE_STYLE) && !isTypeAnnotationNeeded(element)) =>
             AddOnlyStrategy.withoutEditor.removeTypeAnnotation(typeElement)
           case _ =>
         }

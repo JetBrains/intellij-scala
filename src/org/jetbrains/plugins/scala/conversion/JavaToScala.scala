@@ -981,10 +981,10 @@ object JavaToScala {
   }
 
   def convertPsisToText(elements: Array[PsiElement],
-                        dropElements: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): String = {
+                        dropElements: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement](), textMode: Boolean = false): String = {
     val resultNode = new MainConstruction
     for (part <- elements) {
-      resultNode.addChild(convertPsiToIntermdeiate(part, null)(new ListBuffer(), Seq.empty, dropElements, textMode = true))
+      resultNode.addChild(convertPsiToIntermdeiate(part, null)(new ListBuffer(), Seq.empty, dropElements, textMode = textMode))
     }
     val visitor = new PrintWithComments
     visitor.visit(resultNode)

@@ -116,7 +116,7 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
         javaFile
       ).filterNot(el => el.isInstanceOf[PsiImportList] || el.isInstanceOf[PsiPackageStatement])
 
-    val scalaFileText = JavaToScala.convertPsisToText(elementsToConvert)
+    val scalaFileText = JavaToScala.convertPsisToText(elementsToConvert, textMode = true)
 
     newLine(convertStatement(javaFile.getPackageStatement)) +
       convertStatement(javaFile.getImportList) +
