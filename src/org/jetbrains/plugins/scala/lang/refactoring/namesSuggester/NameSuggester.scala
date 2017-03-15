@@ -7,7 +7,7 @@ import java.util.regex.{Matcher, Pattern}
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiNamedElement}
+import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import org.atteo.evo.inflector.English
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.obtainProject
 import org.jetbrains.plugins.scala.extensions._
@@ -191,42 +191,39 @@ object NameSuggester {
       }
     }
 
-    def addLowerCase(name: String, length: Int = 1) = {
-      val lowerCaseName = name.toLowerCase
-      names += (if (shortVersion) lowerCaseName.substring(0, length) else lowerCaseName)
+    def toLowerCase(name: String, length: Int = 1): String = {
+      val lowerCased = name.toLowerCase
+      if (shortVersion) lowerCased.substring(0, length) else lowerCased
     }
 
-    def addForNamedElementString(name: String) = if (name != null && name.toUpperCase == name) {
-      names += deleteNonLetterFromString(name).toLowerCase
-    } else if (name == "String") {
-      addLowerCase(name)
-    } else {
-      generateCamelNames(name)
+    def addForNamedElement(name: String) =
+      if (name != null && name.toUpperCase == name) {
+        names += deleteNonLetterFromString(name).toLowerCase
+      } else if (name == "String") {
+        names += toLowerCase(name)
+      } else {
+        generateCamelNames(name)
+      }
+
+    def valTypeName(`type`: ValType): String = {
+      val typeName = `type`.name
+
+      `type` match {
+        case Boolean | Char | Int | Long | Double => toLowerCase(typeName)
+        case Short | Float => toLowerCase(typeName, 2)
+        case Byte | Unit => typeName
+      }
     }
-
-    def addForNamedElement(named: PsiNamedElement) = addForNamedElementString(named.name)
-
-    def addValTypeName(valType: ValType, length: Int = 1) = addLowerCase(valType.name, length)
 
     typez match {
-      case Int => addValTypeName(Int)
-      case Unit => names += Unit.name
-      case Byte => names += Byte.name
-      case Long => addValTypeName(Long)
-      case Float => addValTypeName(Float, 2)
-      case Double => addValTypeName(Double)
-      case Short => addValTypeName(Short, 2)
-      case Boolean => addValTypeName(Boolean)
-      case Char => addValTypeName(Char)
+      case valType: ValType => names += valTypeName(valType)
       case TupleType(_) => names += "tuple"
       case FunctionType(ret, params) => addForFunctionType(ret, params)
-      case ScDesignatorType(e) => addForNamedElement(e)
-      case parameterType: TypeParameterType => addForNamedElementString(parameterType.name)
-      case ScProjectionType(_, e, _) => addForNamedElement(e)
-      case ParameterizedType(tp, args) =>
-        addForParameterizedType(tp, args)
-      case JavaArrayType(argument) =>
-        names ++= pluralNames(argument)
+      case ScDesignatorType(e) => addForNamedElement(e.name)
+      case parameterType: TypeParameterType => addForNamedElement(parameterType.name)
+      case ScProjectionType(_, e, _) => addForNamedElement(e.name)
+      case ParameterizedType(tp, args) => addForParameterizedType(tp, args)
+      case JavaArrayType(argument) => names ++= pluralNames(argument)
       case ScCompoundType(Seq(head, _*), _, _) => generateNamesByType(head)
       case _ =>
     }
