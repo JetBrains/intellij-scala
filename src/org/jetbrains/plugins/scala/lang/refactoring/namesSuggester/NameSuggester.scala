@@ -88,6 +88,12 @@ object NameSuggester {
     names
   }
 
+  private[this] def plural: String => String = {
+    case "x" => "xs"
+    case "index" => "indices"
+    case string => English.plural(string)
+  }
+
   private def generateNamesByType(typez: ScType, shortVersion: Boolean = true)
                                  (implicit names: ArrayBuffer[String],
                                   validator: NameValidator,
@@ -95,28 +101,16 @@ object NameSuggester {
     val project = validator.getProject()
     implicit val typeSystem = project.typeSystem
 
-    def addPlurals(arg: ScType) {
-      def addPlural(s: String) {
-        if (!withPlurals) names += s
-        else {
-          s match {
-            case "x" => names += "xs"
-            case "index" => names += "indices"
-            case _ => names += English.plural(s)
-          }
-        }
+    def pluralNames(arg: ScType): Seq[String] = {
+      val pluralNames = arg match {
+        case valType: ValType => Seq(valType.name.toLowerCase)
+        case TupleType(_) => Seq("tuple")
+        case FunctionType(_, _) => Seq("function")
+        case ScDesignatorType(e) => getCamelNames(e.name)
+        case _ => namesByType(arg, withPlurals = false, shortVersion = false)
       }
 
-      arg match {
-        case valType: ValType => addPlural(valType.name.toLowerCase)
-        case TupleType(_) => addPlural("tuple")
-        case FunctionType(_, _) => addPlural("function")
-        case ScDesignatorType(e) =>
-          val camelNames = getCamelNames(e.name)
-          camelNames.foreach(addPlural)
-        case _ =>
-          namesByType(arg, withPlurals = false, shortVersion = false).foreach(addPlural)
-      }
+      if (withPlurals) pluralNames.map(plural) else pluralNames
     }
 
     def addFromTwoTypes(tp1: ScType, tp2: ScType, separator: String) {
@@ -176,7 +170,7 @@ object NameSuggester {
 
         classOfBaseType match {
           case c if c.qualifiedName == arrayClassName && args.nonEmpty =>
-            addPlurals(args.head)
+            names ++= pluralNames(args.head)
           case c if needPrefix.keySet.contains(c.qualifiedName) && args.nonEmpty =>
             for {
               s <- namesByType(args.head, shortVersion = false)
@@ -191,7 +185,7 @@ object NameSuggester {
             addFromTwoTypes(args.head, args(1), "To")
           case c if (isInheritor(c, baseCollectionClassName) || isInheritor(c, baseJavaCollectionClassName))
             && args.size == 1 =>
-            addPlurals(args.head)
+            names ++= pluralNames(args.head)
           case _ =>
         }
       }
@@ -231,9 +225,9 @@ object NameSuggester {
       case ScProjectionType(_, e, _) => addForNamedElement(e)
       case ParameterizedType(tp, args) =>
         addForParameterizedType(tp, args)
-      case JavaArrayType(argument) => addPlurals(argument)
-      case ScCompoundType(comps, _, _) =>
-        if (comps.nonEmpty) generateNamesByType(comps.head)
+      case JavaArrayType(argument) =>
+        names ++= pluralNames(argument)
+      case ScCompoundType(Seq(head, _*), _, _) => generateNamesByType(head)
       case _ =>
     }
   }
