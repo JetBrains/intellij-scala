@@ -7,6 +7,7 @@ import java.util.regex.{Pattern, PatternSyntaxException}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
 import com.intellij.execution.configurations._
+import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testDiscovery.JavaAutoRunManager
 import com.intellij.execution.testframework.TestFrameworkRunningModel
@@ -14,6 +15,7 @@ import com.intellij.execution.testframework.autotest.{AbstractAutoTestManager, T
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
+import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.extensions.Extensions
@@ -660,24 +662,31 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           consoleProperties.setIdBasedTestTree(true)
 
           // console view
-          val consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
+          val consoleView = if (useSbt && !useUiWithSbt) {
+            val console = new ConsoleViewImpl(project, true)
+            console.attachToProcess(processHandler)
+            console
+          } else SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
 
-          val res = new DefaultExecutionResult(consoleView, processHandler,
+          val res = new DefaultExecutionResult(
+            consoleView, processHandler,
             createActions(consoleView, processHandler, executor): _*)
 
-        if (!useSbt || useUiWithSbt) {
-          val rerunFailedTestsAction = new AbstractTestRerunFailedTestsAction(consoleView)
-          rerunFailedTestsAction.init(consoleView.getProperties)
-          rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
-            def get: TestFrameworkRunningModel = {
-              consoleView.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
-            }
-          })
-          res.setRestartActions(rerunFailedTestsAction, new ToggleAutoTestAction() {
-            override def isDelayApplicable: Boolean = false
+        consoleView match {
+          case testConsole: BaseTestsOutputConsoleView =>
+            val rerunFailedTestsAction = new AbstractTestRerunFailedTestsAction(testConsole)
+            rerunFailedTestsAction.init(testConsole.getProperties)
+            rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
+              def get: TestFrameworkRunningModel = {
+                testConsole.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
+              }
+            })
+            res.setRestartActions(rerunFailedTestsAction, new ToggleAutoTestAction() {
+              override def isDelayApplicable: Boolean = false
 
-            override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
-          })
+              override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
+            })
+          case _ =>
         }
         if (useSbt) {
           val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).map("testOnly" + _)

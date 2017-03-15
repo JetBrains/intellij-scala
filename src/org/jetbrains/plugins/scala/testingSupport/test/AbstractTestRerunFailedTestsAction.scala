@@ -7,8 +7,8 @@ import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magnitude
-import com.intellij.execution.testframework.ui.BaseTestsOutputConsoleView
 import com.intellij.execution.testframework.{AbstractTestProxy, TestConsoleProperties}
+import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -23,7 +23,7 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 09.12.11
  */
 
-class AbstractTestRerunFailedTestsAction(consoleView: BaseTestsOutputConsoleView)
+class AbstractTestRerunFailedTestsAction(consoleView: ConsoleView)
   extends AbstractRerunFailedTestsActionAdapter(consoleView) {
   copyFrom(ActionManager.getInstance.getAction("RerunFailedTests"))
   registerCustomShortcutSet(getShortcutSet, consoleView.getComponent)
