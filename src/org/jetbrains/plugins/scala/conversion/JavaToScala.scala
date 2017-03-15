@@ -53,12 +53,9 @@ object JavaToScala {
   def isVar(element: PsiModifierListOwner, parent: Option[PsiElement]): Boolean = {
     def usageInConstructorParams(usage: PsiReferenceExpression): Boolean = {
       def correspondedConstructorParams: Seq[PsiParameter] = {
-        val constructor = Option(PsiTreeUtil.getParentOfType(usage, classOf[PsiMethod]))
-        if (constructor.isDefined && constructor.get.isConstructor) {
-          constructor.get.parameters
-        } else {
-          Seq[PsiParameter]()
-        }
+        Option(PsiTreeUtil.getParentOfType(usage, classOf[PsiMethod]))
+          .collect { case m: PsiMethod if m.isConstructor => m.parameters }
+          .getOrElse(Seq.empty[PsiParameter])
       }
 
       val params = correspondedConstructorParams
@@ -447,10 +444,9 @@ object JavaToScala {
           NewExpression(iType, argList, withArrayInitalizer = false)
         }
       case t: PsiTryStatement =>
-        val resourceList = Option(t.getResourceList)
         val resourcesVariables = new ArrayBuffer[(String, IntermediateNode)]()
-        if (resourceList.isDefined) {
-          val it = resourceList.get.iterator
+        Option(t.getResourceList).foreach { resourceList =>
+          val it = resourceList.iterator
           while (it.hasNext) {
             val next = it.next()
             next match {
@@ -768,54 +764,42 @@ object JavaToScala {
 
       def getSuperCall(dropStatements: ArrayBuffer[PsiExpressionStatement]): IntermediateNode = {
         val firstStatement = getFirstStatement(constructor)
-        val isSuper = firstStatement.map(_.getExpression).flatMap {
-          case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "super" =>
-            Some(mc)
+        val maybeSuperCall: Option[PsiMethodCallExpression] = firstStatement.map(_.getExpression).flatMap {
+          case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "super" => Some(mc)
           case _ => None
         }
-        if (isSuper.isDefined) {
+
+        maybeSuperCall.map { superCall =>
           dropStatements += firstStatement.get
-          convertPsiToIntermdeiate(isSuper.get.getArgumentList, null)
-        } else {
-          null
-        }
+          convertPsiToIntermdeiate(superCall.getArgumentList, null)
+        }.orNull
       }
 
       def getCorrespondedFieldInfo(param: PsiParameter): Seq[(PsiField, PsiExpressionStatement)] = {
         val dropInfo = new ArrayBuffer[(PsiField, PsiExpressionStatement)]()
-        val usages = findVariableUsage(param, Option(constructor.getBody))
 
-        for (usage <- usages) {
+        findVariableUsage(param, Option(constructor.getBody)).foreach { usage =>
           val parent = Option(usage.getParent)
-
-          val leftPart = parent.flatMap {
-            case ae: PsiAssignmentExpression if (ae.getOperationSign.getTokenType == JavaTokenType.EQ)
-              && ae.getLExpression.isInstanceOf[PsiReferenceExpression] =>
-              Some(ae.getLExpression.asInstanceOf[PsiReferenceExpression])
+          val field: Option[PsiField] = parent.flatMap {
+            case ae: PsiAssignmentExpression if (ae.getOperationSign.getTokenType == JavaTokenType.EQ) && ae.getLExpression.isInstanceOf[PsiReferenceExpression] =>
+              ae.getLExpression.asInstanceOf[PsiReferenceExpression].resolve() match {
+                case f: PsiField if f.getContainingClass == constructor.getContainingClass && f.getInitializer == null => Some(f)
+                case _ => None
+              }
             case _ => None
           }
 
-          val field = if (leftPart.isDefined) leftPart.get.resolve() match {
-            case f: PsiField if f.getContainingClass == constructor.getContainingClass && f.getInitializer == null =>
-              Some(f)
-            case _ => None
-          } else None
+          val statement: Option[PsiExpressionStatement] =
+            parent
+              .flatMap(p => Option(p.getParent))
+              .collect { case p: PsiExpressionStatement => p }
 
-          var statement: Option[PsiExpressionStatement] =
-            if (field.isDefined && parent.isDefined && parent.get.getParent.isInstanceOf[PsiExpressionStatement]) {
-              Some(parent.get.getParent.asInstanceOf[PsiExpressionStatement])
-            } else None
-
-          if (statement.isDefined && statement.get.getParent != constructor.getBody) {
-            statement = None
-          }
-
-          if (field.isDefined && statement.isDefined) {
-            dropInfo += ((field.get, statement.get))
-            if (field.get.getName != param.getName)
-              fieldParameterMap += ((param.getName, field.get.getName))
+          field.zip(statement).foreach { case (f, s) if s.getParent == constructor.getBody =>
+            dropInfo += ((f, s))
+            if (f.getName != param.getName) fieldParameterMap += ((param.getName, f.getName))
           }
         }
+
         dropInfo
       }
 
@@ -914,7 +898,7 @@ object JavaToScala {
       for {
         a <- owner.getModifierList.getAnnotations
         optValue = Option(a.getQualifiedName).map(annotationDropList.contains(_))
-        if optValue.isDefined && !optValue.get
+        if optValue.exists(_ == false)
       } {
         annotations.append(convertPsiToIntermdeiate(a, null))
       }
