@@ -24,8 +24,7 @@ class ScFunctionStubImpl(parent: StubElement[_ <: PsiElement],
                          val hasAssign: Boolean,
                          val isImplicit: Boolean,
                          val isLocal: Boolean)
-  extends ScNamedStubBase[ScFunction](parent, elementType, nameRef) with ScFunctionStub
-    with ScTypeElementOwnerStub[ScFunction] with ScExpressionOwnerStub[ScFunction] {
+  extends ScNamedStubBase[ScFunction](parent, elementType, nameRef) with ScFunctionStub {
 
   def annotations: Array[String] = annotationsRefs.asStrings
 }

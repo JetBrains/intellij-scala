@@ -4,28 +4,23 @@ package psi
 package stubs
 
 import com.intellij.psi.stubs.NamedStub
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 14.10.2008
   */
-trait ScFunctionStub extends NamedStub[ScFunction] with ScMemberOrLocal {
+trait ScFunctionStub extends NamedStub[ScFunction]
+  with ScMemberOrLocal
+  with ScTypeElementOwnerStub[ScFunction]
+  with ScExpressionOwnerStub[ScFunction] {
+
   def isImplicit: Boolean
 
   def isDeclaration: Boolean
 
   def annotations: Array[String]
 
-  def typeText: Option[String]
-
-  def typeElement: Option[ScTypeElement]
-
   def hasAssign: Boolean
-
-  def bodyText: Option[String]
-
-  def bodyExpression: Option[ScExpression]
 }

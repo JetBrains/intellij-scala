@@ -18,7 +18,7 @@ class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
                            elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                            private val nameRef: Option[StringRef],
                            protected[impl] val typeTextRef: Option[StringRef])
-  extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub with ScTypeElementOwnerStub[ScAnnotation] {
+  extends StubBase[ScAnnotation](parent, elementType) with ScAnnotationStub {
 
   def name: Option[String] = nameRef.asString
 }

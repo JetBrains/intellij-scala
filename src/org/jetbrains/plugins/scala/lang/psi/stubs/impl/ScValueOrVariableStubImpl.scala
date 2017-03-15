@@ -21,8 +21,7 @@ class ScValueOrVariableStubImpl[V <: ScValueOrVariable](parent: StubElement[_ <:
                                                         protected[impl] val bodyTextRef: Option[StringRef],
                                                         private val containerTextRef: Option[StringRef],
                                                         val isLocal: Boolean)
-  extends StubBase[V](parent, elementType) with ScValueOrVariableStub[V]
-    with ScTypeElementOwnerStub[V] with ScExpressionOwnerStub[V] {
+  extends StubBase[V](parent, elementType) with ScValueOrVariableStub[V] {
 
   private var idsContainerReference: SofterReference[Option[ScIdList]] = null
   private var patternsContainerReference: SofterReference[Option[ScPatternList]] = null
