@@ -75,20 +75,6 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
     val myFileEditorManager = FileEditorManager.getInstance(project)
     val editors = myFileEditorManager.getAllEditors(file)
     
-    def addReplAction(editor: FileEditor) {
-      val c = editor.getComponent
-      
-      val oldActions = UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY)
-      val newActions = 
-        if (oldActions == null) util.Arrays.asList(WorksheetReplRunAction.ACTION_INSTANCE: AnAction) else 
-        if (oldActions.contains(WorksheetReplRunAction.ACTION_INSTANCE)) oldActions else {
-          oldActions.add(WorksheetReplRunAction.ACTION_INSTANCE)
-          oldActions
-        }
-      
-      UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, newActions)
-    }
-
     for (editor <- editors) {
       WorksheetFileHook.getAndRemovePanel(file) foreach {
         ref =>
@@ -106,7 +92,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
       extensions.inReadAction {
         statusDisplay = constructor.initTopPanel(panel, file, run, exec)
-        addReplAction(editor)
+        WorksheetFileHook.addReplAction(editor)
       }
 
       myFileEditorManager.addTopComponent(editor, panel)
@@ -114,11 +100,13 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
   }
 
   def disableRun(file: VirtualFile, exec: Option[CompilationProcess]) {
+    WorksheetFileHook.removeReplAction(file, project)
     cleanAndAdd(file, exec map (new StopWorksheetAction(_)))
     statusDisplay.foreach(_.onStartCompiling())
   }
 
   def enableRun(file: VirtualFile, hasErrors: Boolean) {
+    WorksheetFileHook.addReplAction(file, project)
     cleanAndAdd(file, Some(new RunWorksheetAction))
     statusDisplay.foreach(display => if (hasErrors) display.onFailedCompiling() else display.onSuccessfulCompiling())
   }
@@ -216,6 +204,43 @@ object WorksheetFileHook {
   private def getAndRemovePanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel.remove(file))
 
   private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel get file)
+  
+  private def addReplAction(file: VirtualFile, project: Project) {
+    extensions.inReadAction {
+      FileEditorManager.getInstance(project).getAllEditors(file) foreach addReplAction
+    }
+  }
+
+  private def addReplAction(editor: FileEditor) {
+    val c = editor.getComponent
+
+    val oldActions = UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY)
+    val newActions =
+      if (oldActions == null) util.Arrays.asList(WorksheetReplRunAction.ACTION_INSTANCE: AnAction) else
+      if (oldActions contains WorksheetReplRunAction.ACTION_INSTANCE) oldActions else {
+        oldActions.add(WorksheetReplRunAction.ACTION_INSTANCE)
+        oldActions
+      }
+
+    UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, newActions)
+  }
+  
+  private def removeReplAction(file: VirtualFile, project: Project) {
+    extensions.inReadAction {
+      FileEditorManager.getInstance(project).getAllEditors(file) foreach removeReplAction
+    }
+  }
+  
+  private def removeReplAction(editor: FileEditor) {
+    val c = editor.getComponent
+    val actions = UIUtil.getClientProperty(c, AnAction.ACTIONS_KEY)
+    
+    if (actions contains WorksheetReplRunAction.ACTION_INSTANCE) {
+      val al = new util.ArrayList(actions)
+      al remove WorksheetReplRunAction.ACTION_INSTANCE
+      UIUtil.putClientProperty(c, AnAction.ACTIONS_KEY, al)
+    }
+  }
 
   def instance(project: Project): WorksheetFileHook = project.getComponent(classOf[WorksheetFileHook])
   
