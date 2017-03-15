@@ -53,10 +53,10 @@ trait IntroduceExpressions {
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-      val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
+      implicit val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
 
       def runWithDialog() {
-        val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false, validator)
+        val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false)
         if (!dialog.isOK) {
           occurrenceHighlighters.foreach(_.dispose())
           occurrenceHighlighters = Seq.empty
@@ -74,7 +74,7 @@ trait IntroduceExpressions {
         val callback = new Pass[OccurrencesChooser.ReplaceChoice] {
           def pass(replaceChoice: OccurrencesChooser.ReplaceChoice) {
             val replaceAll = OccurrencesChooser.ReplaceChoice.NO != replaceChoice
-            val suggestedNames = NameSuggester.suggestNames(expr, validator)
+            val suggestedNames = NameSuggester.suggestNames(expr)
 
             val asVar = false
             val forceInferType = expr match {
@@ -384,13 +384,13 @@ trait IntroduceExpressions {
   }
 
   protected def getDialog(project: Project, editor: Editor, expr: ScExpression, typez: Array[ScType],
-                          occurrences: Array[TextRange], declareVariable: Boolean,
-                          validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
+                          occurrences: Array[TextRange], declareVariable: Boolean)
+                         (implicit validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurrences highlighting
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
-    val possibleNames = NameSuggester.suggestNames(expr, validator).toArray
+    val possibleNames = NameSuggester.suggestNames(expr).toArray
     val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames, expr)
     dialog.show()
     if (!dialog.isOK) {

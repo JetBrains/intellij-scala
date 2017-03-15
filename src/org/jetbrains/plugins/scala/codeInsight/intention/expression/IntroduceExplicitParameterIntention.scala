@@ -83,7 +83,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       if (needComma) buf.append(",")
       if (underscores.size > 1) needComma = true
 
-      val names = NameSuggester.suggestNames(u,
+      val names = NameSuggester.suggestNames(u)(
         new ScalaVariableValidator(null, project, u, false, expr.getContext, expr.getContext) {
           override def validateName(name: String, increaseNumber: Boolean): String = {
             var res = super.validateName(name, increaseNumber)

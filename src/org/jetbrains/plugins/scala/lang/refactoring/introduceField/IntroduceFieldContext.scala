@@ -32,7 +32,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
     case _ => null
   }
 
-  val validator = ScalaVariableValidator(new DialogConflictsReporter {}, project, editor, file, element, occurrences)
+  implicit val validator = ScalaVariableValidator(new DialogConflictsReporter {}, project, editor, file, element, occurrences)
 
   val canBeInitInDecl: Boolean = element match {
     case expr: ScExpression => canBeInitializedInDeclaration(expr, aClass)
@@ -42,7 +42,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
   val possibleNames: ju.Set[String] = element match {
     case expr: ScExpression =>
       import scala.collection.JavaConversions._
-      NameSuggester.suggestNames(expr, validator)
+      NameSuggester.suggestNames(expr)(validator)
     case _ => throw new IntroduceException
   }
 

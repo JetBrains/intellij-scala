@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass, PsiNamedElement}
 import org.atteo.evo.inflector.English
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.obtainProject
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -19,7 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.refactoring.util.NameValidator
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator.empty
+import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -32,17 +33,10 @@ import scala.collection.mutable.ArrayBuffer
   */
 
 object NameSuggester {
-  private def emptyValidator(project: Project) = new NameValidator {
-    def getProject(): Project = project
 
-    def validateName(name: String, increaseNumber: Boolean): String = name
-  }
-
-  def suggestNames(expr: ScExpression): Set[String] =
-    suggestNames(expr, emptyValidator(expr.getProject))
-
-  def suggestNames(expr: ScExpression, validator: NameValidator): Set[String] = {
-    val names = new ArrayBuffer[String]
+  def suggestNames(expr: ScExpression)
+                  (implicit validator: ScalaVariableValidator = empty(expr.getProject)): Set[String] = {
+    implicit val names = new ArrayBuffer[String]
 
     val types = new ArrayBuffer[ScType]()
     val typez = expr.getType(TypingContext.empty).getOrElse(null)
@@ -52,9 +46,9 @@ object NameSuggester {
     if (typez != null && typez == Unit) types += typez
 
     for (tpe <- types.reverse) {
-      generateNamesByType(tpe)(names, validator)
+      generateNamesByType(tpe)
     }
-    generateNamesByExpr(expr)(names, validator)
+    generateNamesByExpr(expr)
 
     val result = (for (name <- names if name != "" && isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
@@ -65,8 +59,14 @@ object NameSuggester {
   }
 
   def suggestNamesByType(typez: ScType): Set[String] = {
-    val names = new ArrayBuffer[String]
-    generateNamesByType(typez)(names, emptyValidator(DecompilerUtil.obtainProject))
+    implicit val validator = new NameValidator {
+      override def validateName(name: String, increaseNumber: Boolean): String = name
+
+      override def getProject(): Project = obtainProject
+    }
+
+    implicit val names = new ArrayBuffer[String]
+    generateNamesByType(typez)
     val result = names.map {
       case "class" => "clazz"
       case s => s

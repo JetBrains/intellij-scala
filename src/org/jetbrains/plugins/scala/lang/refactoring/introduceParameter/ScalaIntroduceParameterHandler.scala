@@ -177,9 +177,9 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     if (!CommonRefactoringUtil.checkReadOnlyStatus(project, superMethod)) return None
 
     val suggestedName = {
-      val validator = new ScalaVariableValidator(this, project, elems.head, false, methodLike, methodLike)
+      implicit val validator = new ScalaVariableValidator(this, project, elems.head, false, methodLike, methodLike)
       val possibleNames = elems match {
-        case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr, validator)
+        case Seq(expr: ScExpression) => NameSuggester.suggestNames(expr)
         case _ => NameSuggester.suggestNamesByType(types(0))
       }
       possibleNames.head

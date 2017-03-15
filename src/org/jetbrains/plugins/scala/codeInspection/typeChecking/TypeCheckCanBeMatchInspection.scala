@@ -155,8 +155,9 @@ object TypeCheckToMatchUtil {
         }
         //no named usage
         else {
-          val suggestedNames = NameSuggester.suggestNames(asInstOfEverywhere.head,
-            new ScalaVariableValidator(null, ifStmt.getProject, ifStmt, false, ifStmt.getParent, ifStmt.getParent))
+          val suggestedNames = NameSuggester.suggestNames(asInstOfEverywhere.head)(
+            new ScalaVariableValidator(null, ifStmt.getProject, ifStmt, false, ifStmt.getParent, ifStmt.getParent)
+          )
           val name = suggestedNames.head
           asInstOfEverywhere.foreach { c =>
             val newExpr = createExpressionFromText(name)

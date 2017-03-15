@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -15,28 +14,33 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 import scala.collection.mutable.ArrayBuffer
 
 
 /**
-* User: Alexander Podkhalyuzin
-* Date: 24.06.2008
-*/
-
+  * User: Alexander Podkhalyuzin
+  * Date: 24.06.2008
+  */
 object ScalaVariableValidator {
+
+  def empty(project: Project): ScalaVariableValidator =
+    new ScalaVariableValidator(null, project, null, true, null, null)
+
   def apply(conflictsReporter: ConflictsReporter,
             project: Project,
             editor: Editor,
             file: PsiFile,
             mainOccurence: TextRange,
             occurrences: Array[TextRange]): ScalaVariableValidator = {
-    val container = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
-    val containerOne = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, mainOccurence))
-    ScalaRefactoringUtil.getExpression(project, editor, file, mainOccurence.getStartOffset, mainOccurence.getEndOffset) match {
-      case Some((expr, _)) => new ScalaVariableValidator(conflictsReporter, project, expr, occurrences.isEmpty, container, containerOne)
-      case _ => null
-    }
+    val container = enclosingContainer(commonParent(file, occurrences: _*))
+    val containerOne = enclosingContainer(commonParent(file, mainOccurence))
+
+    getExpression(project, editor, file, mainOccurence.getStartOffset, mainOccurence.getEndOffset)
+      .map(_._1)
+      .map(new ScalaVariableValidator(conflictsReporter, project, _, occurrences.isEmpty, container, containerOne))
+      .orNull
   }
 
   def apply(conflictsReporter: ConflictsReporter,
@@ -45,8 +49,9 @@ object ScalaVariableValidator {
             file: PsiFile,
             element: PsiElement,
             occurrences: Array[TextRange]): ScalaVariableValidator = {
-    val container = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
-    val containerOne = ScalaRefactoringUtil.enclosingContainer(element)
+    val container = enclosingContainer(commonParent(file, occurrences: _*))
+    val containerOne = enclosingContainer(element)
+
     new ScalaVariableValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
   }
 }
@@ -101,7 +106,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
 
   private def validateReference(context: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
     ScalaPsiElementFactory.createExpressionFromText(name, context) match {
-      case ResolvesTo(elem @ ScalaPsiUtil.inNameContext(nameCtx)) =>
+      case ResolvesTo(elem@ScalaPsiUtil.inNameContext(nameCtx)) =>
         val message = nameCtx match {
           case _: ScClassParameter => messageForClassParameter(name)
           case _: ScParameter => messageForParameter(name)
@@ -176,7 +181,10 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
   }
 
   private def messageForMember(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.field", name)
+
   private def messageForLocal(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.local", name)
+
   private def messageForParameter(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.parameter", name)
+
   private def messageForClassParameter(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.class.parameter", name)
 }
