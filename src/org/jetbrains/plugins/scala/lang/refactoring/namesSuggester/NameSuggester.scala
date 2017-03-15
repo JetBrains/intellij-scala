@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator.empty
 import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaVariableValidator}
@@ -31,34 +31,45 @@ import scala.collection.mutable.ArrayBuffer
   * @author Alexander Podkhalyuzin
   * @since 26.06.2008
   */
-
 object NameSuggester {
 
-  def suggestNames(expr: ScExpression)
-                  (implicit validator: ScalaVariableValidator = empty(expr.getProject)): Set[String] = {
+  def suggestNames(expression: ScExpression)
+                  (implicit validator: ScalaVariableValidator = empty(expression.getProject)): Set[String] = {
     implicit val names = new ArrayBuffer[String]
 
-    val types = new ArrayBuffer[ScType]()
-    val typez = expr.getType(TypingContext.empty).getOrElse(null)
-    if (typez != null && typez != Unit) types += typez
-    expr.getTypeWithoutImplicits().foreach(types += _)
-    expr.getTypeIgnoreBaseType.foreach(types += _)
-    if (typez != null && typez == Unit) types += typez
+    collectTypes(expression).reverse
+      .foreach(generateNamesByType(_))
+    generateNamesByExpr(expression)
 
-    for (tpe <- types.reverse) {
-      generateNamesByType(tpe)
-    }
-    generateNamesByExpr(expr)
-
-    val result = (for (name <- names if name != "" && isIdentifier(name) || name == "class") yield {
-      if (name != "class") name else "clazz"
-    }).toList.reverse
-
-    if (result.nonEmpty) result.toSet
-    else Set(validator.validateName("value", increaseNumber = true))
+    collectNames(names)
   }
 
-  def suggestNamesByType(typez: ScType): Set[String] = {
+  private[this] def collectTypes(expression: ScExpression): Seq[ScType] = {
+    val types = expression.getType().toOption ++
+      expression.getTypeWithoutImplicits().toOption ++
+      expression.getTypeIgnoreBaseType.toOption
+
+    types.toSeq.sortWith {
+      case (_, Unit) => true
+      case _ => false
+    }
+  }
+
+  private[this] def collectNames(names: Seq[String])
+                                (implicit validator: NameValidator): Set[String] = {
+    val collected = names.map {
+      case "class" => "clazz"
+      case name => name
+    }.filter(isIdentifier(_)) match {
+      case Seq() => Seq("value")
+      case seq => seq.reverse
+    }
+
+    collected.toSet[String]
+      .map(validator.validateName(_, increaseNumber = true))
+  }
+
+  def suggestNamesByType(`type`: ScType): Set[String] = {
     implicit val validator = new NameValidator {
       override def validateName(name: String, increaseNumber: Boolean): String = name
 
@@ -66,20 +77,8 @@ object NameSuggester {
     }
 
     implicit val names = new ArrayBuffer[String]
-    generateNamesByType(typez)
-    val result = names.map {
-      case "class" => "clazz"
-      case s => s
-    }.filter(name => name != "" && isIdentifier(name))
-    if (result.isEmpty) {
-      Set("value")
-    } else result.reverse.toSet
-  }
-
-  private def add(s: String)(implicit validator: NameValidator, names: ArrayBuffer[String]) {
-    val name = validator.validateName(s, increaseNumber = true)
-    if (!names.contains(name))
-      names += name
+    generateNamesByType(`type`)
+    collectNames(names)
   }
 
   private def namesByType(tpe: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
@@ -98,12 +97,12 @@ object NameSuggester {
 
     def addPlurals(arg: ScType) {
       def addPlural(s: String) {
-        if (!withPlurals) add(s)
+        if (!withPlurals) names += s
         else {
           s match {
-            case "x" => add("xs")
-            case "index" => add("indices")
-            case _ => add(English.plural(s))
+            case "x" => names += "xs"
+            case "index" => names += "indices"
+            case _ => names += English.plural(s)
           }
         }
       }
@@ -125,12 +124,12 @@ object NameSuggester {
         leftName <- namesByType(tp1, shortVersion = false)
         rightName <- namesByType(tp2, shortVersion = false)
       } {
-        add(s"$leftName$separator${rightName.capitalize}")
+        names += s"$leftName$separator${rightName.capitalize}"
       }
     }
 
     def addForFunctionType(ret: ScType, params: Seq[ScType]) = {
-      add("function")
+      names += "function"
       params match {
         case Seq() =>
           generateNamesByType(ret)
@@ -183,7 +182,7 @@ object NameSuggester {
               s <- namesByType(args.head, shortVersion = false)
               prefix = needPrefix(c.qualifiedName)
             } {
-              add(prefix + s.capitalize)
+              names += prefix + s.capitalize
             }
           case c if c.qualifiedName == eitherClassName && args.size == 2 =>
             addFromTwoTypes(args.head, args(1), "Or")
@@ -200,11 +199,11 @@ object NameSuggester {
 
     def addLowerCase(name: String, length: Int = 1) = {
       val lowerCaseName = name.toLowerCase
-      add(if (shortVersion) lowerCaseName.substring(0, length) else lowerCaseName)
+      names += (if (shortVersion) lowerCaseName.substring(0, length) else lowerCaseName)
     }
 
     def addForNamedElementString(name: String) = if (name != null && name.toUpperCase == name) {
-      add(deleteNonLetterFromString(name).toLowerCase)
+      names += deleteNonLetterFromString(name).toLowerCase
     } else if (name == "String") {
       addLowerCase(name)
     } else {
@@ -217,15 +216,15 @@ object NameSuggester {
 
     typez match {
       case Int => addValTypeName(Int)
-      case Unit => add(Unit.name)
-      case Byte => add(Byte.name)
+      case Unit => names += Unit.name
+      case Byte => names += Byte.name
       case Long => addValTypeName(Long)
       case Float => addValTypeName(Float, 2)
       case Double => addValTypeName(Double)
       case Short => addValTypeName(Short, 2)
       case Boolean => addValTypeName(Boolean)
       case Char => addValTypeName(Char)
-      case TupleType(_) => add("tuple")
+      case TupleType(_) => names += "tuple"
       case FunctionType(ret, params) => addForFunctionType(ret, params)
       case ScDesignatorType(e) => addForNamedElement(e)
       case parameterType: TypeParameterType => addForNamedElementString(parameterType.name)
@@ -242,12 +241,12 @@ object NameSuggester {
   @tailrec
   private def generateNamesByExpr(expr: ScExpression)(implicit names: ArrayBuffer[String], validator: NameValidator) {
     expr match {
-      case _: ScThisReference => add("thisInstance")
-      case _: ScSuperReference => add("superInstance")
+      case _: ScThisReference => names += "thisInstance"
+      case _: ScSuperReference => names += "superInstance"
       case x: ScReferenceElement if x.refName != null =>
         val name = x.refName
         if (name != null && name.toUpperCase == name) {
-          add(name.toLowerCase)
+          names += name.toLowerCase
         } else {
           generateCamelNames(name)
         }
@@ -255,13 +254,13 @@ object NameSuggester {
         generateNamesByExpr(x.getEffectiveInvokedExpr)
       case l: ScLiteral if l.isString =>
         l.getValue match {
-          case s: String if isIdentifier(s.toLowerCase) => add(s.toLowerCase)
+          case s: String if isIdentifier(s.toLowerCase) => names += s.toLowerCase
           case _ =>
         }
       case _ => expr.getContext match {
-        case x: ScAssignStmt => x.assignName.foreach(add)
+        case x: ScAssignStmt => names ++= x.assignName
         case x: ScArgumentExprList => x.matchedParameters.find(_._1 == expr) match {
-          case Some((_, parameter)) => add(parameter.name)
+          case Some((_, parameter)) => names += parameter.name
           case _ =>
         }
         case _ =>
@@ -280,11 +279,11 @@ object NameSuggester {
     for (i <- 0 until s.length) {
       if (i == 0) {
         val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
-        add(deleteNonLetterFromStringFromTheEnd(candidate))
+        names += deleteNonLetterFromStringFromTheEnd(candidate)
       }
       else if (s(i) >= 'A' && s(i) <= 'Z') {
         val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
-        add(deleteNonLetterFromStringFromTheEnd(candidate))
+        names += deleteNonLetterFromStringFromTheEnd(candidate)
       }
     }
   }
