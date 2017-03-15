@@ -1,8 +1,11 @@
-package org.jetbrains.sbt.shell.org.jetbrains.sbt.shell.grammar.grammar;
+package org.jetbrains.sbt.shell.grammar;
 
-import com.intellij.lexer.*;
+import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
-import static org.jetbrains.sbt.shell.org.jetbrains.sbt.shell.grammar.grammar.SbtShellTypes.*;
+
+import static com.intellij.psi.TokenType.BAD_CHARACTER;
+import static com.intellij.psi.TokenType.WHITE_SPACE;
+import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
 
 %%
 
@@ -20,14 +23,15 @@ import static org.jetbrains.sbt.shell.org.jetbrains.sbt.shell.grammar.grammar.Sb
 %unicode
 
 EOL=\R
-WHITE_SPACE=\s
+WHITE_SPACE=\s+
 
-SPACE=[ \t\n\x0B\f\r]+
-ID=[a-zA-Z_0-9]+
+ID=[^\s{}:;/]+
+URISTRING=\{[A-Za-z0-9._~:/?#@!$&'()*+,;=`.\[\]-]+\}
+ANYCHAR=[^;\s]
 
 %%
 <YYINITIAL> {
-  {WHITE_SPACE}      { return com.intellij.psi.TokenType.WHITE_SPACE; }
+  {WHITE_SPACE}      { return WHITE_SPACE; }
 
   ":"                { return COLON; }
   "::"               { return DOUBLE_COLON; }
@@ -36,9 +40,10 @@ ID=[a-zA-Z_0-9]+
   "{"                { return OPEN_BRACE; }
   "}"                { return CLOSE_BRACE; }
 
-  {SPACE}            { return SPACE; }
   {ID}               { return ID; }
+  {URISTRING}        { return URISTRING; }
+  {ANYCHAR}          { return ANYCHAR; }
 
 }
 
-[^] { return com.intellij.psi.TokenType.BAD_CHARACTER; }
+[^] { return BAD_CHARACTER; }

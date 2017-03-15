@@ -11,25 +11,19 @@ import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.jetbrains.sbt.shell.grammar.*;
 
-public class SbtShellConfigImpl extends ASTWrapperPsiElement implements SbtShellConfig {
+public class SbtShellParamsImpl extends ASTWrapperPsiElement implements SbtShellParams {
 
-  public SbtShellConfigImpl(ASTNode node) {
+  public SbtShellParamsImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull SbtShellVisitor visitor) {
-    visitor.visitConfig(this);
+    visitor.visitParams(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof SbtShellVisitor) accept((SbtShellVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getId() {
-    return findNotNullChildByType(ID);
   }
 
 }

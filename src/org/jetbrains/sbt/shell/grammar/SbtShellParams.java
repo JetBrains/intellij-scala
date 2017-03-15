@@ -5,9 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface SbtShellIntask extends PsiElement {
-
-  @NotNull
-  PsiElement getId();
+public interface SbtShellParams extends PsiElement {
 
 }
