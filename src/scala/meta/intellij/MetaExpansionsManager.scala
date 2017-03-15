@@ -75,7 +75,7 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
 
     def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
-      .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
+      .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
 
     def classLoaderForModule(module: Module): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
