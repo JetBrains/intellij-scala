@@ -97,6 +97,9 @@ class ActivatorProjectBuilder extends
       }
 
       override def validate(): Boolean = {
+        val selected = settingsComponents.getSelectedTemplate
+        if (selected == null) error("Select template")
+        
         val context = settingsStep.getContext
 
         if (context.isCreatingNewProject && !isIdentifier(context.getProjectName))
