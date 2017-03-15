@@ -11,10 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.SettingMap
 import org.jetbrains.plugins.scala.testingSupport.test._
-import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.jetbrains.sbt.shell.SbtShellCommunication
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
@@ -41,16 +42,11 @@ class ScalaTestRunConfiguration(override val project: Project,
 
   override def allowsSbtUiRun: Boolean = true
 
-  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Boolean] = {
-    val handler = SettingQueryHandler("testOptions", "Test", comm)
-    val parallelHandler = SettingQueryHandler("parallelExecution", "Test", comm)
-    for {
-      opts <- handler.getSettingValue()
-      optsSet <- if (!opts.contains("-oDU")) handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
-        else Future(true)
-      pOpts <- parallelHandler.getSettingValue()
-      pOptsSet <- if (!pOpts.contains("false")) parallelHandler.setSettingValue("false") else Future(true)
-    } yield optsSet && pOptsSet
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Option[SettingMap]] = {
+    modifySetting(SettingMap(), "testOptions", "Test", "Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")",
+      comm, !_.contains("-oDU")) flatMap { _.map(
+      modifySetting(_, "parallelExecution", "Test", "false", comm, !_.contains("false"), shouldSet = true)
+    ).getOrElse(Future[Option[SettingMap]](None))}
   }
 
   override protected def sbtTestNameKey = " -- -t "
