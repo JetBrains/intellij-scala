@@ -6,11 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.testingSupport.test._
-import org.jetbrains.sbt.shell.{SbtShellCommunication, SettingQueryHandler}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-
 
 /**
   * @author Ksenia.Sautina
@@ -38,15 +33,6 @@ class Specs2RunConfiguration(override val project: Project,
   override protected def sbtTestNameKey = " -- -ex "
 
   override def allowsSbtUiRun: Boolean = true
-
-  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Boolean] = {
-    val handler = SettingQueryHandler("testOptions", "", comm)
-    for {
-      opts <- handler.getSettingValue()
-      optsSet <- if (!opts.contains("-oDU")) handler.addToSettingValue("Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")")
-        else Future(true)
-    } yield optsSet
-  }
 }
 
 object Specs2RunConfiguration extends SuiteValidityChecker {

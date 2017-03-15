@@ -37,13 +37,13 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
-import org.jetbrains.plugins.scala.testingSupport.test.sbt.SbtTestEventHandler
+import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.util.ScalaUtil
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication}
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
@@ -260,7 +260,31 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   def testNameKey: String = "-testName"
   protected def sbtClassKey = " "
   protected def sbtTestNameKey = " "
-  protected def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Boolean] = Future(true)
+  protected def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Option[SettingMap]] =
+    Future(Some(Map.empty))
+  protected def initialize(comm:SbtShellCommunication): Unit = {
+    comm.command("initialize", showShell = false)
+  }
+  protected def modifySetting(settings: SettingMap,
+                              setting: String,
+                              taskName: String,
+                              value: String,
+                              comm: SbtShellCommunication,
+                              modificationCondition: String => Boolean,
+                              shouldSet: Boolean = false): Future[Option[SettingMap]] = {
+    val handler = SettingQueryHandler(setting, taskName, comm)
+    for {
+      opts <- handler.getSettingValue()
+      optsSet <- if (modificationCondition(opts))
+        if (shouldSet) handler.setSettingValue(value) else handler.addToSettingValue(value)
+      else Future(true)
+    } yield if (optsSet) Some(settings + ((setting, taskName) -> opts)) else None
+  }
+  protected def resetSbtSettingsForUi(comm: SbtShellCommunication, oldSettings: SettingMap): Future[Boolean] = {
+    Future.sequence(for (((setting, taskName), value) <- oldSettings) yield {
+      SettingQueryHandler(setting, taskName, comm).setSettingValue(value)
+    }) map { _.forall(identity)}
+  }
 
   override def getModules: Array[Module] = {
     ApplicationManager.getApplication.runReadAction(new Computable[Array[Module]] {
@@ -439,7 +463,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     }
   }
 
-  protected def escapeTestName(test: String): String = test
+  protected def escapeTestName(test: String): String = if (test.contains(" ")) "\"" + test + "\"" else test
 
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
@@ -619,17 +643,13 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           //make sure the process is initialized
           val shellRunner = sbtProcessManager.openShellRunner()
           //TODO: this null is really weird
-//          SbtProcessHandlerWrapper(shellRunner createProcessHandler null)
-          shellRunner.createProcessHandler(null)
+          SbtProcessHandlerWrapper(shellRunner createProcessHandler null)
         } else startProcess()
         val runnerSettings = getRunnerSettings
         if (getConfiguration == null) setConfiguration(currentConfiguration)
         val config = getConfiguration
         JavaRunConfigurationExtensionManager.getInstance.
           attachExtensionsToProcess(currentConfiguration, processHandler, runnerSettings)
-        val res = if (useSbt && !useUiWithSbt) {
-          new DefaultExecutionResult(SbtProcessManager.forProject(getProject).openShellRunner().createConsoleView(), processHandler)
-        } else {
           val consoleProperties = new SMTRunnerConsoleProperties(currentConfiguration, "Scala", executor)
             with PropertiesExtension {
             override def getTestLocator = new ScalaTestLocationProvider
@@ -642,9 +662,10 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           // console view
           val consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
 
-          val resInner = new DefaultExecutionResult(consoleView, processHandler,
+          val res = new DefaultExecutionResult(consoleView, processHandler,
             createActions(consoleView, processHandler, executor): _*)
 
+        if (!useSbt || useUiWithSbt) {
           val rerunFailedTestsAction = new AbstractTestRerunFailedTestsAction(consoleView)
           rerunFailedTestsAction.init(consoleView.getProperties)
           rerunFailedTestsAction.setModelProvider(new Getter[TestFrameworkRunningModel] {
@@ -652,22 +673,27 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               consoleView.asInstanceOf[SMTRunnerConsoleView].getResultsViewer
             }
           })
-          resInner.setRestartActions(rerunFailedTestsAction, new ToggleAutoTestAction() {
+          res.setRestartActions(rerunFailedTestsAction, new ToggleAutoTestAction() {
             override def isDelayApplicable: Boolean = false
 
             override def getAutoTestManager(project: Project): AbstractAutoTestManager = JavaAutoRunManager.getInstance(project)
           })
-          resInner
         }
         if (useSbt) {
-          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).map("test-only" + _)
+          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).map("testOnly" + _)
           val comm = SbtShellCommunication.forProject(project)
           val handler = new SbtTestEventHandler(processHandler)
-          (if (useUiWithSbt) modifySbtSettingsForUi(comm) else Future(true)) flatMap {
+          (if (useUiWithSbt) {
+            initialize(comm)
+            modifySbtSettingsForUi(comm)
+          } else Future(Some(SettingMap()))) flatMap {
             //TODO: meaningful report if settings were not set correctly
-            _: Boolean => Future.sequence(commands.map(comm.command(_, {},
-              SbtShellCommunication.listenerAggregator(handler), showShell = false)))
-          } onComplete {_ => handler.closeRoot()}
+            case None => Future() //do nothing, the environment is not ready
+            case Some(oldSettings) => Future.sequence(commands.map(comm.command(_, {},
+              SbtShellCommunication.listenerAggregator(handler), showShell = false))) flatMap {
+              _ => resetSbtSettingsForUi(comm, oldSettings)
+            }
+          }  onComplete {_ => handler.closeRoot()}
         }
         res
       }
@@ -748,6 +774,9 @@ trait SuiteValidityChecker {
 }
 
 object AbstractTestRunConfiguration extends SuiteValidityChecker {
+
+  type SettingMap = Map[(String, String), String]
+  def SettingMap(): SettingMap = Map[(String, String), String]()
 
   private[test] trait TestCommandLinePatcher {
     private var failedTests: Seq[(String, String)] = _
