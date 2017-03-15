@@ -40,15 +40,15 @@ object ScalaSyntheticProvider {
 
   def hasSpecialization(tc: TypeComponent, refType: Option[ReferenceType] = None): Boolean = {
     val referenceType = refType.getOrElse(tc.declaringType())
-
     val name = tc.name()
-    val candidates: Seq[TypeComponent] = tc match {
-      case _: Method => referenceType.methods()
-      case _: Field => referenceType.allFields()
-      case _ => Seq.empty
-    }
+    def checkName(cand: TypeComponent) = unspecializedName(cand.name()).contains(name)
+    def checkSignature(cand: TypeComponent) = tc.signature() == cand.signature()
 
-    candidates.exists(c => unspecializedName(c.name()).contains(name))
+    tc match {
+      case _: Method => referenceType.methods().exists(c => checkName(c) && checkSignature(c))
+      case _: Field => referenceType.allFields().exists(checkName)
+      case _ => false
+    }
   }
 
   def isSpecialization(tc: TypeComponent): Boolean = unspecializedName(tc.name()).nonEmpty
