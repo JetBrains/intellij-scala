@@ -281,18 +281,22 @@ object InferUtil {
           expectedType match {
             case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
               && !mt.returnType.conforms(expectedType) =>
-              mt.returnType match {
-                case methodType: ScMethodType => return mt.copy(
-                  returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
-                case _ =>
+              if (expectedRet.equiv(api.Unit)) { //value discarding
+                ScMethodType(api.Unit, mt.params, mt.isImplicit)
+              } else {
+                mt.returnType match {
+                  case methodType: ScMethodType => return mt.copy(
+                    returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))
+                  case _ =>
+                }
+                val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
+                dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.returnType))
+                val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
+
+                expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
+
+                ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)
               }
-              val dummyExpr = createExpressionWithContextFromText("null", expr.getContext, expr)
-              dummyExpr.asInstanceOf[ScLiteral].setTypeForNullWithoutImplicits(Some(mt.returnType))
-              val updatedResultType = dummyExpr.getTypeAfterImplicitConversion(expectedOption = Some(expectedRet))
-
-              expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
-
-              ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)
             case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) &&
               (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
               //we do this to update additional expression, so that implicits work correctly
