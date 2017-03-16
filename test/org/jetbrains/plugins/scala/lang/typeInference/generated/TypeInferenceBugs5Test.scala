@@ -1032,4 +1032,15 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |//List[Int]
     """.stripMargin.trim
   }
+
+  def testSCL7010(): Unit = doTest {
+    """
+      |object O {
+      |    case class Z()
+      |    def Z(i: Int) = 123
+      |    val x: Int => Int = /*start*/Z/*end*/
+      |  }
+      |//(Int) => Int
+    """.stripMargin.trim
+  }
 }
