@@ -13,18 +13,15 @@ import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.obtainProject
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator.empty
 import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
@@ -35,12 +32,12 @@ object NameSuggester {
 
   def suggestNames(expression: ScExpression)
                   (validator: ScalaVariableValidator = empty(expression.getProject)): Set[String] = {
-    implicit val names = mutable.LinkedHashSet.empty[String]
+    val names = mutable.LinkedHashSet.empty[String]
     implicit val project = validator.getProject()
 
     collectTypes(expression).reverse
-      .foreach(generateNamesByType(_))
-    generateNamesByExpr(expression)
+      .foreach(names ++= namesByType(_))
+    names ++= namesByExpression(expression)
 
     collectNames(names, validator)
   }
@@ -77,16 +74,7 @@ object NameSuggester {
       override def getProject(): Project = project
     }
 
-    implicit val names = mutable.LinkedHashSet.empty[String]
-    generateNamesByType(`type`)
-    collectNames(names, validator)
-  }
-
-  private def namesByType(tpe: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
-                         (implicit project: Project): mutable.LinkedHashSet[String] = {
-    val names = mutable.LinkedHashSet.empty[String]
-    generateNamesByType(tpe, shortVersion)(names, project, withPlurals)
-    names
+    collectNames(namesByType(`type`), validator)
   }
 
   private[this] def plural: String => String = {
@@ -95,99 +83,57 @@ object NameSuggester {
     case string => English.plural(string)
   }
 
-  private def generateNamesByType(typez: ScType, shortVersion: Boolean = true)
-                                 (implicit names: mutable.LinkedHashSet[String],
-                                  project: Project,
-                                  withPlurals: Boolean = true) {
-    implicit val typeSystem = project.typeSystem
+  private[this] def isInheritor(clazz: PsiClass, project: Project, baseFqns: Seq[String]): Boolean = {
+    val psiFacade = JavaPsiFacade.getInstance(project)
+    val scope = GlobalSearchScope.allScope(project)
 
-    def pluralNames(arg: ScType): mutable.LinkedHashSet[String] = {
-      val newNames = arg match {
-        case valType: ValType => mutable.LinkedHashSet(valType.name.toLowerCase)
-        case TupleType(_) => mutable.LinkedHashSet("tuple")
-        case FunctionType(_, _) => mutable.LinkedHashSet("function")
-        case ScDesignatorType(e) => getCamelNames(e.name)
-        case _ => namesByType(arg, withPlurals = false, shortVersion = false)
-      }
+    baseFqns.flatMap(fqn => Option(psiFacade.findClass(fqn, scope)))
+      .exists(baseClass => clazz.isInheritor(baseClass, true) || areClassesEquivalent(clazz, baseClass))
+  }
 
+
+  private def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
+                         (implicit project: Project): mutable.LinkedHashSet[String] = {
+    def pluralNames(argument: ScType): mutable.LinkedHashSet[String] = {
+      val newNames = namesByType(argument, withPlurals = false, shortVersion = false)
       if (withPlurals) newNames.map(plural) else newNames
     }
 
-    def addFromTwoTypes(tp1: ScType, tp2: ScType, separator: String) {
+    def compoundNames(tp1: ScType, tp2: ScType, separator: String): mutable.LinkedHashSet[String] =
       for {
         leftName <- namesByType(tp1, shortVersion = false)
         rightName <- namesByType(tp2, shortVersion = false)
-      } {
-        names += s"$leftName$separator${rightName.capitalize}"
-      }
-    }
+      } yield s"$leftName$separator${rightName.capitalize}"
 
-    def addForFunctionType(ret: ScType, params: Seq[ScType]) = {
-      names += "function"
-      params match {
-        case Seq() =>
-          generateNamesByType(ret)
-        case Seq(param) =>
-          addFromTwoTypes(param, ret, "To")
-        case _ =>
-      }
-    }
-
-    def addForParameterizedType(baseType: ScType, args: Seq[ScType]) {
-      baseType match {
-        case ScProjectionType(_, ta: ScTypeAliasDefinition, _) =>
-          ta.aliasedType match {
-            case Success(ExtractClass(c), _) =>
-              generateNamesByType(baseType)
-              inner(c)
-            case _ => generateNamesByType(baseType)
-          }
-        case ScDesignatorType(c: PsiClass) =>
-          generateNamesByType(baseType)
-          inner(c)
-        case _ => generateNamesByType(baseType)
+    def functionParametersNames(returnType: ScType, parameters: Seq[ScType]): mutable.LinkedHashSet[String] =
+      parameters match {
+        case Seq() => namesByType(returnType, withPlurals)
+        case Seq(param) => compoundNames(param, returnType, "To")
+        case _ => mutable.LinkedHashSet.empty[String]
       }
 
-      def inner(classOfBaseType: PsiClass) {
-        val arrayClassName = "scala.Array"
-        val baseCollectionClassName = "scala.collection.GenTraversableOnce"
-        val baseJavaCollectionClassName = "java.lang.Iterable"
-        val baseMapClassName = "scala.collection.GenMap"
-        val baseJavaMapClassName = "java.util.Map"
-        val eitherClassName = "scala.util.Either"
+    def namesByParameters(clazz: PsiClass, parameters: Seq[ScType]): mutable.LinkedHashSet[String] = {
+      def isInheritor(baseFqns: String*) = this.isInheritor(clazz, project, baseFqns)
 
-        def isInheritor(c: PsiClass, baseFqn: String) = {
-          val baseClass = JavaPsiFacade.getInstance(project).findClass(baseFqn, GlobalSearchScope.allScope(project))
-          baseClass != null && (c.isInheritor(baseClass, true) || ScEquivalenceUtil.areClassesEquivalent(c, baseClass))
-        }
+      val needPrefix = Map(
+        "scala.Option" -> "maybe",
+        "scala.Some" -> "some",
+        "scala.concurrent.Future" -> "eventual",
+        "scala.concurrent.Promise" -> "promised",
+        "scala.util.Try" -> "tried")
 
-        val needPrefix = Map(
-          "scala.Option" -> "maybe",
-          "scala.Some" -> "some",
-          "scala.concurrent.Future" -> "eventual",
-          "scala.concurrent.Promise" -> "promised",
-          "scala.util.Try" -> "tried")
+      (clazz.qualifiedName, parameters) match {
+        case ("scala.Array", Seq(first)) => pluralNames(first)
+        case (name, Seq(first)) if needPrefix.keySet.contains(name) =>
+          val prefix = needPrefix(name)
+          val namesWithPrefix = namesByType(first, shortVersion = false)
+            .map(prefix + _.capitalize)
 
-        classOfBaseType match {
-          case c if c.qualifiedName == arrayClassName && args.nonEmpty =>
-            names ++= pluralNames(args.head)
-          case c if needPrefix.keySet.contains(c.qualifiedName) && args.nonEmpty =>
-            for {
-              s <- namesByType(args.head, shortVersion = false)
-              prefix = needPrefix(c.qualifiedName)
-            } {
-              names += prefix + s.capitalize
-            }
-          case c if c.qualifiedName == eitherClassName && args.size == 2 =>
-            addFromTwoTypes(args.head, args(1), "Or")
-          case c if (isInheritor(c, baseMapClassName) || isInheritor(c, baseJavaMapClassName))
-            && args.size == 2 =>
-            addFromTwoTypes(args.head, args(1), "To")
-          case c if (isInheritor(c, baseCollectionClassName) || isInheritor(c, baseJavaCollectionClassName))
-            && args.size == 1 =>
-            names ++= pluralNames(args.head)
-          case _ =>
-        }
+          namesWithPrefix
+        case ("scala.util.Either", Seq(first, second)) => compoundNames(first, second, "Or")
+        case (_, Seq(first, second)) if isInheritor("scala.collection.GenMap", "java.util.Map") => compoundNames(first, second, "To")
+        case (_, Seq(first)) if isInheritor("scala.collection.GenTraversableOnce", "java.lang.Iterable") => pluralNames(first)
+        case _ => mutable.LinkedHashSet.empty[String]
       }
     }
 
@@ -196,14 +142,12 @@ object NameSuggester {
       if (shortVersion) lowerCased.substring(0, length) else lowerCased
     }
 
-    def addForNamedElement(name: String) =
-      if (name != null && name.toUpperCase == name) {
-        names += deleteNonLetterFromString(name).toLowerCase
-      } else if (name == "String") {
-        names += toLowerCase(name, 3)
-      } else {
-        names ++= getCamelNames(name)
-      }
+    def byName(name: String): mutable.LinkedHashSet[String] = name match {
+      case "String" => mutable.LinkedHashSet(toLowerCase(name, 3))
+      case _ if name != null && name.toUpperCase == name =>
+        mutable.LinkedHashSet(deleteNonLetterFromString(name).toLowerCase)
+      case _ => getCamelNames(name)
+    }
 
     def valTypeName(`type`: ValType): String = {
       val typeName = `type`.name
@@ -218,50 +162,56 @@ object NameSuggester {
       toLowerCase(typeName, length)
     }
 
-    typez match {
-      case valType: ValType => names += valTypeName(valType)
-      case TupleType(_) => names += "tuple"
-      case FunctionType(ret, params) => addForFunctionType(ret, params)
-      case ScDesignatorType(e) => addForNamedElement(e.name)
-      case parameterType: TypeParameterType => addForNamedElement(parameterType.name)
-      case ScProjectionType(_, e, _) => addForNamedElement(e.name)
-      case ParameterizedType(tp, args) => addForParameterizedType(tp, args)
-      case JavaArrayType(argument) => names ++= pluralNames(argument)
-      case ScCompoundType(Seq(head, _*), _, _) => generateNamesByType(head)
-      case _ =>
+    implicit val typeSystem = project.typeSystem
+    `type` match {
+      case valType: ValType => mutable.LinkedHashSet(valTypeName(valType))
+      case TupleType(_) => mutable.LinkedHashSet("tuple")
+      case FunctionType(ret, params) =>
+        mutable.LinkedHashSet("function") ++ functionParametersNames(ret, params)
+      case ScDesignatorType(e) => byName(e.name)
+      case parameterType: TypeParameterType => byName(parameterType.name)
+      case ScProjectionType(_, e, _) => byName(e.name)
+      case ParameterizedType(baseType, args) =>
+        val byParameters = asSet(baseType.extractClass(project))
+          .flatMap(namesByParameters(_, args))
+        namesByType(baseType, withPlurals) ++ byParameters
+      case JavaArrayType(argument) => pluralNames(argument)
+      case ScCompoundType(Seq(head, _*), _, _) => namesByType(head, withPlurals)
+      case _ => mutable.LinkedHashSet.empty[String]
     }
   }
 
-  @tailrec
-  private def generateNamesByExpr(expr: ScExpression)
-                                 (implicit names: mutable.LinkedHashSet[String]) {
-    expr match {
-      case _: ScThisReference => names += "thisInstance"
-      case _: ScSuperReference => names += "superInstance"
-      case x: ScReferenceElement if x.refName != null =>
-        val name = x.refName
-        if (name != null && name.toUpperCase == name) {
-          names += name.toLowerCase
-        } else {
-          names ++= getCamelNames(name)
-        }
-      case x: ScMethodCall =>
-        generateNamesByExpr(x.getEffectiveInvokedExpr)
-      case l: ScLiteral if l.isString =>
-        l.getValue match {
-          case s: String if isIdentifier(s.toLowerCase) => names += s.toLowerCase
-          case _ =>
-        }
-      case _ => expr.getContext match {
-        case x: ScAssignStmt => names ++= x.assignName
-        case x: ScArgumentExprList => x.matchedParameters.find(_._1 == expr) match {
-          case Some((_, parameter)) => names += parameter.name
-          case _ =>
-        }
-        case _ =>
+  private def namesByExpression: ScExpression => mutable.LinkedHashSet[String] = {
+    case _: ScThisReference => mutable.LinkedHashSet("thisInstance")
+    case _: ScSuperReference => mutable.LinkedHashSet("superInstance")
+    case reference: ScReferenceElement if reference.refName != null =>
+      reference.refName match {
+        case name if name.toUpperCase == name => mutable.LinkedHashSet(name.toLowerCase)
+        case name => getCamelNames(name)
       }
-    }
+    case call: ScMethodCall => namesByExpression(call.getEffectiveInvokedExpr)
+    case literal: ScLiteral if literal.isString =>
+      val maybeName = Option(literal.getValue).collect {
+        case string: String => string
+      }.map(_.toLowerCase)
+
+      asSet(maybeName.filter(isIdentifier(_)))
+    case expression =>
+      val maybeName = expression.getContext match {
+        case x: ScAssignStmt => x.assignName
+        case x: ScArgumentExprList => x.matchedParameters.collectFirst {
+          case (matchedExpression, parameter) if matchedExpression == expression => parameter
+        }.map(_.name)
+        case _ => None
+      }
+      asSet(maybeName)
   }
+
+  private[this] def asSet[T](option: Option[T]): mutable.LinkedHashSet[T] =
+    option match {
+      case Some(value) => mutable.LinkedHashSet(value)
+      case _ => mutable.LinkedHashSet.empty
+    }
 
   private def getCamelNames(name: String): mutable.LinkedHashSet[String] = {
     val result = mutable.LinkedHashSet.empty[String]
