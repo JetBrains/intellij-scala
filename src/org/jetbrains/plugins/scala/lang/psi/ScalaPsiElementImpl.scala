@@ -2,15 +2,17 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement
+import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
-import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
-import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.ScalaStubBasedElementImpl.ifNotNull
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
 /**
 @author ven
@@ -81,8 +83,17 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
   }
 }
 
-abstract class ScalaStubBasedElementImpl[T <: PsiElement](stub: StubElement[T], nodeType: IElementType, node: ASTNode)
-        extends ScalaStubBaseElementImplJavaRawTypeHack[T](stub, nodeType, node) with ScalaPsiElement {
+abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](stub: S,
+                                                                               nodeType: ScStubElementType[S, T],
+                                                                               node: ASTNode)
+        extends StubBasedPsiElementBase[S](stub, ifNotNull(stub, nodeType), node)
+          with StubBasedPsiElement[S] with ScalaPsiElement {
+
+  override def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = {
+    if (getStub != null) getStub.getStubType
+    else getNode.getElementType.asInstanceOf[IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement]]
+  }
+
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -160,4 +171,8 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement](stub: StubElement[T], 
       case _ => super.delete()
     }
   }
+}
+
+object ScalaStubBasedElementImpl {
+  def ifNotNull[T >: Null](stub: AnyRef, node: T): T = if (stub == null) null else node
 }

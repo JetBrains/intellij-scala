@@ -37,7 +37,7 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def getImportStatements: Seq[ScImportStmt] = {
     this match {
-      case s: ScalaStubBasedElementImpl[_] =>
+      case s: ScalaStubBasedElementImpl[_, _] =>
         val stub: StubElement[_] = s.getStub
         if (stub != null) {
           return stub.getChildrenByType(ScalaElementTypes.IMPORT_STMT, JavaArrayFactoryUtil.ScImportStmtFactory).toSeq

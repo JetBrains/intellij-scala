@@ -11,8 +11,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -27,13 +25,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub
   *         Date: 07.03.2008
   */
 
-class ScPrimaryConstructorImpl private(stub: StubElement[ScPrimaryConstructor], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPrimaryConstructor {
-  def this(node: ASTNode) =
-    this(null, null, node)
+class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.PRIMARY_CONSTRUCTOR, node) with ScPrimaryConstructor {
 
-  def this(stub: ScPrimaryConstructorStub) =
-    this(stub, ScalaElementTypes.PRIMARY_CONSTRUCTOR, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScPrimaryConstructorStub) = this(stub, null)
 
   override def getIcon(flags: Int): Icon = Icons.FUNCTION
 

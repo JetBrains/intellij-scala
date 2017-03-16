@@ -92,8 +92,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     val thisName: String = name
     val tokenSet = TokenSets.TYPE_DEFINITIONS
-    val stub: Option[StubElement[_]] = scope match {
-      case stub: StubBasedPsiElement[_] => Option(stub.getStub)
+    val stub = scope match {
+      case stub: ScalaStubBasedElementImpl[_, _] => Option(stub.getStub)
       case file: PsiFileImpl => Option(file.getStub)
       case _ => None
     }

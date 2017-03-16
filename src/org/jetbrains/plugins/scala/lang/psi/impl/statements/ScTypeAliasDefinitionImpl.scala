@@ -11,11 +11,10 @@ import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
@@ -25,14 +24,16 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 * Date: 22.02.2008
 * Time: 9:55:13
 */
-class ScTypeAliasDefinitionImpl private (stub: StubElement[ScTypeAlias], nodeType: IElementType, node: ASTNode)
-extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDefinition {
-  def this(node: ASTNode) = {this(null, null, node)}
-  def this(stub: ScTypeAliasStub) = {this(stub, ScalaElementTypes.TYPE_DEFINITION, null)}
+class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.TYPE_DEFINITION, node) with ScTypeAliasDefinition {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScTypeAliasStub) = this(stub, null)
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null =>
-      val name = getStub.asInstanceOf[ScTypeAliasStub].getName
+      val name = getStub.getName
       val id = createIdentifier(name)
       if (id == null) {
         assert(assertion = false, s"Id is null. Name: $name. Text: $getText. Parent text: ${getParent.getText}.")

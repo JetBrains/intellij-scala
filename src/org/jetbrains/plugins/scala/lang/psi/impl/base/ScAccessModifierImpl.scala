@@ -7,8 +7,6 @@ package base
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
@@ -27,11 +25,12 @@ import scala.collection.mutable.ArrayBuffer
   * @author Alexander Podkhalyuzin
   *         Date: 07.03.2008
   */
-class ScAccessModifierImpl private(stub: StubElement[ScAccessModifier], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScAccessModifier {
-  def this(node: ASTNode) = this(null, null, node)
+class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ACCESS_MODIFIER, node) with ScAccessModifier {
 
-  def this(stub: ScAccessModifierStub) = this(stub, ACCESS_MODIFIER, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScAccessModifierStub) = this(stub, null)
 
   override def toString: String = "AccessModifier"
 

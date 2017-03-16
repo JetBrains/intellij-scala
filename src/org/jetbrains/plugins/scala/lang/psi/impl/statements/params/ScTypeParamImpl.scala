@@ -11,7 +11,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -37,15 +36,13 @@ import scala.annotation.tailrec
 * Date: 22.02.2008
 */
 
-class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
-  def this(node: ASTNode) = {
-    this(null, null, node)
-  }
+class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.TYPE_PARAM, node)
+    with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
 
-  def this(stub: ScTypeParamStub) = {
-    this(stub, ScalaElementTypes.TYPE_PARAM, null)
-  }
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScTypeParamStub) = this(stub, null)
 
   @tailrec
   final override protected def extractBound(in: ScType, isLower: Boolean): ScType = {

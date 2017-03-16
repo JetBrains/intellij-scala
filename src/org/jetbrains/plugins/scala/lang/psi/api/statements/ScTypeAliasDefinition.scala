@@ -24,7 +24,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 
   def aliasedTypeElement: Option[ScTypeElement] = {
-    val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
+    val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement, _]].getStub
     if (stub != null) {
       return stub.asInstanceOf[ScTypeAliasStub].typeElement
     }

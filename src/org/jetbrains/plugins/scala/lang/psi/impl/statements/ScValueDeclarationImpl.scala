@@ -6,8 +6,6 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -23,11 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
  * Time: 9:55:28
  */
 
-class ScValueDeclarationImpl private (stub: StubElement[ScValue], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScValueDeclaration {
-  def this(node: ASTNode) = {this(null, null, node)}
+class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.VALUE_DECLARATION, node) with ScValueDeclaration {
 
-  def this(stub: ScValueStub) = {this(stub, ScalaElementTypes.VALUE_DECLARATION, null)}
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScValueStub) = this(stub, null)
 
   override def toString: String = "ScValueDeclaration: " + declaredElements.map(_.name).mkString(", ")
 

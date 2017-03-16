@@ -235,7 +235,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    */
   def returnTypeElement: Option[ScTypeElement] = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] =>
+      case st: ScalaStubBasedElementImpl[_, _] =>
         val stub = st.getStub
         if (stub != null) {
           return stub.asInstanceOf[ScFunctionStub].typeElement
@@ -628,7 +628,7 @@ object ScFunction {
           isCalculating.set(true)
           try {
             val children = parent match {
-              case stub: ScalaStubBasedElementImpl[_] if stub.getStub != null =>
+              case stub: ScalaStubBasedElementImpl[_, _] if stub.getStub != null =>
                 import scala.collection.JavaConverters._
                 stub.getStub.getChildrenStubs.asScala.map(_.getPsi).iterator
               case _ => parent.getChildren.iterator

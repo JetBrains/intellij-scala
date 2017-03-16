@@ -7,7 +7,6 @@ package imports
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.BooleanExt
@@ -23,13 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
   * @author Alexander Podkhalyuzin
   *         Date: 20.02.2008
   */
-class ScImportSelectorImpl private(stub: StubElement[ScImportSelector], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScImportSelector {
-  def this(node: ASTNode) =
-    this(null, null, node)
+class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, IMPORT_SELECTOR, node) with ScImportSelector {
 
-  def this(stub: ScImportSelectorStub) =
-    this(stub, IMPORT_SELECTOR, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScImportSelectorStub) = this(stub, null)
 
   override def toString: String = "ImportSelector"
 

@@ -58,7 +58,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   def containingClass: ScTemplateDefinition = {
     val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
-      case st: ScalaStubBasedElementImpl[_] => st.getStub
+      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
       case _ => null
     }
     stub match {
@@ -83,7 +83,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   def getContainingClassLoose: ScTemplateDefinition = {
     val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
-      case st: ScalaStubBasedElementImpl[_] => st.getStub
+      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
       case _ => null
     }
     if (stub != null) {
@@ -111,7 +111,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   def isLocal: Boolean = {
     val stub: StubElement[_ <: PsiElement] = this match {
       case file: PsiFileImpl => file.getStub
-      case st: ScalaStubBasedElementImpl[_] => st.getStub
+      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
       case _ => null
     }
     stub match {

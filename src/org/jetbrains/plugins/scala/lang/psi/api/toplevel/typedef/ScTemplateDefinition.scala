@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isLineTerminator
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -49,7 +49,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def extendsBlock: ScExtendsBlock = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] =>
+      case st: ScalaStubBasedElementImpl[_, _] =>
         val stub = st.getStub
         if (stub != null) {
           return stub.findChildStubByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi
@@ -298,7 +298,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
                           place: PsiElement) : Boolean = {
     if (!processor.isInstanceOf[BaseProcessor]) {
       val lastChild = this match {
-        case s: ScalaStubBasedElementImpl[_] => s.getLastChildStub
+        case s: ScalaStubBasedElementImpl[_, _] => s.getLastChildStub
         case _ => this.getLastChild
       }
       val languageLevel: LanguageLevel =

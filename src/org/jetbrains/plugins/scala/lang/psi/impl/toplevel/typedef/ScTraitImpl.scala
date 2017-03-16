@@ -7,8 +7,6 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -25,8 +23,13 @@ import scala.collection.mutable.ArrayBuffer
 * @author Alexander Podkhalyuzin
 * @since 20.02.2008
 */
-class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
-  extends ScTypeDefinitionImpl(stub, nodeType, node) with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
+class ScTraitImpl private (stub: ScTemplateDefinitionStub, node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, ScalaElementTypes.TRAIT_DEFINITION, node) with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScTemplateDefinitionStub) = this(stub, null)
+
   override def additionalJavaNames: Array[String] = {
     Array(fakeCompanionClass.getName) //do not add fakeCompanionModule => will build tree from stubs everywhere
   }
@@ -38,11 +41,6 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     }
   }
 
-  def this(node: ASTNode) = {this(null, null, node)}
-
-  def this(stub: ScTemplateDefinitionStub) = {
-    this(stub, ScalaElementTypes.TRAIT_DEFINITION, null)
-  }
 
   override def toString: String = "ScTrait: " + name
 

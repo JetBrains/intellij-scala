@@ -7,8 +7,6 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -24,14 +22,12 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, Mod
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-class ScParameterClauseImpl private(stub: StubElement[ScParameterClause], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameterClause {
+class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.PARAM_CLAUSE, node) with ScParameterClause {
 
-  def this(node: ASTNode) =
-    this(null, null, node)
+  def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScParamClauseStub) =
-    this(stub, ScalaElementTypes.PARAM_CLAUSE, null)
+  def this(stub: ScParamClauseStub) = this(stub, null)
 
   override def toString: String = "ParametersClause"
 

@@ -20,7 +20,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.util.VisibilityIcons
 import org.jetbrains.plugins.scala.conversion.JavaToScala
@@ -34,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
@@ -45,8 +45,11 @@ import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.reflect.NameTransformer
 
-abstract class ScTypeDefinitionImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
-extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition with PsiClassFake {
+abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
+                                               nodeType: ScTemplateDefinitionElementType[_ <: ScTypeDefinition],
+                                               node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition with PsiClassFake {
+
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
   override def add(element: PsiElement): PsiElement = {
@@ -163,7 +166,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override def isLocal: Boolean = {
     val stub: StubElement[_ <: PsiElement] = this match {
-      case st: ScalaStubBasedElementImpl[_] => st.getStub
+      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
       case _ => null
     }
     stub match {

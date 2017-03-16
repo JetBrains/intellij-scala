@@ -8,8 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -28,11 +26,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
  * Date: 22.02.2008
  */
 
-class ScFunctionDefinitionImpl protected (stub: StubElement[ScFunction], nodeType: IElementType, node: ASTNode)
-  extends ScFunctionImpl(stub, nodeType, node) with ScFunctionDefinition {
-  def this(node: ASTNode) = {this(null, null, node)}
+class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
+  extends ScFunctionImpl(stub, ScalaElementTypes.FUNCTION_DEFINITION, node) with ScFunctionDefinition {
 
-  def this(stub: ScFunctionStub) = {this(stub, ScalaElementTypes.FUNCTION_DEFINITION, null)}
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScFunctionStub) = this(stub, null)
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,

@@ -179,7 +179,7 @@ object ScalaPsiUtil {
 
   def lastChildElementOrStub(element: PsiElement): PsiElement = {
     element match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
+      case st: ScalaStubBasedElementImpl[_, _] if st.getStub != null =>
         val stub = st.getStub
         val children = stub.getChildrenStubs
         if (children.size() == 0) element.getLastChild
@@ -848,7 +848,7 @@ object ScalaPsiUtil {
 
   def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
+      case st: ScalaStubBasedElementImpl[_, _] if st.getStub != null =>
         val stub = st.getStub
         val childrenStubs = stub.getChildrenStubs
         if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
@@ -879,7 +879,7 @@ object ScalaPsiUtil {
     }
 
     elem match {
-      case st: ScalaStubBasedElementImpl[_] =>
+      case st: ScalaStubBasedElementImpl[_, _] =>
         val stub = st.getStub
         if (stub != null) return workWithStub(stub)
       case file: PsiFileImpl =>
@@ -900,7 +900,7 @@ object ScalaPsiUtil {
 
   def getNextStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
+      case st: ScalaStubBasedElementImpl[_, _] if st.getStub != null =>
         val stub = st.getStub
         val parent = stub.getParentStub
         if (parent == null) return null

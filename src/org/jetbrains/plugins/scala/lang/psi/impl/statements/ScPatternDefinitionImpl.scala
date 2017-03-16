@@ -6,8 +6,6 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -23,8 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
 * @author Alexander Podkhalyuzin
 */
 
-class ScPatternDefinitionImpl private (stub: StubElement[ScValue], nodeType: IElementType, node: ASTNode)
-extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition {
+class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.PATTERN_DEFINITION, node) with ScPatternDefinition {
+
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScValueStub) = this(stub, null)
+
   override def accept(visitor: PsiElementVisitor): Unit = {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -32,10 +35,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPatternDefinition
     }
   }
 
-  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScValueStub) = {this(stub, ScalaElementTypes.PATTERN_DEFINITION, null)}
-  
   override def toString: String = "ScPatternDefinition"
 
   def bindings: Seq[ScBindingPattern] = {

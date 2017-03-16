@@ -8,8 +8,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -19,14 +17,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 
 /**
  * @author ilyas
  */
 
-abstract class ScFunctionImpl protected (stub: StubElement[ScFunction], nodeType: IElementType, node: ASTNode)
+abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunctionElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScMember
-with ScFunction with ScTypeParametersOwner {
+    with ScFunction with ScTypeParametersOwner {
+
   override def isStable = false
 
   def nameId: PsiElement = {
@@ -35,7 +35,7 @@ with ScFunction with ScTypeParametersOwner {
       case notNull => notNull
     }
     if (n == null) {
-      return createIdentifier(getStub.asInstanceOf[ScFunctionStub].getName).getPsi
+      return createIdentifier(getStub.getName).getPsi
     }
     n.getPsi
   }

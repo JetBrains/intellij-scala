@@ -6,8 +6,6 @@ package toplevel
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.EARLY_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
@@ -19,11 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScEarlyDefinitionsStub
   * @author Alexander Podkhalyuzin
   *         Date: 22.02.2008
   */
-class ScEarlyDefinitionsImpl private(stub: StubElement[ScEarlyDefinitions], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScEarlyDefinitions {
-  def this(node: ASTNode) = this(null, null, node)
+class ScEarlyDefinitionsImpl private(stub: ScEarlyDefinitionsStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, EARLY_DEFINITIONS, node) with ScEarlyDefinitions {
 
-  def this(stub: ScEarlyDefinitionsStub) = this(stub, EARLY_DEFINITIONS, null)
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScEarlyDefinitionsStub) = this(stub, null)
 
   override def toString: String = "EarlyDefinitions"
 

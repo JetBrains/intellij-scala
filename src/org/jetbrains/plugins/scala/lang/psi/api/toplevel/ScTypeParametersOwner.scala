@@ -19,7 +19,7 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
 
   def typeParametersClause: Option[ScTypeParamClause] = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] =>
+      case st: ScalaStubBasedElementImpl[_, _] =>
         val stub = st.getStub
         if (stub != null) {
           val array = stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM_CLAUSE,

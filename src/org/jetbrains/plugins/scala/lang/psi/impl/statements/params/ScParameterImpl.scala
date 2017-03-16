@@ -7,8 +7,6 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -18,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs._
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
@@ -28,11 +27,12 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander Podkhalyuzin
  */
 
-class ScParameterImpl protected (stub: StubElement[ScParameter], nodeType: IElementType, node: ASTNode)
+class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElementType[_ <: ScParameter], node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameter {
-  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScParameterStub) = {this(stub, ScalaElementTypes.PARAM, null)}
+  def this(node: ASTNode) = this(null, null, node)
+
+  def this(stub: ScParameterStub) = this(stub, ScalaElementTypes.PARAM, null)
 
   override def toString: String = "Parameter: " + name
 

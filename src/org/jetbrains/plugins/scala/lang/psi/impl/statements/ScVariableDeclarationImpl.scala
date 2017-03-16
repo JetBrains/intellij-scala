@@ -6,8 +6,6 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -21,11 +19,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingCont
  * @author Alexander Podkhalyuzin
  */
 
-class ScVariableDeclarationImpl private (stub: StubElement[ScVariable], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScVariableDeclaration {
-  def this(node: ASTNode) = {this(null, null, node)}
+class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.VARIABLE_DECLARATION, node) with ScVariableDeclaration {
 
-  def this(stub: ScVariableStub) = {this(stub, ScalaElementTypes.VARIABLE_DECLARATION, null)}
+  def this(node: ASTNode) = this(null, node)
+
+  def this(stub: ScVariableStub) = this(stub, null)
 
   override def toString: String = "ScVariableDeclaration: " + declaredElements.map(_.name).mkString(", ")
 

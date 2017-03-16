@@ -4,7 +4,6 @@ package psi
 package api
 package toplevel
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.stubs.StubElement
@@ -20,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
   override def getModifierList: ScModifierList = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] =>
+      case st: ScalaStubBasedElementImpl[_, _] =>
         val stub: StubElement[_ <: PsiElement] = st.getStub
         if (stub != null) {
           val array = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, JavaArrayFactoryUtil.ScModifierListFactory)
@@ -55,7 +54,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
 
   private def hasModifierPropertyInner(name: String): Boolean = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] =>
+      case st: ScalaStubBasedElementImpl[_, _] =>
         val stub: StubElement[_ <: PsiElement] = st.getStub
         if (stub != null) {
           val mod = stub.findChildStubByType(ScalaElementTypes.MODIFIERS)

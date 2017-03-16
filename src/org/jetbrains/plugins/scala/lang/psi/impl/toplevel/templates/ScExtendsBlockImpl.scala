@@ -7,8 +7,6 @@ package templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -35,13 +33,12 @@ import scala.collection.mutable.ListBuffer
   * @author AlexanderPodkhalyuzin
   *         Date: 20.02.2008
   */
-class ScExtendsBlockImpl private(stub: StubElement[ScExtendsBlock], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScExtendsBlock {
+class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.EXTENDS_BLOCK, node) with ScExtendsBlock {
 
-  def this(node: ASTNode) =
-    this(null, null, node)
+  def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScExtendsBlockStub) = this(stub, ScalaElementTypes.EXTENDS_BLOCK, null)
+  def this(stub: ScExtendsBlockStub) = this(stub, null)
 
   override def toString: String = "ExtendsBlock"
 

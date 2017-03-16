@@ -11,8 +11,6 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubElement
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -31,14 +29,12 @@ import scala.collection.mutable.ArrayBuffer
   * @author Alexander Podkhalyuzin, Pavel Fatin
   *         Date: 20.02.2008
   */
-class ScPackagingImpl private(stub: StubElement[ScPackaging], nodeType: IElementType, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
+class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, PACKAGING, node) with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
 
-  def this(node: ASTNode) =
-    this(null, null, node)
+  def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScPackagingStub) =
-    this(stub, PACKAGING, null)
+  def this(stub: ScPackagingStub) = this(stub, null)
 
   override def toString = "ScPackaging"
 
