@@ -158,7 +158,37 @@ class CopyTextToScala extends CopyTestBase() {
     doTestEmptyToFile("<selection>public class Test {}</selection>", "class Test {}")
   }
 
-  /** ****************** Valid scala code. No conversion expected. ******************/
+  def testSCL11425(): Unit = {
+    val existingText =
+      """
+        |abstract class Employee {
+        |   private String name;
+        |}
+        |
+    """.stripMargin
+
+    val fromText =
+    """
+      |<selection>public class Salary extends Employee {
+      |   private double salary;
+      |}</selection>
+    """.stripMargin
+
+    val expected =
+    """
+      |abstract class Employee {
+      |   private String name;
+      |}
+      |
+      |class Salary extends Employee {
+      |  private val salary: Double = .0
+      |}
+    """.stripMargin
+
+    doTest(fromText, existingText, expected)
+  }
+
+  /******************** Valid scala code. No conversion expected. ******************/
 
   def testNoConversion1(): Unit = {
     doTestEmptyToFile("<selection>class Test {}</selection>", "class Test {}")
