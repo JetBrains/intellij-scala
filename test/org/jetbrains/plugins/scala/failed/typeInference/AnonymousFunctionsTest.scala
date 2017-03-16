@@ -12,8 +12,6 @@ import org.junit.experimental.categories.Category
 class AnonymousFunctionsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL8267(): Unit = doTest()
-
   def testSCL8621(): Unit = doTest {
     """
       |trait A[T] {

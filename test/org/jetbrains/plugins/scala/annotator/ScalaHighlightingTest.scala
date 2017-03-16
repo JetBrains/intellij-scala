@@ -22,4 +22,31 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
     val errors = errorsFromScalaCode(scalaText)
     assert(errors.isEmpty)
   }
+
+  def testSCL8267(): Unit = {
+    val scalaText =
+      """
+        |object SCL8267 {
+        |  val l: Option[List[Int]] = Some(List(1, 2, 3))
+        |
+        |  (l.map {
+        |    for {
+        |      x <- _
+        |      z = x + 1
+        |    } yield x + 1
+        |  }, l.map {
+        |    for {
+        |      x <- List(1, 2, 3)
+        |      z <- _
+        |    } yield x + z
+        |  }, l.map {
+        |    1 match {
+        |      case _ if _.length == 1 => 123
+        |    }
+        |  })
+        |}
+      """.stripMargin
+    val errors = errorsFromScalaCode(scalaText)
+    assert(errors.isEmpty)
+  }
 }

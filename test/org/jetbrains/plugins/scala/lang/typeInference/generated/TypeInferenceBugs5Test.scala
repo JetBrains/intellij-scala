@@ -1043,4 +1043,6 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |//(Int) => Int
     """.stripMargin.trim
   }
+
+  def testSCL8267(): Unit = doTest()
 }
