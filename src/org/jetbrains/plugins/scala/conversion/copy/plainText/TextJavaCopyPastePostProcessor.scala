@@ -79,6 +79,10 @@ class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Text
           val project = javaCodeWithContext.project
 
           createFileWithAdditionalImports(javaCodeWithContext, scope).foreach { javaFile =>
+            //remove java pasted java code from file for treating file as a valid scala file
+            //it needs for SCL-11425
+            ConverterUtil.performePaste(editor, bounds, " " * (bounds.getEndOffset - bounds.getStartOffset), project)
+
             val convertedText = convert(javaFile, javaCodeWithContext.context, project)
             ConverterUtil.performePaste(editor, bounds, convertedText, project)
 
