@@ -13,16 +13,16 @@ import org.junit.Assert.assertArrayEquals
 class NameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testStandard(): Unit = {
-    testNamesByType("Boolean", "b")
+    testNamesByType("Boolean", "bool")
     testNamesByType("Char", "c")
-    testNamesByType("Byte", "Byte")
+    testNamesByType("Byte", "b")
     testNamesByType("Short", "sh")
     testNamesByType("Int", "i")
     testNamesByType("Long", "l")
     testNamesByType("Float", "fl")
     testNamesByType("Double", "d")
-    testNamesByType("Unit", "Unit")
-    testNamesByType("String", "s")
+    testNamesByType("Unit", "unit")
+    testNamesByType("String", "str")
   }
 
   def testArray(): Unit = {
@@ -60,7 +60,7 @@ class NameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   def testFunction(): Unit = {
-    testNamesByType("() => String", "s", "function")
+    testNamesByType("() => String", "str", "function")
     testNamesByType("(Int) => (String)", "intToString", "function")
     testNamesByType("(Int, Int) => (String)", "function")
   }

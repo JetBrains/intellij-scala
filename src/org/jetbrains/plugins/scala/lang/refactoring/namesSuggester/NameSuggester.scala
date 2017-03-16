@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
   * @author Alexander Podkhalyuzin
@@ -34,14 +34,15 @@ import scala.collection.mutable.ArrayBuffer
 object NameSuggester {
 
   def suggestNames(expression: ScExpression)
-                  (implicit validator: ScalaVariableValidator = empty(expression.getProject)): Set[String] = {
-    implicit val names = new ArrayBuffer[String]
+                  (validator: ScalaVariableValidator = empty(expression.getProject)): Set[String] = {
+    implicit val names = mutable.LinkedHashSet.empty[String]
+    implicit val project = validator.getProject()
 
     collectTypes(expression).reverse
       .foreach(generateNamesByType(_))
     generateNamesByExpr(expression)
 
-    collectNames(names)
+    collectNames(names, validator)
   }
 
   private[this] def collectTypes(expression: ScExpression): Seq[ScType] = {
@@ -55,9 +56,8 @@ object NameSuggester {
     }
   }
 
-  private[this] def collectNames(names: Seq[String])
-                                (implicit validator: NameValidator): Set[String] = {
-    val collected = names.map {
+  private[this] def collectNames(names: mutable.LinkedHashSet[String], validator: NameValidator): Set[String] = {
+    val collected = names.toSeq.map {
       case "class" => "clazz"
       case name => name
     }.filter(isIdentifier(_)) match {
@@ -70,21 +70,22 @@ object NameSuggester {
   }
 
   def suggestNamesByType(`type`: ScType): Set[String] = {
-    implicit val validator = new NameValidator {
+    implicit val project = obtainProject
+    val validator = new NameValidator {
       override def validateName(name: String, increaseNumber: Boolean): String = name
 
-      override def getProject(): Project = obtainProject
+      override def getProject(): Project = project
     }
 
-    implicit val names = new ArrayBuffer[String]
+    implicit val names = mutable.LinkedHashSet.empty[String]
     generateNamesByType(`type`)
-    collectNames(names)
+    collectNames(names, validator)
   }
 
   private def namesByType(tpe: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
-                         (implicit validator: NameValidator): ArrayBuffer[String] = {
-    val names = ArrayBuffer[String]()
-    generateNamesByType(tpe, shortVersion)(names, validator, withPlurals)
+                         (implicit project: Project): mutable.LinkedHashSet[String] = {
+    val names = mutable.LinkedHashSet.empty[String]
+    generateNamesByType(tpe, shortVersion)(names, project, withPlurals)
     names
   }
 
@@ -95,22 +96,21 @@ object NameSuggester {
   }
 
   private def generateNamesByType(typez: ScType, shortVersion: Boolean = true)
-                                 (implicit names: ArrayBuffer[String],
-                                  validator: NameValidator,
+                                 (implicit names: mutable.LinkedHashSet[String],
+                                  project: Project,
                                   withPlurals: Boolean = true) {
-    val project = validator.getProject()
     implicit val typeSystem = project.typeSystem
 
-    def pluralNames(arg: ScType): Seq[String] = {
-      val pluralNames = arg match {
-        case valType: ValType => Seq(valType.name.toLowerCase)
-        case TupleType(_) => Seq("tuple")
-        case FunctionType(_, _) => Seq("function")
+    def pluralNames(arg: ScType): mutable.LinkedHashSet[String] = {
+      val newNames = arg match {
+        case valType: ValType => mutable.LinkedHashSet(valType.name.toLowerCase)
+        case TupleType(_) => mutable.LinkedHashSet("tuple")
+        case FunctionType(_, _) => mutable.LinkedHashSet("function")
         case ScDesignatorType(e) => getCamelNames(e.name)
         case _ => namesByType(arg, withPlurals = false, shortVersion = false)
       }
 
-      if (withPlurals) pluralNames.map(plural) else pluralNames
+      if (withPlurals) newNames.map(plural) else newNames
     }
 
     def addFromTwoTypes(tp1: ScType, tp2: ScType, separator: String) {
@@ -191,7 +191,7 @@ object NameSuggester {
       }
     }
 
-    def toLowerCase(name: String, length: Int = 1): String = {
+    def toLowerCase(name: String, length: Int): String = {
       val lowerCased = name.toLowerCase
       if (shortVersion) lowerCased.substring(0, length) else lowerCased
     }
@@ -200,19 +200,22 @@ object NameSuggester {
       if (name != null && name.toUpperCase == name) {
         names += deleteNonLetterFromString(name).toLowerCase
       } else if (name == "String") {
-        names += toLowerCase(name)
+        names += toLowerCase(name, 3)
       } else {
-        generateCamelNames(name)
+        names ++= getCamelNames(name)
       }
 
     def valTypeName(`type`: ValType): String = {
       val typeName = `type`.name
 
-      `type` match {
-        case Boolean | Char | Int | Long | Double => toLowerCase(typeName)
-        case Short | Float => toLowerCase(typeName, 2)
-        case Byte | Unit => typeName
+      val length = `type` match {
+        case Char | Byte | Int | Long | Double => 1
+        case Short | Float => 2
+        case Boolean => 4
+        case Unit => typeName.length
       }
+
+      toLowerCase(typeName, length)
     }
 
     typez match {
@@ -230,7 +233,8 @@ object NameSuggester {
   }
 
   @tailrec
-  private def generateNamesByExpr(expr: ScExpression)(implicit names: ArrayBuffer[String], validator: NameValidator) {
+  private def generateNamesByExpr(expr: ScExpression)
+                                 (implicit names: mutable.LinkedHashSet[String]) {
     expr match {
       case _: ScThisReference => names += "thisInstance"
       case _: ScSuperReference => names += "superInstance"
@@ -239,7 +243,7 @@ object NameSuggester {
         if (name != null && name.toUpperCase == name) {
           names += name.toLowerCase
         } else {
-          generateCamelNames(name)
+          names ++= getCamelNames(name)
         }
       case x: ScMethodCall =>
         generateNamesByExpr(x.getEffectiveInvokedExpr)
@@ -259,29 +263,10 @@ object NameSuggester {
     }
   }
 
-  private def generateCamelNames(name: String)(implicit names: ArrayBuffer[String], validator: NameValidator) {
-    if (name == "") return
-    val s = if (Array("get", "set", "is").exists(name.startsWith))
-      name.charAt(0) match {
-        case 'g' | 's' => name.substring(3, name.length)
-        case _ => name.substring(2, name.length)
-      }
-    else name
-    for (i <- 0 until s.length) {
-      if (i == 0) {
-        val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
-        names += deleteNonLetterFromStringFromTheEnd(candidate)
-      }
-      else if (s(i) >= 'A' && s(i) <= 'Z') {
-        val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
-        names += deleteNonLetterFromStringFromTheEnd(candidate)
-      }
-    }
-  }
+  private def getCamelNames(name: String): mutable.LinkedHashSet[String] = {
+    val result = mutable.LinkedHashSet.empty[String]
+    if (name == "") return result
 
-  private def getCamelNames(name: String): Seq[String] = {
-    if (name == "") return Seq.empty
-    val names = new ArrayBuffer[String]
     val s = if (Array("get", "set", "is").exists(name.startsWith))
       name.charAt(0) match {
         case 'g' | 's' => name.substring(3, name.length)
@@ -291,14 +276,14 @@ object NameSuggester {
     for (i <- 0 until s.length) {
       if (i == 0) {
         val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
-        names += deleteNonLetterFromStringFromTheEnd(candidate)
+        result += deleteNonLetterFromStringFromTheEnd(candidate)
       }
       else if (s(i) >= 'A' && s(i) <= 'Z') {
         val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
-        names += deleteNonLetterFromStringFromTheEnd(candidate)
+        result += deleteNonLetterFromStringFromTheEnd(candidate)
       }
     }
-    names
+    result
   }
 
   private def deleteNonLetterFromString(s: String): String = {
