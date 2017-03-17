@@ -297,10 +297,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
                           lastParent: PsiElement,
                           place: PsiElement) : Boolean = {
     if (!processor.isInstanceOf[BaseProcessor]) {
-      val lastChild = this match {
-        case s: ScalaStubBasedElementImpl[_, _] => s.getLastChildStub
-        case _ => this.getLastChild
-      }
+      val lastChild = this.lastChildStub.orNull
       val languageLevel: LanguageLevel =
         processor match {
           case methodProcessor: MethodsProcessor => methodProcessor.getLanguageLevel

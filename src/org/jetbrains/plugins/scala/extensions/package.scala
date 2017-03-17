@@ -4,6 +4,7 @@ import java.io.Closeable
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.{Callable, Future}
 
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
@@ -12,10 +13,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PostprocessReformattingAspect
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.impl.source.tree.SharedImplUtil
+import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
+import com.intellij.psi.stubs.{IStubElementType, StubElement}
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.Processor
+import com.intellij.util.{ArrayFactory, Processor}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -728,6 +731,86 @@ package object extensions {
         case list: PsiParameterList => list.getParameterIndex(param)
         case _ => -1
       }
+    }
+  }
+
+  implicit class StubBasedExt(val element: PsiElement) extends AnyVal {
+    def stubOrPsiChildren[Psi <: PsiElement, Stub <: StubElement[_ <: Psi]](elementType: IStubElementType[Stub, Psi], f: ArrayFactory[Psi]): Array[Psi] = {
+      def findWithNode(): Array[Psi] = {
+        val nodes = SharedImplUtil.getChildrenOfType(element.getNode, elementType)
+        val length = nodes.length
+        val array = f.create(length)
+        var i = 0
+        while (i < length) {
+          array(i) = nodes(i).getPsi.asInstanceOf[Psi]
+          i += 1
+        }
+        array
+      }
+
+      element match {
+        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(elementType, f)
+        case file: PsiFileImpl =>
+          file.getGreenStub match {
+            case stub: StubElement[_] => stub.getChildrenByType(elementType, f)
+            case null => findWithNode()
+          }
+        case _ => findWithNode()
+      }
+    }
+
+    def stubOrPsiChildren[Psi <: PsiElement](filter: TokenSet, f: ArrayFactory[Psi]): Array[Psi] = {
+      def findWithNode(): Array[Psi] = {
+        val nodes = element.getNode.getChildren(filter)
+        val length = nodes.length
+        val array = f.create(length)
+        var i = 0
+        while (i < length) {
+          array(i) = nodes(i).getPsi.asInstanceOf[Psi]
+          i += 1
+        }
+        array
+      }
+
+      element match {
+        case st: StubBasedPsiElementBase[_] => st.getStubOrPsiChildren(filter, f)
+        case file: PsiFileImpl =>
+          file.getGreenStub match {
+            case stub: StubElement[_] => stub.getChildrenByType(filter, f)
+            case null => findWithNode()
+          }
+        case _ => findWithNode()
+      }
+    }
+
+    def stubOrPsiChild[Psi <: PsiElement, Stub <: StubElement[_ <: Psi]](elementType: IStubElementType[Stub, Psi]): Option[Psi] = {
+      def findWithNode() = {
+        val node = Option(element.getNode.findChildByType(elementType))
+        node.map(_.getPsi.asInstanceOf[Psi])
+      }
+
+      element match {
+        case st: StubBasedPsiElementBase[_] => Option(st.getStubOrPsiChild(elementType))
+        case file: PsiFileImpl =>
+          file.getGreenStub match {
+            case stub: StubElement[_] => Option(stub.findChildStubByType(elementType)).map(_.getPsi)
+            case _ => findWithNode()
+          }
+        case _ => findWithNode()
+      }
+    }
+
+    def greenStub: Option[StubElement[_]] = element match {
+      case st: StubBasedPsiElementBase[_] => Option(st.getGreenStub.asInstanceOf[StubElement[_]])
+      case file: PsiFileImpl => Option(file.getGreenStub)
+      case _ => None
+    }
+
+    def lastChildStub: Option[PsiElement] = {
+      val children = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
+      val size = children.length
+      if (size == 0) None
+      else Some(children(size - 1))
     }
   }
 

@@ -5,11 +5,10 @@ package psi
 import com.intellij.extapi.psi.{ASTWrapperPsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.CheckUtil
-import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
+import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaStubBasedElementImpl.ifNotNull
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -90,8 +89,9 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
           with StubBasedPsiElement[S] with ScalaPsiElement {
 
   override def getElementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement] = {
-    if (getStub != null) getStub.getStubType
-    else getNode.getElementType.asInstanceOf[IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement]]
+    byStubOrPsi(_.getStubType) {
+      getNode.getElementType.asInstanceOf[IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement]]
+    }
   }
 
   override def accept(visitor: PsiElementVisitor) {
@@ -130,26 +130,6 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
     }
   }
 
-  override def getParent: PsiElement = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.getParentStub.getPsi
-    }
-    inReadAction {
-      SharedImplUtil.getParent(getNode)
-    }
-  }
-
-  def getLastChildStub: PsiElement = {
-    val stub = getStub
-    if (stub != null) {
-      val children = stub.getChildrenStubs
-      if (children.size() == 0) return null
-      return children.get(children.size() - 1).getPsi
-    }
-    getLastChild
-  }
-
   override def findLastChildByType[T <: PsiElement](t: IElementType): T = {
     super[ScalaPsiElement].findLastChildByType(t)
   }
@@ -170,6 +150,18 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
         x.deleteChildInternal(getNode)
       case _ => super.delete()
     }
+  }
+
+  //may use stubs even if AstNode exists
+  def byStubOrPsi[R](byStub: S => R)(byPsi: => R): R = getGreenStub match {
+    case null => byPsi
+    case s => byStub(s)
+  }
+
+  //byStub branch is used only if AstNode is missing
+  def byPsiOrStub[R](byPsi: => R)(byStub: S => R): R = getStub match {
+    case null => byPsi
+    case s => byStub(s)
   }
 }
 

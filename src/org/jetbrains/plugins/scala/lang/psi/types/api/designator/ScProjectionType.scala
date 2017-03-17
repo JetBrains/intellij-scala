@@ -111,8 +111,8 @@ class ScProjectionType private(val projected: ScType,
     val resolvePlace = {
       def fromClazz(definition: ScTypeDefinition): PsiElement =
         definition.extendsBlock.templateBody
-          .flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
-          getOrElse(definition.extendsBlock)
+          .flatMap(_.lastChildStub)
+          .getOrElse(definition.extendsBlock)
 
       projected.extractClass(element.getProject) match {
         case Some(definition: ScTypeDefinition) => fromClazz(definition)
