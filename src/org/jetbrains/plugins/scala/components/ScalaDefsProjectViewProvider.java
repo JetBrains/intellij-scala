@@ -22,6 +22,7 @@ import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode;
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Iconable;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -47,7 +48,7 @@ import java.util.List;
 /**
  * @author ven
  */
-public class ScalaDefsProjectViewProvider implements TreeStructureProvider {
+public class ScalaDefsProjectViewProvider implements TreeStructureProvider, DumbAware {
   private static boolean hasNameOfFile(ScTypeDefinition type) {
     ScalaFile scalaFile = getFile(type);
     VirtualFile virtualFile = scalaFile == null ? null : scalaFile.getVirtualFile();
