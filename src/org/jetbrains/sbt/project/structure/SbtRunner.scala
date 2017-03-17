@@ -44,9 +44,16 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
       if (importSupported(sbtVersion)) usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
 
-        val messageResult: Try[String] =
-          if (useShellImport) dumpFromShell(structureFile, options)
-          else runDumpProcess(directory, structureFile, options: Seq[String], majorSbtVersion)
+
+        val messageResult: Try[String] = {
+          // if the project is being freshly imported, there is no project instance to get the shell component
+          lazy val project = id.findProject()
+          if (useShellImport && project != null) {
+            val shell = SbtShellCommunication.forProject(project)
+            dumpFromShell(shell, structureFile, options)
+          }
+          else dumpFromProcess(directory, structureFile, options: Seq[String], majorSbtVersion)
+        }
 
         messageResult.flatMap { messages =>
           if (structureFile.length > 0) Try {
@@ -70,9 +77,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private val statusUpdate = (message:String) =>
     listener.onStatusChange(new ExternalSystemTaskNotificationEvent(id, message.trim))
 
-  private def dumpFromShell(structureFile: File, options: Seq[String]): Try[String] = {
-    val project = id.findProject()
-    val shell = SbtShellCommunication.forProject(project)
+  private def dumpFromShell(shell: SbtShellCommunication, structureFile: File, options: Seq[String]): Try[String] = {
 
     val fileString = structureFile.getAbsolutePath
     val optString = options.mkString(" ")
@@ -89,8 +94,9 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     case (m,TaskStart) => m
     case (m,TaskComplete) => m
     case (messages, Output(message)) =>
-      statusUpdate(message)
-      messages.append("\n").append(message)
+      val text = message.trim
+      if (text.nonEmpty) statusUpdate(text)
+      messages.append("\n").append(text)
       messages
   }
 
@@ -100,10 +106,9 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def importSupported(sbtVersion: String): Boolean =
     versionCompare(sbtVersion, sinceSbtVersion) >= 0
 
-  private def runDumpProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: String): Try[String] = {
+  private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: String): Try[String] = {
 
     val optString = options.mkString(", ")
-
     val pluginJar = sbtStructureJar(sbtVersion)
 
     val setCommands = Seq(
@@ -148,6 +153,12 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def handle(process: Process, statusUpdate: String=>Unit): Try[String] = {
     val output = StringBuilder.newBuilder
 
+    def update(textRaw: String) = {
+      val text = textRaw.trim
+      output.append("\n").append(text)
+      if (text.nonEmpty) statusUpdate(text)
+    }
+
     val processListener: (OutputType, String) => Unit = {
       case (OutputType.StdOut, text) =>
         if (text.contains("(q)uit")) {
@@ -155,12 +166,10 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
           writer.println("q")
           writer.close()
         } else {
-          output.append(text)
-          statusUpdate(text)
+          update(text)
         }
       case (OutputType.StdErr, text) =>
-        output.append(text)
-        statusUpdate(text)
+        update(text)
     }
 
     Try {
