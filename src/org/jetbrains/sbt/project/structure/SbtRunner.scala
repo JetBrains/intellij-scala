@@ -40,15 +40,14 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
       val sbtVersion = detectSbtVersion(directory, SbtLauncher)
       val majorSbtVersion = majorVersion(sbtVersion)
-      val useShellImport = importFromShell && shellImportSupported(sbtVersion)
+      lazy val project = id.findProject()
+      // if the project is being freshly imported, there is no project instance to get the shell component
+      val useShellImport = importFromShell && shellImportSupported(sbtVersion) && project != null
 
       if (importSupported(sbtVersion)) usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
 
-
         val messageResult: Try[String] = {
-          // if the project is being freshly imported, there is no project instance to get the shell component
-          lazy val project = id.findProject()
-          if (useShellImport && project != null) {
+          if (useShellImport) {
             val shell = SbtShellCommunication.forProject(project)
             dumpFromShell(shell, structureFile, options)
           }

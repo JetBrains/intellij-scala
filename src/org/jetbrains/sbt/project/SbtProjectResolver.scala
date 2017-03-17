@@ -45,7 +45,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       if (file.isDirectory) file.getPath else file.getParent
     }
 
-    val options = dumpOptions(!isPreview, settings)
+    val options = if (isPreview) Seq.empty else dumpOptions(!isPreview, settings)
 
     val runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
       settings.customLauncher, settings.customSbtStructureFile, id, listener)

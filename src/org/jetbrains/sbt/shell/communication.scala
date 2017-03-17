@@ -7,9 +7,7 @@ import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, Proc
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.task.ProjectTaskResult
 import org.jetbrains.ide.PooledThreadExecutor
-import org.jetbrains.plugins.scala.lang.psi.api.base.A
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
@@ -53,9 +51,8 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     // is it ok for this executor to run a queue processor?
     PooledThreadExecutor.INSTANCE.submit(new Runnable {
       override def run(): Unit = {
-        // make sure there is exactly one permit available
+        // queue ready signal is given by initCommunication.stateChanger
         shellQueueReady.drainPermits()
-        shellQueueReady.release()
         while (!handler.isProcessTerminating && !handler.isProcessTerminated) {
           nextQueuedCommand(1.second)
         }
@@ -78,11 +75,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
           shell.flush()
         }
 
-        // we want to avoid registering multiple callbacks to the same output and having whatever side effects
-        listener.future.onComplete { _ =>
-          process.removeListener(listener)
-          shellQueueReady.release()
-        }
       } else shellQueueReady.release()
     }
   }
@@ -96,7 +88,10 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
     if (!communicationActive.getAndSet(true)) {
       val stateChanger = new SbtShellReadyListener(
-        whenReady = shellPromptReady.set(true),
+        whenReady = {
+          shellPromptReady.set(true)
+          shellQueueReady.release()
+        },
         whenWorking = shellPromptReady.set(false)
       )
 
@@ -121,7 +116,7 @@ object SbtShellCommunication {
   /** Aggregates the output of a shell task. */
   val messageAggregator: EventAggregator[StringBuilder] = (builder, e) => e match {
     case TaskStart | TaskComplete => builder
-    case Output(text) => builder.append("\n", text)
+    case Output(text) => builder.append("\n").append(text)
   }
 
   /** Convenience aggregator wrapper that is executed for the side effects.
