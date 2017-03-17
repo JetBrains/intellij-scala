@@ -97,10 +97,9 @@ object ScopeSuggester {
       val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(currentElement, parent)
       val validator = ScalaTypeValidator(conflictsReporter, project, currentElement, parent, occurrences.isEmpty)
 
-      val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)
-        .map(validator.validateName(_, increaseNumber = true))
+      val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)(validator)
 
-      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames)
+      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toSet[String])
       parent = getParent(parent, isScriptFile)
     }
 

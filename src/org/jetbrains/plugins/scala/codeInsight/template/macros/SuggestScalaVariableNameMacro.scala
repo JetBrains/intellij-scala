@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, Parameteri
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
-import scala.collection.immutable.Set
-
 /**
   * User: Alexander Podkhalyuzin
   * Date: 31.01.2009
@@ -52,13 +50,14 @@ class SuggestScalaVariableNameMacro extends ScalaMacro {
 
 object SuggestScalaVariableNameMacro {
   private def getNames(params: Array[Expression], context: ExpressionContext)
-                      (implicit typeSystem: TypeSystem): Set[String] = {
+                      (implicit typeSystem: TypeSystem): Seq[String] = {
     val p: Array[String] = params.map(_.calculateResult(context).toString)
     val editor = context.getEditor
     PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)
 
+    val default = Seq("x")
     val typez: ScType = p match {
-      case Array() => return Set[String]("x") //todo:
+      case Array() => return default //todo:
       case x if x(0) == "option" || x(0) == "foreach" =>
         try {
           val items = (new ScalaVariableOfTypeMacro).calculateLookupItems(Array[String](x(0) match {
@@ -67,22 +66,22 @@ object SuggestScalaVariableNameMacro {
           }), context, showOne = true).
             map(_.getObject).filter(_.isInstanceOf[PsiNamedElement]).map(_.asInstanceOf[PsiNamedElement]).
             filter(_.name == x(1))
-          if (items.length == 0) return Set[String]("x")
+          if (items.length == 0) return default
           items(0) match {
             case typed: ScTypedDefinition => typed.getType(TypingContext.empty) match {
               case Success(ParameterizedType(_, typeArgs), _) => typeArgs.head
               case Success(JavaArrayType(argument), _) => argument
-              case _ => return Set[String]("x")
+              case _ => return default
             }
-            case _ => return Set[String]("x")
+            case _ => return default
           }
         }
         catch {
           case e: Exception =>
             e.printStackTrace()
-            return Set[String]("x")
+            return default
         }
-      case _ => return Set[String]("x")
+      case _ => return default
     }
     NameSuggester.suggestNamesByType(typez)
   }

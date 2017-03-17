@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator.empty
-import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaTypeValidator, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
@@ -30,13 +29,10 @@ import scala.collection.mutable
 object NameSuggester {
 
   def suggestNames(expression: ScExpression)
-                  (validator: ScalaVariableValidator = empty(expression.getProject)): Set[String] = {
-    val names = mutable.LinkedHashSet.empty[String]
-    implicit val project = validator.getProject()
-
-    collectTypes(expression).reverse
-      .foreach(names ++= namesByType(_))
-    names ++= namesByExpression(expression)
+                  (implicit validator: ScalaVariableValidator = ScalaVariableValidator.empty(expression.getProject)): Seq[String] = {
+    val names = collectTypes(expression).reverse
+      .flatMap(namesByType(_)(validator.getProject())) ++
+      namesByExpression(expression)
 
     collectNames(names, validator)
   }
@@ -52,29 +48,25 @@ object NameSuggester {
     }
   }
 
-  private[this] def collectNames(names: mutable.LinkedHashSet[String], validator: NameValidator): Set[String] = {
-    val collected = names.toSeq.map {
+  private[this] def collectNames(names: Seq[String], validator: NameValidator): Seq[String] = {
+    val filteredNames = mutable.LinkedHashSet(names: _*).map {
       case "class" => "clazz"
       case name => name
-    }.filter(isIdentifier(_)) match {
+    }.filter(isIdentifier(_))
+
+    val collected = filteredNames.toSeq match {
       case Seq() => Seq("value")
       case seq => seq.reverse
     }
 
-    collected.toSet[String]
+    mutable.LinkedHashSet(collected: _*)
       .map(validator.validateName(_, increaseNumber = true))
+      .toSeq
   }
 
-  def suggestNamesByType(`type`: ScType): Set[String] = {
-    implicit val project = obtainProject
-    val validator = new NameValidator {
-      override def validateName(name: String, increaseNumber: Boolean): String = name
-
-      override def getProject(): Project = project
-    }
-
-    collectNames(namesByType(`type`), validator)
-  }
+  def suggestNamesByType(`type`: ScType)
+                        (implicit validator: ScalaTypeValidator = ScalaTypeValidator.empty(obtainProject)): Seq[String] =
+    collectNames(namesByType(`type`)(validator.getProject()), validator)
 
   private[this] def plural: String => String = {
     case "x" => "xs"
@@ -93,26 +85,26 @@ object NameSuggester {
   import NameSuggesterUtils.camelCaseNames
 
   private def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
-                         (implicit project: Project): mutable.LinkedHashSet[String] = {
-    def pluralNames(argument: ScType): mutable.LinkedHashSet[String] = {
+                         (implicit project: Project): Seq[String] = {
+    def pluralNames(argument: ScType): Seq[String] = {
       val newNames = namesByType(argument, withPlurals = false, shortVersion = false)
       if (withPlurals) newNames.map(plural) else newNames
     }
 
-    def compoundNames(tp1: ScType, tp2: ScType, separator: String): mutable.LinkedHashSet[String] =
+    def compoundNames(tp1: ScType, tp2: ScType, separator: String): Seq[String] =
       for {
         leftName <- namesByType(tp1, shortVersion = false)
         rightName <- namesByType(tp2, shortVersion = false)
       } yield s"$leftName$separator${rightName.capitalize}"
 
-    def functionParametersNames(returnType: ScType, parameters: Seq[ScType]): mutable.LinkedHashSet[String] =
+    def functionParametersNames(returnType: ScType, parameters: Seq[ScType]): Seq[String] =
       parameters match {
         case Seq() => namesByType(returnType, withPlurals)
         case Seq(param) => compoundNames(param, returnType, "To")
-        case _ => mutable.LinkedHashSet.empty[String]
+        case _ => Seq.empty
       }
 
-    def namesByParameters(clazz: PsiClass, parameters: Seq[ScType]): mutable.LinkedHashSet[String] = {
+    def namesByParameters(clazz: PsiClass, parameters: Seq[ScType]): Seq[String] = {
       def isInheritor(baseFqns: String*) = this.isInheritor(clazz, project, baseFqns)
 
       val needPrefix = Map(
@@ -133,7 +125,7 @@ object NameSuggester {
         case ("scala.util.Either", Seq(first, second)) => compoundNames(first, second, "Or")
         case (_, Seq(first, second)) if isInheritor("scala.collection.GenMap", "java.util.Map") => compoundNames(first, second, "To")
         case (_, Seq(first)) if isInheritor("scala.collection.GenTraversableOnce", "java.lang.Iterable") => pluralNames(first)
-        case _ => mutable.LinkedHashSet.empty[String]
+        case _ => Seq.empty
       }
     }
 
@@ -142,10 +134,10 @@ object NameSuggester {
       if (shortVersion) lowerCased.substring(0, length) else lowerCased
     }
 
-    def byName(name: String): mutable.LinkedHashSet[String] = mutable.LinkedHashSet((name match {
+    def byName(name: String): Seq[String] = name match {
       case "String" => Seq(toLowerCase(name, 3))
       case _ => camelCaseNames(name)
-    }): _*)
+    }
 
     def valTypeName(`type`: ValType): String = {
       val typeName = `type`.name
@@ -162,10 +154,10 @@ object NameSuggester {
 
     implicit val typeSystem = project.typeSystem
     `type` match {
-      case valType: ValType => mutable.LinkedHashSet(valTypeName(valType))
-      case TupleType(_) => mutable.LinkedHashSet("tuple")
+      case valType: ValType => Seq(valTypeName(valType))
+      case TupleType(_) => Seq("tuple")
       case FunctionType(ret, params) =>
-        mutable.LinkedHashSet("function") ++ functionParametersNames(ret, params)
+        Seq("function") ++ functionParametersNames(ret, params)
       case ScDesignatorType(e) => byName(e.name)
       case parameterType: TypeParameterType => byName(parameterType.name)
       case ScProjectionType(_, e, _) => byName(e.name)
@@ -178,7 +170,7 @@ object NameSuggester {
         namesByType(baseType, withPlurals) ++ byParameters
       case JavaArrayType(argument) => pluralNames(argument)
       case ScCompoundType(Seq(head, _*), _, _) => namesByType(head, withPlurals)
-      case _ => mutable.LinkedHashSet.empty[String]
+      case _ => Seq.empty
     }
   }
 

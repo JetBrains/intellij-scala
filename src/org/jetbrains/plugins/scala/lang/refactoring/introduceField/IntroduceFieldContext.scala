@@ -42,7 +42,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
   val possibleNames: ju.Set[String] = element match {
     case expr: ScExpression =>
       import scala.collection.JavaConversions._
-      NameSuggester.suggestNames(expr)(validator)
+      NameSuggester.suggestNames(expr)(validator).toSet[String]
     case _ => throw new IntroduceException
   }
 

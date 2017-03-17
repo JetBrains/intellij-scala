@@ -20,13 +20,18 @@ import scala.collection.mutable.ArrayBuffer
  * on 8/3/15
  */
 object ScalaTypeValidator {
+
+  def empty(project: Project): ScalaTypeValidator =
+    new ScalaTypeValidator(null, project, null, noOccurrences = true, null, null) {
+      override def validateName(name: String, increaseNumber: Boolean): String = name
+    }
+
   def apply(conflictsReporter: ConflictsReporter,
             project: Project,
             element: PsiElement,
             container: PsiElement,
-            noOccurrences: Boolean): ScalaTypeValidator = {
+            noOccurrences: Boolean): ScalaTypeValidator =
     new ScalaTypeValidator(conflictsReporter, project, element, noOccurrences, container, container)
-  }
 }
 
 
@@ -101,10 +106,8 @@ class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
     buf
   }
 
-  override def validateName(name: String, increaseNumber: Boolean): String = {
-    val newName = name.capitalize
-    super.validateName(newName, increaseNumber)
-  }
+  override def validateName(name: String, increaseNumber: Boolean): String =
+    super.validateName(name.capitalize, increaseNumber)
 
   private def messageForTypeAliasMember(name: String) =
     ScalaBundle.message("introduced.typealias.will.conflict.with.type.name", name)
