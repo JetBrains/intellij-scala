@@ -70,7 +70,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   def getDesugarizedExprText(forDisplay: Boolean): Option[String] = {
     if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
-      val copyOf = this.copy()
+      val copyOf = this.copy().asInstanceOf[ScForStatement]
       val underscores = ScUnderScoreSectionUtil.underscores(copyOf)
       val length = underscores.length
       def name(i: Int): String = s"forAnonParam$$$i"
@@ -79,9 +79,11 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           val referenceExpression = ScalaPsiElementFactory.createReferenceExpressionFromText(name(index))
           underscore.replaceExpression(referenceExpression, false)
       }
-      val desugarizedExprText = copyOf.asInstanceOf[ScForStatement].getDesugarizedExprText(forDisplay) //with side effects
+      val desugarizedExprText = copyOf.getDesugarizedExprText(forDisplay) //with side effects
       copyOf.depthFirst().zip(this.depthFirst()).foreach {
-        case (p1: ScPattern, p2: ScPattern) if p1.desugarizedPatternIndex != -1 => p2.desugarizedPatternIndex = p1.desugarizedPatternIndex
+        case (p1: ScPattern, p2: ScPattern) =>
+          val index = p1.desugarizedPatternIndex
+          if (index != -1) p2.desugarizedPatternIndex = index
         case _ =>
       }
       return desugarizedExprText.map {
@@ -225,7 +227,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         if (text == "") None
         else {
           try {
-            Option(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this)) flatMap {
+            Option(ScalaPsiElementFactory.createExpressionWithContextFromText(text, this.getContext, this)).flatMap {
               case f: ScFunctionExpr => f.result
               case expr => Some(expr)
             }
