@@ -20,14 +20,13 @@ import scala.collection.mutable
   * Created by Kate Ustyuzhanina
   * on 8/3/15
   */
-class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
-                         val myProject: Project,
+class ScalaTypeValidator(override val project: Project,
+                         val conflictsReporter: ConflictsReporter,
                          val selectedElement: PsiElement,
                          val noOccurrences: Boolean,
-                         val enclosingContainerAll: PsiElement,
-                         val enclosingOne: PsiElement)
-  extends ScalaValidator(conflictsReporter, myProject, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
-  private implicit val typeSystem = myProject.typeSystem
+                         enclosingContainerAll: PsiElement,
+                         enclosingOne: PsiElement)
+  extends ScalaValidator(project, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
   override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
     //returns declaration and message
@@ -45,6 +44,7 @@ class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
   protected def forbiddenNames(position: PsiElement, name: String): Array[(PsiNamedElement, String)] = {
     val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
 
+    implicit val typeSystem = project.typeSystem
     val processor = new BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
       override def execute(element: PsiElement, state: ResolveState): Boolean = {
         result ++= zipWithMessage(element, name)
@@ -73,16 +73,16 @@ class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
 object ScalaTypeValidator {
 
   def empty(project: Project): ScalaTypeValidator =
-    new ScalaTypeValidator(null, project, null, noOccurrences = true, null, null) {
+    new ScalaTypeValidator(project, null, null, noOccurrences = true, null, null) {
       override def validateName(name: String, increaseNumber: Boolean): String = name
     }
 
-  def apply(conflictsReporter: ConflictsReporter,
-            project: Project,
+  def apply(project: Project,
+            conflictsReporter: ConflictsReporter,
             element: PsiElement,
             container: PsiElement,
-            noOccurrences: Boolean): ScalaTypeValidator =
-    new ScalaTypeValidator(conflictsReporter, project, element, noOccurrences, container, container)
+            noOccurrences: Boolean) =
+    new ScalaTypeValidator(project, conflictsReporter, element, noOccurrences, container, container)
 
   private def zipWithMessage(element: PsiElement, name: String): Option[(PsiNamedElement, String)] =
     Option(element).collect {

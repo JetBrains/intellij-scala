@@ -11,16 +11,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 /**
  * Created by Kate Ustyuzhanina on 8/5/15.
  */
-abstract class ScalaValidator(conflictsReporter: ConflictsReporter,
-                              myProject: Project,
+abstract class ScalaValidator(val project: Project,
+                              conflictsReporter: ConflictsReporter,
                               selectedElement: PsiElement,
                               noOccurrences: Boolean,
                               enclosingContainerAll: PsiElement,
                               enclosingOne: PsiElement) extends NameValidator {
-
-
-  def getProject(): Project =
-    myProject
 
   def enclosingContainer(allOcc: Boolean): PsiElement =
     if (allOcc) enclosingContainerAll else enclosingOne
@@ -30,7 +26,7 @@ abstract class ScalaValidator(conflictsReporter: ConflictsReporter,
   def isOK(newName: String, isReplaceAllOcc: Boolean): Boolean = {
     if (noOccurrences) return true
     val conflicts = isOKImpl(newName, isReplaceAllOcc)
-    conflicts.isEmpty || conflictsReporter.reportConflicts(myProject, conflicts)
+    conflicts.isEmpty || conflictsReporter.reportConflicts(project, conflicts)
   }
 
   def isOKImpl(name: String, allOcc: Boolean): MultiMap[PsiElement, String] = {

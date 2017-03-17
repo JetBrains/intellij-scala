@@ -57,6 +57,6 @@ object IntroduceVariableTestUtil {
     val container = ScalaRefactoringUtil.enclosingContainer(PsiTreeUtil.findCommonParent(occurrences: _*))
 
     val containerOne = getContainerOne(startOffset, endOffset, file, occurrences.length)
-    new ScalaTypeValidator(new ScalaIntroduceVariableHandler, project, typeElement, occurrences.isEmpty, container, containerOne)
+    new ScalaTypeValidator(project, new ScalaIntroduceVariableHandler, typeElement, occurrences.isEmpty, container, containerOne)
   }
 }

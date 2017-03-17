@@ -31,7 +31,7 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
                                   enclosingContainerAll: PsiElement,
                                   enclosingOne: PsiElement,
                                   validators: List[ScalaValidator])
-  extends ScalaTypeValidator(conflictsReporter, myProject, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
+  extends ScalaTypeValidator(myProject, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
   override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
     //returns declaration and message
