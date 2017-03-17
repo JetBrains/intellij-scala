@@ -1045,4 +1045,18 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   }
 
   def testSCL8267(): Unit = doTest()
+
+  def testSCL9119(): Unit = doTest {
+    """
+      |object ApplyBug {
+      |  class Foo {
+      |    def apply(t: Int): Int = 2
+      |  }
+      |
+      |  def foo = new Foo
+      |  def a(i: Int): Int = /*start*/new Foo()(i)/*end*/
+      |}
+      |//Int
+    """.stripMargin.trim
+  }
 }

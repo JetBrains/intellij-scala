@@ -13,10 +13,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -43,7 +45,41 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
   override def getIcon(flags: Int) = Icons.CLASS
 
-  protected override def innerType(ctx: TypingContext) = {
+  protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    if (extendsBlock.templateBody.isEmpty) {
+      extendsBlock.templateParents match {
+        case Some(parents: ScClassParents) if parents.typeElements.length == 1 =>
+          parents.constructor match {
+            case Some(constr) =>
+              constr.reference match {
+                case Some(ref) =>
+                  val len = ref.resolve() match {
+                    case prim: ScPrimaryConstructor => prim.effectiveParameterClauses.length
+                    case f: ScFunction if f.isConstructor => f.effectiveParameterClauses.length
+                    case m: PsiMethod if m.isConstructor => 1
+                    case _ => -1
+                  }
+                  val argLen = constr.arguments.length
+                  if (len >= 0 && len < argLen) {
+                    //It's very rare case, when we need to desugar apply first.
+                    //So let's create new PSI and call innerType once again.
+                    def calcOffset(num: Int, element: PsiElement, res: Int = 0): Int = {
+                      if (num <= 0) return res
+                      calcOffset(num - 1, element.getParent, res + element.getStartOffsetInParent)
+                    }
+                    val text = "(" + getText.substring(0, calcOffset(4, constr.arguments(len))) + ")" +
+                      constr.arguments.takeRight(argLen - len).map(_.getText).mkString
+                    val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+                    return newExpr.getNonValueType(ctx, fromUnderscore = true)
+                  }
+                case None =>
+              }
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+
     val earlyHolders: Seq[ScDeclaredElementsHolder] = extendsBlock.earlyDefinitions match {
       case Some(e: ScEarlyDefinitions) => e.members.flatMap {
         case holder: ScDeclaredElementsHolder => Seq(holder)
