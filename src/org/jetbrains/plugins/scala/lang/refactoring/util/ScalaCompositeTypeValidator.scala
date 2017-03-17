@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.{GlobalSearchScopesCore, PsiSearchHelper}
-import com.intellij.psi.{PsiDirectory, PsiFile, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.ScalaBundle
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -43,19 +41,18 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
     val filesToSearchIn = enclosingContainerAll match {
       case directory: PsiDirectory =>
         findFilesForDownConflictFindings(directory, name)
-      case _ => null
+      case _ => Array.empty
     }
-
 
     for (file <- filesToSearchIn) {
       if (buf.isEmpty) {
-        buf ++= getForbiddenNamesInBlock(file, name)
+        buf ++= forbiddenNamesInBlock(file, name)
       }
     }
 
     for (validator <- validators) {
       if (buf.isEmpty) {
-        buf ++= getForbiddenNames(validator.enclosingContainer(allOcc), name)
+        buf ++= forbiddenNames(validator.enclosingContainer(allOcc), name)
       }
     }
 
@@ -83,11 +80,5 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
     val resultBuffer = oneRound(name)
     resultBuffer.toArray
   }
-
-  override def validateName(name: String, increaseNumber: Boolean): String = {
-    val newName = name.capitalize
-    super.validateName(newName, increaseNumber)
-  }
-
 }
 
