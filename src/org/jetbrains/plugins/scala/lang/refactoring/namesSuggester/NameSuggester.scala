@@ -3,9 +3,8 @@ package lang
 package refactoring
 package namesSuggester
 
-import java.util.regex.{Matcher, Pattern}
-
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{JavaPsiFacade, PsiClass}
 import org.atteo.evo.inflector.English
@@ -91,6 +90,7 @@ object NameSuggester {
       .exists(baseClass => clazz.isInheritor(baseClass, true) || areClassesEquivalent(clazz, baseClass))
   }
 
+  import NameSuggesterUtils.camelCaseNames
 
   private def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
                          (implicit project: Project): mutable.LinkedHashSet[String] = {
@@ -142,12 +142,10 @@ object NameSuggester {
       if (shortVersion) lowerCased.substring(0, length) else lowerCased
     }
 
-    def byName(name: String): mutable.LinkedHashSet[String] = name match {
-      case "String" => mutable.LinkedHashSet(toLowerCase(name, 3))
-      case _ if name != null && name.toUpperCase == name =>
-        mutable.LinkedHashSet(deleteNonLetterFromString(name).toLowerCase)
-      case _ => getCamelNames(name)
-    }
+    def byName(name: String): mutable.LinkedHashSet[String] = mutable.LinkedHashSet((name match {
+      case "String" => Seq(toLowerCase(name, 3))
+      case _ => camelCaseNames(name)
+    }): _*)
 
     def valTypeName(`type`: ValType): String = {
       val typeName = `type`.name
@@ -172,8 +170,11 @@ object NameSuggester {
       case parameterType: TypeParameterType => byName(parameterType.name)
       case ScProjectionType(_, e, _) => byName(e.name)
       case ParameterizedType(baseType, args) =>
-        val byParameters = asSet(baseType.extractClass(project))
-          .flatMap(namesByParameters(_, args))
+        val byParameters = baseType.extractClass(project) match {
+          case Some(clazz) => namesByParameters(clazz, args)
+          case _ => mutable.LinkedHashSet.empty
+        }
+
         namesByType(baseType, withPlurals) ++ byParameters
       case JavaArrayType(argument) => pluralNames(argument)
       case ScCompoundType(Seq(head, _*), _, _) => namesByType(head, withPlurals)
@@ -181,21 +182,17 @@ object NameSuggester {
     }
   }
 
-  private def namesByExpression: ScExpression => mutable.LinkedHashSet[String] = {
-    case _: ScThisReference => mutable.LinkedHashSet("thisInstance")
-    case _: ScSuperReference => mutable.LinkedHashSet("superInstance")
-    case reference: ScReferenceElement if reference.refName != null =>
-      reference.refName match {
-        case name if name.toUpperCase == name => mutable.LinkedHashSet(name.toLowerCase)
-        case name => getCamelNames(name)
-      }
+  private def namesByExpression: ScExpression => Seq[String] = {
+    case _: ScThisReference => Seq("thisInstance")
+    case _: ScSuperReference => Seq("superInstance")
+    case reference: ScReferenceElement if reference.refName != null => camelCaseNames(reference.refName)
     case call: ScMethodCall => namesByExpression(call.getEffectiveInvokedExpr)
     case literal: ScLiteral if literal.isString =>
       val maybeName = Option(literal.getValue).collect {
         case string: String => string
       }.map(_.toLowerCase)
 
-      asSet(maybeName.filter(isIdentifier(_)))
+      maybeName.filter(isIdentifier(_)).toSeq
     case expression =>
       val maybeName = expression.getContext match {
         case x: ScAssignStmt => x.assignName
@@ -204,45 +201,36 @@ object NameSuggester {
         }.map(_.name)
         case _ => None
       }
-      asSet(maybeName)
+      maybeName.toSeq
   }
+}
 
-  private[this] def asSet[T](option: Option[T]): mutable.LinkedHashSet[T] =
-    option match {
-      case Some(value) => mutable.LinkedHashSet(value)
-      case _ => mutable.LinkedHashSet.empty
+object NameSuggesterUtils {
+
+  private[namesSuggester] def camelCaseNames(name: String): Seq[String] = {
+    val actualName = name match {
+      case _ if StringUtil.isEmpty(name) =>
+        return Seq.empty
+      case _ if name.toUpperCase == name =>
+        return Seq(name.toLowerCase)
+          .map(_.replaceAll(isNotLetter, ""))
+      case _ =>
+        val beginIndex = name match {
+          case _ if name.startsWith("get") => 3
+          case _ if name.startsWith("set") => 3
+          case _ if name.startsWith("is") => 2
+          case _ => 0
+        }
+        name.substring(beginIndex)
     }
 
-  private def getCamelNames(name: String): mutable.LinkedHashSet[String] = {
-    val result = mutable.LinkedHashSet.empty[String]
-    if (name == "") return result
-
-    val s = if (Array("get", "set", "is").exists(name.startsWith))
-      name.charAt(0) match {
-        case 'g' | 's' => name.substring(3, name.length)
-        case _ => name.substring(2, name.length)
-      }
-    else name
-    for (i <- 0 until s.length) {
-      if (i == 0) {
-        val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
-        result += deleteNonLetterFromStringFromTheEnd(candidate)
-      }
-      else if (s(i) >= 'A' && s(i) <= 'Z') {
-        val candidate = s.substring(i, i + 1).toLowerCase + s.substring(i + 1)
-        result += deleteNonLetterFromStringFromTheEnd(candidate)
-      }
+    val names = actualName.zipWithIndex.collect {
+      case (char, index) if index == 0 || char.isLetter && char.isUpper =>
+        Character.toLowerCase(char) + actualName.substring(index + 1)
     }
-    result
+
+    names.map(_.replaceFirst(isNotLetter + "$", ""))
   }
 
-  private def deleteNonLetterFromString(s: String): String = {
-    val pattern: Pattern = Pattern.compile("[^a-zA-Z]")
-    val matcher: Matcher = pattern.matcher(s)
-    matcher.replaceAll("")
-  }
-
-  private def deleteNonLetterFromStringFromTheEnd(s: String): String = {
-    s.reverse.dropWhile(!_.isLetter).reverse
-  }
+  private[this] val isNotLetter = "[^\\p{IsAlphabetic}^\\p{IsDigit}]"
 }
