@@ -428,21 +428,21 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   override def getContext: PsiElement = {
     getCopyableUserData(ScalaFileImpl.CONTEXT_KEY) match {
       case null => super.getContext
-      case _ => getCopyableUserData(ScalaFileImpl.CONTEXT_KEY)
+      case c => c
     }
   }
 
   override def getPrevSibling: PsiElement = {
     getCopyableUserData(ScalaFileImpl.CHILD_KEY) match {
       case null => super.getPrevSibling
-      case _ => getCopyableUserData(ScalaFileImpl.CHILD_KEY).getPrevSibling
+      case c => c.getPrevSibling
     }
   }
 
   override def getNextSibling: PsiElement = {
-    child match {
+    getCopyableUserData(ScalaFileImpl.CHILD_KEY) match {
       case null => super.getNextSibling
-      case _ => getCopyableUserData(ScalaFileImpl.CHILD_KEY).getNextSibling
+      case c => c.getNextSibling
     }
   }
 
