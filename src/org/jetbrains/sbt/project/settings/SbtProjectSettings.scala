@@ -48,6 +48,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.resolveJavadocs = resolveJavadocs
     result.resolveSbtClassifiers = resolveSbtClassifiers
     result.sbtVersion = sbtVersion
+    result.useSbtShell = useSbtShell
     result.useOurOwnAutoImport = useOurOwnAutoImport
     result
   }
