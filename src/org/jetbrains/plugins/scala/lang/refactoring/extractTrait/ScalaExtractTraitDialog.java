@@ -20,7 +20,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier;
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 /**
  * Nikolay.Tropin
@@ -106,7 +106,7 @@ public class ScalaExtractTraitDialog extends DialogWrapper {
   }
 
   private void updateOkStatus() {
-    setOKActionEnabled(isIdentifier(getTraitName(), null));
+    setOKActionEnabled(MODULE$.isIdentifier(getTraitName()));
   }
 
   @Override

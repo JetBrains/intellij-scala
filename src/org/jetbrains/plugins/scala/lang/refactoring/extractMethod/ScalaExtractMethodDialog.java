@@ -36,7 +36,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
-import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier;
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -127,9 +127,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   private void updateOkStatus() {
-    setOKActionEnabled(isIdentifier(getMethodName(), null) &&
-            (isPublic() || getVisibilityEncloser().equals("") || isIdentifier(getVisibilityEncloser(), null)) &&
-            (isTuple() || isIdentifier(getMultipleOutputEncloser(), null)));
+    setOKActionEnabled(MODULE$.isIdentifier(getMethodName()) &&
+            (isPublic() || getVisibilityEncloser().equals("") || MODULE$.isIdentifier(getVisibilityEncloser())) &&
+            (isTuple() || MODULE$.isIdentifier(getMultipleOutputEncloser())));
   }
 
   private String getVisibilityEncloser() {

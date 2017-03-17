@@ -36,7 +36,7 @@ import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier;
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -550,7 +550,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void updateOkStatus() {
     String text = getEnteredName();
-    setOKActionEnabled(isIdentifier(text, null));
+    setOKActionEnabled(MODULE$.isIdentifier(text));
   }
 
   private void fireNameDataChanged() {

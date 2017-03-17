@@ -34,7 +34,7 @@ import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
-import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier;
+import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -387,7 +387,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
   private void updateOkStatus() {
     String text = getEnteredName();
-    setOKActionEnabled(isIdentifier(text, null));
+    setOKActionEnabled(MODULE$.isIdentifier(text));
   }
 
   private void fireNameDataChanged() {
