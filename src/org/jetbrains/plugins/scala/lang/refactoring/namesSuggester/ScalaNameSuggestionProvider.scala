@@ -9,29 +9,32 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.codeStyle.SuggestedNameInfo
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.NameSuggestionProvider
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester._
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 23.11.2008
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 23.11.2008
+  */
 class ScalaNameSuggestionProvider extends NameSuggestionProvider {
   def completeName(element: PsiElement, nameSuggestionContext: PsiElement, prefix: String): util.Collection[LookupElement] = null
 
   def getSuggestedNames(element: PsiElement, nameSuggestionContext: PsiElement, result: util.Set[String]): SuggestedNameInfo = {
     val names = element match {
-      case clazz: ScTemplateDefinition => Seq[String](clazz.name)
-      case typed: ScTypedDefinition => typed.name +: NameSuggester.suggestNamesByType(typed.getType(TypingContext.empty).getOrAny).toSeq
-      case expr: ScExpression => NameSuggester.suggestNames(expr).toSeq
-      case named: ScNamedElement => Seq[String](named.name)
-      case named: PsiNamedElement => Seq[String](named.getName)
-      case _ => Seq[String]()
+      case definition: ScTemplateDefinition => Seq(definition.name)
+      case typed: ScTypedDefinition =>
+        typed.name +: suggestNamesByType(typed.getType().getOrAny)
+      case named: PsiNamedElement => Seq(named.name)
+      case expr: ScExpression => suggestNames(expr)
+      case _ => Seq.empty
     }
-    names.distinct.foreach(result.add)
+
+    import scala.collection.JavaConversions._
+    result.addAll(names)
+
     new SuggestedNameInfo(names.toArray) {}
   }
 }
