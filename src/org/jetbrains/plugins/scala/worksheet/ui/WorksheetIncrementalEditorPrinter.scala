@@ -141,7 +141,18 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     val linesInput = countNewLines(psiText) + 1
 
     val originalTextRange = currentPsi.getTextRange
-    val processedStartLine = originalDocument getLineNumber originalTextRange.getStartOffset
+    val processedStartLine = {
+      val actualStart = currentPsi.getFirstChild match {
+        case comment: PsiComment => 
+          var c = comment.getNextSibling
+          while (c.isInstanceOf[PsiComment] || c.isInstanceOf[PsiWhiteSpace]) c = c.getNextSibling
+          
+          if (c != null) c else currentPsi
+        case _ => currentPsi
+      }
+
+      originalDocument getLineNumber actualStart.getTextRange.getStartOffset
+    }
     val processedEndLine = originalDocument getLineNumber originalTextRange.getEndOffset
     
     val firstOffsetFix = if (lastProcessed.isEmpty) 0 else 1

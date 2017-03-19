@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import com.intellij.util.NullableFunction
+import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
@@ -20,17 +21,37 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 class WorksheetLineMarkerProvider extends LineMarkerProvider {
   override def getLineMarkerInfo(psiElement: PsiElement): LineMarkerInfo[_ <: PsiElement] = {
     psiElement match {
+      case empty: PsiElement if empty.getTextRange.isEmpty => null
       case _: PsiWhiteSpace | _: PsiComment => null
       case _ =>
-        psiElement.getParent match {
-          case scalaFile: ScalaFile if scalaFile.isWorksheetFile && WorksheetCompiler.isWorksheetReplMode(scalaFile) =>
-            val project = scalaFile.getProject
+        def marker(scalaFile: ScalaFile, checkParent: Boolean = false) = WorksheetFileHook.getEditorFrom(FileEditorManager.getInstance(scalaFile.getProject), scalaFile.getVirtualFile).flatMap {
+          editor =>
+            @inline def getLineStartOffset(el: PsiElement) = 
+              editor.getDocument.getLineNumber(el.getTextRange.getStartOffset)
+            
+            if (checkParent && (getLineStartOffset(psiElement) == getLineStartOffset(psiElement.getParent))) None
+            else WorksheetCache.getInstance(scalaFile.getProject).getLastProcessedIncremental(editor).filter(
+              _ == getLineStartOffset(psiElement)).map(
+              _ => createArrowMarker(psiElement)
+            )
+        }.orNull
+        
+        def testElement(el: PsiElement): Boolean = el.getParent.isInstanceOf[ScalaFile]
 
-            WorksheetFileHook.getEditorFrom(FileEditorManager.getInstance(project), scalaFile.getVirtualFile).flatMap {
-              editor =>
-                WorksheetCache.getInstance(project).getLastProcessedIncremental(editor).filter(
-                  _ == editor.getDocument.getLineNumber(psiElement.getTextRange.getStartOffset)).map(_ => createArrowMarker(psiElement))
-            }.orNull
+        def checkIfNotTop(): Boolean = psiElement.getPrevSibling match {
+          case null => true
+          case some =>
+            !new PrevSiblignsIterator(some).exists {
+              case _: PsiComment | _: PsiWhiteSpace => false
+              case empt if empt.getTextRange.isEmpty => false
+              case _ => true
+            }
+        }
+        
+        psiElement.getContainingFile match {
+          case scalaFile: ScalaFile if scalaFile.isWorksheetFile && WorksheetCompiler.isWorksheetReplMode(scalaFile) =>
+            if (testElement(psiElement)) marker(scalaFile) else 
+              if (testElement(psiElement.getParent) && checkIfNotTop()) marker(scalaFile, checkParent = true) else null
           case _ => null
         }
     }
