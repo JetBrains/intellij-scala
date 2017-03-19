@@ -93,8 +93,6 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       if (project.isDisposed) return
       
       val psiFile = documentManager getPsiFile document
-      if (isDisabledOn(psiFile)) return
-
       val offset = e.getOffset
       val isRepl = WorksheetCompiler isWorksheetReplMode psiFile 
 
@@ -104,6 +102,8 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
         
         return
       }
+
+      if (isDisabledOn(psiFile)) return
 
       val virtualFile = psiFile.getVirtualFile
       myAlarm.cancelAllRequests()
