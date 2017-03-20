@@ -40,11 +40,14 @@ class ILoopWrapperFactoryHandler {
     
     replFactory foreach {
       case (clazz, instance, _) =>
+        WorksheetServer.patchSystemOut(out)
+
         val m =
           clazz.getDeclaredMethod(
             "loadReplWrapperAndRun", 
             classOf[java.util.List[String]], classOf[String], classOf[File], classOf[File], classOf[java.util.List[File]], 
             classOf[java.util.List[File]], classOf[java.io.OutputStream], classOf[java.io.File], classOf[Comparable[String]])
+        
         m.invoke(
           instance, scalaToJava(commonArguments.worksheetFiles), commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""), 
           compilerJars.library, compilerJars.compiler, scalaToJava(compilerJars.extra), scalaToJava(commonArguments.compilationData.classpath), 
