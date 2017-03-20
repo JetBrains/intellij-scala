@@ -8,7 +8,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
 import com.intellij.util.Alarm
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -91,27 +91,44 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
     
     override def documentChanged(e: DocumentEvent) {
       if (project.isDisposed) return
-
-      val psiFile = documentManager getPsiFile document
       
-      if (WorksheetCompiler isWorksheetReplMode psiFile) {
-        if (e.getOffset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (
+      val psiFile = documentManager getPsiFile document
+      val offset = e.getOffset
+      val isRepl = WorksheetCompiler isWorksheetReplMode psiFile 
+
+      if (isRepl) {
+        if (offset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (
           ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None) )
       }
-      
+
       if (isDisabledOn(psiFile)) return
 
       val virtualFile = psiFile.getVirtualFile
       myAlarm.cancelAllRequests()
+      
+      val isReplWrongChar = !isRepl || {
+        val fragment = e.getNewFragment
+        val l = fragment.length()
+        
+        l > 0 && fragment.charAt(l - 1) == '\n'
+      }
 
-      if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.running(virtualFile)) return
+      if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.running(virtualFile) || isReplWrongChar) return
 
       myAlarm.addRequest(new Runnable {
         override def run() {
+          if (!psiFile.isValid) return 
+          
+          if (isRepl) psiFile findElementAt offset match {
+            case null => //it means caret is at the end 
+            case ws: PsiWhiteSpace if ws.getParent == psiFile =>
+            case _ => return
+          }
+          
           if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.running(virtualFile))
             RunWorksheetAction.runCompiler(project, auto = true)
         }
-      }, getAutoRunDelay, true)
+      }, if (isRepl) getAutoRunDelay/2 else getAutoRunDelay, true)
     }
   }
 }
