@@ -262,26 +262,31 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   def testNameKey: String = "-testName"
   protected def sbtClassKey = " "
   protected def sbtTestNameKey = " "
-  protected def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Option[SettingMap]] =
-    Future(Some(Map.empty))
-  protected def initialize(comm:SbtShellCommunication): Unit = {
+  protected def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
+    Future(Map.empty)
+  protected def initialize(comm:SbtShellCommunication): Unit =
     comm.command("initialize", showShell = false)
-  }
+
   protected def modifySetting(settings: SettingMap,
                               setting: String,
                               taskName: String,
                               value: String,
                               comm: SbtShellCommunication,
                               modificationCondition: String => Boolean,
-                              shouldSet: Boolean = false): Future[Option[SettingMap]] = {
+                              shouldSet: Boolean = false): Future[SettingMap] = {
     val handler = SettingQueryHandler(setting, taskName, comm)
-    for {
-      opts <- handler.getSettingValue()
-      optsSet <- if (modificationCondition(opts))
-        if (shouldSet) handler.setSettingValue(value) else handler.addToSettingValue(value)
-      else Future(true)
-    } yield if (optsSet) Some(settings + ((setting, taskName) -> opts)) else None
+    handler.getSettingValue().flatMap {
+      opts =>
+        (if (modificationCondition(opts))
+          if (shouldSet) handler.setSettingValue(value) else handler.addToSettingValue(value)
+        else Future(true)).flatMap {
+          if (_) Future(settings + ((setting, taskName) -> opts)) else
+            Future.failed[SettingMap](new RuntimeException("Failed to modify sbt project settings"))
+          //TODO: meaningful report if settings were not set correctly
+        }
+    }
   }
+
   protected def resetSbtSettingsForUi(comm: SbtShellCommunication, oldSettings: SettingMap): Future[Boolean] = {
     Future.sequence(for (((setting, taskName), value) <- oldSettings) yield {
       SettingQueryHandler(setting, taskName, comm).setSettingValue(value)
@@ -417,7 +422,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     suiteClasses.map {
       case aSuite: ScTypeDefinition =>
         val tests = getTestNames(List(aSuite))
-        println(aSuite.qualifiedName + " -> " + tests)
         classToTests += (aSuite.qualifiedName -> tests.filter(testCondition))
       case _ => None
     }
@@ -695,10 +699,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           (if (useUiWithSbt) {
             initialize(comm)
             modifySbtSettingsForUi(comm)
-          } else Future(Some(SettingMap()))) flatMap {
-            //TODO: meaningful report if settings were not set correctly
-            case None => Future() //do nothing, the environment is not ready
-            case Some(oldSettings) => Future.sequence(commands.map(comm.command(_, {},
+          } else Future(SettingMap())) flatMap {
+            oldSettings => Future.sequence(commands.map(comm.command(_, {},
               SbtShellCommunication.listenerAggregator(handler), showShell = false))) flatMap {
               _ => resetSbtSettingsForUi(comm, oldSettings)
             }

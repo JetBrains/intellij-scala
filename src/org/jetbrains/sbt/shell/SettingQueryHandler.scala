@@ -50,12 +50,11 @@ object SettingQueryHandler {
 
     override def apply(res: ProjectTaskResult, se: ShellEvent): ProjectTaskResult = {
       se match {
-        case TaskStart =>
-        case TaskComplete => collectInfo = false
-        case SbtShellCommunication.Output(output) =>
-          if (collectInfo && output.startsWith(filterPrefix)) {
-            buffer.append(output.stripPrefix(filterPrefix))
-          }
+        case TaskComplete =>
+          collectInfo = false
+        case SbtShellCommunication.Output(output) if collectInfo && output.startsWith(filterPrefix) =>
+          buffer.append(output.stripPrefix(filterPrefix))
+        case _ =>
       }
       res
     }

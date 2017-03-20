@@ -42,12 +42,9 @@ class ScalaTestRunConfiguration(override val project: Project,
 
   override def allowsSbtUiRun: Boolean = true
 
-  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[Option[SettingMap]] = {
-    modifySetting(SettingMap(), "testOptions", "Test", "Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")",
-      comm, !_.contains("-oDU")) flatMap { _.map(
-      modifySetting(_, "parallelExecution", "Test", "false", comm, !_.contains("false"), shouldSet = true)
-    ).getOrElse(Future[Option[SettingMap]](None))}
-  }
+  override def modifySbtSettingsForUi(comm: SbtShellCommunication): Future[SettingMap] =
+    modifySetting(SettingMap(), "testOptions", "Test", "Tests.Argument(TestFrameworks.ScalaTest, \"-oDU\")", comm, !_.contains("-oDU"))
+    .flatMap(modifySetting(_, "parallelExecution", "Test", "false", comm, !_.contains("false"), shouldSet = true))
 
   override protected def sbtTestNameKey = " -- -t "
 }
