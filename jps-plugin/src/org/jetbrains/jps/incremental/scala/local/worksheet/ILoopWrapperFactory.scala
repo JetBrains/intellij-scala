@@ -29,7 +29,6 @@ class ILoopWrapperFactory {
                             library: File, compiler: File, extra: util.List[File], classpath: util.List[File],
                             outStream: OutputStream, iLoopFile: File, clientProvider: Comparable[String]) {
     val argsJava = WorksheetArgsJava.constructArgsFrom(worksheetArgsString, nameForSt, library, compiler, extra, classpath)
-    WorksheetServer.patchSystemOut(outStream)
     
     val onProgress: String => Unit = if (clientProvider == null) (_: String) => () else (msg: String) => clientProvider.compareTo(msg) 
     
