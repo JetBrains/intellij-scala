@@ -209,10 +209,10 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   private def augmentLine(inputLine: String): String = {
     val idx = inputLine.indexOf("$Lambda$")
     
-    if (idx == -1) inputLine else {
-      val until = Math.min(inputLine.length, LAMBDA_LENGTH + idx + 1)
-      inputLine.substring(idx, until) + "<function>"
-    }
+    if (idx == -1) inputLine else 
+      inputLine.substring(0, Math.max(idx - 1, 0)) + 
+        "<function>" + 
+        inputLine.substring(Math.min(inputLine.length, LAMBDA_LENGTH + idx + 1), inputLine.length)
   }
   
   private def processError() {
