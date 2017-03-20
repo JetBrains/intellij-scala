@@ -58,7 +58,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
   private lazy val myConsoleExecuteActionHandler: SbtShellExecuteActionHandler =
     new SbtShellExecuteActionHandler(getProcessHandler)
 
-  // the process handler should only be used to access the running process!
+  // the process handler should only be used to listen to the running process!
   // SbtProcessComponent is solely responsible for destroying/respawning
   private lazy val myProcessHandler = processManager.acquireShellProcessHandler
 
@@ -89,6 +89,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
         whenWorking = myConsoleView.setPrompt("X")
       )
       SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
+      SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
     }
   }
 
