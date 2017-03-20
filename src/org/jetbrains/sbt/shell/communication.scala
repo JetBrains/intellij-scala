@@ -75,6 +75,10 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
           shell.flush()
         }
 
+        listener.future.onComplete { _ =>
+            process.removeListener(listener)
+        }
+
       } else shellQueueReady.release()
     }
   }
