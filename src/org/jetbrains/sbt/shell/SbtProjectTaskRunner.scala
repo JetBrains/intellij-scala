@@ -24,7 +24,7 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.util.{Failure, Success}
@@ -33,9 +33,7 @@ import scala.util.{Failure, Success}
   * Created by jast on 2016-11-25.
   */
 class SbtProjectTaskRunner extends ProjectTaskRunner {
-  import SbtProjectTaskRunner._
 
-  // FIXME should be based on a config option
   // will override the usual jps build thingies
   override def canRun(projectTask: ProjectTask): Boolean = projectTask match {
     case task: ModuleBuildTask =>
@@ -67,46 +65,15 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
                    tasks: util.Collection[_ <: ProjectTask]): Unit = {
 
     val callbackOpt = Option(callback)
-    val shell = SbtShellCommunication.forProject(project)
 
     // the "build" button in IDEA always runs the build for all individual modules,
     // and may work differently than just calling the products task from the main module in sbt
-    val moduleCommands = tasks.asScala.collect {
-      case task: ModuleBuildTask =>
-        val module = task.getModule
-        val project = module.getProject
-        val moduleId = ES.getExternalProjectId(module) // nullable, but that's okay for use in predicate
+    val moduleCommands = tasks.asScala.flatMap {
+      case task: ModuleBuildTask => buildCommands(task)
+      case _ => Seq.empty[String]
+    }
 
-        // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
-        val predicate = new BooleanFunction[DataNode[ModuleData]] {
-          override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
-        }
-
-        val emptyURI = new URI("")
-        val dataManager = ProjectDataManager.getInstance()
-
-        // TODO instead of silently not running a task, collect failures, report to user
-        for {
-          projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
-          projectStructure <- Option(projectInfo.getExternalProjectStructure)
-          moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
-          moduleSbtDataNode <- Option(ES.find(moduleDataNode, SbtModuleData.Key))
-          data = {
-            dataManager.ensureTheDataIsReadyToUse(moduleSbtDataNode)
-            moduleSbtDataNode.getData
-          }
-          // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
-          // created from AAR files. Should implement a more elegant solution for AARs.
-          uri <- Option(data.buildURI) if uri != emptyURI
-        } yield {
-          val id = data.id
-          // `products` task is a little more general than just `compile`
-          s"{$uri}$id/products"
-        }
-        // TODO also run task for non-default scopes? test, it, etc
-    }.flatten
-
-    // don't run anything if there's not module to run a build for
+    // don't run anything if there's no module to run a build for
     // TODO user feedback
     if (moduleCommands.nonEmpty) {
 
@@ -115,56 +82,46 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
         else moduleCommands.mkString("; ", "; ", "")
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project) {
-        override def run(indicator: ProgressIndicator): Unit = {
-          indicator.setIndeterminate(true)
-          indicator.setFraction(0) // TODO how does the fraction thing work?
-          indicator.setText("queued sbt build ...")
-
-          val resultAggregator: (TaskResultData,ShellEvent) => TaskResultData = { (data,event) =>
-            event match {
-              case TaskStart =>
-                indicator.setIndeterminate(true)
-                indicator.setFraction(0.1)
-                indicator.setText("building ...")
-              case Output(text) =>
-                indicator.setText2(text)
-              case TaskComplete =>
-            }
-
-            taskResultAggregator(data,event)
-          }
-
-          val defaultTaskResult = TaskResultData(aborted = false, 0, 0)
-
-          // TODO consider running module build tasks separately
-          // may require collecting results individually and aggregating
-          // and shell communication should do proper queueing
-          val commandFuture = shell.command(command, defaultTaskResult, resultAggregator, showShell = true)
-            .map(data => new ProjectTaskResult(data.aborted, data.errors, data.warnings))
-            .recover {
-              case _ =>
-                // TODO some kind of feedback / rethrow
-                new ProjectTaskResult(true, 1, 0)
-            }
-            .andThen {
-              case Success(taskResult) =>
-                // TODO progress monitoring
-                callbackOpt.foreach(_.finished(taskResult))
-                indicator.setFraction(1)
-                indicator.setText("sbt build completed")
-                indicator.setText2("")
-              case Failure(x) =>
-                indicator.setText("sbt build failed")
-                indicator.setText2(x.getMessage)
-              // TODO some kind of feedback / rethrow
-            }
-
-          // block thread to make indicator available :(
-          Await.ready(commandFuture, Duration.Inf)
-        }
-      }
+      val task = new CommandTask(project, command, callbackOpt)
       ProgressManager.getInstance().run(task)
+    }
+  }
+
+  private def buildCommands(task: ModuleBuildTask): Seq[String] = {
+    val module = task.getModule
+    val project = module.getProject
+    val moduleId = ES.getExternalProjectId(module) // nullable, but that's okay for use in predicate
+
+    // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
+    val predicate = new BooleanFunction[DataNode[ModuleData]] {
+      override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
+    }
+
+    val emptyURI = new URI("")
+    val dataManager = ProjectDataManager.getInstance()
+
+    // TODO instead of silently not running a task, collect failures, report to user
+    val projectScope = for {
+      projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
+      projectStructure <- Option(projectInfo.getExternalProjectStructure)
+      moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
+      moduleSbtDataNode <- Option(ES.find(moduleDataNode, SbtModuleData.Key))
+      data = {
+        dataManager.ensureTheDataIsReadyToUse(moduleSbtDataNode)
+        moduleSbtDataNode.getData
+      }
+      // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
+      // created from AAR files. Should implement a more elegant solution for AARs.
+      uri <- Option(data.buildURI) if uri != emptyURI
+    } yield {
+      val id = data.id
+      s"{$uri}$id"
+    }
+
+    // TODO sensible way to find out what scopes to run it for besides compile and test?
+    projectScope.toSeq.flatMap { scope =>
+      // `products` task is a little more general than just `compile`
+      Seq(s"$scope/products", s"$scope/test:products")
     }
   }
 
@@ -185,7 +142,63 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
 }
 
-object SbtProjectTaskRunner {
+private class CommandTask(project: Project, command: String, callbackOpt: Option[ProjectTaskNotification]) extends
+  Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
+
+  import CommandTask._
+
+  override def run(indicator: ProgressIndicator): Unit = {
+    indicator.setIndeterminate(true)
+    indicator.setFraction(0) // TODO how does the fraction thing work?
+    indicator.setText("queued sbt build ...")
+
+    val shell = SbtShellCommunication.forProject(project)
+
+    val resultAggregator: (TaskResultData,ShellEvent) => TaskResultData = { (data,event) =>
+      event match {
+        case TaskStart =>
+          indicator.setIndeterminate(true)
+          indicator.setFraction(0.1)
+          indicator.setText("building ...")
+        case Output(text) =>
+          indicator.setText2(text)
+        case TaskComplete =>
+      }
+
+      taskResultAggregator(data,event)
+    }
+
+    val defaultTaskResult = TaskResultData(aborted = false, 0, 0)
+
+    // TODO consider running module build tasks separately
+    // may require collecting results individually and aggregating
+    // and shell communication should do proper queueing
+    val commandFuture = shell.command(command, defaultTaskResult, resultAggregator, showShell = true)
+      .map(data => new ProjectTaskResult(data.aborted, data.errors, data.warnings))
+      .recover {
+        case _ =>
+          // TODO some kind of feedback / rethrow
+          new ProjectTaskResult(true, 1, 0)
+      }
+      .andThen {
+        case Success(taskResult) =>
+          // TODO progress monitoring
+          callbackOpt.foreach(_.finished(taskResult))
+          indicator.setFraction(1)
+          indicator.setText("sbt build completed")
+          indicator.setText2("")
+        case Failure(x) =>
+          indicator.setText("sbt build failed")
+          indicator.setText2(x.getMessage)
+        // TODO some kind of feedback / rethrow
+      }
+
+    // block thread to make indicator available :(
+    Await.ready(commandFuture, Duration.Inf)
+  }
+}
+
+object CommandTask {
 
   private case class TaskResultData(aborted: Boolean, errors: Int, warnings: Int)
 
@@ -201,6 +214,3 @@ object SbtProjectTaskRunner {
         else result
     }
 }
-
-private abstract class CommandTask(project: Project) extends
-  Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND)
