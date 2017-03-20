@@ -3,8 +3,10 @@ package refactoring.nameSuggester
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.suggestNamesByType
+import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
 import org.junit.Assert.assertArrayEquals
+
+import scala.collection.{JavaConversions, mutable}
 
 /**
   * Nikolay.Tropin
@@ -75,11 +77,13 @@ class NameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   private def testNamesByType(typeElementText: String, expected: String*): Unit = {
-    implicit val manager = myFixture.getPsiManager
-    val `type` = createTypeElementFromText(typeElementText)
-      .getType().getOrNothing
+    implicit val manager = getFixture.getPsiManager
+    val typeElement = createTypeElementFromText(typeElementText)
 
-    val actual = suggestNamesByType(`type`).toArray[AnyRef]
-    assertArrayEquals(expected.toArray[AnyRef], actual)
+    val actual = mutable.LinkedHashSet.empty[String]
+    import JavaConversions._
+    new ScalaNameSuggestionProvider().getSuggestedNames(typeElement, getFile, actual)
+
+    assertArrayEquals(expected.toArray[AnyRef], actual.toArray[AnyRef])
   }
 }
