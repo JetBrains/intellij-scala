@@ -33,7 +33,7 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
                                   validators: List[ScalaValidator])
   extends ScalaTypeValidator(myProject, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  override def findConflicts(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
+  protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
 

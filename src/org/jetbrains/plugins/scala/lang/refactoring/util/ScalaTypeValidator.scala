@@ -28,7 +28,7 @@ class ScalaTypeValidator(override val project: Project,
                          enclosingOne: PsiElement)
   extends ScalaValidator(project, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  override def findConflicts(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
+  protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Seq.empty

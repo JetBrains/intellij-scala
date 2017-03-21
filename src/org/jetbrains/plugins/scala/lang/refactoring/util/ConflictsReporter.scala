@@ -13,20 +13,24 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
+  * @author Alexander Podkhalyuzin
+  */
 trait ConflictsReporter {
-  def reportConflicts(project: Project, conflicts: MultiMap[PsiElement, String]): Boolean
+  def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean
 }
 
 trait EmptyConflictsReporter extends ConflictsReporter {
-  override def reportConflicts(project: Project, conflicts: MultiMap[PsiElement, String]) = false
+  override def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]) = false
 }
 
 trait DialogConflictsReporter extends ConflictsReporter {
-  override def reportConflicts(project: Project, conflicts: MultiMap[PsiElement, String]): Boolean = {
-    val conflictsDialog = new ConflictsDialog(project, conflicts, null, true, false)
+  override def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean = {
+    val result = MultiMap.createSet[PsiElement, String]()
+    conflicts.foreach {
+      case (element, message) => result.putValue(element, message)
+    }
+
+    val conflictsDialog = new ConflictsDialog(project, result, null, true, false)
     conflictsDialog.show()
     conflictsDialog.isOK
   }
@@ -34,8 +38,8 @@ trait DialogConflictsReporter extends ConflictsReporter {
 
 class BalloonConflictsReporter(editor: Editor) extends ConflictsReporter {
 
-  def reportConflicts(project: Project, conflicts: MultiMap[PsiElement, String]): Boolean = {
-    val messages = conflicts.values().toArray.toSet
+  def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean = {
+    val messages = conflicts.map(_._2).toSet
     createWarningBalloon(messages.mkString("\n"))
     true //this means that we do nothing, only show balloon
   }
