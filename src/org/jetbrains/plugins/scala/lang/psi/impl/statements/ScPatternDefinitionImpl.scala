@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, _}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -35,17 +35,12 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
     }
   }
 
-
   override def toString: String = "ScPatternDefinition"
 
-  def bindings: Seq[ScBindingPattern] = {
-    val plist = this.pList
-    if (plist != null) {
-      val patterns = plist.patterns
-      if (patterns.length == 1) {
-        patterns(0).bindings
-      } else patterns.flatMap((p: ScPattern) => p.bindings)
-    } else Seq.empty
+  def bindings: Seq[ScBindingPattern] = pList match {
+    case null => Seq.empty
+    case ScPatternList(Seq(pattern)) => pattern.bindings
+    case ScPatternList(patterns) => patterns.flatMap(_.bindings)
   }
 
   def declaredElements: Seq[ScBindingPattern] = bindings
@@ -58,26 +53,9 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
     }
   }
 
-  def expr: Option[ScExpression] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScValueStub].bodyExpression.orElse(Option(findChildByClassScala(classOf[ScExpression])))
-    }
-    Option(findChildByClassScala(classOf[ScExpression]))
-  }
+  def expr: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
-  def typeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScValueStub].typeElement
-    }
-    else findChild(classOf[ScTypeElement])
-  }
+  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def pList: ScPatternList = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PATTERN_LIST, JavaArrayFactoryUtil.ScPatternListFactory).apply(0)
-    } else findChildByClass(classOf[ScPatternList])
-  }
+  def pList: ScPatternList = getStubOrPsiChild(ScalaElementTypes.PATTERN_LIST)
 }

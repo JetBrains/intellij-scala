@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.psi._
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.StubBasedExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScSubstitutor, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -124,14 +126,8 @@ object CollectImplicitsProcessor {
             case (functionContext: ScalaPsiElement, placeContext: ScalaPsiElement) =>
               val funElem = functionContext.getDeepSameElementInContext
               val conElem = placeContext.getDeepSameElementInContext
-              val children = commonContext match {
-                case stubPsi: StubBasedPsiElement[_] =>
-                  val stub = stubPsi.getStub
-                  import scala.collection.JavaConverters._
-                  if (stub != null) stub.getChildrenStubs.asScala.map(_.getPsi).toArray
-                  else stubPsi.getChildren
-                case _ => commonContext.getChildren
-              }
+              val children = commonContext.stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
+
               children.find(elem => elem == funElem || elem == conElem) match {
                 case Some(elem) if elem == conElem => return false
                 case _ =>

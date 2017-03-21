@@ -19,12 +19,14 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
-import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.util.VisibilityIcons
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.conversion.JavaToScala
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
@@ -33,8 +35,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
@@ -164,18 +166,8 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     this
   }
 
-  override def isLocal: Boolean = {
-    val stub: StubElement[_ <: PsiElement] = this match {
-      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
-      case _ => null
-    }
-    stub match {
-      case memberOrLocal: ScMemberOrLocal =>
-        return memberOrLocal.isLocal
-      case _ =>
-    }
-    containingClass == null && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
-  }
+  override def isLocal: Boolean =
+    byStubOrPsi(_.isLocal)(containingClass == null && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null)
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
@@ -188,11 +180,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     }
   }
 
-  override final def getQualifiedName: String = {
-    val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].javaQualifiedName
-    else javaQualName()
-  }
+  override final def getQualifiedName: String = byStubOrPsi(_.javaQualifiedName)(javaQualName())
 
   @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def javaQualName(): String = {
@@ -209,11 +197,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     res
   }
 
-  override def qualifiedName: String = {
-    val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].getQualifiedName
-    else qualName()
-  }
+  override def qualifiedName: String = byStubOrPsi(_.getQualifiedName)(qualName())
 
   @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def qualName(): String = qualifiedName(".")
@@ -381,11 +365,7 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
 
   override def getDocComment: PsiDocComment = super[ScTypeDefinition].getDocComment
 
-  override def isDeprecated: Boolean = Option(getStub) map {
-    _.asInstanceOf[ScTemplateDefinitionStub].isDeprecated
-  } getOrElse {
-    super[PsiClassFake].isDeprecated
-  }
+  override def isDeprecated: Boolean = byStubOrPsi(_.isDeprecated)(super[PsiClassFake].isDeprecated)
 
   override def getInnerClasses: Array[PsiClass] = {
     val inCompanionModule = baseCompanionModule.toSeq.flatMap {

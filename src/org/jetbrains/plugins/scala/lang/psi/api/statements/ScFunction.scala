@@ -15,9 +15,11 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -30,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{JavaIdentif
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
@@ -233,17 +234,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * Optional Type Element, denotion function's return type
    * May be omitted for non-recursive functions
    */
-  def returnTypeElement: Option[ScTypeElement] = {
-    this match {
-      case st: ScalaStubBasedElementImpl[_, _] =>
-        val stub = st.getStub
-        if (stub != null) {
-          return stub.asInstanceOf[ScFunctionStub].typeElement
-        }
-      case _ =>
-    }
-    findChild(classOf[ScTypeElement])
-  }
+  def returnTypeElement: Option[ScTypeElement]
 
   def returnTypeIsDefined: Boolean = !definedReturnType.isEmpty
 
@@ -627,18 +618,13 @@ object ScFunction {
         else {
           isCalculating.set(true)
           try {
-            val children = parent match {
-              case stub: ScalaStubBasedElementImpl[_, _] if stub.getStub != null =>
-                import scala.collection.JavaConverters._
-                stub.getStub.getChildrenStubs.asScala.map(_.getPsi).iterator
-              case _ => parent.getChildren.iterator
-            }
+            val children = parent.stubOrPsiChildren(FUNCTION_DEFINITION, ScFunctionFactory).iterator
+
             while (children.hasNext) {
-              children.next() match {
-                case fun: ScFunction if importantOrderFunction(fun) =>
-                  ProgressManager.checkCanceled()
-                  fun.returnTypeInner
-                case _ =>
+              val nextFun = children.next()
+              if (importantOrderFunction(nextFun)) {
+                ProgressManager.checkCanceled()
+                nextFun.returnTypeInner
               }
             }
             function.returnTypeInner

@@ -4,12 +4,11 @@ package psi
 package api
 package statements
 
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
@@ -23,13 +22,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, Mod
 trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 
-  def aliasedTypeElement: Option[ScTypeElement] = {
-    val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement, _]].getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTypeAliasStub].typeElement
-    }
-    Option(findChildByClassScala(classOf[ScTypeElement]))
-  }
+  def aliasedTypeElement: Option[ScTypeElement]
 
   def aliasedType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
     if (ctx.visited.contains(this)) {

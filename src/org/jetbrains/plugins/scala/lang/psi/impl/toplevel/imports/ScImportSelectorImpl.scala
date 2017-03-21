@@ -32,30 +32,17 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
   override def toString: String = "ImportSelector"
 
   def importedName: Option[String] =
-    Option(getStub).collect {
-      case stub: ScImportSelectorStub => stub
-    }.flatMap {
-      _.importedName
-    }.orElse {
-      Option(findChildByType[PsiElement](ID_SET)).map {
-        _.getText
-      }
-    }.orElse {
-      reference.map {
-        _.refName
-      }
+    byStubOrPsi(_.importedName) {
+      Option(findChildByType[PsiElement](ID_SET)).map(_.getText)
+        .orElse(reference.map(_.refName))
     }
 
-  def reference: Option[ScStableCodeReferenceElement] =
-    Option(getStub).collect {
-      case stub: ScImportSelectorStub => stub
-    }.flatMap {
-      _.reference
-    }.orElse {
-      Option(getFirstChild).collect {
-        case element: ScStableCodeReferenceElement => element
-      }
+  def reference: Option[ScStableCodeReferenceElement] = byPsiOrStub {
+    getFirstChild match {
+      case element: ScStableCodeReferenceElement => Option(element)
+      case _ => None
     }
+  }(_.reference)
 
   override def deleteSelector(): Unit = {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
@@ -85,12 +72,8 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
     }
   }
 
-  def isAliasedImport: Boolean = {
-    getStub match {
-      case stub: ScImportSelectorStub => stub.isAliasedImport
-      case _ =>
-        PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
-          !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
-    }
+  def isAliasedImport: Boolean = byStubOrPsi(_.isAliasedImport) {
+    PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
+      !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
   }
 }

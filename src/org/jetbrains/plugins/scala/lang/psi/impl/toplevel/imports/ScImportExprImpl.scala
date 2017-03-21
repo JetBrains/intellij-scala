@@ -8,9 +8,10 @@ package imports
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
  */
 
 class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.IMPORT_EXPR, node) with ScImportExpr {
+  extends ScalaStubBasedElementImpl(stub, IMPORT_EXPR, node) with ScImportExpr {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -37,32 +38,11 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
 
   override def toString: String = "ImportExpression"
 
-  def isSingleWildcard: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScImportExprStub].isSingleWildcard
-    }
-    if (findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null) {
-      true
-    } else {
-      selectorSet match {
-        case Some(set) => set.hasWildcard
-        case None => false
-      }
-    }
-  }
+  def isSingleWildcard: Boolean = byStubOrPsi(_.isSingleWildcard)(wildcardElement.nonEmpty)
 
-  def wildcardElement: Option[PsiElement] = {
-    if (findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null) {
-      Some(findChildByType[PsiElement](ScalaTokenTypes.tUNDER))
-    } else {
-      selectorSet match {
-        case Some(set) =>
-          set.wildcardElement
-        case None => None
-      }
-    }
-  }
+  def wildcardElement: Option[PsiElement] =
+    Option(findChildByType(ScalaTokenTypes.tUNDER))
+      .orElse(selectorSet.flatMap(_.wildcardElement))
 
   def qualifier: ScStableCodeReferenceElement = {
     if (reference.isEmpty)
@@ -132,15 +112,9 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     }
   }
 
+  def selectorSet: Option[ScImportSelectors] =
+    this.stubOrPsiChild(IMPORT_SELECTORS)
 
-  def selectorSet: Option[ScImportSelectors] = {
-    val psi: ScImportSelectors = getStubOrPsiChild(ScalaElementTypes.IMPORT_SELECTORS)
-    Option(psi)
-  }
-
-  def reference: Option[ScStableCodeReferenceElement] = {
-    val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScImportExprStub].reference
-    else getFirstChild.asOptionOf[ScStableCodeReferenceElement]  /*findChild(classOf[ScStableCodeReferenceElement])*/
-  }
+  def reference: Option[ScStableCodeReferenceElement] =
+    byPsiOrStub(getFirstChild.asOptionOf[ScStableCodeReferenceElement])(_.reference)
 }

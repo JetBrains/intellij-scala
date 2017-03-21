@@ -6,11 +6,11 @@ package util
 
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -18,13 +18,11 @@ import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.SUPER_CLASS_NAME_KEY
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable.ArrayBuffer
@@ -38,22 +36,22 @@ object ScalaStubsUtil {
   def getClassInheritors(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
     val name: String = clazz.name
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
+
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
-    val iterator: java.util.Iterator[ScExtendsBlock] =
-      StubIndex.getElements(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, name, clazz.getProject, new ScalaSourceFilterScope(scope, clazz.getProject), classOf[ScExtendsBlock]).iterator
-    while (iterator.hasNext) {
-      val extendsBlock: PsiElement = iterator.next
-      val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub
-      if (stub != null) {
-        if (stub.getParentStub.getStubType.isInstanceOf[ScTemplateDefinitionElementType[_ <: ScTemplateDefinition]]) {
-          inheritors += stub.getParentStub.getPsi.asInstanceOf[ScTemplateDefinition]
-        }
-      }
-      else {
-        extendsBlock.getParent match {
-          case tp: ScTemplateDefinition => inheritors += tp
-          case _ =>
-        }
+    val scalaScope = new ScalaSourceFilterScope(scope, clazz.getProject)
+
+    val extendsBlocks =
+      StubIndex.getElements(SUPER_CLASS_NAME_KEY, name, clazz.getProject, scalaScope, classOf[ScExtendsBlock]).iterator
+
+    while (extendsBlocks.hasNext) {
+      val extendsBlock = extendsBlocks.next
+      extendsBlock.greenStub match {
+        case Some(stub: ScTemplateDefinitionStub) => inheritors += stub.getPsi
+        case _ =>
+          extendsBlock.getParent match {
+            case tp: ScTemplateDefinition => inheritors += tp
+            case _ =>
+          }
       }
     }
     inheritors.toVector

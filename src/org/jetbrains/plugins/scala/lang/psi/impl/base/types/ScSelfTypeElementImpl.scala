@@ -45,19 +45,9 @@ class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
     }
   }
 
-  def typeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScSelfTypeElementStub].typeElement
-    }
-    findChild(classOf[ScTypeElement])
-  }
+  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def classNames: Array[String] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScSelfTypeElementStub].classNames
-    }
+  def classNames: Array[String] = byStubOrPsi(_.classNames) {
     val names = new ArrayBuffer[String]()
 
     def fillNames(typeElement: ScTypeElement) {

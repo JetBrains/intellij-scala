@@ -10,7 +10,6 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil
 import com.intellij.psi.impl.source.PsiFileImpl
-import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createObjectWithContext, createTypeElementFromText}
@@ -83,6 +82,8 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     calcFakeCompanionModule()
   }
+
+  override def showAsInheritor: Boolean = true
 
   //Performance critical method
   //And it is REALLY SO!

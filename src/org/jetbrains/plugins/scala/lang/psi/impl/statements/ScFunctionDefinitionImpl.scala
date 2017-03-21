@@ -79,15 +79,9 @@ class ScFunctionDefinitionImpl protected (stub: ScFunctionStub, node: ASTNode)
     case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
   }
 
-  def body: Option[ScExpression] = {
-    val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScFunctionStub].bodyExpression else findChild(classOf[ScExpression])
-  }
+  def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
-  override def hasAssign: Boolean = {
-    val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScFunctionStub].hasAssign else assignment.isDefined
-  }
+  override def hasAssign: Boolean = byStubOrPsi(_.hasAssign)(assignment.isDefined)
 
   def assignment = Option(findChildByType[PsiElement](ScalaTokenTypes.tASSIGN))
 

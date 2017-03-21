@@ -62,10 +62,7 @@ class ScClassImpl private(stub: ScTemplateDefinitionStub, node: ASTNode)
   override def getIconInner = Icons.CLASS
 
   override def constructor: Option[ScPrimaryConstructor] =
-    getStub match {
-      case null => super.constructor
-      case stub => stub.getChildrenByType(PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory).headOption
-    }
+    this.stubOrPsiChild(PRIMARY_CONSTRUCTOR)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}

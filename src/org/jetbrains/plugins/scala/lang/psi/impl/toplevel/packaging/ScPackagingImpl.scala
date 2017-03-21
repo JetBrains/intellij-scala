@@ -12,7 +12,9 @@ import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.PACKAGING
@@ -22,8 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
   * @author Alexander Podkhalyuzin, Pavel Fatin
@@ -49,55 +49,19 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
       findChild(classOf[ScStableCodeReferenceElement])
     }
 
-  def isExplicit: Boolean =
-    Option(getStub).collect {
-      case packaging: ScPackagingStub => packaging.isExplicit
-    }.getOrElse {
-      findChildByType(ScalaTokenTypes.tLBRACE) != null
-    }
+  def isExplicit: Boolean = byStubOrPsi(_.isExplicit)(findChildByType(ScalaTokenTypes.tLBRACE) != null)
 
-  def packageName: String =
-    Option(getStub).collect {
-      case packaging: ScPackagingStub => packaging
-    }.map {
-      _.packageName
-    }.orElse {
-      reference.map(_.qualName)
-    }.getOrElse("")
+  def packageName: String = byStubOrPsi(_.packageName)(reference.map(_.qualName).getOrElse(""))
 
-  def parentPackageName: String = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScPackagingStub].parentPackageName
-    }
+  def parentPackageName: String = byStubOrPsi(_.parentPackageName)(parentPackageName(this))
 
-    def parentPackageName(e: PsiElement): String = e.getParent match {
-      case p: ScPackaging => ScPackaging.fullPackageName(parentPackageName(p), p.packageName)
-      case _: ScalaFileImpl | null => ""
-      case parent => parentPackageName(parent)
-    }
-
-    parentPackageName(this)
+  private def parentPackageName(e: PsiElement): String = e.getParent match {
+    case p: ScPackaging => ScPackaging.fullPackageName(parentPackageName(p), p.packageName)
+    case _: ScalaFileImpl | null => ""
+    case parent => parentPackageName(parent)
   }
 
-  def typeDefs: Seq[ScTypeDefinition] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(TokenSets.TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
-    } else {
-      val buffer = new ArrayBuffer[ScTypeDefinition]
-      var curr = getFirstChild
-      while (curr != null) {
-        curr match {
-          case definition: ScTypeDefinition => buffer += definition
-          case _ =>
-        }
-        curr = curr.getNextSibling
-      }
-      buffer
-      //findChildrenByClass[ScTypeDefinition](classOf[ScTypeDefinition])
-    }
-  }
+  def typeDefs: Seq[ScTypeDefinition] = getStubOrPsiChildren(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
 
   def declaredElements: Seq[ScPackageImpl] = {
     val topRefName = packageName.indexOf(".") match {
@@ -184,4 +148,10 @@ class ScPackagingImpl private(stub: ScPackagingStub, node: ASTNode)
       ScalaPsiUtil.parentPackage(fullPackageName, getProject)
     }
   }
+
+  override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
+    byStubOrPsi(_.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)) {
+      findChildrenByClassScala(classOf[ScTypeDefinition])
+    }
+
 }

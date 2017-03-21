@@ -28,20 +28,9 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
 
   override def toString: String = "ClassParameter: " + name
 
-  override def isVal: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].isVal
-    }
-    findChildByType[PsiElement](ScalaTokenTypes.kVAL) != null
-  }
-  override def isVar: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].isVar
-    }
-    findChildByType[PsiElement](ScalaTokenTypes.kVAR) != null
-  }
+  override def isVal: Boolean = byStubOrPsi(_.isVal)(findChildByType(ScalaTokenTypes.kVAL) != null)
+
+  override def isVar: Boolean = byStubOrPsi(_.isVar)(findChildByType(ScalaTokenTypes.kVAR) != null)
 
   def isPrivateThis: Boolean = {
     if (!isEffectiveVal) return true
@@ -52,13 +41,7 @@ class ScClassParameterImpl private (stub: ScParameterStub, node: ASTNode)
     }
   }
 
-  override def isStable: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScParameterStub].isStable
-    }
-    !isVar
-  }
+  override def isStable: Boolean = byStubOrPsi(_.isStable)(findChildByType(ScalaTokenTypes.kVAR) == null)
 
   override def getOriginalElement: PsiElement = {
     val ccontainingClass = containingClass

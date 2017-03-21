@@ -6,6 +6,7 @@ package toplevel
 
 import javax.swing.Icon
 
+import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {
   def name: String = {
     this match {
-      case st: StubBasedPsiElement[_] =>  st.getStub match {
+      case st: StubBasedPsiElementBase[_] =>  st.getGreenStub match {
         case namedStub: NamedStub[_] => namedStub.getName
         case _ => nameInner
       }

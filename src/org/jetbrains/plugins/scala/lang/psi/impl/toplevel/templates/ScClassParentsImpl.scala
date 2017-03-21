@@ -27,11 +27,9 @@ class ScClassParentsImpl private(stub: ScTemplateParentsStub[ScClassParents], no
   override def toString: String = "ClassParents"
 
   def superTypes: Seq[ScType] = {
-    val stub = getStub
-    val elements = if (stub != null) {
-      stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements ++ syntheticTypeElements
-    } else allTypeElements
+    val elements = byStubOrPsi(_.parentTypeElements ++ syntheticTypeElements)(allTypeElements)
 
+    //for reduced stacksize
     val iterator = elements.iterator
     val buffer = ArrayBuffer[ScType]()
     while (iterator.hasNext) {
@@ -40,13 +38,9 @@ class ScClassParentsImpl private(stub: ScTemplateParentsStub[ScClassParents], no
     buffer
   }
 
-  def typeElements: Seq[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements
-    }
-    constructor.toSeq.map {
-      _.typeElement
-    } ++ findChildrenByClassScala(classOf[ScTypeElement])
+  def typeElements: Seq[ScTypeElement] = byPsiOrStub {
+    constructor.toSeq.map(_.typeElement) ++ findChildrenByClassScala(classOf[ScTypeElement])
+  } {
+    _.parentTypeElements
   }
 }

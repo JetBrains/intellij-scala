@@ -5,6 +5,7 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.{PsiAnnotation, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
@@ -28,6 +29,8 @@ class ScLightTypeAliasDefinition(s: TypeAliasSignature, val ta: ScTypeAliasDefin
   override def aliasedType: TypeResult[ScType] = Success(s.lowerBound, Some(this))
 
   override def aliasedType(ctx: TypingContext): TypeResult[ScType] = Success(s.lowerBound, Some(this))
+
+  override def aliasedTypeElement: Option[ScTypeElement] = ta.aliasedTypeElement
 
   override def getOriginalElement: PsiElement = super[ScTypeAliasDefinition].getOriginalElement
 

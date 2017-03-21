@@ -33,7 +33,7 @@ class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null =>
-      val name = getStub.getName
+      val name = getGreenStub.getName
       val id = createIdentifier(name)
       if (id == null) {
         assert(assertion = false, s"Id is null. Name: $name. Text: $getText. Parent text: ${getParent.getText}.")
@@ -41,6 +41,9 @@ class ScTypeAliasDefinitionImpl private (stub: ScTypeAliasStub, node: ASTNode)
       id.getPsi
     case n => n
   }
+
+  override def aliasedTypeElement: Option[ScTypeElement] =
+    byPsiOrStub(Option(findChildByClassScala(classOf[ScTypeElement])))(_.typeElement)
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

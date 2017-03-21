@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult;
 
@@ -218,6 +219,13 @@ public class JavaArrayFactoryUtil {
     @Override
     public ScTypeDefinition[] create(int count) {
       return new ScTypeDefinition[count];
+    }
+  };
+
+  public static ArrayFactory<ScTemplateDefinition> ScTemplateDefinitionArrayFactory = new ArrayFactory<ScTemplateDefinition>() {
+    @Override
+    public ScTemplateDefinition[] create(int count) {
+      return new ScTemplateDefinition[count];
     }
   };
 

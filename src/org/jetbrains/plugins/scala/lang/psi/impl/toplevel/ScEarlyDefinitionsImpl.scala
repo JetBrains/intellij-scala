@@ -7,6 +7,8 @@ package toplevel
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScMemberFactory
+import org.jetbrains.plugins.scala.lang.TokenSets.MEMBERS
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.EARLY_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
@@ -49,14 +51,6 @@ class ScEarlyDefinitionsImpl private(stub: ScEarlyDefinitionsStub, node: ASTNode
     true
   }
 
-  def members: Seq[ScMember] = getStub match {
-    case stub: ScEarlyDefinitionsStub =>
-      import scala.collection.JavaConverters._
-      stub.getChildrenStubs.asScala map {
-        _.getPsi
-      } collect {
-        case member: ScMember => member
-      }
-    case _ => findChildrenByClassScala(classOf[ScMember])
-  }
+  def members: Seq[ScMember] =
+    getStubOrPsiChildren(MEMBERS, ScMemberFactory)
 }

@@ -9,7 +9,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
+import org.jetbrains.plugins.scala.lang.TokenSets._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.{SELF_TYPE, TEMPLATE_BODY}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
@@ -24,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 */
 
 class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.TEMPLATE_BODY, node) with ScTemplateBody
+  extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node) with ScTemplateBody
                                         with ScImportsHolder {
 
   def this(node: ASTNode) = this(null, node)
@@ -33,42 +35,30 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
 
   override def toString: String = "ScTemplateBody"
 
-  def aliases: Seq[ScTypeAlias] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(TokenSets.ALIASES_SET, JavaArrayFactoryUtil.ScTypeAliasFactory).toSeq
-    } else findChildrenByClass(classOf[ScTypeAlias]).toSeq
-  }
+  def aliases: Seq[ScTypeAlias] =
+    getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory)
 
-  def functions: Seq[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, JavaArrayFactoryUtil.ScFunctionFactory).toSeq.filterNot(_.isLocal)
+  def functions: Seq[ScFunction] =
+    getStubOrPsiChildren(FUNCTIONS, ScFunctionFactory).toSeq.filterNot(_.isLocal)
 
   def typeDefinitions: Seq[ScTypeDefinition] =
-    getStubOrPsiChildren(TokenSets.TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory).toSeq.filterNot(_.isLocal)
+    getStubOrPsiChildren(TYPE_DEFINITIONS, ScTypeDefinitionFactory)
+      .toSeq.filterNot(_.isLocal)
 
-  def members: Seq[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq.filterNot(_.isLocal)
+  def members: Seq[ScMember] =
+    getStubOrPsiChildren(MEMBERS, ScMemberFactory).toSeq.filterNot(_.isLocal)
 
   def holders: Seq[ScDeclaredElementsHolder] =
-    getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, JavaArrayFactoryUtil.ScDeclaredElementsHolderFactory).toSeq.filterNot {
+    getStubOrPsiChildren(DECLARED_ELEMENTS_HOLDER, ScDeclaredElementsHolderFactory).toSeq.filterNot {
       case s: ScMember => s.isLocal
       case _ => false
     }
 
   def exprs: Seq[ScExpression] =
-    getStubOrPsiChildren(TokenSets.EXPRESSION_SET, JavaArrayFactoryUtil.ScExpressionFactory).toSeq.filterNot {
-      case s: ScMember => s.isLocal
-      case _ => false
-    }
+    getStubOrPsiChildren(EXPRESSION_SET, ScExpressionFactory).toSeq
 
-  def selfTypeElement: Option[ScSelfTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.findChildStubByType(ScalaElementTypes.SELF_TYPE) match {
-        case null => return None
-        case s => return Some(s.getPsi)
-      }
-    }
-    Option(findChildByType[ScSelfTypeElement](ScalaElementTypes.SELF_TYPE))
-  }
+  def selfTypeElement: Option[ScSelfTypeElement] =
+    Option(getStubOrPsiChild(SELF_TYPE))
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {

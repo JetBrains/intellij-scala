@@ -46,7 +46,7 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
   }
 
   def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
-    case null => createIdentifier(getStub.asInstanceOf[ScTypeAliasStub].getName).getPsi
+    case null => createIdentifier(getGreenStub.getName).getPsi
     case n => n
   }
   
@@ -63,16 +63,10 @@ class ScTypeAliasDeclarationImpl private (stub: ScTypeAliasStub, node: ASTNode)
   }
 
   override def upperTypeElement: Option[ScTypeElement] =
-    getStub match {
-      case stub: ScTypeAliasStub => stub.upperBoundTypeElement
-      case _ => boundElement(tUPPER_BOUND)
-    }
+    byPsiOrStub(boundElement(tUPPER_BOUND))(_.upperBoundTypeElement)
 
   override def lowerTypeElement: Option[ScTypeElement] =
-    getStub match {
-      case stub: ScTypeAliasStub => stub.lowerBoundTypeElement
-      case _ => boundElement(tLOWER_BOUND)
-    }
+    byPsiOrStub(boundElement(tLOWER_BOUND))(_.lowerBoundTypeElement)
 
   private def boundElement(elementType: IElementType) = {
     val result = findLastChildByType[PsiElement](elementType) match {

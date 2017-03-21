@@ -7,9 +7,11 @@ package templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTemplateParentsFactory
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.TokenSets.TEMPLATE_PARENTS
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
@@ -34,7 +36,7 @@ import scala.collection.mutable.ListBuffer
   *         Date: 20.02.2008
   */
 class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.EXTENDS_BLOCK, node) with ScExtendsBlock {
+  extends ScalaStubBasedElementImpl(stub, EXTENDS_BLOCK, node) with ScExtendsBlock {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -43,15 +45,16 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   override def toString: String = "ExtendsBlock"
 
   def templateBody: Option[ScTemplateBody] = {
-    Option(getStub).flatMap { stub =>
-      Option(stub.findChildStubByType(ScalaElementTypes.TEMPLATE_BODY)).map {
-        _.getPsi
-      }
-    }.orElse {
-      Option(getLastChild).collect {
-        case templateBody: ScTemplateBody => templateBody
-      }
+    def childStubTemplate(stub: ScExtendsBlockStub) =
+      Option(stub.findChildStubByType(TEMPLATE_BODY))
+        .map(_.getPsi)
+
+    def lastChildTemplateBody = getLastChild match {
+      case tb: ScTemplateBody => Some(tb)
+      case _ => None
     }
+
+    byPsiOrStub(lastChildTemplateBody)(childStubTemplate)
   }
 
   def empty: Boolean = getNode.getFirstChildNode == null
@@ -290,22 +293,11 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       _.selfTypeElement
     }
 
-  def templateParents: Option[ScTemplateParents] = {
-    val stub = getStub
-    if (stub != null) {
-      val array = stub.getChildrenByType(TokenSets.TEMPLATE_PARENTS, JavaArrayFactoryUtil.ScTemplateParentsFactory)
-      array.headOption
-    } else findChild(classOf[ScTemplateParents])
-  }
+  def templateParents: Option[ScTemplateParents] =
+    getStubOrPsiChildren(TEMPLATE_PARENTS, ScTemplateParentsFactory).headOption
 
-  def earlyDefinitions: Option[ScEarlyDefinitions] = {
-    val stub = getStub
-    if (stub != null) {
-      val array = stub.getChildrenByType(ScalaElementTypes.EARLY_DEFINITIONS,
-        JavaArrayFactoryUtil.ScEarlyDefinitionsFactory)
-      array.headOption
-    } else findChild(classOf[ScEarlyDefinitions])
-  }
+  def earlyDefinitions: Option[ScEarlyDefinitions] =
+    this.stubOrPsiChild(EARLY_DEFINITIONS)
 
   override def addEarlyDefinitions(): ScEarlyDefinitions = {
     earlyDefinitions.getOrElse {

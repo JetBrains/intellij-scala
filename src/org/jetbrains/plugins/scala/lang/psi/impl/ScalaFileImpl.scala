@@ -24,15 +24,17 @@ import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil._
 import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
@@ -61,14 +63,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   def isCompiled: Boolean = compiled
 
   def sourceName: String = {
-    if (isCompiled) {
-      val stub = getStub
-      if (stub != null) {
-        return stub.sourceName
-      }
+    def decompile = {
       val virtualFile = getVirtualFile
-      DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray).sourceName
+      DecompilerUtil.decompile(virtualFile, virtualFile.contentsToByteArray)
     }
+
+    if (isCompiled) byStubOrPsi(_.sourceName)(decompile.sourceName)
     else ""
   }
 
@@ -174,11 +174,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     false
   }
 
-  override def isScriptFile: Boolean = {
-    val stub = getStub
-    if (stub != null) stub.isScript
-    else isScriptFileImpl
-  }
+  override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
 
   def isWorksheetFile: Boolean = {
     val vFile = getVirtualFile
@@ -292,18 +288,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       null
   }
 
-  def getPackagings: Array[ScPackaging] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.PACKAGING, JavaArrayFactoryUtil.ScPackagingFactory)
-    } else findChildrenByClass(classOf[ScPackaging])
-  }
+  def getPackagings: Array[ScPackaging] =
+    byStubOrPsi(_.getChildrenByType(PACKAGING, ScPackagingFactory))(findChildrenByClass(classOf[ScPackaging]))
 
-  def getPackageName: String = {
-    val res = packageName
-    if (res == null) ""
-    else res
-  }
+  def getPackageName: String = Option(packageName).getOrElse("")
 
   @Nullable
   def packageName: String = {
@@ -455,6 +443,16 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     } else {
       super.insertFirstImport(importSt, first)
     }
+  }
+
+  override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
+    byStubOrPsi(_.getChildrenByType(TYPE_DEFINITIONS, ScTypeDefinitionFactory)){
+      findChildrenByClassScala(classOf[ScTypeDefinition])
+    }
+
+  private def byStubOrPsi[R](byStub: ScFileStub => R)(byPsi: => R): R = getStub match {
+    case s: ScFileStub => byStub(s)
+    case _ => byPsi
   }
 }
 

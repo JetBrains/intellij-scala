@@ -35,13 +35,7 @@ class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
   override def toString: String = "AccessModifier"
 
   def idText: Option[String] =
-    maybeStub map {
-      _.idText
-    } getOrElse {
-      Option(getNode.findChildByType(tIDENTIFIER)) map {
-        _.getPsi.getText
-      }
-    }
+    byStubOrPsi(_.idText)(Option(getNode.findChildByType(tIDENTIFIER)).map(_.getPsi.getText))
 
   def scope: PsiNamedElement =
     Option(getReference) map {
@@ -54,30 +48,11 @@ class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
     }
 
   //return ref only for {private|protected}[Id], not for private[this]
-  def isProtected: Boolean =
-  maybeStub map {
-    _.isProtected
-  } getOrElse {
-    getNode.hasChildOfType(kPROTECTED)
-  }
+  def isProtected: Boolean = byStubOrPsi(_.isProtected)(getNode.hasChildOfType(kPROTECTED))
 
-  def isPrivate: Boolean =
-    maybeStub map {
-      _.isPrivate
-    } getOrElse {
-      getNode.hasChildOfType(kPRIVATE)
-    }
+  def isPrivate: Boolean = byStubOrPsi(_.isPrivate)(getNode.hasChildOfType(kPRIVATE))
 
-  def isThis: Boolean =
-    maybeStub map {
-      _.isThis
-    } getOrElse {
-      getNode.hasChildOfType(kTHIS)
-    }
-
-  private def maybeStub = Option(getStub) collect {
-    case stub: ScAccessModifierStub => stub
-  }
+  def isThis: Boolean = byStubOrPsi(_.isThis)(getNode.hasChildOfType(kTHIS))
 
   override def getReference: PsiReference = {
     val text = idText

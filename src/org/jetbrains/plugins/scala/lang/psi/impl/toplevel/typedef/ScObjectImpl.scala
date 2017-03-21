@@ -89,12 +89,10 @@ class ScObjectImpl protected (stub: ScTemplateDefinitionStub, node: ASTNode)
 
   override def isObject : Boolean = true
 
-  override def isPackageObject: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTemplateDefinitionStub].isPackageObject
-    } else findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
+  override def isPackageObject: Boolean = byStubOrPsi(_.isPackageObject) {
+    findChildByType(ScalaTokenTypes.kPACKAGE) != null || name == "`package`"
   }
+
 
   def hasPackageKeyword: Boolean = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE) != null
 

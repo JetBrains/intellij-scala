@@ -11,6 +11,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -35,7 +36,7 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
       case notNull => notNull
     }
     if (n == null) {
-      return createIdentifier(getStub.getName).getPsi
+      return createIdentifier(getGreenStub.getName).getPsi
     }
     n.getPsi
   }
@@ -69,4 +70,6 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
     }
     true
   }
+
+  def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 }

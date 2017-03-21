@@ -66,13 +66,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     }
   }
 
-  def isImplicit: Boolean = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScParamClauseStub].isImplicit
-    }
-    getNode.findChildByType(ScalaTokenTypes.kIMPLICIT) != null
-  }
+  def isImplicit: Boolean = byStubOrPsi(_.isImplicit)(findChildByType(ScalaTokenTypes.kIMPLICIT) != null)
 
   def addParameter(param: ScParameter): ScParameterClause = {
     val params = parameters

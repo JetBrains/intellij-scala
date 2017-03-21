@@ -47,18 +47,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def additionalJavaNames: Array[String] = Array.empty
 
-  def extendsBlock: ScExtendsBlock = {
-    this match {
-      case st: ScalaStubBasedElementImpl[_, _] =>
-        val stub = st.getStub
-        if (stub != null) {
-          return stub.findChildStubByType(ScalaElementTypes.EXTENDS_BLOCK).getPsi
-        }
-      case _ =>
-    }
-    assert(getLastChild.isInstanceOf[ScExtendsBlock], "Class hasn't extends block: " + this.getText)
-    getLastChild.asInstanceOf[ScExtendsBlock]
-  }
+  def extendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
 
   def innerExtendsListTypes: Array[PsiClassType] = {
     val eb = extendsBlock
@@ -76,9 +65,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     } else PsiClassType.EMPTY_ARRAY
   }
 
-  def showAsInheritor: Boolean = {
-    isInstanceOf[ScTypeDefinition] || extendsBlock.templateBody.isDefined
-  }
+  def showAsInheritor: Boolean = extendsBlock.templateBody.isDefined
 
   override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
     PsiClassImplUtil.findMethodBySignature(this, patternMethod, checkBases)

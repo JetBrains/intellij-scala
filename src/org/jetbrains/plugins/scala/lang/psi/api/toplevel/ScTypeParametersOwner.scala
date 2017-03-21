@@ -20,19 +20,10 @@ trait ScTypeParametersOwner extends ScalaPsiElement {
   def typeParametersClause: Option[ScTypeParamClause] = {
     this match {
       case st: ScalaStubBasedElementImpl[_, _] =>
-        val stub = st.getStub
-        if (stub != null) {
-          val array = stub.getChildrenByType(ScalaElementTypes.TYPE_PARAM_CLAUSE,
-            JavaArrayFactoryUtil.ScTypeParamClauseFactory)
-          if (array.length == 0) {
-            return None
-          } else {
-            return Some(array.apply(0))
-          }
-        }
+        Option(st.getStubOrPsiChild(ScalaElementTypes.TYPE_PARAM_CLAUSE))
       case _ =>
+        findChild(classOf[ScTypeParamClause])
     }
-    findChild(classOf[ScTypeParamClause])
   }
 
   import com.intellij.psi.scope.PsiScopeProcessor

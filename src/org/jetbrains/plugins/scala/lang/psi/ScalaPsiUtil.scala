@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits._
@@ -175,17 +176,6 @@ object ScalaPsiUtil {
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val manager = ScalaPsiManager.instance(clazz.getProject)
     manager.cachedDeepIsInheritor(clazz, base)
-  }
-
-  def lastChildElementOrStub(element: PsiElement): PsiElement = {
-    element match {
-      case st: ScalaStubBasedElementImpl[_, _] if st.getStub != null =>
-        val stub = st.getStub
-        val children = stub.getChildrenStubs
-        if (children.size() == 0) element.getLastChild
-        else children.get(children.size() - 1).getPsi
-      case _ => element.getLastChild
-    }
   }
 
   @tailrec
@@ -823,12 +813,10 @@ object ScalaPsiUtil {
       case (a, b) => a == b
     }).headOption.exists {
       case (beforeAncestor, afterAncestor) =>
-        val topChildren: Seq[PsiElement] = beforeAncestor.getContext match {
-          case s: StubBasedPsiElement[_] if s.getStub != null =>
-            val stub = s.getStub.asInstanceOf[StubElement[_ <: PsiElement]]
-            stub.getChildrenStubs.map(_.getPsi)
-          case other => other.getChildren
-        }
+
+        val topChildren = beforeAncestor.getContext
+          .stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
+
         topChildren.indexOf(beforeAncestor) <= topChildren.indexOf(afterAncestor)
     }
   }
@@ -846,48 +834,33 @@ object ScalaPsiUtil {
     inner(elem, (l: List[PsiElement]) => l)
   }
 
-  def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
-    elem match {
-      case st: ScalaStubBasedElementImpl[_, _] if st.getStub != null =>
-        val stub = st.getStub
-        val childrenStubs = stub.getChildrenStubs
-        if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
-        else null
-      case file: PsiFileImpl if file.getStub != null =>
-        val stub = file.getStub
-        val childrenStubs = stub.getChildrenStubs
-        if (childrenStubs.size() > 0) childrenStubs.get(0).getPsi
-        else null
-      case _ => elem.getFirstChild
-    }
-  }
-
-  def getPrevStubOrPsiElement(elem: PsiElement): PsiElement = {
-    def workWithStub(stub: StubElement[_ <: PsiElement]): PsiElement = {
-      val parent = stub.getParentStub
-      if (parent == null) return null
-
-      val children = parent.getChildrenStubs
-      val index = children.indexOf(stub)
-      if (index == -1) {
-        elem.getPrevSibling
-      } else if (index == 0) {
-        null
-      } else {
-        children.get(index - 1).getPsi
-      }
+  def getNextStubOrPsiElement(elem: PsiElement): PsiElement =
+    elem.stub match {
+      case Some(stub) => stubOrPsiSibling(stub, +1, elem.getNextSibling)
+      case None => elem.getNextSibling
     }
 
-    elem match {
-      case st: ScalaStubBasedElementImpl[_, _] =>
-        val stub = st.getStub
-        if (stub != null) return workWithStub(stub)
-      case file: PsiFileImpl =>
-        val stub = file.getStub
-        if (stub != null) return workWithStub(stub)
-      case _ =>
+  def getPrevStubOrPsiElement(elem: PsiElement): PsiElement =
+    elem.stub match {
+      case Some(stub) => stubOrPsiSibling(stub, -1, elem.getPrevSibling)
+      case None => elem.getPrevSibling
     }
-    elem.getPrevSibling
+
+  private def stubOrPsiSibling(stub: StubElement[_], delta: Int, byPsi: => PsiElement): PsiElement = {
+    stub.getParentStub match {
+      case null => byPsi
+      case parent =>
+        val children = parent.getChildrenStubs
+        val index = children.indexOf(stub)
+        val newIndex = index + delta
+
+        if (index < 0)
+          byPsi
+        else if (newIndex < 0 || newIndex >= children.size)
+          null
+        else
+          children.get(newIndex).getPsi
+    }
   }
 
   def isLValue(elem: PsiElement): Boolean = elem match {
@@ -896,26 +869,6 @@ object ScalaPsiUtil {
       case _ => false
     }
     case _ => false
-  }
-
-  def getNextStubOrPsiElement(elem: PsiElement): PsiElement = {
-    elem match {
-      case st: ScalaStubBasedElementImpl[_, _] if st.getStub != null =>
-        val stub = st.getStub
-        val parent = stub.getParentStub
-        if (parent == null) return null
-
-        val children = parent.getChildrenStubs
-        val index = children.indexOf(stub)
-        if (index == -1) {
-          elem.getNextSibling
-        } else if (index >= children.size - 1) {
-          null
-        } else {
-          children.get(index + 1).getPsi
-        }
-      case _ => elem.getNextSibling
-    }
   }
 
   def getPlaceTd(placer: PsiElement, ignoreTemplateParents: Boolean = false): ScTemplateDefinition = {
@@ -1097,17 +1050,10 @@ object ScalaPsiUtil {
     }
   }
 
-  def getModifiersPresentableText(modifiers: ScModifierList): String = {
-    if (modifiers == null) return ""
-    val buffer = new StringBuilder("")
-    modifiers match {
-      case st: StubBasedPsiElement[_] if st.getStub != null =>
-        for (modifier <- st.getStub.asInstanceOf[ScModifiersStub].modifiers) buffer.append(modifier + " ")
-      case _ =>
-        for (modifier <- modifiers.getNode.getChildren(null) if !isLineTerminator(modifier.getPsi)) buffer.append(modifier.getText + " ")
-    }
-    buffer.toString()
-  }
+  def getModifiersPresentableText(modifiers: ScModifierList): String =
+    Option(modifiers)
+      .map(_.modifiers.mkString(" "))
+      .getOrElse("")
 
   def isLineTerminator(element: PsiElement): Boolean = {
     element match {

@@ -32,15 +32,9 @@ class ScVariableDeclarationImpl private (stub: ScVariableStub, node: ASTNode)
 
   def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
-  def typeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScVariableStub].typeElement
-    }
-    else findChild(classOf[ScTypeElement])
-  }
+  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def getIdList: ScIdList = findChildByClass(classOf[ScIdList])
+  def getIdList: ScIdList = getStubOrPsiChild(ScalaElementTypes.IDENTIFIER_LIST)
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitVariableDeclaration(this)

@@ -34,9 +34,9 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   def getMetaData: PsiMetaData = null
 
   def getAttributes: Array[PsiNameValuePair] =
-    annotationExpr.getAttributes map {
+    annotationExpr.getAttributes.map {
       _.asInstanceOf[PsiNameValuePair]
-    } toArray
+    }.toArray
 
   def getParameterList: PsiAnnotationParameterList = this
 
@@ -47,15 +47,9 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
     _.qualifiedName
   }.orNull
 
-  def typeElement: ScTypeElement = {
-    Option(getStub).collect {
-      case stub: ScAnnotationStub => stub
-    }.flatMap {
-      _.typeElement
-    }.getOrElse {
-      annotationExpr.constr.typeElement
-    }
-  }
+  def typeElement: ScTypeElement =
+    byPsiOrStub(Option(annotationExpr.constr.typeElement))(_.typeElement).orNull
+
 
   def findDeclaredAttributeValue(attributeName: String): PsiAnnotationMemberValue = {
     constructor.args match {

@@ -801,6 +801,12 @@ package object extensions {
       case _ => None
     }
 
+    def stub: Option[StubElement[_]] = element match {
+      case st: StubBasedPsiElementBase[_] => Option(st.getStub.asInstanceOf[StubElement[_]])
+      case file: PsiFileImpl => Option(file.getStub)
+      case _ => None
+    }
+
     def lastChildStub: Option[PsiElement] = {
       val children = stubOrPsiChildren(TokenSet.ANY, PsiElement.ARRAY_FACTORY)
       val size = children.length

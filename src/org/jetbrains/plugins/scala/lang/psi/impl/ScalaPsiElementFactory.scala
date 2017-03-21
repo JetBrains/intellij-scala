@@ -15,7 +15,6 @@ import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
@@ -248,16 +247,12 @@ object ScalaPsiElementFactory {
   def createParamClausesWithContext(text: String, context: PsiElement, child: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, child, ParamClauses.parse).orNull
 
-  private def contextLastChild(context: PsiElement): PsiElement = {
-    context match {
-      case s: StubBasedPsiElement[_] if s.getStub != null=>
-        val stub = s.getStub.asInstanceOf[StubElement[_ <: PsiElement]]
-        val children = stub.getChildrenStubs
-        val size = children.size()
-        if (size == 0) null
-        else children.get(size - 1).getPsi
-      case _ => context.getLastChild
-    }
+  private def contextLastChild(context: PsiElement): PsiElement = context.stub match {
+    case Some(stub) =>
+      val children = stub.getChildrenStubs
+      if (children.isEmpty) null
+      else children.get(children.size() - 1).getPsi
+    case _ => context.getLastChild
   }
 
   def createCaseClauseFromTextWithContext(clauseText: String, context: PsiElement, child: PsiElement): ScCaseClause =

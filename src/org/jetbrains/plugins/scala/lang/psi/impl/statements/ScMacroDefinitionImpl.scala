@@ -71,10 +71,7 @@ class ScMacroDefinitionImpl private (stub: ScFunctionStub, node: ASTNode)
     case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
   }
 
-  def body: Option[ScExpression] = {
-    val stub = getStub
-    if (stub != null) stub.asInstanceOf[ScFunctionStub].bodyExpression else findChild(classOf[ScExpression])
-  }
+  def body: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
   override def hasAssign: Boolean = true
 

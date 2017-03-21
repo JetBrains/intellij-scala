@@ -29,10 +29,7 @@ class ScTraitParentsImpl private(stub: ScTemplateParentsStub[ScTraitParents], no
   override def toString: String = "TraitParents"
 
   def superTypes: Seq[ScType] = {
-    val stub = getStub
-    val elements = if (stub != null) {
-      stub.asInstanceOf[ScTemplateParentsStub[ScClassParents]].parentTypeElements ++ syntheticTypeElements
-    } else allTypeElements
+    val elements = byStubOrPsi(_.parentTypeElements ++ syntheticTypeElements)(allTypeElements)
 
     val buffer = ArrayBuffer[ScType]()
     val iterator = elements.iterator //for reducing stacktrace
@@ -42,11 +39,6 @@ class ScTraitParentsImpl private(stub: ScTemplateParentsStub[ScTraitParents], no
     buffer
   }
 
-  def typeElements: Seq[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      return stub.asInstanceOf[ScTemplateParentsStub[ScTraitParents]].parentTypeElements
-    }
-    findChildrenByClassScala(classOf[ScTypeElement])
-  }
+  def typeElements: Seq[ScTypeElement] =
+    byPsiOrStub(findChildrenByClassScala(classOf[ScTypeElement]).toSeq)(_.parentTypeElements)
 }

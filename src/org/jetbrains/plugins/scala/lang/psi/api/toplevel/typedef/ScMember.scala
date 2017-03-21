@@ -7,11 +7,9 @@ package typedef
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.search.{LocalSearchScope, PackageScope, SearchScope}
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -56,15 +54,16 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     * `object a { def foo { def bar = 0 }}`
     */
   def containingClass: ScTemplateDefinition = {
-    val stub: StubElement[_ <: PsiElement] = this match {
-      case file: PsiFileImpl => file.getStub
-      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
-      case _ => null
-    }
-    stub match {
-      case m: ScMemberOrLocal if m.isLocal => return null
-      case _ =>
-    }
+    if (isLocalByStub) null
+    else containingClassInner
+  }
+
+  private def isLocalByStub = this.greenStub.exists {
+    case m: ScMemberOrLocal => m.isLocal
+    case _ => false
+  }
+
+  private def containingClassInner: ScTemplateDefinition = {
     val context = getContext
     (getContainingClassLoose, this) match {
       case (null, _) => null
@@ -81,46 +80,29 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   def getContainingClassLoose: ScTemplateDefinition = {
-    val stub: StubElement[_ <: PsiElement] = this match {
-      case file: PsiFileImpl => file.getStub
-      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
-      case _ => null
-    }
-    if (stub != null) {
-      stub.getParentStubOfType(classOf[ScTemplateDefinition])
-    } else {
-      child match {
-        // TODO is all of this mess still necessary?! 
-        case c: ScClass if c.isCase =>
-          this match {
-            case fun: ScFunction if fun.isSyntheticApply || fun.isSyntheticUnapply ||
-              fun.isSyntheticUnapplySeq =>
-              //this is special case for synthetic apply and unapply methods
-              ScalaPsiUtil.getCompanionModule(c) match {
-                case Some(td) => return td
-                case _ =>
-              }
-            case _ =>
-          }
-        case _ =>
-      }
-      PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
+    this.greenStub match {
+      case Some(stub) => stub.getParentStubOfType(classOf[ScTemplateDefinition])
+      case None =>
+        child match {
+          // TODO is all of this mess still necessary?!
+          case c: ScClass if c.isCase =>
+            this match {
+              case fun: ScFunction if fun.isSyntheticApply || fun.isSyntheticUnapply ||
+                fun.isSyntheticUnapplySeq =>
+                //this is special case for synthetic apply and unapply methods
+                ScalaPsiUtil.getCompanionModule(c) match {
+                  case Some(td) => return td
+                  case _ =>
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+        PsiTreeUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
     }
   }
 
-  def isLocal: Boolean = {
-    val stub: StubElement[_ <: PsiElement] = this match {
-      case file: PsiFileImpl => file.getStub
-      case st: ScalaStubBasedElementImpl[_, _] => st.getStub
-      case _ => null
-    }
-    stub match {
-      case memberOrLocal: ScMemberOrLocal =>
-        return memberOrLocal.isLocal
-      case _ =>
-    }
-    containingClass == null
-  }
+  def isLocal: Boolean = isLocalByStub || containingClassInner == null
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {

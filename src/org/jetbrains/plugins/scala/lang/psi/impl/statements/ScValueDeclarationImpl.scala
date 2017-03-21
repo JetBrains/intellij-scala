@@ -6,7 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
  */
 
 class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementTypes.VALUE_DECLARATION, node) with ScValueDeclaration {
+  extends ScalaStubBasedElementImpl(stub, VALUE_DECLARATION, node) with ScValueDeclaration {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -37,20 +37,9 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
     case Some(te) => te.getType(ctx)
   }
 
-  def typeElement: Option[ScTypeElement] = {
-    val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScValueStub].typeElement
-    }
-    else findChild(classOf[ScTypeElement])
-  }
+  def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
-  def getIdList: ScIdList = {
-    val stub = getStub
-    if (stub != null) {
-      stub.getChildrenByType(ScalaElementTypes.IDENTIFIER_LIST, JavaArrayFactoryUtil.ScIdListFactory).apply(0)
-    } else findChildByClass(classOf[ScIdList])
-  }
+  def getIdList: ScIdList = getStubOrPsiChild(IDENTIFIER_LIST)
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitValueDeclaration(this)
