@@ -41,16 +41,9 @@ object AnnotatorHighlighter {
     "scalaNil", "scalaStream", "scalaVector", "scalaSeq")
 
 
-  private def getParentStub[T <: PsiElement, S <: StubElement[T]](el: ScalaStubBasedElementImpl[T, S]): PsiElement = {
-    val stub = el.getStub
-    if (stub != null) {
-      stub.getParentStub.getPsi
-    } else el.getParent
-  }
-
   private def getParentByStub(x: PsiElement): PsiElement = {
     x match {
-      case el: ScalaStubBasedElementImpl[_, _] => getParentStub(el)
+      case el: ScalaStubBasedElementImpl[_, _] => el.getParent
       case _ => x.getContext
     }
   }
