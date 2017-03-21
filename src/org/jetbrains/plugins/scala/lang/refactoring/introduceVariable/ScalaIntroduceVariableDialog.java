@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
@@ -54,7 +54,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   private Project project;
   private ScType[] myTypes;
   private int occurrencesCount;
-  private ScalaVariableValidator validator;
+  private ValidationReporter reporter;
   private String[] possibleNames;
   private ScExpression expression;
   private JPanel myLinkContainer;
@@ -69,14 +69,14 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   public ScalaIntroduceVariableDialog(final Project project,
                                       ScType[] myTypes,
                                       int occurrencesCount,
-                                      ScalaVariableValidator validator,
+                                      ValidationReporter reporter,
                                       String[] possibleNames,
                                       ScExpression expression) {
     super(project, true);
     this.project = project;
     this.myTypes = myTypes;
     this.occurrencesCount = occurrencesCount;
-    this.validator = validator;
+    this.reporter = reporter;
     this.possibleNames = possibleNames;
     this.expression = expression;
     setUpNameComboBox(possibleNames);
@@ -258,7 +258,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   }
 
   protected void doOKAction() {
-    if (!validator.isOK(this)) {
+    if (!reporter.isOK(this)) {
       return;
     }
     if (mySpecifyTypeChb.isEnabled()) {

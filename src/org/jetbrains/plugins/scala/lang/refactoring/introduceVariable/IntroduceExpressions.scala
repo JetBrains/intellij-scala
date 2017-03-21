@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationUtil}
 
@@ -53,7 +53,7 @@ trait IntroduceExpressions {
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-      implicit val validator = ScalaVariableValidator(this, project, file, expr, occurrences)
+      implicit val validator = ScalaVariableValidator(file, expr, occurrences)
 
       def runWithDialog() {
         val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false)
@@ -391,7 +391,9 @@ trait IntroduceExpressions {
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr).toArray
-    val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames, expr)
+    val reporter = new ValidationReporter(project, this)
+
+    val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, reporter, possibleNames, expr)
     dialog.show()
     if (!dialog.isOK) {
       if (occurrences.length > 1) {

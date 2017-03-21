@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 
 /**
@@ -46,7 +45,7 @@ object IntroduceVariableTestUtil {
 
     val container: PsiElement = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
     val containerOne = getContainerOne(startOffset, endOffset, file, occurrences.length)
-    new ScalaVariableValidator(new ScalaIntroduceVariableHandler, project, expr, occurrences.isEmpty, container, containerOne)
+    new ScalaVariableValidator(expr, occurrences.isEmpty, container, containerOne)
   }
 
   def getTypeValidator(project: Project, editor: Editor, file: ScalaFile, startOffset: Int, endOffset: Int): ScalaTypeValidator = {
@@ -57,6 +56,6 @@ object IntroduceVariableTestUtil {
     val container = ScalaRefactoringUtil.enclosingContainer(PsiTreeUtil.findCommonParent(occurrences: _*))
 
     val containerOne = getContainerOne(startOffset, endOffset, file, occurrences.length)
-    new ScalaTypeValidator(project, new ScalaIntroduceVariableHandler, typeElement, occurrences.isEmpty, container, containerOne)
+    new ScalaTypeValidator(typeElement, occurrences.isEmpty, container, containerOne)
   }
 }

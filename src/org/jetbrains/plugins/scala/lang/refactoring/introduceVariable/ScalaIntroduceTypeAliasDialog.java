@@ -105,9 +105,11 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             validator = ((SimpleScopeItem) currentScope).typeValidator();
         }
 
-        if ((validator != null) && (!validator.isOK(this))) {
-            currentScope = newScope;
-            return;
+        if (validator != null) {
+            if (isConflictReported(validator)) {
+                currentScope = newScope;
+                return;
+            }
         }
 
         super.doOKAction();
@@ -389,7 +391,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             simpleScopeItem.setInheretedOccurrences(inheritors._1());
 
             for (ScalaTypeValidator validator : inheritors._2()) {
-                if (!validator.isOK(this)) {
+                if (isConflictReported(validator)) {
                     return false;
                 }
             }
@@ -397,5 +399,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             return true;
         }
         return true;
+    }
+
+    private boolean isConflictReported(ScalaValidator validator) {
+        ValidationReporter reporter = new ValidationReporter(project, conflictsReporter, validator);
+        return !reporter.isOK(this);
     }
 }
