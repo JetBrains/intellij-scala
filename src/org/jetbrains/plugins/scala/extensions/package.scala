@@ -259,11 +259,6 @@ package object extensions {
 
     def withParents: Iterator[PsiElement] = new ParentsIterator(element, strict = false)
 
-    def isStub: Boolean = element match {
-      case st: StubBasedPsiElement[_] => st.getStub != null
-      case _ => false
-    }
-
     def parentsInFile: Iterator[PsiElement] = element match {
       case _: PsiFile | _: PsiDirectory => Iterator.empty
       case _ => parents.takeWhile(!_.isInstanceOf[PsiFile])
