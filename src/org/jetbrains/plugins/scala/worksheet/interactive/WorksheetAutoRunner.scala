@@ -99,22 +99,23 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       if (isRepl) {
         if (offset < lastProcessedOffset) WorksheetFileHook.getEditorFrom(FileEditorManager getInstance project, psiFile.getVirtualFile) foreach (
           ed => WorksheetCache.getInstance(project).setLastProcessedIncremental(ed, None) )
-        
-        return
       }
 
       if (isDisabledOn(psiFile)) return
 
       val virtualFile = psiFile.getVirtualFile
-      myAlarm.cancelAllRequests()
-      
-      val isReplWrongChar = !isRepl || {
-        val fragment = e.getNewFragment
-        val l = fragment.length()
-        
-        l > 0 && fragment.charAt(l - 1) == '\n'
-      }
 
+      val fragment = e.getNewFragment
+      val isTrashEvent = isRepl && fragment.length() == 0 && e.getOffset + 1 >= e.getDocument.getTextLength && e.getOldFragment.length() == 0
+
+      if (!isTrashEvent) myAlarm.cancelAllRequests()
+
+      val isReplWrongChar = isRepl && {
+        val l = fragment.length()
+
+        l < 1 || fragment.charAt(l - 1) != '\n'
+      }
+      
       if (woof.hasSyntaxErrors(virtualFile) || WorksheetProcessManager.running(virtualFile) || isReplWrongChar) return
 
       myAlarm.addRequest(new Runnable {
