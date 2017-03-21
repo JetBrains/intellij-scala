@@ -9,14 +9,14 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
 /**
- * Created by Kate Ustyuzhanina on 8/5/15.
- */
+  * @author Kate Ustyuzhanina
+  */
 abstract class ScalaValidator(val project: Project,
                               conflictsReporter: ConflictsReporter,
                               selectedElement: PsiElement,
                               noOccurrences: Boolean,
                               enclosingContainerAll: PsiElement,
-                              enclosingOne: PsiElement) extends NameValidator {
+                              enclosingOne: PsiElement) {
 
   def enclosingContainer(allOcc: Boolean): PsiElement =
     if (allOcc) enclosingContainerAll else enclosingOne
