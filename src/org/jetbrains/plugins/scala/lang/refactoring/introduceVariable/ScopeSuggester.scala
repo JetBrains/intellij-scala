@@ -95,7 +95,7 @@ object ScopeSuggester {
       }
 
       val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(currentElement, parent)
-      val validator = ScalaTypeValidator(project, conflictsReporter, currentElement, parent, occurrences.isEmpty)
+      val validator = ScalaTypeValidator(currentElement, parent, occurrences.isEmpty)
 
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)(validator)
 
@@ -250,7 +250,7 @@ object ScopeSuggester {
           case _ => PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
         }
         if (parent != null) {
-          allValidators += ScalaTypeValidator(project, conflictsReporter, typeElement, parent, occurrences.isEmpty)
+          allValidators += ScalaTypeValidator(typeElement, parent, occurrences.isEmpty)
         }
       }
     }
@@ -267,7 +267,7 @@ object ScopeSuggester {
 
         val parent = PsiTreeUtil.findChildOfType(clazz, classOf[ScTemplateBody])
 
-        allValidators += ScalaTypeValidator(project, conflictsReporter, typeElement, parent, occurrences.isEmpty)
+        allValidators += ScalaTypeValidator(typeElement, parent, occurrences.isEmpty)
       }
     } else {
       collectedFiles.foreach(handleOneFile)
@@ -327,7 +327,7 @@ case class SimpleScopeItem(override val name: String,
         PsiTreeUtil.findElementOfClassAtRange(containingFile, range.getStartOffset, range.getEndOffset, classOf[PsiElement])
     }
 
-    val updatedValidator = new ScalaTypeValidator(typeValidator.project, typeValidator.conflictsReporter, typeValidator.selectedElement, typeValidator.noOccurrences, updatedFileEncloser, updatedFileEncloser)
+    val updatedValidator = new ScalaTypeValidator(typeValidator.selectedElement, typeValidator.noOccurrences, updatedFileEncloser, updatedFileEncloser)
 
     new SimpleScopeItem(name, updatedFileEncloser,
       revalidatedOccurrences, occurrencesInCompanion, updatedValidator, newNames)

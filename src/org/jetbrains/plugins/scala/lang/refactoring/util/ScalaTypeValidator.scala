@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
@@ -12,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable
 
@@ -20,13 +18,8 @@ import scala.collection.mutable
   * Created by Kate Ustyuzhanina
   * on 8/3/15
   */
-class ScalaTypeValidator(override val project: Project,
-                         val conflictsReporter: ConflictsReporter,
-                         val selectedElement: PsiElement,
-                         val noOccurrences: Boolean,
-                         enclosingContainerAll: PsiElement,
-                         enclosingOne: PsiElement)
-  extends ScalaValidator(project, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
+class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurrences: Boolean, enclosingContainerAll: PsiElement, enclosingOne: PsiElement)
+  extends ScalaValidator(selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
   protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
@@ -44,7 +37,7 @@ class ScalaTypeValidator(override val project: Project,
   protected def forbiddenNames(position: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
     val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
 
-    implicit val typeSystem = project.typeSystem
+    implicit val typeSystem = selectedElement.typeSystem
     val processor = new BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
       override def execute(element: PsiElement, state: ResolveState): Boolean = {
         result ++= zipWithMessage(element, name)
@@ -72,17 +65,13 @@ class ScalaTypeValidator(override val project: Project,
 
 object ScalaTypeValidator {
 
-  def empty(project: Project): ScalaTypeValidator =
-    new ScalaTypeValidator(project, null, null, noOccurrences = true, null, null) {
+  def empty =
+    new ScalaTypeValidator(null, noOccurrences = true, null, null) {
       override def validateName(name: String): String = name
     }
 
-  def apply(project: Project,
-            conflictsReporter: ConflictsReporter,
-            element: PsiElement,
-            container: PsiElement,
-            noOccurrences: Boolean) =
-    new ScalaTypeValidator(project, conflictsReporter, element, noOccurrences, container, container)
+  def apply(element: PsiElement, container: PsiElement, noOccurrences: Boolean) =
+    new ScalaTypeValidator(element, noOccurrences, container, container)
 
   private def zipWithMessage(element: PsiElement, name: String): Option[(PsiNamedElement, String)] =
     Option(element).collect {

@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.mutable
@@ -347,9 +347,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
       val named = namedElement(getDeclaration).orNull
       val templateState: TemplateState = TemplateManagerImpl.getTemplateState(myEditor)
       if (named != null && templateState != null) {
-        val occurrences = (for (i <- 0 to templateState.getSegmentsCount - 1) yield templateState.getSegmentRange(i)).toArray
-        val validator = ScalaVariableValidator(new BalloonConflictsReporter(myEditor), myProject, myFile, named, occurrences)
-        validator.isOK(named.name, replaceAll)
+        val occurrences = (for (i <- 0 until templateState.getSegmentsCount) yield templateState.getSegmentRange(i)).toArray
+        implicit val validator = ScalaVariableValidator(myFile, named, occurrences)
+
+        val reporter = new ValidationReporter(myProject, new BalloonConflictsReporter(myEditor))
+        reporter.isOK(named.name, replaceAll)
       }
     }
     catch {

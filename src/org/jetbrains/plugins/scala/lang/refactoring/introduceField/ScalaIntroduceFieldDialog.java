@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ValidationReporter;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil;
 
@@ -65,7 +65,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   private Project project;
   private ScType[] myTypes;
   private int occurrencesCount;
-  private ScalaVariableValidator validator;
+  private ValidationReporter reporter;
   private IntroduceFieldSettings mySettings;
 
   private LinkedHashMap<String, ScType> myTypeMap = null;
@@ -78,7 +78,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     this.project = ifc.project();
     this.myTypes = ifc.types();
     this.occurrencesCount = ifc.occurrences().length;
-    this.validator = ifc.validator();
+    this.reporter = ifc.reporter();
     this.mySettings = settings;
 
     ScExpression expression = ScalaRefactoringUtil.expressionToIntroduce(ifc.element());
@@ -382,7 +382,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
   }
 
   protected void doOKAction() {
-    if (!validator.isOK(this)) return;
+    if (!reporter.isOK(this)) return;
     saveSettings();
 
     mySettings.setName(getEnteredName());

@@ -10,25 +10,27 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 /**
   * @author Kate Ustyuzhanina
   */
-abstract class ScalaValidator(val project: Project,
-                              conflictsReporter: ConflictsReporter,
-                              selectedElement: PsiElement,
-                              noOccurrences: Boolean,
-                              enclosingContainerAll: PsiElement,
-                              enclosingOne: PsiElement) {
-
-  def enclosingContainer(allOcc: Boolean): PsiElement =
-    if (allOcc) enclosingContainerAll else enclosingOne
-
-  def isOK(dialog: NamedDialog): Boolean = isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
+class ValidationReporter(project: Project, conflictsReporter: ConflictsReporter)
+                        (implicit validator: ScalaValidator) {
+  def isOK(dialog: NamedDialog): Boolean =
+    isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
 
   def isOK(newName: String, replaceAllOccurrences: Boolean): Boolean = {
-    if (noOccurrences) return true
-    findConflicts(newName, replaceAllOccurrences) match {
+    if (validator.noOccurrences) return true
+    validator.findConflicts(newName, replaceAllOccurrences) match {
       case Seq() => true
       case conflicts => conflictsReporter.reportConflicts(project, conflicts)
     }
   }
+}
+
+abstract class ScalaValidator(selectedElement: PsiElement,
+                              val noOccurrences: Boolean,
+                              enclosingContainerAll: PsiElement,
+                              enclosingOne: PsiElement) {
+
+  def enclosingContainer(allOccurrences: Boolean): PsiElement =
+    if (allOccurrences) enclosingContainerAll else enclosingOne
 
   final def findConflicts(name: String, allOccurrences: Boolean): Seq[(PsiNamedElement, String)] =
     findConflictsImpl(name, allOccurrences).filter {
@@ -39,23 +41,23 @@ abstract class ScalaValidator(val project: Project,
 
   def validateName(name: String): String = {
     if (noOccurrences) return name
-    var res = name
-    if (findConflicts(res, allOccurrences = false).isEmpty) return res
+    var result = name
+    if (findConflicts(result, allOccurrences = false).isEmpty) return result
 
     var i = 1
-    res = name + i
-    if (!isIdentifier(res)) {
-      res = name + name.last
-      while (findConflicts(res, allOccurrences = true).nonEmpty) {
-        res = name + name.last
+    result = name + i
+    if (!isIdentifier(result)) {
+      result = name + name.last
+      while (findConflicts(result, allOccurrences = true).nonEmpty) {
+        result = name + name.last
       }
     } else {
-      while (findConflicts(res, allOccurrences = true).nonEmpty) {
+      while (findConflicts(result, allOccurrences = true).nonEmpty) {
         i = i + 1
-        res = name + i
+        result = name + i
       }
     }
-    res
+    result
   }
 
 }

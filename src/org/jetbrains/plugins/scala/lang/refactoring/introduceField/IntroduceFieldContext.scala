@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduceFieldHandlerBase._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
-import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 
 /**
  * Nikolay.Tropin
@@ -32,7 +32,9 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
     case _ => null
   }
 
-  implicit val validator = ScalaVariableValidator(new DialogConflictsReporter {}, project, file, element, occurrences)
+  private implicit val validator = ScalaVariableValidator(file, element, occurrences)
+
+  val reporter: ValidationReporter = new ValidationReporter(project, new DialogConflictsReporter {})
 
   val canBeInitInDecl: Boolean = element match {
     case expr: ScExpression => canBeInitializedInDeclaration(expr, aClass)
@@ -42,7 +44,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
   val possibleNames: ju.Set[String] = element match {
     case expr: ScExpression =>
       import scala.collection.JavaConversions._
-      NameSuggester.suggestNames(expr)(validator).toSet[String]
+      NameSuggester.suggestNames(expr).toSet[String]
     case _ => throw new IntroduceException
   }
 

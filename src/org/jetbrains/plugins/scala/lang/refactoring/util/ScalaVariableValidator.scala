@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -24,28 +23,18 @@ import scala.collection.mutable.ArrayBuffer
   */
 object ScalaVariableValidator {
 
-  def empty(project: Project): ScalaVariableValidator =
-    new ScalaVariableValidator(null, project, null, true, null, null)
+  def empty = new ScalaVariableValidator(null, true, null, null)
 
-  def apply(conflictsReporter: ConflictsReporter,
-            project: Project,
-            file: PsiFile,
-            element: PsiElement,
-            occurrences: Array[TextRange]): ScalaVariableValidator = {
+  def apply(file: PsiFile, element: PsiElement, occurrences: Array[TextRange]): ScalaVariableValidator = {
     val container = enclosingContainer(commonParent(file, occurrences: _*))
     val containerOne = enclosingContainer(element)
 
-    new ScalaVariableValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
+    new ScalaVariableValidator(element, occurrences.isEmpty, container, containerOne)
   }
 }
 
-class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
-                             myProject: Project,
-                             selectedElement: PsiElement,
-                             noOccurrences: Boolean,
-                             enclosingContainerAll: PsiElement,
-                             enclosingOne: PsiElement)
-  extends ScalaValidator(myProject, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
+class ScalaVariableValidator(selectedElement: PsiElement, noOccurrences: Boolean, enclosingContainerAll: PsiElement, enclosingOne: PsiElement)
+  extends ScalaValidator(selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
   protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)

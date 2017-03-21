@@ -29,9 +29,9 @@ import scala.collection.mutable
 object NameSuggester {
 
   def suggestNames(expression: ScExpression)
-                  (implicit validator: ScalaVariableValidator = ScalaVariableValidator.empty(expression.getProject)): Seq[String] = {
+                  (implicit validator: ScalaVariableValidator = ScalaVariableValidator.empty): Seq[String] = {
     val names = collectTypes(expression).reverse
-      .flatMap(namesByType(_)(validator.project)) ++
+      .flatMap(namesByType(_)(expression.getProject)) ++
       namesByExpression(expression)
 
     collectNames(names, validator)
@@ -65,8 +65,8 @@ object NameSuggester {
   }
 
   def suggestNamesByType(`type`: ScType)
-                        (implicit validator: ScalaTypeValidator = ScalaTypeValidator.empty(obtainProject)): Seq[String] =
-    collectNames(namesByType(`type`)(validator.project), validator)
+                        (implicit validator: ScalaTypeValidator = ScalaTypeValidator.empty): Seq[String] =
+    collectNames(namesByType(`type`)(obtainProject), validator)
 
   private[this] def plural: String => String = {
     case "x" => "xs"
