@@ -8,8 +8,8 @@ import com.intellij.util.Processor
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Created by Kate Ustyuzhanina on 8/25/15.
- */
+  * Created by Kate Ustyuzhanina on 8/25/15.
+  */
 object ScalaCompositeTypeValidator {
   def apply(validators: List[ScalaValidator],
             conflictsReporter: ConflictsReporter,
@@ -33,7 +33,7 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
                                   validators: List[ScalaValidator])
   extends ScalaTypeValidator(myProject, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
+  override def findConflicts(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
 
@@ -41,7 +41,7 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
     val filesToSearchIn = enclosingContainerAll match {
       case directory: PsiDirectory =>
         findFilesForDownConflictFindings(directory, name)
-      case _ => Array.empty
+      case _ => Seq.empty
     }
 
     for (file <- filesToSearchIn) {
@@ -56,29 +56,24 @@ class ScalaCompositeTypeValidator(conflictsReporter: ConflictsReporter,
       }
     }
 
-    buf.toArray
+    buf
   }
 
   //TODO iliminate duplication
-  private def findFilesForDownConflictFindings(directory: PsiDirectory, name: String): Array[PsiFile] = {
-    def oneRound(word: String) = {
-      val buffer = new ArrayBuffer[PsiFile]()
+  private def findFilesForDownConflictFindings(directory: PsiDirectory, name: String): Seq[PsiFile] = {
+    val buffer = new ArrayBuffer[PsiFile]()
 
-      val processor = new Processor[PsiFile] {
-        override def process(file: PsiFile): Boolean = {
-          buffer += file
-          true
-        }
+    val processor = new Processor[PsiFile] {
+      override def process(file: PsiFile): Boolean = {
+        buffer += file
+        true
       }
-
-      val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(directory.getProject)
-      helper.processAllFilesWithWord(word, GlobalSearchScopesCore.directoryScope(directory, true), processor, true)
-
-      buffer
     }
 
-    val resultBuffer = oneRound(name)
-    resultBuffer.toArray
+    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(directory.getProject)
+    helper.processAllFilesWithWord(name, GlobalSearchScopesCore.directoryScope(directory, true), processor, true)
+
+    buffer
   }
 }
 

@@ -47,9 +47,9 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
                              enclosingOne: PsiElement)
   extends ScalaValidator(myProject, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = { //returns declaration and message
+  override def findConflicts(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)
-    if (container == null) return Array()
+    if (container == null) return Seq.empty
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
     buf ++= validateDown(container, name, allOcc)
     buf ++= validateReference(selectedElement, name)
@@ -83,7 +83,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
           }
       }
     }
-    buf.toArray
+    buf
   }
 
   private def validateReference(context: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {

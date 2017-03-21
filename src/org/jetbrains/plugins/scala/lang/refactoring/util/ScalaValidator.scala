@@ -40,7 +40,7 @@ abstract class ScalaValidator(val project: Project,
     result
   }
 
-  def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)]
+  def findConflicts(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)]
 
   def validateName(name: String): String = {
     if (noOccurrences) return name
