@@ -32,7 +32,7 @@ class IntroduceFieldContext[T <: PsiElement](val project: Project,
     case _ => null
   }
 
-  implicit val validator = ScalaVariableValidator(new DialogConflictsReporter {}, project, editor, file, element, occurrences)
+  implicit val validator = ScalaVariableValidator(new DialogConflictsReporter {}, project, file, element, occurrences)
 
   val canBeInitInDecl: Boolean = element match {
     case expr: ScExpression => canBeInitializedInDeclaration(expr, aClass)

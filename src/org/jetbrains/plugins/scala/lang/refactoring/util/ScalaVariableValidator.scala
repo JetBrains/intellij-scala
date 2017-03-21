@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -30,7 +29,6 @@ object ScalaVariableValidator {
 
   def apply(conflictsReporter: ConflictsReporter,
             project: Project,
-            editor: Editor,
             file: PsiFile,
             element: PsiElement,
             occurrences: Array[TextRange]): ScalaVariableValidator = {

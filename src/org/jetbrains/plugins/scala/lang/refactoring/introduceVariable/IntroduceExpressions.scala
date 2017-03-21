@@ -53,7 +53,7 @@ trait IntroduceExpressions {
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
-      implicit val validator = ScalaVariableValidator(this, project, editor, file, expr, occurrences)
+      implicit val validator = ScalaVariableValidator(this, project, file, expr, occurrences)
 
       def runWithDialog() {
         val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false)
