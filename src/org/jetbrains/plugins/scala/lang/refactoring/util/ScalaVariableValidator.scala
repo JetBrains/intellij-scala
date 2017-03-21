@@ -47,7 +47,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
                              enclosingOne: PsiElement)
   extends ScalaValidator(myProject, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  override def findConflicts(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = { //returns declaration and message
+  protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Seq.empty
     val buf = new ArrayBuffer[(PsiNamedElement, String)]

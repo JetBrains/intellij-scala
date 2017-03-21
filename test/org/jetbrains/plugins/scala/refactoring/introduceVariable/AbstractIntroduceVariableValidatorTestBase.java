@@ -45,7 +45,7 @@ public abstract class AbstractIntroduceVariableValidatorTestBase extends ActionT
     }
 
     private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         boolean replaceAllOccurences;
 
         String fileText = file.getText();
@@ -71,13 +71,14 @@ public abstract class AbstractIntroduceVariableValidatorTestBase extends ActionT
                     (ScalaFile) myFile, startOffset, endOffset);
 
             Set<String> set = new HashSet<String>();
-            set.addAll(validator.isOKImpl(typeName, replaceAllOccurences).values());
-            for (String s : set) result += s + "\n";
+            // TODO: to be rewritten in scala
+//            set.addAll(validator.isOKImpl(typeName, replaceAllOccurences).values());
+            for (String s : set) result.append(s).append("\n");
         } finally {
             fileEditorManager.closeFile(myFile.getVirtualFile());
             myEditor = null;
         }
-        return result;
+        return result.toString();
     }
 
     abstract String  getName(String fileText);
