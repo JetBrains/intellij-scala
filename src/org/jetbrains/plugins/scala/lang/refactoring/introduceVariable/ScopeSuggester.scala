@@ -277,7 +277,7 @@ object ScopeSuggester {
     val validator = ScalaCompositeTypeValidator(allValidators.toList, conflictsReporter, project, typeElement,
       occurrences.isEmpty, containinDirectory, containinDirectory)
 
-    val possibleName = validator.validateName(inputName, increaseNumber = true)
+    val possibleName = validator.validateName(inputName)
 
     val result = PackageScopeItem(inPackage.getName, fileEncloser, needNewDir, Set(possibleName))
 

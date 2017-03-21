@@ -42,11 +42,11 @@ abstract class ScalaValidator(val project: Project,
 
   def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)]
 
-  def validateName(name: String, increaseNumber: Boolean): String = {
+  def validateName(name: String): String = {
     if (noOccurrences) return name
     var res = name
     if (isOKImpl(res, allOcc = false).isEmpty) return res
-    if (!increaseNumber) return ""
+
     var i = 1
     res = name + i
     if (!isIdentifier(res)) {

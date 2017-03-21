@@ -66,15 +66,15 @@ class ScalaTypeValidator(override val project: Project,
     result.toArray
   }
 
-  override def validateName(name: String, increaseNumber: Boolean): String =
-    super.validateName(name.capitalize, increaseNumber)
+  override def validateName(name: String): String =
+    super.validateName(name.capitalize)
 }
 
 object ScalaTypeValidator {
 
   def empty(project: Project): ScalaTypeValidator =
     new ScalaTypeValidator(project, null, null, noOccurrences = true, null, null) {
-      override def validateName(name: String, increaseNumber: Boolean): String = name
+      override def validateName(name: String): String = name
     }
 
   def apply(project: Project,

@@ -85,8 +85,8 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
 
       val names = NameSuggester.suggestNames(u)(
         new ScalaVariableValidator(null, project, u, false, expr.getContext, expr.getContext) {
-          override def validateName(name: String, increaseNumber: Boolean): String = {
-            var res = super.validateName(name, increaseNumber)
+          override def validateName(name: String): String = {
+            var res = super.validateName(name)
             var index = 1
 
             if (usedNames.contains(res)) {

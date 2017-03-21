@@ -60,7 +60,7 @@ object NameSuggester {
     }
 
     mutable.LinkedHashSet(collected: _*)
-      .map(validator.validateName(_, increaseNumber = true))
+      .map(validator.validateName)
       .toSeq
   }
 
