@@ -32,21 +32,6 @@ object ScalaVariableValidator {
             project: Project,
             editor: Editor,
             file: PsiFile,
-            mainOccurence: TextRange,
-            occurrences: Array[TextRange]): ScalaVariableValidator = {
-    val container = enclosingContainer(commonParent(file, occurrences: _*))
-    val containerOne = enclosingContainer(commonParent(file, mainOccurence))
-
-    getExpression(project, editor, file, mainOccurence.getStartOffset, mainOccurence.getEndOffset)
-      .map(_._1)
-      .map(new ScalaVariableValidator(conflictsReporter, project, _, occurrences.isEmpty, container, containerOne))
-      .orNull
-  }
-
-  def apply(conflictsReporter: ConflictsReporter,
-            project: Project,
-            editor: Editor,
-            file: PsiFile,
             element: PsiElement,
             occurrences: Array[TextRange]): ScalaVariableValidator = {
     val container = enclosingContainer(commonParent(file, occurrences: _*))
@@ -63,7 +48,6 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
                              enclosingContainerAll: PsiElement,
                              enclosingOne: PsiElement)
   extends ScalaValidator(myProject, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
-
 
   override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)
