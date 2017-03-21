@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaTypeValidator, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
@@ -48,11 +48,11 @@ object NameSuggester {
     }
   }
 
-  private[this] def collectNames(names: Seq[String], validator: NameValidator): Seq[String] = {
+  private[this] def collectNames(names: Seq[String], validator: ScalaValidator): Seq[String] = {
     val filteredNames = mutable.LinkedHashSet(names: _*).map {
       case "class" => "clazz"
       case name => name
-    }.filter(isIdentifier(_))
+    }.filter(isIdentifier)
 
     val collected = filteredNames.toSeq match {
       case Seq() => Seq("value")
