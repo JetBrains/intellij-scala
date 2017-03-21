@@ -28,20 +28,20 @@ class ScalaTypeValidator(override val project: Project,
                          enclosingOne: PsiElement)
   extends ScalaValidator(project, conflictsReporter, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
+  override def findConflicts(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
     val container = enclosingContainer(allOcc)
-    if (container == null) return Array()
+    if (container == null) return Seq.empty
 
     forbiddenNames(container, name) match {
-      case Array() => forbiddenNamesInBlock(container, name)
-      case array => array
+      case Seq() => forbiddenNamesInBlock(container, name)
+      case seq => seq
     }
   }
 
   import ScalaTypeValidator._
 
-  protected def forbiddenNames(position: PsiElement, name: String): Array[(PsiNamedElement, String)] = {
+  protected def forbiddenNames(position: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
     val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
 
     implicit val typeSystem = project.typeSystem
@@ -53,17 +53,17 @@ class ScalaTypeValidator(override val project: Project,
     }
     PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
 
-    result.toArray
+    result
   }
 
-  protected def forbiddenNamesInBlock(commonParent: PsiElement, name: String): Array[(PsiNamedElement, String)] = {
+  protected def forbiddenNamesInBlock(commonParent: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
     val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
 
     commonParent.depthFirst().foreach {
       result ++= zipWithMessage(_, name)
     }
 
-    result.toArray
+    result
   }
 
   override def validateName(name: String): String =
