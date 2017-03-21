@@ -32,7 +32,7 @@ class Specs2RunConfiguration(override val project: Project,
   override protected def sbtClassKey = " -- -specname "
   override protected def sbtTestNameKey = " -- -ex "
 
-  override def allowsSbtUiRun: Boolean = true
+  override def allowsSbtUiRun: Boolean = false
 }
 
 object Specs2RunConfiguration extends SuiteValidityChecker {

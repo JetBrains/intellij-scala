@@ -1,7 +1,6 @@
 package org.jetbrains.sbt.shell
 
 import java.util.concurrent._
-import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.components.AbstractProjectComponent
@@ -23,8 +22,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
 
   private lazy val process = SbtProcessManager.forProject(project)
 
-  private val shellPromptReady = new AtomicBoolean(false)
-  private val communicationActive = new AtomicBoolean(false)
+  private val communicationActive = new Semaphore(1)
   private val shellQueueReady = new Semaphore(1)
   private val commands = new LinkedBlockingQueue[(String, CommandListener[_])]()
 
@@ -39,7 +37,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
                  showShell: Boolean): Future[A] = {
     val listener = new CommandListener(default, eventHandler)
     if (showShell) process.openShellRunner()
-    initCommunication(process.acquireShellProcessHandler)
     commands.put((cmd, listener))
     listener.future
   }
@@ -48,7 +45,6 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
   /** Start processing command queue if it is not yet active. */
   private def startQueueProcessing(handler: OSProcessHandler): Unit = {
 
-    // is it ok for this executor to run a queue processor?
     PooledThreadExecutor.INSTANCE.submit(new Runnable {
       override def run(): Unit = {
         // queue ready signal is given by initCommunication.stateChanger
@@ -56,7 +52,7 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
         while (!handler.isProcessTerminating && !handler.isProcessTerminated) {
           nextQueuedCommand(1.second)
         }
-        communicationActive.set(false)
+        communicationActive.release()
       }
     })
   }
@@ -90,17 +86,14 @@ class SbtShellCommunication(project: Project) extends AbstractProjectComponent(p
     * to manually trigger it if a fully background process is desired
     */
   private[shell] def initCommunication(handler: OSProcessHandler): Unit = {
-    if (!communicationActive.getAndSet(true)) {
+
+    if (communicationActive.tryAcquire(5, TimeUnit.SECONDS)) {
       val stateChanger = new SbtShellReadyListener(
-        whenReady = {
-          shellPromptReady.set(true)
-          shellQueueReady.release()
-        },
-        whenWorking = shellPromptReady.set(false)
+        whenReady = shellQueueReady.release(),
+        whenWorking = ()
       )
 
-      shellPromptReady.set(false)
-      process.attachListener(stateChanger)
+      handler.addProcessListener(stateChanger)
 
       startQueueProcessing(handler)
     }
@@ -185,10 +178,11 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Line
 
 private[shell] object SbtProcessUtil {
 
+  // FIXME this won't work when the default prompt is changed
   def promptReady(line: String): Boolean =
     line.trim match {
       case
-        ">" | // todo can we guard against false positives? like somebody outputting > on the bare prompt
+        ">" | // TODO can we guard against false positives? like somebody outputting > on the bare prompt
         "scala>" |
         "Hit enter to retry or 'exit' to quit:"
         => true
