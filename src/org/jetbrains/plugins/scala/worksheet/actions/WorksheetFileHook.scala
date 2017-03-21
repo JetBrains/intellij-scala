@@ -172,8 +172,12 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
                     PsiDocumentManager.getInstance(project).commitDocument(document)
 
                     if (splitter != null) {
-                      splitter setProportion ratio
-                      WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
+                      try {
+                        splitter setProportion ratio
+                        WorksheetFoldGroup.load(viewer, ext, project, splitter, scalaFile)
+                      } catch {
+                        case _: Exception => //ignored; if we are trying to load code stored in "plain" mode while in REPL mode
+                      }
                     }
                   }
                 case _ =>
