@@ -158,7 +158,8 @@ object ILoopWrapperFactory {
       
       while (i.hasNext) {
         val s = i.next()
-        if (s.id == id) return Option(s)
+        
+        if (s != null && s.id == id) return Option(s)
       }
       
       None
@@ -185,14 +186,21 @@ object ILoopWrapperFactory {
       }
 
       override def compare(x: ReplSession, y: ReplSession): Int = {
-        val vx = storage.getOrElse(x.id, return 1)
-        val vy = storage.getOrElse(y.id, return -1)
+        if (x == null) {
+          if (y == null) 0 else 1
+        } else if (y == null) -1 else {
+          val vx = storage.getOrElse(x.id, return 1)
+          val vy = storage.getOrElse(y.id, return -1)
 
-        vy - vx
+          vy - vx
+        }
+        
       }
     }
     
-    private class ReplSession(val id: String, val wrapper: ILoopWrapper)
+    private class ReplSession(val id: String, val wrapper: ILoopWrapper) extends Comparable[ReplSession] {
+      override def compareTo(o: ReplSession): Int = comparator.compare(this, o)
+    }
   }
   
   case class Command(action: ILoopWrapper => Unit)
