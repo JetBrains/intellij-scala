@@ -13,7 +13,7 @@ class SettingQueryHandler(settingName: String, taskName: String, comm: SbtShellC
   def getSettingValue(): Future[String] = {
     val listener = SettingQueryHandler.bufferedListener
     comm.command("show " + settingColon, defaultResult, listener, showShell = false).map {
-      p: ProjectTaskResult => listener.getBufferedOutput
+      _: ProjectTaskResult => filterSettingValue(listener.getBufferedOutput)
     }
   }
 
@@ -31,6 +31,13 @@ class SettingQueryHandler(settingName: String, taskName: String, comm: SbtShellC
 
   private val settingIn: String = settingName + (if (taskName.nonEmpty) " in " + taskName else "")
   private val settingColon: String = taskName + (if (taskName.nonEmpty) ":" else "") + settingName
+
+  def filterSettingValue(in: String): String = {
+    settingName match {
+      case "testOptions" if in.trim() == "*" =>  "List()"
+      case _ => in
+    }
+  }
 }
 
 object SettingQueryHandler {
