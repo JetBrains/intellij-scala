@@ -43,12 +43,12 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
               val path = commentText.substring(2, commentText.length - 2)
               val classes = ScalaPsiManager.instance(getProject).getCachedClasses(getResolveScope, path)
               if (classes.length == 1) {
-                drvTemplate.exists(td => !ScalaPsiUtil.cachedDeepIsInheritor(td, classes(0)))
+                drvTemplate.exists(td => !ScalaPsiUtil.isInheritorDeep(td, classes(0)))
               } else {
                 val clazz: Option[PsiClass] = classes.find(!_.isInstanceOf[ScObject])
                 clazz match {
                   case Some(psiClass) =>
-                    drvTemplate.exists(td => !ScalaPsiUtil.cachedDeepIsInheritor(td, psiClass))
+                    drvTemplate.exists(td => !ScalaPsiUtil.isInheritorDeep(td, psiClass))
                   case _ => false
                 }
               }

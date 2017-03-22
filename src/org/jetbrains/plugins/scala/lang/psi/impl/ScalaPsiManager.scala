@@ -110,9 +110,6 @@ class ScalaPsiManager(val project: Project) {
     ScProjectionType.create(projected, element, superReference)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
-  def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
-
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getPackageImplicitObjectsCached(fqn, scope)

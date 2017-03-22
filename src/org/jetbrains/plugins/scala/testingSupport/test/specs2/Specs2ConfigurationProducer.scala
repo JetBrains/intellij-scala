@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
+import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -97,7 +97,7 @@ class Specs2ConfigurationProducer extends {
     if (suiteClasses.isEmpty) return false
     val suiteClazz = suiteClasses.head
 
-    if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
+    if (!ScalaPsiUtil.isInheritorDeep(parent, suiteClazz)) return false
 
     val (testClass, testName) = getLocationClassAndTest(location)
     if (testClass == null) return false
@@ -129,7 +129,7 @@ class Specs2ConfigurationProducer extends {
     }
     if (suiteClasses.isEmpty) return (null, null)
     val suiteClazz = suiteClasses.head
-    if (!ScalaPsiUtil.cachedDeepIsInheritor(testClassDef, suiteClazz)) return (null, null)
+    if (!ScalaPsiUtil.isInheritorDeep(testClassDef, suiteClazz)) return (null, null)
 
     ScalaPsiUtil.getParentWithProperty(element, strict = false, e => TestNodeProvider.isSpecs2TestExpr(e)) match {
       case Some(infixExpr: ScInfixExpr) => (testClassDef, extractStaticTestName(infixExpr).orNull)

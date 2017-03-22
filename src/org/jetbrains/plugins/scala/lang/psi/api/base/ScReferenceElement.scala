@@ -172,7 +172,7 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
   }
 
   private def sameOrInheritor(c: PsiClass, base: PsiClass): Boolean = {
-    ScEquivalenceUtil.areClassesEquivalent(base, c) || ScalaPsiUtil.cachedDeepIsInheritor(c, base)
+    ScEquivalenceUtil.areClassesEquivalent(base, c) || c.isInheritor(base, true)
   }
 
 

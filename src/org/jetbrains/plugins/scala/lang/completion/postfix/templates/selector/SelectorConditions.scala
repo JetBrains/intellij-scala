@@ -3,12 +3,13 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean, ValType}
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
 import scala.language.implicitConversions
 
@@ -41,8 +42,7 @@ object SelectorConditions {
           val scope = GlobalSearchScope.allScope(project)
 
           manager.getCachedClasses(scope, ancestorFqn).exists { base =>
-            ScEquivalenceUtil.areClassesEquivalent(psiClass, base) ||
-              manager.cachedDeepIsInheritor(psiClass, base)
+            areClassesEquivalent(psiClass, base) || isInheritorDeep(psiClass, base)
           }
         }
       }

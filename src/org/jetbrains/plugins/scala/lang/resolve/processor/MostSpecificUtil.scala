@@ -258,7 +258,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
     (c1, c2) match {
       case (Some(clazz1), Some(clazz2)) =>
         if (clazz1 == clazz2) return false
-        if (ScalaPsiUtil.cachedDeepIsInheritor(clazz1, clazz2)) return true
+        if (ScalaPsiUtil.isInheritorDeep(clazz1, clazz2)) return true
         (clazz1, clazz2) match {
           case (clazz1: ScObject, _) => isDerived(ScalaPsiUtil.getCompanionModule(clazz1), Some(clazz2))
           case (_, clazz2: ScObject) => isDerived(Some(clazz1), ScalaPsiUtil.getCompanionModule(clazz2))
@@ -278,7 +278,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
   private def isMoreSpecific[T](r1: InnerScalaResolveResult[T], r2: InnerScalaResolveResult[T], checkImplicits: Boolean): Boolean = {
     ProgressManager.checkCanceled()
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
-      case (Some(t1), Some(t2)) => if (ScalaPsiUtil.cachedDeepIsInheritor(t1, t2)) return true
+      case (Some(t1), Some(t2)) => if (ScalaPsiUtil.isInheritorDeep(t1, t2)) return true
       case _ =>
     }
     if (r1.callByNameImplicit ^ r2.callByNameImplicit) return !r1.callByNameImplicit

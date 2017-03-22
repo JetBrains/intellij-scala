@@ -3,9 +3,9 @@ package lang
 package psi
 package types
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -157,10 +157,9 @@ object Bounds extends api.Bounds {
     def isInheritorOrSelf(bClass: Options): Boolean = {
       (getNamedElement, bClass.getNamedElement) match {
         case (base: PsiClass, inheritor: PsiClass) =>
-          ScEquivalenceUtil.smartEquivalence(base, inheritor) ||
-            ScalaPsiManager.instance(base.getProject).cachedDeepIsInheritor(inheritor, base)
+          smartEquivalence(base, inheritor) || isInheritorDeep(inheritor, base)
         case (base, inheritor: ScTypeAlias) =>
-          if (ScEquivalenceUtil.smartEquivalence(base, inheritor)) return true
+          if (smartEquivalence(base, inheritor)) return true
           for (opt <- bClass.getSuperOptions) {
             if (isInheritorOrSelf(opt)) return true
           }
@@ -214,7 +213,7 @@ object Bounds extends api.Bounds {
         case (base: PsiClass, drv: PsiClass) =>
           superSubstitutor(base, drv, bClass.typeNamedElement.get._2, mutable.Set.empty)
         case (base, inheritor: ScTypeAlias) =>
-          if (ScEquivalenceUtil.smartEquivalence(base, inheritor)) {
+          if (smartEquivalence(base, inheritor)) {
             bClass.tp match {
               case ParameterizedType(_, typeArgs) =>
                 return Some(bClass.getTypeParameters.zip(typeArgs).foldLeft(ScSubstitutor.empty) {

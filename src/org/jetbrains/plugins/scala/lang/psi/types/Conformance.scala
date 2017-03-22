@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSignatureProcessor, CompoundTypeCheckTypeAliasProcessor}
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
 import _root_.scala.collection.immutable.HashSet
 import scala.annotation.tailrec
@@ -412,7 +413,7 @@ object Conformance extends api.Conformance {
             if (stopProjectionAliasOnFailure || res._1) result = res
           case _ =>
             l match {
-            case proj1: ScProjectionType if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement) =>
+            case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
               val projected1 = proj1.projected
               val projected2 = proj2.projected
               result = conformsInner(projected1, projected2, visited, undefinedSubst)
@@ -654,7 +655,7 @@ object Conformance extends api.Conformance {
       if (result != null) return
 
       r match {
-        case proj1: ScProjectionType if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj.actualElement) =>
+        case proj1: ScProjectionType if smartEquivalence(proj1.actualElement, proj.actualElement) =>
           val projected1 = proj.projected
           val projected2 = proj1.projected
           result = conformsInner(projected1, projected2, visited, undefinedSubst)
@@ -1005,7 +1006,7 @@ object Conformance extends api.Conformance {
               }.toMap)
               result = conformsInner(des1, subst.subst(t.upperType.v), visited, undefinedSubst, checkWeak)
             case (proj1: ScProjectionType, proj2: ScProjectionType)
-              if ScEquivalenceUtil.smartEquivalence(proj1.actualElement, proj2.actualElement) =>
+              if smartEquivalence(proj1.actualElement, proj2.actualElement) =>
               val t = conformsInner(proj1, proj2, visited, undefinedSubst)
               if (!t._1) {
                 result = (false, undefinedSubst)
@@ -1515,9 +1516,9 @@ object Conformance extends api.Conformance {
   }
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {
-    if (ScEquivalenceUtil.areClassesEquivalent(leftClass, rightClass)) return (false, null)
-    if (!ScalaPsiUtil.cachedDeepIsInheritor(leftClass, rightClass)) return (false, null)
-    smartIsInheritor(leftClass, substitutor, ScEquivalenceUtil.areClassesEquivalent(_, rightClass), new collection.immutable.HashSet[PsiClass])
+    if (areClassesEquivalent(leftClass, rightClass)) return (false, null)
+    if (!isInheritorDeep(leftClass, rightClass)) return (false, null)
+    smartIsInheritor(leftClass, substitutor, areClassesEquivalent(_, rightClass), new collection.immutable.HashSet[PsiClass])
   }
 
   private def parentWithArgNumber(leftClass: PsiClass, substitutor: ScSubstitutor, argsNumber: Int): (Boolean, ScType) = {

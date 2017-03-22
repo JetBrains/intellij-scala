@@ -26,8 +26,8 @@ import com.intellij.openapi.projectRoots.{JdkUtil, Sdk}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.psi._
-import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore}
 import com.intellij.psi.search.searches.AllClassesSearch
+import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore}
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -361,7 +361,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         }
         val clazz = getClassPathClazz
         if (clazz == null || isInvalidSuite(clazz)) {
-          if (clazz != null && !ScalaPsiUtil.cachedDeepIsInheritor(clazz, getSuiteClass)) {
+          if (clazz != null && !ScalaPsiUtil.isInheritorDeep(clazz, getSuiteClass)) {
             throw new RuntimeConfigurationException("Class %s is not inheritor of Suite trait".format(getTestClassPath))
           } else {
             throw new RuntimeConfigurationException("No Suite Class is found for Class %s in module %s".
@@ -535,7 +535,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     testKind match {
       case TestKind.CLASS | TestKind.TEST_NAME =>
         //requires explicitly state class
-        if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)) classes += clazz else throw new ExecutionException("Not found suite class.")
+        if (ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)) classes += clazz else throw new ExecutionException("Not found suite class.")
       case TestKind.ALL_IN_PACKAGE =>
         val scope = getScope(withDependencies = false)
         def getClasses(pack: ScPackage): Seq[PsiClass] = {
@@ -790,7 +790,7 @@ trait SuiteValidityChecker {
     isInvalidClass(clazz) || {
       val list: PsiModifierList = clazz.getModifierList
       list != null && list.hasModifierProperty(PsiModifier.ABSTRACT) || lackSuitableConstructor(clazz)
-    } || !ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClass)
+    } || !ScalaPsiUtil.isInheritorDeep(clazz, suiteClass)
   }
 
   protected[test] def lackSuitableConstructor(clazz: PsiClass): Boolean

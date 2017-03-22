@@ -518,7 +518,7 @@ object MethodResolveProcessor {
                               else {
                                 if (clazz1 == clazz2) true
                                 else {
-                                  ScalaPsiUtil.cachedDeepIsInheritor(clazz1, clazz2)
+                                  ScalaPsiUtil.isInheritorDeep(clazz1, clazz2)
                                 }
                               }
                             case _ => true

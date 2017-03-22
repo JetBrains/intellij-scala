@@ -29,7 +29,7 @@ import org.jetbrains.sbt.settings.SbtSystemSettings;
 import scala.Option;
 
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -576,7 +576,7 @@ public class TestRunConfigurationForm {
             for (String suitePath : suitePaths) {
               PsiClass[] classes = ScalaPsiManager.instance(project).getCachedClasses(getScope(), suitePath);
               for (PsiClass psiClass : classes) {
-                if (ScalaPsiUtil.cachedDeepIsInheritor(aClass, psiClass)) return true;
+                if (ScalaPsiUtil.isInheritorDeep(aClass, psiClass)) return true;
               }
             }
             return false;

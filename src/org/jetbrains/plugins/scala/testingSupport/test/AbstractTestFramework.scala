@@ -53,7 +53,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
       getSuitePaths.flatMap {
         elementScope.getCachedClass
       }.exists {
-        ScalaPsiUtil.cachedDeepIsInheritor(parent, _)
+        ScalaPsiUtil.isInheritorDeep(parent, _)
       }
   }
 

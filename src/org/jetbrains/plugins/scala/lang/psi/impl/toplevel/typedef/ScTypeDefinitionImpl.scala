@@ -84,11 +84,8 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   }
 
   override def isAnnotationType: Boolean = {
-    val psiManager = ScalaPsiManager.instance(getProject)
     elementScope.getCachedClass("scala.annotation.Annotation")
-      .exists {
-        psiManager.cachedDeepIsInheritor(this, _)
-      }
+      .exists(isInheritor(_, deep = true))
   }
 
   def getType(ctx: TypingContext): Success[ScType] = {

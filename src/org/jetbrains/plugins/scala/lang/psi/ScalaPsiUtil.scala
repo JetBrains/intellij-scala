@@ -13,7 +13,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.light.LightModifierList
-import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
@@ -39,11 +38,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, _}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits._
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -173,10 +170,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
-    val manager = ScalaPsiManager.instance(clazz.getProject)
-    manager.cachedDeepIsInheritor(clazz, base)
-  }
+  def isInheritorDeep(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
 
   @tailrec
   def fileContext(psi: PsiElement): PsiFile = {
@@ -805,8 +799,6 @@ object ScalaPsiUtil {
 
   def isInvalidContextOrder(before: PsiElement, after: PsiElement, topLevel: Option[PsiElement]): Boolean = {
     if (before == after) return true
-
-    import scala.collection.JavaConversions._
 
     (getParents(before, topLevel.orNull, contextParents = true) zip getParents(after, topLevel.orNull, contextParents = true)
       dropWhile {

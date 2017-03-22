@@ -9,7 +9,9 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
@@ -29,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -60,7 +61,7 @@ object ResolveUtils {
                 (kinds contains OBJECT) && isStaticCorrect(c)
               }
             case patt: ScBindingPattern =>
-              val parent = ScalaPsiUtil.getParentOfType(patt, classOf[ScVariable], classOf[ScValue])
+              val parent = getParentOfType(patt, classOf[ScVariable], classOf[ScValue])
               parent match {
                 case _: ScVariable => kinds contains VAR
                 case _ => kinds contains VAL
@@ -161,14 +162,14 @@ object ResolveUtils {
       }
       var placeTd: ScTemplateDefinition = getPlaceTd(place, isConstr)
       if (isConstr) {
-        if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition] && placeTd.extendsBlock.templateBody == None) {
+        if (placeTd != null && !placeTd.isInstanceOf[ScTypeDefinition] && placeTd.extendsBlock.templateBody.isEmpty) {
           placeTd = getPlaceTd(placeTd)
         } else if (placeTd != null) {
           if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
         }
         while (placeTd != null) {
           if (td == placeTd) return true
-          val companion: ScTemplateDefinition = ScalaPsiUtil.getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
+          val companion = getCompanionModule(placeTd).orNull
           if (companion != null && companion == td) return true
           placeTd = getPlaceTd(placeTd)
         }
@@ -176,10 +177,8 @@ object ResolveUtils {
       }
       while (placeTd != null) {
         if (td != null && isInheritorOrSelfOrSame(placeTd, td)) return true
-        val companion: ScTemplateDefinition = ScalaPsiUtil.
-                getCompanionModule(placeTd).getOrElse(null: ScTemplateDefinition)
-        if (withCompanion && companion != null && td != null &&
-                ScalaPsiUtil.cachedDeepIsInheritor(companion, td)) return true
+        val companion = getCompanionModule(placeTd).orNull
+        if (withCompanion && companion != null && td != null && isInheritorDeep(companion, td)) return true
         placeTd = getPlaceTd(placeTd)
       }
       false
@@ -227,7 +226,7 @@ object ResolveUtils {
               if (bind == null) return true
               def processPackage(packageName: String): Boolean = {
                 def context(place: PsiElement): PsiElement =
-                  ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging],
+                  getContextOfType(place, true, classOf[ScPackaging],
                     classOf[ScObject], classOf[ScalaFile])
                 var placeEnclosing: PsiElement = context(place)
                 while (placeEnclosing != null && placeEnclosing.isInstanceOf[ScObject] &&
@@ -244,7 +243,7 @@ object ResolveUtils {
               bind match {
                 case td: ScTemplateDefinition =>
                   PsiTreeUtil.isContextAncestor(td, place, false) ||
-                          PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).getOrElse(null: PsiElement),
+                          PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement),
                             place, false) || (td.isInstanceOf[ScObject] &&
                           td.asInstanceOf[ScObject].isPackageObject && processPackage(td.qualifiedName))
                 case pack: PsiPackage =>
@@ -259,16 +258,15 @@ object ResolveUtils {
                 Such members can be accessed only from within the directly enclosing
                 template and its companion module or companion class
               */
-              val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
+              val enclosing = getContextOfType(scMember, true,
                 classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
               enclosing match {
                 case td: ScTemplateDefinition =>
-                  PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
-                          getCompanionModule(td).getOrElse(null: PsiElement), place, false)
+                  PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement), place, false)
                 case file: ScalaFile if file.isScriptFile =>
                   PsiTreeUtil.isContextAncestor(file, place, false)
                 case _ =>
-                  ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile]) match {
+                  getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile]) match {
                     case null => false // not Scala
                     case placeEnclosing =>
                       def packaging(element: PsiElement) = Option(element).collect {
@@ -289,7 +287,7 @@ object ResolveUtils {
               if (bind == null) return true
               def processPackage(packageName: String): Option[Boolean] = {
                 def context(place: PsiElement): PsiElement =
-                  ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging],
+                  getContextOfType(place, true, classOf[ScPackaging],
                     classOf[ScObject], classOf[ScalaFile])
                 var placeEnclosing: PsiElement = context(place)
                 while (placeEnclosing != null && placeEnclosing.isInstanceOf[ScObject] &&
@@ -306,8 +304,7 @@ object ResolveUtils {
               }
               bind match {
                 case td: ScTemplateDefinition =>
-                  if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(ScalaPsiUtil.
-                          getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
+                  if (PsiTreeUtil.isContextAncestor(td, place, false) || PsiTreeUtil.isContextAncestor(getCompanionModule(td).getOrElse(null: PsiElement), place, false)) return true
                   td match {
                     case o: ScObject if o.isPackageObject =>
                       processPackage(o.qualifiedName) match {
@@ -325,7 +322,7 @@ object ResolveUtils {
                 case _ => return true
               }
             }
-            val enclosing = ScalaPsiUtil.getContextOfType(scMember, true,
+            val enclosing = getContextOfType(scMember, true,
               classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
             assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
             if (am.isThis) {
@@ -339,7 +336,7 @@ object ResolveUtils {
                       val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScTemplateDefinition])
                       if (enclosing == null) return false
                       val resolve = ref.resolve()
-                      if (enclosing.extendsBlock.selfTypeElement != Some(resolve)) return false
+                      if (!enclosing.extendsBlock.selfTypeElement.contains(resolve)) return false
                     case _ => return false
                   }
                 case _ =>
@@ -348,7 +345,7 @@ object ResolveUtils {
             enclosing match {
               case td: ScTypeDefinition =>
                 if (PsiTreeUtil.isContextAncestor(td, place, false) ||
-                        (withCompanion && PsiTreeUtil.isContextAncestor(ScalaPsiUtil.getCompanionModule(td).
+                        (withCompanion && PsiTreeUtil.isContextAncestor(getCompanionModule(td).
                                 getOrElse(null: PsiElement), place, false))) return true
                 checkProtected(td, withCompanion)
               case td: ScTemplateDefinition =>
@@ -360,8 +357,7 @@ object ResolveUtils {
                   case _: ScalaFile => ""
                   case packaging: ScPackaging => packaging.fullPackageName
                 }
-                val placeEnclosing: PsiElement = ScalaPsiUtil.
-                        getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                val placeEnclosing: PsiElement = getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                 if (placeEnclosing == null) return false //not Scala
                 val placePackageName = placeEnclosing match {
                   case _: ScalaFile => ""
@@ -382,8 +378,7 @@ object ResolveUtils {
             case f: PsiClassOwner => f.getPackageName
             case _ => return false
           }
-          val placeEnclosing: PsiElement = ScalaPsiUtil.
-                  getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+          val placeEnclosing: PsiElement = getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
             case _: ScalaFile => ""
@@ -413,7 +408,7 @@ object ResolveUtils {
   }
 
   def getPlacePackage(place: PsiElement): String = {
-    val pack: ScPackaging = ScalaPsiUtil.getContextOfType(place, true, classOf[ScPackaging]) match {
+    val pack: ScPackaging = getContextOfType(place, true, classOf[ScPackaging]) match {
       case pack: ScPackaging => pack
       case _ => null
     }
@@ -422,7 +417,7 @@ object ResolveUtils {
   }
 
   private def isInheritorOrSelfOrSame(placeTd: ScTemplateDefinition, td: PsiClass): Boolean = {
-    if (ScalaPsiUtil.cachedDeepIsInheritor(placeTd, td)) return true
+    if (isInheritorDeep(placeTd, td)) return true
     placeTd.selfTypeElement match {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
@@ -430,7 +425,7 @@ object ResolveUtils {
             tp.extractClass(placeTd.getProject) match {
               case Some(clazz) =>
                 if (clazz == td) return true
-                if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, td)) return true
+                if (isInheritorDeep(clazz, td)) return true
               case _ =>
             }
             false

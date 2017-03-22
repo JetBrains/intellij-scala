@@ -58,7 +58,7 @@ object TestConfigurationUtil {
 
   def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
     val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
-    suiteClazz.fold(false)(ScalaPsiUtil.cachedDeepIsInheritor(clazz, _))
+    suiteClazz.fold(false)(ScalaPsiUtil.isInheritorDeep(clazz, _))
   }
 
   private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean): Option[Any] = {
