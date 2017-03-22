@@ -6,6 +6,7 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.indexes.{IvyIndex, ResolverIndex}
@@ -43,10 +44,6 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
     resolvers.foreach(r => doUpdateResolverIndexWithProgress(r.name, r.getIndex(project)))
   }
 
-  def updateLocalIvyIndex(): Unit = {
-    indexes.values.collect({case i: IvyIndex => doUpdateResolverIndexWithProgress("Local Ivy cache", i)})
-  }
-
   def getIvyIndex(name: String, root: String): ResolverIndex = {
     indexes.getOrElseUpdate(root, createNewIvyIndex(name, root))
   }
@@ -60,6 +57,18 @@ class SbtIndexesManager(val project: Project) extends ProjectComponent {
         val zzz = e.getStackTrace
         cleanUpCorruptedIndex(ResolverIndex.getIndexDirectory(root))
         new IvyIndex(root, name)
+    }
+  }
+
+  private var updateScheduled = false
+  def scheduleLocalIvyIndexUpdate(resolver: SbtResolver) = {
+    if (!updateScheduled) {
+      updateScheduled = true
+      extensions.invokeLater {
+        val idx = getIvyIndex(resolver.name, resolver.root)
+        doUpdateResolverIndexWithProgress("Local Ivy cache", idx)
+        updateScheduled = false
+      }
     }
   }
 

@@ -114,7 +114,6 @@
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scaladev.ExternalSystemRefreshListener"/>
-        <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.resolvers.SbtRefreshFinishedListener"/>
 
       <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"

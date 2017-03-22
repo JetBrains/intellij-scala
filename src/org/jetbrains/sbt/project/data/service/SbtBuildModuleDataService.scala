@@ -7,8 +7,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.data.SbtBuildModuleData
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
 
 /**
  * @author Pavel Fatin
@@ -42,6 +41,8 @@ object SbtBuildModuleDataService {
 
     private def setResolvers(module: Module, resolvers: Set[SbtResolver]): Unit = {
       SbtModule.setResolversTo(module, resolvers)
+      val localIvyResolver = resolvers.find(_.name == "Local cache")
+      localIvyResolver.foreach(SbtIndexesManager.getInstance(module.getProject).scheduleLocalIvyIndexUpdate)
     }
 
   }
