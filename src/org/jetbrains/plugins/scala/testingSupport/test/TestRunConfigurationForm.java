@@ -25,6 +25,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import org.jetbrains.sbt.settings.SbtSystemSettings;
 import scala.Option;
 
 import javax.swing.*;
@@ -300,7 +301,9 @@ public class TestRunConfigurationForm {
         useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
       }
     });
-    setSbtUiVisible(configuration.allowsSbtUiRun());
+    boolean hasSbt = hasSbt(configuration.getProject());
+    setSbtVisible(hasSbt);
+    setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
     useUiWithSbt.setEnabled(useSbtCheckBox.isSelected());
 
     kindComboBox.addItemListener(new ItemListener() {
@@ -339,6 +342,10 @@ public class TestRunConfigurationForm {
         moduleComboBox.setEnabled(true);
         break;
     }
+  }
+
+  private void setSbtVisible(boolean visible) {
+    useSbtCheckBox.setVisible(visible);
   }
 
   private void setSbtUiVisible(boolean visible) {
@@ -420,7 +427,9 @@ public class TestRunConfigurationForm {
       case REGEXP:
         setRegexpEnabled();
     }
-    setSbtUiVisible(configuration.allowsSbtUiRun());
+    boolean hasSbt = hasSbt(configuration.getProject());
+    setSbtVisible(hasSbt);
+    setSbtUiVisible(hasSbt && configuration.allowsSbtUiRun());
     setUseSbt(configuration.useSbt());
     setUseUiWithSbt(configuration.useUiWithSbt());
     setWorkingDirectory(configuration.getWorkingDirectory());
@@ -429,6 +438,11 @@ public class TestRunConfigurationForm {
     setTestName(configuration.getTestName());
     environmentVariables.setEnvs(configuration.getEnvVariables());
     setShowProgressMessages(configuration.getShowProgressMessages());
+  }
+
+  protected boolean hasSbt(Project project) {
+    SbtSystemSettings sbtSettings = SbtSystemSettings.getInstance(project);
+    return sbtSettings != null && !sbtSettings.getLinkedProjectsSettings().isEmpty();
   }
 
   public TestKind getSelectedKind() {
