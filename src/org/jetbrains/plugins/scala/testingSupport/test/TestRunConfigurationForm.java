@@ -176,10 +176,10 @@ public class TestRunConfigurationForm {
     environmentVariables = new EnvironmentVariablesComponent();
     myPanel.add(environmentVariables, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     useSbtCheckBox = new JCheckBox();
-    useSbtCheckBox.setText("Use sbt");
+    useSbtCheckBox.setText("Use SBT");
     myPanel.add(useSbtCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
     useUiWithSbt = new JCheckBox();
-    useUiWithSbt.setText("Use UI with sbt");
+    useUiWithSbt.setText("Use UI with SBT");
     myPanel.add(useUiWithSbt, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
