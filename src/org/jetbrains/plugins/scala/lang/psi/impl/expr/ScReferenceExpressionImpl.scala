@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
@@ -333,6 +333,29 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           case _: ScFunctionExpr => null
           case f => f
         }
+        def isMethodDependent(function: ScFunction): Boolean = {
+          def checkte(te: ScTypeElement): Boolean = {
+            var res = false
+            te.accept(new ScalaRecursiveElementVisitor {
+              override def visitReference(ref: ScReferenceElement): Unit = {
+                if (ref.resolve() == param) res = true
+                super.visitReference(ref)
+              }
+            })
+            res
+          }
+          function.returnTypeElement match {
+            case Some(te) if checkte(te) => return true
+            case _ =>
+          }
+          !function.parameters.forall { case param =>
+            param.typeElement match {
+              case Some(te) => !checkte(te)
+              case _ => true
+            }
+          }
+        }
+
         r.fromType match {
           case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param, superReference = false)
           case Some(ScThisType(clazz)) if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
@@ -340,11 +363,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
           case _ if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
             stableTypeRequired && !owner.isInstanceOf[ScTypeDefinition] => ScalaType.designator(param)
           case _ =>
-            val result = param.getRealParameterType(TypingContext.empty)
-            s.subst(result match {
-              case Success(tp, _) => tp
-              case _ => return result
-            })
+            owner match {
+              case function: ScFunction if PsiTreeUtil.isContextAncestor(function, this, true) &&
+                isMethodDependent(function) => ScalaType.designator(param)
+              case _ =>
+                val result = param.getRealParameterType(TypingContext.empty)
+                s.subst(result match {
+                  case Success(tp, _) => tp
+                  case _ => return result
+                })
+            }
         }
       case ScalaResolveResult(value: ScSyntheticValue, _) => value.tp
       case ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>

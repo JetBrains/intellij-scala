@@ -1059,4 +1059,18 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
       |//Int
     """.stripMargin.trim
   }
+
+  def testSCL9858(): Unit = doTest {
+    """
+      |trait TX {
+      |  type T
+      |}
+      |
+      |def recursiveFn(a: TX)(b: a.T): a.T = {
+      |  val res: a.T = /*start*/recursiveFn(a)(b)/*end*/
+      |  res
+      |}
+      |//a.T
+    """.stripMargin.trim
+  }
 }
