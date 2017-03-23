@@ -65,7 +65,7 @@ object CachedWithoutModificationCount {
         //generated names
         val cacheVarName = c.freshName(name)
         val mapName = generateTermName(name.toString)
-        val cachedFunName = generateTermName("cachedFun")
+        val cachedFunName = generateTermName(name.toString + "cachedFun")
         val cacheStatsName = generateTermName(name + "cacheStats")
         val keyId = c.freshName(name.toString + "cacheKey")
         val defdefFQN = thisFunctionFQN(name.toString)

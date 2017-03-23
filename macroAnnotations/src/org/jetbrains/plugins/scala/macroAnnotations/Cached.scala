@@ -60,16 +60,15 @@ object Cached {
           abort("You must specify return type")
         }
         //generated names
-        val cachedFunName = generateTermName("cachedFun")
+        val cachedFunName = generateTermName(name.toString + "$computation")
+        val fromCacheFunName = generateTermName(name.toString + "$fromCache")
         val cacheStatsName = generateTermName("cacheStats")
         val keyId = c.freshName(name.toString + "$cacheKey")
         val mapAndCounterName = generateTermName(name.toString + "$mapAndCounter")
         val valueAndCounterName = generateTermName(name.toString + "$valueAndCounter")
 
-
         val analyzeCaches = analyzeCachesEnabled(c)
         val defdefFQN = thisFunctionFQN(name.toString)
-
 
         //DefDef parameters
         val flatParams = paramss.flatten
@@ -78,8 +77,7 @@ object Cached {
 
         val lockFieldName = generateTermName("lock")
         def lockField = if (synchronized) q"private val $lockFieldName = new _root_.java.lang.Object()" else EmptyTree
-
-
+        
         val analyzeCachesField =
           if(analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
           else EmptyTree
@@ -165,11 +163,11 @@ object Cached {
 
           val getOrUpdateValue = if (synchronized)
             q"""
-                fromCache() match {
+                $fromCacheFunName match {
                   case _root_.scala.Some(v) => v
                   case _root_.scala.None =>
                     $lockFieldName.synchronized {
-                      fromCache() match {  //double checked locking
+                      $fromCacheFunName match {  //double checked locking
                         case _root_.scala.Some(v) => v
                         case _root_.scala.None =>
                           val computed = $cachedFunName()
@@ -181,7 +179,7 @@ object Cached {
              """
           else
             q"""
-                fromCache() match {
+               $fromCacheFunName match {
                   case _root_.scala.Some(v) => v
                   case _root_.scala.None =>
                     val computed = $cachedFunName()
@@ -197,7 +195,7 @@ object Cached {
 
                ..$currModCount
 
-               def fromCache() = {
+               def $fromCacheFunName = {
                  val readField = $valueAndCounterName
                  if (readField._2 < currModCount || readField._1.isEmpty) None
                  else readField._1
