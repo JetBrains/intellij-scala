@@ -45,6 +45,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWra
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.util.ScalaUtil
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SettingQueryHandler}
 
 import scala.annotation.tailrec
@@ -693,7 +694,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case _ =>
         }
         if (useSbt) {
-          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).map("testOnly" + _)
+          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).map(SbtUtil.getSbtProjectId(getModule).
+            map(_ + "/").getOrElse("") + "testOnly" + _)
           val comm = SbtShellCommunication.forProject(project)
           val handler = new SbtTestEventHandler(processHandler)
           (if (useUiWithSbt) {

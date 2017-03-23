@@ -7,18 +7,14 @@ import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
-import com.intellij.openapi.externalSystem.model.project.ModuleData
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
-import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task._
-import com.intellij.util.BooleanFunction
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
@@ -88,38 +84,8 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
   }
 
   private def buildCommands(task: ModuleBuildTask): Seq[String] = {
-    val module = task.getModule
-    val project = module.getProject
-    val moduleId = ES.getExternalProjectId(module) // nullable, but that's okay for use in predicate
-
-    // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
-    val predicate = new BooleanFunction[DataNode[ModuleData]] {
-      override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
-    }
-
-    val emptyURI = new URI("")
-    val dataManager = ProjectDataManager.getInstance()
-
-    // TODO instead of silently not running a task, collect failures, report to user
-    val projectScope = for {
-      projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
-      projectStructure <- Option(projectInfo.getExternalProjectStructure)
-      moduleDataNode <- Option(ES.find(projectStructure, ProjectKeys.MODULE, predicate))
-      moduleSbtDataNode <- Option(ES.find(moduleDataNode, SbtModuleData.Key))
-      data = {
-        dataManager.ensureTheDataIsReadyToUse(moduleSbtDataNode)
-        moduleSbtDataNode.getData
-      }
-      // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
-      // created from AAR files. Should implement a more elegant solution for AARs.
-      uri <- Option(data.buildURI) if uri != emptyURI
-    } yield {
-      val id = data.id
-      s"{$uri}$id"
-    }
-
     // TODO sensible way to find out what scopes to run it for besides compile and test?
-    projectScope.toSeq.flatMap { scope =>
+    SbtUtil.getSbtProjectId(task.getModule).toSeq.flatMap { scope =>
       // `products` task is a little more general than just `compile`
       Seq(s"$scope/products", s"$scope/test:products")
     }
