@@ -1,6 +1,6 @@
 package scala.meta.intellij
 
-import java.io.File
+import java.io._
 import java.lang.reflect.InvocationTargetException
 import java.net.URL
 
@@ -8,19 +8,19 @@ import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext,
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.{Library, LibraryUtil}
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator, OrderRootType}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.project._
 
 import scala.meta.Tree
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
@@ -81,7 +81,7 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
         val outDirs: List[URL] = outputDirs(module).map(str => new File(str).toURI.toURL)
-        new URLClassLoader(outDirs ++ cp, this.getClass.getClassLoader)
+        new URLClassLoader(outDirs ++ cp :+ getClass.getProtectionDomain.getCodeSource.getLocation, null)
       })
     }
     def classLoaderForEnclosingLibrary(annotClass: ScClass): URLClassLoader = {
@@ -92,8 +92,8 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
             .map(getMetaLibsForModule)
             .map(_.flatMap(_.getUrls(OrderRootType.CLASSES)))
             .getOrElse(Nil)
-          val fullCP = libraryCP ++ metaCP
-          new URLClassLoader(fullCP.map(u=>new URL("file:"+u.replaceAll("!/$", ""))), this.getClass.getClassLoader)
+          val fullCP = libraryCP ++ metaCP :+ :+ getClass.getProtectionDomain.getCodeSource.getLocation
+          new URLClassLoader(fullCP.map(u=>new URL("file:"+u.replaceAll("!/$", ""))), null)
         })
       }
       annotationClassLoaders.getOrElseUpdate(annotClass.qualifiedName, {
@@ -140,6 +140,8 @@ object MetaExpansionsManager {
 
   def runMetaAnnotation(annot: ScAnnotation): Either[String, Tree] = {
 
+    def hasCompatibleScalaVersion = annot.scalaLanguageLevelOrDefault == Scala_2_11
+
     @CachedInsidePsiElement(annot, ModCount.getModificationCount)
     def runMetaAnnotationsImpl: Either[String, Tree] = {
 
@@ -161,34 +163,58 @@ object MetaExpansionsManager {
           case pe: ScParameterizedTypeElement => pe.typeArgList.typeArgs.map(converter.toType)
           case _ => Nil
         }
-        val compiledArgs = Seq(convertedAnnot.asInstanceOf[AnyRef]) ++ typeArgs ++ Seq(converted.asInstanceOf[AnyRef])
-        val clazz = getCompiledMetaAnnotClass(annot)
-        clazz match {
-          case Some(outer) =>
-            val ctor = outer.getDeclaredConstructors.head
-            ctor.setAccessible(true)
-            val inst = ctor.newInstance()
-            val meth = outer.getDeclaredMethods.find(_.getName == "apply").get
-            meth.setAccessible(true)
-            try {
-              val result = meth.invoke(inst, compiledArgs:_*)
-              Right(result.asInstanceOf[Tree])
-            } catch {
-              case pc: ProcessCanceledException => throw pc
-              case e: InvocationTargetException => Left(e.getTargetException.toString)
-              case e: Exception => Left(e.getMessage)
-            }
-          case None => Left("Meta annotation class could not be found")
+        val compiledArgs = Seq(convertedAnnot.asInstanceOf[AnyRef]) ++ typeArgs :+ converted.asInstanceOf[AnyRef]
+        val maybeClass = getCompiledMetaAnnotClass(annot)
+        ProgressManager.checkCanceled()
+        maybeClass match {
+          case Some(clazz) if hasCompatibleScalaVersion => Right(runDirect(clazz, compiledArgs))
+          case Some(clazz)                              => Right(runAdapter(clazz, compiledArgs))
+          case None                                     => Left("Meta annotation class could not be found")
         }
       } catch {
         case pc: ProcessCanceledException => throw pc
-        case me: AbortException     => Left(s"Tree conversion error: ${me.getMessage}")
-        case sm: ScalaMetaException => Left(s"Semantic error: ${sm.getMessage}")
-        case so: StackOverflowError => Left(s"Stack overflow during expansion ${annotee.getText}")
-        case e: Exception           => Left(s"Unexpected error during expansion: ${e.getMessage}")
+        case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
+        case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
+        case so: StackOverflowError       => Left(s"Stack overflow during expansion ${annotee.getText}")
+        case e: InvocationTargetException => Left(e.getTargetException.toString)
+        case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
       }
     }
 
     runMetaAnnotationsImpl
+  }
+
+  private def runAdapter(clazz: Class[_], args: Seq[AnyRef]): Tree = {
+    val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
+    val method = runner.getDeclaredMethod("run", classOf[Class[_]], Integer.TYPE, classOf[InputStream])
+    val arrayOutputStream = new ByteArrayOutputStream(2048)
+    var outputStream: ObjectOutputStream = null
+    var inputStream: ByteArrayInputStream = null
+    var resultInputStream: ObjectInputStream = null
+    try {
+      outputStream = new ObjectOutputStream(arrayOutputStream)
+      args.foreach(outputStream.writeObject)
+      inputStream = new ByteArrayInputStream(arrayOutputStream.toByteArray)
+      val argc = args.size.asInstanceOf[AnyRef]
+      resultInputStream = method.invoke(null, clazz, argc, inputStream).asInstanceOf[ObjectInputStream]
+      val res = resultInputStream.readObject()
+      res.asInstanceOf[Tree]
+    } finally {
+      outputStream.close()
+      inputStream.close()
+      resultInputStream.close()
+    }
+  }
+
+  private def runDirect(clazz: Class[_], args: Seq[AnyRef]): Tree = {
+    val ctor = clazz.getDeclaredConstructors.head
+    ctor.setAccessible(true)
+    val inst = ctor.newInstance()
+    val meth = clazz.getDeclaredMethods.find(_.getName == "apply")
+      .getOrElse(throw new RuntimeException(
+        s"No 'apply' method in annotation class, declared methods:\n ${clazz.getDeclaredMethods.mkString("\n")}")
+      )
+    meth.setAccessible(true)
+    meth.invoke(inst, args:_*).asInstanceOf[Tree]
   }
 }

@@ -33,7 +33,7 @@ object ScalaMetaLibrariesOwner {
     override protected val vendor: String = "org.scalameta"
 
     override protected def path(implicit version: ScalaVersion): String =
-      super.path(Scala_2_11_8)
+      super.path(version)
   }
 
   private case class MetaCommonLoader(implicit val module: Module) extends MetaBaseLoader {

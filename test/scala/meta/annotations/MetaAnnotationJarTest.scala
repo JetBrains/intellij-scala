@@ -25,10 +25,12 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
 
   override protected def librariesLoaders = Seq(new DisposableScalaLibraryLoader()) ++ additionalLibraries
 
+  protected val jarPath = "/addFoo_2.11_3.0.0-M7.jar"
+
   override def setUp() = {
     super.setUp()
     setUpLibraries()
-    PsiTestUtil.addLibrary(myModule, getTestDataPath + "/addFoo_3.0.0-M7.jar")
+    PsiTestUtil.addLibrary(myModule, getTestDataPath + jarPath)
   }
 
   def testLoadAnnotationFromJar(): Unit = {
