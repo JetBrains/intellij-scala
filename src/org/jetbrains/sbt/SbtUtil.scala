@@ -138,7 +138,7 @@ object SbtUtil {
     }
   }
 
-  def getSbtProjectId(module: Module): Option[String] = {
+  def getSbtProjectIdSeparated(module: Module): (Option[String], Option[String]) = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
 
@@ -151,7 +151,7 @@ object SbtUtil {
     val dataManager = ProjectDataManager.getInstance()
 
     // TODO instead of silently not running a task, collect failures, report to user
-    for {
+    (for {
       projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
       projectStructure <- Option(projectInfo.getExternalProjectStructure)
       moduleDataNode <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE, predicate))
@@ -165,7 +165,15 @@ object SbtUtil {
       uri <- Option(data.buildURI) if uri != emptyURI
     } yield {
       val id = data.id
-      s"{$uri}$id"
+      (uri.toString, id)
+    }) match {
+      case Some((uri, id)) => (Some(uri), Some(id))
+      case _ => (None, None)
     }
+  }
+
+  def getSbtProjectId(module: Module): Option[String] = getSbtProjectIdSeparated(module) match {
+    case (Some(uri), Some(id)) => Some(s"{$uri}$id")
+    case _ => None
   }
 }

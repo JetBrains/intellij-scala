@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingMap}
+import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.{PropertiesExtension, SettingEntry, SettingMap}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.{SbtProcessHandlerWrapper, SbtTestEventHandler}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
@@ -269,28 +269,36 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     comm.command("initialize", showShell = false)
 
   protected def modifySetting(settings: SettingMap,
-                              setting: String,
-                              taskName: String,
-                              value: String,
-                              comm: SbtShellCommunication,
-                              modificationCondition: String => Boolean,
-                              shouldSet: Boolean = false): Future[SettingMap] = {
-    val handler = SettingQueryHandler(setting, taskName, comm)
-    handler.getSettingValue().flatMap {
+                             setting: String,
+                             showTaskName: String,
+                             setTaskName: String,
+                             value: String,
+                             comm: SbtShellCommunication,
+                             modificationCondition: String => Boolean,
+                             shouldSet: Boolean = false,
+                             shouldRevert: Boolean = true): Future[SettingMap] = {
+    val (projectUri, projectId) = getSbtProjectUriAndId
+    val showHandler = SettingQueryHandler(setting, showTaskName, projectUri, projectId, comm)
+    val setHandler = if (showTaskName == setTaskName) showHandler else
+      SettingQueryHandler(setting, setTaskName, projectUri, projectId, comm)
+    showHandler.getSettingValue().flatMap {
       opts =>
         (if (modificationCondition(opts))
-          if (shouldSet) handler.setSettingValue(value) else handler.addToSettingValue(value)
-        else Future(true)).flatMap {
-          if (_) Future(settings + ((setting, taskName) -> opts)) else
-            Future.failed[SettingMap](new RuntimeException("Failed to modify sbt project settings"))
+          if (shouldSet) setHandler.setSettingValue(value) else setHandler.addToSettingValue(value)
+        else Future(true)).flatMap { success =>
+          //TODO check 'opts.nonEmpty()' is required so that we don't try to mess up settings if nothing was read
+          if (success && shouldRevert && opts.nonEmpty && modificationCondition(opts))
+            Future(settings + (SettingEntry(setting, setTaskName, projectUri, projectId) -> opts))
+          else if (success) Future(settings)
+          else Future.failed[SettingMap](new RuntimeException("Failed to modify sbt project settings"))
           //TODO: meaningful report if settings were not set correctly
         }
     }
   }
 
   protected def resetSbtSettingsForUi(comm: SbtShellCommunication, oldSettings: SettingMap): Future[Boolean] = {
-    Future.sequence(for (((setting, taskName), value) <- oldSettings) yield {
-      SettingQueryHandler(setting, taskName, comm).setSettingValue(value)
+    Future.sequence(for ((settingEntry, value) <- oldSettings) yield {
+      SettingQueryHandler(settingEntry, comm).setSettingValue(value)
     }) map { _.forall(identity)}
   }
 
@@ -472,10 +480,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   protected def escapeTestName(test: String): String = if (test.contains(" ")) "\"" + test + "\"" else test
 
+  def getReporterParams: String = ""
+
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
       if (tests.isEmpty) Seq(s"$sbtClassKey$aClass")
-      else for (test <- tests) yield s"$sbtClassKey$aClass$sbtTestNameKey${escapeTestName(test)}"
+      else for (test <- tests) yield s"$sbtClassKey$aClass$sbtTestNameKey${escapeTestName(test)}$getReporterParams"
     }).flatten.toSeq
   }
 
@@ -694,8 +704,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           case _ =>
         }
         if (useSbt) {
-          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).map(SbtUtil.getSbtProjectId(getModule).
-            map(_ + "/").getOrElse("") + "testOnly" + _)
+          val commands = buildSbtParams(getTestMap(getClasses, getFailedTests)).
+            map(SettingQueryHandler.getProjectIdPrefix(SbtUtil.getSbtProjectIdSeparated(getModule)) + "testOnly" + _)
           val comm = SbtShellCommunication.forProject(project)
           val handler = new SbtTestEventHandler(processHandler)
           (if (useUiWithSbt) {
@@ -713,6 +723,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     }
     state
   }
+
+  protected def getSbtProjectUriAndId: (Option[String], Option[String]) = SbtUtil.getSbtProjectIdSeparated(getModule)
 
   protected def getClassFileNames(classes: mutable.HashSet[PsiClass]): Seq[String] = classes.map(_.qualifiedName).toSeq
 
@@ -788,8 +800,9 @@ trait SuiteValidityChecker {
 
 object AbstractTestRunConfiguration extends SuiteValidityChecker {
 
-  type SettingMap = Map[(String, String), String]
-  def SettingMap(): SettingMap = Map[(String, String), String]()
+  case class SettingEntry(settingName: String, task: String, sbtProjectUri: Option[String], sbtProjectId: Option[String])
+  type SettingMap = Map[SettingEntry, String]
+  def SettingMap(): SettingMap = Map[SettingEntry, String]()
 
   private[test] trait TestCommandLinePatcher {
     private var failedTests: Seq[(String, String)] = _
