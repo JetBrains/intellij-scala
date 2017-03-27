@@ -5,13 +5,15 @@ import java.util.regex.Pattern
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetInterpretExprsIterator}
+import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
 
 import scala.collection.mutable
 
@@ -31,7 +33,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
   private val outputBuffer = new StringBuilder
   private val messagesBuffer = new StringBuilder
-  private val psiToProcess = mutable.Queue[PsiElement]()
+  private val psiToProcess = mutable.Queue[QueuedPsi]()
   
   private val inputToOutputMapping = mutable.ListBuffer[(Int, Int)]()
 
@@ -71,12 +73,14 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     
     psiToProcess.clear()
     
+    val buffer = mutable.ListBuffer[QueuedPsi]()
+    val glue = new WorksheetPsiGlue(buffer)
     new WorksheetInterpretExprsIterator(getScalaFile, Option(originalEditor), lastProcessed).collectAll(
-      a => psiToProcess.enqueue(a), None
+      glue.processPsi, None
     )
+    
+    psiToProcess.enqueue(buffer: _*)
   }
-  
-  private def countNewLines(str: String) = StringUtil countNewLines str
   
   private def clearMessages() {
     hasMessages = false
@@ -130,66 +134,45 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     val str = outputBuffer.toString().trim
     outputBuffer.clear()
     
-    val currentPsi = psiToProcess.dequeue()
-    val isValid = extensions.inReadAction(currentPsi.isValid)
-    if (!isValid) return //warning here?
+    val queuedPsi: QueuedPsi  = psiToProcess.dequeue()
+    if (!queuedPsi.isValid) return //warning here?
     
     val linesOutput = countNewLines(str) + 1 
-    val psiText = extensions.inReadAction {
-      currentPsi.getText
-    }
-    val linesInput = countNewLines(psiText) + 1
+    val linesInput = countNewLines(queuedPsi.getText) + 1
 
-    val originalTextRange = currentPsi.getTextRange
-    val processedStartLine = {
-      val actualStart = currentPsi.getFirstChild match {
-        case comment: PsiComment => 
-          var c = comment.getNextSibling
-          while (c.isInstanceOf[PsiComment] || c.isInstanceOf[PsiWhiteSpace]) c = c.getNextSibling
-          
-          if (c != null) c else currentPsi
-        case _ => currentPsi
-      }
-
-      originalDocument getLineNumber actualStart.getTextRange.getStartOffset
-    }
+    val originalTextRange = queuedPsi.getWholeTextRange
+    val processedStartLine = originalDocument getLineNumber queuedPsi.getLastProcessedOffset
     val processedEndLine = originalDocument getLineNumber originalTextRange.getEndOffset
     
     val firstOffsetFix = if (lastProcessed.isEmpty) 0 else 1
     lastProcessed = Some(processedStartLine)
     WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, originalTextRange.getEndOffset)
   
-    
-    def countLinesWoCode(nextFrom: PsiElement): Int = {
-      val it = new PrevSiblignsIterator(nextFrom)
-      var counter = 1
-      
-      while (it.hasNext) it.next() match {
-        case ws: PsiWhiteSpace => counter += countNewLines(ws.getText)
-        case com: PsiComment => counter += countNewLines(com.getText)
-        case null => return counter - 1
-        case _ => return counter - 2
-      }
-      
-      counter - 1
-    }
-
     extensions.invokeLater {
       WriteCommandAction.runWriteCommandAction(project, new Runnable {
         override def run(): Unit = {
-          val diff = Math.max(processedStartLine - viewerDocument.getLineCount - 1, 0) + countLinesWoCode(currentPsi)
-          
-          inputToOutputMapping.append((processedStartLine, linesOutput + diff - 1 + viewerDocument.getLineCount))
-
           val oldLinesCount = viewerDocument.getLineCount
-          val prefix = getNewLines(diff + firstOffsetFix)
-          simpleAppend(prefix + str, viewerDocument)
+
+          val baseDiff = Math.max(processedStartLine - viewerDocument.getLineCount - 1, 0) + queuedPsi.getBaseDiff
+          inputToOutputMapping.append((processedStartLine, linesOutput + baseDiff - 1 + viewerDocument.getLineCount))
+
+          val prefix = getNewLines(baseDiff + firstOffsetFix)
+          simpleAppend(prefix, viewerDocument)
+          
+          queuedPsi.getPrintStartOffset(str) foreach {
+            case (absoluteOffset, relativeOffset, outputChunk) => 
+              val l1 = originalDocument.getLineNumber(absoluteOffset - relativeOffset)
+              val l2 = originalDocument.getLineNumber(absoluteOffset)
+              
+              val currentPrefix = getNewLines(l2 - l1)
+              simpleAppend(currentPrefix + outputChunk, viewerDocument)
+          }
           
           saveEvaluationResult(viewerDocument.getText)
 
           if (linesOutput > linesInput) {
             val lineCount = viewerDocument.getLineCount
-            updateFoldings(Seq((oldLinesCount + diff + firstOffsetFix - 1, viewerDocument.getLineEndOffset(lineCount - 1), linesInput, processedEndLine)))
+            updateFoldings(Seq((oldLinesCount + baseDiff + firstOffsetFix - 1, viewerDocument.getLineEndOffset(lineCount - 1), linesInput, processedEndLine)))
           }
         }
       })
@@ -232,7 +215,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     if (psiToProcess.isEmpty) return false
     
     val currentPsi = psiToProcess.head
-    val offset = currentPsi.getTextOffset
+    val offset = currentPsi.getWholeTextRange.getStartOffset
     val str = messagesBuffer.toString().trim
 
     messagesBuffer.clear()
@@ -271,6 +254,8 @@ object WorksheetIncrementalEditorPrinter {
   }
   
   private val LAMBDA_LENGTH = 32
+
+  def countNewLines(str: String): Int = StringUtil countNewLines str
   
   case class MessageStart(msg: String)
   case class MessageInfo(text: String, horOffset: Int, severity: WorksheetCompiler.CompilationMessageSeverity)
@@ -299,5 +284,104 @@ object WorksheetIncrementalEditorPrinter {
 
       Option(MessageInfo(nt.substring(0, j), nt.length - 1 - j - CONSOLE_ERROR_START.length, severity))
     }
+  }
+  
+  trait QueuedPsi {
+    /**
+      * @return underlying psi(-s) is valid
+      */
+    final def isValid: Boolean = extensions.inReadAction{ isValidImpl }
+    
+    protected def isValidImpl: Boolean
+    
+    /**
+      * @return the whole corresponding input text
+      */
+    final def getText: String = extensions.inReadAction{ getTextImpl }
+
+    protected def getTextImpl: String
+    
+    /**
+      * @return input text range
+      */
+    def getWholeTextRange: TextRange
+
+    /**
+      * @param output the whole trimmed output from the interpreter
+      * @return sequence of splited output (absolute offset in input document, offset from the end of previous output token or from rel zero, output token text)  
+      */
+    def getPrintStartOffset(output: String): Seq[(Int, Int, String)]
+    
+    def getLastProcessedOffset: Int
+    
+    def getBaseDiff: Int
+    
+    protected def computeStartPsi(psi: PsiElement): PsiElement = {
+      val actualStart = psi.getFirstChild match {
+        case comment: PsiComment =>
+          var c = comment.getNextSibling
+          while (c.isInstanceOf[PsiComment] || c.isInstanceOf[PsiWhiteSpace]) c = c.getNextSibling
+
+          if (c != null) c else psi
+        case _ => psi
+      }
+
+      actualStart
+    }
+    
+    protected def psiToStartOffset(psi: PsiElement): Int = psi.getTextRange.getStartOffset
+    
+    protected def countLinesWoCode(nextFrom: PsiElement): Int = {
+      val it = new PrevSiblignsIterator(nextFrom)
+      var counter = 1
+
+      while (it.hasNext) it.next() match {
+        case ws: PsiWhiteSpace => counter += countNewLines(ws.getText)
+        case com: PsiComment => counter += countNewLines(com.getText)
+        case null => return counter - 1
+        case _ => return counter - 2
+      }
+
+      counter - 1
+    }
+  }
+  
+  case class SingleQueuedPsi(psi: PsiElement) extends QueuedPsi {
+    override protected def isValidImpl: Boolean = psi.isValid
+
+    override protected def getTextImpl: String = psi.getText
+
+    override def getWholeTextRange: TextRange = psi.getTextRange
+
+    override def getPrintStartOffset(output: String): Seq[(Int, Int, String)] = Seq((psiToStartOffset(computeStartPsi(psi)), 0, output))
+
+    override def getBaseDiff: Int = countLinesWoCode(psi)
+
+    override def getLastProcessedOffset: Int = psiToStartOffset(computeStartPsi(psi))
+  }
+  
+  case class ClassObjectPsi(clazz: ScClass, obj: ScObject, mid: String, isClazzFirst: Boolean) extends QueuedPsi {
+    private val (first, second) = if (isClazzFirst) (clazz, obj) else (obj, clazz)
+    
+    override protected def isValidImpl: Boolean = clazz.isValid && obj.isValid
+
+    override protected def getTextImpl: String =  first.getText + mid + second.getText   
+
+    override def getWholeTextRange: TextRange = new TextRange(psiToStartOffset(first), second.getTextRange.getEndOffset) 
+
+    override def getPrintStartOffset(output: String): Seq[(Int, Int, String)] = {
+      //we assume output is class A defined \n class B defined
+      val i = output.indexOf('\n')
+      val (one, two) = if (i == -1) (output, "") else output.splitAt(i)
+      
+      val firstOffset = psiToStartOffset(computeStartPsi(first))
+      val secondOffset = psiToStartOffset(computeStartPsi(second))
+      
+      Seq((firstOffset, 0, one), (secondOffset, secondOffset - firstOffset, two.trim))
+    }
+
+    override def getBaseDiff: Int = countLinesWoCode(first)
+
+    override def getLastProcessedOffset: Int = psiToStartOffset(computeStartPsi(first))
   }
 }
