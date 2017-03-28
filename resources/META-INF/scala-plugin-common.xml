@@ -112,6 +112,7 @@
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitLinesProcessor"/>
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
+        <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scaladev.ExternalSystemRefreshListener"/>
         <externalSystemTaskNotificationListener implementation="org.jetbrains.sbt.resolvers.SbtRefreshFinishedListener"/>
 
