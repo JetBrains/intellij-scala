@@ -1,6 +1,9 @@
 package scala.meta.intellij;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
@@ -9,31 +12,37 @@ import java.lang.reflect.Method;
  * @since 26.03.17.
  */
 public class MetaAnnotationRunner {
-    public static InputStream run(Class<?> clazz, int argc, InputStream in) throws Exception {
-        ObjectInputStream stream = new ObjectInputStream(in);
+    public static byte[] run(Class<?> clazz, int argc, byte[] data) throws Exception {
         Object[] args = new Object[argc];
-        for (int i = 0; i < args.length; i++) {
-            args[i] = stream.readObject();
+        ObjectInputStream stream = null;
+        try {
+            stream = new ObjectInputStream(new ByteArrayInputStream(data));
+            for (int i = 0; i < args.length; i++) {
+                args[i] = stream.readObject();
+            }
+        } finally {
+            if (stream != null) stream.close();
         }
         Constructor<?> ctor = clazz.getDeclaredConstructors()[0];
         ctor.setAccessible(true);
         Object instance = ctor.newInstance();
         Method method = null;
         Method[] declaredMethods = clazz.getDeclaredMethods();
-        for (int i = 0; i < declaredMethods.length; i++) {
-            Method m = declaredMethods[i];
+        for (Method m : declaredMethods) {
             if (m.getName().equals("apply")) method = m;
         }
         assert method != null: "Method 'apply' not found in annotation class";
         method.setAccessible(true);
         Object result = method.invoke(instance, args);
-        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream(2048);
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(arrayOutputStream);
+        ByteArrayOutputStream arrayOutputStream;
+        ObjectOutputStream objectOutputStream = null;
         try {
+            arrayOutputStream = new ByteArrayOutputStream(2048);
+            objectOutputStream = new ObjectOutputStream(arrayOutputStream);
             objectOutputStream.writeObject(result);
-            return new ObjectInputStream(new ByteArrayInputStream(arrayOutputStream.toByteArray()));
+            return arrayOutputStream.toByteArray();
         } finally {
-            objectOutputStream.close();
+            if (objectOutputStream != null) objectOutputStream.close();
         }
     }
 }

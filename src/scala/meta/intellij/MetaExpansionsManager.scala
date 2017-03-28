@@ -92,7 +92,7 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
             .map(getMetaLibsForModule)
             .map(_.flatMap(_.getUrls(OrderRootType.CLASSES)))
             .getOrElse(Nil)
-          val fullCP = libraryCP ++ metaCP :+ :+ getClass.getProtectionDomain.getCodeSource.getLocation
+          val fullCP = libraryCP ++ metaCP :+ getClass.getProtectionDomain.getCodeSource.getLocation.toString
           new URLClassLoader(fullCP.map(u=>new URL("file:"+u.replaceAll("!/$", ""))), null)
         })
       }
@@ -186,23 +186,24 @@ object MetaExpansionsManager {
 
   private def runAdapter(clazz: Class[_], args: Seq[AnyRef]): Tree = {
     val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
-    val method = runner.getDeclaredMethod("run", classOf[Class[_]], Integer.TYPE, classOf[InputStream])
+    val method = runner.getDeclaredMethod("run", classOf[Class[_]], Integer.TYPE, classOf[Array[Byte]])
     val arrayOutputStream = new ByteArrayOutputStream(2048)
-    var outputStream: ObjectOutputStream = null
-    var inputStream: ByteArrayInputStream = null
-    var resultInputStream: ObjectInputStream = null
+    var objectOutputStream: ObjectOutputStream = null
     try {
-      outputStream = new ObjectOutputStream(arrayOutputStream)
-      args.foreach(outputStream.writeObject)
-      inputStream = new ByteArrayInputStream(arrayOutputStream.toByteArray)
+      objectOutputStream = new ObjectOutputStream(arrayOutputStream)
+      args.foreach(objectOutputStream.writeObject)
       val argc = args.size.asInstanceOf[AnyRef]
-      resultInputStream = method.invoke(null, clazz, argc, inputStream).asInstanceOf[ObjectInputStream]
-      val res = resultInputStream.readObject()
-      res.asInstanceOf[Tree]
+      val data = method.invoke(null, clazz, argc, arrayOutputStream.toByteArray).asInstanceOf[Array[Byte]]
+      var resultInputStream: ObjectInputStream = null
+      try {
+        resultInputStream = new ObjectInputStream(new ByteArrayInputStream(data))
+        val res = resultInputStream.readObject()
+        res.asInstanceOf[Tree]
+      } finally {
+        resultInputStream.close()
+      }
     } finally {
-      outputStream.close()
-      inputStream.close()
-      resultInputStream.close()
+      objectOutputStream.close()
     }
   }
 
