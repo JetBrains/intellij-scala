@@ -4,7 +4,7 @@ import java.util.regex.Pattern
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
@@ -220,9 +220,13 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
     messagesBuffer.clear()
 
-    val MessageInfo(msg, horizontalOffset, severity) = ReplMessage.extractInfoFromAllText(str).getOrElse((str, 0))
-    val position = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset + horizontalOffset) }
-
+    val MessageInfo(msg, vertOffset, horizontalOffset, severity) = ReplMessage.extractInfoFromAllText(str).getOrElse((str, 0))
+    val position = {
+      val p = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset + horizontalOffset) }
+      new LogicalPosition(p.line + vertOffset - CONSOLE_HEADER_LINES, p.column)
+    }
+    
+    
     val isFatal = severity.isFatal
     val onError = if (isFatal) () => {originalEditor.getCaretModel moveToLogicalPosition position} else () => {}
     
@@ -249,28 +253,32 @@ object WorksheetIncrementalEditorPrinter {
   
   private val CONSOLE_ERROR_START = "<console>:"
   private val CONSOLE_MESSAGE_PATTERN = {
-    val regex = Pattern.quote("<console>:") + "\\s*\\d+" + Pattern.quote(":") + "\\s*"
+    val regex = "\\s*(\\d+)" + Pattern.quote(":") + "\\s*"
     Pattern.compile(regex)
   }
   
   private val LAMBDA_LENGTH = 32
+  private val CONSOLE_HEADER_LINES = 7
 
   def countNewLines(str: String): Int = StringUtil countNewLines str
   
   case class MessageStart(msg: String)
-  case class MessageInfo(text: String, horOffset: Int, severity: WorksheetCompiler.CompilationMessageSeverity)
+  case class MessageInfo(text: String, verOffset: Int, horOffset: Int, severity: WorksheetCompiler.CompilationMessageSeverity)
   
   object ReplMessage {
-    def unapply(arg: String): Option[MessageStart] = {
-      if (arg startsWith CONSOLE_ERROR_START) {
-        val matcher = CONSOLE_MESSAGE_PATTERN.matcher(arg)
-        if (!matcher.find()) return None
-        
-        Option(MessageStart(arg substring matcher.end())) 
-      } else None
-    } 
+    def unapply(arg: String): Option[MessageStart] = 
+      if (arg startsWith CONSOLE_ERROR_START) Option(MessageStart(arg substring CONSOLE_ERROR_START.length)) else None 
     
-    def extractInfoFromAllText(text: String): Option[MessageInfo] = {
+    def extractInfoFromAllText(toMatch: String): Option[MessageInfo] = {
+      val matcher = CONSOLE_MESSAGE_PATTERN matcher toMatch
+      
+      val (text, vo) = if (matcher.find()) (toMatch.substring(matcher.end()), matcher.group(1)) else (toMatch, "0")
+      val vertOffset = try {
+        Integer parseInt vo
+      } catch {
+        case _: NumberFormatException => 0
+      }
+      
       val (nt, severity) = text match {
         case error if error.startsWith("error: ") =>
           (error.substring("error: ".length), WorksheetCompiler.ErrorSeverity)
@@ -282,7 +290,7 @@ object WorksheetIncrementalEditorPrinter {
       val j = nt.lastIndexOf('\n')
       if (j == -1) return None
 
-      Option(MessageInfo(nt.substring(0, j), nt.length - 1 - j - CONSOLE_ERROR_START.length, severity))
+      Option(MessageInfo(nt.substring(0, j), vertOffset, nt.length - 1 - j - CONSOLE_ERROR_START.length, severity))
     }
   }
   
