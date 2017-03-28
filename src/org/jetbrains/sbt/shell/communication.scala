@@ -178,17 +178,11 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Line
 
 private[shell] object SbtProcessUtil {
 
-  // FIXME this won't work when the default prompt is changed
-  def promptReady(line: String): Boolean =
-    line.trim match {
-      case
-        ">" | // TODO can we guard against false positives? like somebody outputting > on the bare prompt
-        "scala>" |
-        "Hit enter to retry or 'exit' to quit:"
-        => true
+  // zero width spaces aren't trimmed and don't make the UI uglier if they are only displayed as space
+  val IDEA_PROMPT_MARKER = "\u200b\u200b\u200b"
 
-      case _ => false
-    }
+  // the prompt marker is inserted by the sbt-idea-shell plugin
+  def promptReady(line: String): Boolean = line.trim.endsWith(IDEA_PROMPT_MARKER)
 }
 
 /**

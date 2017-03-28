@@ -123,6 +123,7 @@ private class CommandTask(project: Project, command: String, callbackOpt: Option
     val resultAggregator: (TaskResultData,ShellEvent) => TaskResultData = { (data,event) =>
       event match {
         case TaskStart =>
+          // TODO looks like this isn't called?
           indicator.setIndeterminate(true)
           indicator.setFraction(0.1)
           indicator.setText("building ...")
