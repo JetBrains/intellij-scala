@@ -204,6 +204,11 @@ package object extensions {
       if (needParenthesis) s"($string)" else string
   }
 
+  implicit class StringsExt(val strings: Seq[String]) extends AnyVal {
+    def commaSeparated: String =
+      strings.mkString(", ")
+  }
+
   implicit class ASTNodeExt(val node: ASTNode) extends AnyVal {
     def hasChildOfType(elementType: IElementType): Boolean =
       node.findChildByType(elementType) != null
