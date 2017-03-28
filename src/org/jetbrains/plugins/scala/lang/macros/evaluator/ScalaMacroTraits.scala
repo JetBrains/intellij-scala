@@ -37,5 +37,5 @@ trait ScalaMacroTypeable {
 }
 
 object ScalaMacroDummyTypeable extends ScalaMacroTypeable{
-  def checkMacro(macros: ScFunction, context: MacroContext) = Some(Any)
+  def checkMacro(macros: ScFunction, context: MacroContext) = None
 }

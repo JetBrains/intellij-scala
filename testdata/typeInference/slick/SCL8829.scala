@@ -1,7 +1,8 @@
-package persistence
-
 import java.sql.Date
 import java.time.LocalDate
+
+import SlickMappers._
+import slick.jdbc.PostgresProfile.api._
 
 case class Alert(alertType: String, date: LocalDate, status: Status, id: Long)
 
@@ -28,13 +29,14 @@ object AlertDAO {
     def date =       column[LocalDate] ("date")
     def status =     column[Status]    ("status")
 
-    def * = (id, alertType, date, status).shaped <ref><> (
+    def * = /*start*/(id, alertType, date, status).shaped <> (
       { case (id, alertType, date, status) =>
         Alert(alertType, date, status, id)
       } ,
       { a: Alert =>
         Some(a.id, a.alertType, a.date, a.status)
-      })
+      })/*end*/
   }
 
 }
+//ProvenShape[Alert]

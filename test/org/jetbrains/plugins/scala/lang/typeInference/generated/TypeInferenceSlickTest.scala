@@ -14,8 +14,10 @@ class TypeInferenceSlickTest extends TypeInferenceTestBase {
   override protected def additionalLibraries(): Array[ThirdPartyLibraryLoader] =
     Array(SlickLoader()(module))
 
-  def testSCL9261(): Unit = {
-    doTest()
-  }
+  def testSCL9261(): Unit = doTest()
+
+  def testSCL8829(): Unit = doTest()
+
+  def testImplicitMacroTest(): Unit = doTest()
 }
 
