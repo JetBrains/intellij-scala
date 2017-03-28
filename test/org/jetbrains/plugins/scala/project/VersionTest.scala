@@ -24,6 +24,8 @@ class VersionTest {
     assertEquals("1.2.3-4.5.6", Version("1.2.3-4.5.6").toString)
 
     assertEquals("1.2", Version("1M2").toString)
+
+    assertEquals("20100817020148", Version("20100817020148").toString)
   }
 
   @Test

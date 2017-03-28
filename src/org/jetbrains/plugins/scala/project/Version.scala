@@ -26,9 +26,9 @@ object Version {
   def abbreviate(presentation: String): String = presentation.split('-').take(2).mkString("-")
 }
 
-private case class Group(numbers: Seq[Int]) extends Comparable[Group] {
+private case class Group(numbers: Seq[Long]) extends Comparable[Group] {
   override def compareTo(other: Group): Int =
-    implicitly[Ordering[Seq[Int]]].compare(numbers, other.numbers)
+    implicitly[Ordering[Seq[Long]]].compare(numbers, other.numbers)
 
   def ~=(other: Group): Boolean =
     numbers.zip(other.numbers).forall(p => p._1 == p._2) &&
@@ -39,5 +39,5 @@ private object Group {
   private val IntegerPattern = "\\d+".r
 
   def apply(presentation: String): Group =
-    Group(IntegerPattern.findAllIn(presentation).map(_.toInt).toList)
+    Group(IntegerPattern.findAllIn(presentation).map(_.toLong).toList)
 }
