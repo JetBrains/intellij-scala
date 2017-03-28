@@ -11,6 +11,22 @@ import org.junit.Test
   */
 class VersionTest {
   @Test
+  def parsing(): Unit = {
+    assertEquals("", Version("").toString)
+
+    assertEquals("1", Version("1").toString)
+    assertEquals("1.2", Version("1.2").toString)
+    assertEquals("1.2.3", Version("1.2.3").toString)
+
+    assertEquals("1-2", Version("1-2").toString)
+    assertEquals("1-2-3", Version("1-2-3").toString)
+
+    assertEquals("1.2.3-4.5.6", Version("1.2.3-4.5.6").toString)
+
+    assertEquals("1.2", Version("1M2").toString)
+  }
+
+  @Test
   def comparison(): Unit = {
     assertEquals(0, Version("1").compareTo(Version("1")))
     assertEquals(0, Version("1.1").compareTo(Version("1.1")))

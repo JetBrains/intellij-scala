@@ -18,6 +18,8 @@ case class Version(presentation: String) extends Ordered[Version] {
       groups.lengthCompare(other.groups.length) >= 0
 
   def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
+
+  override def toString: String = groups.map(_.numbers.mkString(".")).mkString("-")
 }
 
 object Version {
