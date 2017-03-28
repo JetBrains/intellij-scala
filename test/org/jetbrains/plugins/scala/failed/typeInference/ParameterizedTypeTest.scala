@@ -240,4 +240,27 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
      """.stripMargin
     checkTextHasNoErrors(fileText)
   }
+
+  def testSCL11597() = {
+    checkTextHasNoErrors(
+      """trait Node
+        |
+        |  class A(val a: Int, val b: Int) extends Node
+        |
+        |  class DefExtractorSimple[T <: Node, X](func: T => X) {
+        |    def unapply(arg: T): Option[X] = Some(func(arg))
+        |  }
+        |
+        |  def extractSimple[T <: Node, X](func: T => X): DefExtractorSimple[T, X] = new DefExtractorSimple[T, X](func)
+        |
+        |  val extractA = extractSimple((arg: A) => (arg.a, arg.b))
+        |
+        |  object ExtractAA {
+        |    def unapply(arg: Node): Option[Int] = arg match {
+        |      case extractA(a, _) => Some(a)
+        |      case _ => None
+        |    }
+        |  }""".stripMargin
+    )
+  }
 }
