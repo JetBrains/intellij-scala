@@ -1,8 +1,9 @@
 package org.jetbrains.sbt.project.template.activator
 
 import java.io.File
-import javax.swing.Icon
+import javax.swing.{Icon, JTextField}
 
+import com.intellij.ide.projectWizard.ProjectSettingsStep
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
@@ -102,8 +103,16 @@ class ActivatorProjectBuilder extends
         
         val context = settingsStep.getContext
 
-        if (context.isCreatingNewProject && !isIdentifier(context.getProjectName))
-          error("SBT Project name must be valid Scala identifier")
+        settingsStep match {
+          case projectSettingsStep: ProjectSettingsStep =>
+            projectSettingsStep.getPreferredFocusedComponent match {
+              case field: JTextField =>
+                val txt = field.getText
+                if (context.isCreatingNewProject && !isIdentifier(txt)) error("SBT Project name must be valid Scala identifier")
+              case _ =>
+            }
+          case _ =>
+        }
 
         val text = settingsStep.getModuleNameField.getText
         if (!isIdentifier(text))
