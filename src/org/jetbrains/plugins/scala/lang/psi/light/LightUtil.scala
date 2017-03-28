@@ -4,13 +4,9 @@ package lang.psi.light
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, StdType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -69,7 +65,8 @@ object LightUtil {
         } else accumulator :+ classes.mkString(sep = ", ")
       case _ => ArrayBuffer()
     }
-    throwAnnotations.mkString(start = " throws ", sep = ", ", end = " ")
+    if (throwAnnotations.isEmpty) ""
+    else throwAnnotations.mkString(start = " throws ", sep = ", ", end = " ")
   }
 
   def createJavaMethod(methodText: String, containingClass: PsiClass, project: Project): PsiMethod = {
