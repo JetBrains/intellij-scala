@@ -7,7 +7,7 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -242,7 +242,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   }
   
   private def refreshLastMarker() {
-    DaemonCodeAnalyzer.getInstance(project).restart(getScalaFile)
+    rehighlight(getScalaFile)
   }
 }
 
@@ -261,6 +261,10 @@ object WorksheetIncrementalEditorPrinter {
   private val CONSOLE_HEADER_LINES = 7
 
   def countNewLines(str: String): Int = StringUtil countNewLines str
+  
+  def rehighlight(file: PsiFile) {
+    DaemonCodeAnalyzer.getInstance(file.getProject).restart(file)
+  }
   
   case class MessageStart(msg: String)
   case class MessageInfo(text: String, verOffset: Int, horOffset: Int, severity: WorksheetCompiler.CompilationMessageSeverity)

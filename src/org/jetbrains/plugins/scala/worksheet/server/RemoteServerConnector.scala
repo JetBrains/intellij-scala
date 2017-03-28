@@ -13,6 +13,7 @@ import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiManager
 import com.intellij.util.Base64Converter
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.BuildMessage
@@ -20,11 +21,12 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.jps.incremental.scala.remote._
 import org.jetbrains.plugins.scala.compiler.{ErrorHandler, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetSourceProcessor}
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.ReplModeArgs
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.{MyTranslatingClient, OuterCompilerInterface}
-import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinterBase
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterBase, WorksheetIncrementalEditorPrinter}
 
 /**
   * User: Dmitry Naydanov
@@ -89,8 +91,16 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
       
       if (worksheetProcess == null) return ExitCode.ABORT
 
+      val fileToReHighlight = PsiManager getInstance project findFile originalFile match {
+        case scalaFile: ScalaFile if WorksheetCompiler.isWorksheetReplMode(scalaFile) => Some(scalaFile)
+        case _ => None
+      }
+
       worksheetHook.disableRun(originalFile, Some(worksheetProcess))
-      worksheetProcess.addTerminationCallback({worksheetHook.enableRun(originalFile, client.isCompiledWithErrors)})
+      worksheetProcess.addTerminationCallback({
+        worksheetHook.enableRun(originalFile, client.isCompiledWithErrors)
+        fileToReHighlight foreach  WorksheetIncrementalEditorPrinter.rehighlight
+      })
 
       WorksheetProcessManager.add(originalFile, worksheetProcess)
 
