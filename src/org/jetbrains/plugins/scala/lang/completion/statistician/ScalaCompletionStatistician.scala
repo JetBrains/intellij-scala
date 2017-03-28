@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionStatis
 import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.psi.statistics.StatisticsInfo
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
+import org.jetbrains.plugins.scala.lang.completion.ScalaTextLookupItem
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -17,9 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 
 class ScalaCompletionStatistician extends CompletionStatistician {
   def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
-    val currentElement = Option(element.as(LookupItem.CLASS_CONDITION_KEY)).getOrElse(return null)
-
-    ScalaLookupItem.original(currentElement) match {
+    ScalaLookupItem.original(element) match {
       case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter || s.isDeprecated => StatisticsInfo.EMPTY
       case s: ScalaLookupItem =>
         s.element match {
@@ -29,6 +28,7 @@ class ScalaCompletionStatistician extends CompletionStatistician {
         }
       // return empty statistic when using  scala completion but ScalaLookupItem didn't use.
       // otherwise will be computed java statistic that may lead to ClassCastError
+      case _: ScalaTextLookupItem => StatisticsInfo.EMPTY
       case _ if location.getCompletionParameters.getOriginalFile.isInstanceOf[ScalaFile] => StatisticsInfo.EMPTY
       case _ => null //don't impact on java Lookups, no statistics for scala keyword elements
     }
