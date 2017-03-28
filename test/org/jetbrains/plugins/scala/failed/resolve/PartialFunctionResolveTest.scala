@@ -22,4 +22,13 @@ class PartialFunctionResolveTest extends FailedResolveCaretTestBase {
         |  }
       """.stripMargin)
   }
+
+  def testSCL11567(): Unit = {
+    doResolveCaretTest(
+      """
+        |class mc {
+        |  val a = <caret>println _
+        |}
+      """.stripMargin)
+  }
 }
