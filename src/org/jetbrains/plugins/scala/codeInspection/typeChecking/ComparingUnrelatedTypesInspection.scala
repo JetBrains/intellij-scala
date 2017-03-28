@@ -85,7 +85,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
         Seq(leftOnTheRight, right) map (_.getType()) match {
           case Seq(Success(leftType, _), Success(rightType, _)) if cannotBeCompared(leftType, rightType) =>
-            holder.registerProblem(expr, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+            val message = generateComparingUnrelatedTypesMsg(leftType, rightType)
+            holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
           case _ =>
         }
       }
@@ -96,8 +97,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         argType <- arg.getType()
         if cannotBeCompared(elemType, argType)
       } {
-        val (elemTypeText, argTypeText) = ScTypePresentation.different(elemType, argType)
-        val message = InspectionBundle.message("comparing.unrelated.types.hint", elemTypeText, argTypeText)
+        val message = generateComparingUnrelatedTypesMsg(elemType, argType)
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     case IsInstanceOfCall(call) =>
@@ -112,8 +112,14 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         t2 <- argType
         if cannotBeCompared(t1, t2)
       } {
-        holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        val message = generateComparingUnrelatedTypesMsg(t1, t2)
+        holder.registerProblem(call, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
+  }
+
+  private def generateComparingUnrelatedTypesMsg(firstType: ScType, secondType: ScType): String = {
+    val (firstTypeText, secondTypeText) = ScTypePresentation.different(firstType, secondType)
+    InspectionBundle.message("comparing.unrelated.types.hint", firstTypeText, secondTypeText)
   }
 
   private def holderTypeSystem(holder: ProblemsHolder) = holder.getProject.typeSystem

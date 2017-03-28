@@ -3,7 +3,7 @@ package codeInspection.typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaInspectionTestBase}
 
 /**
  * Nikolay.Tropin
@@ -23,32 +23,38 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
     val text1 = s"""val a = 0
                  |val b: Short = 1
                  |${START}b == a$END"""
+    checkTextHasNoUnrelatedTypeErrors(text1)
+
     val text2 = s"""val a = 0
                   |val b = 1.0
                   |${START}b != a$END"""
+    checkTextHasNoUnrelatedTypeErrors(text2)
+
     val text3 = s"""val a = 0.0
                   |val b: Byte = 100
                   |${START}a == b$END"""
+    checkTextHasNoUnrelatedTypeErrors(text3)
+
     val text4 = s"${START}1 == 1.0$END"
-    checkTextHasNoErrors(text1)
-    checkTextHasNoErrors(text2)
-    checkTextHasNoErrors(text3)
-    checkTextHasNoErrors(text4)
+    checkTextHasNoUnrelatedTypeErrors(text4)
   }
 
   def testValueTypes() {
     val text1 = s"""val a = true
                  |val b = 1
                  |${START}b == a$END"""
+    checkTextHasError(text1, errorDescriptionForTypes("Int", "Boolean"))
+
     val text2 = s"""val a = true
                  |val b = 0.0
                  |${START}a != b$END"""
+    checkTextHasError(text2, errorDescriptionForTypes("Boolean", "Double"))
+
     val text3 = s"${START}true != 0$END"
+    checkTextHasError(text3, errorDescriptionForTypes("Boolean", "Int"))
+
     val text4: String = s"${START}1.isInstanceOf[Boolean]$END"
-    checkTextHasError(text1)
-    checkTextHasError(text2)
-    checkTextHasError(text3)
-    checkTextHasError(text4)
+    checkTextHasError(text4, errorDescriptionForTypes("Int", "Boolean"))
 
   }
 
@@ -56,35 +62,40 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
     val text1 = s"""val a = "a"
                  |val b = Array('a')
                  |${START}b == a$END"""
+    checkTextHasError(text1, errorDescriptionForTypes("Array[Char]", "String"))
+
     val text2 = s"""val a = "0"
                  |val b = 0
                  |${START}a == b$END"""
+    checkTextHasError(text2, errorDescriptionForTypes("String", "Int"))
+
     val text3 = s"""val s = "s"
                   |${START}s == 's'$END"""
+    checkTextHasError(text3, errorDescriptionForTypes("String", "Char"))
+
     val text4 = s"""val a = "a"
                   |val b: CharSequence = null
                   |${START}b != a$END"""
-    checkTextHasError(text1)
-    checkTextHasError(text2)
-    checkTextHasError(text3)
-    checkTextHasNoErrors(text4)
+    checkTextHasNoUnrelatedTypeErrors(text4)
   }
 
   def testInheritors() {
     val text1 = s"""val a = scala.collection.Iterable(1)
                  |val b = List(0)
                  |${START}b == a$END"""
+    checkTextHasNoUnrelatedTypeErrors(text1)
+
     val text2 = s"""case class A(i: Int)
                    |final class B extends A(1)
                    |val a: A = A(0)
                    |val b: B = new B
                    |${START}a == b$END"""
+    checkTextHasNoUnrelatedTypeErrors(text2)
+
     val text3 = """trait A
                   |object B extends A
                   |B.isInstanceOf[A]"""
-    checkTextHasNoErrors(text1)
-    checkTextHasNoErrors(text2)
-    checkTextHasNoErrors(text3)
+    checkTextHasNoUnrelatedTypeErrors(text3)
   }
 
   def testFinal() {
@@ -93,18 +104,20 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
                    |val a: A = A(0)
                    |val b: B = new B
                    |${START}a == b$END"""
+    checkTextHasNoUnrelatedTypeErrors(text1)
+
     val text2 = s"""final class A extends Serializable
                   |final class B extends Serializable
                   |val a: A = new A
                   |val b: B = new B
                   |${START}a == b$END"""
+    checkTextHasError(text2, errorDescriptionForTypes("A", "B"))
+
     val text3 = s"""final class A extends Serializable
                    |final class B extends Serializable
                    |val a: A = new A
                    |${START}a.isInstanceOf[B]$END"""
-    checkTextHasNoErrors(text1)
-    checkTextHasError(text2)
-    checkTextHasError(text3)
+    checkTextHasError(text3, errorDescriptionForTypes("a.type", "B"))
   }
 
   def testTraits() {
@@ -113,7 +126,7 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
                   |val a: A = _
                   |val b: B = _
                   |${START}a == b$END"""
-    checkTextHasNoErrors(text1)
+    checkTextHasNoUnrelatedTypeErrors(text1)
   }
 
   def testObject() {
@@ -121,49 +134,53 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
                   |object B extends A
                   |val a: A = _
                   |${START}a == B$END"""
+    checkTextHasNoUnrelatedTypeErrors(text1)
+
     val text2 = s"""trait A
                   |object B extends A
                   |class C extends A
                   |val c = new C
                   |${START}c == B$END"""
+    checkTextHasError(text2, errorDescriptionForTypes("C", "B.type"))
+
     val text3 = s"""trait A
                   |object B extends A
                   |class C extends A
                   |val c: A = new C
                   |${START}c != B$END"""
-    checkTextHasNoErrors(text1)
-    checkTextHasError(text2)
-    checkTextHasNoErrors(text3)
+    checkTextHasNoUnrelatedTypeErrors(text3)
   }
 
   def testBoxedTypes() {
     val text1 = """val i = new java.lang.Integer(0)
                   |i == 100"""
+    checkTextHasNoUnrelatedTypeErrors(text1)
+
     val text2 = """val b = new java.lang.Boolean(false)
                   |b equals true"""
+    checkTextHasNoUnrelatedTypeErrors(text2)
+
     val text3 = "def test(i: Integer) = if (i == null) \"foo\" else \"bar\""
-    checkTextHasNoErrors(text1)
-    checkTextHasNoErrors(text2)
-    checkTextHasNoErrors(text3)
+    checkTextHasNoUnrelatedTypeErrors(text3)
   }
 
   def testExistential(): Unit = {
-    checkTextHasNoErrors("Seq(1).isInstanceOf[List[_])")
-    checkTextHasError(s"${START}Some(1).isInstanceOf[List[_]]$END")
-    checkTextHasNoErrors("def foo(x: Some[_]) { x == Some(1) }")
-    checkTextHasError(s"def foo(x: Some[_]) { ${START}x == Seq(1)$END }")
+    checkTextHasNoUnrelatedTypeErrors("Seq(1).isInstanceOf[List[_])")
+    checkTextHasError(s"${START}Some(1).isInstanceOf[List[_]]$END", errorDescriptionForTypes("Some[Int]", "List[_]"))
+    checkTextHasNoUnrelatedTypeErrors("def foo(x: Some[_]) { x == Some(1) }")
+    checkTextHasError(s"def foo(x: Some[_]) { ${START}x == Seq(1)$END }", errorDescriptionForTypes("Some[_]", "Seq[Int]"))
   }
 
   def testNumeric(): Unit = {
-    checkTextHasNoErrors("BigInt(1) == 1")
-    checkTextHasNoErrors("BigInt(1) == 1L")
-    checkTextHasNoErrors("BigInt(1) == new java.lang.Integer(1)")
-    checkTextHasError(s"${START}BigInt(1) == true$END")
-    checkTextHasError(s"${START}BigInt(1) == 1.toString$END")
+    checkTextHasNoUnrelatedTypeErrors("BigInt(1) == 1")
+    checkTextHasNoUnrelatedTypeErrors("BigInt(1) == 1L")
+    checkTextHasNoUnrelatedTypeErrors("BigInt(1) == new java.lang.Integer(1)")
+    checkTextHasError(s"${START}BigInt(1) == true$END", errorDescriptionForTypes("BigInt", "Boolean"))
+    checkTextHasError(s"${START}BigInt(1) == 1.toString$END", errorDescriptionForTypes("BigInt", "String"))
   }
 
   def testTypeAlias(): Unit = {
-    checkTextHasNoErrors(
+    checkTextHasNoUnrelatedTypeErrors(
       """
         |object A {
         |  type Coord = Float
@@ -181,9 +198,9 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
         |    ${START}n == 0$END
         |  }
         |}
-      """.stripMargin)
+      """.stripMargin, errorDescriptionForTypes("A.Coord", "Int"))
 
-    checkTextHasNoErrors(
+    checkTextHasNoUnrelatedTypeErrors(
       """
         |trait A {
         |  type Coord
@@ -196,7 +213,7 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
   }
 
   def testOverridenMethods(): Unit = {
-    checkTextHasNoErrors(
+    checkTextHasNoUnrelatedTypeErrors(
       """
         |case class Dummy(v: Int) {
         |  def ==(value: Int): String = v + " == " + value
@@ -217,7 +234,7 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
         |
         |object Test {
         |  val b: Boolean = ${START}Dummy(5) eq 10$END
-        |}""".stripMargin)
+        |}""".stripMargin, errorDescriptionForTypes("Dummy", "Int"))
 
   }
 
@@ -244,7 +261,7 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
         |  implicit val store = new Store(12, ":)")
         |  (fooBinder == 12, fooBinder == 3, ${START}fooBinder == ":)"$END, barBinder == ":)") // (true, false, false, true)
         |}
-      """.stripMargin
+      """.stripMargin, errorDescriptionForTypes("FooBinder", "String")
     )
 
   }
@@ -261,7 +278,7 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
          |
          |object Test {
          |  val b: Boolean = ${START}Dummy(5) equals 10$END
-         |}""".stripMargin)
+         |}""".stripMargin, errorDescriptionForTypes("Dummy", "Int"))
 
     checkTextHasError(
       s"""
@@ -274,6 +291,14 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaInspectionTestBase {
          |
            |object Test {
          |  val b: Boolean = ${START}Dummy(5) == 10$END
-         |}""".stripMargin)
+         |}""".stripMargin, errorDescriptionForTypes("Dummy", "Int"))
+  }
+
+  private def checkTextHasNoUnrelatedTypeErrors(text: String) = {
+    checkTextHasNoErrors(text,desc => desc != null && desc.toLowerCase.contains("unrelated"))
+  }
+
+  private def errorDescriptionForTypes(firstType: String, secondType: String): String = {
+    InspectionBundle.message("comparing.unrelated.types.hint", firstType, secondType)
   }
 }
