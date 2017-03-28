@@ -64,7 +64,11 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   private def containingClassInner: ScTemplateDefinition = {
-    val context = getContext
+    def isCorrectContext(found: ScTemplateDefinition): Boolean = {
+      val context = getContext
+      context == found.extendsBlock || found.extendsBlock.templateBody.contains(context) ||
+        found.extendsBlock.earlyDefinitions.contains(context)
+    }
     (getContainingClassLoose, this) match {
       case (null, _) => null
       case (_, fun: ScFunction) if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
@@ -73,8 +77,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       case (found, td: ScTypeDefinition) if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
       case (found, td: ScTypeDefinition) if td.isSynthetic => found
       case (found, _: ScClassParameter | _: ScPrimaryConstructor) => found
-      case (found, _) if context == found.extendsBlock || found.extendsBlock.templateBody.contains(context) ||
-        found.extendsBlock.earlyDefinitions.contains(context) => found
+      case (found, _) if isCorrectContext(found) => found
       case (_, _) => null // See SCL-3178
     }
   }
