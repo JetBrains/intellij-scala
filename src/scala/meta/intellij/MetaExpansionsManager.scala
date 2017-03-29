@@ -22,7 +22,8 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, Mod
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
 
-import scala.meta.Tree
+import scala.meta.parsers.Parse
+import scala.meta.{Dialect, Tree}
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
@@ -168,7 +169,7 @@ object MetaExpansionsManager {
         ProgressManager.checkCanceled()
         maybeClass match {
           case Some(clazz) if hasCompatibleScalaVersion => Right(runDirect(clazz, compiledArgs))
-          case Some(clazz)                              => Right(runAdapter(clazz, compiledArgs))
+          case Some(clazz)                              => Right(runAdapterString(clazz, compiledArgs))
           case None                                     => Left("Meta annotation class could not be found")
         }
       } catch {
@@ -176,7 +177,7 @@ object MetaExpansionsManager {
         case me: AbortException           => Left(s"Tree conversion error: ${me.getMessage}")
         case sm: ScalaMetaException       => Left(s"Semantic error: ${sm.getMessage}")
         case so: StackOverflowError       => Left(s"Stack overflow during expansion ${annotee.getText}")
-        case e: InvocationTargetException => Left(e.getTargetException.toString)
+        case e: InvocationTargetException => Left(e.getTargetException.getMessage)
         case e: Exception                 => Left(s"Unexpected error during expansion: ${e.getMessage}")
       }
     }
@@ -205,6 +206,15 @@ object MetaExpansionsManager {
     } finally {
       objectOutputStream.close()
     }
+  }
+
+  private def runAdapterString(clazz: Class[_], args: Seq[AnyRef]): Tree = {
+    val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
+    val method = runner.getDeclaredMethod("runString", classOf[Class[_]], classOf[Array[String]])
+    val convertedArgs = args.map(_.toString).toArray
+    val result = method.invoke(null, clazz, convertedArgs).toString
+    val parsed = Parse.parseStat.apply(scala.meta.Input.String(result), Dialect.standards("Scala212"))
+    parsed.getOrElse(throw new AbortException(s"Failed to parse result: $result"))
   }
 
   private def runDirect(clazz: Class[_], args: Seq[AnyRef]): Tree = {
