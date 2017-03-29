@@ -139,13 +139,16 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     
     val linesOutput = countNewLines(str) + 1 
     val linesInput = countNewLines(queuedPsi.getText) + 1
+    
+    @inline def originalLn(offset: Int) = originalDocument getLineNumber offset
 
     val originalTextRange = queuedPsi.getWholeTextRange
-    val processedStartLine = originalDocument getLineNumber queuedPsi.getLastProcessedOffset
-    val processedEndLine = originalDocument getLineNumber originalTextRange.getEndOffset
+    val processedStartLine = originalLn(queuedPsi.getFirstProcessedOffset)
+    val processedStartEndLine = originalLn(queuedPsi.getLastProcessedOffset)
+    val processedEndLine = originalLn(originalTextRange.getEndOffset)
     
     val firstOffsetFix = if (lastProcessed.isEmpty) 0 else 1
-    lastProcessed = Some(processedStartLine)
+    lastProcessed = Some(processedStartEndLine)
     WorksheetAutoRunner.getInstance(project).replExecuted(originalDocument, originalTextRange.getEndOffset)
   
     extensions.invokeLater {
@@ -154,19 +157,20 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
           val oldLinesCount = viewerDocument.getLineCount
 
           val baseDiff = Math.max(processedStartLine - viewerDocument.getLineCount - 1, 0) + queuedPsi.getBaseDiff
-          inputToOutputMapping.append((processedStartLine, linesOutput + baseDiff - 1 + viewerDocument.getLineCount))
 
           val prefix = getNewLines(baseDiff + firstOffsetFix)
           simpleAppend(prefix, viewerDocument)
+          var addedDiff = 0
           
           queuedPsi.getPrintStartOffset(str) foreach {
             case (absoluteOffset, relativeOffset, outputChunk) => 
-              val l1 = originalDocument.getLineNumber(absoluteOffset - relativeOffset)
-              val l2 = originalDocument.getLineNumber(absoluteOffset)
-              
-              val currentPrefix = getNewLines(l2 - l1)
+              val df = originalLn(absoluteOffset) - originalLn(absoluteOffset - relativeOffset)
+              addedDiff += df
+              val currentPrefix = getNewLines(df)
               simpleAppend(currentPrefix + outputChunk, viewerDocument)
           }
+          
+          inputToOutputMapping.append((processedStartEndLine, linesOutput + baseDiff + addedDiff - 1 + viewerDocument.getLineCount))
           
           saveEvaluationResult(viewerDocument.getText)
 
@@ -324,7 +328,9 @@ object WorksheetIncrementalEditorPrinter {
       */
     def getPrintStartOffset(output: String): Seq[(Int, Int, String)]
     
-    def getLastProcessedOffset: Int
+    def getFirstProcessedOffset: Int
+    
+    def getLastProcessedOffset: Int = getFirstProcessedOffset
     
     def getBaseDiff: Int
     
@@ -356,6 +362,8 @@ object WorksheetIncrementalEditorPrinter {
 
       counter - 1
     }
+    
+    protected def startPsiOffset(psi: PsiElement): Int = psiToStartOffset(computeStartPsi(psi))
   }
   
   case class SingleQueuedPsi(psi: PsiElement) extends QueuedPsi {
@@ -365,11 +373,11 @@ object WorksheetIncrementalEditorPrinter {
 
     override def getWholeTextRange: TextRange = psi.getTextRange
 
-    override def getPrintStartOffset(output: String): Seq[(Int, Int, String)] = Seq((psiToStartOffset(computeStartPsi(psi)), 0, output))
+    override def getPrintStartOffset(output: String): Seq[(Int, Int, String)] = Seq((startPsiOffset(psi), 0, output))
 
     override def getBaseDiff: Int = countLinesWoCode(psi)
 
-    override def getLastProcessedOffset: Int = psiToStartOffset(computeStartPsi(psi))
+    override def getFirstProcessedOffset: Int = startPsiOffset(psi)
   }
   
   case class ClassObjectPsi(clazz: ScClass, obj: ScObject, mid: String, isClazzFirst: Boolean) extends QueuedPsi {
@@ -386,14 +394,16 @@ object WorksheetIncrementalEditorPrinter {
       val i = output.indexOf('\n')
       val (one, two) = if (i == -1) (output, "") else output.splitAt(i)
       
-      val firstOffset = psiToStartOffset(computeStartPsi(first))
-      val secondOffset = psiToStartOffset(computeStartPsi(second))
+      val firstOffset = startPsiOffset(first)
+      val secondOffset = startPsiOffset(second)
       
       Seq((firstOffset, 0, one), (secondOffset, secondOffset - firstOffset, two.trim))
     }
 
     override def getBaseDiff: Int = countLinesWoCode(first)
 
-    override def getLastProcessedOffset: Int = psiToStartOffset(computeStartPsi(first))
+    override def getFirstProcessedOffset: Int = startPsiOffset(first)
+
+    override def getLastProcessedOffset: Int = startPsiOffset(second)
   }
 }
