@@ -215,6 +215,8 @@ private object SbtModuleBuilder {
         |
         |scalaBinaryVersion := "2.11"
         |
+        |scalaOrganization in updateSbtClassifiers := (scalaOrganization in Global).value
+        |
         |ivyScala ~= (_ map (_ copy (overrideScalaVersion = false)))
         |
         |libraryDependencies += "ch.epfl.lamp" % "dotty_2.11" % scalaVersion.value % "scala-tool"
