@@ -52,7 +52,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
       override def run(): Unit = 
         viewerDocument.deleteString (
           viewerDocument.getLineStartOffset(ln), 
-          viewerDocument.getLineEndOffset(viewerDocument.getLineCount)
+          viewerDocument.getLineEndOffset(viewerDocument.getLineCount - 1)
         )
     })
     
