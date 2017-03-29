@@ -178,7 +178,7 @@ object WorksheetEditorPrinterFactory {
   def newIncrementalUiFor(editor: Editor, scalaFile: ScalaFile): WorksheetIncrementalEditorPrinter =
     new WorksheetIncrementalEditorPrinter(
       editor, 
-      setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor, isPlain = true), modelSync = true),
+      setupRightSideViewer(editor, scalaFile.getVirtualFile, getOrCreateViewerEditorFor(editor, isPlain = true)),
       scalaFile
     )
 
