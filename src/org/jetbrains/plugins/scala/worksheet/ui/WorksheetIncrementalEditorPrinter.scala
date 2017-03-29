@@ -97,6 +97,8 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   override def getScalaFile: ScalaFile = currentFile
 
   override def processLine(line: String): Boolean = {
+    if (!isInited) init()
+    
     line.trim match {
       case REPL_START => 
         fetchNewPsi()
