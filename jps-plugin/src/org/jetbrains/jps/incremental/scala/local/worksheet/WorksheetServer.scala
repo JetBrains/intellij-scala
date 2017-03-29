@@ -59,6 +59,8 @@ object WorksheetServer {
   def parseWorksheetArgsFrom(commonArgs: Arguments): Option[WorksheetArgs] = {
     val compilerJars = commonArgs.compilerData.compilerJars.orNull
     
+    if (compilerJars == null) return None
+    
     val javaArgs = WorksheetArgsJava.constructArgsFrom(
       commonArgs.worksheetFiles.asJava, 
       commonArgs.compilationData.sources.headOption.map(_.getName).orNull, 
