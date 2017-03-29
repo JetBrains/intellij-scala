@@ -294,10 +294,6 @@ object WorksheetIncrementalEditorPrinter {
     DaemonCodeAnalyzer.getInstance(file.getProject).restart(file)
   }
   
-  def rehighlight(file: PsiFile) {
-    DaemonCodeAnalyzer.getInstance(file.getProject).restart(file)
-  }
-  
   case class MessageStart(msg: String)
   case class MessageInfo(text: String, verOffset: Int, horOffset: Int, severity: WorksheetCompiler.CompilationMessageSeverity)
   
