@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.{Editor, LogicalPosition}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.PrevSiblignsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompiler, WorksheetInterpretExprsIterator, WorksheetPsiGlue}
 
@@ -225,9 +227,12 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     messagesBuffer.clear()
 
     val MessageInfo(msg, vertOffset, horizontalOffset, severity) = ReplMessage.extractInfoFromAllText(str).getOrElse((str, 0))
+    
+    val headerOffset = getConsoleHeaderLines(RunWorksheetAction getModuleFor getScalaFile)
+    
     val position = {
       val p = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset + horizontalOffset) }
-      new LogicalPosition(p.line + vertOffset - CONSOLE_HEADER_LINES, p.column)
+      new LogicalPosition(p.line + vertOffset - headerOffset, p.column)
     }
     
     
@@ -262,7 +267,24 @@ object WorksheetIncrementalEditorPrinter {
   }
   
   private val LAMBDA_LENGTH = 32
-  private val CONSOLE_HEADER_LINES = 7
+  
+  private def getConsoleHeaderLines(module: Module): Int = {
+    import org.jetbrains.plugins.scala.project._
+    import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
+    
+    val before = 7
+    val after = 11
+    
+    module.scalaSdk.map(
+      sdk => (sdk.compilerVersion, sdk.languageLevel)
+    ) map {
+      case (v, l) => l match {
+        case Scala_2_8 | Scala_2_9 | Scala_2_10 => before
+        case Scala_2_11 => if (v.exists(_ startsWith "2.11.8")) after else before
+        case _ => after
+      }
+    } getOrElse after
+  }
 
   def countNewLines(str: String): Int = StringUtil countNewLines str
   
