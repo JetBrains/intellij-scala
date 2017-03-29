@@ -82,7 +82,14 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
         val outDirs: List[URL] = outputDirs(module).map(str => new File(str).toURI.toURL)
-        new URLClassLoader(outDirs ++ cp :+ getClass.getProtectionDomain.getCodeSource.getLocation, null)
+        val fullCP = outDirs ++ cp :+ getClass.getProtectionDomain.getCodeSource.getLocation
+        // a quick way to test for compatible meta version - check jar name in classpath
+        if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && cp.exists(_.toString.contains("trees_2.11-1.6")))
+          new URLClassLoader(fullCP, getClass.getClassLoader)
+        else if (annot.scalaLanguageLevelOrDefault == Scala_2_11)
+          new MetaClassLoader(fullCP)
+        else
+          new MetaClassLoader(fullCP, incompScala = true)
       })
     }
     def classLoaderForEnclosingLibrary(annotClass: ScClass): URLClassLoader = {
@@ -167,10 +174,11 @@ object MetaExpansionsManager {
         val compiledArgs = Seq(convertedAnnot.asInstanceOf[AnyRef]) ++ typeArgs :+ converted.asInstanceOf[AnyRef]
         val maybeClass = getCompiledMetaAnnotClass(annot)
         ProgressManager.checkCanceled()
-        maybeClass match {
-          case Some(clazz) if hasCompatibleScalaVersion => Right(runDirect(clazz, compiledArgs))
-          case Some(clazz)                              => Right(runAdapterString(clazz, compiledArgs))
-          case None                                     => Left("Meta annotation class could not be found")
+        (maybeClass, maybeClass.map(_.getClassLoader)) match {
+          case (Some(clazz), Some(cl:MetaClassLoader)) if cl.incompScala => Right(runAdapterString(clazz, compiledArgs))
+          case (Some(clazz), Some(_:MetaClassLoader))  => Right(runAdapterBinary(clazz, compiledArgs))
+          case (Some(clazz), _)                        => Right(runDirect(clazz, compiledArgs))
+          case (None, _)                               => Left("Meta annotation class could not be found")
         }
       } catch {
         case pc: ProcessCanceledException => throw pc
@@ -185,7 +193,10 @@ object MetaExpansionsManager {
     runMetaAnnotationsImpl
   }
 
-  private def runAdapter(clazz: Class[_], args: Seq[AnyRef]): Tree = {
+  // use if meta versions are different within the same Scala major version
+  // annotations runs inside a separate classloader to avoid conflicts of different meta versions on classpath
+  // same Scala version allows use of java serialization which is faster than parsing trees from strings
+  private def runAdapterBinary(clazz: Class[_], args: Seq[AnyRef]): Tree = {
     val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
     val method = runner.getDeclaredMethod("run", classOf[Class[_]], Integer.TYPE, classOf[Array[Byte]])
     val arrayOutputStream = new ByteArrayOutputStream(2048)
@@ -208,6 +219,8 @@ object MetaExpansionsManager {
     }
   }
 
+  // use if major Scala versions are different - binary serializations is unavaliable, using String parsing insead
+  // parsing trees is very expensive - so this the most performance costly method and should be disableable
   private def runAdapterString(clazz: Class[_], args: Seq[AnyRef]): Tree = {
     val runner = clazz.getClassLoader.loadClass(classOf[MetaAnnotationRunner].getName)
     val method = runner.getDeclaredMethod("runString", classOf[Class[_]], classOf[Array[String]])
@@ -217,15 +230,22 @@ object MetaExpansionsManager {
     parsed.getOrElse(throw new AbortException(s"Failed to parse result: $result"))
   }
 
+  // if both scala.meta and Scala major versions are compatible, we can invoke the annotation directly
   private def runDirect(clazz: Class[_], args: Seq[AnyRef]): Tree = {
     val ctor = clazz.getDeclaredConstructors.head
     ctor.setAccessible(true)
     val inst = ctor.newInstance()
-    val meth = clazz.getDeclaredMethods.find(_.getName == "apply")
+    val method = clazz.getDeclaredMethods.find(_.getName == "apply")
       .getOrElse(throw new RuntimeException(
         s"No 'apply' method in annotation class, declared methods:\n ${clazz.getDeclaredMethods.mkString("\n")}")
       )
-    meth.setAccessible(true)
-    meth.invoke(inst, args:_*).asInstanceOf[Tree]
+    method.setAccessible(true)
+    try {
+      method.invoke(inst, args.map(_.asInstanceOf[scala.meta.Stat]): _*).asInstanceOf[Tree]
+    } catch {
+      // rewrap exception to mimic adapter behaviour
+      case e: InvocationTargetException =>
+        throw new InvocationTargetException(new RuntimeException(e.getTargetException.toString))
+    }
   }
 }
