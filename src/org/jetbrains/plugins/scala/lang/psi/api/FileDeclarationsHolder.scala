@@ -35,10 +35,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    val isScriptProcessed = this match {
-      case scalaFile: ScalaFile if scalaFile.isScriptFile && !scalaFile.isWorksheetFile => true
-      case _ => false
-    }
+    val isScriptProcessed = isScriptFile && !isWorksheetFile
     
     if (isScriptProcessed && !super[ScDeclarationSequenceHolder].processDeclarations(processor,
       state, lastParent, place)) return false
@@ -62,17 +59,15 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     val scope = place.getResolveScope
 
     place match {
-      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier == None => {
+      case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier.isEmpty =>
         val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
-      }
-      case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier == None => {
+      case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier.isEmpty =>
         val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
-      }
-      case _ => {
+      case _ =>
         val defaultPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
@@ -107,7 +102,6 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
-      }
     }
 
     if (isScriptProcessed) {
@@ -144,7 +138,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
               case td: ScTypeDefinition if !isScalaPredefinedClass =>
                 var newState = state
                 td.getType(TypingContext.empty).foreach {
-                  case tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
+                  tp: ScType => newState = state.put(BaseProcessor.FROM_TYPE_KEY, tp)
                 }
                 if (!clazz.processDeclarations(processor, newState, null, place)) return false
               case _ =>
@@ -217,7 +211,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     for (obj <- objects) {
       res ++= ScalaPsiManager.instance(manager.getProject).getCachedClasses(scope, obj)
     }
-    res.toSeq
+    res
   }
 
   protected def isScalaPredefinedClass: Boolean
@@ -229,4 +223,8 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
   private def predefObjects: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedObjects
 
   private def predefPackages: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedPackages
+  
+  def isScriptFile: Boolean = false
+  
+  def isWorksheetFile: Boolean = false
 }

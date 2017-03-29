@@ -21,6 +21,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiUtilCore
+import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
@@ -176,12 +177,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
 
-  def isWorksheetFile: Boolean = {
-    val vFile = getVirtualFile
-
-    vFile != null && (vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||
-      ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
-        ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet )
+  override def isWorksheetFile: Boolean = {
+    Option(getVirtualFile).orElse(Option(getViewProvider.getVirtualFile).collect {
+      case light: LightVirtualFile => light.getOriginalFile
+    }).exists {
+      vFile => 
+        vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||
+          ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
+          ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet
+    }
   }
 
 
