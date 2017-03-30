@@ -19,7 +19,7 @@ import com.intellij.psi.{PsiErrorElement, PsiFile}
 import com.intellij.ui.content.{ContentFactory, MessageView}
 import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.project.migration.apiimpl.MigrationApiImpl
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.NotificationUtil
@@ -152,6 +152,14 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   }
 
   def isWorksheetReplMode(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) == InProcessServer
+  
+  def isWorksheetReplModeLight(file: FileDeclarationsHolder): Boolean = {
+    file match {
+      case scalaFile: ScalaFile =>
+        FileAttributeUtilCache.readAttributeLight(IS_WORKSHEET_REPL_MODE, scalaFile).contains("enabled")
+      case _ => false
+    }
+  }
   
   def shouldShowReplWarning(file: PsiFile): Boolean = isEnabled(file, IS_WORKSHEET_REPL_MODE) && getRunType(file.getProject) != InProcessServer
 
