@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.net.URI
 import java.util
 
 import com.intellij.execution.Executor
@@ -75,7 +74,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
       val command =
         if (moduleCommands.size == 1) moduleCommands.head
-        else moduleCommands.mkString("; ", "; ", "")
+        else moduleCommands.mkString("all ", " ", "")
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
       val task = new CommandTask(project, command, callbackOpt)
@@ -85,6 +84,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
   private def buildCommands(task: ModuleBuildTask): Seq[String] = {
     // TODO sensible way to find out what scopes to run it for besides compile and test?
+    // TODO make tasks should be user-configurable
     SbtUtil.getSbtProjectId(task.getModule).toSeq.flatMap { scope =>
       // `products` task is a little more general than just `compile`
       Seq(s"$scope/products", s"$scope/test:products")
