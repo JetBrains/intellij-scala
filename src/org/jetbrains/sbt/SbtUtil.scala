@@ -19,29 +19,6 @@ import org.jetbrains.sbt.project.data.SbtModuleData
   */
 object SbtUtil {
 
-  /**
-    * Compare two version strings.
-    * From http://stackoverflow.com/questions/6701948/efficient-way-to-compare-version-strings-in-java
-    * @return 0 if equal, <0 if v1 is a lower version than v2, >0 if v1 is a higher version than v2
-    */
-  def versionCompare(str1: String, str2: String): Int = {
-    val vals1 = str1.split("\\.")
-    val vals2 = str2.split("\\.")
-    var i = 0
-    // set index to first non-equal ordinal or length of shortest version string
-    while ( {
-      i < vals1.length && i < vals2.length && vals1(i) == vals2(i)
-    }) i += 1
-    // compare first non-equal ordinal number
-    if (i < vals1.length && i < vals2.length) {
-      val diff = Integer.valueOf(vals1(i)).compareTo(Integer.valueOf(vals2(i)))
-      return Integer.signum(diff)
-    }
-    // the strings are equal or one string is a substring of the other
-    // e.g. "1.2.3" = "1.2.3" or "1.2.3" < "1.2.3.4"
-    Integer.signum(vals1.length - vals2.length)
-  }
-
   /** Directory for global sbt plugins given sbt version */
   def globalPluginsDirectory(sbtVersion: String): File =
     getFileProperty(globalPluginsProperty).getOrElse {

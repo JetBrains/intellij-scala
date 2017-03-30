@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.structure.SbtRunner._
 import org.jetbrains.sbt.shell.SbtShellCommunication
@@ -100,10 +101,10 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   }
 
   private def shellImportSupported(sbtVersion: String): Boolean =
-    versionCompare(sbtVersion, sinceSbtVersionShell) >= 0
-  
+    Version(sbtVersion) >= Version(sinceSbtVersionShell)
+
   private def importSupported(sbtVersion: String): Boolean =
-    versionCompare(sbtVersion, sinceSbtVersion) >= 0
+    Version(sbtVersion) >= Version(sinceSbtVersion)
 
   private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: String): Try[String] = {
 
@@ -206,6 +207,6 @@ object SbtRunner {
   def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
 
   private val sinceSbtVersion = "0.12.4"
-  private val sinceSbtVersionShell = "0.13.5"
+  val sinceSbtVersionShell = "0.13.5"
 
 }
