@@ -76,7 +76,6 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     javaParameters.setWorkingDirectory(workingDir)
     javaParameters.setJarPath(launcher.getCanonicalPath)
 
-    // TODO make sure jvm also gets proxy settings
     val vmParams = javaParameters.getVMParametersList
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)

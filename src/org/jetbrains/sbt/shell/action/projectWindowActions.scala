@@ -1,20 +1,42 @@
 package org.jetbrains.sbt.shell.action
 
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.externalSystem.action.{ExternalSystemAction, ExternalSystemNodeAction}
-import com.intellij.openapi.externalSystem.model.ProjectSystemId
+import com.intellij.openapi.externalSystem.action.ExternalSystemNodeAction
+import com.intellij.openapi.externalSystem.model.{ExternalSystemDataKeys, ProjectSystemId}
+import com.intellij.openapi.externalSystem.view.ModuleNode
 import com.intellij.openapi.project.Project
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtNamedKey, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.shell.SbtShellCommunication
+import SbtNodeAction._
 
-abstract class SbtNodeAction[T](c: Class[T]) extends ExternalSystemNodeAction[T](c) {
+import scala.collection.JavaConverters._
 
-  protected def buildCmd(data: T): String
+abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSystemNodeAction[T](c) {
+
+  protected def buildCmd(projectId: String, key: String): String
 
   override def perform(project: Project, projectSystemId: ProjectSystemId, externalData: T, e: AnActionEvent): Unit = {
+     val projectScope = for {
+       selected <- ExternalSystemDataKeys.SELECTED_NODES.getData(e.getDataContext).asScala.headOption
+       groupNode <- Option(selected.getParent)
+       moduleNode@(_moduleNode: ModuleNode) <- Option(groupNode.getParent)
+       esModuleData <- Option(moduleNode.getData)
+       sbtModuleData <- SbtUtil.getSbtModuleData(e.getProject, esModuleData.getId)
+     } yield {
+       SbtUtil.makeSbtProjectId(sbtModuleData)
+     }
+
+
     val comms = SbtShellCommunication.forProject(e.getProject)
-    comms.command(buildCmd(externalData)) // TODO indicator
+    val projectPart = projectScope.getOrElse("")
+    val keyPart = externalData.name
+    comms.command(buildCmd(projectPart, keyPart)) // TODO indicator
   }
+}
+
+object SbtNodeAction {
+  def scopedKey(project:String, key: String): String = if (project.nonEmpty) s"$project$key" else key
 }
 
 abstract class SbtTaskAction extends SbtNodeAction[SbtTaskData](classOf[SbtTaskData])
@@ -25,29 +47,29 @@ abstract class SbtCommandAction extends SbtNodeAction[SbtCommandData](classOf[Sb
   * Created by jast on 2017-02-13.
   */
 class RunTaskAction extends SbtTaskAction {
-  override def buildCmd(data: SbtTaskData): String = data.name
+  override def buildCmd(project: String, key: String): String = scopedKey(project,key)
 }
 
 class ShowTaskAction extends SbtTaskAction {
-  override def buildCmd(data: SbtTaskData): String = s"show ${data.name}"
+  override def buildCmd(project: String, key: String): String = s"show ${scopedKey(project,key)}"
 }
 
 class InspectTaskAction extends SbtTaskAction {
-  override def buildCmd(data: SbtTaskData): String = s"inspect ${data.name}"
+  override def buildCmd(project: String, key: String): String = s"inspect ${scopedKey(project,key)}"
 }
 
 class ShowSettingAction extends SbtSettingAction {
-  override def buildCmd(data: SbtSettingData): String = data.name
+  override def buildCmd(project: String, key: String): String = scopedKey(project,key)
 }
 
 class InspectSettingAction extends SbtSettingAction {
-  override def buildCmd(data: SbtSettingData): String = s"inspect ${data.name}"
+  override def buildCmd(project: String, key: String): String = s"inspect ${scopedKey(project,key)}"
 }
 
 class RunCommandAction extends SbtCommandAction {
-  override def buildCmd(data: SbtCommandData): String = data.name
+  override def buildCmd(project: String, key: String): String = s";project $project; $key"
 }
 
 class SbtHelpAction extends SbtNodeAction[SbtNamedKey](classOf[SbtNamedKey]) {
-  override def buildCmd(data: SbtNamedKey): String = s"help ${data.name}"
+  override def buildCmd(project: String, key: String): String = s"help $key"
 }

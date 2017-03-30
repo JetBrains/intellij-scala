@@ -10,6 +10,7 @@ import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.project.Project
 import com.intellij.util.BooleanFunction
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtModuleData
@@ -118,6 +119,10 @@ object SbtUtil {
   def getSbtModuleData(module: Module): Option[SbtModuleData] = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
+    getSbtModuleData(project, moduleId)
+  }
+
+  def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleData] = {
 
     // seems hacky. but it seems there isn't yet any better way to get the data for selected module?
     val predicate = new BooleanFunction[DataNode[ModuleData]] {
@@ -151,10 +156,9 @@ object SbtUtil {
       case _ => (None, None)
     }
 
-  def getSbtProjectId(module: Module): Option[String] =
-    getSbtModuleData(module).map { data =>
-      val uri = data.buildURI
-      val id = data.id
-      s"{$uri}$id"
-    }
+  def makeSbtProjectId(data: SbtModuleData): String = {
+    val uri = data.buildURI
+    val id = data.id
+    s"{$uri}$id"
+  }
 }

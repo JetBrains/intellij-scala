@@ -85,7 +85,8 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
   private def buildCommands(task: ModuleBuildTask): Seq[String] = {
     // TODO sensible way to find out what scopes to run it for besides compile and test?
     // TODO make tasks should be user-configurable
-    SbtUtil.getSbtProjectId(task.getModule).toSeq.flatMap { scope =>
+    SbtUtil.getSbtModuleData(task.getModule).toSeq.flatMap { sbtModuleData =>
+      val scope = SbtUtil.makeSbtProjectId(sbtModuleData)
       // `products` task is a little more general than just `compile`
       Seq(s"$scope/products", s"$scope/test:products")
     }
