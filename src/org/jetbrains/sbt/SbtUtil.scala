@@ -115,7 +115,7 @@ object SbtUtil {
     }
   }
 
-  def getSbtProjectIdSeparated(module: Module): (Option[String], Option[String]) = {
+  def getSbtModuleData(module: Module): Option[SbtModuleData] = {
     val project = module.getProject
     val moduleId = ExternalSystemApiUtil.getExternalProjectId(module) // nullable, but that's okay for use in predicate
 
@@ -128,7 +128,7 @@ object SbtUtil {
     val dataManager = ProjectDataManager.getInstance()
 
     // TODO instead of silently not running a task, collect failures, report to user
-    (for {
+    for {
       projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
       projectStructure <- Option(projectInfo.getExternalProjectStructure)
       moduleDataNode <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE, predicate))
@@ -139,18 +139,22 @@ object SbtUtil {
       }
       // buildURI should never be empty for true sbt projects, but filtering here handles synthetic projects
       // created from AAR files. Should implement a more elegant solution for AARs.
-      uri <- Option(data.buildURI) if uri != emptyURI
+      if data.buildURI != emptyURI
     } yield {
-      val id = data.id
-      (uri.toString, id)
-    }) match {
-      case Some((uri, id)) => (Some(uri), Some(id))
-      case _ => (None, None)
+      data
     }
   }
 
-  def getSbtProjectId(module: Module): Option[String] = getSbtProjectIdSeparated(module) match {
-    case (Some(uri), Some(id)) => Some(s"{$uri}$id")
-    case _ => None
-  }
+  def getSbtProjectIdSeparated(module: Module): (Option[String], Option[String]) =
+    getSbtModuleData(module) match {
+      case Some(data) => (Some(data.buildURI.toString), Some(data.id))
+      case _ => (None, None)
+    }
+
+  def getSbtProjectId(module: Module): Option[String] =
+    getSbtModuleData(module).map { data =>
+      val uri = data.buildURI
+      val id = data.id
+      s"{$uri}$id"
+    }
 }
