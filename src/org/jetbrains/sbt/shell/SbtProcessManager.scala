@@ -9,6 +9,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
@@ -58,7 +59,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     lazy val launcher = launcherJar(sbtSettings)
 
     val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir, launcher)
-    val autoPluginsSupported = SbtUtil.versionCompare(projectSbtVersion, "0.13.5") >= 0
+    val autoPluginsSupported = Version(projectSbtVersion) >= Version(SbtRunner.sinceSbtVersionShell)
 
     // an id to uniquely identify this boot of sbt form idea, so that any plugins it injects are never ever loaded otherwise
     val uuid = UUID.randomUUID().toString
