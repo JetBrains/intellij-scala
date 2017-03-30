@@ -13,6 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.stubs.NamedStub
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -39,6 +40,11 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   }
 
   def nameInner: String = nameId.getText
+
+  def nameContext: PsiElement =
+    this.withParentsInFile
+      .find(ScalaPsiUtil.isNameContext)
+      .orNull
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
@@ -80,14 +86,14 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   }
 
   override def getIcon(flags: Int): Icon =
-    ScalaPsiUtil.nameContext(this) match {
+    nameContext match {
       case null => null
       case _: ScCaseClause => Icons.PATTERN_VAL
       case x => x.getIcon(flags)
     }
 
   abstract override def getUseScope: SearchScope = {
-    ScalaPsiUtil.intersectScopes(super.getUseScope, ScalaPsiUtil.nameContext(this) match {
+    ScalaPsiUtil.intersectScopes(super.getUseScope, nameContext match {
       case member: ScMember if member != this => Some(member.getUseScope)
       case caseClause: ScCaseClause => Some(new LocalSearchScope(caseClause))
       case elem @ (_: ScEnumerator | _: ScGenerator) =>

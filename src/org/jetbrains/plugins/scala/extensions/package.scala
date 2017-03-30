@@ -478,6 +478,16 @@ package object extensions {
         case nd => nd.getName
       }
     }
+
+    def nameContext: PsiElement = {
+      named match {
+        case sc: ScNamedElement => sc.nameContext
+        case _ =>
+          named.withParentsInFile
+            .find(ScalaPsiUtil.isNameContext)
+            .orNull
+      }
+    }
   }
 
   implicit class PsiModifierListOwnerExt(val member: PsiModifierListOwner) extends AnyVal {

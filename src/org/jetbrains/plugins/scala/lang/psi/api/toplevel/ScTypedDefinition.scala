@@ -5,7 +5,7 @@ package api
 package toplevel
 
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import com.intellij.psi.{PsiClass, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -87,7 +87,7 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
         Seq(if (beanProperty) getGetBeanMethod else getIsBeanMethod, getSetBeanMethod)
       } else Seq.empty
     }
-    ScalaPsiUtil.nameContext(this) match {
+    nameContext match {
       case v: ScValue =>
         valueSeq(v)
       case v: ScVariable =>
@@ -113,11 +113,10 @@ trait ScTypedDefinition extends ScNamedElement with Typeable {
     new StaticPsiTypedDefinitionWrapper(this, role, cClass)
   }
 
-  def nameContext: PsiElement = ScalaPsiUtil.nameContext(this)
   def isVar: Boolean = false
   def isVal: Boolean = false
 
-  def isAbstractMember: Boolean = ScalaPsiUtil.nameContext(this) match {
+  def isAbstractMember: Boolean = nameContext match {
     case _: ScFunctionDefinition | _: ScPatternDefinition | _: ScVariableDefinition => false
     case _: ScClassParameter => false
     case _ => true

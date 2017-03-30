@@ -918,7 +918,7 @@ object ScalaPsiUtil {
       case x: ScTypedDefinition => x
       case _ => return empty
     }
-    val clazz: ScTemplateDefinition = nameContext(typed) match {
+    val clazz: ScTemplateDefinition = typed.nameContext match {
       case e@(_: ScValue | _: ScVariable | _: ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||
         e.getParent.isInstanceOf[ScEarlyDefinitions] =>
         e.asInstanceOf[ScMember].containingClass
@@ -980,7 +980,7 @@ object ScalaPsiUtil {
 
   def superTypeMembersAndSubstitutors(element: PsiNamedElement, withSelfType: Boolean = false)
                                      (implicit typeSystem: TypeSystem): Seq[TypeDefinitionMembers.TypeNodes.Node] = {
-    val clazz: ScTemplateDefinition = nameContext(element) match {
+    val clazz: ScTemplateDefinition = element.nameContext match {
       case e@(_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
       case _ => return Seq.empty
     }
@@ -1001,24 +1001,16 @@ object ScalaPsiUtil {
     }
   }
 
-  def nameContext(x: PsiNamedElement): PsiElement = {
-    var parent = x.getParent
-
-    def isAppropriatePsiElement(x: PsiElement): Boolean = {
-      x match {
-        case _: ScValue | _: ScVariable | _: ScTypeAlias | _: ScParameter | _: PsiMethod | _: PsiField |
-             _: ScCaseClause | _: PsiClass | _: PsiPackage | _: ScGenerator | _: ScEnumerator | _: ScObject => true
-        case _ => false
-      }
-    }
-
-    if (isAppropriatePsiElement(x)) return x
-    while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
-    parent
+  def isNameContext(x: PsiElement): Boolean = x match {
+    case _: ScMember | _: ScParameter | _: ScCaseClause | _: ScPatterned => true
+    case _: PsiClass | _: PsiMethod | _: PsiField | _: PsiPackage => true
+    case _ => false
   }
 
+  def nameContext(x: PsiNamedElement): PsiElement = x.nameContext
+
   object inNameContext {
-    def unapply(x: PsiNamedElement): Option[PsiElement] = nameContext(x).toOption
+    def unapply(x: PsiNamedElement): Option[PsiElement] = Option(x.nameContext)
   }
 
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
@@ -1192,7 +1184,7 @@ object ScalaPsiUtil {
       }
     }
 
-    nameContext(o) match {
+    o.nameContext match {
       case member: PsiMember => hasStablePathInner(member)
       case _: ScPackaging | _: PsiPackage => true
       case _ => false
@@ -2022,7 +2014,7 @@ object ScalaPsiUtil {
     namedElement match {
       case s: ScModifierListOwner => s.hasModifierProperty("implicit")
       case named: ScNamedElement =>
-        ScalaPsiUtil.nameContext(named) match {
+        named.nameContext match {
           case s: ScModifierListOwner => s.hasModifierProperty("implicit")
           case _ => false
         }
