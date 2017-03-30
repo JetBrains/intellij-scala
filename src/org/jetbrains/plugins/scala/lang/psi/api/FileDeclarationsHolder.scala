@@ -10,6 +10,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
@@ -22,6 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImpo
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.worksheet.actions.WorksheetGotoResNHandler
+import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -112,6 +116,30 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
         if (!processor.execute(syntheticValue, state)) return false
       }
     }
+
+    if (isWorksheetFile && WorksheetCompiler.isWorksheetReplModeLight(this)) {
+      var ind = 0
+      
+      getChildren foreach {
+        case expr: ScExpression =>
+          val text = expr.getText
+          
+          if (!text.contains("IntellijIdeaRulezzz")) {
+            ScalaPsiElementFactory.createDefinitionWithContext(s" val res$ind = $text", this, expr) match {
+              case patternDef: ScPatternDefinition =>
+                patternDef.declaredElements foreach {
+                  declared =>
+                    declared.putUserData(WorksheetGotoResNHandler.WORKSHEET_GOTO_PSI_KEY, expr)
+                    if (!processor.execute(declared, state)) return false
+                }
+              case _ =>
+            }
+            ind += 1
+          }
+        case _ => 
+      }
+    }
+    
 
     val checkPredefinedClassesAndPackages = processor match {
       case r: ResolveProcessor => r.checkPredefinedClassesAndPackages()
