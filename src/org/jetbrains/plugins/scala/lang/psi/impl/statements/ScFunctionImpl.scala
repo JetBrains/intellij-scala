@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
  * @author ilyas
@@ -41,9 +42,8 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
     n.getPsi
   }
 
-  def paramClauses: ScParameters = {
-    getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
-  }
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  def paramClauses: ScParameters = getStubOrPsiChild(ScalaElementTypes.PARAM_CLAUSES)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
@@ -71,5 +71,6 @@ abstract class ScFunctionImpl protected (stub: ScFunctionStub, nodeType: ScFunct
     true
   }
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def returnTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 }

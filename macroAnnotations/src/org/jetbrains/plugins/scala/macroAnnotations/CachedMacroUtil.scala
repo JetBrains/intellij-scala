@@ -146,6 +146,8 @@ object CachedMacroUtil {
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
           case Some(ModCount.getJavaStructureModificationCount) =>
             q"$psiModificationTrackerFQN.JAVA_STRUCTURE_MODIFICATION_COUNT"
+          case Some(ModCount.`anyScalaPsiModificationCount`) =>
+            q"$scalaPsiManagerFQN.AnyScalaPsiModificationTracker"
           case _ => tree
         }
     }
@@ -253,4 +255,11 @@ object ModCount extends Enumeration {
   val getOutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
   val getJavaStructureModificationCount = Value("getJavaStructureModificationCount")
   val getBlockModificationCount = Value("getBlockModificationCount")
+
+  //Use for hot methods: it has minimal overhead, but updates on each change
+  //
+  // PsiModificationTracker is not an option, because it
+  // - requires calling getProject first
+  // - doesn't work for non-physical elements
+  val anyScalaPsiModificationCount = Value("anyScalaPsiModificationCount")
 }

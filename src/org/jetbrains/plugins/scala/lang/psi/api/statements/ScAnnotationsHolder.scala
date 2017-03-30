@@ -24,6 +24,8 @@ import scala.meta.intellij.MetaExpansionsManager
  */
 
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
+
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def annotations: Seq[ScAnnotation] = this.stubOrPsiChild(ScalaElementTypes.ANNOTATIONS) match {
     case Some(ann) => ann.getAnnotations.toSeq
     case _ => Seq.empty

@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -26,8 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 */
 
 class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node) with ScTemplateBody
-                                        with ScImportsHolder {
+  extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node)
+    with ScTemplateBody with ScImportsHolder {
 
   def this(node: ASTNode) = this(null, node)
 
@@ -57,6 +58,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   def exprs: Seq[ScExpression] =
     getStubOrPsiChildren(EXPRESSION_SET, ScExpressionFactory).toSeq
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def selfTypeElement: Option[ScSelfTypeElement] =
     Option(getStubOrPsiChild(SELF_TYPE))
 

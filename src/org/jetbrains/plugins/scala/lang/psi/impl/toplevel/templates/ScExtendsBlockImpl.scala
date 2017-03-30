@@ -44,6 +44,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
   override def toString: String = "ExtendsBlock"
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def templateBody: Option[ScTemplateBody] = {
     def childStubTemplate(stub: ScExtendsBlockStub) =
       Option(stub.findChildStubByType(TEMPLATE_BODY))

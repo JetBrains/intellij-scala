@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createClauseFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -27,6 +28,7 @@ class ScParametersImpl private (stub: ScParamClausesStub, node: ASTNode)
 
   override def toString: String = "Parameters"
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def clauses: Seq[ScParameterClause] = {
     getStubOrPsiChildren(ScalaElementTypes.PARAM_CLAUSE, JavaArrayFactoryUtil.ScParameterClauseFactory).toSeq
   }

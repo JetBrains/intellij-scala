@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 /**
   * @author Alexander Podkhalyuzin
@@ -31,8 +31,9 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
   override def toString: String = "ParametersClause"
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def parameters: Seq[ScParameter] = {
-    getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory)
+    getStubOrPsiChildren[ScParameter](TokenSets.PARAMETERS, JavaArrayFactoryUtil.ScParameterFactory).toSeq
   }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
@@ -66,6 +67,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     }
   }
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def isImplicit: Boolean = byStubOrPsi(_.isImplicit)(findChildByType(ScalaTokenTypes.kIMPLICIT) != null)
 
   def addParameter(param: ScParameter): ScParameterClause = {

@@ -8,8 +8,11 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 trait ScTypeParametersOwner extends ScalaPsiElement {
+
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def typeParameters: Seq[ScTypeParam] = {
     typeParametersClause match {
       case Some(clause) => clause.typeParameters

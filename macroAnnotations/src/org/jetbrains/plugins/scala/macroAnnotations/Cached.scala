@@ -89,6 +89,8 @@ object Cached {
             q"val currModCount = $cachesUtilFQN.enclosingModificationOwner($psiElement).getModificationCount"
           case ModCount.getOutOfCodeBlockModificationCount =>
             q"val currModCount = $scalaPsiManagerFQN.instance($psiElement.getProject).getModificationCount"
+          case ModCount.anyScalaPsiModificationCount =>
+            q"val currModCount = $scalaPsiManagerFQN.AnyScalaPsiModificationTracker.getModificationCount"
           case _ =>
             q"val currModCount = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
         }

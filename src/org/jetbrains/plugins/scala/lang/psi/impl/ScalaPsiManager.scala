@@ -13,7 +13,7 @@ import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectUtil}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
-import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker}
+import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker, SimpleModificationTracker}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiTreeChangeEventImpl}
@@ -430,6 +430,8 @@ object ScalaPsiManager {
       }
     }, project)
   }
+
+  object AnyScalaPsiModificationTracker extends SimpleModificationTracker
 }
 
 class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponent(project) {

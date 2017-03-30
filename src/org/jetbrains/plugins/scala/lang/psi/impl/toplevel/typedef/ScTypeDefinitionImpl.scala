@@ -177,9 +177,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     }
   }
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   override final def getQualifiedName: String = byStubOrPsi(_.javaQualifiedName)(javaQualName())
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def javaQualName(): String = {
     var res = qualifiedName(".", encodeName = true).split('.').map { s =>
       if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
@@ -194,9 +194,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
     res
   }
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   override def qualifiedName: String = byStubOrPsi(_.getQualifiedName)(qualName())
 
-  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def qualName(): String = qualifiedName(".")
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes

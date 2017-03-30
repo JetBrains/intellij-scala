@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -53,6 +54,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     *
     * `object a { def foo { def bar = 0 }}`
     */
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def containingClass: ScTemplateDefinition = {
     if (isLocalByStub) null
     else containingClassInner

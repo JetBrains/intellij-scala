@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl.AllModifiers
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -35,21 +36,24 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
 
   def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
-  def hasModifierProperty(name: String): Boolean = {
-    byStubOrPsi(_.modifiers.contains(name)) {
-      name match {
-        case "override" => has(ScalaTokenTypes.kOVERRIDE)
-        case "private" => has(ScalaTokenTypes.kPRIVATE)
-        case "protected" => has(ScalaTokenTypes.kPROTECTED)
-        case "public" => !(has(ScalaTokenTypes.kPROTECTED) || has(ScalaTokenTypes.kPRIVATE))
-        case "final" => has(ScalaTokenTypes.kFINAL)
-        case "implicit" => has(ScalaTokenTypes.kIMPLICIT)
-        case "abstract" => has(ScalaTokenTypes.kABSTRACT)
-        case "sealed" => has(ScalaTokenTypes.kSEALED)
-        case "lazy" => has(ScalaTokenTypes.kLAZY)
-        case "case" => has(ScalaTokenTypes.kCASE)
-        case _ => false
-      }
+  override def hasModifierProperty(name: String): Boolean = modifiers.contains(name)
+
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
+  def modifiers: Array[String] = byStubOrPsi(_.modifiers)(AllModifiers.filter(hasModifierPropertyImpl))
+
+  private def hasModifierPropertyImpl(name: String): Boolean = {
+    name match {
+      case "override" => has(ScalaTokenTypes.kOVERRIDE)
+      case "private" => has(ScalaTokenTypes.kPRIVATE)
+      case "protected" => has(ScalaTokenTypes.kPROTECTED)
+      case "public" => !(has(ScalaTokenTypes.kPROTECTED) || has(ScalaTokenTypes.kPRIVATE))
+      case "final" => has(ScalaTokenTypes.kFINAL)
+      case "implicit" => has(ScalaTokenTypes.kIMPLICIT)
+      case "abstract" => has(ScalaTokenTypes.kABSTRACT)
+      case "sealed" => has(ScalaTokenTypes.kSEALED)
+      case "lazy" => has(ScalaTokenTypes.kLAZY)
+      case "case" => has(ScalaTokenTypes.kCASE)
+      case _ => false
     }
   }
 
@@ -68,9 +72,8 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     }
   }
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def accessModifier: Option[ScAccessModifier] = Option(getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER))
-
-  def modifiers: Array[String] = byStubOrPsi(_.modifiers)(AllModifiers.filter(hasModifierProperty))
 
   def hasExplicitModifiers: Boolean = byStubOrPsi(_.hasExplicitModifiers) {
     !findChildrenByType(TokenSets.MODIFIERS + ScalaElementTypes.ACCESS_MODIFIER).isEmpty
@@ -195,14 +198,13 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   }
 
   def has(prop: IElementType): Boolean = {
-    val modifier = getStubOrPsiChild(ScalaElementTypes.ACCESS_MODIFIER)
     prop match {
-      case ScalaTokenTypes.kPRIVATE if modifier != null => modifier.access match {
-        case ScAccessModifier.Type.PRIVATE | ScAccessModifier.Type.THIS_PRIVATE => true
+      case ScalaTokenTypes.kPRIVATE => accessModifier.map(_.access) match {
+        case Some(ScAccessModifier.Type.PRIVATE | ScAccessModifier.Type.THIS_PRIVATE) => true
         case _ => false
       }
-      case ScalaTokenTypes.kPROTECTED if modifier != null => modifier.access match {
-        case ScAccessModifier.Type.PROTECTED | ScAccessModifier.Type.THIS_PROTECTED => true
+      case ScalaTokenTypes.kPROTECTED => accessModifier.map(_.access) match {
+        case Some(ScAccessModifier.Type.PROTECTED | ScAccessModifier.Type.THIS_PROTECTED) => true
         case _ => false
       }
       case _ =>

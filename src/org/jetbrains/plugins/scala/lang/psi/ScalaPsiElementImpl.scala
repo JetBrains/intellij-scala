@@ -11,6 +11,7 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, PsiElementVisitor, StubBasedPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaStubBasedElementImpl.ifNotNull
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
 /**
@@ -79,6 +80,11 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
         x.deleteChildInternal(getNode)
       case _ => super.delete()
     }
+  }
+
+  override def subtreeChanged(): Unit = {
+    AnyScalaPsiModificationTracker.incModificationCount()
+    super.subtreeChanged()
   }
 }
 
@@ -162,6 +168,11 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](s
   def byPsiOrStub[R](byPsi: => R)(byStub: S => R): R = getStub match {
     case null => byPsi
     case s => byStub(s)
+  }
+
+  override def subtreeChanged(): Unit = {
+    AnyScalaPsiModificationTracker.incModificationCount()
+    super.subtreeChanged()
   }
 }
 

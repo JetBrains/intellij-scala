@@ -8,6 +8,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.StubBasedExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
 * @author ilyas
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 
 trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   override def getModifierList: ScModifierList = this.stubOrPsiChild(ScalaElementTypes.MODIFIERS).orNull
 
   def hasModifierProperty(name: String): Boolean = hasModifierPropertyInner(name)

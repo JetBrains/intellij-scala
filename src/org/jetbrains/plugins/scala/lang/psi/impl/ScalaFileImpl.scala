@@ -37,9 +37,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScToplevelElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.AnyScalaPsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConverters._
@@ -48,7 +49,8 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.INSTANCE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
                 with ScalaFile with FileDeclarationsHolder
-                with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {
+                with CompiledFileAdjuster with ScControlFlowOwner
+                with FileResolveScopeProvider {
   override def getViewProvider: FileViewProvider = viewProvider
 
   override def getFileType: LanguageFileType = fileType
@@ -154,7 +156,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     }
   }
 
-  @CachedInsidePsiElement(this, this)
   def isScriptFileImpl: Boolean = {
     val empty = this.children.forall {
       case _: PsiWhiteSpace => true
@@ -174,6 +175,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     false
   }
 
+  @CachedInsidePsiElement(this, ModCount.anyScalaPsiModificationCount)
   override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
 
   def isWorksheetFile: Boolean = {
@@ -453,6 +455,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   private def byStubOrPsi[R](byStub: ScFileStub => R)(byPsi: => R): R = getStub match {
     case s: ScFileStub => byStub(s)
     case _ => byPsi
+  }
+
+  override def subtreeChanged(): Unit = {
+    AnyScalaPsiModificationTracker.incModificationCount()
+    super.subtreeChanged()
   }
 }
 

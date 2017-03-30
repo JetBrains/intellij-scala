@@ -48,6 +48,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
 
   def additionalJavaNames: Array[String] = Array.empty
 
+  @Cached(synchronized = false, ModCount.anyScalaPsiModificationCount, this)
   def extendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementTypes.EXTENDS_BLOCK).orNull
 
   def innerExtendsListTypes: Array[PsiClassType] = {
