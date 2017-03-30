@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -125,7 +126,22 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
           val text = expr.getText
           
           if (!text.contains("IntellijIdeaRulezzz")) {
-            ScalaPsiElementFactory.createDefinitionWithContext(s" val res$ind = $text", this, expr) match {
+            val name = s"res$ind"
+            val inds = ArrayBuffer[Int]()
+            val m = name.r.pattern.matcher(text)
+            while (m.find()) {
+              inds += m.start()
+            }
+
+            val skip = inds exists {
+              idx => findElementAt(expr.getTextRange.getStartOffset + idx + 1) match {
+                case psi: PsiElement if psi.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
+                  true
+                case _ => false
+              }
+            }
+
+            if (!skip) ScalaPsiElementFactory.createDefinitionWithContext(s" val res$ind = $text", this, expr) match {
               case patternDef: ScPatternDefinition =>
                 patternDef.declaredElements foreach {
                   declared =>
