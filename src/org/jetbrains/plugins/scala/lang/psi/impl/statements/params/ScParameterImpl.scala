@@ -111,37 +111,6 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   def getActualDefaultExpression: Option[ScExpression] = byPsiOrStub(findChild(classOf[ScExpression]))(_.bodyExpression)
 
-  def remove() {
-    val node = getNode
-    val toRemove: ArrayBuffer[ASTNode] = ArrayBuffer.apply(node)
-    getParent match {
-      case clause: ScParameterClause =>
-        val index = clause.parameters.indexOf(this)
-        val length = clause.parameters.length
-        if (length != 1) {
-          if (index != length) {
-            var n = node.getTreeNext
-            while (n != null && n.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
-                    !n.getPsi.isInstanceOf[ScParameter]) {
-              toRemove += n
-              n = n.getTreeNext
-            }
-          } else {
-            var n = node.getTreePrev
-            while (n != null && n.getElementType != ScalaTokenTypes.tLPARENTHESIS &&
-                    !n.getPsi.isInstanceOf[ScParameter]) {
-              toRemove += n
-              n = n.getTreePrev
-            }
-          }
-        }
-      case _ =>
-    }
-    for (elem <- toRemove) {
-      elem.getTreeParent.removeChild(elem)
-    }
-  }
-
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitParameter(this)
   }

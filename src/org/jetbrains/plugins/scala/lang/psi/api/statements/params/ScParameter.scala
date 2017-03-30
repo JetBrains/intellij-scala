@@ -86,8 +86,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
       classOf[ScFunction], classOf[ScPrimaryConstructor])
   }
 
-  def remove()
-
   def isImplicitParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
