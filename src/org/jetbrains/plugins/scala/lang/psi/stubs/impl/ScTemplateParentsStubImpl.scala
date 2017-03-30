@@ -26,15 +26,14 @@ class ScTemplateParentsStubImpl[P <: ScTemplateParents](parent: StubElement[_ <:
   def parentTypesTexts: Array[String] = parentTypeTextRefs.asStrings
 
   def parentTypeElements: Seq[ScTypeElement] = {
-    parentTypesElementReferences = updateReference(parentTypesElementReferences) {
+    getFromReference(parentTypesElementReferences) {
       case (context, child) =>
         constructorText.toSeq.map {
           createConstructorTypeElementFromText(_, context, child)
         } ++ parentTypesTexts.map {
           createTypeElementFromText(_, context, child)
         }
-    }
-    parentTypesElementReferences.get
+    } (parentTypesElementReferences = _)
   }
 
   def constructorText: Option[String] = constructorRef.asString

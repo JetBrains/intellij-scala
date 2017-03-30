@@ -19,12 +19,11 @@ trait ScExpressionOwnerStub[E <: PsiElement] extends StubElement[E] with PsiOwne
   private[impl] var expressionElementReference: SofterReference[Option[ScExpression]] = null
 
   def bodyExpression: Option[ScExpression] = {
-    expressionElementReference = updateOptionalReference(expressionElementReference) {
+    getFromOptionalReference(expressionElementReference) {
       case (context, child) =>
         bodyText.map {
           createExpressionWithContextFromText(_, context, child)
         }
-    }
-    expressionElementReference.get
+    } (expressionElementReference = _)
   }
 }

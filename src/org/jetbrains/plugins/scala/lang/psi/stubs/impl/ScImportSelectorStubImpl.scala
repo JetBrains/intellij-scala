@@ -29,13 +29,12 @@ class ScImportSelectorStubImpl(parent: StubElement[_ <: PsiElement],
   override def referenceText: Option[String] = referenceTextRef.asString
 
   override def reference: Option[ScStableCodeReferenceElement] = {
-    referenceReference = updateOptionalReference(referenceReference) {
+    getFromOptionalReference(referenceReference) {
       case (context, child) =>
         referenceText.map {
           createReferenceFromText(_, context, child)
         }
-    }
-    referenceReference.get
+    } (referenceReference = _)
   }
 
   override def importedName: Option[String] = importedNameRef.asString

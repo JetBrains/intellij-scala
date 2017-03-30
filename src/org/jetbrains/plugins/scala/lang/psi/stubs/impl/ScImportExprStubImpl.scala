@@ -28,12 +28,11 @@ class ScImportExprStubImpl(parent: StubElement[_ <: PsiElement],
   override def referenceText: Option[String] = referenceTextRef.asString
 
   def reference: Option[ScStableCodeReferenceElement] = {
-    referenceReference = updateOptionalReference(referenceReference) {
+    getFromOptionalReference(referenceReference) {
       case (context, child) =>
         referenceText.map {
           createReferenceFromText(_, context, child)
         }
-    }
-    referenceReference.get
+    } (referenceReference = _)
   }
 }

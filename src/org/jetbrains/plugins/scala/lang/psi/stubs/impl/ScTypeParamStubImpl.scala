@@ -43,24 +43,22 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
   override def viewBoundsTexts: Array[String] = viewBoundsTextRefs.asStrings
 
   def viewBoundsTypeElements: Seq[ScTypeElement] = {
-    viewElementsReferences = updateReference(viewElementsReferences) {
+    getFromReference(viewElementsReferences) {
       case (context, child) =>
         viewBoundsTexts.map {
           createTypeElementFromText(_, context, child)
         }
-    }
-    viewElementsReferences.get
+    } (viewElementsReferences = _)
   }
 
   override def contextBoundsTexts: Array[String] = contextBoundsTextRefs.asStrings
 
   def contextBoundsTypeElements: Seq[ScTypeElement] = {
-    contextElementsReferences = updateReference(contextElementsReferences) {
+    getFromReference(contextElementsReferences) {
       case (context, child) =>
         contextBoundsTexts.map {
           createTypeElementFromText(_, context, child)
         }
-    }
-    contextElementsReferences.get
+    } (contextElementsReferences = _)
   }
 }

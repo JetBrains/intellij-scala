@@ -33,24 +33,22 @@ class ScValueOrVariableStubImpl[V <: ScValueOrVariable](parent: StubElement[_ <:
   def patternsContainer: Option[ScPatternList] = {
     if (isDeclaration) return None
 
-    patternsContainerReference = updateOptionalReference(patternsContainerReference) {
+    getFromOptionalReference(patternsContainerReference) {
       case (context, child) =>
         bindingsContainerText.map {
           createPatterListFromText(_, context, child)
         }
-    }
-    patternsContainerReference.get
+    } (patternsContainerReference = _)
   }
 
   def idsContainer: Option[ScIdList] = {
     if (!isDeclaration) return None
 
-    idsContainerReference = updateOptionalReference(idsContainerReference) {
+    getFromOptionalReference(idsContainerReference) {
       case (context, child) =>
         bindingsContainerText.map {
           createIdsListFromText(_, context, child)
         }
-    }
-    idsContainerReference.get
+    } (idsContainerReference = _)
   }
 }
