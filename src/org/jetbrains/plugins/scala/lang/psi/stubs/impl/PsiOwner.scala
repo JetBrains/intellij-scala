@@ -23,13 +23,21 @@ trait PsiOwner[T <: PsiElement] {
                                                             elementConstructor: (PsiElement, PsiElement) => C,
                                                             refUpdate: SofterReference[C] => Unit)
                                                            (implicit evidence: C => Seq[E]): C = {
-    if (reference != null) {
-      val result = reference.get()
-      if (result.forall(_.getContext eq getPsi)) return result
+    def updateAndGetNewValue(): C = {
+      val result = elementConstructor(getPsi, null)
+      refUpdate(new SofterReference[C](result))
+      result
     }
-    val result = elementConstructor(getPsi, null)
-    refUpdate(new SofterReference[C](result))
-    result
+
+    if (reference != null) {
+      reference.get() match {
+        case null => updateAndGetNewValue()
+        case result =>
+          if (result.forall(_.getContext == getPsi)) result
+          else updateAndGetNewValue()
+      }
+    }
+    else updateAndGetNewValue()
   }
 
 }
