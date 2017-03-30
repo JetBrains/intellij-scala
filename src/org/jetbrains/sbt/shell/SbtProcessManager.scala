@@ -13,7 +13,7 @@ import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtExternalSystemManager
 import org.jetbrains.sbt.project.data.{JdkByName, SdkUtils}
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
-import org.jetbrains.sbt.project.structure.SbtRunner
+import org.jetbrains.sbt.project.structure.{SbtOpts, SbtRunner}
 
 import scala.collection.JavaConverters._
 /**
@@ -77,6 +77,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
     // TODO make sure jvm also gets proxy settings
     val vmParams = javaParameters.getVMParametersList
+    vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$uuid")
 
