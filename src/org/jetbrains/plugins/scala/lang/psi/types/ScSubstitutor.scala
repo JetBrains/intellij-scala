@@ -5,6 +5,7 @@ package types
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -319,7 +320,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
               }
               tp match {
                 case ScThisType(template) =>
-                  val parentTemplate = getContextOfType(template, true, classOf[ScTemplateDefinition])
+                  val parentTemplate = template.containingClass
                   if (parentTemplate != null) tp = ScThisType(parentTemplate.asInstanceOf[ScTemplateDefinition])
                   else tp = null
                 case ScProjectionType(newType, _, _) => tp = newType
