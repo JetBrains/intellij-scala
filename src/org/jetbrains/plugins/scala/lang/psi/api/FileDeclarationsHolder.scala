@@ -9,11 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
@@ -26,8 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImpo
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
-import org.jetbrains.plugins.scala.worksheet.actions.WorksheetGotoResNHandler
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetIncrementalEditorPrinter
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -120,41 +116,8 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
     }
 
     if (isWorksheetFile && WorksheetCompiler.isWorksheetReplModeLight(this)) {
-      var ind = 0
-      
-      getChildren foreach {
-        case expr: ScExpression =>
-          val text = expr.getText
-          
-          if (!text.contains(ScalaCompletionUtil.DUMMY_IDENTIFIER)) {
-            val name = s"res$ind"
-            val inds = ArrayBuffer[Int]()
-            val m = name.r.pattern.matcher(text)
-            while (m.find()) {
-              inds += m.start()
-            }
-
-            val skip = inds exists {
-              idx => findElementAt(expr.getTextRange.getStartOffset + idx + 1) match {
-                case psi: PsiElement if psi.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
-                  true
-                case _ => false
-              }
-            }
-
-            if (!skip) ScalaPsiElementFactory.createDefinitionWithContext(s" val res$ind = $text", this, expr) match {
-              case patternDef: ScPatternDefinition =>
-                patternDef.declaredElements foreach {
-                  declared =>
-                    declared.putUserData(WorksheetGotoResNHandler.WORKSHEET_GOTO_PSI_KEY, expr)
-                    if (!processor.execute(declared, state)) return false
-                }
-              case _ =>
-            }
-            ind += 1
-          }
-        case _ => 
-      }
+      val re = WorksheetIncrementalEditorPrinter.executeResNDeclarations(processor, this, state)
+      if (!re) return false
     }
     
 
