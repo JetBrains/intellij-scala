@@ -178,8 +178,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   override def isScriptFile: Boolean = byStubOrPsi(_.isScript)(isScriptFileImpl)
 
   override def isWorksheetFile: Boolean = {
-    Option(getVirtualFile).orElse(Option(getViewProvider.getVirtualFile).collect {
-      case light: LightVirtualFile => light.getOriginalFile
+    Option(getVirtualFile).orElse(Option(getViewProvider.getVirtualFile).flatMap {
+      case light: LightVirtualFile => Option(light.getOriginalFile)
+      case _ => None
     }).exists {
       vFile => 
         vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||

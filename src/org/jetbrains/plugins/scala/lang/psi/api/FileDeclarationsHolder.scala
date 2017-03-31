@@ -9,6 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -125,7 +126,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
         case expr: ScExpression =>
           val text = expr.getText
           
-          if (!text.contains("IntellijIdeaRulezzz")) {
+          if (!text.contains(ScalaCompletionUtil.DUMMY_IDENTIFIER)) {
             val name = s"res$ind"
             val inds = ArrayBuffer[Int]()
             val m = name.r.pattern.matcher(text)
