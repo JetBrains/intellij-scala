@@ -30,16 +30,16 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
-  private def injectedPlugins(sbtMajorVersion: String): Seq[String] =
+  private def injectedPlugins(sbtMajorVersion: Version): Seq[String] =
     sbtStructurePlugin(sbtMajorVersion)
 
   // this *might* get messy if multiple IDEA projects start messing with the global settings.
   // but we should be fine since it is written before every sbt boot
-  private def sbtStructurePlugin(sbtMajorVersion: String): Seq[String] = {
+  private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
     // IDEA won't import the shared source dir between build definition and build, so this red
     val sbtStructureVersion = "7.0.0-12-ga98ec5e"
     val sbtIdeaShellVersion = "1.0"
-    sbtMajorVersion match {
+    sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case "0.13" => Seq(
         """resolvers += Resolver.url("jb-structure-extractor-0.13", url(s"http://dl.bintray.com/jetbrains/sbt-plugins"))(sbt.Patterns(false,"[organisation]/[module]/scala_2.10/sbt_0.13/[revision]/[type]s/[artifact](-[classifier]).[ext]"))""",
@@ -58,8 +58,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val sbtSettings = getSbtSettings(workingDirPath)
     lazy val launcher = launcherJar(sbtSettings)
 
-    val projectSbtVersion = SbtUtil.detectSbtVersion(workingDir, launcher)
-    val autoPluginsSupported = Version(projectSbtVersion) >= Version(SbtRunner.sinceSbtVersionShell)
+    val projectSbtVersion = Version(SbtUtil.detectSbtVersion(workingDir, launcher))
+    val autoPluginsSupported = projectSbtVersion >= SbtRunner.sinceSbtVersionShell
 
     // an id to uniquely identify this boot of sbt form idea, so that any plugins it injects are never ever loaded otherwise
     val uuid = UUID.randomUUID().toString

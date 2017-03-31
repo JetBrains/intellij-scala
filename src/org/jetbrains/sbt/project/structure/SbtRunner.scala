@@ -39,7 +39,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
     if (SbtLauncher.exists()) {
 
-      val sbtVersion = detectSbtVersion(directory, SbtLauncher)
+      val sbtVersion = Version(detectSbtVersion(directory, SbtLauncher))
       val majorSbtVersion = majorVersion(sbtVersion)
       lazy val project = id.findProject()
       // if the project is being freshly imported, there is no project instance to get the shell component
@@ -100,16 +100,16 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
       messages
   }
 
-  private def shellImportSupported(sbtVersion: String): Boolean =
-    Version(sbtVersion) >= Version(sinceSbtVersionShell)
+  private def shellImportSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= sinceSbtVersionShell
 
-  private def importSupported(sbtVersion: String): Boolean =
-    Version(sbtVersion) >= Version(sinceSbtVersion)
+  private def importSupported(sbtVersion: Version): Boolean =
+    sbtVersion >= sinceSbtVersion
 
-  private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: String): Try[String] = {
+  private def dumpFromProcess(directory: File, structureFile: File, options: Seq[String], sbtVersion: Version): Try[String] = {
 
     val optString = options.mkString(", ")
-    val pluginJar = sbtStructureJar(sbtVersion)
+    val pluginJar = sbtStructureJar(sbtVersion.presentation)
 
     val setCommands = Seq(
       s"""shellPrompt := { _ => "" }""",
@@ -206,7 +206,7 @@ object SbtRunner {
 
   def getDefaultLauncher: File = getSbtLauncherDir / "sbt-launch.jar"
 
-  private val sinceSbtVersion = "0.12.4"
-  val sinceSbtVersionShell = "0.13.5"
+  private val sinceSbtVersion = Version("0.12.4")
+  val sinceSbtVersionShell = Version("0.13.5")
 
 }

@@ -95,6 +95,16 @@ class VersionTest {
   }
 
   @Test
+  def majorVersions() = {
+    assertTrue(Version("1.2.3").major(0) == Version(""))
+    assertTrue(Version("1.2.3").major(1) == Version("1"))
+    assertTrue(Version("1.2.3").major(10) == Version("1.2.3"))
+    assertTrue(Version("1.2.3.4-RC2").major(2) == Version("1.2"))
+    assertTrue(Version("1").major(2) == Version("1"))
+    assertTrue(Version("").major(2) == Version(""))
+  }
+
+  @Test
   def serialization(): Unit = {
     extensions.using(new ObjectOutputStream(new ByteArrayOutputStream(1024)))(
       _.writeObject(Version("1.2.3")))

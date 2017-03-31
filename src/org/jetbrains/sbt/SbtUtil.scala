@@ -12,6 +12,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.util.BooleanFunction
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtModuleData
 
@@ -21,9 +22,9 @@ import org.jetbrains.sbt.project.data.SbtModuleData
 object SbtUtil {
 
   /** Directory for global sbt plugins given sbt version */
-  def globalPluginsDirectory(sbtVersion: String): File =
+  def globalPluginsDirectory(sbtVersion: Version): File =
     getFileProperty(globalPluginsProperty).getOrElse {
-      val base = globalBase(sbtVersion)
+      val base = globalBase(sbtVersion.presentation)
       new File(base, "plugins")
     }
 
@@ -41,7 +42,7 @@ object SbtUtil {
   private def defaultGlobalBase = fileProperty("user.home") / ".sbt"
   private def defaultVersionedGlobalBase(sbtVersion: String): File = defaultGlobalBase / sbtVersion
 
-  def majorVersion(sbtVersion: String): String = numbersOf(sbtVersion).take(2).mkString(".")
+  def majorVersion(sbtVersion: Version): Version = sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =
     sbtVersionIn(directory)
