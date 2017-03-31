@@ -7,6 +7,7 @@ package types
  * @author ilyas
  */
 
+import java.util.Objects
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.psi._
@@ -63,9 +64,9 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
 
   //noinspection HashCodeUsesVar
   override def hashCode: Int = {
-    if (hash == -1) {
-      hash = designator.hashCode() + typeArguments.hashCode() * 31
-    }
+    if (hash == -1)
+      hash = Objects.hash(designator, typeArguments)
+
     hash
   }
 

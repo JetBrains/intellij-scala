@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
+import java.util.Objects
 import javax.swing.Icon
 
 import org.jetbrains.plugins.scala.icons.Icons
@@ -22,6 +23,6 @@ class FakeAnonymousClassConstructor(templ: ScNewTemplateDefinition, interfaceNam
     case _ => false
   }
 
-  override def hashCode(): Int = navElement.hashCode() + 31 * getName.hashCode
+  override def hashCode(): Int = Objects.hash(navElement, getName)
 }
 

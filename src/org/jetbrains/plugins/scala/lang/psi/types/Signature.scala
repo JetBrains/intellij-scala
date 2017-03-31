@@ -3,6 +3,8 @@ package lang
 package psi
 package types
 
+import java.util.Objects
+
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
@@ -52,10 +54,8 @@ case class TypeAliasSignature(name: String,
     case _ => false
   }
 
-  override def hashCode(): Int = {
-    val state = Seq(name, typeParams, lowerBound, upperBound, isDefinition)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+  override def hashCode(): Int =
+    Objects.hash(name, typeParams, lowerBound, upperBound, Boolean.box(isDefinition))
 
   def getType: Option[ScType] = ta match {
     case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
@@ -168,9 +168,8 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
     }
   }
 
-  override def hashCode: Int = {
-    simpleHashCode * 31 + parameterlessKind
-  }
+  override def hashCode: Int = simpleHashCode * 31 + parameterlessKind
+
 
   /**
    * Use it, while building class hierarchy.

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 
-import com.intellij.openapi.project.Project
+import java.util.Objects
+
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -11,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -80,16 +80,6 @@ class ScProjectionType private(val projected: ScType,
   }) && super.isStable
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
-
-  private var hash: Int = -1
-
-  //noinspection HashCodeUsesVar
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
-    }
-    hash
-  }
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
@@ -329,6 +319,16 @@ class ScProjectionType private(val projected: ScType,
         element == that.element &&
         superReference == that.superReference
     case _ => false
+  }
+
+  private var hash: Int = -1
+
+  //noinspection HashCodeUsesVar
+  override def hashCode: Int = {
+    if (hash == -1)
+      hash = Objects.hash(projected, element, scala.Boolean.box(superReference))
+
+    hash
   }
 
   override def typeDepth: Int = projected.typeDepth

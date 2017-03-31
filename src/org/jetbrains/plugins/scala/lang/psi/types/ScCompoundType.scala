@@ -3,6 +3,8 @@ package lang
 package psi
 package types
 
+import java.util.Objects
+
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -22,9 +24,9 @@ case class ScCompoundType(components: Seq[ScType],
   private var hash: Int = -1
 
   override def hashCode: Int = {
-    if (hash == -1) {
-      hash = components.hashCode() + (signatureMap.hashCode() * 31 + typesMap.hashCode()) * 31
-    }
+    if (hash == -1)
+      hash = Objects.hash(components, signatureMap, typesMap)
+
     hash
   }
 

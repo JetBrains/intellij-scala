@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import java.util.Objects
+
 import com.intellij.psi.PsiTypeParameter
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 
 import scala.collection.Seq
@@ -42,9 +44,10 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
                          lowerType: Suspension,
                          upperType: Suspension,
                          psiTypeParameter: PsiTypeParameter) {
-  val nameAndId = psiTypeParameter.nameAndId
 
-  val name = nameAndId._1
+  def name: String = psiTypeParameter.name
+
+  def nameAndId: (String, Long) = psiTypeParameter.nameAndId
 
   def update(function: ScType => ScType): TypeParameter = TypeParameter(
     typeParameters.map(_.update(function)),
@@ -71,9 +74,7 @@ case class TypeParameter(typeParameters: Seq[TypeParameter],
     case _ => false
   }
 
-  override def hashCode(): Int = Seq(name, typeParameters, psiTypeParameter)
-    .map(_.hashCode())
-    .foldLeft(0)((a, b) => 31 * a + b)
+  override def hashCode(): Int = Objects.hash(name, typeParameters, psiTypeParameter)
 }
 
 object TypeParameter {
@@ -97,16 +98,18 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
                              lowerType: Suspension,
                              upperType: Suspension,
                              psiTypeParameter: PsiTypeParameter) extends ValueType with NamedType {
-  val nameAndId = psiTypeParameter.nameAndId
 
-  override val name = nameAndId._1
+  override val name: String = psiTypeParameter.name
+
+  def nameAndId: (String, Long) = psiTypeParameter.nameAndId
 
   private var hash: Int = -1
 
+  //noinspection HashCodeUsesVar
   override def hashCode: Int = {
-    if (hash == -1) {
-      hash = Seq(name, arguments, lowerType, upperType, psiTypeParameter).map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-    }
+    if (hash == -1)
+      hash = Objects.hash(name, arguments, lowerType, upperType, psiTypeParameter)
+
     hash
   }
 
@@ -115,12 +118,12 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     case _ => false
   }
 
-  def isCovariant = psiTypeParameter match {
+  def isCovariant: Boolean = psiTypeParameter match {
     case typeParam: ScTypeParam => typeParam.isCovariant
     case _ => false
   }
 
-  def isContravariant = psiTypeParameter match {
+  def isContravariant: Boolean = psiTypeParameter match {
     case typeParam: ScTypeParam => typeParam.isContravariant
     case _ => false
   }

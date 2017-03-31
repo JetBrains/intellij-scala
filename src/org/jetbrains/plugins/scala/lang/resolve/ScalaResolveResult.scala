@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve
 
+import java.util.Objects
+
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -118,8 +120,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
     case _ => false
   }
 
-  override def hashCode: Int =
-    element.hashCode + innerResolveResult.hashCode() * 31 + nameShadow.hashCode() * 31 * 31 + implicitFunction.hashCode() * 31 * 31
+  override def hashCode: Int = Objects.hash(element, innerResolveResult, nameShadow, implicitFunction)
 
   override def toString: String =  {
     val name = element match {

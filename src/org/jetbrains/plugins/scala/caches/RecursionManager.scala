@@ -102,7 +102,7 @@ object RecursionManager {
 
   class MyKey[Data >: Null <: AnyRef](val guardId: String, val userObject: Data, val myCallEquals: Boolean) {
     // remember user object hashCode to ensure our internal maps consistency
-    private val myHashCode: Int = guardId.hashCode * 31 + userObject.hashCode
+    override val hashCode: Int = guardId.hashCode * 31 + userObject.hashCode
 
     override def equals(obj: Any): Boolean = {
       obj match {
@@ -112,8 +112,6 @@ object RecursionManager {
         case _ => false
       }
     }
-
-    override def hashCode: Int = myHashCode
   }
 
   private class CalculationStack {
