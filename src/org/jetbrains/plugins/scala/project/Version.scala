@@ -17,6 +17,12 @@ case class Version(presentation: String) extends Ordered[Version] {
     groups.zip(other.groups).forall(p => p._1 ~= p._2) &&
       groups.lengthCompare(other.groups.length) >= 0
 
+  /**
+    * The major version of this version, in terms of the first n numbers of the dotted-numbers format.
+    * E.g. Version("1.2.3-M3").major(2) == Version("1.2")
+    */
+  def major(n: Int): Version = Version(groups.head.numbers.take(n).mkString("."))
+
   def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
 
   override def toString: String = groups.map(_.numbers.mkString(".")).mkString("-")
