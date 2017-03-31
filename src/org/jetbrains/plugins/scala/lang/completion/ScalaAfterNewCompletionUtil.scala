@@ -166,6 +166,7 @@ object ScalaAfterNewCompletionUtil {
                                  renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
                                 (implicit typeSystem: TypeSystem): ScalaLookupItem = {
     tp.extractClassType(place.getProject) match {
+      case Some((_: ScObject, _)) => null
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
         //filter base types (it's important for scala 2.9)
         clazz.qualifiedName match {
