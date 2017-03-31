@@ -9,7 +9,7 @@ import com.intellij.openapi.roots._
 import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
-import com.intellij.openapi.util.{Key, UserDataHolder}
+import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
@@ -156,8 +156,13 @@ package object project {
     def getOrUpdateUserData[T](key: Key[T], update: => T): T = {
       Option(holder.getUserData(key)).getOrElse {
         val newValue = update
-        holder.putUserData(key, newValue)
-        newValue
+        holder match {
+          case ex: UserDataHolderEx =>
+            ex.putUserDataIfAbsent(key, newValue)
+          case _ =>
+            holder.putUserData(key, newValue)
+            newValue
+        }
       }
     }
   }
