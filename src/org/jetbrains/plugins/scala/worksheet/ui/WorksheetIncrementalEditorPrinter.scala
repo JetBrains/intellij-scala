@@ -235,13 +235,11 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
 
     messagesBuffer.clear()
 
-    val MessageInfo(msg, vertOffset, horizontalOffset, severity) = ReplMessage.extractInfoFromAllText(str).getOrElse((str, 0))
-    
-    val headerOffset = getConsoleHeaderLines(RunWorksheetAction getModuleFor getScalaFile)
+    val MessageInfo(msg, vertOffset, horizontalOffset, severity) = extractInfoFromAllText(str).getOrElse((str, 0, 0, WorksheetCompiler.InfoSeverity))
     
     val position = {
-      val p = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset + horizontalOffset) }
-      new LogicalPosition(p.line + vertOffset - headerOffset, p.column)
+      val p = extensions.inReadAction { originalEditor.offsetToLogicalPosition(offset) }
+      new LogicalPosition(p.line + vertOffset, p.column + horizontalOffset)
     }
     
     
@@ -257,6 +255,36 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
     }
     
     hasErrors
+  }
+
+  def extractInfoFromAllText(toMatch: String): Option[MessageInfo] = {
+    val indexOfNl = toMatch.lastIndexOf('\n')
+    if (indexOfNl == -1) return None
+
+    val indexOfC = toMatch.lastIndexOf('^')
+    val horOffset = if (indexOfC < indexOfNl) 0 else indexOfC - indexOfNl
+    val allMessageStrings = toMatch.substring(0, indexOfNl)
+    
+    val matcher = CONSOLE_MESSAGE_PATTERN matcher allMessageStrings
+    val (textWoConsoleLine, lineNumStr) = if (matcher.find()) (allMessageStrings.substring(matcher.end()), matcher.group(1)) else (allMessageStrings, "0")
+    
+    val (textWoSeverity, severity) = textWoConsoleLine match {
+      case error if error.startsWith("error: ") =>
+        (error.substring("error: ".length), WorksheetCompiler.ErrorSeverity)
+      case warning if warning.startsWith("warning: ") =>
+        (warning.substring("warning: ".length), WorksheetCompiler.WarningSeverity)
+      case _ => return None
+    }
+
+    val (finalText, vertOffset) = {
+      splitLineNumberFromRepl(textWoSeverity) match {
+        case Some(a) => a
+        case _ => // we still have a fall back variant here as some erros aren't raised from the text of our input
+          (textWoSeverity, Integer.parseInt(lineNumStr) - getConsoleHeaderLines(RunWorksheetAction getModuleFor getScalaFile))
+      }
+    }
+
+    Option(MessageInfo(finalText, vertOffset, horOffset, severity))
   }
   
   private def refreshLastMarker() {
@@ -347,31 +375,20 @@ object WorksheetIncrementalEditorPrinter {
   object ReplMessage {
     def unapply(arg: String): Option[MessageStart] = 
       if (arg startsWith CONSOLE_ERROR_START) Option(MessageStart(arg substring CONSOLE_ERROR_START.length)) else None 
-    
-    def extractInfoFromAllText(toMatch: String): Option[MessageInfo] = {
-      val matcher = CONSOLE_MESSAGE_PATTERN matcher toMatch
-      
-      val (text, vo) = if (matcher.find()) (toMatch.substring(matcher.end()), matcher.group(1)) else (toMatch, "0")
-      val vertOffset = try {
-        Integer parseInt vo
-      } catch {
-        case _: NumberFormatException => 0
-      }
-      
-      val (nt, severity) = text match {
-        case error if error.startsWith("error: ") =>
-          (error.substring("error: ".length), WorksheetCompiler.ErrorSeverity)
-        case warning if warning.startsWith("warning: ") =>
-          (warning.substring("warning: ".length), WorksheetCompiler.WarningSeverity)
-        case _ => return None
-      }
+  }
 
-      val j = nt.lastIndexOf('\n')
-      if (j == -1) return None
+  def splitLineNumberFromRepl(line: String): Option[(String, Int)] = {
+    val i = line.lastIndexOf("//")
+    if (i == -1) return None
 
-      Option(MessageInfo(nt.substring(0, j), vertOffset, nt.length - 1 - j - CONSOLE_ERROR_START.length, severity))
+    try {
+      Option((line.substring(0, i), Integer parseInt line.substring(i + 2).trim))
+    } catch {
+      case _: NumberFormatException => None
     }
   }
+
+
   
   trait QueuedPsi {
     /**
@@ -435,12 +452,21 @@ object WorksheetIncrementalEditorPrinter {
     }
     
     protected def startPsiOffset(psi: PsiElement): Int = psiToStartOffset(computeStartPsi(psi))
+
+    protected def getPsiTextWithCommentLine(psi: PsiElement): String =
+      storeLineInfoRepl(StringUtil.splitByLines(psi.getText, false))
+    
+    protected def storeLineInfoRepl(lines: Array[String]): String = {
+      lines.zipWithIndex.map {
+        case (line, index) => line + s" //$index\n"
+      }.mkString("")
+    }
   }
   
   case class SingleQueuedPsi(psi: PsiElement) extends QueuedPsi {
     override protected def isValidImpl: Boolean = psi.isValid
 
-    override protected def getTextImpl: String = psi.getText
+    override protected def getTextImpl: String = getPsiTextWithCommentLine(psi)
 
     override def getWholeTextRange: TextRange = psi.getTextRange
 
@@ -456,7 +482,7 @@ object WorksheetIncrementalEditorPrinter {
     
     override protected def isValidImpl: Boolean = clazz.isValid && obj.isValid
 
-    override protected def getTextImpl: String =  first.getText + mid + second.getText   
+    override protected def getTextImpl: String =  getPsiTextWithCommentLine(first) + mid + getPsiTextWithCommentLine(second)   
 
     override def getWholeTextRange: TextRange = new TextRange(psiToStartOffset(first), second.getTextRange.getEndOffset) 
 
