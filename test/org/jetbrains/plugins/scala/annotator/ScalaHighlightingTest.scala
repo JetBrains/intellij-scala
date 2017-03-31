@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
+import org.junit.Assert
+
 /**
   * @author Alefas
   * @since 15/03/2017
@@ -48,5 +50,25 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
       """.stripMargin
     val errors = errorsFromScalaCode(scalaText)
     assert(errors.isEmpty)
+  }
+
+  def testSCL6379(): Unit = {
+    val scalaText =
+      """
+        |class Types {
+        |  val zero: Short = 0
+        |  val 128 = "a"
+        |  val 128 = 128 //it's valid here
+        |  val asciiUpperLimit: Short = 128
+        |  val pi : Double = 3.141592654
+        |  val mathematician :String = "Euler"
+        |}
+      """.stripMargin
+    val errors = errorsFromScalaCode(scalaText)
+    assert(errors.length == 1)
+    errors.head match {
+      case Error(_, message) =>
+        Assert.assertEquals(message, "Pattern type is incompatible with expected type, found: Int, required: String")
+    }
   }
 }
