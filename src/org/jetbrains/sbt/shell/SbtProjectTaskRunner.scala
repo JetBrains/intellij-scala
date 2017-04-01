@@ -7,6 +7,7 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -75,6 +76,8 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       val command =
         if (moduleCommands.size == 1) moduleCommands.head
         else moduleCommands.mkString("all ", " ", "")
+
+      FileDocumentManager.getInstance().saveAllDocuments()
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
       val task = new CommandTask(project, command, callbackOpt)
