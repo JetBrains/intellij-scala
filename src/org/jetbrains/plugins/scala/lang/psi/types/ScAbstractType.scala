@@ -14,13 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
  * inferences work together.
  */
 case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper: ScType) extends ScalaType with NonValueType {
-  private var hash: Int = -1
-
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + parameterType.arguments.hashCode()
-    }
-    hash
+  override lazy val hashCode: Int = {
+    (upper.hashCode() * 31 + lower.hashCode()) * 31 + parameterType.arguments.hashCode()
   }
 
   override def equals(obj: scala.Any): Boolean = {

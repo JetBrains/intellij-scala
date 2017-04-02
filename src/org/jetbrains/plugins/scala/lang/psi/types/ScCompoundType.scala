@@ -19,13 +19,8 @@ import scala.collection.mutable
 case class ScCompoundType(components: Seq[ScType],
                           signatureMap: Map[Signature, ScType] = Map.empty,
                           typesMap: Map[String, TypeAliasSignature] = Map.empty) extends ScalaType with ValueType {
-  private var hash: Int = -1
-
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = components.hashCode() + (signatureMap.hashCode() * 31 + typesMap.hashCode()) * 31
-    }
-    hash
+  override lazy val hashCode: Int = {
+    components.hashCode() + (signatureMap.hashCode() * 31 + typesMap.hashCode()) * 31
   }
 
 

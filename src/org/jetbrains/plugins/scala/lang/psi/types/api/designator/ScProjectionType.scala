@@ -81,14 +81,8 @@ class ScProjectionType private(val projected: ScType,
 
   override private[types] def designatorSingletonType: Option[ScType] = super.designatorSingletonType.map(actualSubst.subst)
 
-  private var hash: Int = -1
-
-  //noinspection HashCodeUsesVar
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
-    }
-    hash
+  override lazy val hashCode: Int = {
+    projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
   }
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)

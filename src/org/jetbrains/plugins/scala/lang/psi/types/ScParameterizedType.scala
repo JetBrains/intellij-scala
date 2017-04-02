@@ -59,14 +59,8 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     }
   }
 
-  private var hash: Int = -1
-
-  //noinspection HashCodeUsesVar
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = designator.hashCode() + typeArguments.hashCode() * 31
-    }
-    hash
+  override lazy val hashCode: Int = {
+    designator.hashCode() + typeArguments.hashCode() * 31
   }
 
   protected override def substitutorInner: ScSubstitutor = {
