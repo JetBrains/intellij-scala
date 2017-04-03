@@ -30,6 +30,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.icons.Icons;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
@@ -79,6 +80,8 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Dumb
           ScTypeDefinition[] definitions = file.typeDefinitionsArray();
           if (definitions.length == 1 && hasNameOfFile(definitions[0])) {
             result.add(new TypeDefinitionTreeNode(new ClassTreeNode(file.getProject(), definitions[0], settings)));
+          } else if (!settings.isShowMembers() && definitions.length == 1 && definitions[0].isPackageObject()) {
+            result.add(new PackageObjectTreeNode(file, settings));
           } else {
             result.add(new ScalaFileTreeNode(file, settings));
           }
@@ -88,7 +91,6 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Dumb
         result.add(new TypeDefinitionTreeNode((ClassTreeNode) child));
       } else result.add(child);
     }
-    
     return result;
   }
 
@@ -214,11 +216,29 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Dumb
       }
       return result;
     }
-   
+
     protected void updateImpl(PresentationData data) {
       super.updateImpl(data);
       data.setPresentableText(getValue().getName());
       data.setIcon(getValue().getIcon(Iconable.ICON_FLAG_READ_STATUS));
+    }
+  }
+
+  private static class PackageObjectTreeNode extends PsiFileNode {
+    private PackageObjectTreeNode(ScalaFile file, ViewSettings settings) {
+      super(file.getProject(), file, settings);
+    }
+
+    @Override
+    public Collection<AbstractTreeNode> getChildrenImpl() {
+      return Collections.emptyList();
+    }
+
+    protected void updateImpl(PresentationData data) {
+      super.updateImpl(data);
+
+      data.setPresentableText("package");
+      data.setIcon(Icons.PACKAGE_OBJECT);
     }
   }
 }
