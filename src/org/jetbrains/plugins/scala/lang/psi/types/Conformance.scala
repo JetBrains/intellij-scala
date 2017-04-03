@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeParameterFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.light.scala.ScExistentialLightTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -157,6 +157,11 @@ object Conformance extends api.Conformance {
   private class LeftConformanceVisitor(l: ScType, r: ScType, visited: Set[PsiClass],
                                subst: ScUndefinedSubstitutor,
                                checkWeak: Boolean = false) extends ScalaTypeVisitor {
+
+    lazy val manager: PsiManager =
+      if (visited.isEmpty) PsiManager.getInstance(DecompilerUtil.obtainProject)  //todo: remove obtainProject?
+      else visited.head.getManager
+
     private def addBounds(parameterType: TypeParameterType, `type`: ScType) = {
       val name = parameterType.nameAndId
       undefinedSubst = undefinedSubst.addLower(name, `type`, variance = 0)
@@ -1164,8 +1169,7 @@ object Conformance extends api.Conformance {
             e.wildcards.find(_.name == name) match {
               case Some(ScExistentialArgument(thatName, args, lower, upper)) if !rejected.contains(thatName) =>
                 val tpt = tptsMap.getOrElseUpdate(thatName,
-                  TypeParameterType(args, Suspension(lower), Suspension(upper),
-                    createTypeParameterFromText(name)(PsiManager.getInstance(DecompilerUtil.obtainProject))) //todo: remove obtainProject?
+                  TypeParameterType(args, Suspension(lower), Suspension(upper), new ScExistentialLightTypeParam(manager, name))
                 )
                 (true, tpt)
               case _ => (false, t)

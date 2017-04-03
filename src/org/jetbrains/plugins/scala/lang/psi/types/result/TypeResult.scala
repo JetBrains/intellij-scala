@@ -55,6 +55,9 @@ object TypeResult {
       (result, tr) => result.flatMap(as => tr.map(a => a :: as))
     }.map(_.reverse)
   }
+
+  val Any = Success(api.Any, None)
+  val Nothing = Success(api.Nothing, None)
 }
 
 case class Success[+T](result: T, elem: Option[PsiElement]) extends TypeResult[T] { self =>

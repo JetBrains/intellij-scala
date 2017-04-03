@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.{PsiAnnotation, PsiElement, PsiTypeParameterListOwner}
+import com.intellij.psi.{PsiAnnotation, PsiElement, PsiManager, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
@@ -15,8 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
  * @author Alefas
  * @since 03/04/14.
  */
-class ScLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
-  extends LightElement(tParam.getManager, tParam.getLanguage) with ScTypeParam with PsiClassFake {
+trait ScLightTypeParam extends ScTypeParam with PsiClassFake
+
+class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
+  extends LightElement(tParam.getManager, tParam.getLanguage) with ScLightTypeParam {
+
   override def nameId: PsiElement = tParam.nameId
 
   override val typeParamId: Long = tParam.typeParamId
@@ -53,7 +57,7 @@ class ScLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
   override def toString: String = tParam.toString
 
   override def typeParameters: Seq[ScTypeParam] = t.typeParameters.zip(tParam.typeParameters).map {
-    case (t: TypeParameter, tParam: ScTypeParam) => new ScLightTypeParam(t, tParam)
+    case (t: TypeParameter, tParam: ScTypeParam) => new ScDelegatingLightTypeParam(t, tParam)
   }
 
   override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] =
@@ -63,4 +67,42 @@ class ScLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
     throw new UnsupportedOperationException("Operation on light element")
 
   override def isHigherKindedTypeParameter: Boolean = tParam.isHigherKindedTypeParameter
+}
+
+class ScExistentialLightTypeParam(manager: PsiManager, override val name: String)
+  extends LightElement(manager, ScalaLanguage.INSTANCE) with ScLightTypeParam {
+
+  override def getIndex: Int = 0
+
+  override def isCovariant: Boolean = false
+
+  override def isContravariant: Boolean = false
+
+  override def getOffsetInFile: Int = -1
+
+  override def getContainingFileName: String = "No containing file"
+
+  override def typeParameterText: String = name
+
+  override val typeParamId: Long = params.freshTypeParamId()
+
+  override def isHigherKindedTypeParameter: Boolean = false
+
+  override def lowerBound: TypeResult[ScType] = TypeResult.Nothing
+
+  override def upperBound: TypeResult[ScType] = TypeResult.Any
+
+  override def toString: String = name
+
+  override def owner: ScTypeParametersOwner = notSupported
+
+  override def nameId: PsiElement = notSupported
+
+  override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = notSupported
+
+  override protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T] = notSupported
+
+  override def getOwner: PsiTypeParameterListOwner = notSupported
+
+  private def notSupported = throw new UnsupportedOperationException("Operation on light existential type parameter")
 }

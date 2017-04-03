@@ -6,6 +6,7 @@ import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter.javaPsiTypeParameterUpperType
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 
 import scala.collection.Seq
@@ -81,16 +82,25 @@ object TypeParameter {
   def apply(typeParameter: PsiTypeParameter): TypeParameter = {
     val (typeParameters, lazyLower, lazyUpper) = typeParameter match {
       case typeParam: ScTypeParam =>
-        (typeParam.typeParameters, () => typeParam.lowerBound.getOrNothing, () => typeParam.upperBound.getOrAny)
+        (typeParam.typeParameters,
+          () => typeParam.lowerBound.getOrNothing,
+          () => typeParam.upperBound.getOrAny)
       case _ =>
-        val manager = ScalaPsiManager.instance(typeParameter.getProject)
-        (Seq.empty, () => Nothing, () => manager.javaPsiTypeParameterUpperType(typeParameter))
+        (Seq.empty,
+          () => Nothing,
+          () => javaPsiTypeParameterUpperType(typeParameter)
+        )
     }
     TypeParameter(
       typeParameters.map(TypeParameter(_)),
       Suspension(lazyLower),
       Suspension(lazyUpper),
       typeParameter)
+  }
+
+  def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
+    val manager = ScalaPsiManager.instance(typeParameter.getProject)
+    manager.javaPsiTypeParameterUpperType(typeParameter)
   }
 }
 
@@ -161,13 +171,13 @@ object TypeParameterType {
           () => typeParam.lowerBound.getOrNothing,
           () => typeParam.upperBound.getOrAny)
       case _ =>
-        val manager = ScalaPsiManager.instance(typeParameter.getProject)
         (maybeSubstitutor match {
           case Some(_) => typeParameter.getTypeParameters.toSeq
           case _ => Seq.empty
         },
           () => Nothing,
-          () => manager.javaPsiTypeParameterUpperType(typeParameter))
+          () => javaPsiTypeParameterUpperType(typeParameter)
+        )
     }
     TypeParameterType(
       arguments.map(TypeParameterType(_, maybeSubstitutor)),
