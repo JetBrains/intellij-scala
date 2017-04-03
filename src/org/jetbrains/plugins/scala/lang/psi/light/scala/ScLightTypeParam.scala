@@ -19,6 +19,8 @@ class ScLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
   extends LightElement(tParam.getManager, tParam.getLanguage) with ScTypeParam with PsiClassFake {
   override def nameId: PsiElement = tParam.nameId
 
+  override val typeParamId: Long = tParam.typeParamId
+
   override def upperBound: TypeResult[ScType] = Success(t.upperType.v, Some(this))
 
   override def lowerBound: TypeResult[ScType] = Success(t.lowerType.v, Some(this))

@@ -44,6 +44,8 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   def this(stub: ScTypeParamStub) = this(stub, null)
 
+  override lazy val typeParamId: Long = reusableId(this)
+
   @tailrec
   final override protected def extractBound(in: ScType, isLower: Boolean): ScType = {
     nameId.nextSibling match {

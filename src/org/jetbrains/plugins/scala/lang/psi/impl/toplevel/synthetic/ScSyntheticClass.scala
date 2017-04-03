@@ -52,6 +52,7 @@ abstract class SyntheticNamedElement(name: String)
 class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
                               (implicit override val manager: PsiManager)
   extends SyntheticNamedElement(name) with ScTypeParam with PsiClassFake {
+
   def typeParameterText: String = name
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
@@ -76,6 +77,8 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
   override def isHigherKindedTypeParameter: Boolean = false
+
+  override val typeParamId: Long = -1
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
