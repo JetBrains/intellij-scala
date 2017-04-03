@@ -362,8 +362,6 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     } else PsiClass.EMPTY_ARRAY
   }
 
-  def icon = Icons.FILE_TYPE_LOGO
-
   @CachedInsidePsiElement(this, ScalaPsiManager.instance(getProject).modificationTracker)
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)

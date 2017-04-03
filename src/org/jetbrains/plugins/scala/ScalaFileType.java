@@ -54,7 +54,7 @@ public class ScalaFileType extends LanguageFileType implements FileTypeIdentifia
   }
 
   public Icon getIcon() {
-     return Icons.FILE_TYPE_LOGO;
+     return Icons.FILE;
   }
 
   // TODO Temporary fix for Upsource
