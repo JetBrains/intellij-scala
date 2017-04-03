@@ -82,6 +82,10 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Dumb
             result.add(new TypeDefinitionTreeNode(new ClassTreeNode(file.getProject(), definitions[0], settings)));
           } else if (!settings.isShowMembers() && definitions.length == 1 && definitions[0].isPackageObject()) {
             result.add(new PackageObjectTreeNode(file, settings));
+          } else if (!settings.isShowMembers() && definitions.length == 2 &&
+              definitions[0].name().equals(definitions[1].name()) &&
+              definitions[0].isObject() ^ definitions[1].isObject()) {
+            result.add(new ClassAndObjectTreeNode(file, definitions[0], settings));
           } else {
             result.add(new ScalaFileTreeNode(file, settings));
           }
@@ -239,6 +243,28 @@ public class ScalaDefsProjectViewProvider implements TreeStructureProvider, Dumb
 
       data.setPresentableText("package");
       data.setIcon(Icons.PACKAGE_OBJECT);
+    }
+  }
+
+  private static class ClassAndObjectTreeNode extends PsiFileNode {
+    private ScTypeDefinition myDefinition;
+
+    private ClassAndObjectTreeNode(ScalaFile file, ScTypeDefinition definition, ViewSettings settings) {
+      super(file.getProject(), file, settings);
+
+      myDefinition = definition;
+    }
+
+    @Override
+    public Collection<AbstractTreeNode> getChildrenImpl() {
+      return Collections.emptyList();
+    }
+
+    protected void updateImpl(PresentationData data) {
+      super.updateImpl(data);
+
+      data.setPresentableText(myDefinition.name());
+      data.setIcon(Icons.CLASS_AND_OBJECT);
     }
   }
 }
