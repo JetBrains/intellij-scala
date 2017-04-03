@@ -140,7 +140,7 @@ class WorksheetIncrementalEditorPrinter(editor: Editor, viewer: Editor, file: Sc
   }
 
   override def flushBuffer(): Unit = {
-    if (outputBuffer.isEmpty || psiToProcess.isEmpty) return 
+    if (psiToProcess.isEmpty) return // empty output is possible see SCL-11720
 
     val str = outputBuffer.toString().trim
     outputBuffer.clear()
