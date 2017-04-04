@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.ide.util.treeView.AbstractTreeNode
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 
@@ -25,10 +24,7 @@ package object projectView {
     }
 
     private def matchesFileName(definition: ScTypeDefinition): Boolean =
-      virtualFileOf(definition).forall(_.getNameWithoutExtension == definition.name)
-
-    private def virtualFileOf(e: PsiElement): Option[VirtualFile] =
-      Option(e.getContainingFile).flatMap(it => Option(it.getVirtualFile))
+      definition.containingVirtualFile.forall(_.getNameWithoutExtension == definition.name)
   }
 
   object PackageObject {
