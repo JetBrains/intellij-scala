@@ -28,33 +28,29 @@ package object projectView {
   }
 
   object PackageObject {
-    def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = file.typeDefinitions match {
-      case Seq(definition) if definition.isPackageObject => Some(definition)
-      case _ => None
+    def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = Some(file.typeDefinitions) collect {
+      case Seq(definition) if definition.isPackageObject => definition
     }
   }
 
   object ClassAndCompanionObject {
-    def unapply(file: ScalaFile): Option[(ScClass, ScObject)] = file.typeDefinitions match {
-      case Seq(classDefinition: ScClass, objectDefinition: ScObject)
-        if classDefinition.name == objectDefinition.name => Some(classDefinition, objectDefinition)
-
-      case Seq(objectDefinition: ScObject, classDefinition: ScClass)
-        if classDefinition.name == objectDefinition.name => Some(classDefinition, objectDefinition)
-
-      case _ => None
+    def unapply(file: ScalaFile): Option[(ScClass, ScObject)] = Some(file.typeDefinitions) collect {
+      case PairedTypeDefinitions(aClass: ScClass, anObject: ScObject) => (aClass, anObject)
+      case PairedTypeDefinitions(anObject: ScObject, aClass: ScClass) => (aClass, anObject)
     }
   }
 
   object TraitAndCompanionObject {
-    def unapply(file: ScalaFile): Option[(ScTrait, ScObject)] = file.typeDefinitions match {
-      case Seq(traitDefinition: ScTrait, objectDefinition: ScObject)
-        if traitDefinition.name == objectDefinition.name => Some(traitDefinition, objectDefinition)
+    def unapply(file: ScalaFile): Option[(ScTrait, ScObject)] = Some(file.typeDefinitions) collect {
+      case PairedTypeDefinitions(aTrait: ScTrait, anObject: ScObject) => (aTrait, anObject)
+      case PairedTypeDefinitions(anObject: ScObject, aTrait: ScTrait) => (aTrait, anObject)
+    }
+  }
 
-      case Seq(objectDefinition: ScObject, traitDefinition: ScTrait)
-        if traitDefinition.name == objectDefinition.name => Some(traitDefinition, objectDefinition)
-
-      case _ => None
+  private object PairedTypeDefinitions {
+    def unapply(definitions: Seq[ScTypeDefinition]): Option[(ScTypeDefinition, ScTypeDefinition)] = Some(definitions) collect {
+      case Seq(definition1: ScTypeDefinition, definition2: ScTypeDefinition) if definition1.name == definition2.name =>
+        (definition1, definition2)
     }
   }
 }
