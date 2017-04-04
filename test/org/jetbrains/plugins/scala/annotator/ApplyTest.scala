@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-import scala.concurrent.Future
-
 /**
   * Created by kate on 6/7/16.
   */
@@ -27,6 +25,25 @@ class ApplyTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}""".stripMargin
 
     checkTextHasNoErrors(code)
+  }
+
+  def testSCL11344(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |import ObjectInt.{CaseClassInObjectInt}
+        |
+        |
+        |trait CommonObjectTraitWithApply[T] {
+        |  def apply(arg: T): T = arg
+        |
+        |}
+        |
+        |object ObjectInt extends CommonObjectTraitWithApply[Int]{
+        |  ObjectInt(123)
+        |  case class CaseClassInObjectInt()
+        |}
+        |
+    """.stripMargin)
   }
 
   def testApplyFromImplicitConversion(): Unit = {

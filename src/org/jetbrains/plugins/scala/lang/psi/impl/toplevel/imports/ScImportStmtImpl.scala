@@ -9,7 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
@@ -71,11 +70,12 @@ class ScImportStmtImpl private (stub: ScImportStmtStub, node: ASTNode)
         if (name != "" && !importExpr.isSingleWildcard) {
           val decodedName = ScalaNamesUtil.clean(name)
           importExpr.selectorSet match {
-            case Some(set) => set.selectors.flatMap {
-              _.reference
-            }.exists {
-              reference => ScalaNamesUtil.clean(reference.refName) == decodedName
-            }
+            case Some(set) =>
+              val containsImportWithDifferentName =
+                set.selectors
+                  .flatMap(_.reference)
+                  .exists(selectorReference => ScalaNamesUtil.clean(selectorReference.refName) != decodedName)
+              if (containsImportWithDifferentName) return true
             case None => if (ScalaNamesUtil.clean(ref.refName) != decodedName) return true
           }
         }
