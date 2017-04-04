@@ -49,6 +49,7 @@ public interface Icons {
   Icon OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/object_scala.png");
   Icon PACKAGE_OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/package_object.png");
   Icon CLASS_AND_OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/class_object_scala.png");
+  Icon TRAIT_AND_OBJECT = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/trait_object_scala.png");
 
   //Internal nodes
   Icon FUNCTION = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/function.png");
