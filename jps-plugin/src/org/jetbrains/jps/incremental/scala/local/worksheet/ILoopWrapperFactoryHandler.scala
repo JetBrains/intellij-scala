@@ -48,13 +48,15 @@ class ILoopWrapperFactoryHandler {
             classOf[java.util.List[String]], classOf[String], classOf[File], classOf[File], classOf[java.util.List[File]], 
             classOf[java.util.List[File]], classOf[java.io.OutputStream], classOf[java.io.File], classOf[Comparable[String]])
         
-        m.invoke(
-          instance, scalaToJava(commonArguments.worksheetFiles), commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""), 
-          compilerJars.library, compilerJars.compiler, scalaToJava(compilerJars.extra), scalaToJava(commonArguments.compilationData.classpath), 
-          out, iLoopFile, if (client.isEmpty) null else new Comparable[String] {
-            override def compareTo(o: String): Int = {client.get.progress(o) ; 0}
-          }
-        )
+        withFilteredPath {
+          m.invoke(
+            instance, scalaToJava(commonArguments.worksheetFiles), commonArguments.compilationData.sources.headOption.map(_.getName).getOrElse(""),
+            compilerJars.library, compilerJars.compiler, scalaToJava(compilerJars.extra), scalaToJava(commonArguments.compilationData.classpath),
+            out, iLoopFile, if (client.isEmpty) null else new Comparable[String] {
+              override def compareTo(o: String): Int = {client.get.progress(o) ; 0}
+            }
+          )
+        }
     }
   }
   
@@ -94,6 +96,34 @@ class ILoopWrapperFactoryHandler {
 object ILoopWrapperFactoryHandler {
   private val WRAPPER_VERSION = 1
   private val REPL_FQN = "org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory"
+
+  private val JAVA_USER_CP_KEY = "java.class.path"
+  private val STOP_WORDS = Set("scala-library.jar", "scala-nailgun-runner.jar", "nailgun.jar", "compiler-settings.jar",
+    "incremental-compiler.jar", "scala-jps-plugin.jar", "dotty-interfaces.jar")
+
+
+  private def withFilteredPath(action: => Unit) {
+    val oldCp = System.getProperty(JAVA_USER_CP_KEY)
+
+    if (oldCp == null) {
+      action
+      return
+    }
+
+    val newCp = oldCp.split(File.pathSeparatorChar).map(
+      new File(_).getAbsoluteFile
+    ).filter {
+      file => file.exists() && !STOP_WORDS.contains(file.getName)
+    }.map(_.getAbsolutePath).mkString(File.pathSeparator)
+
+    System.setProperty(JAVA_USER_CP_KEY, newCp)
+    
+    try {
+      action
+    } finally {
+      System.setProperty(JAVA_USER_CP_KEY, oldCp)
+    }
+  }
   
   private def findScalaVersionIn(scalaInstance: ScalaInstance): String = 
     CompilerFactoryImpl.readScalaVersionIn(scalaInstance.loader).getOrElse("Undefined")
