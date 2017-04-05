@@ -4,8 +4,8 @@ import java.util
 
 import com.intellij.ide.projectView.impl.nodes.{ClassTreeNode, PsiFileNode}
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
-import com.intellij.openapi.util.Iconable
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.collection.JavaConverters._
@@ -24,7 +24,9 @@ class ScalaFileTreeNode(file: ScalaFile, settings: ViewSettings)
   override protected def updateImpl(data: PresentationData): Unit = {
     super.updateImpl(data)
 
+    val icon = if (file.isScriptFile) Icons.SCRIPT_FILE_LOGO else Icons.FILE
+
     data.setPresentableText(getValue.getName)
-    data.setIcon(getValue.getIcon(Iconable.ICON_FLAG_READ_STATUS))
+    data.setIcon(icon)
   }
 }
