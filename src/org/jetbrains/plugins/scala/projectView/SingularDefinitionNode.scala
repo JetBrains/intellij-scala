@@ -12,15 +12,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 /**
   * @author Pavel Fatin
   */
-class SingularDefinitionNode(project: Project, definition: ScTypeDefinition, icon: Icon, settigns: ViewSettings)
+private class SingularDefinitionNode(project: Project, definition: ScTypeDefinition, icon: Icon, settigns: ViewSettings)
   extends ClassTreeNode(project, definition, settigns) {
+
+  myName = definition.name
 
   override def isAlwaysLeaf: Boolean = true
 
-  override def getChildrenImpl: util.Collection[Node] = Collections.emptyList()
+  override protected def getChildrenImpl: util.Collection[Node] = Collections.emptyList()
 
-  override def updateImpl(data: PresentationData): Unit = {
-    data.setPresentableText(definition.name)
+  override protected def updateImpl(data: PresentationData): Unit = {
+    getValue match {
+      case definition: ScTypeDefinition if definition.isValid => data.setPresentableText(definition.name)
+      case _ => super.updateImpl(data)
+    }
     data.setIcon(icon)
   }
 }

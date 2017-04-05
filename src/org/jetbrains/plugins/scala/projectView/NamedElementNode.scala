@@ -12,14 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 /**
   * @author Pavel Fatin
   */
-class ScNamedElementTreeNode(project: Project, element: ScNamedElement, settings: ViewSettings)
+private class NamedElementNode(project: Project, element: ScNamedElement, settings: ViewSettings)
   extends AbstractPsiBasedNode[ScNamedElement](project, element, settings) {
 
-  override protected def extractPsiFromValue: PsiElement = element
+  override protected def extractPsiFromValue: PsiElement = getValue
 
   override protected def getChildrenImpl: util.Collection[Node] = Collections.emptyList()
 
-  override protected def updateImpl(data: PresentationData): Unit = {
-    data.setPresentableText(element.name)
-  }
+  override protected def updateImpl(data: PresentationData): Unit =
+    Option(getValue).filter(_.isValid).foreach(it => data.setPresentableText(it.name))
 }
