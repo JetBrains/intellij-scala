@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 /**
   * @author Pavel Fatin
   */
-private class SingularDefinitionNode(project: Project, definition: ScTypeDefinition, icon: Icon, settigns: ViewSettings)
+private class CustomDefinitionNode(definition: ScTypeDefinition, icon: Icon)
+                                  (implicit project: Project, settigns: ViewSettings)
   extends ClassTreeNode(project, definition, settigns) {
 
   myName = definition.name
@@ -26,6 +27,7 @@ private class SingularDefinitionNode(project: Project, definition: ScTypeDefinit
       case definition: ScTypeDefinition if definition.isValid => data.setPresentableText(definition.name)
       case _ => super.updateImpl(data)
     }
+
     data.setIcon(icon)
   }
 }

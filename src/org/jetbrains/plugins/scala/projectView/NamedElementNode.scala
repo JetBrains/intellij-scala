@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 /**
   * @author Pavel Fatin
   */
-private class NamedElementNode(project: Project, element: ScNamedElement, settings: ViewSettings)
+private class NamedElementNode(element: ScNamedElement)(implicit project: Project, settings: ViewSettings)
   extends AbstractPsiBasedNode[ScNamedElement](project, element, settings) {
 
   override protected def extractPsiFromValue: PsiElement = getValue

@@ -16,7 +16,7 @@ import scala.collection.JavaConverters._
 /**
   * @author Pavel Fatin
   */
-private class TypeDefinitionNode(project: Project, definition: ScTypeDefinition, settings: ViewSettings)
+private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project: Project, settings: ViewSettings)
   extends ClassTreeNode(project, definition, settings) {
 
   myName = definition.name
@@ -34,10 +34,18 @@ private class TypeDefinitionNode(project: Project, definition: ScTypeDefinition,
     else super.getChildrenImpl
 
   private def childrenOf(parent: ScTypeDefinition): Seq[Node] = parent.members.flatMap {
-    case definition: ScTypeDefinition => Seq(new TypeDefinitionNode(getProject, definition, getSettings))
-    case element: ScNamedElement => Seq(new NamedElementNode(getProject, element, getSettings))
-    case value: ScValue => value.declaredElements.map(new NamedElementNode(getProject, _, getSettings))
-    case variable: ScVariable => variable.declaredElements.map(new NamedElementNode(getProject, _, getSettings))
+    case definition: ScTypeDefinition =>
+      Seq(new TypeDefinitionNode(definition))
+
+    case element: ScNamedElement =>
+      Seq(new NamedElementNode(element))
+
+    case value: ScValue =>
+      value.declaredElements.map(new NamedElementNode(_))
+
+    case variable: ScVariable =>
+      variable.declaredElements.map(new NamedElementNode(_))
+
     case _ => Seq.empty
   }
 
