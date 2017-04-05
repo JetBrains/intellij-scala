@@ -17,7 +17,7 @@ class SbtShellStartAction extends ExternalSystemAction {
 
   override def update(e: AnActionEvent): Unit = {
     super.update(e)
-    e.getPresentation.setIcon(Icons.SCALA_CONSOLE)
+    e.getPresentation.setIcon(Icons.SBT_SHELL)
   }
 
   override def actionPerformed(event: AnActionEvent): Unit = {

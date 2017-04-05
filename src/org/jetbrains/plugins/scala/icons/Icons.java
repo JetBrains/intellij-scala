@@ -77,4 +77,9 @@ public interface Icons {
   Icon WARNING = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/warning.png");
 
   Icon LIGHTBEND_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/lightbend_logo.png");
+
+  // sbt
+  Icon SBT = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt.png");
+  Icon SBT_FILE = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbt-file.png");
+  Icon SBT_SHELL = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/sbtShell.png");
 }

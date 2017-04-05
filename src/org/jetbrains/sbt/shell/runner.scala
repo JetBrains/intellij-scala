@@ -19,6 +19,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.pty4j.{PtyProcess, WinSize}
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.shell.action.{AutoCompleteAction, ExecuteTaskAction, RestartAction}
 
 import scala.collection.JavaConverters._
@@ -121,7 +122,7 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     allActions.asJava
   }
 
-  override def getConsoleIcon: Icon = SbtShellRunner.ICON
+  override def getConsoleIcon: Icon = Icons.SBT_SHELL
 
   def openShell(focus: Boolean): Unit = {
     val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
@@ -138,11 +139,6 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     action.getTemplatePresentation.setVisible(false)
     action
   }
-}
-
-object SbtShellRunner {
-  // TODO migrate sbt icons to where all the other icons are
-  val ICON: Icon = IconLoader.getIcon("/sbt.png")
 }
 
 class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
