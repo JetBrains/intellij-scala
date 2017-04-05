@@ -24,9 +24,10 @@ class ScalaFileTreeNode(file: ScalaFile, settings: ViewSettings)
   override protected def updateImpl(data: PresentationData): Unit = {
     super.updateImpl(data)
 
-    val icon = if (file.isScriptFile) Icons.SCRIPT_FILE_LOGO else Icons.FILE
+    val name = Option(file.getVirtualFile).map(_.getNameWithoutExtension).getOrElse(file.getName)
+    data.setPresentableText(name)
 
-    data.setPresentableText(getValue.getName)
+    val icon = if (file.isScriptFile) Icons.SCRIPT_FILE_LOGO else Icons.FILE
     data.setIcon(icon)
   }
 }
