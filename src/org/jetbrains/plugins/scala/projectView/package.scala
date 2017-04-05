@@ -18,19 +18,13 @@ package object projectView {
   }
 
   object SingularDefinition {
-    def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = file.typeDefinitions match {
-      case Seq(definition) if matchesFileName(definition) => Some(definition)
-      case _ => None
+    def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = Some(file.typeDefinitions) collect {
+      case Seq(definition) if matchesFileName(definition) => definition
+      case Seq(definition) if definition.isPackageObject => definition
     }
 
     private def matchesFileName(definition: ScTypeDefinition): Boolean =
       definition.containingVirtualFile.forall(_.getNameWithoutExtension == definition.name)
-  }
-
-  object PackageObject {
-    def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = Some(file.typeDefinitions) collect {
-      case Seq(definition) if definition.isPackageObject => definition
-    }
   }
 
   object ClassAndCompanionObject {

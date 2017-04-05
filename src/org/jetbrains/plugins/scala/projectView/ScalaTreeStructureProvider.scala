@@ -36,9 +36,6 @@ private object ScalaTreeStructureProvider {
 
     case SingularDefinition(definition) => new TypeDefinitionNode(definition)
 
-    case PackageObject(definition) if !settings.isShowMembers =>
-      new CustomDefinitionNode(definition, Icons.PACKAGE_OBJECT)
-
     case ClassAndCompanionObject(classDefinition, _) if !settings.isShowMembers =>
       new CustomDefinitionNode(classDefinition, Icons.CLASS_AND_OBJECT)
 
