@@ -561,9 +561,9 @@ package object extensions {
         case Some(v) => v
         case None =>
           val newValue = update
-          val race = map.putIfAbsent(key, newValue) != null
+          val race = map.putIfAbsent(key, newValue)
 
-          if (race) map.get(key)
+          if (race != null) race
           else newValue
       }
     }
