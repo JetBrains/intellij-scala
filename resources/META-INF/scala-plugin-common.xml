@@ -68,7 +68,7 @@
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <generation.toStringClassFilter implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
-        <iconProvider implementation="org.jetbrains.plugins.scala.components.ScalaIconProvider"/>
+        <iconProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaIconProvider"/>
         <colorSettingsPage implementation="org.jetbrains.plugins.scala.highlighter.ScalaColorsAndFontsPage"/>
         <editorSmartKeysConfigurable instance="org.jetbrains.plugins.scala.settings.ScalaEditorSmartKeysConfigurable"/>
         <codeFoldingOptionsProvider instance="org.jetbrains.plugins.scala.editor.codeFolding.ScalaCodeFoldingOptionsProvider"/>
