@@ -17,7 +17,7 @@ class ScalaFileTreeNode(file: ScalaFile, settings: ViewSettings)
   extends PsiFileNode(file.getProject, file, settings) {
 
   override def getChildrenImpl: util.Collection[Node] =
-    file.isScriptFile.fold(Seq.empty, file.typeDefinitions)
+    (settings.isShowMembers && !file.isScriptFile).fold(file.typeDefinitions, Seq.empty)
       .map(it => new TypeDefinitionNode(new ClassTreeNode(getProject, it, settings)): Node)
       .asJava
 
