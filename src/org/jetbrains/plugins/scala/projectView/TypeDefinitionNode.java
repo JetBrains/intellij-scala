@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.projectView;
 
 import com.intellij.ide.projectView.PresentationData;
-import com.intellij.ide.projectView.ViewSettings;
-import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode;
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement;
@@ -21,7 +17,6 @@ import scala.collection.Seq;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 // TODO Convert to Scala & Refactor
 class TypeDefinitionNode extends ClassTreeNode {
@@ -85,31 +80,6 @@ class TypeDefinitionNode extends ClassTreeNode {
       }
     }
     return result;
-  }
-
-  private class ScNamedElementTreeNode extends AbstractPsiBasedNode<ScNamedElement> {
-    public ScNamedElementTreeNode(Project project, ScNamedElement function, ViewSettings settings) {
-      super(project, function, settings);
-    }
-
-    @Override
-    protected PsiElement extractPsiFromValue() {
-      return getValue();
-    }
-
-    @Override
-    protected Collection<AbstractTreeNode> getChildrenImpl() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    protected void updateImpl(PresentationData data) {
-      ScNamedElement namedElement = getValue();
-      if (namedElement != null) {
-        String text = namedElement.name();
-        data.setPresentableText(text);
-      }
-    }
   }
 
   @Override

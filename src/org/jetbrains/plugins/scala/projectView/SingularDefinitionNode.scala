@@ -6,7 +6,6 @@ import javax.swing.Icon
 
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
-import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -18,7 +17,7 @@ class SingularDefinitionNode(project: Project, definition: ScTypeDefinition, ico
 
   override def isAlwaysLeaf: Boolean = true
 
-  override def getChildrenImpl: util.Collection[AbstractTreeNode[_]] = Collections.emptyList()
+  override def getChildrenImpl: util.Collection[Node] = Collections.emptyList()
 
   override def updateImpl(data: PresentationData): Unit = {
     data.setPresentableText(definition.name)
