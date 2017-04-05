@@ -91,7 +91,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
       
       if (worksheetProcess == null) return ExitCode.ABORT
 
-      val fileToReHighlight = PsiManager getInstance project findFile originalFile match {
+      val fileToReHighlight = extensions.inReadAction(PsiManager getInstance project findFile originalFile) match {
         case scalaFile: ScalaFile if WorksheetCompiler.isWorksheetReplMode(scalaFile) => Some(scalaFile)
         case _ => None
       }
