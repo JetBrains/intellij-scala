@@ -71,11 +71,9 @@ abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
     def parse: ScalaFile = parseText(s)
 
     def parse[T <: PsiElement: ClassTag]: T =
-      parse(classTag[T].runtimeClass.asInstanceOf[Class[T]])
-
-    def parse[T <: PsiElement](aClass: Class[T]): T =
-      parse.depthFirst().findByType(aClass).getOrElse {
-        throw new RuntimeException("Unable to find PSI element with type " + aClass.getSimpleName)
+      parse.depthFirst().findByType[T].getOrElse {
+        throw new RuntimeException("Unable to find PSI element with type " +
+          implicitly[ClassTag[T]].runtimeClass.getSimpleName)
       }
   }
 

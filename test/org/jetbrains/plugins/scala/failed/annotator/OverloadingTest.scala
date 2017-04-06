@@ -44,7 +44,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   }
 
   protected def annotate(element: ScPatternDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    for (expr <- element.expr; element <- element.children.findByType(classOf[ScTypeElement]))
+    for (expr <- element.expr; element <- element.children.findByType[ScTypeElement])
       checkConformance(expr, element, holder)
   }
 

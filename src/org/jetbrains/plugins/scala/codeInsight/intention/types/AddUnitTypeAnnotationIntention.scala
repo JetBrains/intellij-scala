@@ -19,7 +19,7 @@ class AddUnitTypeAnnotationIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     if (!isAvailable(project, editor, element)) return
     for {
-      function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
+      function <- element.parentsInFile.findByType[ScFunctionDefinition]
       if !function.hasAssign
       body <- function.body
       if !body.isAncestorOf(element)
@@ -37,7 +37,7 @@ class AddUnitTypeAnnotationIntention extends PsiElementBaseIntentionAction {
       }
       implicit val typeSystem = project.typeSystem
       for {
-        function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
+        function <- element.parentsInFile.findByType[ScFunctionDefinition]
         if !function.hasAssign
         body <- function.body
         if !body.isAncestorOf(element)

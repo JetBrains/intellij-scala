@@ -111,7 +111,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
 
   def parameterWithoutType(param: ScParameter) {
     import param.typeSystem
-    param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
+    param.parentsInFile.findByType[ScFunctionExpr] match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
         func.expectedType() match {

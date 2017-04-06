@@ -31,7 +31,7 @@ class BlockExpressionToArgumentIntention extends PsiElementBaseIntentionAction {
     val s = block.getText
     val text = "foo(%s)".format(s.substring(1, s.length - 1).replaceAll("\n", ""))
     val arguments = createExpressionFromText(text)(block.getManager)
-            .children.findByType(classOf[ScArgumentExprList]).get
+            .children.findByType[ScArgumentExprList].get
     val replacement = block.getParent.replace(arguments)
     replacement.getPrevSibling match {
       case ws: PsiWhiteSpace => ws.delete()

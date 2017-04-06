@@ -119,7 +119,7 @@ class ConstructorAnnotatorTest extends SimpleTestCase {
 
     val mock = new AnnotatorHolderMock(file)
 
-    val seq = file.depthFirst().findByType(classOf[ScClass])
+    val seq = file.depthFirst().findByType[ScClass]
     Compatibility.seqClass = seq
 
     try {

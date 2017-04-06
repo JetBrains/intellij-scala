@@ -106,7 +106,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
         val builder = new TemplateBuilderImpl(entity)
 
         for (aType <- entityType;
-             typeElement <- entity.children.findByType(classOf[ScSimpleTypeElement])) {
+             typeElement <- entity.children.findByType[ScSimpleTypeElement]) {
           builder.replaceElement(typeElement, aType)
         }
 
@@ -173,7 +173,7 @@ object CreateEntityQuickFix {
     for (anchor <- children.find(_.isInstanceOf[ScSelfTypeElement]).orElse(children.headOption)) yield {
       val holder = anchor.getParent
 
-      val hasMembers = holder.children.findByType(classOf[ScMember]).isDefined
+      val hasMembers = holder.children.findByType[ScMember].isDefined
 
       implicit val manager = ref.getManager
       val entity = holder.addAfter(createElementFromText(text), anchor)

@@ -44,7 +44,7 @@ object ToggleTypeAnnotation {
 
   def complete(strategy: Strategy, element: PsiElement)
               (implicit typeSystem: TypeSystem): Boolean = {
-    for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
+    for {function <- element.parentsInFile.findByType[ScFunctionDefinition]
          if function.hasAssign
          body <- function.body
          if !body.isAncestorOf(element)} {
@@ -57,7 +57,7 @@ object ToggleTypeAnnotation {
       return true
     }
 
-    for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
+    for {value <- element.parentsInFile.findByType[ScPatternDefinition]
          if value.expr.forall(!_.isAncestorOf(element))
          if value.pList.simplePatterns
          bindings = value.bindings
@@ -72,7 +72,7 @@ object ToggleTypeAnnotation {
       return true
     }
 
-    for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
+    for {variable <- element.parentsInFile.findByType[ScVariableDefinition]
          if variable.expr.forall(!_.isAncestorOf(element))
          if variable.pList.simplePatterns
          bindings = variable.bindings
@@ -88,9 +88,9 @@ object ToggleTypeAnnotation {
     }
 
     for {
-      param <- element.parentsInFile.findByType(classOf[ScParameter])
+      param <- element.parentsInFile.findByType[ScParameter]
     } {
-      param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
+      param.parentsInFile.findByType[ScFunctionExpr] match {
         case Some(func) =>
           if (param.typeElement.isDefined) {
             strategy.parameterWithType(param)
@@ -110,7 +110,7 @@ object ToggleTypeAnnotation {
       }
     }
 
-    for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
+    for (pattern <- element.parentsInFile.findByType[ScBindingPattern]) {
       pattern match {
         case p: ScTypedPattern if p.typePattern.isDefined =>
           strategy.patternWithType(p)
@@ -121,7 +121,7 @@ object ToggleTypeAnnotation {
         case _ =>
       }
     }
-    for (pattern <- element.parentsInFile.findByType(classOf[ScWildcardPattern])) {
+    for (pattern <- element.parentsInFile.findByType[ScWildcardPattern]) {
       strategy.wildcardPatternWithoutType(pattern)
       return true
     }
