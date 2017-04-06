@@ -540,6 +540,11 @@ package object extensions {
     def filterByType[T](aClass: Class[T]): Iterator[T] =
       delegate.filter(aClass.isInstance(_)).map(_.asInstanceOf[T])
 
+    def containsType[T: ClassTag]: Boolean = {
+      val aClass = implicitly[ClassTag[T]].runtimeClass
+      delegate.exists(aClass.isInstance)
+    }
+
     def headOption: Option[A] = {
       if (delegate.hasNext) Some(delegate.next())
       else None

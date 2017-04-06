@@ -173,7 +173,7 @@ object CreateEntityQuickFix {
     for (anchor <- children.find(_.isInstanceOf[ScSelfTypeElement]).orElse(children.headOption)) yield {
       val holder = anchor.getParent
 
-      val hasMembers = holder.children.findByType[ScMember].isDefined
+      val hasMembers = holder.children.containsType[ScMember]
 
       implicit val manager = ref.getManager
       val entity = holder.addAfter(createElementFromText(text), anchor)

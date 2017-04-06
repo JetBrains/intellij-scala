@@ -1504,7 +1504,7 @@ object ScalaPsiUtil {
       return true
     }
 
-    e.parentsInFile.takeWhile(!isScope(_)).findByType[ScPatternDefinition].isDefined
+    e.parentsInFile.takeWhile(!isScope(_)).containsType[ScPatternDefinition]
   }
 
   private def isCanonicalArg(expr: ScExpression) = expr match {
