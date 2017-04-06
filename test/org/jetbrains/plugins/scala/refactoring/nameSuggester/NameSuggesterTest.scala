@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala
-package refactoring.nameSuggester
+package refactoring
+package nameSuggester
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.ScalaNameSuggestionProvider
-import org.junit.Assert.assertArrayEquals
-
-import scala.collection.{JavaConversions, mutable}
+import org.junit.Assert.{assertArrayEquals, assertNotNull}
 
 /**
   * Nikolay.Tropin
   * 2014-07-01
   */
-class NameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class NameSuggesterTest extends AbstractNameSuggesterTest {
 
   def testStandard(): Unit = {
     testNamesByType("Boolean", "bool")
@@ -79,10 +79,20 @@ class NameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def testNamesByType(typeElementText: String, expected: String*): Unit = {
     implicit val manager = getFixture.getPsiManager
     val typeElement = createTypeElementFromText(typeElementText)
+    testNamesByElement(typeElement, expected)
+  }
+}
+
+abstract class AbstractNameSuggesterTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  import scala.collection.{JavaConversions, mutable}
+
+  protected def testNamesByElement(element: PsiElement, expected: Seq[String]): Unit = {
+    assertNotNull(element)
 
     val actual = mutable.LinkedHashSet.empty[String]
     import JavaConversions._
-    new ScalaNameSuggestionProvider().getSuggestedNames(typeElement, getFile, actual)
+    new ScalaNameSuggestionProvider().getSuggestedNames(element, getFile, actual)
 
     assertArrayEquals(expected.toArray[AnyRef], actual.toArray[AnyRef])
   }
