@@ -15,12 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
-
-import scala.collection.mutable
 
 /**
   * @author Alexander Podkhalyuzin
@@ -49,6 +48,8 @@ object NameSuggester {
   }
 
   private[this] def collectNames(names: Seq[String], validator: ScalaValidator): Seq[String] = {
+    import scala.collection.mutable
+
     val filteredNames = mutable.LinkedHashSet(names: _*).map {
       case "class" => "clazz"
       case name => name
@@ -82,7 +83,7 @@ object NameSuggester {
       .exists(baseClass => clazz.isInheritor(baseClass, true) || areClassesEquivalent(clazz, baseClass))
   }
 
-  import NameSuggesterUtils.camelCaseNames
+  import NameSuggesterUtils._
 
   private def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
                          (implicit project: Project): Seq[String] = {
@@ -92,10 +93,9 @@ object NameSuggester {
     }
 
     def compoundNames(tp1: ScType, tp2: ScType, separator: String): Seq[String] =
-      for {
-        leftName <- namesByType(tp1, shortVersion = false)
-        rightName <- namesByType(tp2, shortVersion = false)
-      } yield s"$leftName$separator${rightName.capitalize}"
+      NameSuggesterUtils.compoundNames(namesByType(tp1, shortVersion = false),
+        namesByType(tp2, shortVersion = false),
+        separator)
 
     def functionParametersNames(returnType: ScType, parameters: Seq[ScType]): Seq[String] =
       parameters match {
@@ -116,15 +116,12 @@ object NameSuggester {
 
       (clazz.qualifiedName, parameters) match {
         case ("scala.Array", Seq(first)) => pluralNames(first)
-        case (name, Seq(first)) if needPrefix.keySet.contains(name) =>
-          val prefix = needPrefix(name)
-          val namesWithPrefix = namesByType(first, shortVersion = false)
-            .map(prefix + _.capitalize)
-
-          namesWithPrefix
         case ("scala.util.Either", Seq(first, second)) => compoundNames(first, second, "Or")
         case (_, Seq(first, second)) if isInheritor("scala.collection.GenMap", "java.util.Map") => compoundNames(first, second, "To")
         case (_, Seq(first)) if isInheritor("scala.collection.GenTraversableOnce", "java.lang.Iterable") => pluralNames(first)
+        case (name, Seq(first)) =>
+          val maybePrefix = needPrefix.get(name)
+          NameSuggesterUtils.compoundNames(maybePrefix.toSeq, namesByType(first, shortVersion = false))
         case _ => Seq.empty
       }
     }
@@ -164,7 +161,7 @@ object NameSuggester {
       case ParameterizedType(baseType, args) =>
         val byParameters = baseType.extractClass(project) match {
           case Some(clazz) => namesByParameters(clazz, args)
-          case _ => mutable.LinkedHashSet.empty
+          case _ => Seq.empty
         }
 
         namesByType(baseType, withPlurals) ++ byParameters
@@ -178,13 +175,22 @@ object NameSuggester {
     case _: ScThisReference => Seq("thisInstance")
     case _: ScSuperReference => Seq("superInstance")
     case reference: ScReferenceElement if reference.refName != null => camelCaseNames(reference.refName)
-    case call: ScMethodCall => namesByExpression(call.getEffectiveInvokedExpr)
+    case definition: ScNewTemplateDefinition =>
+      val namesByClass = definition.getType().toOption.toSeq
+        .flatMap(namesByType(_)(definition.getProject))
+
+      val parameters = definition.constructor.toSeq
+        .flatMap(_.matchedParameters)
+
+      enhancedNames(namesByClass, parameters)
+    case call@ScMethodCall(invoked, _) =>
+      enhancedNames(namesByExpression(invoked), call.matchedParameters)
     case literal: ScLiteral if literal.isString =>
       val maybeName = Option(literal.getValue).collect {
         case string: String => string
       }.map(_.toLowerCase)
 
-      maybeName.filter(isIdentifier(_)).toSeq
+      maybeName.filter(isIdentifier).toSeq
     case expression =>
       val maybeName = expression.getContext match {
         case x: ScAssignStmt => x.assignName
@@ -198,6 +204,22 @@ object NameSuggester {
 }
 
 object NameSuggesterUtils {
+
+  private[this] def enhancedNames(names: Seq[String], parameters: Seq[(ScExpression, Parameter)]): Seq[String] = {
+    val namesByParameters = parameters.collect {
+      case (expression, parameter) if parameter.name == "name" => expression
+    }.flatMap(namesByExpression)
+
+    names ++ compoundNames(namesByParameters, names) ++ namesByParameters
+  }
+
+  private[namesSuggester] def compoundNames(firstNames: Seq[String],
+                                            lastNames: Seq[String],
+                                            separator: String = ""): Seq[String] =
+    for {
+      firstName <- firstNames
+      lastName <- lastNames
+    } yield s"$firstName$separator${lastName.capitalize}"
 
   private[namesSuggester] def camelCaseNames(name: String): Seq[String] = {
     val actualName = name match {

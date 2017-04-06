@@ -10,11 +10,10 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.NameSuggestionProvider
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester._
 
 /**
   * User: Alexander Podkhalyuzin
@@ -22,7 +21,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
   */
 class ScalaNameSuggestionProvider extends AbstractNameSuggestionProvider {
 
+  import NameSuggester.suggestNames
+  import ScalaNameSuggestionProvider._
+
   override protected def suggestedNames(element: PsiElement): Seq[String] = element match {
+    case definition: ScNewTemplateDefinition => suggestNames(definition)
     case definition: ScTemplateDefinition => Seq(definition.name)
     case typed: ScTypedDefinition =>
       typed.name +: suggestedNamesByType(typed)
@@ -31,11 +34,16 @@ class ScalaNameSuggestionProvider extends AbstractNameSuggestionProvider {
     case typeElement: ScTypeElement => suggestedNamesByType(typeElement)
     case _ => Seq.empty
   }
+}
 
-  private def suggestedNamesByType(typeable: Typeable): Seq[String] = {
-    val `type` = typeable.getType().getOrAny
-    suggestNamesByType(`type`)
-  }
+object ScalaNameSuggestionProvider {
+
+  import NameSuggester.suggestNamesByType
+
+  private def suggestedNamesByType(typeable: Typeable): Seq[String] =
+    typeable.getType()
+      .toOption.toSeq
+      .flatMap(suggestNamesByType)
 }
 
 abstract class AbstractNameSuggestionProvider extends NameSuggestionProvider {
