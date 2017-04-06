@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.meta.intellij.MetaExpansionsManager
 
@@ -91,11 +92,14 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
 
   @CachedWithRecursionGuard(this, Left("Recursive meta expansion"), ModCount.getBlockModificationCount)
   def getMetaExpansion: Either[String, scala.meta.Tree] = {
-    val metaAnnotation = annotations.find(_.isMetaAnnotation)
-    metaAnnotation match {
-      case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
-      case None        => Left("")
-    }
+    import ScalaProjectSettings.ScalaMetaMode
+    if (ScalaProjectSettings.getInstance(getProject).getScalaMetaMode == ScalaMetaMode.Enabled) {
+      val metaAnnotation = annotations.find(_.isMetaAnnotation)
+      metaAnnotation match {
+        case Some(annot) => MetaExpansionsManager.runMetaAnnotation(annot)
+        case None => Left("")
+      }
+    } else Left("Meta expansions disabled in settings")
   }
 
   def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix

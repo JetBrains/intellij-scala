@@ -171,7 +171,7 @@ object MetaExpansionsManager {
           case pe: ScParameterizedTypeElement => pe.typeArgList.typeArgs.map(converter.toType)
           case _ => Nil
         }
-        val compiledArgs = Seq(convertedAnnot.asInstanceOf[AnyRef]) ++ typeArgs :+ converted.asInstanceOf[AnyRef]
+        val compiledArgs = convertedAnnot.asInstanceOf[AnyRef] +: typeArgs :+ converted.asInstanceOf[AnyRef]
         val maybeClass = getCompiledMetaAnnotClass(annot)
         ProgressManager.checkCanceled()
         (maybeClass, maybeClass.map(_.getClassLoader)) match {

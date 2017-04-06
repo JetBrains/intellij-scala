@@ -19,9 +19,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConversions._
 import scala.meta.intellij.MetaExpansionsManager
+import ScalaProjectSettings.ScalaMetaMode
 
 class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
@@ -29,6 +31,7 @@ class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {
   private type Markers = util.Collection[_ >: Marker]
 
   override def collectNavigationMarkers(element: PsiElement, result: Markers): Unit = {
+    if (ScalaProjectSettings.getInstance(element.getProject).getScalaMetaMode == ScalaMetaMode.Disabled) return
     if (element.getNode == null || element.getNode.getElementType != ScalaTokenTypes.tIDENTIFIER ) return
     processElement(element).foreach(result.add)
   }

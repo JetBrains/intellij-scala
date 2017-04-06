@@ -53,6 +53,10 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   private boolean ENABLE_LIBRARY_EXTENSIONS = true;
 
+  //SCALA.META
+  public enum ScalaMetaMode {Enabled, Disabled, Manual}
+  private ScalaMetaMode scalaMetaMode = ScalaMetaMode.Enabled;
+
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
@@ -422,5 +426,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setEnableLibraryExtensions(boolean ENABLE_LIBRARY_EXTENSIONS) {
     this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
+  }
+
+  public ScalaMetaMode getScalaMetaMode() {
+    return scalaMetaMode;
+  }
+
+  public void setScalaMetaMode(ScalaMetaMode scalaMetaMode) {
+    this.scalaMetaMode = scalaMetaMode;
   }
 }
