@@ -31,7 +31,7 @@ class ScalaPropertyFoldingBuilder extends FoldingBuilderEx {
     val project: Project = file.getProject
     val result = new java.util.ArrayList[FoldingDescriptor]
     file.depthFirst()
-      .filterByType(classOf[ScLiteral])
+      .filterByType[ScLiteral]
       .foreach(checkLiteral(project, _, result))
 
     result.toArray(new Array[FoldingDescriptor](result.size))

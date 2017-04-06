@@ -30,9 +30,9 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
     val file = myFixture.getFile
     val mock = new AnnotatorHolderMock(file)
 
-    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
+    assertEquals(Nil, file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList)
 
-    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiReference])
+    assertEquals(Nil, file.depthFirst().filterByType[PsiReference]
       .filter(_.resolve == null).map(_.getElement.getText).toList)
 
     file.depthFirst().foreach {

@@ -394,7 +394,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
   def packagingRanges: Seq[TextRange] =
-    this.depthFirst().filterByType(classOf[ScPackaging]).flatMap(_.reference).map(_.getTextRange).toList
+    this.depthFirst().filterByType[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
   def getFileResolveScope: GlobalSearchScope = {
     val vFile = getOriginalFile.getVirtualFile

@@ -77,7 +77,7 @@ class ScalaTestGenerator extends TestGenerator {
 
     val file = createTestFileFromTemplate(d, project)
     if (file == null) return file
-    val typeDefinition = file.depthFirst().filterByType(classOf[ScTypeDefinition]).next()
+    val typeDefinition = file.depthFirst().filterByType[ScTypeDefinition].next()
     val fqName = d.getSuperClassName
     if (fqName != null) {
       val psiClass = ElementScope(project).getCachedClass(fqName)
@@ -102,7 +102,7 @@ class ScalaTestGenerator extends TestGenerator {
     psiClass match {
       case Some(cls) =>
         val classParents = addExtendsRef(cls.name)
-        classParents.depthFirst().filterByType(classOf[ScStableCodeReferenceElement]).next().bindToElement(cls)
+        classParents.depthFirst().filterByType[ScStableCodeReferenceElement].next().bindToElement(cls)
       case None =>
         addExtendsRef(fqName)
     }

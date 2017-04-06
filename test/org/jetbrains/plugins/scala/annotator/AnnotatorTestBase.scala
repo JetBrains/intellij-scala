@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 
+import scala.reflect.ClassTag
+
 /**
  * Pavel Fatin
  */
@@ -22,12 +24,12 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement](annotator: AnnotatorPart[
     val file: ScalaFile = s.parse
     val mock = new AnnotatorHolderMock(file)
 
-    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiErrorElement]).map(_.getText).toList)
+    assertEquals(Nil, file.depthFirst().filterByType[PsiErrorElement].map(_.getText).toList)
 
-    assertEquals(Nil, file.depthFirst().filterByType(classOf[PsiReference])
+    assertEquals(Nil, file.depthFirst().filterByType[PsiReference]
             .filter(_.resolve == null).map(_.getElement.getText).toList)
 
-    file.depthFirst().filterByType(annotator.kind).foreach { it =>
+    file.depthFirst().filterByType(ClassTag(annotator.kind)).foreach { it =>
       annotator.annotate(it, mock, typeAware = true)
     }
     mock.annotations

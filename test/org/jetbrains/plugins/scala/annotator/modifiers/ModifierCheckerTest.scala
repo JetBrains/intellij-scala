@@ -44,7 +44,7 @@ class ModifierCheckerTest extends SimpleTestCase {
 
   def messages(@Language(value = "Scala") code: String): List[Message] = {
     val file = code.parse
-    val modifiers = file.depthFirst().filterByType(classOf[ScModifierList])
+    val modifiers = file.depthFirst().filterByType[ScModifierList]
 
     val mock = new AnnotatorHolderMock(file)
 

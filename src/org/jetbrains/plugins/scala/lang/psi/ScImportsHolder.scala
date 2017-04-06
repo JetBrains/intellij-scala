@@ -174,7 +174,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       this.children.dropWhile(el => el.isInstanceOf[PsiComment] || el.isInstanceOf[PsiWhiteSpace]).headOption
 
     firstChildNotCommentWhitespace.foreach {
-      case pack: ScPackaging if !pack.isExplicit && this.children.filterByType(classOf[ScImportStmt]).isEmpty =>
+      case pack: ScPackaging if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>
         pack.addImportsForPaths(paths, refsContainer)
         return
       case _ =>

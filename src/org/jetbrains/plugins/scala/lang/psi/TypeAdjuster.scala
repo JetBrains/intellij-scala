@@ -147,7 +147,7 @@ object TypeAdjuster extends ApplicationAdapter {
       }
     }
 
-    if (info.origElement.parentsInFile.filterByType(classOf[ScTypeElement]).exists(isMarkedToReplace)) None
+    if (info.origElement.parentsInFile.filterByType[ScTypeElement].exists(isMarkedToReplace)) None
     else info match {
       case cmp: CompoundInfo =>
         Some(cmp.copy(childInfos = cmp.childInfos.flatMap(simplify)))

@@ -537,8 +537,10 @@ package object extensions {
       delegate.find(aClass.isInstance).map(_.asInstanceOf[T])
     }
 
-    def filterByType[T](aClass: Class[T]): Iterator[T] =
-      delegate.filter(aClass.isInstance(_)).map(_.asInstanceOf[T])
+    def filterByType[T: ClassTag]: Iterator[T] = {
+      val aClass = implicitly[ClassTag[T]].runtimeClass
+      delegate.filter(aClass.isInstance).map(_.asInstanceOf[T])
+    }
 
     def containsType[T: ClassTag]: Boolean = {
       val aClass = implicitly[ClassTag[T]].runtimeClass

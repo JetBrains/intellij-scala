@@ -36,7 +36,7 @@ case class Dependency(kind: DependencyKind, target: PsiElement, path: Path) {
 object Dependency {
   def dependenciesIn(scope: PsiElement): Seq[Dependency] = {
     scope.depthFirst()
-            .filterByType(classOf[ScReferenceElement])
+            .filterByType[ScReferenceElement]
             .toList
             .flatMap(reference => dependencyFor(reference).toList)
   }
