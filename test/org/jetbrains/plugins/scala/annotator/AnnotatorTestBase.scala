@@ -29,7 +29,7 @@ abstract class AnnotatorTestBase[T <: ScalaPsiElement](annotator: AnnotatorPart[
     assertEquals(Nil, file.depthFirst().filterByType[PsiReference]
             .filter(_.resolve == null).map(_.getElement.getText).toList)
 
-    file.depthFirst().filterByType(ClassTag(annotator.kind)).foreach { it =>
+    file.depthFirst().filterByType[T](ClassTag(annotator.kind)).foreach { it =>
       annotator.annotate(it, mock, typeAware = true)
     }
     mock.annotations
