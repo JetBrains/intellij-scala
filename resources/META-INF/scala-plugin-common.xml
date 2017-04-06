@@ -17,6 +17,7 @@
         <extensionPoint name="scalaTestDefaultWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider"/>
         <extensionPoint name="parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer"/>
         <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver"/>
+        <extensionPoint name="genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -25,6 +26,19 @@
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MetaSupportInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjection"/>
+
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TypePluralNamesProvider"/>
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.EitherTypeNamesProvider"/>
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FromTypeToTypeNamesProvider"/>
+        <genericTypeNamesProvider
+                implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.MonadicTypeNamesProvider"/>
+      <genericTypeNamesProvider
+              implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
+      <genericTypeNamesProvider
+              implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
