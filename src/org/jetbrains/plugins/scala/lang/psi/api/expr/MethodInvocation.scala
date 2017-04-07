@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
@@ -339,7 +339,13 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 }
 
 object MethodInvocation {
-  def unapply(invocation: MethodInvocation) = Some(invocation.getInvokedExpr, invocation.argumentExpressions)
+
+  def unapply(methodInvocation: MethodInvocation): Option[(ScExpression, Seq[ScExpression])] =
+    for {
+      invocation <- Option(methodInvocation)
+      expression = invocation.getInvokedExpr
+      if expression != null
+    } yield (expression, invocation.argumentExpressions)
 
   implicit class MethodInvocationExt(val invocation: MethodInvocation) extends AnyVal {
     private implicit def elementScope = invocation.elementScope

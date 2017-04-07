@@ -3,12 +3,12 @@ package lang
 package findUsages
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil.isAncestor
+import com.intellij.psi.util.PsiTreeUtil.{getParentOfType, isAncestor}
 import com.intellij.usages.impl.rules.UsageType._
 import com.intellij.usages.impl.rules.{UsageType, UsageTypeProviderEx}
 import com.intellij.usages.{PsiElementUsageTarget, UsageTarget}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, getParentOfType}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScReferenceElement}
@@ -62,6 +62,22 @@ object ScalaUsageTypeProvider {
       }.orNull
   }
 
+  def patternUsageType(pattern: ScPattern): UsageType = {
+    def isPatternAncestor(element: PsiElement) = isAncestor(element, pattern, false)
+
+    val patterns = getParentOfType(pattern, classOf[ScCatchBlock]) match {
+      case ScCatchBlock(clauses) => clauses.caseClauses.flatMap(_.pattern)
+      case _ => Seq.empty
+    }
+
+    if (patterns.exists(isPatternAncestor)) CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION
+    else pattern match {
+      case ScTypedPattern(typeElement) if isPatternAncestor(typeElement) => classTypedPattern
+      case _: ScConstructorPattern | _: ScInfixPattern => extractor
+      case _ => null
+    }
+  }
+
   implicit def stringToUsageType(name: String): UsageType = new UsageType(name)
 
   val extractor: UsageType = "Extractor"
@@ -98,7 +114,7 @@ object ScalaUsageTypeProvider {
       case typeArgs: ScTypeArgs => typeArgsUsageType(typeArgs)
       case templateParents: ScTemplateParents => templateParentsUsageType(templateParents)
       case parameter: ScParameter if isAppropriate(parameter) => CLASS_METHOD_PARAMETER_DECLARATION
-      case pattern: ScPattern => forPattern(pattern)
+      case pattern: ScPattern => patternUsageType(pattern)
       case typeElement: ScTypeElement => typeUsageType(typeElement)
       case _: ScInterpolatedStringPartReference => prefixInterpolatedString
       case expression: ScReferenceExpression => referenceExpressionUsageType(expression)
@@ -132,21 +148,6 @@ object ScalaUsageTypeProvider {
       case _: ScTemplateDefinition => CLASS_EXTENDS_IMPLEMENTS_LIST
       case _ => null
     }
-
-  private[this] def forPattern(pattern: ScPattern): UsageType =
-    Option(getParentOfType(pattern, classOf[ScCatchBlock]))
-      .collect {
-        case ScCatchBlock(clauses) => clauses
-      }
-      .filter(_.caseClauses.flatMap(_.pattern).exists(isAncestor(_, pattern, false)))
-      .map(_ => CLASS_CATCH_CLAUSE_PARAMETER_DECLARATION)
-      .getOrElse {
-        pattern match {
-          case ScTypedPattern(typeElement) if isAncestor(typeElement, pattern, false) => classTypedPattern
-          case _: ScConstructorPattern | _: ScInfixPattern => extractor
-          case _ => null
-        }
-      }
 
   private[this] def typeUsageType(typeElement: ScTypeElement): UsageType = {
     def isAppropriate(maybeTypeElement: Option[ScTypeElement]) = maybeTypeElement.contains(typeElement)
