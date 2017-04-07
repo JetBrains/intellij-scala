@@ -46,6 +46,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean DISABLE_I18N = false;
   private boolean DONT_CACHE_COMPOUND_TYPES = false;
   private boolean AOT_COMPLETION = true;
+  private boolean PROJECT_VIEW_HIGHLIGHTING = false;
   private boolean SCALA_CLASSES_PRIORITY = true;
   private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
 
@@ -238,6 +239,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setAotCOmpletion(boolean value) {
     AOT_COMPLETION = value;
+  }
+
+  public boolean isProjectViewHighlighting() {
+    return PROJECT_VIEW_HIGHLIGHTING;
+  }
+
+  public void setProjectViewHighlighting(boolean value) {
+    PROJECT_VIEW_HIGHLIGHTING = value;
   }
 
   public boolean isScalaPriority() {

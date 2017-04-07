@@ -9,6 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
   * @author Pavel Fatin
@@ -18,7 +19,8 @@ class ScalaProblemFileHighlightFilter(project: Project) extends Condition[Virtua
     * @see [[com.intellij.codeInsight.problems.DefaultProblemFileHighlightFilter]]
     */
   override def value(file: VirtualFile): Boolean =
-    isScalaSourceFile(project, file) &&
+    ScalaProjectSettings.getInstance(project).isProjectViewHighlighting &&
+      isScalaSourceFile(project, file) &&
       !CompilerManager.getInstance(project).isExcludedFromCompilation(file)
 }
 
