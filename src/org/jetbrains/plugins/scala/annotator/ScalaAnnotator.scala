@@ -51,6 +51,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 
 import scala.collection.mutable.ArrayBuffer
@@ -430,6 +431,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   }
 
   private def checkMetaAnnotation(annotation: ScAnnotation, holder: AnnotationHolder) = {
+    import ScalaProjectSettings.ScalaMetaMode
     if (annotation.isMetaAnnotation) {
       if (!MetaExpansionsManager.isUpToDate(annotation)) {
         val warning = holder.createWarningAnnotation(annotation, ScalaBundle.message("scala.meta.recompile"))
@@ -439,8 +441,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case Some(ah: ScAnnotationsHolder) => ah.getMetaExpansion
         case _ => Right("")
       }
+      val settings = ScalaProjectSettings.getInstance(annotation.getProject)
       result match {
-        case Left(errorMsg) =>
+        case Left(errorMsg) if settings.getScalaMetaMode == ScalaMetaMode.Enabled =>
           holder.createErrorAnnotation(annotation, ScalaBundle.message("scala.meta.expandfailed", errorMsg))
         case _ =>
       }
