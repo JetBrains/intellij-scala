@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, Mod
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
 
+import scala.collection.immutable
 import scala.meta.parsers.Parse
 import scala.meta.{Dialect, Tree}
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
@@ -75,6 +76,10 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = {
 
     def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
+    def pluginCP = new URL(getClass.getResource(".").toString
+      .replaceAll("^jar:", "")
+      .replaceAll("!/.+$", "")
+      .replaceAll(getClass.getPackage.getName.replace(".", "/") + "/$", ""))
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
 
@@ -82,7 +87,7 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val cp: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
         val outDirs: List[URL] = outputDirs(module).map(str => new File(str).toURI.toURL)
-        val fullCP = outDirs ++ cp :+ getClass.getProtectionDomain.getCodeSource.getLocation
+        val fullCP: immutable.Seq[URL] = outDirs ++ cp :+ pluginCP
         // a quick way to test for compatible meta version - check jar name in classpath
         if (annot.scalaLanguageLevelOrDefault == Scala_2_11 && cp.exists(_.toString.contains("trees_2.11-1.6")))
           new URLClassLoader(fullCP, getClass.getClassLoader)
@@ -90,23 +95,6 @@ class MetaExpansionsManager(project: Project) extends ProjectComponent {
           new MetaClassLoader(fullCP)
         else
           new MetaClassLoader(fullCP, incompScala = true)
-      })
-    }
-    def classLoaderForEnclosingLibrary(annotClass: ScClass): URLClassLoader = {
-      def classLoaderForLibrary(lib: Library): URLClassLoader = {
-        annotationClassLoaders.getOrElseUpdate(lib.getName, {
-          val libraryCP: Array[String] = lib.getUrls(OrderRootType.CLASSES)
-          val metaCP: Seq[String] = annot.module
-            .map(getMetaLibsForModule)
-            .map(_.flatMap(_.getUrls(OrderRootType.CLASSES)))
-            .getOrElse(Nil)
-          val fullCP = libraryCP ++ metaCP :+ getClass.getProtectionDomain.getCodeSource.getLocation.toString
-          new URLClassLoader(fullCP.map(u=>new URL("file:"+u.replaceAll("!/$", ""))), null)
-        })
-      }
-      annotationClassLoaders.getOrElseUpdate(annotClass.qualifiedName, {
-        val lib = LibraryUtil.findLibraryByClass(annotClass.qualifiedName, project)
-        annotationClassLoaders.getOrElseUpdate(lib.getName, classLoaderForLibrary(lib))
       })
     }
 
