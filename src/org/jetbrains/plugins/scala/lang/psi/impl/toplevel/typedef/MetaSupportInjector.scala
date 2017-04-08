@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.meta._
 
@@ -88,7 +90,7 @@ class MetaSupportInjector extends SyntheticMembersInjector {
       case m: Defn => Some(m)
       case _ => None
     }
-    bMembers.filter(m => !aMembers.contains(hash(m))).map(trimBodies)
+    bMembers.filter(m => !aMembers.contains(hash(m))).map(trimBodies(_, a))
   }
 
 
@@ -107,16 +109,15 @@ class MetaSupportInjector extends SyntheticMembersInjector {
     }
   }
 
-  private def trimBodies(tree: Tree): Tree = {
-    if (noTrimBodiesProp) { tree }
-    else {
+  private def trimBodies(tree: Tree, elem: PsiElement): Tree = {
+    if (ScalaProjectSettings.getInstance(elem.getProject).isMetaTrimMethodBodies) {
       tree match {
         case Defn.Val(mods, pats, decltpe, _) => Defn.Val(mods, pats, decltpe, Term.Name("???"))
         case Defn.Var(mods, pats, decltpe, _) => Defn.Var(mods, pats, decltpe, Some(Term.Name("???")))
         case Defn.Def(mods, name, tparams, paramss, tpe, _) => Defn.Def(mods, name, tparams, paramss, tpe, Term.Name("???"))
         case other => other
       }
-    }
+    } else { tree }
   }
 
   private def injectForThis(source: ScTypeDefinition): Seq[String] = {
@@ -129,6 +130,6 @@ class MetaSupportInjector extends SyntheticMembersInjector {
       case Right(Term.Block(Seq(Defn.Object(_, _, templ), _)))      => Some(templ)
       case _ => None
     }
-    template.map(getDiff(source, _)).map(defns=>defns.map(t=>trimBodies(t).toString())).getOrElse(Seq.empty)
+    template.map(getDiff(source, _)).map(defns=>defns.map(t=>trimBodies(t, source).toString())).getOrElse(Seq.empty)
   }
 }
