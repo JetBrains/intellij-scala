@@ -12,7 +12,6 @@ import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
-import org.jetbrains.plugins.scala.extensions.ConcurrentMapExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -20,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.{DoNotProcessPackageObjectException, isPackageObjectProcessing}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
 import scala.annotation.tailrec
 import scala.util.control.ControlThrowable
@@ -44,8 +42,8 @@ object CachesUtil {
     *
     * @see [[CachesUtil.getOrCreateKey]] for more info
    */
-  type MappedKey[Data, Result] = Key[CachedValue[ConcurrentMap[Data, Result]]]
-  type RefKey[Result] = Key[CachedValue[AtomicReference[Result]]]
+  type CachedMap[Data, Result] = CachedValue[ConcurrentMap[Data, Result]]
+  type CachedRef[Result] = CachedValue[AtomicReference[Result]]
   private val keys = ContainerUtil.newConcurrentMap[String, Key[_]]()
 
   /**
@@ -57,7 +55,17 @@ object CachesUtil {
    *
    * Do not use this method directly. You should use annotations instead
    */
-  def getOrCreateKey[T](id: String): T = keys.atomicGetOrElseUpdate(id, Key.create[T](id)).asInstanceOf[T]
+  def getOrCreateKey[T](id: String): Key[T] = {
+    keys.get(id) match {
+      case null =>
+        val newKey = Key.create[T](id)
+        val race = keys.putIfAbsent(id, newKey)
+
+        if (race != null) race.asInstanceOf[Key[T]]
+        else newKey
+      case v => v.asInstanceOf[Key[T]]
+    }
+  }
 
   //keys for getUserData
   val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
@@ -116,32 +124,49 @@ object CachesUtil {
                                               set: Set[ScFunction]) extends ControlThrowable
 
   def getOrCreateCachedMap[Dom <: PsiElement, Data, Result](elem: Dom,
-                                                            key: MappedKey[Data, Result],
+                                                            key: Key[CachedMap[Data, Result]],
                                                             dependencyItem: () => Object): ConcurrentMap[Data, Result] = {
 
-    getOrCreateCachedHolder[Dom, ConcurrentMap[Data, Result]](elem, key, dependencyItem, () => ContainerUtil.newConcurrentMap())
+    val cachedValue = elem.getUserData(key) match {
+      case null =>
+        val manager = CachedValuesManager.getManager(elem.getProject)
+        val provider = new CachedValueProvider[ConcurrentMap[Data, Result]] {
+          def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] =
+            new CachedValueProvider.Result(ContainerUtil.newConcurrentMap(), dependencyItem())
+        }
+        val newValue = manager.createCachedValue(provider, false)
+        elem match {
+          case ex: UserDataHolderEx =>
+            ex.putUserDataIfAbsent(key, newValue)
+          case _ =>
+            elem.putUserData(key, newValue)
+            newValue
+        }
+      case d => d
+    }
+    cachedValue.getValue
   }
-
 
   def getOrCreateCachedRef[Dom <: PsiElement, Result](elem: Dom,
-                                                      key: RefKey[Result],
+                                                      key: Key[CachedRef[Result]],
                                                       dependencyItem: () => Object): AtomicReference[Result] = {
-
-    getOrCreateCachedHolder[Dom, AtomicReference[Result]](elem, key, dependencyItem, () => new AtomicReference[Result]())
-  }
-
-  private def getOrCreateCachedHolder[Dom <: PsiElement, Holder](elem: Dom,
-                                                                 key: Key[CachedValue[Holder]],
-                                                                 dependencyItem: () => Object,
-                                                                 emptyHolder: () => Holder): Holder = {
-    val cachedValue = elem.getOrUpdateUserData(key, {
-      val manager = CachedValuesManager.getManager(elem.getProject)
-      val provider = new CachedValueProvider[Holder] {
-        def compute(): CachedValueProvider.Result[Holder] =
-          new CachedValueProvider.Result(emptyHolder(), dependencyItem())
-      }
-      manager.createCachedValue(provider, false)
-    })
+    val cachedValue = elem.getUserData(key) match {
+      case null =>
+        val manager = CachedValuesManager.getManager(elem.getProject)
+        val provider = new CachedValueProvider[AtomicReference[Result]] {
+          def compute(): CachedValueProvider.Result[AtomicReference[Result]] =
+            new CachedValueProvider.Result(new AtomicReference[Result](), dependencyItem())
+        }
+        val newValue = manager.createCachedValue(provider, false)
+        elem match {
+          case ex: UserDataHolderEx =>
+            ex.putUserDataIfAbsent(key, newValue)
+          case _ =>
+            elem.putUserData(key, newValue)
+            newValue
+        }
+      case d => d
+    }
     cachedValue.getValue
   }
 
@@ -158,4 +183,7 @@ object CachesUtil {
         throw ProbablyRecursionException(e, data, key, Set(fun))
     }
   }
+
+  //Tuple2 class doesn't have half-specialized variants, so (T, Long) almost always have boxed long inside
+  case class Timestamped[@specialized(Boolean, Int, AnyRef) T](data: T, modCount: Long)
 }

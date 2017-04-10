@@ -104,15 +104,19 @@ object CachedWithoutModificationCount {
 
         def getValuesFromMap: c.universe.Tree =
           q"""
-            var $cacheVarName = _root_.scala.Option($mapName.get(..$paramNames)).getOrElse(null.asInstanceOf[$wrappedRetTp])
-          """
+            var $cacheVarName = {
+              val fromMap = $mapName.get(..$paramNames)
+              if (fromMap != null) fromMap
+              else null.asInstanceOf[$wrappedRetTp]
+            }
+            """
         def putValuesIntoMap: c.universe.Tree = q"$mapName.put((..$paramNames), $cacheVarName)"
 
         val hasCacheExpired =
-          if (valueWrapper == ValueWrapper.None) q"$cacheVarName == null.asInstanceOf[$wrappedRetTp]"
+          if (valueWrapper == ValueWrapper.None) q"$cacheVarName == null"
           else {
             q"""
-              $cacheVarName == null.asInstanceOf[$wrappedRetTp] || $cacheVarName.get() == null.asInstanceOf[$retTp]
+              $cacheVarName == null || $cacheVarName.get() == null
             """
           }
 

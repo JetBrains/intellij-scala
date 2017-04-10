@@ -60,12 +60,11 @@ object Cached {
           abort("You must specify return type")
         }
         //generated names
-        val cachedFunName = generateTermName(name.toString + "$computation")
-        val fromCacheFunName = generateTermName(name.toString + "$fromCache")
+        val cachedFunName = generateTermName("cachedFun")
         val cacheStatsName = generateTermName("cacheStats")
         val keyId = c.freshName(name.toString + "$cacheKey")
         val mapAndCounterName = generateTermName(name.toString + "$mapAndCounter")
-        val valueAndCounterName = generateTermName(name.toString + "$valueAndCounter")
+        val timestampedData = generateTermName(name.toString + "$valueAndCounter")
 
         val analyzeCaches = analyzeCachesEnabled(c)
         val defdefFQN = thisFunctionFQN(name.toString)
@@ -77,7 +76,7 @@ object Cached {
 
         val lockFieldName = generateTermName("lock")
         def lockField = if (synchronized) q"private val $lockFieldName = new _root_.java.lang.Object()" else EmptyTree
-        
+
         val analyzeCachesField =
           if(analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
           else EmptyTree
@@ -96,13 +95,14 @@ object Cached {
         }
 
         val (fields, updatedRhs) = if (hasParameters) {
-
           //wrap type of value in Some to avoid unboxing in putIfAbsent for primitive types
-          def createNewMap = q"_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap[(..${flatParams.map(_.tpt)}), _root_.scala.Some[$retTp]]()"
+          val mapType = tq"$concurrentMapTypeFqn[(..${flatParams.map(_.tpt)}), _root_.scala.Some[$retTp]]"
+
+          def createNewMap = q"_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap()"
 
           val fields = q"""
               new _root_.scala.volatile()
-              private var $mapAndCounterName = ($createNewMap, 0L)
+              private var $mapAndCounterName: $timestampedTypeFQN[$mapType] = $timestampedFQN(null, -1L)
               ..$lockField
 
               ..$analyzeCachesField
@@ -111,22 +111,22 @@ object Cached {
           val getOrUpdateMapDef = {
             if (synchronized) q"""
               def getOrUpdateMap() = {
-                if ($mapAndCounterName._2 < currModCount) {
+                if ($mapAndCounterName.modCount < currModCount) {
                   $lockFieldName.synchronized {
-                    if ($mapAndCounterName._2 < currModCount) { //double checked locking
-                      $mapAndCounterName = ($createNewMap, currModCount)
+                    if ($mapAndCounterName.modCount < currModCount) { //double checked locking
+                      $mapAndCounterName = $timestampedFQN($createNewMap, currModCount)
                     }
                   }
                 }
-                $mapAndCounterName._1
+                $mapAndCounterName.data
               }
             """
             else q"""
               def getOrUpdateMap() = {
-                if ($mapAndCounterName._2 < currModCount) {
-                  $mapAndCounterName = ($createNewMap, currModCount)
+                if ($mapAndCounterName.modCount < currModCount) {
+                  $mapAndCounterName = $timestampedFQN($createNewMap, currModCount)
                 }
-                $mapAndCounterName._1
+                $mapAndCounterName.data
               }
             """
           }
@@ -157,38 +157,35 @@ object Cached {
         } else {
           val fields = q"""
               new _root_.scala.volatile()
-              private var $valueAndCounterName: (_root_.scala.Option[$retTp], Long) = ($None, 0L)
+              private var $timestampedData: $timestampedTypeFQN[$retTp] = $timestampedFQN(${defaultValue(c)(retTp)}, -1L)
               ..$lockField
 
-              ..$analyzeCachesField
-           """
+            ..$analyzeCachesField
+          """
 
-          val getOrUpdateValue = if (synchronized)
+          val getOrUpdateValue =
             q"""
-                $fromCacheFunName match {
-                  case _root_.scala.Some(v) => v
-                  case _root_.scala.None =>
-                    $lockFieldName.synchronized {
-                      $fromCacheFunName match {  //double checked locking
-                        case _root_.scala.Some(v) => v
-                        case _root_.scala.None =>
-                          val computed = $cachedFunName()
-                          $valueAndCounterName = (_root_.scala.Some(computed), currModCount)
-                          computed
-                      }
-                    }
-                }
+               val timestamped = $timestampedData
+               if (timestamped.modCount == currModCount) timestamped.data
+               else {
+                 val computed = $cachedFunName()
+                 $timestampedData = $timestampedFQN(computed, currModCount)
+                 computed
+               }
              """
-          else
+
+          val getOrSyncUpdate = if (synchronized)
             q"""
-               $fromCacheFunName match {
-                  case _root_.scala.Some(v) => v
-                  case _root_.scala.None =>
-                    val computed = $cachedFunName()
-                    $valueAndCounterName = (_root_.scala.Some(computed), currModCount)
-                    computed
+                val timestamped = $timestampedData
+                if (timestamped.modCount == currModCount) timestamped.data
+                else {
+                  $lockFieldName.synchronized {
+                    $getOrUpdateValue
+                  }
                 }
-             """
+              """
+          else getOrUpdateValue
+
           val updatedRhs =
             q"""
                def $cachedFunName(): $retTp = {
@@ -197,13 +194,7 @@ object Cached {
 
                ..$currModCount
 
-               def $fromCacheFunName = {
-                 val readField = $valueAndCounterName
-                 if (readField._2 < currModCount || readField._1.isEmpty) None
-                 else readField._1
-               }
-
-               $getOrUpdateValue
+               $getOrSyncUpdate
              """
           (fields, updatedRhs)
         }
