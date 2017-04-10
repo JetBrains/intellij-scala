@@ -13,12 +13,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -45,39 +44,39 @@ class ScNewTemplateDefinitionImpl private (stub: ScTemplateDefinitionStub, node:
 
   override def getIcon(flags: Int) = Icons.CLASS
 
+  override def constructor: Option[ScConstructor] =
+    Option(extendsBlock).flatMap(_.templateParents).collect {
+      case parents: ScClassParents if parents.typeElements.length == 1 => parents
+    }.flatMap(_.constructor)
+
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    if (extendsBlock.templateBody.isEmpty) {
-      extendsBlock.templateParents match {
-        case Some(parents: ScClassParents) if parents.typeElements.length == 1 =>
-          parents.constructor match {
-            case Some(constr) =>
-              constr.reference match {
-                case Some(ref) =>
-                  val len = ref.resolve() match {
-                    case prim: ScPrimaryConstructor => prim.effectiveParameterClauses.length
-                    case f: ScFunction if f.isConstructor => f.effectiveParameterClauses.length
-                    case m: PsiMethod if m.isConstructor => 1
-                    case _ => -1
-                  }
-                  val argLen = constr.arguments.length
-                  if (len >= 0 && len < argLen) {
-                    //It's very rare case, when we need to desugar apply first.
-                    //So let's create new PSI and call innerType once again.
-                    def calcOffset(num: Int, element: PsiElement, res: Int = 0): Int = {
-                      if (num <= 0) return res
-                      calcOffset(num - 1, element.getParent, res + element.getStartOffsetInParent)
-                    }
-                    val text = "(" + getText.substring(0, calcOffset(4, constr.arguments(len))) + ")" +
-                      constr.arguments.takeRight(argLen - len).map(_.getText).mkString
-                    val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
-                    return newExpr.getNonValueType(ctx, fromUnderscore = true)
-                  }
-                case None =>
+    constructor match {
+      case Some(constructor) =>
+        constructor.reference match {
+          case Some(reference) =>
+            val len = reference.resolve() match {
+              case prim: ScPrimaryConstructor => prim.effectiveParameterClauses.length
+              case f: ScFunction if f.isConstructor => f.effectiveParameterClauses.length
+              case m: PsiMethod if m.isConstructor => 1
+              case _ => -1
+            }
+            val argLen = constructor.arguments.length
+            if (len >= 0 && len < argLen) {
+              //It's very rare case, when we need to desugar apply first.
+              //So let's create new PSI and call innerType once again.
+              def calcOffset(num: Int, element: PsiElement, res: Int = 0): Int = {
+                if (num <= 0) return res
+                calcOffset(num - 1, element.getParent, res + element.getStartOffsetInParent)
               }
-            case _ =>
-          }
-        case _ =>
-      }
+
+              val text = "(" + getText.substring(0, calcOffset(4, constructor.arguments(len))) + ")" +
+                constructor.arguments.takeRight(argLen - len).map(_.getText).mkString
+              val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+              return newExpr.getNonValueType(ctx, fromUnderscore = true)
+            }
+          case _ =>
+        }
+      case _ =>
     }
 
     val earlyHolders: Seq[ScDeclaredElementsHolder] = extendsBlock.earlyDefinitions match {
