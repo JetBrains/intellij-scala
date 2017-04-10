@@ -87,7 +87,6 @@ trait ScReferenceElement extends ScalaPsiElement with PsiPolyVariantReference {
     val id = nameId.getNode
     val parent = id.getTreeParent
     parent.replaceChild(id, createIdentifier(newName))
-    resolve()
     this
   }
 
