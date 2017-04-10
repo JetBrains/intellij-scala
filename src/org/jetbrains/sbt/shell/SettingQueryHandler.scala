@@ -6,9 +6,10 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.jetbrains.sbt.shell.SbtShellCommunication.{EventAggregator, ShellEvent, TaskComplete}
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 
-class SettingQueryHandler private (settingName: String, taskName: String, sbtProjectUri: Option[String],
+class SettingQueryHandler private (settingName: String, taskName: Option[String], sbtProjectUri: Option[String],
                                    sbtProjectName: Option[String], comm: SbtShellCommunication) {
   val defaultResult = new ProjectTaskResult(false, 0, 0)
 
@@ -34,24 +35,31 @@ class SettingQueryHandler private (settingName: String, taskName: String, sbtPro
   private val settingIn: String = (sbtProjectUri, sbtProjectName) match {
     case (Some(uri), Some(project)) =>
       def quoted(s: String): String = '"' + s + '"'
-      s"$settingName.in(ProjectRef(uri(${quoted(uri)}), ${quoted(project)})) in $taskName"
+      s"$settingName.in(ProjectRef(uri(${quoted(uri)}), ${quoted(project)}))${taskName.map(" in " + _).getOrElse("")}"
+    case (None, Some(project)) =>
+      s"$settingName in $project${taskName.map(" in " + _).getOrElse("")}"
     case _ => settingName
   }
 
-    settingName + sbtProjectName.map(".in( \"" + _ + "\")").getOrElse("") + " in " + taskName
-  private val settingColon: String = SettingQueryHandler.getProjectIdPrefix(sbtProjectUri, sbtProjectName) + taskName + ":" + settingName
-  private val settingColonNoUri: String = SettingQueryHandler.getProjectIdPrefix(None, sbtProjectName) + taskName + ":" + settingName
+  private val settingColon: String =
+    SettingQueryHandler.getProjectIdPrefix(sbtProjectUri, sbtProjectName) + taskName.map(_ + ":").getOrElse("*:") +
+      settingName
+  private val settingValuePrefixes: Seq[String] =
+    List(SettingQueryHandler.getProjectIdPrefix(None, sbtProjectName) + taskName.map(_ + ":").getOrElse("") + settingName,
+      SettingQueryHandler.getProjectIdPrefix(None, sbtProjectName) + "*" + taskName.map(_ + ":").getOrElse("") + settingName)
 
   def filterSettingValue(in: String): String = {
     settingName match {
-      case "testOptions" if in.trim() == "*" =>  "List()"
+      case ("testOptions" | "javaOptions") if in.trim.startsWith("*") => //13.13 notation
+        s"List(${in.split("\n").map(_.trim.stripPrefix("* ")).mkString(", ")})"
       case _ => in
     }
   }
 }
 
 object SettingQueryHandler {
-  def apply(settingName: String, taskName: String, sbtProjectUri: Option[String], sbtProjectName: Option[String], comm: SbtShellCommunication) =
+  def apply(settingName: String, taskName: Option[String], sbtProjectUri: Option[String],
+            sbtProjectName: Option[String], comm: SbtShellCommunication) =
     new SettingQueryHandler(settingName, taskName, sbtProjectUri, sbtProjectName, comm)
 
   def apply(settingsEntry: SettingEntry, comm: SbtShellCommunication) =
@@ -65,43 +73,38 @@ object SettingQueryHandler {
   def bufferedListener(handler: SettingQueryHandler) = new EventAggregator[ProjectTaskResult]() {
     private val filterPrefix = "[info] "
     private val successPrefix = "[success] "
-    private val buffer = new StringBuilder()
-
-    private final val DO_NOT_COLLECT = 0
-    private final val FIRST_LINE = 1
-    private final val OTHER_LINES = 2
-
-    private var collectInfo: Int = DO_NOT_COLLECT
+    private var strings = ListBuffer[String]()
+    private var collectInfo = true
 
     def getBufferedOutput: String = {
-      val res = buffer.mkString
-      println(s"Collected ${handler.settingColon} :  $res")
-      res
+      strings = strings.dropWhile(line => !line.startsWith(filterPrefix) && !handler.settingValuePrefixes.contains(line.stripPrefix(filterPrefix)))
+      if (strings.isEmpty) return ""
+      if (strings.length == 1) return strings.head.stripPrefix(filterPrefix)
+      strings.find(handler.settingValuePrefixes.contains) match {
+        case Some(prefix) => //for sbt 13.12 and less
+          strings(strings.indexOf(prefix) + 1)
+        case None => //for sbt 13.13
+          strings = strings.map(_.stripPrefix(filterPrefix) + "\n")
+          val res = new StringBuilder()
+          strings.takeWhile(line => !line.startsWith(filterPrefix) && !line.startsWith(successPrefix)).foreach(res.append)
+          res.mkString
+      }
     }
 
     override def apply(res: ProjectTaskResult, se: ShellEvent): ProjectTaskResult = {
       se match {
         case TaskComplete =>
-          collectInfo = DO_NOT_COLLECT
-        case SbtShellCommunication.Output(output) =>
-          println(s"Collecting ${handler.settingColon} :  $output ")
-          if (output.startsWith(filterPrefix) && output.stripPrefix(filterPrefix) == handler.settingColonNoUri) {
-            collectInfo = FIRST_LINE
-          } else if (collectInfo == FIRST_LINE && output.startsWith(filterPrefix)) {
-            buffer.append(output.stripPrefix(filterPrefix))
-            collectInfo = OTHER_LINES
-          } else if (collectInfo == OTHER_LINES && !output.startsWith(filterPrefix) && !output.startsWith(successPrefix)) {
-            buffer.append(output)
-          } else {
-            collectInfo = DO_NOT_COLLECT
-          }
+          collectInfo = false
+        case SbtShellCommunication.Output(output) if collectInfo =>
+          strings += output
         case _ =>
       }
       res
     }
   }
 
-  def getProjectIdPrefix(uriAndProject: (Option[String], Option[String])): String = getProjectIdPrefix(uriAndProject._1, uriAndProject._2)
+  def getProjectIdPrefix(uriAndProject: (Option[String], Option[String])): String =
+    getProjectIdPrefix(uriAndProject._1, uriAndProject._2)
   def getProjectIdPrefix(uri: Option[String], project: Option[String]): String =
     uri.map("{" + _ + "}").getOrElse("") + project.map(_ + "/").getOrElse("")
 }

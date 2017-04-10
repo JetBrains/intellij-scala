@@ -278,9 +278,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                              shouldSet: Boolean = false,
                              shouldRevert: Boolean = true): Future[SettingMap] = {
     val (projectUri, projectId) = getSbtProjectUriAndId
-    val showHandler = SettingQueryHandler(setting, showTaskName, projectUri, projectId, comm)
+    val showHandler = SettingQueryHandler(setting, Some(showTaskName), projectUri, projectId, comm)
     val setHandler = if (showTaskName == setTaskName) showHandler else
-      SettingQueryHandler(setting, setTaskName, projectUri, projectId, comm)
+      SettingQueryHandler(setting, Some(setTaskName), projectUri, projectId, comm)
     showHandler.getSettingValue().flatMap {
       opts =>
         (if (modificationCondition(opts))
@@ -288,7 +288,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         else Future(true)).flatMap { success =>
           //TODO check 'opts.nonEmpty()' is required so that we don't try to mess up settings if nothing was read
           if (success && shouldRevert && opts.nonEmpty && modificationCondition(opts))
-            Future(settings + (SettingEntry(setting, setTaskName, projectUri, projectId) -> opts))
+            Future(settings + (SettingEntry(setting, Some(setTaskName), projectUri, projectId) -> opts))
           else if (success) Future(settings)
           else Future.failed[SettingMap](new RuntimeException("Failed to modify sbt project settings"))
           //TODO: meaningful report if settings were not set correctly
@@ -800,7 +800,7 @@ trait SuiteValidityChecker {
 
 object AbstractTestRunConfiguration extends SuiteValidityChecker {
 
-  case class SettingEntry(settingName: String, task: String, sbtProjectUri: Option[String], sbtProjectId: Option[String])
+  case class SettingEntry(settingName: String, task: Option[String], sbtProjectUri: Option[String], sbtProjectId: Option[String])
   type SettingMap = Map[SettingEntry, String]
   def SettingMap(): SettingMap = Map[SettingEntry, String]()
 

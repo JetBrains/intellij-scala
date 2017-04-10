@@ -6,6 +6,7 @@ import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.execution.process.OSProcessHandler
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationEvent, ExternalSystemTaskNotificationListener}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
@@ -196,9 +197,18 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 object SbtRunner {
   case object ImportCancelledException extends Exception
 
+  val isInTest: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
   val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 
   def getSbtLauncherDir: File = {
+    if (isInTest) {
+      return (for {
+        scalaVer <- jarWith[this.type].parent
+        target <- scalaVer.parent
+        project <- target.parent
+      } yield project / "out" / "plugin" / "Scala" / "launcher").get
+    }
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
     (file << deep) / "launcher"

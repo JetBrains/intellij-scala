@@ -15,11 +15,11 @@ import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.sbt.project.structure.SbtRunner
 import org.jetbrains.sbt.shell.action.{AutoCompleteAction, ExecuteTaskAction, RestartAction}
 
 import scala.collection.JavaConverters._
@@ -86,8 +86,8 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
-        whenReady = myConsoleView.setPrompt(">"),
-        whenWorking = myConsoleView.setPrompt("X")
+        whenReady = if (!SbtRunner.isInTest) myConsoleView.setPrompt(">"),
+        whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("X")
       )
       SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
