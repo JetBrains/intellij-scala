@@ -121,6 +121,17 @@ package object collections {
     }
   }
 
+  object scalaOption {
+    def unapply(expr: ScExpression): Option[ScExpression] = expr match {
+      case MethodRepr(_, _, Some(ref), Seq(e)) if ref.refName == "Option" =>
+        ref.resolve() match {
+          case m: ScMember if m.containingClass.qualifiedName == "scala.Option" => Some(e)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
   object IfStmt {
     def unapply(expr: ScExpression): Option[(ScExpression, ScExpression, ScExpression)] = {
       expr match {
