@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -75,8 +75,9 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       case (null, _) => null
       case (_, fun: ScFunction) if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
       case (found, fun: ScFunction) if fun.isSynthetic => found
-      case (found, ta: ScTypeAlias) if ta.syntheticContainingClass.isDefined => ta.syntheticContainingClass.get
-      case (found, td: ScTypeDefinition) if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
+      case (_, ta: ScTypeAlias) if ta.syntheticContainingClass.isDefined => ta.syntheticContainingClass.get
+      case (_, td: ScTypeDefinition) if td.syntheticContainingClass.isDefined => td.syntheticContainingClass.get
+      case (_, valVar: ScValueOrVariable) if valVar.syntheticContainingClass.isDefined => valVar.syntheticContainingClass.get
       case (found, td: ScTypeDefinition) if td.isSynthetic => found
       case (found, _: ScClassParameter | _: ScPrimaryConstructor) => found
       case (found, _) if isCorrectContext(found) => found

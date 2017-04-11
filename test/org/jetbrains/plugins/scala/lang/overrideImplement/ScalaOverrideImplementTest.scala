@@ -1072,6 +1072,28 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement)
   }
 
+  def testOverrideClassParam(): Unit = {
+    val fileText =
+      """
+        |class Parent(val param1: Int, var param2: String)
+        |
+        |class Child extends Parent(4, "") {
+        |  <caret>
+        |}
+      """
+
+    val expectedText =
+      """
+        |class Parent(val param1: Int, var param2: String)
+        |
+        |class Child extends Parent(4, "") {
+        |  override var param2: String = _
+        |}
+      """
+
+    runTest("param2", fileText, expectedText, isImplement = false)
+  }
+
   def testDoNotSaveAnnotations(): Unit ={
     val fileText =
       """

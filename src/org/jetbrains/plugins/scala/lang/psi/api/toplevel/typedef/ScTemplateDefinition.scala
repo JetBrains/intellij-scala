@@ -199,16 +199,21 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass with Typeable {
     }
   }
 
-  def allVals: Seq[(PsiNamedElement, ScSubstitutor)] = TypeDefinitionMembers.getSignatures(this).allFirstSeq().flatMap(n => n.filter{
-    case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
-      (x.info.namedElement match {
-        case v =>
-          ScalaPsiUtil.nameContext(v) match {
-            case _: ScVariable => v.name == x.info.name
-            case _: ScValue => v.name == x.info.name
-            case _ => true
-          }
-      })}).map { case (_, n) => (n.info.namedElement, n.substitutor) }
+  def allVals: Seq[(PsiNamedElement, ScSubstitutor)] =
+    TypeDefinitionMembers.getSignatures(this).allFirstSeq()
+      .flatMap(n => n.filter {
+        case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
+          (x.info.namedElement match {
+            case v =>
+              ScalaPsiUtil.nameContext(v) match {
+                case _: ScVariable => v.name == x.info.name
+                case _: ScValue => v.name == x.info.name
+                case _ => true
+              }
+          })
+      })
+      .distinctBy { case (_, y) => y.info.namedElement }
+      .map { case (_, n) => (n.info.namedElement, n.substitutor) }
 
   def allValsIncludingSelfType: Seq[(PsiNamedElement, ScSubstitutor)] = {
     selfType match {

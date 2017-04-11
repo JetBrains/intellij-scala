@@ -483,6 +483,18 @@ object ScalaPsiElementFactory {
     createClassDefinitionFromText(text = s"$comment $variableSign").members.head
   }
 
+  def createOverrideImplementVariableWithClass(variable: ScTypedDefinition,
+                                               substitutor: ScSubstitutor,
+                                               needsOverrideModifier: Boolean,
+                                               isVal: Boolean,
+                                               clazz: ScTemplateDefinition,
+                                               comment: String = "",
+                                               withBody: Boolean = true)(implicit manager: PsiManager): ScMember = {
+    val member = createOverrideImplementVariable(variable, substitutor, needsOverrideModifier, isVal, comment, withBody)
+    Option(clazz).collect { case td: ScTypeDefinition => member.setSyntheticContainingClass(td) }
+    member
+  }
+
   def createSemicolon(implicit manager: PsiManager): PsiElement =
     createScalaFileFromText(";").findElementAt(0)
 
