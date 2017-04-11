@@ -476,9 +476,10 @@ object ScalaPsiElementFactory {
                                       substitutor: ScSubstitutor,
                                       needsOverrideModifier: Boolean,
                                       isVal: Boolean,
-                                      comment: String = "")
+                                      comment: String = "",
+                                      withBody: Boolean = true)
                                      (implicit manager: PsiManager): ScMember = {
-    val variableSign = getOverrideImplementVariableSign(variable, substitutor, "_", needsOverrideModifier, isVal, needsInferType = true)
+    val variableSign = getOverrideImplementVariableSign(variable, substitutor, if (withBody) Some("_") else None, needsOverrideModifier, isVal, needsInferType = true)
     createClassDefinitionFromText(text = s"$comment $variableSign").members.head
   }
 
@@ -681,7 +682,7 @@ object ScalaPsiElementFactory {
     (if (flag && isIdentifier(s"$name:")) " " else "") + ": "
 
   private def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
-                                               body: String, needsOverride: Boolean,
+                                               body: Option[String], needsOverride: Boolean,
                                                isVal: Boolean, needsInferType: Boolean): String = {
     val modOwner: ScModifierListOwner = ScalaPsiUtil.nameContext(variable) match {case m: ScModifierListOwner => m case _ => null}
     val overrideText = if (needsOverride && (modOwner == null || !modOwner.hasModifierProperty("override"))) "override " else ""
@@ -691,7 +692,7 @@ object ScalaPsiElementFactory {
     val colon = this.colon(name)
     val typeText = if (needsInferType)
       substitutor.subst(variable.getType(TypingContext.empty).getOrAny).canonicalText else ""
-    s"$overrideText$modifiersText$keyword$name$colon$typeText = $body"
+    s"$overrideText$modifiersText$keyword$name$colon$typeText${body.map(x => " = " + x).getOrElse("")}"
   }
 
   def getStandardValue(`type`: ScType): String = `type` match {

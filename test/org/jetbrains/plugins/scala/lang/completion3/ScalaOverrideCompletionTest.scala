@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
@@ -29,20 +30,13 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       |}
     """
 
-  private def handleText(text: String): String = text.stripMargin.replaceAll("\r", "").trim()
-
   def testFunction() {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   override def f<caret>
         |}
       """
-
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
 
     val outText =
       """
@@ -51,45 +45,32 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    complete(1, CompletionType.BASIC)
-    completeLookupItem()
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText)
   }
 
   def testValue() {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
     val inText =
       """
         |class Inheritor extends Base {
         |   override val intVa<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
-
     val outText =
       """
         |class Inheritor extends Base {
         |  override val intValue: Int = _
         |}
       """
-
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("intValue")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText, Some("intValue"))
   }
 
   def testVariable() {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
     val inText =
       """
         |class Inheritor extends Base {
         |   override var i<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -97,23 +78,16 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override var intVariable: Int = _
         |}
       """
-
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("intVariable")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText, Some("intVariable"))
   }
 
   def testJavaObjectMethod() {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   override def h<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -122,22 +96,16 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("hashCode")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText, Some("hashCode"))
   }
 
   def testOverrideKeword() {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   over<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -146,22 +114,16 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("override") && le.getLookupString.contains("foo")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText, Some("override def foo"))
   }
 
   def testAbstractType(): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   override type <caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -170,22 +132,16 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("A")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText, Some("A"))
   }
 
   def testAbstractFucntion(): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   override protected def <caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -194,22 +150,16 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("abstractFoo")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText, Some("abstractFoo"))
   }
 
   def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   protected def a<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -218,22 +168,16 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("abstractFoo")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText+ inText, baseText+ outText, Some("abstractFoo"))
   }
 
   def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   var i<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -242,21 +186,17 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("intVariable")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText+ inText, baseText+ outText, Some("intVariable"))
   }
 
-  def testNoCompletionInClassParameter(): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
+  def testNoMethodCompletionInClassParameter(): Unit = {
     val inText =
       """
         |class Inheritor extends Base {
         |   class A(ab<caret>)
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     Option(activeLookup).foreach { al =>
@@ -266,16 +206,13 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
   }
 
   def testNoCompletionAfterDot(): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   var i = 12.ab<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     Option(activeLookup).foreach { al =>
@@ -286,17 +223,12 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
 
   //Like in java, don't save annotations here
   def testWithAnnotation(): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
     val inText =
       """
         |class Inheritor extends Base {
         |   annotFoo<caret>
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
     val outText =
       """
@@ -304,15 +236,10 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |  override def annotFoo(int: Int): Int = super.annotFoo(int)
         |}
       """
-
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("override") && le.getLookupString.contains("annotFoo")).get)
-    checkResultByText(handleText(baseText + outText))
+    doTest(baseText + inText, baseText + outText, Some("override annotFoo"))
   }
 
-  def testNoCompletionInFunciton(): Unit ={
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
+  def testNoCompletionInFunciton(): Unit = {
     val inText =
       """
         |class Inheritor extends Base {
@@ -321,49 +248,96 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |   }
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
-    Option(activeLookup).foreach{al =>
+    Option(activeLookup).foreach { al =>
       val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
       assert(result.isEmpty, "Override is not enable at this place")
     }
   }
 
-  def testNoCompletionInModifier(): Unit ={
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
+  def testNoCompletionInModifier(): Unit = {
     val inText =
       """
         |class Inheritor extends Base {
         |   private[intV<caret>] val test = 123
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
-    Option(activeLookup).foreach{ al =>
+    Option(activeLookup).foreach { al =>
       val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
       assert(result.isEmpty, "Override is not enable at this place")
     }
   }
 
-  def testNoCompletionAfterColon(): Unit ={
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
+  def testNoCompletionAfterColon(): Unit = {
     val inText =
       """
         |class Inheritor extends Base {
         |   val test: intV<caret> = 123
         |}
       """
-    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
-    Option(activeLookup).foreach{ al =>
+    Option(activeLookup).foreach { al =>
       val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
       assert(result.isEmpty, "Override is not enable at this place")
+    }
+  }
+
+  def testParamsFromClass(): Unit = {
+    val inText =
+      """
+        |class Person(val name: String) {
+        |  val gender: Boolean = true
+        |  val age: Int = 45
+        |}
+        |
+        |case class ExamplePerson(override val nam<caret>, override val age: Int, override val gender: Boolean) extends Person("") {
+        |}
+      """
+
+    val resultText =
+    """
+        |class Person(val name: String) {
+        |  val gender: Boolean = true
+        |  val age: Int = 45
+        |}
+        |
+        |case class ExamplePerson(override val name: String, override val age: Int, override val gender: Boolean) extends Person("") {
+        |}
+      """
+
+    doTest(inText, resultText)
+  }
+
+  def testParamsFromTrait(): Unit = {
+    val inText = "class Test(ov<caret>) extends Base"
+    val resultText = "class Test(override var intVariable: Int) extends Base"
+
+    doTest(baseText + inText, baseText + resultText, Some("override intVariable"))
+  }
+
+  def doTest(inText: String, resultText: String, item: Option[String] = None): Unit = {
+    TypeAnnotationSettings.set(getProjectAdapter,
+      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
+
+    configureFromFileTextAdapter("dummy.scala", normalize(inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    Option(activeLookup).foreach { lookup =>
+      item match {
+        case Some(name) =>
+          def containsAll(lookupString: String, parts: String): Boolean =
+            parts.split(" ").forall(lookupString.contains)
+
+          lookup.find(ls => containsAll(ls.getLookupString, name)).foreach(completeLookupItem(_))
+        case _ => completeLookupItem()
+      }
+      checkResultByText(normalize(resultText))
     }
   }
 }
