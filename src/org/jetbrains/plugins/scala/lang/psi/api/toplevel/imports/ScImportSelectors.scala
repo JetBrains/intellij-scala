@@ -13,7 +13,7 @@ import com.intellij.psi.PsiElement
 */
 
 trait ScImportSelectors extends ScalaPsiElement {
-  def selectors: Array[ScImportSelector]
+  def selectors: Seq[ScImportSelector]
 
   def hasWildcard : Boolean
 

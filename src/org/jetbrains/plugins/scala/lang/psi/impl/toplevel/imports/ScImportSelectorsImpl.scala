@@ -30,6 +30,6 @@ class ScImportSelectorsImpl private (stub: ScImportSelectorsStub, node: ASTNode)
 
   def wildcardElement: Option[PsiElement] = Option(findChildByType(ScalaTokenTypes.tUNDER))
 
-  def selectors: Array[ScImportSelector] =
+  def selectors: Seq[ScImportSelector] =
     getStubOrPsiChildren(ScalaElementTypes.IMPORT_SELECTOR, JavaArrayFactoryUtil.ScImportSelectorFactory)
 }

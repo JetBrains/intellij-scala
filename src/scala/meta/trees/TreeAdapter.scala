@@ -461,7 +461,7 @@ trait TreeAdapter {
     else if (t.isSingleWildcard)
       m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Wildcard()))
     else
-      m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.getNames.head))))
+      m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.importedNames.head))))
   }
 
   def literal(l: ScLiteral): m.Lit = {
