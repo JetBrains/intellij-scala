@@ -117,11 +117,9 @@ object NameSuggester {
     case call@ScMethodCall(invoked, _) =>
       enhancedNames(namesByExpression(invoked), call.matchedParameters)
     case literal: ScLiteral if literal.isString =>
-      val maybeName = Option(literal.getValue).collect {
-        case string: String => string
-      }.map(_.toLowerCase)
-
-      maybeName.filter(isIdentifier).toSeq
+      Option(literal.getValue).collect {
+        case string: String if isIdentifier(string.toLowerCase) => string
+      }.flatMap(string => camelCaseNames(string).headOption).toSeq
     case expression =>
       val maybeName = expression.getContext match {
         case x: ScAssignStmt => x.assignName
