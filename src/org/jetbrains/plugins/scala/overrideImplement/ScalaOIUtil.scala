@@ -29,18 +29,6 @@ import scala.collection.mutable.ListBuffer
 object ScalaOIUtil {
 
   def toClassMember(candidate: AnyRef, isImplement: Boolean): Option[ClassMember] = {
-    def createMember(isVal: Boolean, parameter: ScClassParameter, subst: ScSubstitutor): ScMember = {
-      implicit val manager = parameter.getManager
-
-      createOverrideImplementVariableWithClass(
-        variable = parameter,
-        substitutor = subst,
-        needsOverrideModifier = true,
-        isVal = isVal,
-        clazz = parameter.containingClass
-      )
-    }
-
     candidate match {
       case sign: PhysicalSignature =>
         val method = sign.method
@@ -51,10 +39,19 @@ object ScalaOIUtil {
           case x: ScTemplateDefinition if x.containingClass == null => None
           case x: ScValue => Some(new ScValueMember(x, typedDefinition, subst, !isImplement))
           case x: ScVariable => Some(new ScVariableMember(x, typedDefinition, subst, !isImplement))
-          case x: ScClassParameter if x.isVar =>
-            createMember(isVal = false, x, subst).asOptionOf[ScVariable]
-              .map(new ScVariableMember(_, typedDefinition, subst, !isImplement))
           case x: ScClassParameter if x.isVal =>
+            def createMember(isVal: Boolean, parameter: ScClassParameter, subst: ScSubstitutor): ScMember = {
+              implicit val manager = parameter.getManager
+
+              createOverrideImplementVariableWithClass(
+                variable = parameter,
+                substitutor = subst,
+                needsOverrideModifier = true,
+                isVal = isVal,
+                clazz = parameter.containingClass
+              )
+            }
+
             createMember(isVal = true, x, subst).asOptionOf[ScValue]
               .map(new ScValueMember(_, typedDefinition, subst, !isImplement))
           case _ => None
@@ -214,26 +211,25 @@ object ScalaOIUtil {
     ScalaPsiUtil.nameContext(named) match {
       case x: PsiModifierListOwner if x.hasModifierPropertyScala("final") => false
       case m: PsiMember if !ResolveUtils.isAccessible(m, clazz.extendsBlock) => false
-      case x @ (_: ScPatternDefinition | _: ScVariableDefinition) if x.asInstanceOf[ScMember].containingClass != clazz =>
-        val declaredElements = x match {case v: ScValue => v.declaredElements case v: ScVariable => v.declaredElements}
+      case x: ScValue if x.containingClass != clazz =>
         var flag = false
         for (signe <- clazz.allMethods if signe.method.containingClass == clazz) {
           //containingClass == clazz so we sure that this is ScFunction (it is safe cast)
           signe.method match {
-            case fun: ScFunction => if (fun.parameters.isEmpty && declaredElements.exists(_.name == fun.name)) flag = true
+            case fun: ScFunction if fun.parameters.isEmpty && x.declaredElements.exists(_.name == fun.name) =>
+              flag = true
             case _ => //todo: ScPrimaryConstructor?
           }
         }
         for (pair <- clazz.allVals; v = pair._1) if (v.name == named.name) {
           ScalaPsiUtil.nameContext(v) match {
             case x: ScValue if x.containingClass == clazz => flag = true
-            case x: ScVariable if x.containingClass == clazz => flag = true
             case _ =>
           }
         }
         !flag
       case x: ScTypeAliasDefinition => x.containingClass != clazz
-      case x: ScClassParameter => x.containingClass != clazz
+      case x: ScClassParameter if x.isVal => x.containingClass != clazz
       case _ => false
     }
   }

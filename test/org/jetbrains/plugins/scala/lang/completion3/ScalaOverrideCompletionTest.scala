@@ -21,7 +21,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       |    */
       |  type StringType = String
       |  val intValue = 45
-      |  var intVariable = 43
+      |  var intVariable: Int
       |  type A
       |  def abstractFoo
       |
