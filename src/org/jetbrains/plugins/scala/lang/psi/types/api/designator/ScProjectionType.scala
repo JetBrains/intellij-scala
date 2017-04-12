@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 import java.util.Objects
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -335,23 +336,31 @@ class ScProjectionType private(val projected: ScType,
 }
 
 object ScProjectionType {
-  def create(projected: ScCompoundType, element: PsiNamedElement,
-             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
-    val res = new ScProjectionType(projected, element, superReference)
-    res.isAliasType match {
-      case Some(AliasType(td: ScTypeAliasDefinition, _, upper)) if td.typeParameters.isEmpty => upper.getOrElse(res)
-      case _ => res
+
+  private val guard = RecursionManager.RecursionGuard[ScType, Option[ScType]]("aliasProjectionGuard")
+
+  def simpleAliasProjection(p: ScProjectionType): ScType = {
+    if (guard.currentStackContains(p)) return p
+
+    p.actual match {
+      case (td: ScTypeAliasDefinition, subst) if td.typeParameters.isEmpty =>
+        val upper = guard.doPreventingRecursion(p, td.upperBound.map(subst.subst).toOption)
+        upper
+          .filter(_.typeDepth < p.typeDepth)
+          .getOrElse(p)
+      case _ => p
     }
   }
 
   def apply(projected: ScType, element: PsiNamedElement,
             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
 
-    projected match {
-      case c: ScCompoundType =>
+    val simple = new ScProjectionType(projected, element, superReference)
+    simple.actualElement match {
+      case td: ScTypeAliasDefinition if td.typeParameters.isEmpty =>
         val manager = ScalaPsiManager.instance(element.getProject)
-        manager.getCompoundProjectionType(c, element, superReference)
-      case _ => new ScProjectionType(projected, element, superReference)
+        manager.simpleAliasProjectionCached(simple).getOrElse(simple)
+      case _ => simple
     }
   }
 

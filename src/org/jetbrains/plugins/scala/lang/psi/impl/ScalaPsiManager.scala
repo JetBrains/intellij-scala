@@ -96,18 +96,9 @@ class ScalaPsiManager(val project: Project) {
     SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
   }
 
-  def getCompoundProjectionType(projected: ScCompoundType,
-                                element: PsiNamedElement,
-                                superReference: Boolean): ScType = {
-    if (dontCacheCompound) ScProjectionType.create(projected, element, superReference)
-    else getCompoundProjectionTypeCached(projected, element, superReference)
-  }
-
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
-  private def getCompoundProjectionTypeCached(projected: ScCompoundType,
-                                              element: PsiNamedElement,
-                                              superReference: Boolean): ScType = {
-    ScProjectionType.create(projected, element, superReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
+  def simpleAliasProjectionCached(projection: ScProjectionType): ScType = {
+    ScProjectionType.simpleAliasProjection(projection)
   }
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {

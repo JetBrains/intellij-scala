@@ -34,4 +34,6 @@ class TypeInferenceDependentTest extends TypeInferenceTestBase {
   def testShortImport() {doTest()}
 
   def testSingletonProjection() {doTest()}
+
+  def testSimplifyAliasProjection() {doTest()}
 }
