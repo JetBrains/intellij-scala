@@ -19,4 +19,7 @@ class ScalaExpectedTypeTest extends ScalaCompletionSortingTestCase {
 
   def testStaticMethodParam(): Unit =
     checkFirst("int")
+
+  def testProjectionType(): Unit =
+    checkFirst("Atest", "Btest")
 }
