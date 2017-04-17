@@ -49,6 +49,8 @@ object ScalaBreadcrumbsPresentationProvider {
 
       val fontColor = getAttributesByKey(colorKey).getForegroundColor
       
+      if (fontColor == null) return color
+      
       val backgroundLum = calculateColorLuminance(color)
       val fontLum = calculateColorLuminance(fontColor)
       
@@ -79,12 +81,6 @@ object ScalaBreadcrumbsPresentationProvider {
   
   //Good idea from Android plugin 
   private val THRESHOLD = 1.9
-  
-  def calculateContrastRatio(color1: Color, color2: Color): Double = {
-    val color1Luminance = calculateColorLuminance(color1)
-    val color2Luminance = calculateColorLuminance(color2)
-    (Math.max(color1Luminance, color2Luminance) + 0.05) / (Math.min(color2Luminance, color1Luminance) + 0.05)
-  }
 
   private def calculateColorLuminance(color: Color) = 
     calculateLuminanceContribution(color.getRed / 255.0) * 0.2126 + 
