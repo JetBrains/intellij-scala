@@ -21,6 +21,10 @@ package object projectView {
     def unapply(file: ScalaFile): Boolean = file.isScriptFile
   }
 
+  object ScalaDialectFile {
+    def unapply(file: ScalaFile): Boolean = file.getFileType != ScalaFileType.INSTANCE
+  }
+
   object SingularDefinition {
     def unapply(file: ScalaFile): Option[(ScTypeDefinition)] = Some(file.typeDefinitions) collect {
       case Seq(definition) if matchesFileName(definition) => definition

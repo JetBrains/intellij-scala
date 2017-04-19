@@ -34,6 +34,8 @@ private object ScalaTreeStructureProvider {
   private def nodeFor(file: ScalaFile)(implicit project: Project, settings: ViewSettings): Node = file match {
     case WorksheetFile() | ScriptFile() => new FileNode(file)
 
+    case ScalaDialectFile() => new FileNode(file)
+
     case SingularDefinition(definition) => new TypeDefinitionNode(definition)
 
     case ClassAndCompanionObject(classDefinition, _) if !settings.isShowMembers =>

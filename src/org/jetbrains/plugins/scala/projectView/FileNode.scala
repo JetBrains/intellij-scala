@@ -31,7 +31,7 @@ private class FileNode(file: ScalaFile)(implicit project: Project, settings: Vie
     val icon =
       if (file.isWorksheetFile) Icons.WORKSHEET_LOGO
       else if (file.isScriptFile) Icons.SCRIPT_FILE_LOGO
-      else Icons.FILE
+      else file.getFileType.getIcon
 
     data.setIcon(icon)
   }
