@@ -42,6 +42,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.projectView.SingularDefinition
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -310,17 +312,10 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   override def checkDelete() {
   }
 
-  override def delete() {
-    var toDelete: PsiElement = this
-    var parent: PsiElement = getParent
-    while (parent.isInstanceOf[ScToplevelElement] && parent.asInstanceOf[ScToplevelElement].typeDefinitions.length == 1) {
-      toDelete = parent
-      parent = toDelete.getParent
-    }
-    toDelete match {
-      case file: ScalaFile => file.delete()
-      case _ => parent.getNode.removeChild(toDelete.getNode)
-    }
+  override def delete(): Unit = getContainingFile match {
+    case file @ SingularDefinition(_) => file.delete()
+
+    case _ => getParent.getNode.removeChild(getNode)
   }
 
   override def getTypeParameters: Array[PsiTypeParameter] = typeParameters.toArray
