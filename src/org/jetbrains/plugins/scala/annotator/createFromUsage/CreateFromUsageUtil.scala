@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -136,21 +136,21 @@ object CreateFromUsageUtil {
 }
 
 object InstanceOfClass {
-  def unapply(elem: PsiElement)
-             (implicit typeSystem: TypeSystem): Option[PsiClass] = elem match {
-    case ScExpression.Type(TypeAsClass(psiClass)) => Some(psiClass)
-    case ResolvesTo(typed: ScTypedDefinition) =>
-      typed.getType().toOption match {
-        case Some(TypeAsClass(psiClass)) => Some(psiClass)
-        case _ => None
-      }
-    case _ => None
+  def unapply(elem: PsiElement): Option[PsiClass] = {
+    elem match {
+      case ScExpression.Type(TypeAsClass(psiClass)) => Some(psiClass)
+      case ResolvesTo(typed: ScTypedDefinition) =>
+        typed.getType().toOption match {
+          case Some(TypeAsClass(psiClass)) => Some(psiClass)
+          case _ => None
+        }
+      case _ => None
+    }
   }
 }
 
 object TypeAsClass {
-  def unapply(scType: ScType)
-             (implicit typeSystem: TypeSystem): Option[PsiClass] = scType match {
+  def unapply(scType: ScType): Option[PsiClass] = scType match {
     case ExtractClass(aClass) => Some(aClass)
     case t: ScType => t.extractDesignatorSingleton.flatMap(_.extractClass())
     case _ => None

@@ -5,7 +5,6 @@ import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.testFramework.ModuleTestCase
 import org.jetbrains.plugins.scala.PerfCycleTests
@@ -26,8 +25,6 @@ import org.junit.experimental.categories.Category
 class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
 
   override implicit val version: ScalaVersion = Scala_2_11
-
-  override implicit protected def project: Project = getProject
 
   override implicit protected def module: Module = getModule
 

@@ -253,7 +253,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             }))
             ref = ref.getParent.asInstanceOf[ScReferenceElement]
 
-          implicit val manager = ref.getManager
+          implicit val projectContext = ref.projectContext
           val newRef = ref match {
             case ref: ScReferenceExpression if prefixCompletion =>
               val parts = cl.qualifiedName.split('.')

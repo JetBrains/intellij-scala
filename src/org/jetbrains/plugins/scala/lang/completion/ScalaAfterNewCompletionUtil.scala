@@ -19,8 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeSystem, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
@@ -50,8 +51,9 @@ object ScalaAfterNewCompletionUtil {
     afterNewPattern.accepts(position, context)
 
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
-                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
-                               (implicit typeSystem: TypeSystem): LookupElement = {
+                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): LookupElement = {
+    implicit val ctx: ProjectContext = clazz
+
     val undefines = clazz.getTypeParameters.map(p => UndefinedType(TypeParameterType(p)))
     val predefinedType =
       if (clazz.getTypeParameters.length == 1) {
@@ -163,8 +165,7 @@ object ScalaAfterNewCompletionUtil {
   def convertTypeToLookupElement(tp: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
                                  renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                  insertHandler: InsertHandler[LookupElement],
-                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
-                                (implicit typeSystem: TypeSystem): ScalaLookupItem = {
+                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
     tp.extractClassType(place.getProject) match {
       case Some((_: ScObject, _)) => null
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
@@ -189,13 +190,14 @@ object ScalaAfterNewCompletionUtil {
                                result: CompletionResultSet,
                                renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                insertHandler: InsertHandler[LookupElement],
-                               renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
-                              (implicit typeSystem: TypeSystem) {
-    typez.extractClass(place.getProject) match {
+                               renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]) {
+    implicit val project = place.getProject
+
+    typez.extractClass(project) match {
       case Some(clazz) =>
         //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
         val searchScope =
-          if (clazz.getUseScope.isInstanceOf[LocalSearchScope]) GlobalSearchScope.allScope(place.getProject)
+          if (clazz.getUseScope.isInstanceOf[LocalSearchScope]) GlobalSearchScope.allScope(project)
           else clazz.getUseScope
         ClassInheritorsSearch.search(clazz, searchScope, true).forEach(new Processor[PsiClass] {
           def process(clazz: PsiClass): Boolean = {

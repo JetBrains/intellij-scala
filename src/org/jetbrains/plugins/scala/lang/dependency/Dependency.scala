@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -55,7 +54,7 @@ object Dependency {
       case _ =>
     }
 
-    implicit val ts = ref.typeSystem
+    implicit val ts = ref.projectContext
 
     val processor =
       new CompletionProcessor(ref.getKinds(incomplete = false), ref, collectImplicits = false, Some(ref.refName), isIncomplete = false) {
@@ -89,8 +88,7 @@ object Dependency {
     }
   }
 
-  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType])
-                           (implicit typeSystem: TypeSystem = reference.typeSystem): Option[Dependency] = {
+  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
 
     def pathFor(entity: PsiNamedElement, member: Option[String] = None): Option[Path] = {
       if (!ScalaPsiUtil.hasStablePath(entity)) return None

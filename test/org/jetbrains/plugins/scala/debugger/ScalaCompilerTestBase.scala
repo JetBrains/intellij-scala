@@ -10,7 +10,6 @@ import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
@@ -66,8 +65,6 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaSdkOwner {
       CompilerProjectExtension.getInstance(getProject).setCompilerOutputUrl(output.getUrl)
     }
   }
-
-  override implicit protected def project: Project = getProject
 
   override implicit protected def module: Module = getModule
 

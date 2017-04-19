@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.UIFreezingGuard.withResponsibleUI
 
 import scala.reflect.NameTransformer
@@ -96,8 +97,9 @@ object TypeDefinitionMembers {
 
     def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
-                   (implicit typeSystem: TypeSystem) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+      implicit val ctx: ProjectContext = clazz
+
       for (method <- clazz.getMethods if nonBridge(place, method) &&
         !method.isConstructor && !method.hasModifierProperty("static") &&
         method.getParameterList.getParametersCount == 0) {
@@ -112,8 +114,9 @@ object TypeDefinitionMembers {
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                     place: Option[PsiElement], base: Boolean)
-                    (implicit typeSystem: TypeSystem) {
+                     place: Option[PsiElement], base: Boolean) {
+      implicit val ctx: ProjectContext = template
+
       def addSignature(s: Signature) {
         map addToMap (s, new Node(s, subst))
       }
@@ -213,7 +216,7 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
-                         (implicit typeSystem: TypeSystem) {
+                         (implicit ctx: ProjectContext) {
       for ((sign, _) <- cp.signatureMap) {
         if (sign.paramLength.sum == 0 && (ScalaPsiUtil.nameContext(sign.namedElement) match {
           case m: PsiMember => nonBridge(place, m)
@@ -258,8 +261,9 @@ object TypeDefinitionMembers {
       }
     }
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
-                   (implicit typeSystem: TypeSystem) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+      implicit val ctx: ProjectContext = clazz
+
       for (inner <- clazz.getInnerClasses if nonBridge(place, inner) &&
         !inner.hasModifierProperty("static")) {
         map addToMap (inner, new Node(inner, subst))
@@ -267,8 +271,9 @@ object TypeDefinitionMembers {
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                     place: Option[PsiElement], base: Boolean)
-                    (implicit typeSystem: TypeSystem) {
+                     place: Option[PsiElement], base: Boolean) {
+      implicit val ctx: ProjectContext = template
+
       for (member <- template.members) {
         member match {
           case alias: ScTypeAlias if nonBridge(place, alias) => map addToMap (alias, new Node(alias, subst))
@@ -284,7 +289,7 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
-                         (implicit typeSystem: TypeSystem) {
+                         (implicit ctx: ProjectContext) {
       for ((name, TypeAliasSignature(_, _, _, _, _, alias)) <- cp.typesMap if nonBridge(place, alias)) {
         map addToMap (alias, new Node(alias, ScSubstitutor.empty))
       }
@@ -334,8 +339,9 @@ object TypeDefinitionMembers {
 
     def isImplicit(t: Signature): Boolean = ScalaPsiUtil.isImplicit(t.namedElement)
 
-    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
-                   (implicit typeSystem: TypeSystem) {
+    def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
+      implicit val ctx: ProjectContext = clazz
+
       for (method <- clazz.getMethods if nonBridge(place, method) &&
         !method.isConstructor && !method.hasModifierProperty("static")) {
         val phys = new PhysicalSignature(method, subst)
@@ -349,15 +355,16 @@ object TypeDefinitionMembers {
     }
 
     def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                     place: Option[PsiElement], base: Boolean)
-                    (implicit typeSystem: TypeSystem) {
+                     place: Option[PsiElement], base: Boolean) {
+      implicit val ctx: ProjectContext = template
+
       def addSignature(s: Signature) {
         map addToMap (s, new Node(s, subst))
       }
 
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
-        val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
+        val obj = ScalaPsiManager.instance.getCachedClass(template.getResolveScope, "java.lang.Object")
         obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
@@ -478,7 +485,7 @@ object TypeDefinitionMembers {
     }
 
     def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
-                         (implicit typeSystem: TypeSystem) {
+                         (implicit ctx: ProjectContext) {
       for ((sign, _) <- cp.signatureMap) {
         if (ScalaPsiUtil.nameContext(sign.namedElement) match {
           case m: PsiMember => nonBridge(place, m)
@@ -503,16 +510,14 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
-  def getParameterlessSignatures(clazz: PsiClass)
-                                (implicit typeSystem: TypeSystem = clazz.typeSystem): PMap = {
+  def getParameterlessSignatures(clazz: PsiClass): PMap = {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
     inner()
   }
 
-  def getTypes(clazz: PsiClass)
-              (implicit typeSystem: TypeSystem = clazz.typeSystem): TMap = {
+  def getTypes(clazz: PsiClass): TMap = {
 
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): TMap =TypeNodes.build(clazz)
@@ -520,8 +525,7 @@ object TypeDefinitionMembers {
     inner()
   }
 
-  def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None)
-                   (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
+  def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
@@ -574,12 +578,12 @@ object TypeDefinitionMembers {
     ScalaPsiManager.instance(place.getProject).getSignatures(tp, compoundTypeThisType)
   }
 
-  def getSelfTypeSignatures(clazz: PsiClass)
-                           (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
+  def getSelfTypeSignatures(clazz: PsiClass): SMap = {
 
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def selfTypeSignaturesInner(): SMap = {
-      implicit val typeSystem = clazz.typeSystem
+      implicit val ctx: ProjectContext = clazz
+
       clazz match {
         case td: ScTypeDefinition =>
           td.selfType match {
@@ -602,8 +606,9 @@ object TypeDefinitionMembers {
     selfTypeSignaturesInner()
   }
 
-  def getSelfTypeTypes(clazz: PsiClass)
-                      (implicit typeSystem: TypeSystem = clazz.typeSystem): TMap = {
+  def getSelfTypeTypes(clazz: PsiClass): TMap = {
+    implicit val ctx: ProjectContext = clazz
+
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {
@@ -628,8 +633,7 @@ object TypeDefinitionMembers {
                           processor: PsiScopeProcessor,
                           state: ResolveState,
                           lastParent: PsiElement,
-                          place: PsiElement)
-                         (implicit typeSystem: TypeSystem): Boolean = {
+                          place: PsiElement): Boolean = {
     def signaturesForJava: SignatureNodes.Map = {
       val map = new SignatureNodes.Map
       if (!processor.isInstanceOf[BaseProcessor]) {

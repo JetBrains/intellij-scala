@@ -6,7 +6,6 @@ import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
-import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
@@ -48,14 +47,14 @@ object AnnotatorHighlighter {
     }
   }
 
-  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder)
-                               (implicit typeSystem: TypeSystem = refElement.typeSystem) {
+  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+    implicit val project = refElement.getProject
 
     def annotateCollectionByType(resolvedType: ScType) {
       if (ScalaNamesUtil.isOperatorName(
         resolvedType.presentableText.substring(0, resolvedType.presentableText.prefixLength(_ != '.')))) return
 
-      val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(refElement.getProject)
+      val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
 
       scalaProjectSettings.getCollectionTypeHighlightingLevel match {
         case ScalaProjectSettings.COLLECTION_TYPE_HIGHLIGHTING_NONE => return

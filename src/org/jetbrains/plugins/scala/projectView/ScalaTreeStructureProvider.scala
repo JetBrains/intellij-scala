@@ -3,10 +3,11 @@ package org.jetbrains.plugins.scala.projectView
 import java.util
 
 import com.intellij.ide.projectView.{TreeStructureProvider, ViewSettings}
-import com.intellij.openapi.project.{DumbAware, Project}
+import com.intellij.openapi.project.DumbAware
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider._
 
 import scala.collection.JavaConverters._
@@ -22,7 +23,7 @@ class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAware {
 }
 
 private object ScalaTreeStructureProvider {
-  private def transform(node: Node)(implicit project: Project, settings: ViewSettings): Node = node.getValue match {
+  private def transform(node: Node)(implicit project: ProjectContext, settings: ViewSettings): Node = node.getValue match {
     case file: ScalaFile => nodeFor(file)
 
     case definition: ScTypeDefinition if !node.isInstanceOf[TypeDefinitionNode] =>
@@ -31,7 +32,7 @@ private object ScalaTreeStructureProvider {
     case _ => node
   }
 
-  private def nodeFor(file: ScalaFile)(implicit project: Project, settings: ViewSettings): Node = file match {
+  private def nodeFor(file: ScalaFile)(implicit project: ProjectContext, settings: ViewSettings): Node = file match {
     case WorksheetFile() | ScriptFile() => new FileNode(file)
 
     case ScalaDialectFile() => new FileNode(file)

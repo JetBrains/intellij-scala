@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInplaceVariableIntroducer.addTypeAnnotation
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
@@ -55,6 +56,8 @@ class ScalaInplaceVariableIntroducer(project: Project,
                                      asVar: Boolean,
                                      forceInferType: Option[Boolean])
         extends InplaceVariableIntroducer[ScExpression](namedElement, editor, project, title, Array.empty[ScExpression], expr) {
+
+  implicit def projectContext: ProjectContext = project
 
   private var myVarCheckbox: JCheckBox = null
   private var mySpecifyTypeChb: JCheckBox = null
@@ -140,7 +143,6 @@ class ScalaInplaceVariableIntroducer(project: Project,
           val writeAction = new WriteCommandAction[Unit](myProject, getCommandName, getCommandName) {
 
             private def changeValOrVar(asVar: Boolean, declaration: PsiElement): Unit = {
-              implicit val manager = declaration.getManager
               val replacement =
                 declaration match {
                 case value: ScValue if asVar =>
@@ -197,8 +199,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
               declaration match {
                 case _: ScDeclaredElementsHolder | _: ScEnumerator =>
                   val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
-                  implicit val manager = declarationCopy.getManager
-                  val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "")
+                  val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
                   val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
                   val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
                   val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)

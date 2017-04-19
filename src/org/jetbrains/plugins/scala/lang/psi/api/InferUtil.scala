@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionWithContextFromText, createParameterFromText}
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
@@ -59,8 +59,9 @@ object InferUtil {
     * @return updated type and sequence of implicit parameters
     */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], check: Boolean,
-                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean)
-                                      (implicit typeSystem: TypeSystem): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+    implicit val ctx: ProjectContext = element
+
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
@@ -156,8 +157,11 @@ object InferUtil {
   def findImplicits(params: Seq[Parameter], coreElement: Option[ScNamedElement], place: PsiElement,
                     check: Boolean, searchImplicitsRecursively: Int = 0,
                     abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                    polymorphicSubst: ScSubstitutor = ScSubstitutor.empty)
-                   (implicit typeSystem: TypeSystem): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+                    polymorphicSubst: ScSubstitutor = ScSubstitutor.empty
+                   ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+
+    implicit val project = place.getProject
+
     val exprs = new ArrayBuffer[Expression]
     val paramsForInfer = new ArrayBuffer[Parameter]()
     val resolveResults = new ArrayBuffer[ScalaResolveResult]
@@ -175,7 +179,7 @@ object InferUtil {
         def updateExpr() {
           exprs += new Expression(polymorphicSubst subst extractImplicitParameterType(results.head))
         }
-        val evaluator = ScalaMacroEvaluator.getInstance(place.getProject)
+        val evaluator = ScalaMacroEvaluator.getInstance(project)
         evaluator.isMacro(results.head.getElement) match {
           case Some(m) =>
             evaluator.checkMacro(m, MacroContext(place, Some(paramType))) match {
@@ -189,7 +193,7 @@ object InferUtil {
         def checkManifest(fun: ScalaResolveResult => Unit) {
           val result = paramType match {
             case p@ParameterizedType(des, Seq(_)) =>
-              des.extractClass(place.getProject) match {
+              des.extractClass(project) match {
                 case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
                   //do not throw, it's safe
                   new ScalaResolveResult(clazz, p.substitutor)
@@ -231,8 +235,9 @@ object InferUtil {
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    check: Boolean)
-                                   (implicit typeSystem: TypeSystem): TypeResult[ScType] = {
+                                    check: Boolean): TypeResult[ScType] = {
+    implicit val ctx: ProjectContext = expr
+
     var nonValueType = _nonValueType
     nonValueType match {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams), _)

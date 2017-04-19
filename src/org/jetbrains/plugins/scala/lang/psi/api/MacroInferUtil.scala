@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroD
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 
 /**
   * @author Alefas
@@ -19,8 +19,7 @@ object MacroInferUtil {
   //todo fix decompiler and replace parameter by ScMacroDefinition
   def checkMacro(function: ScFunction,
                  expectedType: Option[ScType],
-                 place: PsiElement)
-                (implicit typeSystem: TypeSystem): Option[ScType] = {
+                 place: PsiElement): Option[ScType] = {
     def getClass(className: String) =
       place.elementScope.getCachedClass(s"shapeless.$className")
 
@@ -88,8 +87,9 @@ object MacroInferUtil {
   private def calcProduct(maybeExpectedType: Option[ScType],
                           clazz: ScTypeDefinition,
                           classCompanion: ScObject,
-                          createGenericType: ScType => Option[ScType])
-                         (implicit typeSystem: TypeSystem): Option[ScType] = {
+                          createGenericType: ScType => Option[ScType]): Option[ScType] = {
+    import clazz.projectContext
+
     val maybeProjectionType = classCompanion.members.collect {
       case alias: ScTypeAlias => alias
     }.find {

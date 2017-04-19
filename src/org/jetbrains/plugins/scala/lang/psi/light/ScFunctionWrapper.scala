@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScTypeParam}

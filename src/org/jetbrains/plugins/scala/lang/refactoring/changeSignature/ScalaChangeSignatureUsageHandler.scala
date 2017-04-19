@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ListBuffer
 
@@ -132,7 +132,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
 
     val expr = usage.expr
-    implicit val typeSystem = expr.typeSystem
+    implicit val typeSystem = expr.projectContext
 
     val paramTypes = expr.getType() match {
       case Success(FunctionType(_, pTypes), _) => pTypes
@@ -397,7 +397,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   }
 
   private def replaceNameId(elem: PsiElement, newName: String): Unit = {
-    implicit val manager = elem.getManager
+    implicit val ctx: ProjectContext = elem
     elem match {
       case scRef: ScReferenceElement =>
         val newId = createIdentifier(newName).getPsi
@@ -416,8 +416,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
   }
 
   private def parameterListText(change: ChangeInfo, usage: ScalaNamedElementUsageInfo): String = {
-    val project = change.getMethod.getProject
-    implicit val typeSystem = project.typeSystem
+    implicit val project: ProjectContext = change.getMethod.getProject
 
     def paramType(paramInfo: ParameterInfo) = {
       val method = change.getMethod

@@ -9,7 +9,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Computable
-import com.intellij.psi.{PsiAnonymousClass, PsiFile, PsiManager}
+import com.intellij.psi.{PsiAnonymousClass, PsiFile}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.codeInsight.generation.GenerationUtil.classAtCaret
 import org.jetbrains.plugins.scala.codeInsight.generation.ui.ScalaGenerateEqualsWizard
@@ -19,10 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createMethodFromText, createMethodWithContext}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, Signature}
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Nikolay.Tropin
@@ -34,9 +33,9 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
   private val myEqualsFields = collection.mutable.LinkedHashSet[ScNamedElement]()
   private val myHashCodeFields = collection.mutable.LinkedHashSet[ScNamedElement]()
 
-  def chooseOriginalMembers(aClass: ScClass, project: Project, editor: Editor)
-                           (implicit typeSystem: TypeSystem): Boolean = {
-    implicit val manager = aClass.getManager
+  def chooseOriginalMembers(aClass: ScClass, project: Project, editor: Editor): Boolean = {
+    implicit val ctx: ProjectContext = project
+
     val equalsMethod = hasEquals(aClass)
     val hashCodeMethod = hasHashCode(aClass)
     var needEquals = equalsMethod.isEmpty
@@ -93,8 +92,9 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
     myHashCodeFields.clear()
   }
 
-  protected def createHashCode(aClass: ScClass)
-                              (implicit typeSystem: TypeSystem): ScFunction = {
+  protected def createHashCode(aClass: ScClass): ScFunction = {
+    import aClass.projectContext
+
     val declText = "def hashCode(): Int"
     val signature = new PhysicalSignature(
       createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
@@ -113,8 +113,9 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
     createMethodWithContext(methodText, aClass, aClass.extendsBlock)
   }
 
-  protected def createCanEqual(aClass: ScClass, project: Project)
-                              (implicit typeSystem: TypeSystem): ScFunction = {
+  protected def createCanEqual(aClass: ScClass, project: Project): ScFunction = {
+    implicit val ctx: ProjectContext = project
+
     val declText = "def canEqual(other: Any): Boolean"
     val sign = new PhysicalSignature(
       createMethodWithContext(declText + " = true", aClass, aClass.extendsBlock),
@@ -124,8 +125,9 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
     createMethodWithContext(text, aClass, aClass.extendsBlock)
   }
 
-  protected def createEquals(aClass: ScClass, project: Project)
-                            (implicit typeSystem: TypeSystem): ScFunction = {
+  protected def createEquals(aClass: ScClass, project: Project): ScFunction = {
+    implicit val ctx: ProjectContext = project
+
     val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == that.$name")
     val declText = "def equals(other: Any): Boolean"
     val signature = new PhysicalSignature(
@@ -151,13 +153,11 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
     try {
-      implicit val typeSystem = project.typeSystem
       val aClass = classAtCaret(editor, file).getOrElse(return)
       val isOk = chooseOriginalMembers(aClass, project, editor)
       if (!isOk) return
 
       extensions.inWriteAction {
-        implicit val manager = aClass.getManager
         val needHashCode = hasHashCode(aClass).isEmpty
         val hashCodeMethod = Option(
           if (needHashCode) createHashCode(aClass) else null)
@@ -183,27 +183,30 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
     super.isValidFor(editor, file) &&
       classAtCaret(editor, file).exists(!_.isCase)
 
-  private def hasEquals(clazz: ScClass)
-                       (implicit typeSystem: TypeSystem, manager: PsiManager): Option[ScFunction] = {
+  private def hasEquals(clazz: ScClass): Option[ScFunction] = {
+    import clazz.projectContext
+
     val method = createMethodFromText("def equals(that: Any): Boolean")
     findSuchMethod(clazz, "equals", method.methodType)
   }
 
-  private def hasHashCode(clazz: ScClass)
-                         (implicit typeSystem: TypeSystem, manager: PsiManager): Option[ScFunction] = {
+  private def hasHashCode(clazz: ScClass): Option[ScFunction] = {
+    import clazz.projectContext
+
     val method = createMethodFromText("def hashCode(): Int")
     findSuchMethod(clazz, "hashCode", method.methodType)
   }
 
-  private def hasCanEqual(clazz: ScClass)
-                         (implicit typeSystem: TypeSystem,
-                          manager: PsiManager): Option[ScFunction] = {
+  private def hasCanEqual(clazz: ScClass): Option[ScFunction] = {
+    import clazz.projectContext
+
     val method = createMethodFromText("def canEqual(that: Any): Boolean")
     findSuchMethod(clazz, "canEqual", method.methodType)
   }
 
-  private def findSuchMethod(clazz: ScClass, name: String, methodType: ScType)
-                            (implicit typeSystem: TypeSystem): Option[ScFunction] = {
+  private def findSuchMethod(clazz: ScClass, name: String, methodType: ScType): Option[ScFunction] = {
+    import clazz.projectContext
+
     clazz.functions
       .filter(_.name == name)
       .find(fun => fun.methodType(None) equiv methodType)

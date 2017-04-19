@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
@@ -53,12 +52,12 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 }
 
 object ScThisReferenceImpl {
-  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression)
-                                  (implicit typeSystem: TypeSystem): TypeResult[ScType] = {
+  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult[ScType] = {
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C .this occurs as the prefix of a selection, its type is C.this.type,
     // otherwise it is the self type of class C .
     val element = Some(expr)
+
     val result = expr.getContext match {
       case referenceExpression: ScReferenceExpression if referenceExpression.qualifier.contains(expr) =>
         ScThisType(td)
@@ -66,6 +65,8 @@ object ScThisReferenceImpl {
         case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
           ScThisType(td)
         case _ =>
+          implicit val ctx = td.projectContext
+
           td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map {
             case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
           } match {

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -28,7 +28,6 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       def message(key: String) {
         setText(ScalaBundle.message(key))
       }
-      implicit val typeSystem = project.typeSystem
       ToggleTypeAnnotation.complete(new ToggleTypeAnnotationDescription(message), element)
     }
   }
@@ -42,8 +41,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
 object ToggleTypeAnnotation {
   val FamilyName = ScalaBundle.message("intention.type.annotation.toggle.family")
 
-  def complete(strategy: Strategy, element: PsiElement)
-              (implicit typeSystem: TypeSystem): Boolean = {
+  def complete(strategy: Strategy, element: PsiElement): Boolean = {
     for {function <- element.parentsInFile.findByType[ScFunctionDefinition]
          if function.hasAssign
          body <- function.body

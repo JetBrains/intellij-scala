@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
@@ -20,6 +21,8 @@ import scala.collection.mutable
   */
 class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurrences: Boolean, enclosingContainerAll: PsiElement, enclosingOne: PsiElement)
   extends ScalaValidator(selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
+
+  private implicit def ctx: ProjectContext = selectedElement
 
   protected override def findConflictsImpl(name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     //returns declaration and message
@@ -37,7 +40,6 @@ class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurre
   protected def forbiddenNames(position: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
     val result = mutable.ArrayBuffer.empty[(PsiNamedElement, String)]
 
-    implicit val typeSystem = selectedElement.typeSystem
     val processor = new BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
       override def execute(element: PsiElement, state: ResolveState): Boolean = {
         result ++= zipWithMessage(element, name)

@@ -111,7 +111,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     }
     for ((expr, param) <- application.matchedParameters) {
       val exprTp = expr.getType().getOrElse(throw new RuntimeException(s"Failed to get type of expression(${expr.getText})"))
-      val res = exprTp.conforms(param.paramType)(expr.typeSystem)
+      val res = exprTp.conforms(param.paramType)(expr.projectContext)
       if (res != expectedResult.toBoolean)
         errors +=
           s"""

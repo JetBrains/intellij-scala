@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable.ArrayBuffer
@@ -96,7 +94,7 @@ class TypeAnnotationInspection extends AbstractInspection {
 
     def doApplyFix(project: Project): Unit = {
       val elem = getElement
-      ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, elem)(project.typeSystem)
+      ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, elem)
     }
 
     override def applyFix(project: Project,
@@ -116,7 +114,7 @@ class TypeAnnotationInspection extends AbstractInspection {
         override def run(): Unit = inReadAction {
           for (fix <- fixes) {
             val elem = fix.getElement
-            ToggleTypeAnnotation.complete(strategy, elem)(project.typeSystem)
+            ToggleTypeAnnotation.complete(strategy, elem)
             val progress = ProgressManager.getInstance().getProgressIndicator
             progress.setFraction(progress.getFraction + 1.0 / fixes.length)
             progress.setText(elem.getText)
@@ -140,8 +138,7 @@ class TypeAnnotationInspection extends AbstractInspection {
 
     private class CollectTypesToAddStrategy(buffer: ArrayBuffer[(ScTypeElement, PsiElement)]) extends AddOnlyStrategy(editor = None) {
 
-      override def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement)
-                                    (implicit typeSystem: TypeSystem): Unit = {
+      override def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement): Unit = {
         val tps = UpdateStrategy.annotationsFor(t, context)
         buffer += ((tps.head, anchor))
       }

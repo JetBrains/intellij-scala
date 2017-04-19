@@ -8,8 +8,9 @@ import com.intellij.testFramework.fixtures._
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -17,6 +18,8 @@ import scala.reflect.{ClassTag, classTag}
 
 abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
   var fixture: CodeInsightTestFixture = null
+
+  implicit def ctx: ProjectContext = fixture.getProject
 
   override def setUp() {
     super.setUp()

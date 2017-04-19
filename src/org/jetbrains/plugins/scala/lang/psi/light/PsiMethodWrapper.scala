@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.PsiSuperMethodImplUtil
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.util.{MethodSignature, MethodSignatureBackedByPsiMethod}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.light.LightUtil.javaTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 

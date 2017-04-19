@@ -4,7 +4,6 @@ package refactoring
 package namesSuggester
 package genericTypes
 
-import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
@@ -15,11 +14,10 @@ class MonadicTypeNamesProvider extends GenericTypeNamesProvider {
 
   import MonadicTypeNamesProvider._
 
-  override protected def names(designator: ScType, arguments: Seq[ScType])
-                              (implicit project: Project): Seq[String] =
+  override protected def names(designator: ScType, arguments: Seq[ScType]): Seq[String] =
     NameSuggester.compoundNames(findPrefix(designator).toSeq, argumentNames(arguments.head))
 
-  override def isValid(`type`: ScType)(implicit project: Project): Boolean =
+  override def isValid(`type`: ScType): Boolean =
     `type` match {
       case ParameterizedType(designator, Seq(_)) => findPrefix(designator).isDefined
       case _ => false

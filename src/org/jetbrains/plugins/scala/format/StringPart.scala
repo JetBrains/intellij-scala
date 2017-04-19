@@ -3,13 +3,13 @@ package format
 
 import java.util.{IllegalFormatConversionException, IllegalFormatException}
 
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Pavel Fatin
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 sealed trait StringPart
 
 case class Text(s: String) extends StringPart {
-  def withEscapedPercent(implicit manager: PsiManager): List[StringPart] = {
+  def withEscapedPercent(implicit ctx: ProjectContext): List[StringPart] = {
     val literal = createExpressionFromText("\"%\"")
     if (s == "%") List(Text(""), Injection(literal, None), Text(""))
     else {
@@ -30,6 +30,8 @@ case class Text(s: String) extends StringPart {
 }
 
 case class Injection(expression: ScExpression, specifier: Option[Specifier]) extends StringPart {
+  private implicit def ctx: ProjectContext = expression
+
   def text: String = expression.getText
 
   def value: String = expression match {
@@ -53,7 +55,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
     case _ => false
   }
 
-  def problem(implicit typeSystem: TypeSystem): Option[InjectionProblem] = specifier.flatMap {
+  def problem: Option[InjectionProblem] = specifier.flatMap {
     it =>
       val _type = expressionType.map(ScalaType.expandAliases(_)).getOrElse(new Object())
       _type match {

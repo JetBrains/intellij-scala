@@ -21,7 +21,7 @@ class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[S
     }
     val newText = oldText.substring(0, range.getStartOffset) + contentString + oldText.substring(range.getEndOffset)
 
-    implicit val manager = expr.getManager
+    implicit val projectContext = expr.projectContext
     expr match {
       case inter: ScInterpolatedStringLiteral =>
         val quotes = if (inter.isMultiLineString) "\"\"\"" else "\""

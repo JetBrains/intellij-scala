@@ -20,7 +20,7 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
     val fileManager: FileManager = PsiManager.getInstance(myProject).asInstanceOf[PsiManagerEx].getFileManager
     PlatformTestUtil.startPerformanceTest(s"Performance test $filename", timeoutInMillis, new ThrowableRunnable[Nothing] {
       override def run(): Unit = {
-        val annotator = new ScalaAnnotator
+        val annotator = ScalaAnnotator.forProject(myProject)
         file.refresh(true, false)
         val psiFile = fileManager.findFile(file)
         val mock = new AnnotatorHolderMock(psiFile)

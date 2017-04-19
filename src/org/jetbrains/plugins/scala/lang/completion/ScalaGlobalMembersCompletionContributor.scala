@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.implicits.{CollectImplicitsProcessor, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -102,8 +101,8 @@ object ScalaGlobalMembersCompletionContributor {
   }
 
   private def completeImplicits(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile,
-                                originalType: ScType)
-                               (implicit typeSystem: TypeSystem = originalFile.typeSystem) {
+                                originalType: ScType) {
+
     FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
     val scope: GlobalSearchScope = ref.getResolveScope
     val file = ref.getContainingFile
@@ -303,8 +302,7 @@ object ScalaGlobalMembersCompletionContributor {
     }
   }
 
-  private def adaptResolveResult(resolveResult: ScalaResolveResult)
-                                (implicit typeSystem: TypeSystem) = {
+  private def adaptResolveResult(resolveResult: ScalaResolveResult) = {
     val element = resolveResult.getElement
 
     val elementObject = Option(element).map {

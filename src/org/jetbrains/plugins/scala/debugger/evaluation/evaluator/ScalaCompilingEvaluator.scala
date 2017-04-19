@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -181,6 +182,7 @@ class OutputFileObject(file: File, val origName: String) {
 private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, id: Int) {
 
   private val project: Project = context.getProject
+  implicit val ctx: ProjectContext = project
 
   val generatedClassName = "GeneratedEvaluatorClass$" + id
   val generatedMethodName = "invoke"
@@ -267,7 +269,6 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
 
     val newInstance = createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
 
-    implicit val manager = context.getManager
     parent.addBefore(scClass, anchor)
     parent.addBefore(createNewLine(), anchor)
     parent.addBefore(newInstance, anchor)

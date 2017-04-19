@@ -21,7 +21,7 @@ import scala.collection.mutable
 class ScalaLanguageConsole(project: Project, title: String)
   extends LanguageConsoleImpl(project, title, ScalaLanguage.INSTANCE) {
   private val textBuffer = new StringBuilder
-  private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1", project)
+  private var scalaFile = ScalaPsiElementFactory.createScalaFileFromText("1")(project)
   
   resetFileContext()
 
@@ -82,7 +82,7 @@ class ScalaLanguageConsole(project: Project, title: String)
   
   
   private def resetFileTo(text: String) {
-    scalaFile = ScalaPsiElementFactory.createScalaFileFromText(text + ";\n1", project)
+    scalaFile = ScalaPsiElementFactory.createScalaFileFromText(text + ";\n1")(project)
   }
 
   private def resetFileContext() {

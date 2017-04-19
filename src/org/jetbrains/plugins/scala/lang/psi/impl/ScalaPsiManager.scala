@@ -26,7 +26,6 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
@@ -43,12 +42,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedT
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(val project: Project) {
+  implicit def ctx: ProjectContext = project
+
   private val inJavaPsiFacade: ThreadLocal[Boolean] = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
   }
@@ -67,33 +68,33 @@ class ScalaPsiManager(val project: Project) {
   private def dontCacheCompound = ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    if (dontCacheCompound) ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) ParameterlessNodes.build(tp, compoundTypeThisType)
     else getParameterlessSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getParameterlessSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    ParameterlessNodes.build(tp, compoundTypeThisType)
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)
     else getTypesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getTypesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    TypeNodes.build(tp, compoundTypeThisType)
   }
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    if (dontCacheCompound) return SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    if (dontCacheCompound) return SignatureNodes.build(tp, compoundTypeThisType)
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
+    SignatureNodes.build(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
@@ -396,7 +397,8 @@ object ScalaPsiManager {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager")
 
-  def instance(project: Project): ScalaPsiManager = project.getComponent(classOf[ScalaPsiManagerComponent]).instance
+  def instance(implicit ctx: ProjectContext): ScalaPsiManager =
+    ctx.project.getComponent(classOf[ScalaPsiManagerComponent]).instance
 
   private def subscribeToRootsChange(project: Project) = {
     project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {

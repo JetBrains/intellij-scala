@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -23,8 +22,9 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 2014-05-15
  */
-class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
-                    (implicit val typeSystem: TypeSystem) {
+class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement]) {
+  import pattern.projectContext
+
   private val parameterValues = mutable.Map[ExtractMethodParameter, ScExpression]()
   private val definitionCorrespondence = mutable.Map[ScTypedDefinition, ScTypedDefinition]()
 

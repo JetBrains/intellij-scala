@@ -3,7 +3,6 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, ResolvesTo}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -35,8 +35,9 @@ trait PatternAnnotator {
 
 object PatternAnnotator {
 
-  def checkPattern(pattern: ScPattern, holder: AnnotationHolder)
-                  (implicit typeSystem: TypeSystem = pattern.typeSystem): Unit = {
+  def checkPattern(pattern: ScPattern, holder: AnnotationHolder): Unit = {
+    implicit val ctx: ProjectContext = pattern
+
     for {
       pType <- PatternAnnotatorUtil.patternType(pattern)
       eType <- pattern.expectedType
@@ -50,8 +51,9 @@ object PatternAnnotator {
    * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
    *
    */
-  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder)
-                              (implicit typeSystem: TypeSystem) = {
+  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder) = {
+    implicit val ctx: ProjectContext = pattern
+
     val exTp = widen(ScalaType.expandAliases(exprType).getOrElse(exprType))
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
@@ -180,7 +182,7 @@ object PatternAnnotator {
 object PatternAnnotatorUtil {
   @tailrec
   def matchesPattern(matching: ScType, matched: ScType)
-                    (implicit typeSystem: TypeSystem): Boolean = {
+                    (implicit ctx: ProjectContext): Boolean = {
     def abstraction(scType: ScType, visited: Set[ScType] = Set.empty): ScType = {
       if (visited.contains(scType)) {
         return scType
@@ -232,9 +234,7 @@ object PatternAnnotatorUtil {
         val subPat = tuple.subpatterns
         val subTypes = subPat.flatMap(patternType)
         if (subTypes.size == subPat.size) {
-          val project = pattern.getProject
-          implicit val elementScope = ElementScope(project)
-          Some(TupleType(subTypes))
+          Some(TupleType(subTypes)(pattern.elementScope))
         }
         else None
       case typed: ScTypedPattern =>

@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.InsertReturnTypeAndEquals
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -35,7 +34,6 @@ class AddUnitTypeAnnotationIntention extends PsiElementBaseIntentionAction {
       def message(key: String) {
         setText(ScalaBundle.message(key))
       }
-      implicit val typeSystem = project.typeSystem
       for {
         function <- element.parentsInFile.findByType[ScFunctionDefinition]
         if !function.hasAssign

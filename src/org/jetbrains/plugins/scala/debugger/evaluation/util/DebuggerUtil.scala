@@ -83,8 +83,7 @@ object DebuggerUtil {
     private var buffer = new ArrayBuffer[JVMName]
   }
 
-  def getJVMQualifiedName(tp: ScType)
-                         (implicit typeSystem: TypeSystem): JVMName = {
+  def getJVMQualifiedName(tp: ScType): JVMName = {
     import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Any => JVMNameUtil.getJVMRawText("java.lang.Object")
@@ -120,8 +119,7 @@ object DebuggerUtil {
     }
   }
 
-  def getJVMStringForType(tp: ScType, isParam: Boolean = true)
-                         (implicit typeSystem: TypeSystem): String = {
+  def getJVMStringForType(tp: ScType, isParam: Boolean = true): String = {
     import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case AnyRef => "Ljava/lang/Object;"
@@ -152,8 +150,7 @@ object DebuggerUtil {
     }
   }
 
-  def getFunctionJVMSignature(function: ScMethodLike)
-                             (implicit typeSystem: TypeSystem = function.typeSystem): JVMName = {
+  def getFunctionJVMSignature(function: ScMethodLike): JVMName = {
     val typeParams = function match {
       case fun: ScFunction if !fun.isConstructor => fun.typeParameters
       case _: ScFunction | _: ScPrimaryConstructor =>
@@ -195,8 +192,7 @@ object DebuggerUtil {
     JVMNameUtil.getJVMRawText(paramTypes + resultType)
   }
 
-  def constructorSignature(named: PsiNamedElement)
-                          (implicit typeSystem: TypeSystem): JVMName = {
+  def constructorSignature(named: PsiNamedElement): JVMName = {
     named match {
       case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
       case constr: ScPrimaryConstructor =>
@@ -215,8 +211,7 @@ object DebuggerUtil {
     }
   }
 
-  def lambdaJVMSignature(lambda: PsiElement)
-                        (implicit typeSystem: TypeSystem = lambda.typeSystem): Option[String] = {
+  def lambdaJVMSignature(lambda: PsiElement): Option[String] = {
     val (argumentTypes, returnType) = lambda match {
       case (expr: ScExpression) && Typeable(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
       case Typeable(FunctionType(retT, argTypes)) => (argTypes, retT)
@@ -232,8 +227,7 @@ object DebuggerUtil {
     Some(paramText + returnTypeText)
   }
 
-  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor)
-                                      (implicit typeSystem: TypeSystem) = param match {
+  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
       case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
       case _ => getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))

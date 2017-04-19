@@ -176,7 +176,8 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
   }
 
   private def createText(classMember: ClassMember, td: ScTemplateDefinition, full: Boolean = false, withBody: Boolean = true): String = {
-    implicit val manager = classMember.getElement.getManager
+    import td.projectContext
+
     val text: String = classMember match {
       case mm: ScMethodMember =>
         val mBody = if (mm.isOverride) ScalaGenerationInfo.getMethodBody(mm, td, isImplement = false) else "???"

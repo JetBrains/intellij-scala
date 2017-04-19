@@ -69,7 +69,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceElementImpl(no
   }
 
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] =
-    ReferenceExpressionResolver.doResolve(this, processor, accessibilityCheck)
+    new ReferenceExpressionResolver().doResolve(this, processor, accessibilityCheck)
 
   def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
 

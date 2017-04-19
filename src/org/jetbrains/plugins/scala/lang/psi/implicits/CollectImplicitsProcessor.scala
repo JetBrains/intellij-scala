@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
-import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.psi._
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
@@ -11,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -22,8 +21,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
   * @author adkozlov
   */
 class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boolean)
-                               (implicit override val typeSystem: TypeSystem)
-  extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
+  extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence)(expression) {
 
   protected def getPlace: PsiElement = expression
 

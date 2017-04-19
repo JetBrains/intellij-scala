@@ -36,9 +36,9 @@ case object Scala_2_12 extends ScalaVersion {
 trait ScalaSdkOwner {
   implicit val version: ScalaVersion
 
-  implicit protected def project: Project
-
   implicit protected def module: Module
+
+  def project: Project = module.getProject
 
   protected def librariesLoaders: Seq[LibraryLoader]
 

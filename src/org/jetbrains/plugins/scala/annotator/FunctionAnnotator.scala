@@ -10,14 +10,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
 trait FunctionAnnotator {
-  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean)
-                      (implicit typeSystem: TypeSystem = function.typeSystem) {
+  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean) {
+    implicit val ctx: ProjectContext = function
+
     if (!function.hasExplicitType && !function.returnTypeIsDefined) {
       function.recursiveReferences.foreach { ref =>
           val message = ScalaBundle.message("function.recursive.need.result.type", function.name)

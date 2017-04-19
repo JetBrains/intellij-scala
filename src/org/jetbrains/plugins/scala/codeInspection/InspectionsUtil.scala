@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,8 +30,8 @@ object InspectionsUtil {
     case (tp, project) => conformsToTypeFromClass(tp, className, project)
   }
 
-  def conformsToTypeFromClass(scType: ScType, className: String, project: Project)
-                             (implicit typeSystem: TypeSystem = project.typeSystem): Boolean = {
+  def conformsToTypeFromClass(scType: ScType, className: String, project: Project): Boolean = {
+    implicit val ctx: ProjectContext = project
     def typeFromClassName(fqn: String, project: Project): Option[ScType] = {
       val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
       Option(clazz).map { c =>

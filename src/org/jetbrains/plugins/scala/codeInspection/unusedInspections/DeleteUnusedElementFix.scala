@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createWildcardNode, createWildcardPattern}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentionActionOnPsiElement(e) {
   override def getText: String = DeleteUnusedElementFix.Hint
@@ -20,7 +21,8 @@ class DeleteUnusedElementFix(e: ScNamedElement) extends LocalQuickFixAndIntentio
 
   override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
     if (FileModificationService.getInstance.prepareFileForWrite(startElement.getContainingFile)) {
-      implicit val manager = startElement.getManager
+      implicit val ctx: ProjectContext = project
+
       def wildcard = createWildcardNode.getPsi
 
       startElement match {

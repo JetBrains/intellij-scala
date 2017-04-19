@@ -3,11 +3,9 @@ package lang
 package psi
 package types
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions.{PsiWildcardTypeExt, _}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
@@ -16,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-
-import scala.annotation.tailrec
 
 object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
   override implicit lazy val typeSystem = ScalaTypeSystem
@@ -119,7 +115,6 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                          noPrimitives: Boolean,
                          skolemToWildcard: Boolean)
                         (implicit elementScope: ElementScope): PsiType = {
-    implicit val typeSystem = elementScope.typeSystem
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
       proj.projected.extractClass(elementScope.project) match {

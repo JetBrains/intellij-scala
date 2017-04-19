@@ -4,7 +4,7 @@ package codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable}
 
 /**
@@ -19,7 +19,6 @@ object MapGetOrElse extends SimplificationType() {
   def hint: String = InspectionBundle.message("map.getOrElse.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
-    import expr.typeSystem
     expr match {
       case qual`.mapOnOption`(fun)`.getOrElse`(default) =>
         replacementText(qual, fun, default) match {
@@ -38,8 +37,9 @@ object MapGetOrElse extends SimplificationType() {
     Some(s"${qual.getText}.fold $firstArgText$secondArgText")
   }
 
-  def checkTypes(qual: ScExpression, mapArg: ScExpression, replacementText: String)
-                (implicit typeSystem: TypeSystem): Boolean = {
+  def checkTypes(qual: ScExpression, mapArg: ScExpression, replacementText: String): Boolean = {
+    import qual.projectContext
+
     val mapArgRetType = mapArg match {
       case Typeable(FunctionType(retType, _)) => retType
       case _ => return false
@@ -50,8 +50,7 @@ object MapGetOrElse extends SimplificationType() {
     }
   }
 
-  def checkTypes(optionalBase: Option[ScExpression], mapArgs: Seq[ScExpression], getOrElseArgs: Seq[ScExpression])
-                (implicit typeSystem: TypeSystem): Boolean = {
+  def checkTypes(optionalBase: Option[ScExpression], mapArgs: Seq[ScExpression], getOrElseArgs: Seq[ScExpression]): Boolean = {
     val (mapArg, getOrElseArg) = (mapArgs, getOrElseArgs) match {
       case (Seq(a1), Seq(a2)) => (a1, a2)
       case _ => return false
@@ -64,6 +63,8 @@ object MapGetOrElse extends SimplificationType() {
       case Success(FunctionType(retType, _), _) => retType
       case _ => return false
     }
+    import baseExpr.projectContext
+
     val firstArgText = stripped(getOrElseArg).getText
     val secondArgText = stripped(mapArg).getText
     val newExprText = s"${baseExpr.getText}.fold {$firstArgText}{$secondArgText}"

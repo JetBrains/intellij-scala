@@ -3,7 +3,7 @@ package lang.psi.types.nonvalue
 
 import com.intellij.psi.PsiParameter
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._

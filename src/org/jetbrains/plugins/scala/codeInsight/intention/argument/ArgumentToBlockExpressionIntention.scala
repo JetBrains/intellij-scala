@@ -29,7 +29,7 @@ class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val list = element.getParent.asInstanceOf[ScArgumentExprList]
     val exp = list.exprs.head
-    implicit val manager = list.getManager
+    implicit val projectContext = list.projectContext
     val block = exp match {
       case funExpr: ScFunctionExpr => createAnonFunBlockFromFunExpr(funExpr)
       case _ => createBlockFromExpr(exp)

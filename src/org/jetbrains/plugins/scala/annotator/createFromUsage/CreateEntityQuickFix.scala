@@ -7,12 +7,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateEntityQuickFix._
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,7 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
@@ -40,7 +39,6 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!super.isAvailable(project, editor, file)) return false
 
-    implicit val typeSystem = project.typeSystem
     def checkBlock(expr: ScExpression) = blockFor(expr) match {
       case Success(bl) => !bl.isInCompiledFile
       case _ => false
@@ -60,7 +58,6 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
   }
 
   def invokeInner(project: Project, editor: Editor, file: PsiFile) {
-    implicit val typeSystem = project.typeSystem
     def tryToFindBlock(expr: ScExpression): Option[ScExtendsBlock] = {
       blockFor(expr) match {
         case Success(bl) => Some(bl)
@@ -128,9 +125,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
       }
     }
   }
-}
 
-object CreateEntityQuickFix {
   private def materializeSytheticObject(obj: ScObject): ScObject = {
     val clazz = obj.fakeCompanionClassOrCompanionClass
     val objText = s"object ${clazz.name} {}"
@@ -138,8 +133,7 @@ object CreateEntityQuickFix {
     clazz.getParent.addAfter(fromText, clazz).asInstanceOf[ScObject]
   }
 
-  private def blockFor(exp: ScExpression)
-                      (implicit typeSystem: TypeSystem): Try[ScExtendsBlock] = {
+  private def blockFor(exp: ScExpression): Try[ScExtendsBlock] = {
     object ParentExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = Option(PsiTreeUtil.getParentOfType(exp, classOf[ScExtendsBlock]))
     }
@@ -175,7 +169,6 @@ object CreateEntityQuickFix {
 
       val hasMembers = holder.children.containsType[ScMember]
 
-      implicit val manager = ref.getManager
       val entity = holder.addAfter(createElementFromText(text), anchor)
       if (hasMembers) holder.addAfter(createNewLine(), entity)
 
@@ -187,7 +180,6 @@ object CreateEntityQuickFix {
     for (anchor <- anchorForUnqualified(ref)) yield {
       val holder = anchor.getParent
 
-      implicit val manager = ref.getManager
       val entity = holder.addBefore(createElementFromText(text), anchor)
 
       holder.addBefore(createNewLine("\n\n"), entity)
@@ -231,8 +223,7 @@ object CreateEntityQuickFix {
     place.map(_._2)
   }
 
-  private def unambiguousSuper(supRef: ScSuperReference)
-                              (implicit typeSystem: TypeSystem): Option[ScTypeDefinition] = {
+  private def unambiguousSuper(supRef: ScSuperReference): Option[ScTypeDefinition] = {
     supRef.staticSuper match {
       case Some(ExtractClass(clazz: ScTypeDefinition)) => Some(clazz)
       case None =>

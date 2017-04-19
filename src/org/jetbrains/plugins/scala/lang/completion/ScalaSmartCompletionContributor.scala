@@ -342,8 +342,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   })
 
   private def argumentsForFunction(args: ScArgumentExprList, referenceExpression: ScReferenceExpression,
-                                   result: CompletionResultSet)
-                                  (implicit typeSystem: TypeSystem = referenceExpression.typeSystem) {
+                                   result: CompletionResultSet) {
     val braceArgs = args.isBraceArgs
     val expects = referenceExpression.expectedTypes()
     for (expected <- expects) {
@@ -646,7 +645,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           case ScAbstractType(_, _, upper) => upper
           case tp => tp
         }
-        implicit val typeSystem = newExpr.typeSystem
+        implicit val typeSystem = newExpr.projectContext
         for (typez <- types) {
           val element: LookupElement = convertTypeToLookupElement(typez, newExpr, addedClasses,
             new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)

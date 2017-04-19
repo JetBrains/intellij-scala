@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -281,11 +281,10 @@ object TypeAdjuster extends ApplicationAdapter {
     }
   }
 
-  private def availableTypeAliasFor(clazz: PsiClass, position: PsiElement, useTypeAliases: Boolean)
-                                   (implicit typeSystem: TypeSystem = clazz.typeSystem): Option[ScTypeAliasDefinition] = {
+  private def availableTypeAliasFor(clazz: PsiClass, position: PsiElement, useTypeAliases: Boolean): Option[ScTypeAliasDefinition] = {
     if (!useTypeAliases) None
     else {
-      class FindTypeAliasProcessor extends BaseProcessor(ValueSet(CLASS)) {
+      class FindTypeAliasProcessor extends BaseProcessor(ValueSet(CLASS))(clazz) {
         var collected: Option[ScTypeAliasDefinition] = None
 
         override def execute(element: PsiElement, state: ResolveState): Boolean = {

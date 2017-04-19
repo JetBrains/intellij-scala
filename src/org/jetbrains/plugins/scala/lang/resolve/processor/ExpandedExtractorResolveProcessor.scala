@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -29,7 +28,6 @@ class ExpandedExtractorResolveProcessor(ref: ScReferenceElement,
                                         refName: String,
                                         kinds: Set[ResolveTargets.Value],
                                         expected: Option[ScType])
-                                       (implicit override val typeSystem: TypeSystem)
         extends ExtractorResolveProcessor(ref, refName, kinds, expected) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val named = element.asInstanceOf[PsiNamedElement]

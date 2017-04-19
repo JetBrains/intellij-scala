@@ -18,24 +18,21 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory}
 import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
-import com.intellij.psi.{PsiElement, PsiManager, PsiNamedElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiNamedElement, PsiWhiteSpace}
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -105,7 +102,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       implicitParameters match {
         case None | Some(Seq()) =>
           ScalaActionUtil.showHint(editor, "No implicit parameters")
-        case Some(seq) => showPopup(editor, seq)(project.typeSystem)
+        case Some(seq) => showPopup(editor, seq)
       }
     }
 
@@ -212,9 +209,8 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
     succeeded.get
   }
 
-  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult])
-                       (implicit typeSystem: TypeSystem) {
-    val project = editor.getProject
+  private def showPopup(editor: Editor, results: Seq[ScalaResolveResult]) {
+    implicit val project = editor.getProject
 
     val tree = new Tree()
     val structure = new ImplicitParametersTreeStructure(project, results)
@@ -273,8 +269,9 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
 
 class ImplicitParametersTreeStructure(project: Project,
                                       results: Seq[ScalaResolveResult])
-                                     (implicit val typeSystem: TypeSystem)
   extends AbstractTreeStructure {
+
+  implicit def ctx: ProjectContext = project
 
   class ImplicitParametersNode(value: ScalaResolveResult, implicitResult: Option[ImplicitResult] = None)
     extends AbstractPsiBasedNode[ScalaResolveResult](project, value, ViewSettings.DEFAULT) {

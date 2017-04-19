@@ -36,7 +36,7 @@ object DynamicResolveProcessor {
   }
 
   def isDynamicReference(reference: ScReferenceExpression): Boolean = {
-    implicit val typeSystem: TypeSystem = reference.typeSystem
+    implicit val typeSystem: TypeSystem = reference.projectContext
 
     def qualifierType() = reference.qualifier
       .flatMap(_.getNonValueType().toOption)

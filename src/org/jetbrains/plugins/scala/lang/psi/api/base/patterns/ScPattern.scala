@@ -114,15 +114,12 @@ trait ScPattern extends ScalaPsiElement with Typeable {
 
 object ScPattern {
   implicit class Ext(val pattern: ScPattern) extends AnyVal {
-    private implicit def project = pattern.getProject
-    private implicit def resolveScope = pattern.getResolveScope
-    private implicit def typeSystem = pattern.typeSystem
-    private implicit def elementScope = pattern.elementScope
-    private implicit def manager = pattern.manager
+
+    import pattern.{elementScope, projectContext}
 
     @CachedInsidePsiElement(pattern, ModCount.getBlockModificationCount)
     def expectedType: Option[ScType] = {
-      val psiManager = ScalaPsiManager.instance(project)
+      val psiManager = ScalaPsiManager.instance
 
       pattern.getContext match {
         case list: ScPatternList => list.getContext match {
@@ -173,12 +170,12 @@ object ScPattern {
               case _ => None
             }
           case _: ScXmlPattern =>
-            val nodeClass: Option[PsiClass] = psiManager.getCachedClass(resolveScope, "scala.xml.Node")
+            val nodeClass: Option[PsiClass] = psiManager.getCachedClass(elementScope.scope, "scala.xml.Node")
             nodeClass.flatMap { nodeClass =>
               pattern match {
                 case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
                   val seqClass: Option[PsiClass] =
-                    psiManager.getCachedClass(resolveScope, "scala.collection.Seq")
+                    psiManager.getCachedClass(elementScope.scope, "scala.collection.Seq")
                   seqClass.map { seqClass =>
                     ScParameterizedType(ScDesignatorType(seqClass), Seq(ScDesignatorType(nodeClass)))
                   }
@@ -193,7 +190,7 @@ object ScPattern {
             case _ => None
           }
           case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
-            val thr = psiManager.getCachedClass(resolveScope, "java.lang.Throwable")
+            val thr = psiManager.getCachedClass(elementScope.scope, "java.lang.Throwable")
             thr.map(ScalaType.designator(_))
           case b: ScBlockExpr =>
             b.expectedType(fromUnderscore = false) match {
@@ -406,8 +403,7 @@ object ScPattern {
     }
   }
 
-  private def findMember(name: String, tp: ScType, place: PsiElement)
-                        (implicit typeSystem: TypeSystem): Option[ScType] = {
+  private def findMember(name: String, tp: ScType, place: PsiElement): Option[ScType] = {
     val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
     cp.processType(tp, place)
     cp.candidatesS.flatMap {
@@ -421,8 +417,7 @@ object ScPattern {
     }.headOption
   }
 
-  private def extractPossibleProductParts(receiverType: ScType, place: PsiElement, isOneArgCaseClass: Boolean)
-                                         (implicit typeSystem: TypeSystem): Seq[ScType] = {
+  private def extractPossibleProductParts(receiverType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
     val res: ArrayBuffer[ScType] = new ArrayBuffer[ScType]()
     @tailrec
     def collect(i: Int) {
@@ -438,17 +433,16 @@ object ScPattern {
     res.toSeq
   }
 
-  def extractProductParts(tp: ScType, place: PsiElement)
-                         (implicit typeSystem: TypeSystem): Seq[ScType] = {
+  def extractProductParts(tp: ScType, place: PsiElement): Seq[ScType] = {
     extractPossibleProductParts(tp, place, isOneArgCaseClass = false)
   }
 
-  def expectedNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean)
-                                        (implicit typeSystem: TypeSystem): Int =
+  def expectedNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Int =
     extractorParameters(returnType, place, isOneArgCaseClass).size
 
-  def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean)
-                         (implicit typeSystem: TypeSystem): Seq[ScType] = {
+  def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
+    implicit val project = place.getProject
+
     def collectFor2_11: Seq[ScType] = {
       findMember("isEmpty", returnType, place) match {
         case Some(tp) if api.Boolean.equiv(tp) =>
@@ -460,7 +454,6 @@ object ScPattern {
     }
 
     val level = place.scalaLanguageLevelOrDefault
-    val project = place.getProject
     if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {
@@ -475,7 +468,7 @@ object ScPattern {
                   else {
                     val productFqn = "scala.Product" + productChance.length
                     (for {
-                      productClass <- ScalaPsiManager.instance(project).getCachedClass(place.getResolveScope, productFqn)
+                      productClass <- ScalaPsiManager.instance.getCachedClass(place.getResolveScope, productFqn)
                       clazz <- tp.extractClass(project)
                     } yield clazz == productClass || clazz.isInheritor(productClass, true)).
                       filter(identity).fold(Seq(tp))(_ => productChance)

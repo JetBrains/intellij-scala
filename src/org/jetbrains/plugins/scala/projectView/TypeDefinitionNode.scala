@@ -4,19 +4,19 @@ import java.util
 
 import com.intellij.ide.projectView.impl.nodes.ClassTreeNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.JavaConverters._
 
 /**
   * @author Pavel Fatin
   */
-private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project: Project, settings: ViewSettings)
+private class TypeDefinitionNode(definition: ScTypeDefinition)(implicit project: ProjectContext, settings: ViewSettings)
   extends ClassTreeNode(project, definition, settings) {
 
   myName = definition.name

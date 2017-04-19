@@ -132,7 +132,6 @@ object ScalaGenerationInfo {
   }
 
   private def callSuperText(td: ScTemplateDefinition, method: PsiMethod): String = {
-    import td.typeSystem
     val superOrSelfQual: String = td.selfType match {
       case None => "super."
       case Some(st: ScType) =>

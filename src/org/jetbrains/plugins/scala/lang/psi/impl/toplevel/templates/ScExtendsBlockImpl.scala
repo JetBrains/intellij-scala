@@ -188,7 +188,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
 
     templateParents match {
       case Some(parents: ScTemplateParents) => parents.supers foreach { t => addClass(t) }
-      case _ => ScTemplateParents.extractSupers(syntheticTypeElements, getProject) foreach { t => addClass(t) }
+      case _ => ScTemplateParents.extractSupers(syntheticTypeElements) foreach { t => addClass(t) }
     }
     if (isUnderCaseClass) {
       val prod = scalaProductClass

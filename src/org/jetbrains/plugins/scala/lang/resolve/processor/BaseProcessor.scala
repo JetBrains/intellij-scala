@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.{Set, mutable}
 
@@ -48,7 +49,7 @@ object BaseProcessor {
 }
 
 abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
-                            (implicit val typeSystem: TypeSystem) extends PsiScopeProcessor {
+                            (implicit val projectContext: ProjectContext) extends PsiScopeProcessor {
   protected val candidatesSet: mutable.HashSet[ScalaResolveResult] = new mutable.HashSet[ScalaResolveResult]
 
   def isImplicitProcessor: Boolean = false

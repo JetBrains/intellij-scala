@@ -6,7 +6,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 import _root_.scala.collection.mutable.ArrayBuffer
@@ -22,8 +22,8 @@ object LightUtil {
     * @param holder annotation holder
    * @return Java throws section string or empty string
    */
-  def getThrowsSection(holder: ScAnnotationsHolder)
-                      (implicit typeSystem: TypeSystem = holder.typeSystem): String = {
+  def getThrowsSection(holder: ScAnnotationsHolder): String = {
+
     val throwAnnotations = holder.annotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
       case (accumulator, annotation) =>
         implicit val elementScope = holder.elementScope

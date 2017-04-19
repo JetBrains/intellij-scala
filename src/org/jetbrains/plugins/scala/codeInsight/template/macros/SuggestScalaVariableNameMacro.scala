@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
@@ -23,15 +23,13 @@ class SuggestScalaVariableNameMacro extends ScalaMacro {
 
   import SuggestScalaVariableNameMacro._
 
-  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext)
-                                        (implicit typeSystem: TypeSystem): Array[LookupElement] = {
+  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     val names = getNames(params, context).toArray
     if (names.length < 2) return null
     names.map(s => LookupElementBuilder.create(s, s))
   }
 
-  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext)
-                                   (implicit typeSystem: TypeSystem): Result =
+  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result =
     getNames(params, context)
       .map(new TextResult(_))
       .headOption
@@ -49,8 +47,7 @@ class SuggestScalaVariableNameMacro extends ScalaMacro {
 }
 
 object SuggestScalaVariableNameMacro {
-  private def getNames(params: Array[Expression], context: ExpressionContext)
-                      (implicit typeSystem: TypeSystem): Seq[String] = {
+  private def getNames(params: Array[Expression], context: ExpressionContext): Seq[String] = {
     val p: Array[String] = params.map(_.calculateResult(context).toString)
     val editor = context.getEditor
     PsiDocumentManager.getInstance(editor.getProject).commitDocument(editor.getDocument)

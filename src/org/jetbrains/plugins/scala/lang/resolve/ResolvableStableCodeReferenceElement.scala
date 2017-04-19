@@ -22,7 +22,7 @@ object ResolvableStableCodeReferenceElement {
 
     private def getText = stableRef.getText
 
-    private implicit def typeSystem: TypeSystem = stableRef.typeSystem
+    private implicit def typeSystem: TypeSystem = stableRef.projectContext
 
     @CachedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
     def resolveTypesOnly(incomplete: Boolean): Array[ResolveResult] = {

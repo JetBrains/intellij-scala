@@ -86,7 +86,7 @@ object ExtractSuperUtil {
     val name = typeToExtend.name
     val text = name + parameters
     val oldExtBlock = clazz.extendsBlock
-    implicit val manager = clazz.getManager
+    implicit val projectContext = clazz.projectContext
 
     val templParents = oldExtBlock.templateParents match {
       case Some(tp: ScTemplateParents) =>

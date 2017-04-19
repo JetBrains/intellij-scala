@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 
 /**
   * @author adkozlov
@@ -22,6 +24,14 @@ trait TypeSystem {
   def andType(types: Seq[ScType]): ScType
 
   def parameterizedType(designator: ScType, typeArguments: Seq[ScType]): ValueType
+}
+
+object TypeSystem extends LowerPriority {
+  implicit def fromProjectContext(implicit projectContext: ProjectContext): TypeSystem = projectContext.project.typeSystem
+}
+
+trait LowerPriority {
+  implicit def fromElementScope(implicit scope: ElementScope): TypeSystem = scope.project.typeSystem
 }
 
 trait TypeSystemOwner {

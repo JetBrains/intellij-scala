@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 
 class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
                                  undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
-  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(ScalaTypeSystem) {
+  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(s.projectContext) {
 
   private val name = s.name
 
@@ -148,7 +148,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 }
 
 class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
-  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(ScalaTypeSystem) {
+  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(sign.projectContext) {
   private val name = sign.name
 
   private var trueResult = false

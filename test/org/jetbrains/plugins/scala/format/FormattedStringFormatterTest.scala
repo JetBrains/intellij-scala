@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package format
 
-import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -110,7 +109,6 @@ class FormattedStringFormatterTest extends SimpleTestCase {
     '"' + formatter + '"' + ".format(%s)".format(arguments)
 
   private def exp(s: String): ScExpression = {
-    implicit val manager = PsiManager.getInstance(fixture.getProject)
     createExpressionFromText(s)
   }
 }

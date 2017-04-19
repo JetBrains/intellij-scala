@@ -440,7 +440,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
-              }, s.hasRepeatedParam)(ScalaTypeSystem), rt)
+              }, s.hasRepeatedParam), rt)
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypes(substInternal))
         })

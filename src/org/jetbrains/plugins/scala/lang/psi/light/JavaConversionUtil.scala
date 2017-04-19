@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder

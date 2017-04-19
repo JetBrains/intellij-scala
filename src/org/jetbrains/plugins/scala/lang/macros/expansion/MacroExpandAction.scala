@@ -22,12 +22,12 @@ import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -297,11 +297,12 @@ object MacroExpandAction {
   }
 
   def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion) = {
+    import place.projectContext
+
     // we can only macro-annotate scala code
     place.getParent.getParent match {
       case holder: ScAnnotationsHolder =>
         val body = expansion.body
-        implicit val manager = PsiManager.getInstance(place.getProject)
         val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body)
         reformatCode(newPsi)
         newPsi.firstChild match {

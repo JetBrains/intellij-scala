@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package format
 
-import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -126,7 +125,6 @@ class FormattedStringParserTest extends SimpleTestCase {
   }
 
   private def parse(formatString: String, arguments: Int*): List[StringPart] = {
-    implicit val manager = PsiManager.getInstance(fixture.getProject)
     val expressions = arguments.map(it => createExpressionFromText(it.toString))
     val literal = createElementFromText('"' + formatString + '"', classOf[ScLiteral])
     FormattedStringParser.parseFormatCall(literal, expressions).toList

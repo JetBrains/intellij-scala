@@ -102,8 +102,9 @@ object IntentionUtils {
     }
   }
 
-  def negateAndValidateExpression(expr: ScExpression, buf: scala.StringBuilder)
-                                 (implicit manager: PsiManager): (ScExpression, ScExpression, Int) = {
+  def negateAndValidateExpression(expr: ScExpression, buf: scala.StringBuilder): (ScExpression, ScExpression, Int) = {
+    import expr.projectContext
+
     val parent =
       if (expr.getParent != null && expr.getParent.isInstanceOf[ScParenthesisedExpr]) expr.getParent.getParent
       else expr.getParent
@@ -191,7 +192,7 @@ object IntentionUtils {
         bufExpr.append(f.name).append("(").append(expr.getText).append(")")
         buf.append(bufExpr.toString())
 
-        implicit val manager = expr.getManager
+        implicit val projectContext = expr.projectContext
         val newExpr = createExpressionFromText(bufExpr.toString())
         val fullRef = createReferenceFromText(buf.toString()).resolve()
 

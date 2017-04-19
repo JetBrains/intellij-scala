@@ -4,7 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt._
 
 /**
@@ -12,11 +12,20 @@ import org.jetbrains.sbt._
   * @since 26.07.16
   */
 trait ResolverIndex {
-  def searchGroup(artifactId: String = "")(implicit project: Project): Set[String]
-  def searchArtifact(groupId: String = "")(implicit project: Project): Set[String]
-  def searchVersion(groupId: String, artifactId: String)(implicit project: Project): Set[String]
-  def doUpdate(progressIndicator: Option[ProgressIndicator] = None)(implicit project: Project): Unit
-  def getUpdateTimeStamp(implicit project: Project): Long
+  def searchGroup(artifactId: String = "")
+                 (implicit project: ProjectContext): Set[String]
+
+  def searchArtifact(groupId: String = "")
+                    (implicit project: ProjectContext): Set[String]
+
+  def searchVersion(groupId: String, artifactId: String)
+                   (implicit project: ProjectContext): Set[String]
+
+  def doUpdate(progressIndicator: Option[ProgressIndicator] = None)
+              (implicit project: ProjectContext): Unit
+
+  def getUpdateTimeStamp(implicit project: ProjectContext): Long
+
   def close(): Unit
 }
 

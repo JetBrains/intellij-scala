@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -39,8 +38,7 @@ trait PrecedenceHelper[T] {
   protected val history: ArrayBuffer[HistoryEvent] = new ArrayBuffer
   private var fromHistory: Boolean = false
 
-  protected def compareWithIgnoredSet(set: mutable.HashSet[ScalaResolveResult])
-                                     (implicit typeSystem: TypeSystem): Boolean = {
+  protected def compareWithIgnoredSet(set: mutable.HashSet[ScalaResolveResult]): Boolean = {
     import scala.collection.JavaConversions._
     if (ignoredSet.nonEmpty && set.isEmpty) return false
     ignoredSet.forall { result =>

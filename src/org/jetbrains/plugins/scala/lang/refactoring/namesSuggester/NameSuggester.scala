@@ -3,9 +3,7 @@ package lang
 package refactoring
 package namesSuggester
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.obtainProject
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -16,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaTypeValidator, ScalaValidator, ScalaVariableValidator}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * @author Alexander Podkhalyuzin
@@ -27,7 +24,7 @@ object NameSuggester {
   def suggestNames(expression: ScExpression)
                   (implicit validator: ScalaVariableValidator = ScalaVariableValidator.empty): Seq[String] = {
     val names = collectTypes(expression).reverse
-      .flatMap(namesByType(_)(expression.getProject)) ++
+      .flatMap(namesByType(_)) ++
       namesByExpression(expression)
 
     collectNames(names, validator)
@@ -64,10 +61,9 @@ object NameSuggester {
 
   def suggestNamesByType(`type`: ScType)
                         (implicit validator: ScalaTypeValidator = ScalaTypeValidator.empty): Seq[String] =
-    collectNames(namesByType(`type`)(obtainProject), validator)
+    collectNames(namesByType(`type`), validator)
 
-  private[namesSuggester] def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
-                                         (implicit project: Project): Seq[String] = {
+  private[namesSuggester] def namesByType(`type`: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true): Seq[String] = {
     def toLowerCase(name: String, length: Int): String = {
       val lowerCased = name.toLowerCase
       if (shortVersion) lowerCased.substring(0, length) else lowerCased
@@ -91,7 +87,6 @@ object NameSuggester {
       toLowerCase(typeName, length)
     }
 
-    implicit val typeSystem = project.typeSystem
     `type` match {
       case valType: ValType => Seq(valTypeName(valType))
       case ScDesignatorType(e) => byName(e.name)
@@ -108,7 +103,7 @@ object NameSuggester {
     case reference: ScReferenceElement if reference.refName != null => camelCaseNames(reference.refName)
     case definition: ScNewTemplateDefinition =>
       val namesByClass = definition.getType().toOption.toSeq
-        .flatMap(namesByType(_)(definition.getProject))
+        .flatMap(namesByType(_))
 
       val parameters = definition.constructor.toSeq
         .flatMap(_.matchedParameters)

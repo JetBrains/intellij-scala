@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -29,8 +30,9 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    implicit val ctx: ProjectContext = project
+
     val statement = element.getParent.asInstanceOf[ScForStatement]
-    implicit val manager = statement.getManager
     val block = createElementFromText("{}")
 
     for (lParen <- Option(statement.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS))) {

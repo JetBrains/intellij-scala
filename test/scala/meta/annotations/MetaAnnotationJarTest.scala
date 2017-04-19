@@ -19,7 +19,6 @@ import scala.meta.{ScalaMetaLibrariesOwner, _}
 
 class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner {
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
-  override implicit protected def project = getProject
 
   override implicit protected def module = myModule
 

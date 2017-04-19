@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInpla
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -139,6 +140,8 @@ trait IntroduceExpressions {
   private def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                            occurrences_ : Array[TextRange], varName: String, varType: ScType,
                            replaceAllOccurrences: Boolean, isVariable: Boolean, fromDialogMode: Boolean = false): SmartPsiElementPointer[PsiElement] = {
+
+    implicit val projectContext: ProjectContext = file
 
     def isIntroduceEnumerator(parExpr: PsiElement, prev: PsiElement, firstOccurenceOffset: Int): Option[ScForStatement] = {
       val result = prev match {
@@ -258,7 +261,6 @@ trait IntroduceExpressions {
 
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getEndOffset)
 
-    implicit val manager = file.getManager
     def createEnumeratorIn(forStmt: ScForStatement): ScEnumerator = {
       val parent: ScEnumerators = forStmt.enumerators.orNull
       val inParentheses = parent.prevSiblings.toList.exists(_.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS)
@@ -268,7 +270,6 @@ trait IntroduceExpressions {
       if (elem != null) {
         var needSemicolon = true
         var sibling = elem.getPrevSibling
-        implicit val manager = parent.getManager
         if (inParentheses) {
           while (sibling != null && sibling.getText.trim == "") sibling = sibling.getPrevSibling
           if (sibling != null && sibling.getText.endsWith(";")) needSemicolon = false

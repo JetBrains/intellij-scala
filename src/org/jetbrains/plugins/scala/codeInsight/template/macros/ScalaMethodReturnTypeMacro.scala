@@ -5,7 +5,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -13,8 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
  * @since 24.09.2015.
  */
 class ScalaMethodReturnTypeMacro extends ScalaMacro {
-  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext)
-                                   (implicit typeSystem: TypeSystem): Result = {
+  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[ScFunction])).
             map(_.getType(TypingContext.empty).getOrAny match {
               case FunctionType(rt, _) => rt

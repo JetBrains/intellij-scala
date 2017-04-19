@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.lang.transformation
 package calls
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author Pavel Fatin
   */
 class ExpandDynamicCall extends AbstractTransformer {
-  def transformation(implicit project: Project): PartialFunction[PsiElement, Unit] = {
+  def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case ScMethodCall(r @ RenamedReference(id, "applyDynamic"), _) =>
       r.replace(code"${r.qualifier.get}.applyDynamic(${quote(id)})")
 
@@ -41,7 +41,7 @@ class ExpandDynamicCall extends AbstractTransformer {
       e.replace(code"$l.updateDynamic(${quote(id)})($r)")
   }
 
-  private def asTuple(assignment: PsiElement)(implicit project: Project): ScalaPsiElement = assignment match {
+  private def asTuple(assignment: PsiElement)(implicit project: ProjectContext): ScalaPsiElement = assignment match {
     case ScAssignStmt(l, Some(r)) => code"(${quote(l.getText)}, $r)"
   }
 }

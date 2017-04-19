@@ -48,7 +48,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       }
       val clausesLubType =
         if (clausesTypes.isEmpty) Nothing
-        else typeSystem.bounds.lub(clausesTypes, checkWeak = true)
+        else projectContext.bounds.lub(clausesTypes, checkWeak = true)
 
       implicit val resolveScope = getResolveScope
       implicit val project = getProject

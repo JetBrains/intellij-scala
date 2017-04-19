@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTra
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 /**
@@ -110,7 +111,6 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def parameterWithoutType(param: ScParameter) {
-    import param.typeSystem
     param.parentsInFile.findByType[ScFunctionExpr] match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
@@ -134,7 +134,8 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def parameterWithType(param: ScParameter) {
-    implicit val manager = param.getManager
+    import param.projectContext
+
     val newParam = createParameterFromText(param.name)
     val newClause = createClauseForFunctionExprFromText(newParam.getText)
     val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
@@ -149,17 +150,17 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
+    implicit val ctx: ProjectContext = anchor
+
     val parent = anchor.getParent
     val added = parent.addAfter(annotation, anchor)
 
-    implicit val manager = anchor.getManager
     parent.addAfter(createWhitespace, anchor)
     parent.addAfter(createColon, anchor)
     added
   }
 
-  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement)
-                       (implicit typeSystem: TypeSystem = context.typeSystem) {
+  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
 
     val tps = UpdateStrategy.annotationsFor(t, context)
 
@@ -186,7 +187,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   private def simplify(expression: ScExpression): Unit = expression match {
     case call: ScGenericCall if TypeAnnotationUtil.isEmptyCollectionFactory(call) =>
       val s = call.getText
-      implicit val manager = expression.manager
+      implicit val manager = expression.projectContext
       val newExpression = ScalaPsiElementFactory.createExpressionFromText(s.substring(0, s.indexOf('[')))
       expression.replace(newExpression)
     case _ =>
@@ -204,8 +205,7 @@ object UpdateStrategy {
     case _ => false
   }
 
-  def annotationsFor(t: ScType, context: PsiElement)
-                    (implicit typeSystem: TypeSystem = context.typeSystem): Seq[ScTypeElement] = {
+  def annotationsFor(t: ScType, context: PsiElement): Seq[ScTypeElement] = {
     def typeElemfromText(s: String) = createTypeElementFromText(s)(context.getManager)
     def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 

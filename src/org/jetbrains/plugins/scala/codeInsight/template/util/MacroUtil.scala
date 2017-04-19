@@ -11,10 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,9 +26,8 @@ object MacroUtil {
    * @param element from which position we look at locals
    * @return visible variables and values from element position
    */
-  def getVariablesForScope(element: PsiElement)
-                          (implicit typeSystem: TypeSystem): Array[ScalaResolveResult] = {
-    val completionProcessor = new VariablesCompletionProcessor(StdKinds.valuesRef)
+  def getVariablesForScope(element: PsiElement): Array[ScalaResolveResult] = {
+    val completionProcessor = new VariablesCompletionProcessor(StdKinds.valuesRef)(element)
     PsiTreeUtil.treeWalkUp(completionProcessor, element, null, ResolveState.initial)
     completionProcessor.candidates
   }
@@ -50,8 +48,7 @@ object MacroUtil {
     case _ => None
   }
 
-  def getTypeLookupItem(scType: ScType, project: Project)
-                       (implicit typeSystem: TypeSystem = project.typeSystem): Option[ScalaLookupItem] = {
+  def getTypeLookupItem(scType: ScType, project: Project): Option[ScalaLookupItem] = {
     scType.extractClass(project).filter(_.isInstanceOf[ScTypeDefinition]).map {
       case typeDef: ScTypeDefinition =>
         val lookupItem = new ScalaLookupItem(typeDef, typeDef.getTruncedQualifiedName, Option(typeDef.getContainingClass))

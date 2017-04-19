@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -140,7 +140,9 @@ package object collections {
   }
 
   class FunctionExpressionWithReturnTypeTemplate(tp: ScType) {
-    def unapply(expr: ScExpression)(implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+    def unapply(expr: ScExpression): Boolean = {
+      import expr.projectContext
+
       expr.getType(TypingContext.empty) match {
         case Success(result, _) =>
           result match {
@@ -411,8 +413,7 @@ package object collections {
         ref.refName.startsWith("set") || ref.refName.endsWith("_=")
       }
 
-      def hasUnitReturnType(ref: ScReferenceExpression)
-                           (implicit typeSystem: TypeSystem = ref.typeSystem): Boolean = {
+      def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
         ref match {
           case MethodRepr(Typeable(FunctionType(_, _)), _, _, _) => false
           case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType

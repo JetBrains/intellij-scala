@@ -8,10 +8,9 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Nikolay.Tropin
@@ -23,7 +22,7 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType],
   def getFamilyName: String = ScalaBundle.message("wrap.in.option.name")
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)(project.typeSystem)
+    WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)
   }
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
@@ -38,8 +37,9 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType],
 }
 
 object WrapInOptionQuickFix {
-  def isAvailable(expr: ScExpression, expectedType: TypeResult[ScType], exprType: TypeResult[ScType])
-                 (implicit typeSystem: TypeSystem): Boolean = {
+  def isAvailable(expr: ScExpression, expectedType: TypeResult[ScType], exprType: TypeResult[ScType]): Boolean = {
+    import expr.projectContext
+
     var result = false
     for {
       scType <- exprType

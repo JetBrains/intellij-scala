@@ -6,9 +6,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -17,7 +17,8 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2014-05-15
  */
-class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMethodParameter]) {
+class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMethodParameter])
+                      (implicit val projectContext: ProjectContext) {
   val paramOccurences = collectParamOccurences()
   val definitions = collectDefinitions()
 
@@ -56,8 +57,7 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
     buffer.toMap
   }
 
-  def isDuplicateStart(candidate: PsiElement)
-                      (implicit typeSystem: TypeSystem): Option[DuplicateMatch] = {
+  def isDuplicateStart(candidate: PsiElement): Option[DuplicateMatch] = {
     withFilteredForwardSiblings(candidate, elements.size) match {
       case Some(cands) =>
         if (cands.exists(isUnder(_, elements))) None
@@ -70,8 +70,7 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
     }
   }
 
-  def findDuplicates(scope: PsiElement)
-                    (implicit typeSystem: TypeSystem): Seq[DuplicateMatch] = {
+  def findDuplicates(scope: PsiElement): Seq[DuplicateMatch] = {
     val result = ListBuffer[DuplicateMatch]()
     val seen = mutable.Set[PsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {

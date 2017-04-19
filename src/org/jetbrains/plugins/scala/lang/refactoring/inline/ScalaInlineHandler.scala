@@ -104,7 +104,7 @@ class ScalaInlineHandler extends InlineHandler {
           case _ => None
         }
         replacementOpt.foreach { replacement =>
-          implicit val manager = replacement.getManager
+          implicit val projectContext = replacement.projectContext
           val newValue = replacement match {
             case expression: ScExpression =>
               val oldValue = expression match {

@@ -22,11 +22,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterCl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConversions._
@@ -122,8 +122,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   @Nullable
-  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project)
-                           (implicit typeSystem: TypeSystem = project.typeSystem): Array[ScMethodMember] = {
+  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): Array[ScMethodMember] = {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
     val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
     val tBody = aClass.extendsBlock.templateBody.get
@@ -144,10 +143,11 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     else if (members.nonEmpty) Array(members.head) else Array()
   }
 
-  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement)
-                             (implicit typeSystem: TypeSystem): Seq[ScMethodMember] = {
+  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): Seq[ScMethodMember] = {
     object isSuitable {
       def unapply(srr: ScalaResolveResult): Option[PhysicalSignature] = {
+        implicit val ctx: ProjectContext = srr.element
+
         if (srr.implicitConversionClass.nonEmpty || srr.implicitFunction.nonEmpty) return None
         srr.getElement match {
           case meth: PsiMethod if meth.isConstructor || meth.getContainingClass == null => None

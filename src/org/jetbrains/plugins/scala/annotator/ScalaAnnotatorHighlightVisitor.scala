@@ -5,16 +5,14 @@ import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
-
-import scala.collection.JavaConversions
 
 /**
  * User: Alexander Podkhalyuzin
@@ -22,6 +20,8 @@ import scala.collection.JavaConversions
  */
 
 class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor {
+  implicit def ctx: ProjectContext = project
+
   def order: Int = 0
 
   private var myHolder: HighlightInfoHolder = null
@@ -82,7 +82,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
     if (DumbService.getInstance(project).isDumb) {
       return
     }
-    (new ScalaAnnotator).annotate(element, myAnnotationHolder)
+    ScalaAnnotator.forProject.annotate(element, myAnnotationHolder)
     if (myAnnotationHolder.hasAnnotations) {
       import scala.collection.JavaConversions._
       for (annotation <- myAnnotationHolder) {

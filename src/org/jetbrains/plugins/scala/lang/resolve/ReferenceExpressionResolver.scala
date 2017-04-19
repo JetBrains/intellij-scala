@@ -31,13 +31,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaT
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
-object ReferenceExpressionResolver {
+class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
   private case class ContextInfo(arguments: Option[Seq[Expression]], expectedType: () => Option[ScType], isUnderscore: Boolean)
 
@@ -111,8 +112,6 @@ object ReferenceExpressionResolver {
 
     val prevInfoTypeParams = reference.getPrevTypeInfoParams
 
-    implicit val typeSystem = reference.typeSystem
-
     def processor(smartProcessor: Boolean): MethodResolveProcessor =
       new MethodResolveProcessor(reference, name, info.arguments.toList,
         getTypeArgs(reference), prevInfoTypeParams, kinds(reference, reference, incomplete), expectedOption,
@@ -157,9 +156,6 @@ object ReferenceExpressionResolver {
   }
 
   def doResolve(ref: ScReferenceExpression, processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ResolveResult] = {
-    implicit val manager = ref.getManager
-    implicit val typeSystem = ref.typeSystem
-
     def resolveUnqalified(processor: BaseProcessor): BaseProcessor = {
       ref.getContext match {
         case ScSugarCallExpr(operand, operation, _) if ref == operation =>

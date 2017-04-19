@@ -77,8 +77,7 @@ class NameSuggesterTest extends AbstractNameSuggesterTest {
   }
 
   private def testNamesByType(typeElementText: String, expected: String*): Unit = {
-    implicit val manager = getFixture.getPsiManager
-    val typeElement = createTypeElementFromText(typeElementText)
+    val typeElement = createTypeElementFromText(typeElementText)(getProject)
     testNamesByElement(typeElement, expected)
   }
 }

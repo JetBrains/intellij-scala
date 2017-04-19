@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{JVMElementFactory, JVMElementFactoryProvider, PsiManager}
+import com.intellij.psi.{JVMElementFactory, JVMElementFactoryProvider}
 
 /**
  * @author Alefas
@@ -9,7 +9,6 @@ import com.intellij.psi.{JVMElementFactory, JVMElementFactoryProvider, PsiManage
  */
 class ScalaFactoryProvider extends JVMElementFactoryProvider {
   def getFactory(project: Project): JVMElementFactory = {
-    implicit val manager = PsiManager.getInstance(project)
-    new ScalaPsiElementFactoryImpl
+    new ScalaPsiElementFactoryImpl()(project)
   }
 }

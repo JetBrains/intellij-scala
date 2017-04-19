@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -42,7 +43,6 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              var noImplicitsForArgs: Boolean = false,
                              val selfConstructorResolve: Boolean = false,
                              val isDynamic: Boolean = false)
-                            (implicit override val typeSystem: TypeSystem)
   extends ResolveProcessor(kinds, ref, refName) {
 
   private def isUpdate: Boolean = {
@@ -182,7 +182,10 @@ object MethodResolveProcessor {
                           prevTypeInfo: Seq[TypeParameter],
                           expectedOption: () => Option[ScType],
                           isUnderscore: Boolean,
-                          isShapeResolve: Boolean)(implicit typeSystem: TypeSystem): ConformanceExtResult = {
+                          isShapeResolve: Boolean): ConformanceExtResult = {
+
+    implicit val ctx: ProjectContext = c.element
+
     val problems = new ArrayBuffer[ApplicabilityProblem]()
 
     val realResolveResult = c.innerResolveResult match {
@@ -469,9 +472,10 @@ object MethodResolveProcessor {
 
   // TODO clean this up
   def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, selfConstructorResolve: Boolean,
-                           typeArgElements: Seq[ScTypeElement])
-                          (implicit typeSystem: TypeSystem = element.typeSystem): ScSubstitutor = {
+                           typeArgElements: Seq[ScTypeElement]): ScSubstitutor = {
     if (selfConstructorResolve) return ScSubstitutor.empty
+
+    implicit val ctx: ProjectContext = element
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
       case t: ScTypeParametersOwner => Some(t.typeParameters)

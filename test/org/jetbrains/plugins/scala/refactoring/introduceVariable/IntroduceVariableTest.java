@@ -61,7 +61,7 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase imp
         Module module = module();
 
         List<LibraryLoader> result = new ArrayList<LibraryLoader>();
-        result.add(new ScalaLibraryLoader(false, module, project()));
+        result.add(new ScalaLibraryLoader(false, module));
         result.add(new JdkLoader(JdkLoader$.MODULE$.apply$default$1(), module));
         return result;
     }

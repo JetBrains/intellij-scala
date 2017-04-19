@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.collection.JavaConverters._
@@ -186,8 +185,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 }
 
 private class CollectingProcessor(element: PsiElement)
-                                 (implicit override val typeSystem: TypeSystem = element.typeSystem)
-  extends VariablesCompletionProcessor(StdKinds.valuesRef) {
+  extends VariablesCompletionProcessor(StdKinds.valuesRef)(element) {
 
   val containingFile = element.getContainingFile
   val startOffset = element.getTextRange.getStartOffset

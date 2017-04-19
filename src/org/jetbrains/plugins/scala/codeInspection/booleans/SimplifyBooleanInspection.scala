@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
@@ -75,8 +74,8 @@ object SimplifyBooleanUtil {
     case _ => false
   }
 
-  private def isOfBooleanType(expr: ScExpression)
-                             (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+  private def isOfBooleanType(expr: ScExpression): Boolean = {
+    import expr.projectContext
     expr.getType(TypingContext.empty).getOrAny.weakConforms(api.Boolean)
   }
 
@@ -121,7 +120,7 @@ object SimplifyBooleanUtil {
   }
 
   private def simplifyInfixWithLiteral(value: Boolean, operation: String, expr: ScExpression): ScExpression = {
-    implicit val manager = expr.getManager
+    implicit val projectContext = expr.projectContext
     val text: String = booleanConst(expr) match {
       case Some(bool: Boolean) =>
         val result: Boolean = operation match {

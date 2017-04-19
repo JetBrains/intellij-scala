@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, MostSpecificUtil}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.Set
@@ -90,7 +90,7 @@ class ImplicitCollector(place: PsiElement,
     searchImplicitsRecursively, extensionData, fullInfo, Some(ImplicitsRecursionGuard.currentMap))
 
   private val project = place.getProject
-  private implicit val typeSystem = project.typeSystem
+  private implicit def ctx: ProjectContext = project
 
   private val clazz: Option[PsiClass] = tp.extractClass(project)
   private lazy val possibleScalaFunction: Option[Int] = clazz.flatMap(possibleFunctionN)
@@ -196,7 +196,6 @@ class ImplicitCollector(place: PsiElement,
   }
 
   private class ImplicitParametersProcessor(withoutPrecedence: Boolean)
-                                           (implicit override val typeSystem: TypeSystem)
     extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
 
     protected def getPlace: PsiElement = place

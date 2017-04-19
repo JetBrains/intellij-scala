@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotato
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, SlowTests, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -36,6 +37,8 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))
 class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with SbtStructureSetup {
+  implicit def projectContext: ProjectContext = myProject
+
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
@@ -91,7 +94,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
     LocalFileSystem.getInstance().refreshFiles(files)
 
     val fileManager = PsiManager.getInstance(myProject).asInstanceOf[PsiManagerEx].getFileManager
-    val annotator = new ScalaAnnotator
+    val annotator = ScalaAnnotator.forProject
 
 
     import scala.collection.JavaConversions._

@@ -176,7 +176,7 @@ class VarianceTest extends SimpleTestCase {
 
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = new ScalaAnnotator() {}
+    val annotator = ScalaAnnotator.forProject
     val file: ScalaFile = (Header + code).parse
     val mock = new AnnotatorHolderMock(file)
 

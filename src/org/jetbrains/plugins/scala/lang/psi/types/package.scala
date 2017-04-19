@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType, ScThisType}

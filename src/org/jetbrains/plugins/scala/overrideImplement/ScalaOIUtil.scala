@@ -41,7 +41,7 @@ object ScalaOIUtil {
           case x: ScVariable => Some(new ScVariableMember(x, typedDefinition, subst, !isImplement))
           case x: ScClassParameter if x.isVal =>
             def createMember(isVal: Boolean, parameter: ScClassParameter, subst: ScSubstitutor): ScMember = {
-              implicit val manager = parameter.getManager
+              implicit val projectContext = parameter.projectContext
 
               createOverrideImplementVariableWithClass(
                 variable = parameter,
@@ -136,7 +136,7 @@ object ScalaOIUtil {
             case _ => false
           })
       case x: ScTemplateDefinition =>
-        implicit val typeSystem = x.typeSystem
+        implicit val typeSystem = x.projectContext
         x.superTypes.map(_.extractClass(x.getProject)).find {
           case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
           case _ => false

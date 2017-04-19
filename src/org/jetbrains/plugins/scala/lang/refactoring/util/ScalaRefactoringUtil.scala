@@ -40,13 +40,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.tailrec
@@ -94,7 +94,7 @@ object ScalaRefactoringUtil {
       i = i - 1
     }
 
-    implicit val manager = e.getManager
+    implicit val projectContext = e.projectContext
     if (hasNlToken) e = createExpressionFromText(text.substring(0, i + 1))
     e.getParent match {
       case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")
@@ -102,8 +102,9 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def addPossibleTypes(scType: ScType, expr: ScExpression)
-                      (implicit typeSystem: TypeSystem): Array[ScType] = {
+  def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
+    import expr.projectContext
+
     val types = new ArrayBuffer[ScType]
     if (scType != null) types += scType
     expr.getTypeWithoutImplicits().foreach(types += _)
@@ -188,8 +189,9 @@ object ScalaRefactoringUtil {
     PsiTreeUtil.findCommonParent(filtered: _*)
   }
 
-  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int)
-                   (implicit typeSystem: TypeSystem = project.typeSystem): Option[(ScExpression, Array[ScType])] = {
+  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
+    implicit val ctx: ProjectContext = project
+
     val rangeText = file.getText.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {

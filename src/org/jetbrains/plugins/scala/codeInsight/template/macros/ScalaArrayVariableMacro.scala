@@ -7,7 +7,6 @@ import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.mutable.ArrayBuffer
@@ -26,16 +25,14 @@ class ScalaArrayVariableMacro extends ScalaVariableOfTypeMacro {
                               variant: ScalaResolveResult,
                               scType: ScType,
                               project: Project,
-                              array: ArrayBuffer[LookupElement])
-                             (implicit typeSystem: TypeSystem): Unit =
+                              array: ArrayBuffer[LookupElement]): Unit =
     super.addLookupItems(Array("scala.Array"), context, variant, scType, project, array)
 
   override def getResult(exprs: Array[Expression],
                          context: ExpressionContext,
                          variant: ScalaResolveResult,
                          scType: ScType,
-                         project: Project)
-                        (implicit typeSystem: TypeSystem): Option[Result] =
+                         project: Project): Option[Result] =
     super.getResult(Array(new TextExpression("scala.Array")), context, variant, scType, project)
 
   override def validExprsCount(exprsCount: Int): Boolean = exprsCount == 0

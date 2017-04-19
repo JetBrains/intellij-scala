@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope.{getScopeRestrictedByFileTypes, projectScope}
 import com.intellij.psi.search.searches.{MethodReferencesSearch, ReferencesSearch}
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 

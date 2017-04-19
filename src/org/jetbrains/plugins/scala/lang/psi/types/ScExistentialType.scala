@@ -246,7 +246,7 @@ case class ScExistentialType(quantified: ScType,
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
-              }, s.hasRepeatedParam)(ScalaTypeSystem), rt)
+              }, s.hasRepeatedParam), rt)
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypesWithVariance(updateRecursive(_, newSet, _), variance))
         })

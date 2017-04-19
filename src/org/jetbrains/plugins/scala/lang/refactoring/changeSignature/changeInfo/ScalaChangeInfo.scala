@@ -5,7 +5,7 @@ import com.intellij.lang.Language
 import com.intellij.psi._
 import com.intellij.refactoring.util.CanonicalTypes
 import com.intellij.refactoring.util.CanonicalTypes.Type
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}

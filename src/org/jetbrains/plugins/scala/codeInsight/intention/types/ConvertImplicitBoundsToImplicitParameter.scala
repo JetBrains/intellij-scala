@@ -51,13 +51,15 @@ object ConvertImplicitBoundsToImplicitParameter {
         case x: ScClass => (x.constructor.getOrElse(return Seq.empty), x, x)
         case _ => return Seq.empty
       }
+
+    import function.projectContext
+
     def removeImplicitBounds() {
       typeParamOwner.typeParameters.foreach(_.removeImplicitBounds())
     }
 
     val declaredClauses: Seq[ScParameterClause] = paramOwner.allClauses
-    implicit val manager = paramOwner.getManager
-    
+
     declaredClauses.lastOption match {
       case Some(paramClause) if paramClause.isImplicit =>
         // Already has an implicit parameter clause: delete it, add the bounds, then

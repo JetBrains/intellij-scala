@@ -2,15 +2,11 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
 /**
   * @author adkozlov

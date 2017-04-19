@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotato
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.junit.Assert
 
 /**
@@ -23,6 +24,8 @@ import org.junit.Assert
 trait AllProjectHighlightingTest {
 
   def getProject: Project
+
+  implicit def projectContext: ProjectContext = getProject
 
   class DefaultReporter {
     var totalErrors = 0
@@ -76,7 +79,7 @@ trait AllProjectHighlightingTest {
     LocalFileSystem.getInstance().refreshFiles(files)
 
     val fileManager = PsiManager.getInstance(getProject).asInstanceOf[PsiManagerEx].getFileManager
-    val annotator = new ScalaAnnotator
+    val annotator = ScalaAnnotator.forProject
 
     var percent = 0
     val size: Int = files.size()

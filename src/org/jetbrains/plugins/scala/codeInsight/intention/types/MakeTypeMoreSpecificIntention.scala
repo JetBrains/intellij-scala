@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
   */
 class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    implicit val typeSystem = project.typeSystem
     ToggleTypeAnnotation.complete(new MakeTypeMoreSpecificStrategy(Option(editor)), element)
   }
 
@@ -73,11 +72,12 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("make.type.more.specific")
 }
 
-class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
-                                  (implicit typeSystem: TypeSystem) extends Strategy {
+class MakeTypeMoreSpecificStrategy(editor: Option[Editor]) extends Strategy {
   import MakeTypeMoreSpecificStrategy._
 
   def doTemplate(te: ScTypeElement, declaredType: ScType, dynamicType: ScType, context: PsiElement, editor: Editor): Unit = {
+    import te.projectContext
+
     val types = computeBaseTypes(declaredType, dynamicType).sortWith((t1, t2) => t1.conforms(t2))
     if (types.size == 1) {
       val replaced = te.replace(ScalaPsiElementFactory.createTypeElementFromText(types.head.canonicalText, te.getContext, te))

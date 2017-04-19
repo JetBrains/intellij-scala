@@ -48,9 +48,9 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
   }
 
   def regularToMultiline(literal: ScLiteral, editor: Editor) {
-    val document = editor.getDocument
+    import literal.projectContext
 
-    implicit val manager = literal.getManager
+    val document = editor.getDocument
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
         val prefix = interpolated.reference.map(_.getText).getOrElse("")
@@ -73,7 +73,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
   }
 
   def multilineToRegular(literal: ScLiteral) {
-    implicit val manager = literal.getManager
+    implicit val projectContext = literal.projectContext
     literal match {
       case interpolated: ScInterpolatedStringLiteral =>
         val prefix = interpolated.reference.map(_.getText).getOrElse("")

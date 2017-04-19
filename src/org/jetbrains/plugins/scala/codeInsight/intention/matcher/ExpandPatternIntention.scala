@@ -15,9 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScReferencePattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * Expands reference or wildcard pattern to a constructor/tuple pattern.
@@ -27,7 +26,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
   def getFamilyName: String = "Expand to Constructor pattern"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    findReferencePattern(element)(project.typeSystem) match {
+    findReferencePattern(element) match {
       case Some((_, newPatternText)) =>
         setText("Expand to: " + StringUtils.abbreviate(newPatternText, 25))
         true
@@ -36,7 +35,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    findReferencePattern(element)(project.typeSystem) match {
+    findReferencePattern(element) match {
       case Some((origPattern, newPatternText)) =>
         PsiDocumentManager.getInstance(project).commitAllDocuments()
         if (!FileModificationService.getInstance.prepareFileForWrite(element.getContainingFile)) return
@@ -48,8 +47,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  private def findReferencePattern(element: PsiElement)
-                                  (implicit typeSystem: TypeSystem): Option[(ScPattern, String)] = {
+  private def findReferencePattern(element: PsiElement): Option[(ScPattern, String)] = {
     element.getParent match {
       case refPattern: ScReferencePattern =>
         val expectedType = refPattern.expectedType
@@ -62,8 +60,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
   }
 
 
-  def nestedPatternText(expectedType: Option[ScType])
-                       (implicit typeSystem: TypeSystem): Option[String] = {
+  def nestedPatternText(expectedType: Option[ScType]): Option[String] = {
     expectedType match {
       case Some(TupleType(comps)) =>
         import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.suggestNamesByType

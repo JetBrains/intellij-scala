@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -51,6 +51,8 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    implicit val ctx: ProjectContext = project
+
     val expr = findExpression(element, editor).get
     if (expr == null || !expr.isValid) return
 
@@ -76,8 +78,6 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     for (m <- Extensions.getExtensions(Macro.EP_NAME)) {
       macros.add(m.getName)
     }
-
-    implicit val manager = element.getManager
 
     for (u <- underscores) {
       if (needComma) buf.append(",")
@@ -116,7 +116,6 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       u.getParent match {
         case typedStmt: ScTypedStmt =>
           needBraces = true
-          implicit val typeSystem = project.typeSystem
           buf.append(": ").append(typedStmt.getType(TypingContext.empty).get.canonicalText)
         case _ =>
       }
@@ -135,7 +134,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
     }
 
     if (underscores.size > 1 || needBraces) buf.insert(0, "(").append(")")
-    val arrow = ScalaPsiUtil.functionArrow(project)
+    val arrow = ScalaPsiUtil.functionArrow
     buf.append(s" $arrow ")
     val diff = buf.length
     buf.append(expr.getText)

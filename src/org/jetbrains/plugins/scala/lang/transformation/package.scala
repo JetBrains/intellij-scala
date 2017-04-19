@@ -7,9 +7,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
@@ -41,7 +42,7 @@ package object transformation {
     def bindTo0(r1: ScReferenceElement, paths: Seq[String]) {
       paths match {
         case Seq(path, alternatives @ _*)  =>
-          implicit val manager = r1.getManager
+          implicit val projectContext = r1.projectContext
           val r2 = r1.replace(createReferenceElement(path)).asInstanceOf[ScReferenceElement]
           if (!isResolvedTo(r2, target)) {
             bindTo0(r2, alternatives)
@@ -69,7 +70,7 @@ package object transformation {
       qualifiedNameOf(result.element) == relative(target))
 
   private def createReferenceElement(reference: String)
-                                    (implicit manager: PsiManager, isExpression: Boolean): ScReferenceElement =
+                                    (implicit ctx: ProjectContext, isExpression: Boolean): ScReferenceElement =
     if (isExpression) createReferenceExpressionFromText(reference)
     else createTypeElementFromText(reference).getFirstChild.asInstanceOf[ScReferenceElement]
 

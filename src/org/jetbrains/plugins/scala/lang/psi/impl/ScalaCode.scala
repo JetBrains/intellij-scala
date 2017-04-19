@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.impl
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFileFactory}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author Pavel Fatin
@@ -36,13 +36,13 @@ object ScalaCode {
   // "unquote-splicing"
   case class @@(es: Seq[PsiElement], separator: String = ", ")
 
-  def parseElement(s: String)(implicit project: Project): PsiElement = parse(s).getFirstChild
+  def parseElement(s: String)(implicit project: ProjectContext): PsiElement = parse(s).getFirstChild
 
-  private def parse(s: String)(implicit project: Project): ScalaFile =
+  private def parse(s: String)(implicit project: ProjectContext): ScalaFile =
     PsiFileFactory.getInstance(project)
       .createFileFromText(FileName, ScalaFileType.INSTANCE, s).asInstanceOf[ScalaFile]
 
-  private def format(format: String, elements: Any*)(implicit project: Project): ScalaPsiElement = {
+  private def format(format: String, elements: Any*)(implicit project: ProjectContext): ScalaPsiElement = {
     val file = parse(format.replace("%e", Placeholder))
 
     // we can optionally supplement element types to disambiguate target elements
@@ -69,7 +69,7 @@ object ScalaCode {
     }
   }
 
-  implicit class ScalaCodeContext(delegate: StringContext)(implicit project: Project) {
+  implicit class ScalaCodeContext(delegate: StringContext)(implicit project: ProjectContext) {
     def code(args: Any*)(implicit context: Context): ScalaPsiElement =
       context.select(code0(context.format(delegate.parts.head) +: delegate.parts.tail, args))
 

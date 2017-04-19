@@ -11,7 +11,7 @@ import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, NodeManager, ValueDescriptor}
 import com.intellij.debugger.{DebuggerBundle, DebuggerContext}
 import com.intellij.openapi.fileTypes.StdFileTypes
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
@@ -186,8 +186,7 @@ object ScalaCollectionRenderer {
     }
 
     override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement = {
-      implicit val manager = PsiManager.getInstance(context.getProject)
-      createExpressionFromText("this.toArray()")
+      createExpressionFromText("this.toArray()")(context.getProject)
     }
 
 

@@ -205,8 +205,6 @@ object ScExpression {
   implicit class Ext(val expr: ScExpression) extends AnyVal {
     private implicit def elementScope = expr.elementScope
 
-    private implicit def typeSystem = expr.typeSystem
-
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
       expectedTypeEx(fromUnderscore).map(_._1)
 

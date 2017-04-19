@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplatePsiInfo
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
 import org.jetbrains.plugins.scala.codeInspection.parentheses.UnnecessaryParenthesesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
@@ -44,8 +44,8 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
       SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false) match {
         case parenthesized: ScParenthesisedExpr
           if UnnecessaryParenthesesUtil.canBeStripped(parenthesized, ignoreClarifying = false) =>
-          implicit val manager = PsiManager.getInstance(parenthesized.getProject)
-          createExpressionFromText(UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, ignoreClarifying = false))
+          val stripped = UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, ignoreClarifying = false)
+          createExpressionFromText(stripped)(parenthesized)
         case other => other
       }
     }

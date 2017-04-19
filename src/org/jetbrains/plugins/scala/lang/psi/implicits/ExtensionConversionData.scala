@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -30,16 +30,16 @@ case class ExtensionConversionData(baseExpr: ScExpression,
     }
   val kinds: Set[ResolveTargets.Value] = processor.kinds
 
-  implicit val typeSystem: TypeSystem = baseExpr.typeSystem
+  implicit val typeSystem: TypeSystem = baseExpr.projectContext
 }
 
 object ExtensionConversionHelper {
-  def specialExtractParameterType(resolveResult: ScalaResolveResult)
-                                 (implicit typeSystem: TypeSystem): Option[(ScType, Seq[TypeParameter])] = {
+  def specialExtractParameterType(resolveResult: ScalaResolveResult): Option[(ScType, Seq[TypeParameter])] = {
     val result = InferUtil.extractImplicitParameterType(resolveResult) match {
       case functionType @ FunctionType(_, _) => Some(functionType)
       case implicitParameterType =>
-        ElementScope(resolveResult.element.getProject).cachedFunction1Type
+        implicit val project = resolveResult.element.getProject
+        ElementScope(project).cachedFunction1Type
           .flatMap { functionType =>
             val (_, substitutor) = implicitParameterType.conforms(functionType, ScUndefinedSubstitutor())
             substitutor.getSubstitutor.map {

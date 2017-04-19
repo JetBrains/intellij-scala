@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextTyp
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -15,8 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
  * @since 23.09.2015.
  */
 class ScalaComponentTypeOfMacro extends ScalaMacro {
-  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext)
-                                   (implicit typeSystem: TypeSystem): Result = {
+  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext): Result = {
     if (params.length != 1) return null
     params.head.calculateResult(context) match {
       case scTypeRes: ScalaTypeResult =>
@@ -27,8 +25,7 @@ class ScalaComponentTypeOfMacro extends ScalaMacro {
     }
   }
 
-  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext)
-                                        (implicit typeSystem: TypeSystem): Array[LookupElement] = {
+  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
     if (params.length != 1) return null
     val outerItems = params(0).calculateLookupItems(context)
     if (outerItems == null) return null

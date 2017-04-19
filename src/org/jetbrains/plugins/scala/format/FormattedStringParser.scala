@@ -92,7 +92,7 @@ object FormattedStringParser extends StringParser {
           UnboundPositionalSpecifier(specifier, position)
         }
       } else {
-        implicit val manager = literal.getManager
+        implicit val projectContext = literal.projectContext
         if (it.toString().equals("%n")) Injection(createExpressionFromText("\"\\n\""), None)
         else if (it.toString == "%%") Injection(createExpressionFromText("\"%\""), None)
         else if (remainingArguments.hasNext) Injection(remainingArguments.next(), Some(specifier))

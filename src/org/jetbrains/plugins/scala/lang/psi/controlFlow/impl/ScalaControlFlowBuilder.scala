@@ -248,7 +248,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   }
 
   override def visitMethodCallExpression(call: ScMethodCall) {
-    import call.typeSystem
+    import call.projectContext
     val matchedParams = call.matchedParameters
     def isByNameOrFunction(arg: ScExpression) = {
       val param = matchedParams.toMap.get(arg)

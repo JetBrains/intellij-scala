@@ -23,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeSuggester;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.project.package$;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings;
 import org.junit.Assert;
@@ -139,8 +138,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         ScExpression selectedExpr = null;
         ScType[] types = null;
 
-        Option<Tuple2<ScExpression, ScType[]>> maybeExpression = ScalaRefactoringUtil.getExpression(project, myEditor, myFile, startOffset, endOffset,
-                package$.MODULE$.typeSystemIn(project));
+        Option<Tuple2<ScExpression, ScType[]>> maybeExpression =
+                ScalaRefactoringUtil.getExpression(project, myEditor, myFile, startOffset, endOffset);
         if (maybeExpression.isDefined()) {
           Tuple2<ScExpression, ScType[]> tuple2 = maybeExpression.get();
           selectedExpr = tuple2._1();

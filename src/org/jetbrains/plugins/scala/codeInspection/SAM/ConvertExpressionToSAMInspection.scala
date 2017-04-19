@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr,
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
@@ -32,8 +31,9 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
       }
   }
 
-  private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder)
-                                            (implicit typeSystem: TypeSystem = holder.typeSystem) {
+  private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder) {
+    import definition.projectContext
+
     definition.members match {
       case Seq(fun: ScFunctionDefinition) =>
         def containsReturn(expr: ScExpression): Boolean = {

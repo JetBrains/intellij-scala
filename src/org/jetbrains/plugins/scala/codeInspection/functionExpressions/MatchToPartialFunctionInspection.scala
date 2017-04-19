@@ -39,7 +39,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
   }
 
   private def notExpectedType(expr: ScExpression) = {
-    import expr.typeSystem
+    import expr.projectContext
     (expr.getType(), expr.expectedType()) match {
       case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
       case _ => true
@@ -136,7 +136,7 @@ class MatchToPartialFunctionQuickFix(matchStmt: ScMatchStmt, fExprToReplace: ScE
   private def addNamingPatterns(matchStmt: ScMatchStmt, indexes: Seq[Int]): Unit = {
     val clauses = matchStmt.caseClauses
     val name = matchStmt.expr.map(_.getText).getOrElse(return)
-    implicit val manager = matchStmt.getManager
+    implicit val projectContext = matchStmt.projectContext
     indexes.map(i => clauses(i).pattern).foreach {
       case Some(w: ScWildcardPattern) =>
         w.replace(createPatternFromText(name))
