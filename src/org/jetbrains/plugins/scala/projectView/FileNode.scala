@@ -28,7 +28,11 @@ private class FileNode(file: ScalaFile)(implicit project: Project, settings: Vie
     val name = Option(file.getVirtualFile).map(_.getNameWithoutExtension).getOrElse(file.getName)
     data.setPresentableText(name)
 
-    val icon = if (file.isScriptFile) Icons.SCRIPT_FILE_LOGO else Icons.FILE
+    val icon =
+      if (file.isWorksheetFile) Icons.WORKSHEET_LOGO
+      else if (file.isScriptFile) Icons.SCRIPT_FILE_LOGO
+      else Icons.FILE
+
     data.setIcon(icon)
   }
 }

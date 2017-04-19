@@ -32,7 +32,7 @@ private object ScalaTreeStructureProvider {
   }
 
   private def nodeFor(file: ScalaFile)(implicit project: Project, settings: ViewSettings): Node = file match {
-    case ScriptFile() => new FileNode(file)
+    case WorksheetFile() | ScriptFile() => new FileNode(file)
 
     case SingularDefinition(definition) => new TypeDefinitionNode(definition)
 

@@ -29,7 +29,7 @@ public interface Icons {
 
   Icon FILE_TYPE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
   //todo worksheet logo
-  Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala16.png");
+  Icon WORKSHEET_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/nodes/file_scala.png");
   Icon SCALA_SMALL_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala-small-logo.png");
   Icon SCALA_24 = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala24.png");
   Icon SCRIPT_FILE_LOGO = IconLoader.getIcon("/org/jetbrains/plugins/scala/images/scala_script_icon.png");

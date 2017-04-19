@@ -13,6 +13,10 @@ import scala.collection.Seq
 package object projectView {
   type Node = AbstractTreeNode[_]
 
+  object WorksheetFile {
+    def unapply(file: ScalaFile): Boolean = file.isWorksheetFile
+  }
+
   object ScriptFile {
     def unapply(file: ScalaFile): Boolean = file.isScriptFile
   }
