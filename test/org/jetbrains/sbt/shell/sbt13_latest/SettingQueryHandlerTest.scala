@@ -1,4 +1,8 @@
-package org.jetbrains.sbt.shell
+package org.jetbrains.sbt.shell.sbt13_latest
+
+import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.sbt.shell.{SbtProjectPlatformTestCase, SettingQueryHandler}
+import org.junit.experimental.categories.Category
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -7,46 +11,48 @@ import scala.concurrent.duration.Duration
 /**
   * Created by Roman.Shein on 27.03.2017.
   */
+@Category(Array(classOf[SlowTests]))
 class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
 
   def testFailedCommand() = {
-    Await.result(comm.command("set npSuchSetting:=42", showShell = false), Duration(10, "second"))
+    Await.result(comm.command("set npSuchSetting:=42", showShell = false), Duration(timeout, "second"))
     runner.getConsoleView.flushDeferredText()
-    assert(logger.getLog.contains(SettingQueryHandlerTest.errorPrefix))
+    assert(logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 
   def testProjectShow() =
-    doTestShowSetting("set fork in scalaTest in Test:=true", "fork", "true", 30, Some("test"), projectName = Some("scalaTest"))
+    doTestShowSetting("set fork in scalaTest in Test:=true", "fork", "true", timeout, Some("test"),
+      projectName = Some("scalaTest"))
 
   def testProjectNoTaskShow() =
-    doTestShowSetting("set fork in scalaTest:=true", "fork", "true", 30, projectName = Some("scalaTest"))
+    doTestShowSetting("set fork in scalaTest:=true", "fork", "true", timeout, projectName = Some("scalaTest"))
 
   def testProjectWithUriShow() =
-    doTestShowSetting("set fork in scalaTest:=true", "fork", "true", 30, projectName = Some("scalaTest"),
+    doTestShowSetting("set fork in scalaTest:=true", "fork", "true", timeout, projectName = Some("scalaTest"),
       projectUri = Some(getScalaTestProjectUri))
 
   def testProjectSet() =
-    doTestSetSetting("fork", "true", 30, Some("Test"), Some("test"), projectName = Some("scalaTest"))
+    doTestSetSetting("fork", "true", timeout, Some("Test"), Some("test"), projectName = Some("scalaTest"))
 
   def testProjectWithUriSet() =
-    doTestSetSetting("fork", "true", 30, Some("Test"), Some("test"), Some(getScalaTestProjectUri), Some("scalaTest"))
+    doTestSetSetting("fork", "true", timeout, Some("Test"), Some("test"), Some(getScalaTestProjectUri), Some("scalaTest"))
 
   def testProjectNoTaskSet() =
-    doTestSetSetting("fork", "true", 30, projectName = Some("scalaTest"))
+    doTestSetSetting("fork", "true", timeout, projectName = Some("scalaTest"))
 
   def testProjectNoTaskAdd() =
-    doTestAddToSetting("javaOptions", "set javaOptions in scalaTest:=List(\"optOne\")", "\"optTwo\"", "List(optOne, optTwo)", 30,
-      projectName = Some("scalaTest"))
+    doTestAddToSetting("javaOptions", "set javaOptions in scalaTest:=List(\"optOne\")", "\"optTwo\"",
+      "List(optOne, optTwo)", timeout, projectName = Some("scalaTest"))
 
   def testProjectAdd() =
     doTestAddToSetting("javaOptions", "set javaOptions in scalaTest in Test:=List(\"optOne\")", "\"optTwo\"",
-      "List(optOne, optTwo)", 30, Some("Test"), Some("test"), projectName = Some("scalaTest"))
+      "List(optOne, optTwo)", timeout, Some("Test"), Some("test"), projectName = Some("scalaTest"))
 
   def testProjectWithUriAdd() =
     doTestAddToSetting("javaOptions", "set javaOptions in scalaTest in Test:=List(\"optOne\")", "\"optTwo\"",
-      "List(optOne, optTwo)", 30, Some("Test"), Some("test"), Some(getScalaTestProjectUri), Some("scalaTest"))
+      "List(optOne, optTwo)", timeout, Some("Test"), Some("test"), Some(getScalaTestProjectUri), Some("scalaTest"))
 
-  override def getPath: String = "sbt/shell/settingQueryHandlerTest"
+  override def getPath: String = "sbt/shell/sbtTestRunTest"
 
   protected def doTestShowSetting(commandBefore: String, settingName: String, expectedValue: String, timeoutSeconds: Int,
                                   taskName: Option[String] = None, projectUri: Option[String]= None,
@@ -56,7 +62,7 @@ class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
       Duration(timeoutSeconds, "second"))
     runner.getConsoleView.flushDeferredText()
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found")
-    assert(!logger.getLog.contains(SettingQueryHandlerTest.errorPrefix))
+    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 
   protected def doTestSetSetting(settingName: String, expectedValue: String, timeoutSeconds: Int,
@@ -68,7 +74,7 @@ class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
       Duration(timeoutSeconds, "second"))
     runner.getConsoleView.flushDeferredText()
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found")
-    assert(!logger.getLog.contains(SettingQueryHandlerTest.errorPrefix))
+    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 
   protected def doTestAddToSetting(settingName: String, setCommand: String, addValue: String, expectedValue: String,
@@ -81,15 +87,13 @@ class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
       _ => addHandler.addToSettingValue(addValue)
     }.flatMap {
       _ => handler.getSettingValue()
-    }, Duration(timeoutSeconds, "second"))
+    }, Duration(timeoutSeconds, "second")).trim
     runner.getConsoleView.flushDeferredText()
     assert(res == expectedValue, s"Invalid value read by SettingQueryHandler: '$expectedValue' expected, but '$res' found")
-    assert(!logger.getLog.contains(SettingQueryHandlerTest.errorPrefix))
+    assert(!logger.getLog.contains(SbtProjectPlatformTestCase.errorPrefix))
   }
 
   protected def getScalaTestProjectUri: String = "file:/" + getBasePath.replace("\\", "/") + "/" + getPath + "/"
-}
 
-object SettingQueryHandlerTest {
-  val errorPrefix = "[error]"
+  private val timeout = 60
 }

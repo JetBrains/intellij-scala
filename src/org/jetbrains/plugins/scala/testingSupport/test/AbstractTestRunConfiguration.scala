@@ -479,13 +479,14 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   protected def escapeTestName(test: String): String = if (test.contains(" ")) "\"" + test + "\"" else test
+  protected def escapeClassAndTest(input: String): String = input
 
   def getReporterParams: String = ""
 
   def buildSbtParams(classToTests: Map[String, Set[String]]): Seq[String] = {
     (for ((aClass, tests) <- classToTests) yield {
       if (tests.isEmpty) Seq(s"$sbtClassKey$aClass")
-      else for (test <- tests) yield s"$sbtClassKey$aClass$sbtTestNameKey${escapeTestName(test)}$getReporterParams"
+      else for (test <- tests) yield sbtClassKey + escapeClassAndTest(aClass + sbtTestNameKey + escapeTestName(test))
     }).flatten.toSeq
   }
 
@@ -716,7 +717,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
               SbtShellCommunication.listenerAggregator(handler), showShell = false))) flatMap {
               _ => resetSbtSettingsForUi(comm, oldSettings)
             }
-          }  onComplete {_ => handler.closeRoot()}
+          } onComplete {_ => handler.closeRoot()}
         }
         res
       }

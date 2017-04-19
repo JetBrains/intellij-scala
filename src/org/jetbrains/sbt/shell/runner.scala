@@ -130,7 +130,6 @@ class SbtShellRunner(project: Project, consoleTitle: String)
     val content = toolWindow.getContentManager.findContent(consoleTitle)
     if (content != null)
       toolWindow.getContentManager.setSelectedContent(content, focus)
-
   }
 
   def createAutoCompleteAction(): AnAction = {

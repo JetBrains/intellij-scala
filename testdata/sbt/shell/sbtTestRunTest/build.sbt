@@ -1,4 +1,4 @@
-name := "settingQueryHandler"
+name := "sbtTestRunTest"
 
 scalaVersion := "2.11.8"
 
@@ -17,3 +17,4 @@ lazy val specs2 = project.settings(sharedSettings)
 
 libraryDependencies in specs2 ++= Seq("org.specs2" %% "specs2-core" % "3.8.9" % "test")
 libraryDependencies in uTest += "com.lihaoyi" %% "utest" % "0.4.5" % "test"
+testFrameworks in uTest += new TestFramework("utest.runner.Framework")

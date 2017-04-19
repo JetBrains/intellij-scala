@@ -3,7 +3,7 @@ package testingSupport
 
 import java.util.concurrent.atomic.AtomicReference
 
-import com.intellij.execution.configurations.RunnerSettings
+import com.intellij.execution.configurations.{ConfigurationType, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
@@ -17,6 +17,7 @@ import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, Tree
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi.impl.file.PsiDirectoryFactory
@@ -29,7 +30,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
+import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
+import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
 
 /**
@@ -228,4 +232,19 @@ abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with Integrati
     semaphore.waitFor()
     (processHandler.get, contentDescriptor.get)
   }
+}
+
+object ScalaTestingTestCase {
+  def getScalaTestTemplateConfig(project: Project): ScalaTestRunConfiguration =
+    ConfigurationType.CONFIGURATION_TYPE_EP.getExtensions.find(_.getId == "ScalaTestRunConfiguration").
+      map(_.getConfigurationFactories.head.createTemplateConfiguration(project)).get.asInstanceOf[ScalaTestRunConfiguration]
+
+  def getSpecs2TemplateConfig(project: Project): Specs2RunConfiguration =
+    ConfigurationType.CONFIGURATION_TYPE_EP.getExtensions.find(_.getId == "Specs2RunConfiguration").
+      map(_.getConfigurationFactories.head.createTemplateConfiguration(project)).get.asInstanceOf[Specs2RunConfiguration]
+
+  def getUTestTemplateConfig(project: Project): UTestRunConfiguration =
+    ConfigurationType.CONFIGURATION_TYPE_EP.getExtensions.find(_.getId == "uTestRunConfiguration").
+      map(_.getConfigurationFactories.head.createTemplateConfiguration(project)).get.asInstanceOf[UTestRunConfiguration]
+
 }

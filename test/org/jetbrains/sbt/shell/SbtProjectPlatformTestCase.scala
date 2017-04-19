@@ -6,28 +6,31 @@ import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Key
 import com.intellij.testFramework.{PlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 /**
   * Created by Roman.Shein on 27.03.2017.
   */
 abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
-  override def doCreateProject(projectFile: File): Project = {
+  override def setUpProject(): Unit = {
     //projectFile is the sbt file for the root project
-    val project = ProjectUtil.openProject(projectFile.getAbsolutePath, null, false)
+    val project = ProjectUtil.openOrImport(getSbtRootFile.getAbsolutePath, null, false)
     import org.jetbrains.plugins.scala.extensions._
     val sdk = TestUtils.createJdk()
     inWriteAction{
       ProjectJdkTable.getInstance.addJdk(sdk)
       ProjectRootManager.getInstance(project).setProjectSdk(sdk)
     }
-    project
+    ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
+    myProject = project
   }
 
   def getBasePath: String = TestUtils.getTestDataPath
@@ -36,26 +39,48 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
 
   def getBuildFileName: String = "build.sbt"
 
-  override def getIprFile: File = new File(getBasePath + "/" + getPath + "/" + getBuildFileName)
+  def getSbtRootFile: File = new File(getBasePath + "/" + getPath + "/" + getBuildFileName)
+
+  override protected def setUpModule() = {}
+
+  override protected def setUpJdk() = {}
 
   override def setUp(): Unit = {
     super.setUp()
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication, "")
-    runner.initAndRun()
-    runner.getProcessHandler.addProcessListener(logger)
+    //TODO this is hacky, but sometimes 'main' gets leaked
+    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication, "ForkJoinPool")
+    myComm = SbtShellCommunication.forProject(getProject)
+    myRunner = SbtProcessManager.forProject(getProject).openShellRunner()
+    myRunner.getProcessHandler.addProcessListener(logger)
   }
 
   override def tearDown(): Unit = {
-    EditorFactory.getInstance().releaseEditor(runner.getConsoleView.getHistoryViewer)
-    EditorFactory.getInstance().releaseEditor(runner.getConsoleView.getConsoleEditor)
+    EditorFactory.getInstance().releaseEditor(myRunner.getConsoleView.getHistoryViewer)
+    EditorFactory.getInstance().releaseEditor(myRunner.getConsoleView.getConsoleEditor)
     UIUtil.dispatchAllInvocationEvents()
-    runner.getProcessHandler.destroyProcess()
+    val handler = myRunner.getProcessHandler
+    handler.destroyProcess()
+    //give the handler some time to terminate the process
+    while (!handler.isProcessTerminated || handler.isProcessTerminating) {
+      Thread.sleep(500)
+    }
     super.tearDown()
+    //remove links so that we don't leak the project
+    myProject = null
+    myComm = null
+    myRunner = null
   }
 
-  protected lazy val comm: SbtShellCommunication = SbtShellCommunication.forProject(getProject)
-  protected lazy val runner: SbtShellRunner = new SbtShellRunner(getProject, "Test console")
-  protected lazy val logger: ProcessLogger = new ProcessLogger
+
+  protected def comm = myComm
+  protected def runner = myRunner
+  protected var myComm: SbtShellCommunication = _
+  protected var myRunner: SbtShellRunner = _
+  protected val logger: ProcessLogger = new ProcessLogger
+}
+
+object SbtProjectPlatformTestCase {
+  val errorPrefix = "[error]"
 }
 
 class ProcessLogger extends ProcessListener {
@@ -69,5 +94,8 @@ class ProcessLogger extends ProcessListener {
 
   override def processTerminated(event: ProcessEvent): Unit = {}
 
-  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = logBuilder.append(event.getText)
+  override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+    synchronized { logBuilder.append(event.getText) }
+    print(event.getText)
+  }
 }

@@ -54,4 +54,7 @@ class UTestRunConfiguration(override val project: Project,
   override protected def sbtTestNameKey = ""
 
   override protected def escapeTestName(test: String): String = test.stripPrefix("tests").replace("\\", ".")
+
+  override protected def escapeClassAndTest(input: String): String =
+    if (input.contains(" ")) "\"" + input + "\"" else input
 }
