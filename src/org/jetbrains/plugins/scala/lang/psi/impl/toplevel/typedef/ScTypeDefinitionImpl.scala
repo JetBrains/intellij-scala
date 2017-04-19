@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
-import org.jetbrains.plugins.scala.projectView.SingularDefinition
+import org.jetbrains.plugins.scala.projectView.{ClassAndCompanionObject, SingularDefinition, TraitAndCompanionObject}
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
@@ -313,7 +313,9 @@ abstract class ScTypeDefinitionImpl protected (stub: ScTemplateDefinitionStub,
   }
 
   override def delete(): Unit = getContainingFile match {
-    case file @ SingularDefinition(_) => file.delete()
+    case file @ (SingularDefinition(_) |
+                 ClassAndCompanionObject(_, _) |
+                 TraitAndCompanionObject(_, _)) => file.delete()
 
     case _ => getParent.getNode.removeChild(getNode)
   }
