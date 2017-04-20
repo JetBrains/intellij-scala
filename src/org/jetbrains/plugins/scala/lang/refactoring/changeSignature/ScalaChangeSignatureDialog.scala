@@ -535,12 +535,13 @@ class ScalaChangeSignatureDialog(val project: Project,
   
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
-    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"))
-    
+
     link.addHyperlinkListener(new HyperlinkListener() {
       def hyperlinkUpdate(e: HyperlinkEvent) {
-        mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
-        updateSignatureAlarmFired()
+        extensions.invokeLater {
+          mySpecifyTypeChb.setSelected(needTypeAnnotation(method.getMethod, getVisibility))
+          updateSignatureAlarmFired()
+        }
       }
     })
     

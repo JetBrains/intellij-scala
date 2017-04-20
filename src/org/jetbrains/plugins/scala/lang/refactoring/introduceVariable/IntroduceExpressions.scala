@@ -15,7 +15,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -25,11 +24,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParen
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInplaceVariableIntroducer.addTypeAnnotation
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.{ScalaUtils, TypeAnnotationUtil}
+import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * Created by Kate Ustyuzhanina
@@ -101,9 +101,8 @@ trait IntroduceExpressions {
                   if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
-                    val checkedExpr = if (expr.isValid) expr else null
                     val variableIntroducer =
-                      new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement,
+                      new ScalaInplaceVariableIntroducer(project, editor, expr, types, namedElement,
                         INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType)
 
                     import scala.collection.JavaConversions._
@@ -288,24 +287,6 @@ trait IntroduceExpressions {
         }
       }
       result
-    }
-
-    def addTypeAnnotation(anchor: PsiElement, expression: ScExpression, fromDialogMode: Boolean = false): Boolean = {
-      if (fromDialogMode) {
-        ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
-      } else {
-        val isLocal = TypeAnnotationUtil.isLocal(anchor)
-        val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
-        val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
-  
-        TypeAnnotationUtil.isTypeAnnotationNeeded(
-          TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
-          settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-          settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-          isOverride = false, // no overriding enable in current refactoring
-          isSimple = TypeAnnotationUtil.isSimple(expression)
-        )
-      }
     }
 
     def createVariableDefinition(): PsiElement = {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceField;
 
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.help.HelpManager;
@@ -345,14 +346,18 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
 
   private void setUpHyperLink(final ScExpression expression) {
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
-    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
     myLinkContainer.add(link);
 
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
-        mySpecifyTypeChb.setSelected(needTypeannotations(expression));
-        updateEnablingTypeList();
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+          @Override
+          public void run() {
+            mySpecifyTypeChb.setSelected(needTypeannotations(expression));
+            updateEnablingTypeList();
+          }
+        });
       }
     });
   }

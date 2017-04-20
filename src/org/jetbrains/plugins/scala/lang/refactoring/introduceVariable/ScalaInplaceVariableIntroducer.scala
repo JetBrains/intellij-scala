@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.introduceVariable
 
 import java.awt._
-import java.awt.event.{ActionEvent, ActionListener}
+import java.awt.event.{ActionEvent, ActionListener, ItemEvent, ItemListener}
 import javax.swing._
+import javax.swing.event.{HyperlinkEvent, HyperlinkListener}
 
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.{ApplicationManager, Result}
@@ -15,6 +16,7 @@ import com.intellij.openapi.editor.ex.DocumentEx
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -22,6 +24,7 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import com.intellij.ui.NonFocusableCheckBox
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScExpression}
@@ -30,8 +33,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaInplaceVariableIntroducer.addTypeAnnotation
 import org.jetbrains.plugins.scala.lang.refactoring.util.{BalloonConflictsReporter, ScalaNamesUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
 
@@ -66,6 +71,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
   private val myLabelPanel = new JPanel()
 
   private val myChbPanel = new JPanel()
+  private val typePanel = new JPanel()
 
   setDeclaration(newDeclaration)
   myCheckIdentifierListener = checkIdentifierListener()
@@ -119,7 +125,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
 
   private def needInferType = forceInferType.getOrElse {
     if (mySpecifyTypeChb != null) mySpecifyTypeChb.isSelected
-    else ScalaApplicationSettings.getInstance().INTRODUCE_VARIABLE_EXPLICIT_TYPE
+    else addTypeAnnotation(namedElement, expr)
   }
 
   override def getInitialName: String = initialName
@@ -159,10 +165,10 @@ class ScalaInplaceVariableIntroducer(project: Project,
     if (types.nonEmpty && forceInferType.isEmpty) {
       val selectedType = types(0)
       mySpecifyTypeChb = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.specify.type.explicitly"))
-      mySpecifyTypeChb.setSelected(ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE)
+      mySpecifyTypeChb.setSelected(addTypeAnnotation(namedElement, expr))
       mySpecifyTypeChb.setMnemonic('t')
-      mySpecifyTypeChb.addActionListener(new ActionListener {
-        def actionPerformed(e: ActionEvent): Unit = {
+      mySpecifyTypeChb.addItemListener(new ItemListener {
+        override def itemStateChanged(e: ItemEvent): Unit = {
           val greedyToRight = mutable.WeakHashMap[RangeHighlighter, Boolean]()
 
           def setGreedyToRightToFalse(): Unit = {
@@ -170,11 +176,13 @@ class ScalaInplaceVariableIntroducer(project: Project,
             for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
               greedyToRight += (highlighter -> highlighter.isGreedyToRight)
           }
+
           def resetGreedyToRightBack(): Unit = {
             val highlighters: Array[RangeHighlighter] = myEditor.getMarkupModel.getAllHighlighters
             for (highlighter <- highlighters; if checkRange(highlighter.getStartOffset, highlighter.getEndOffset))
               highlighter.setGreedyToRight(greedyToRight(highlighter))
           }
+
           def checkRange(start: Int, end: Int): Boolean = {
             val named: Option[ScNamedElement] = namedElement(getDeclaration)
             if (named.isDefined) {
@@ -190,7 +198,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case _: ScDeclaredElementsHolder | _: ScEnumerator =>
                   val declarationCopy = declaration.copy.asInstanceOf[ScalaPsiElement]
                   implicit val manager = declarationCopy.getManager
-                  val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "", isPresentableText = false)
+                  val fakeDeclaration = createDeclaration(selectedType, "x", isVariable = false, "")
                   val first = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tCOLON)
                   val last = fakeDeclaration.findFirstChildByType(ScalaTokenTypes.tASSIGN)
                   val assign = declarationCopy.findFirstChildByType(ScalaTokenTypes.tASSIGN)
@@ -203,6 +211,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case _ =>
               }
             }
+
             private def removeTypeAnnotation(): Unit = {
               getDeclaration match {
                 case holder: ScDeclaredElementsHolder =>
@@ -222,6 +231,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
                 case _ =>
               }
             }
+
             protected def run(result: Result[Unit]): Unit = {
               commitDocument()
               setGreedyToRightToFalse()
@@ -235,7 +245,7 @@ class ScalaInplaceVariableIntroducer(project: Project,
           writeAction.execute()
           ApplicationManager.getApplication.runReadAction(new Runnable {
             def run(): Unit = {
-              if (needInferType) resetGreedyToRightBack()
+              if (addTypeAnnotation(namedElement, expr)) resetGreedyToRightBack()
             }
           })
         }
@@ -248,12 +258,33 @@ class ScalaInplaceVariableIntroducer(project: Project,
     myBalloonPanel
   }
 
+  private def setUpTypePanel(): JPanel = {
+    typePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    typePanel.add(mySpecifyTypeChb)
+
+    val myLinkContainer = new JPanel
+    myLinkContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    typePanel.add(myLinkContainer)
+
+    val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
+    link.addHyperlinkListener(new HyperlinkListener() {
+      override def hyperlinkUpdate(e: HyperlinkEvent) {
+        extensions.invokeLater {
+          mySpecifyTypeChb.setSelected(addTypeAnnotation(namedElement, expr))
+        }
+      }
+    })
+
+    myLinkContainer.add(link)
+    typePanel
+  }
+
   private def setBalloonPanel(nameIsValid: Boolean): Unit = {
     this.nameIsValid = nameIsValid
 
-    myChbPanel.setLayout(new BoxLayout(myChbPanel, BoxLayout.Y_AXIS))
+    myChbPanel.setLayout(new VerticalFlowLayout)
     myChbPanel.setBorder(null)
-    Seq(myVarCheckbox, mySpecifyTypeChb).filter(_ != null).foreach{chb =>
+    Seq(myVarCheckbox, setUpTypePanel()).filter(_ != null).foreach { chb =>
       myChbPanel.add(chb)
       chb.setEnabled(nameIsValid)
     }
@@ -362,5 +393,25 @@ class ScalaInplaceVariableIntroducer(project: Project,
       myEditor.getSelectionModel.removeSelection()
     }
     super.finish(success)
+  }
+}
+
+object ScalaInplaceVariableIntroducer {
+  def addTypeAnnotation(anchor: PsiElement, expression: ScExpression, fromDialogMode: Boolean = false): Boolean = {
+    if (fromDialogMode) {
+      ScalaApplicationSettings.getInstance.INTRODUCE_VARIABLE_EXPLICIT_TYPE
+    } else {
+      val isLocal = TypeAnnotationUtil.isLocal(anchor)
+      val visibility = if (!isLocal) TypeAnnotationUtil.Private else TypeAnnotationUtil.Public
+      val settings = ScalaCodeStyleSettings.getInstance(expression.getProject)
+
+      TypeAnnotationUtil.isTypeAnnotationNeeded(
+        TypeAnnotationUtil.requirementForProperty(isLocal, visibility, settings),
+        settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
+        settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
+        isOverride = false, // no overriding enable in current refactoring
+        isSimple = TypeAnnotationUtil.isSimple(expression)
+      )
+    }
   }
 }

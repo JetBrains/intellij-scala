@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable;
 
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.help.HelpManager;
@@ -172,14 +173,18 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
   private void setUpHyperLink() {
     HyperlinkLabel link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"));
-    link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
     myLinkContainer.add(link);
 
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
-        mySpecifyTypeChb.setSelected(addTypeAnnotation());
-        updateEnablingTypeList();
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+          @Override
+          public void run() {
+            mySpecifyTypeChb.setSelected(addTypeAnnotation());
+            updateEnablingTypeList();
+          }
+        });
       }
     });
   }

@@ -12,7 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.HyperlinkLabel
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaTabbedCodeStylePanel, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -267,7 +267,8 @@ object TypeAnnotationUtil {
         }
       }
     })
-    
+
+    typeAnnotationsSettings.setToolTipText(ScalaBundle.message("default.ta.tooltip"))
     typeAnnotationsSettings
   }
 }

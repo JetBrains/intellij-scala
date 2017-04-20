@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.extractMethod;
 
 //import com.intellij.openapi.editor.event.DocumentEvent;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -339,8 +340,13 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     link.addHyperlinkListener(new HyperlinkListener() {
       @Override
       public void hyperlinkUpdate(HyperlinkEvent e) {
-        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
-        updateSignature();
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+          @Override
+          public void run() {
+            mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.addTypeAnnotation(settings, getVisibility()));
+            updateSignature();
+          }
+        });
       }
     });
   }
