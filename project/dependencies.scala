@@ -2,7 +2,7 @@ import sbt._
 import meta.Shared
 
 object Versions {
-  val scalaVersion = "2.11.8"
+  val scalaVersion = "2.11.11"
   val sbtVersion = "0.13.13"
   val ideaVersion = "171.3780.52"
   val sbtStructureVersion: String = Shared.sbtStructureVersion
@@ -38,7 +38,7 @@ object Dependencies {
 
   val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
-  val macroParadise: ModuleID = "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full
+  val macroParadise: ModuleID = "org.scalameta" % "paradise" % "3.0.0-M8" cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "1.6.0" withSources()
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
