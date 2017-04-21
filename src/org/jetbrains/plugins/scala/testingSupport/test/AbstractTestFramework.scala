@@ -21,7 +21,7 @@ import org.jetbrains.sbt.project.modifier.SimpleBuildFileModifier
  */
 
 abstract class AbstractTestFramework extends JavaTestFramework {
-  def isTestMethod(element: PsiElement): Boolean = false
+  override def isTestMethod(element: PsiElement): Boolean = false
 
   def getTestMethodFileTemplateDescriptor: FileTemplateDescriptor = null
 

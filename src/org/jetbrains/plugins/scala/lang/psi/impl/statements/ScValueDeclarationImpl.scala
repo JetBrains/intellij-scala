@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScValueStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import com.intellij.util.IncorrectOperationException
 
 /**
  * @author Alexander Podkhalyuzin
@@ -51,4 +52,8 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
       case _ => super.accept(visitor)
     }
   }
+
+  override def getNameIdentifier = null
+
+  override def setName(name: String) = throw new IncorrectOperationException
 }

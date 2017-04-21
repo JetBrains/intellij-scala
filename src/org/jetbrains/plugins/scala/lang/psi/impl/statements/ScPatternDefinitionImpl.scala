@@ -6,6 +6,7 @@ package statements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -58,4 +59,8 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
   def pList: ScPatternList = getStubOrPsiChild(ScalaElementTypes.PATTERN_LIST)
+
+  override def getNameIdentifier = null
+
+  override def setName(name: String) = throw new IncorrectOperationException
 }
