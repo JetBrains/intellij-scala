@@ -65,7 +65,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     }
   }
 
-  def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext) {
+  override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext) {
     def invokeEmptyArgsMethod(obj: ObjectReference, actualRefType: ReferenceType, methodName: String): Value = {
       val suitableMethods = actualRefType methodsByName methodName
       if (suitableMethods.size() == 0) return null
@@ -121,7 +121,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
     returnChildren()
   }
 
-  def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiExpression = {
+  override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiExpression = {
     node.getDescriptor match {
       case watch: WatchItemDescriptor =>
         JavaPsiFacade.getInstance(node.getProject).getElementFactory.createExpressionFromText(watch.calcValueName(), null)
@@ -131,7 +131,7 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
 
   }
 
-  def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = value match {
+  override def isExpandable(value: Value, evaluationContext: EvaluationContext, parentDescriptor: NodeDescriptor): Boolean = value match {
     case objectRef: ObjectReferenceImpl => ScalaCollectionRenderer.nonEmpty(objectRef, evaluationContext)
     case _ => false
   }

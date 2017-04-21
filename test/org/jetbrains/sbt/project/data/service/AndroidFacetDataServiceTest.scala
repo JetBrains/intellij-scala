@@ -62,7 +62,6 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
     assert(properties.ASSETS_FOLDER_RELATIVE_PATH == "/../assets")
     assert(properties.LIBS_FOLDER_RELATIVE_PATH == "/../libs")
     assert(properties.APK_PATH == "/../test.apk")
-    assert(properties.LIBRARY_PROJECT)
     assert(properties.myProGuardCfgFiles.isEmpty == proguardConfig.isEmpty)
     assert(properties.RUN_PROGUARD == proguardConfig.nonEmpty)
 

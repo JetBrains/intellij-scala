@@ -44,7 +44,7 @@ class ScaladocAction extends BaseAnalysisAction("Generate Scaladoc", "Scaladoc")
           new ExecutionEnvironmentBuilder(project, DefaultRunExecutor.getRunExecutorInstance)
         builder.runProfile(config)
         builder.runnerAndSettings(runner,
-          new RunnerAndConfigurationSettingsImpl(new RunManagerImpl(project, PropertiesComponent.getInstance()), runConfig, false))
+          new RunnerAndConfigurationSettingsImpl(new RunManagerImpl(project), runConfig, false))
         runner.execute(builder.build())
       } catch {
         case e: ExecutionException => ExecutionErrorDialog.show(e, CommonBundle.getErrorTitle, project)

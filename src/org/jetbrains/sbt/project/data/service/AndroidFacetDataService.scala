@@ -68,7 +68,6 @@ object AndroidFacetDataService {
       configuration.ASSETS_FOLDER_RELATIVE_PATH = getRelativePath(data.assets)
       configuration.LIBS_FOLDER_RELATIVE_PATH = getRelativePath(data.libs)
       configuration.APK_PATH = getRelativePath(data.apk)
-      configuration.LIBRARY_PROJECT = data.isLibrary
       configuration.myProGuardCfgFiles = new util.ArrayList[String]()
 
       if (data.proguardConfig.nonEmpty) {

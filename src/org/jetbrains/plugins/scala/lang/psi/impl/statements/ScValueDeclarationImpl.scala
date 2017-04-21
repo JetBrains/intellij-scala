@@ -52,8 +52,4 @@ class ScValueDeclarationImpl private (stub: ScValueStub, node: ASTNode)
       case _ => super.accept(visitor)
     }
   }
-
-  override def getNameIdentifier = null
-
-  override def setName(name: String) = throw new IncorrectOperationException
 }

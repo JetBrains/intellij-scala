@@ -59,8 +59,4 @@ class ScPatternDefinitionImpl private (stub: ScValueStub, node: ASTNode)
   def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild(classOf[ScTypeElement]))(_.typeElement)
 
   def pList: ScPatternList = getStubOrPsiChild(ScalaElementTypes.PATTERN_LIST)
-
-  override def getNameIdentifier = null
-
-  override def setName(name: String) = throw new IncorrectOperationException
 }
