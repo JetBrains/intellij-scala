@@ -5,10 +5,11 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import scala.collection.JavaConversions.iterableAsScalaIterable
 import scala.collection.mutable
 
 /**
@@ -45,7 +46,7 @@ object PlainTextCopyUtil {
       ErrMsg("rbrace.expected"), ErrMsg("semi.expected"))
 
     def handleFile(errors: mutable.HashSet[String]) = {
-      !file.depthFirst().exists {
+      !SyntaxTraverser.psiTraverser(file).traverse.exists {
         case err: PsiErrorElement if errors.contains(err.getErrorDescription) => false
         case _: PsiErrorElement => true
         case _ => false
