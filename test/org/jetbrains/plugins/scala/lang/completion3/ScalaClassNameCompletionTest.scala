@@ -30,9 +30,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |object Test extends App {
         |  val al: java.util.List[Int] = new BL<caret>
         |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+      """
 
     val resultText =
       """
@@ -40,10 +38,9 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |object Test extends App {
         |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
         |}
-      """.stripMargin.replaceAll("\r", "").trim()
+      """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "BLLLL").get, '\t')
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "BLLLL")
   }
 
   def testExpressionSameName() {
@@ -77,7 +74,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           case _ => false
         }
       case _ => false
-    }.get, '\t')
+    }.get)
     checkResultByText(resultText)
   }
 
@@ -112,7 +109,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           case _ => false
         }
       case _ => false
-    }.get, '\t')
+    }.get)
     checkResultByText(resultText)
   }
 
@@ -151,7 +148,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
             case _ => false
           }
         case _ => false
-      }.get, '\t')
+      }.get)
       checkResultByText(resultText)
     }
     catch {
@@ -191,7 +188,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           case _ => false
         }
       case _ => false
-    }.get, '\t')
+    }.get)
     checkResultByText(resultText)
   }
 
@@ -211,9 +208,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |object B {
         |  1.<caret>
         |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+      """
 
     val resultText =
       """
@@ -232,10 +227,9 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |object B {
         |  1.foo
         |}
-      """.stripMargin.replaceAll("\r", "").trim()
+      """
 
-    completeLookupItem(activeLookup.find(_.getLookupString == "foo").get, '\t')
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "foo", time = 2)
   }
 
   def testSCL4087() {
@@ -253,9 +247,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |trait Y {
           |  val x: XXXX<caret>
           |}
-        """.stripMargin.replaceAll("\r", "").trim()
-      configureFromFileTextAdapter("dummy.scala", fileText)
-      val (activeLookup, _) = complete(2, CompletionType.BASIC)
+        """
 
       val resultText =
         """
@@ -271,10 +263,8 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |trait Y {
           |  val x: XXXX
           |}
-        """.stripMargin.replaceAll("\r", "").trim()
-
-      completeLookupItem(activeLookup.find(_.getLookupString == "XXXX").get, '\t')
-      checkResultByText(resultText)
+        """
+      doCompletionTest(fileText, resultText, "XXXX", time = 2)
     }
   }
 
@@ -293,9 +283,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |trait Y {
           |  val x: XXXX<caret>
           |}
-        """.stripMargin.replaceAll("\r", "").trim()
-      configureFromFileTextAdapter("dummy.scala", fileText)
-      val (activeLookup, _) = complete(2, CompletionType.BASIC)
+        """
 
       val resultText =
         """
@@ -311,10 +299,9 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |trait Y {
           |  val x: XXXX
           |}
-        """.stripMargin.replaceAll("\r", "").trim()
+        """
 
-      completeLookupItem(activeLookup.find(_.getLookupString == "XXXX").get, '\t')
-      checkResultByText(resultText)
+      doCompletionTest(fileText, resultText, "XXXX", time = 2)
     }
   }
 

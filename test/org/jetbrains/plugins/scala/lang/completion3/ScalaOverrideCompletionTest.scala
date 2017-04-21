@@ -328,6 +328,8 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     configureFromFileTextAdapter("dummy.scala", normalize(inText))
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
+    assert(activeLookup != null, "No lookup was found")
+
     Option(activeLookup).foreach { lookup =>
       item match {
         case Some(name) =>

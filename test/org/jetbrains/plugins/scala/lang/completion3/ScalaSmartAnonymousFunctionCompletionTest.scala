@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import com.intellij.codeInsight.completion.CompletionType
+import com.intellij.codeInsight.completion.CompletionType.SMART
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
@@ -13,18 +13,15 @@ class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase
 """
 def foo[T](x: T)(y: T => Int) = 1
 foo(2)(<caret>)
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo[T](x: T)(y: T => Int) = 1
 foo(2)((i: Int) => <caret>)
-""".replaceAll("\r", "").trim()
+"""
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testSimpleCaseTest() {
@@ -32,18 +29,14 @@ foo(2)((i: Int) => <caret>)
 """
 def foo(x: String => String) = 1
 foo {<caret>}
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo(x: String => String) = 1
 foo {case str: String => <caret>}
-""".replaceAll("\r", "").trim()
-
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+"""
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testSimple() {
@@ -51,18 +44,15 @@ foo {case str: String => <caret>}
 """
 def foo(x: String => String) = 1
 foo(<caret>)
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo(x: String => String) = 1
 foo((str: String) => <caret>)
-""".replaceAll("\r", "").trim()
+"""
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testJustTuple() {
@@ -70,18 +60,15 @@ foo((str: String) => <caret>)
 """
 def foo(x: Tuple2[Int, Int] => Int) = 1
 foo(<caret>)
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo(x: Tuple2[Int, Int] => Int) = 1
 foo((tuple: (Int, Int)) => <caret>)
-""".replaceAll("\r", "").trim()
+"""
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testCaseTuple() {
@@ -89,18 +76,15 @@ foo((tuple: (Int, Int)) => <caret>)
 """
 def foo(x: Tuple2[Int, Int] => Int) = 1
 foo{<caret>}
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo(x: Tuple2[Int, Int] => Int) = 1
 foo{case (i: Int, i0: Int) => <caret>}
-""".replaceAll("\r", "").trim()
+"""
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testAbstractTypeInfoWithUpper() {
@@ -108,18 +92,15 @@ foo{case (i: Int, i0: Int) => <caret>}
 """
 def foo[T <: Runnable](x: (T, String) => String) = 1
 foo(<caret>)
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo[T <: Runnable](x: (T, String) => String) = 1
 foo((value: Runnable, str: String) => <caret>)
-""".replaceAll("\r", "").trim()
+"""
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testAbstractTypeInfoWithLower() {
@@ -127,18 +108,15 @@ foo((value: Runnable, str: String) => <caret>)
 """
 def foo[T >: Int](x: (T, String) => String) = 1
 foo(<caret>)
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo[T >: Int](x: (T, String) => String) = 1
 foo((value: Int, str: String) => <caret>)
-""".replaceAll("\r", "").trim()
+"""
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testAbstractTypeInfoTypeParameters() {
@@ -147,19 +125,16 @@ foo((value: Int, str: String) => <caret>)
 def foo[T <: Runnable](x: T => String) = 1
 class X extends Runnable
 foo[X](<caret>)
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+"""
 
     val resultText =
 """
 def foo[T <: Runnable](x: T => String) = 1
 class X extends Runnable
 foo[X]((x: X) => <caret>)
-""".replaceAll("\r", "").trim()
+"""
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
 
@@ -168,18 +143,15 @@ foo[X]((x: X) => <caret>)
       """
       |def foo(c: (Int, Int, Int, Int) => Int) = 1
       |foo(<caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+      """
 
     val resultText =
       """
       |def foo(c: (Int, Int, Int, Int) => Int) = 1
       |foo((i: Int, i0: Int, i1: Int, i2: Int) => <caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
+      """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testFewParamsDifferent() {
@@ -187,18 +159,15 @@ foo[X]((x: X) => <caret>)
       """
       |def foo(x: (Int, String, Int, String) => Int) = 1
       |foo(<caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+      """
 
     val resultText =
       """
         |def foo(x: (Int, String, Int, String) => Int) = 1
         |foo((i: Int, str: String, i0: Int, str0: String) => <caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
+      """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testAbstractTypeInfo() {
@@ -206,18 +175,15 @@ foo[X]((x: X) => <caret>)
       """
       |def foo[T](x: (T, String) => String) = 1
       |foo(<caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+      """
 
     val resultText =
       """
         |def foo[T](x: (T, String) => String) = 1
         |foo((value: T, str: String) => <caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
+      """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 
   def testAliasType() {
@@ -226,18 +192,15 @@ foo[X]((x: X) => <caret>)
       |type T = Int => String
       |def zoo(p: T) {}
       |zoo(<caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, prefix) = complete(2, CompletionType.SMART)
+      """
 
     val resultText =
       """
       |type T = Int => String
       |def zoo(p: T) {}
       |zoo((i: Int) => <caret>)
-      """.stripMargin.replaceAll("\r", "").trim()
+      """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "").get)
-    checkResultByText(resultText)
+    doCompletionTest(fileText, resultText, "", time = 2, completionType = SMART)
   }
 }
