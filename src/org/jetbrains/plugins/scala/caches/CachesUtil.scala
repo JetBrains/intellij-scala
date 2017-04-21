@@ -95,11 +95,10 @@ object CachesUtil {
   def enclosingModificationOwner(elem: PsiElement): ModificationTracker = {
     @tailrec
     def calc(element: PsiElement): ModificationTracker = {
-      Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner => owner.getModificationTracker
-        case Some(owner) => calc(owner.getContext)
-        case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
-        case _ => ScalaPsiManager.instance(element.getProject).modificationTracker
+      PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner]) match {
+        case null => ScalaPsiManager.instance(elem.getProject).modificationTracker
+        case owner if owner.isValidModificationTrackerOwner => owner.getModificationTracker
+        case owner => calc(owner.getContext)
       }
     }
 
