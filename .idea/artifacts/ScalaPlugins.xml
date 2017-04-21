@@ -38,8 +38,8 @@
         <element id="library" level="project" name="SBT: commons-lang:commons-lang:2.6:jar" />
         <element id="library" level="project" name="SBT: org.atteo:evo-inflector:1.2:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2:jar" />
-        <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.8:jar" />
-        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.8:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.11:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.11:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4:jar" />
         <element id="library" level="project" name="SBT: org.apache.lucene:lucene-core:4.8.1:jar" />
         <element id="archive" name="scalap.jar">
