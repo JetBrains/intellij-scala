@@ -14,6 +14,7 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.execution.ui.actions.CloseAction
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.search.GlobalSearchScope
@@ -68,6 +69,10 @@ class SbtShellRunner(project: Project, consoleTitle: String)
   override def createConsoleView(): LanguageConsoleImpl = myConsoleView
 
   override def createProcess(): Process = myProcessHandler.getProcess
+
+  //don't init UI for unit tests
+  override def createContentDescriptorAndActions(): Unit =
+    if (!ApplicationManager.getApplication.isUnitTestMode) super.createContentDescriptorAndActions()
 
   override def initAndRun(): Unit = {
     super.initAndRun()

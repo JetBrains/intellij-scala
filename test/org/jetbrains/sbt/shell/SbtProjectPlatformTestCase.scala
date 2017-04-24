@@ -5,14 +5,15 @@ import java.io.File
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.testFramework.{PlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
+import org.jetbrains.idea.maven.project.MavenProjectsManager
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
 
@@ -55,8 +56,8 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
   }
 
   override def tearDown(): Unit = {
-    EditorFactory.getInstance().releaseEditor(myRunner.getConsoleView.getHistoryViewer)
-    EditorFactory.getInstance().releaseEditor(myRunner.getConsoleView.getConsoleEditor)
+    myRunner.getConsoleView.dispose()
+    Disposer.dispose(myRunner.getConsoleView)
     UIUtil.dispatchAllInvocationEvents()
     val handler = myRunner.getProcessHandler
     handler.destroyProcess()
@@ -64,6 +65,8 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
     while (!handler.isProcessTerminated || handler.isProcessTerminating) {
       Thread.sleep(500)
     }
+    ProjectManager.getInstance().closeProject(myProject)
+    MavenProjectsManager.getInstance(myProject).disposeComponent()
     super.tearDown()
     //remove links so that we don't leak the project
     myProject = null
