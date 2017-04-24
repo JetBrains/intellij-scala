@@ -157,7 +157,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
               prevElement.getParent.getText == "\"\"") {
         completeMultilineString(editor, project, element, offset)
       } else if (prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END && elementType != ScalaTokenTypes.tINTERPOLATED_STRING_END &&
-              Set("f\"\"", "s\"\"").contains(prevElement.getParent.getText)) {
+              Set("f\"\"", "s\"\"", "q\"\"").contains(prevElement.getParent.getText)) {
         completeMultilineString(editor, project, element, offset)
       }
     } else if (c == '.' && ScalaPsiUtil.isLineTerminator(prevElement)) {

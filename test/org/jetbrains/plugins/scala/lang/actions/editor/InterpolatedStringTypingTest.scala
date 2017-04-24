@@ -26,9 +26,30 @@ class InterpolatedStringTypingTest extends EditorActionTestBase {
     checkGeneratedTextAfterTyping(text, assumedStub, '\"')
   }
 
+  def testSimpleQuasiQuoteTypingOpeningQuote(): Unit = {
+    val text = "class A { val a = q" + CARET_MARKER + " }"
+    val assumedStub = "class A { val a = q\"" + CARET_MARKER + "\" }"
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '\"')
+  }
+
+  def testSimpleQuasiQuoteTypingClosingQuote(): Unit = {
+    val text = "class A { val a = q\"" + CARET_MARKER + "\" }"
+    val assumedStub = "class A { val a = q\"\"" + CARET_MARKER + " }"
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '\"')
+  }
+
   def testMultilineStringTypingOpeningQuote(): Unit = {
     val text = "class A { val a = f\"\"" + CARET_MARKER + " }"
     val assumedStub = "class A { val a = f\"\"\"" + CARET_MARKER + "\"\"\" }"
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '\"')
+  }
+
+  def testMultilineQuasiQuoteOpeningQuote(): Unit = {
+    val text = "class A { val a = q\"\"" + CARET_MARKER + " }"
+    val assumedStub = "class A { val a = q\"\"\"" + CARET_MARKER + "\"\"\" }"
 
     checkGeneratedTextAfterTyping(text, assumedStub, '\"')
   }
@@ -43,6 +64,20 @@ class InterpolatedStringTypingTest extends EditorActionTestBase {
   def testMultilineStringClosingQuote2(): Unit = {
     val text = "class A { val a = s\"\"\"blah blah\"\"" + CARET_MARKER + "\" }"
     val assumedStub = "class A { val a = s\"\"\"blah blah\"\"\"" + CARET_MARKER + " }"
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '\"')
+  }
+
+  def testMultilineQuasiQuoteClosingQuote1(): Unit = {
+    val text = "class A { val a = q\"\"\"blah blah" + CARET_MARKER + "\"\"\" }"
+    val assumedStub = "class A { val a = q\"\"\"blah blah\"" + CARET_MARKER + "\"\" }"
+
+    checkGeneratedTextAfterTyping(text, assumedStub, '\"')
+  }
+
+  def testMultilineQuasiQuoteClosingQuote2(): Unit = {
+    val text = "class A { val a = q\"\"\"blah blah\"\"" + CARET_MARKER + "\" }"
+    val assumedStub = "class A { val a = q\"\"\"blah blah\"\"\"" + CARET_MARKER + " }"
 
     checkGeneratedTextAfterTyping(text, assumedStub, '\"')
   }
