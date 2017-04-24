@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.breadcrumbs
 import com.intellij.lang.Language
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiElement
-import com.intellij.xml.breadcrumbs.BreadcrumbsInfoProvider
+import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
   * User: Dmitry.Naydanov
   * Date: 23.06.16.
   */
-class ScalaBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
+class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
   override def getElementTooltip(e: PsiElement): String = {
     import ScalaBreadcrumbsInfoProvider.MyTextRepresentationUtil._
     

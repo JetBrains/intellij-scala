@@ -9,79 +9,74 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import com.intellij.ui.ColorUtil._
 
 /**
   * User: Dmitry.Naydanov
   * Date: 24.06.16.
   */
 class ScalaBreadcrumbsPresentationProvider extends BreadcrumbsPresentationProvider {
-  override def getCrumbPresentations(element: Array[PsiElement]): Array[CrumbPresentation] = {
+  override def getCrumbPresentations(elements: Array[PsiElement]): Array[CrumbPresentation] = {
     import ScalaBreadcrumbsPresentationProvider._
     
-    if (element.headOption.exists(!_.isInstanceOf[ScalaPsiElement])) return null
+    if (elements.headOption.exists(!_.isInstanceOf[ScalaPsiElement])) return null
     
-    element.map {
-      element => MyCrumbPresentation(getColorKeyFor(element))
+    elements map {
+      case _: ScTemplateDefinition => MyCrumbPresentation(true)
+      case _: ScFunction | _: ScFunctionExpr => MyCrumbPresentation(false)
+      case _ => SimpleCrumbPresentation()
     }
   }
 }
 
 /**
-  * Problem: current API doesn't allow setting color for font or border, only for background. The other colors are taken 
-  * from Java settings, so if a user changes java colors, scala colors might got messed (e.g. if user sets font color to background
-  * and vice versa). We could take all colors from java if all our elements were equal, but they are not. 
-  * So we have to 
-  *   1) get somehow different colors from Java, so if use changes them, our colors will be changed as well 
-  *   2) correct them slightly if they are too similar to font color 
+  * Current API (172._+) works really weird. In `getBackgroundColor` if `hovered == false` then font color is expected; 
+  * otherwise background color is expected. At the same time editor gutter color or java breadcrumbs colors taken as 
+  * background/font color respectively. Thus we have to take into account "default" colors and change them slightly in 
+  * order to make them look consistently.  
   */
 object ScalaBreadcrumbsPresentationProvider {
-  private val JAVA_HOVERED = EditorColors.BREADCRUMBS_HOVERED
-  private val JAVA_CURRENT = EditorColors.BREADCRUMBS_CURRENT
-  private val JAVA_DEFAULT = EditorColors.BREADCRUMBS_DEFAULT
+  private val DEFAULT_COLOR = EditorColors.BREADCRUMBS_CURRENT
   
-  
-  case class MyCrumbPresentation(colorKey: TextAttributesKey) extends CrumbPresentation {
-    override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = {
-      import com.intellij.ui.ColorUtil._
-      
-      val c = getColorByKey(colorKey)
-      val color = if (selected) brighter(c, 1) else if (hovered) darker(c, 1) else c
+  private val BASE_COLORS_PAIR = (EditorColors.BREADCRUMBS_DEFAULT, EditorColors.BREADCRUMBS_HOVERED)
+  private val BASE_BACKGROUND_COLOR = EditorColors.GUTTER_BACKGROUND
+ 
 
-      val fontColor = getAttributesByKey(colorKey).getForegroundColor
+  case class MyCrumbPresentation(isTemplateDef: Boolean) extends CrumbPresentation {
+    override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = {
+      if (hovered) {
+        val c = EditorColorsManager.getInstance().getGlobalScheme.getColor(BASE_BACKGROUND_COLOR)
+        val lumB = calculateColorLuminance(c)
+        
+        return if (lumB < 0.5) brighter(c, 2) else darker(c, 2)
+      }
       
-      if (fontColor == null) return color
-      
-      val backgroundLum = calculateColorLuminance(color)
-      val fontLum = calculateColorLuminance(fontColor)
-      
-      val contrastRatio = (Math.max(backgroundLum, fontLum) + 0.05) / (Math.min(fontLum, backgroundLum) + 0.05)
-      
-      if (contrastRatio < THRESHOLD) if (backgroundLum < fontLum) darker(color, 1) else brighter(color, 1) else color
+      val (first, second) = if (isTemplateDef) BASE_COLORS_PAIR else BASE_COLORS_PAIR.swap
+
+      val (c1, c2) = (getColorByKey(first), getColorByKey(second))
+      val (lum1, lum2) = (calculateColorLuminance(c1), calculateColorLuminance(c2))
+
+      if (checkContrastRatio(lum1, lum2)) c1
+        else if (lum1 < lum2 || lum1 == lum2 && isTemplateDef && lum1 > MIN_LUM) darker(c1, 2) else brighter(c1, 2)
     }
   }
   
-  def getColorKeyFor(el: PsiElement): TextAttributesKey = el match {
-    case _: ScTemplateDefinition => getClassColorKey 
-    case _: ScFunction => getFunctionColorKey 
-    case _: ScFunctionExpr => getFunctionColorKey
-    case _: ScalaPsiElement => getOtherColorKey
-    case _ => getFunctionColorKey // why not
+  case class SimpleCrumbPresentation() extends CrumbPresentation {
+    override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = getColorByKey(DEFAULT_COLOR)
   }
-  
-  private def getClassColorKey = JAVA_CURRENT
-  private def getFunctionColorKey = JAVA_DEFAULT
-  private def getOtherColorKey = JAVA_HOVERED
   
   @inline private def getAttributesByKey(attributesKey: TextAttributesKey) = 
     EditorColorsManager.getInstance.getGlobalScheme.getAttributes(attributesKey)
   
   @inline private def getColorByKey(attributesKey: TextAttributesKey) = 
-    getAttributesByKey(attributesKey).getBackgroundColor
+    getAttributesByKey(attributesKey).getForegroundColor
 
-  
   //Good idea from Android plugin 
   private val THRESHOLD = 1.9
+  private val MIN_LUM = 0.075
 
+  private def checkContrastRatio(lum1: Double, lum2: Double) = (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05) >= THRESHOLD
+  
   private def calculateColorLuminance(color: Color) = 
     calculateLuminanceContribution(color.getRed / 255.0) * 0.2126 + 
       calculateLuminanceContribution(color.getGreen / 255.0) * 0.7152 + 
