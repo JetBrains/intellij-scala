@@ -71,4 +71,18 @@ class ScalaHighlightingTest extends ScalaHighlightingTestBase {
         Assert.assertEquals(message, "Pattern type is incompatible with expected type, found: Int, required: String")
     }
   }
+
+  def testAbstractPrivateNativeMethod(): Unit = {
+    val scalaText =
+      """
+      |import scala.native
+      |
+      |class MyClass {
+      |  @native private def myNativeMethod: Integer
+      |}
+      """.stripMargin
+    val errors = errorsFromScalaCode(scalaText)
+    assert(errors.isEmpty)
+  }
+
 }
