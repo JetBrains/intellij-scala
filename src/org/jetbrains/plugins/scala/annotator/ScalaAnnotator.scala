@@ -1306,6 +1306,7 @@ abstract class ScalaAnnotator extends Annotator
   //fix for SCL-7176
   private def checkAbstractMemberPrivateModifier(element: PsiElement, toHighlight: Seq[PsiElement], holder: AnnotationHolder) {
     element match {
+      case fun: ScFunctionDeclaration if fun.isNative =>
       case modOwner: ScModifierListOwner =>
         modOwner.getModifierList.accessModifier match {
           case Some(am) if am.isUnqualifiedPrivateOrThis =>
