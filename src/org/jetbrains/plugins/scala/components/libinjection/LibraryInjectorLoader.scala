@@ -32,11 +32,11 @@ import scala.util.control.NonFatal
 
 @SerialVersionUID(-8361292897316544896L)
 case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest]) {
-  def ensurePathExists() = {
+  def ensurePathExists(): Unit = {
    if (!LibraryInjectorLoader.myInjectorCacheDir.exists())
      FileUtil.createDirectory(LibraryInjectorLoader.myInjectorCacheDir)
   }
-  def saveJarCache() = {
+  def saveJarCache(): Unit = {
     ensurePathExists()
     val stream = new ObjectOutputStream(
       new BufferedOutputStream(
@@ -98,7 +98,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
-  private var jarCache: InjectorPersistentCache = null
+  private var jarCache: InjectorPersistentCache = _
   def getJarCache: InjectorPersistentCache = jarCache
   private val loadedInjectors: mutable.HashMap[Class[_], mutable.HashSet[String]] = mutable.HashMap()
 
@@ -121,15 +121,18 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     }
   }
 
-  override def projectClosed(): Unit = {
-    jarCache.saveJarCache
-  }
-
   override def projectOpened(): Unit = {
+    myInjectorCacheDir.mkdirs()
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(myLibraryTableListener)
     jarCache = verifyAndLoadCache
 //    init()
   }
-  
+
+  override def projectClosed(): Unit = {
+    jarCache.saveJarCache()
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).removeListener(myLibraryTableListener)
+  }
+
   def addListener(l: InjectorsLoadedListener) {
     myListeners += l
   }
@@ -151,15 +154,6 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
   
   def conditionalInit(): Unit = if (!initialized.get()) init()
-
-  override def initComponent(): Unit = {
-    myInjectorCacheDir.mkdirs()
-    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(myLibraryTableListener)
-  }
-
-  override def disposeComponent(): Unit = {
-    LibraryTablesRegistrar.getInstance().getLibraryTable(project).removeListener(myLibraryTableListener)
-  }
 
   override def getComponentName: String = "ScalaLibraryInjectorLoader"
 
@@ -514,7 +508,7 @@ object LibraryInjectorLoader {
   val INJECTOR_MODULE_NAME   = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
   val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
   val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
-  implicit val LOG = Logger.getInstance(getClass)
+  implicit val LOG: Logger = Logger.getInstance(getClass)
   private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
 
   def getInstance(project: Project): LibraryInjectorLoader = project.getComponent(classOf[LibraryInjectorLoader])
