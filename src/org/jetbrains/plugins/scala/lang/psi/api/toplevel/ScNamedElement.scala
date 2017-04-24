@@ -68,7 +68,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   override def getPresentation: ItemPresentation = {
     val clazz: ScTemplateDefinition =
-      getParent match {
+      nameContext.getParent match {
         case _: ScTemplateBody | _: ScEarlyDefinitions =>
           PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
         case _ if this.isInstanceOf[ScClassParameter]  =>
