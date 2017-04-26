@@ -73,12 +73,16 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
 
   private def setupMavenIndexes(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
-    try {
-//      MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(unindexedNotifier)
-      MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(null)
-    } catch {  // if maven support is disabled, only check local ivy index(es)
-      case e:NoClassDefFoundError if e.getMessage.contains("MavenProjectIndicesManager") => notifyDisabledMavenPlugin()
+
+    // TODO Add a more reliable check of whether Maven support is available (see SCL-11876)
+    // It seems that the only correct way to handle the optional dependency is via the depends.config-file in the manifest.
+    val manager = try {
+      Option(MavenProjectIndicesManager.getInstance(project))
+    } catch {
+      case e: NoClassDefFoundError if e.getMessage.contains("MavenProjectIndicesManager") => None
     }
+
+    manager.fold(notifyDisabledMavenPlugin())(_.scheduleUpdateIndicesList(null))
   }
 
   private def notifyDisabledMavenPlugin(): Unit = {
