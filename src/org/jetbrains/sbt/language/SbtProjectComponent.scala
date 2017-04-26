@@ -74,15 +74,11 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
   private def setupMavenIndexes(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
-    // TODO Add a more reliable check of whether Maven support is available (see SCL-11876)
-    // It seems that the only correct way to handle the optional dependency is via the depends.config-file in the manifest.
-    val manager = try {
-      Option(MavenProjectIndicesManager.getInstance(project))
-    } catch {
-      case e: NoClassDefFoundError if e.getMessage.contains("MavenProjectIndicesManager") => None
+    if (isIdeaPluginEnabled("org.jetbrains.idea.maven")) {
+      MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(null)
+    } else {
+      notifyDisabledMavenPlugin()
     }
-
-    manager.fold(notifyDisabledMavenPlugin())(_.scheduleUpdateIndicesList(null))
   }
 
   private def notifyDisabledMavenPlugin(): Unit = {
