@@ -4,7 +4,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.junit.Assert._
 
@@ -26,7 +26,7 @@ trait TypeInferenceDoTest {
     val scalaFile: ScalaFile = configureFromFileText(fileName, fileText)
     val expr: ScExpression = findExpression(scalaFile)
     val typez = expr.getType() match {
-      case Success(Unit, _) => expr.getTypeIgnoreBaseType
+      case Success(t, _) if t.isUnit => expr.getTypeIgnoreBaseType
       case x => x
     }
     typez match {

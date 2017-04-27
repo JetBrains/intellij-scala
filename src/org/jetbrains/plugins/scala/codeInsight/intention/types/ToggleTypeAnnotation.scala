@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -33,7 +32,6 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    implicit val typeSystem = project.typeSystem
     ToggleTypeAnnotation.complete(new AddOrRemoveStrategy(Option(editor)), element)
   }
 }

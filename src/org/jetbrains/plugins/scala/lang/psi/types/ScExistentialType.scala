@@ -8,10 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem, TypeVisitor, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -22,6 +23,8 @@ import scala.collection.mutable.ArrayBuffer
 */
 case class ScExistentialType(quantified: ScType,
                              wildcards: List[ScExistentialArgument]) extends ScalaType with ValueType {
+
+  override implicit def projectContext: ProjectContext = quantified.projectContext
 
   override protected def isAliasTypeInner: Option[AliasType] = {
     quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
@@ -67,14 +70,14 @@ case class ScExistentialType(quantified: ScType,
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     if (r.equiv(Nothing)) return quantified.equiv(Nothing, uSubst)
     var undefinedSubst = uSubst
     val simplified = unpackedType match {
       case ex: ScExistentialType => ex.simplify()
       case u => u
     }
+    val conformance: ScalaConformance = typeSystem
     if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
     (quantified, r) match {
       case (ParameterizedType(ScAbstractType(parameterType, lowerBound, upperBound), args), _) if !falseUndef =>
@@ -98,12 +101,12 @@ case class ScExistentialType(quantified: ScType,
       case (ParameterizedType(UndefinedType(parameterType, _), args), _) if !falseUndef =>
         r match {
           case ParameterizedType(des, defArgs) =>
-            val y = Conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
+            val y = conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
             if (!y._1) return (false, undefinedSubst)
             undefinedSubst = y._2
             return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
           case ScExistentialType(ParameterizedType(des, defArgs), _) =>
-            val y = Conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
+            val y = conformance.addParam(parameterType, des, undefinedSubst, defArgs, args)
             if (!y._1) return (false, undefinedSubst)
             undefinedSubst = y._2
             return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
@@ -112,7 +115,7 @@ case class ScExistentialType(quantified: ScType,
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
         val res = pType.equivInner(rType, undefinedSubst, falseUndef)
         if (!res._1) return res
-        Conformance.extractParams(rType) match {
+        conformance.extractParams(rType) match {
           case Some(iter) =>
             val myMap = Map(args zip iter.toList filter {case (arg, _) => wildcards.contains(arg)} filter {
               case (arg: ScExistentialArgument, rParam: ScTypeParam) =>
@@ -465,6 +468,9 @@ object ScExistentialType {
 
 case class ScExistentialArgument(name: String, args: List[TypeParameterType], lower: ScType, upper: ScType)
   extends NamedType with ValueType {
+
+  override implicit def projectContext: ProjectContext = lower.projectContext
+
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
   override def updateSubtypes(update: ScType => (Boolean, ScType), visited: Set[ScType]): ScExistentialArgument = {
@@ -486,8 +492,7 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType], lo
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case exist: ScExistentialArgument =>
         var undefinedSubst = uSubst

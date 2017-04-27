@@ -668,7 +668,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def argsConformWeakly(left: ScType, right: ScType)(implicit typeSystem: TypeSystem): Boolean = {
+  private def argsConformWeakly(left: ScType, right: ScType): Boolean = {
     (left, right) match {
       case (leftFun: ScParameterizedType, rightFun: ScParameterizedType) =>
         leftFun.designator.canonicalText == "_root_.scala.Function1" &&

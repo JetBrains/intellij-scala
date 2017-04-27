@@ -3,12 +3,16 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
 import scala.collection.mutable.ArrayBuffer
 
-trait ScType {
+trait ScType extends ProjectContextOwner {
+
+  def typeSystem: TypeSystem = projectContext.typeSystem
+
   private var aliasType: Option[AliasType] = null
 
   final def isAliasType: Option[AliasType] = {
@@ -61,8 +65,7 @@ trait ScType {
    */
   def removeAbstracts: ScType = this
 
-  def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (false, uSubst)
   }
 
@@ -106,9 +109,9 @@ trait ScType {
 
   def typeDepth: Int = 1
 
-  def presentableText: String
+  def presentableText: String = typeSystem.presentableText(this, withPrefix = true)
 
-  def canonicalText: String
+  def canonicalText: String = typeSystem.canonicalText(this)
 }
 
 trait NamedType extends ScType {

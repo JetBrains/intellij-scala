@@ -331,6 +331,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 object ScSimpleTypeElementImpl {
 
   def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean = false): TypeResult[ScType] = {
+    import ref.projectContext
+
     val (resolvedElement, fromType) = (if (!shapesOnly) {
       if (ref.isConstructorReference) {
         ref.resolveNoConstructor match {
@@ -402,6 +404,8 @@ object ScSimpleTypeElementImpl {
                            message: String,
                            path: ScPathElement,
                            function: ScTemplateDefinition => ScType) = {
+    import path.projectContext
+
     val element = Some(path)
     maybeTemplate match {
       case Some(template) => Success(function(template), element)

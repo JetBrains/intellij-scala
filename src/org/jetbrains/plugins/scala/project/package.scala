@@ -145,8 +145,10 @@ package object project {
     def libraries: Seq[Library] =
       ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 
-    def typeSystem: TypeSystem =
-      typeSystemIn(project)
+    def typeSystem: TypeSystem = {
+      if (project.hasDotty) DottyTypeSystem(project)
+      else ScalaTypeSystem(project)
+    }
 
     def language: Language =
       if (project.hasDotty) DottyLanguage.INSTANCE else ScalaLanguage.INSTANCE
@@ -166,10 +168,6 @@ package object project {
       }
     }
   }
-
-  def typeSystemIn(project: Project): TypeSystem =
-    if (project.hasDotty) DottyTypeSystem
-    else ScalaTypeSystem
 
   class ScalaModule(val module: Module) {
     def sdk: ScalaSdk = module.scalaSdk.map(new ScalaSdk(_)).getOrElse {

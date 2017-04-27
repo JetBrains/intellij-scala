@@ -206,6 +206,8 @@ object UpdateStrategy {
   }
 
   def annotationsFor(t: ScType, context: PsiElement): Seq[ScTypeElement] = {
+    import t.projectContext
+
     def typeElemfromText(s: String) = createTypeElementFromText(s)(context.getManager)
     def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 

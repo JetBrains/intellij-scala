@@ -4,7 +4,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{StdTypes, TypeSystem}
 
 import scala.language.implicitConversions
 
@@ -12,7 +12,10 @@ import scala.language.implicitConversions
   * Nikolay.Tropin
   * 19-Apr-17
   */
-class ProjectContext(val project: Project) extends AnyVal
+class ProjectContext(val project: Project) extends AnyVal {
+  def stdTypes: StdTypes = StdTypes.instance(this)
+  def typeSystem: TypeSystem = project.typeSystem
+}
 
 object ProjectContext extends LowerPriority {
   implicit def fromProject(project: Project): ProjectContext = new ProjectContext(project)
@@ -26,8 +29,6 @@ object ProjectContext extends LowerPriority {
 
   implicit def fromManager(manager: PsiManager): ProjectContext = new ProjectContext(manager.getProject)
 
-  implicit def toTypeSystem(projectContext: ProjectContext): TypeSystem = projectContext.project.typeSystem
-
   implicit def fromPsi(psiElement: PsiElement): ProjectContext = psiElement.getProject
 }
 
@@ -37,6 +38,8 @@ trait LowerPriority {
   implicit def fromImplicitPsi(implicit psiElement: PsiElement): ProjectContext = psiElement.getProject
 
   implicit def fromElementScope(elementScope: ElementScope): ProjectContext = elementScope.projectContext
+
+  implicit def fromImplicitElementScope(implicit elementScope: ElementScope): ProjectContext = elementScope.projectContext
 }
 
 trait ProjectContextOwner {

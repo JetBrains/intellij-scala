@@ -6,11 +6,15 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author adkozlov
   */
-trait ParameterizedType extends TypeInTypeSystem with ValueType {
+trait ParameterizedType extends ValueType {
+
+  override implicit def projectContext: ProjectContext = designator.projectContext
+
   val designator: ScType
   val typeArguments: Seq[ScType]
 
@@ -48,8 +52,8 @@ object ParameterizedType {
   val substitutorCache: ConcurrentMap[ParameterizedType, ScSubstitutor] =
     ContainerUtil.createConcurrentWeakMap[ParameterizedType, ScSubstitutor]()
 
-  def apply(designator: ScType, typeArguments: Seq[ScType])
-           (implicit typeSystem: TypeSystem): ValueType = typeSystem.parameterizedType(designator, typeArguments)
+  def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
+    designator.typeSystem.parameterizedType(designator, typeArguments)
 
   def unapply(parameterized: ParameterizedType): Option[(ScType, Seq[ScType])] =
     Some(parameterized.designator, parameterized.typeArguments)

@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
@@ -12,11 +12,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
  * Date: 28.04.2010
  */
 
-object Equivalence extends api.Equivalence {
-  override implicit lazy val typeSystem = ScalaTypeSystem
+trait ScalaEquivalence extends api.Equivalence {
+  typeSystem: api.TypeSystem =>
 
-  override protected def computable(left: ScType, right: ScType, substitutor: ScUndefinedSubstitutor,
-                                    falseUndef: Boolean) = new Computable[(Boolean, ScUndefinedSubstitutor)] {
+  override protected def equivComputable(left: ScType, right: ScType, substitutor: ScUndefinedSubstitutor,
+                                         falseUndef: Boolean) = new Computable[(Boolean, ScUndefinedSubstitutor)] {
     override def compute(): (Boolean, ScUndefinedSubstitutor) = {
       left match {
         case designator: ScDesignatorType => designator.getValType match {
@@ -67,7 +67,7 @@ object Equivalence extends api.Equivalence {
         case (_: ScAbstractType, _) => left.equivInner(right, substitutor, falseUndef)
         case (_, ParameterizedType(_: ScAbstractType, _)) => right.equivInner(left, substitutor, falseUndef)
         case (ParameterizedType(_: ScAbstractType, _), _) => left.equivInner(right, substitutor, falseUndef)
-        case (_, AnyRef) => right.equivInner(left, substitutor, falseUndef)
+        case (_, t) if t.isAnyRef => right.equivInner(left, substitutor, falseUndef)
         case (_: StdType, _: ScProjectionType) => right.equivInner(left, substitutor, falseUndef)
         case (_: ScDesignatorType, _: ScThisType) => right.equivInner(left, substitutor, falseUndef)
         case (_: ScParameterizedType, _: JavaArrayType) => right.equivInner(left, substitutor, falseUndef)

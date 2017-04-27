@@ -181,8 +181,7 @@ object PatternAnnotator {
 
 object PatternAnnotatorUtil {
   @tailrec
-  def matchesPattern(matching: ScType, matched: ScType)
-                    (implicit ctx: ProjectContext): Boolean = {
+  def matchesPattern(matching: ScType, matched: ScType): Boolean = {
     def abstraction(scType: ScType, visited: Set[ScType] = Set.empty): ScType = {
       if (visited.contains(scType)) {
         return scType

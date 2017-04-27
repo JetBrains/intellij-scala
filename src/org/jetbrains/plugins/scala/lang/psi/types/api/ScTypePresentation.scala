@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 /**
   * @author adkozlov
   */
-trait ScTypePresentation extends TypeSystemOwner {
+trait TypePresentation {
   final def presentableText(`type`: ScType, withPrefix: Boolean = true): String = typeText(`type`, {
     case c: PsiClass if withPrefix => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
     case e => e.name

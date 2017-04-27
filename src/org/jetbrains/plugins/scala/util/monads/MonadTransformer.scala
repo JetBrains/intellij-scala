@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util.monads
 
-import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 
@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Type
  * @author ilyas
  */
 
-trait MonadTransformer { self : PsiElement =>
+trait MonadTransformer { self : ScalaPsiElement =>
 
   class MonadLike[+T](opt: Option[T])(implicit msg: String) {
     def flatMap[U <: ScType](f: T => TypeResult[U]): TypeResult[U] = opt match {

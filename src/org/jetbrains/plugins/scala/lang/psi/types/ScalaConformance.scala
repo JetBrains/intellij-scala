@@ -30,10 +30,10 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, immutable, mutable}
 
-object Conformance extends api.Conformance {
-  override implicit lazy val typeSystem = ScalaTypeSystem
+trait ScalaConformance extends api.Conformance {
+  typeSystem: api.TypeSystem =>
 
-  override protected def computable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
+  override protected def conformsComputable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
     new Computable[(Boolean, ScUndefinedSubstitutor)] {
       override def compute(): (Boolean, ScUndefinedSubstitutor) = {
         val substitutor = ScUndefinedSubstitutor()
@@ -382,7 +382,7 @@ object Conformance extends api.Conformance {
             }
           }
         }
-        traverse(Equivalence.equivInner(l, _, _))
+        traverse(typeSystem.equivInner(l, _, _))
         traverse(conformsInner(l, _, HashSet.empty, _))
 
         if (results.length == 1) {
@@ -495,6 +495,9 @@ object Conformance extends api.Conformance {
       if (result != null) return
 
       if (checkWeak && r.isInstanceOf[ValType]) {
+        val stdTypes = StdTypes.instance
+        import stdTypes._
+
         (r, x) match {
           case (Byte, Short | Int | Long | Float | Double) =>
             result = (true, undefinedSubst)

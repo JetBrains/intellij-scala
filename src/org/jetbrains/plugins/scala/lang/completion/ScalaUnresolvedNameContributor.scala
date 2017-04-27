@@ -186,10 +186,7 @@ case class ScalaTextLookupItem(name: String, args: String, declarationType: PsiE
   override def handleInsert(context: InsertionContext): Unit = {
     declarationType match {
       case _: ScObject =>
-        val text =
-          s""" {
-             | def apply$args: Any = ???
-             |}""".stripMargin
+        val text = s" {\n def apply$args: Any = ???\n}"
 
         Option(context.getFile.findElementAt(context.getStartOffset)).foreach { element =>
           context

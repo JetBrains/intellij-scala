@@ -132,7 +132,6 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     }
 
     val expr = usage.expr
-    implicit val typeSystem = expr.projectContext
 
     val paramTypes = expr.getType() match {
       case Success(FunctionType(_, pTypes), _) => pTypes

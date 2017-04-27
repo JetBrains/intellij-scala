@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, Typeable, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -139,22 +139,20 @@ package object collections {
     }
   }
 
-  class FunctionExpressionWithReturnTypeTemplate(tp: ScType) {
+  object returnsBoolean {
     def unapply(expr: ScExpression): Boolean = {
       import expr.projectContext
 
       expr.getType(TypingContext.empty) match {
         case Success(result, _) =>
           result match {
-            case FunctionType(returnType, _) => returnType.conforms(tp)
+            case FunctionType(returnType, _) => returnType.conforms(api.Boolean)
             case _ => false
           }
         case _ => false
       }
     }
   }
-
-  val returnsBoolean = new FunctionExpressionWithReturnTypeTemplate(api.Boolean)
 
   object binaryOperation {
     def unapply(expr: ScExpression): Option[String] = {

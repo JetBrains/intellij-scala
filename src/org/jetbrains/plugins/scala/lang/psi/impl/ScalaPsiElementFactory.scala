@@ -43,10 +43,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocResolvableCodeReference, ScDocSyntaxElement}
@@ -530,7 +530,8 @@ object ScalaPsiElementFactory {
     // do not substitute aliases
     val substitutor = sign.substitutor
 
-    implicit val typeSystem = method.typeSystem
+    implicit val project = sign.projectContext
+
     method match {
       case method: ScFunction =>
         def annotations: String =
@@ -545,11 +546,11 @@ object ScalaPsiElementFactory {
                 case Some(x) => x.typeParameters.map(buildText).mkString("[", ",", "]")
               }
               val lowerBoundText = typeParam.lowerBound.toOption collect {
-                case Nothing => ""
+                case t if t.isNothing => ""
                 case x => " >: " + substitutor.subst(x).canonicalText
               }
               val upperBoundText = typeParam.upperBound.toOption collect {
-                case Any => ""
+                case t if t.isAny => ""
                 case x => " <: " + substitutor.subst(x).canonicalText
               }
               val viewBoundText = typeParam.viewBound map {
@@ -642,7 +643,7 @@ object ScalaPsiElementFactory {
               val colon = if (pName.endsWith("_")) " : " else ": "
               val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType())
               val typeText = scType match {
-                case AnyRef => "scala.Any"
+                case t if t.isAnyRef => "scala.Any"
                 case JavaArrayType(argument) if param.isVarArgs => argument.canonicalText + "*"
                 case _ => scType.canonicalText
               }
@@ -657,7 +658,7 @@ object ScalaPsiElementFactory {
           val retType = substitutor.subst(method.getReturnType.toScType())
           val retAndBody =
             if (needsInferType) {
-              val typeText = if (retType == api.Any) "AnyRef" else retType.canonicalText
+              val typeText = if (retType.isAny) "AnyRef" else retType.canonicalText
               s": $typeText = $inBody"
             } else " = " + inBody
           retAndBody
@@ -704,14 +705,19 @@ object ScalaPsiElementFactory {
     s"$overrideText$modifiersText$keyword$name$colon$typeText${body.map(x => " = " + x).getOrElse("")}"
   }
 
-  def getStandardValue(`type`: ScType): String = `type` match {
-    case Unit => "()"
-    case Boolean => "false"
-    case Char | Int | Byte => "0"
-    case Long => "0L"
-    case Float | Double => "0.0"
-    case ScDesignatorType(c: PsiClass) if c.qualifiedName == "java.lang.String" => "\"\""
-    case _ => "null"
+  def getStandardValue(`type`: ScType): String = {
+    val stdTypes = `type`.projectContext.stdTypes
+    import stdTypes._
+
+    `type` match {
+      case Unit => "()"
+      case Boolean => "false"
+      case Char | Int | Byte => "0"
+      case Long => "0L"
+      case Float | Double => "0.0"
+      case ScDesignatorType(c: PsiClass) if c.qualifiedName == "java.lang.String" => "\"\""
+      case _ => "null"
+    }
   }
 
   def createTypeFromText(text: String, context: PsiElement, child: PsiElement): Option[ScType] = {

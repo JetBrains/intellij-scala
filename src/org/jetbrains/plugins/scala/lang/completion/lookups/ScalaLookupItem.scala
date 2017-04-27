@@ -41,6 +41,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   val name: String = if (_name != "this") escapeKeyword(_name) else _name
 } with LookupItem[PsiNamedElement](element, name) {
 
+  private implicit val project = element.projectContext
+
   var isClassName: Boolean = false
   var isRenamed: Option[String] = None
   var isAssignment: Boolean = false
@@ -253,7 +255,6 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
             }))
             ref = ref.getParent.asInstanceOf[ScReferenceElement]
 
-          implicit val projectContext = ref.projectContext
           val newRef = ref match {
             case ref: ScReferenceExpression if prefixCompletion =>
               val parts = cl.qualifiedName.split('.')

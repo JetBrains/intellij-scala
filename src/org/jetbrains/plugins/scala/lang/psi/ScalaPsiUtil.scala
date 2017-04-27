@@ -186,6 +186,7 @@ object ScalaPsiUtil {
     * See SCL-2001, SCL-3485
     */
   def tuplizy(s: Seq[Expression], scope: GlobalSearchScope, manager: PsiManager, place: PsiElement): Option[Seq[Expression]] = {
+    implicit val project = manager.getProject
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
@@ -196,7 +197,7 @@ object ScalaPsiUtil {
             case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual).orNull
+        val tupleClass = ScalaPsiManager.instance.getCachedClass(scope, qual).orNull
         if (tupleClass == null) None
         else
           Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes), place)))
@@ -445,6 +446,8 @@ object ScalaPsiUtil {
     * not inferred generics, such bounds should be removed.
     */
   def removeBadBounds(tp: ScType): ScType = {
+    import tp.projectContext
+
     tp match {
       case tp@ScTypePolymorphicType(internal, typeParameters) =>
         def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
@@ -473,7 +476,7 @@ object ScalaPsiUtil {
               psiTypeParameter)
         }
 
-        ScTypePolymorphicType(internal, clearBadLinks(typeParameters))(tp.typeSystem)
+        ScTypePolymorphicType(internal, clearBadLinks(typeParameters))
       case _ => tp
     }
   }
@@ -635,7 +638,7 @@ object ScalaPsiUtil {
       @tailrec
       def collectObjects(tp: ScType) {
         tp match {
-          case Any =>
+          case _ if tp.isAny =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
             elementScope.getCachedObject("scala." + tp.name)
               .foreach { o =>
@@ -1515,14 +1518,11 @@ object ScalaPsiUtil {
 
   def isArgumentOfFunctionType(expr: ScExpression): Boolean = {
 
-    import expr.projectContext
-
     isCanonicalArg(expr) && parameterOf(expr).exists(p => FunctionType.isFunctionType(p.paramType))
   }
 
   object MethodValue {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
-      import expr.projectContext
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
         case expected if isSAMEnabled(expr) =>
@@ -1984,7 +1984,7 @@ object ScalaPsiUtil {
                         // Right now the simplest way is Bad Code is Green as otherwise we need to fix this inconsistency somehow.
                         // I has no idea how yet...
                         case (lo, _) if variance == ScTypeParam.Contravariant => lo
-                        case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
+                        case (lo, hi) if lo.isNothing && variance == ScTypeParam.Covariant => hi
                         case _ => tpArg
                       }
                     case _ => tpArg

@@ -2,17 +2,12 @@ package org.jetbrains.plugins.scala.lang.benchmarks.typeInference
 
 import java.util.concurrent.TimeUnit
 
-import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
-import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.benchmarks._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 
@@ -25,7 +20,6 @@ import org.openjdk.jmh.infra.Blackhole
 @State(Scope.Benchmark)
 abstract class TypeInferenceBenchmarkBase(testName: String) extends TypeInferenceTestBase {
   var expr: ScExpression = _
-  var typeSystem: TypeSystem = _
   var scalaPsiManager: ScalaPsiManager = _
   var psiModTracker: PsiModificationTrackerImpl = _
 
@@ -38,7 +32,6 @@ abstract class TypeInferenceBenchmarkBase(testName: String) extends TypeInferenc
   def setupData(): Unit = {
     val file = configureFromFileText(fileName, None)
     expr = findExpression(file)
-    typeSystem = getProjectAdapter.typeSystem
     scalaPsiManager = ScalaPsiManager.instance(getProjectAdapter)
     psiModTracker = PsiManager.getInstance(getProjectAdapter).getModificationTracker.asInstanceOf[PsiModificationTrackerImpl]
   }

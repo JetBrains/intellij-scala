@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-object ScTypePresentation extends api.ScTypePresentation {
-  override implicit lazy val typeSystem = ScalaTypeSystem
+trait ScalaTypePresentation extends api.TypePresentation {
+  typeSystem: api.TypeSystem =>
 
   protected override def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     def typeSeqText(ts: Seq[ScType], start: String, sep: String, end: String, checkWildcard: Boolean = false): String = {
@@ -44,11 +44,11 @@ object ScTypePresentation extends api.ScTypePresentation {
       else if (param.isCovariant) buffer ++= "+"
       buffer ++= param.name
       param.lowerBound foreach {
-        case Nothing =>
+        case tp if tp.isNothing =>
         case tp: ScType => buffer ++= s" >: ${typeText0(tp)}"
       }
       param.upperBound foreach {
-        case Any =>
+        case tp if tp.isAny =>
         case tp: ScType => buffer ++= s" <: ${typeText0(tp)}"
       }
       param.viewBound foreach {
@@ -151,7 +151,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           val defnText = ta match {
             case tad: ScTypeAliasDefinition =>
               tad.aliasedType.map {
-                case Nothing => ""
+                case tpe if tpe.isNothing => ""
                 case tpe => s" = ${typeText0(tpe)}"
               }.getOrElse("")
             case _ =>

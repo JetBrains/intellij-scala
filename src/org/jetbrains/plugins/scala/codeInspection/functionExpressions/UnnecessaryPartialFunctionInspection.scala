@@ -26,7 +26,6 @@ class UnnecessaryPartialFunctionInspection
 
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expression: ScBlockExpr =>
-      implicit val typeSystem = expression.projectContext
       def isNotPartialFunction(expectedType: ScType) =
         findPartialFunctionType(holder.getFile).exists(!expectedType.conforms(_))
       def conformsTo(expectedType: ScType) = (inputType: ScType, resultType: ScType) =>

@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -114,7 +115,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         addedElements += el.getLookupString
       }
 
-      implicit val typeSystem = position.typeSystem
+      implicit val project = position.projectContext
       position.getContext match {
         case ref: ScReferenceElement =>
           val isInImport = ScalaPsiUtil.getContextOfType(ref, true, classOf[ScImportStmt]) != null
@@ -176,7 +177,6 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             }
           }
           def postProcessMethod(resolveResult: ScalaResolveResult) {
-            import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
             val probablyContinigClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
             val qualifierType = resolveResult.fromType.getOrElse(Nothing)
             val lookupItems: Seq[ScalaLookupItem] = LookupElementManager.getLookupElement(

@@ -3,9 +3,8 @@ package format
 
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
  * Pavel Fatin
@@ -38,18 +37,23 @@ object FormattedStringFormatter extends StringFormatter {
     '"' + formatter + '"' + ".format(%s)".format(arguments)
   }
 
-  private def letterFor(aType: ScType): Char = aType match {
-    case Boolean => 'b'
-    case api.Char => 'c'
-    case api.Byte | api.Short | Int | Long => 'd'
-    case Float | Double => 'f'
-    case ScDesignatorType(element) => element.name match {
-      case "String" => 's'
-      case "BigInt" => 'd'
-      case "BigDecimal" => 'f'
-      case "Calendar" | "Date" => 't'
+  private def letterFor(aType: ScType): Char = {
+    val stdTypes = aType.projectContext.stdTypes
+    import stdTypes._
+
+    aType match {
+      case Boolean => 'b'
+      case Char => 'c'
+      case Byte | Short | Int | Long => 'd'
+      case Float | Double => 'f'
+      case ScDesignatorType(element) => element.name match {
+        case "String" => 's'
+        case "BigInt" => 'd'
+        case "BigDecimal" => 'f'
+        case "Calendar" | "Date" => 't'
+        case _ => 's'
+      }
       case _ => 's'
     }
-    case _ => 's'
   }
 }

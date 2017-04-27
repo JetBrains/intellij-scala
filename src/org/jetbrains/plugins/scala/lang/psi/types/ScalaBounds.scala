@@ -20,8 +20,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-object Bounds extends api.Bounds {
-  override implicit lazy val typeSystem = ScalaTypeSystem
+trait ScalaBounds extends api.Bounds {
+  typeSystem: api.TypeSystem =>
 
   def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
     if (conforms(t1, t2, checkWeak)) t1

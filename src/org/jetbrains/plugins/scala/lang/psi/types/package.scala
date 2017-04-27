@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.util.control.NoStackTrace
 /**
@@ -17,49 +18,68 @@ import scala.util.control.NoStackTrace
   */
 package object types {
 
+  def ScalaTypeSystem(implicit project: ProjectContext) = new ScalaTypeSystem
+
   implicit class ScTypeExt(val scType: ScType) extends AnyVal {
-    def equiv(`type`: ScType)(implicit typeSystem: TypeSystem): Boolean = {
-      typeSystem.equivalence.equiv(scType, `type`)
+    private def typeSystem = scType.typeSystem
+    private def projectContext = scType.projectContext
+    private def stdTypes = projectContext.stdTypes
+
+    def equiv(`type`: ScType): Boolean = {
+      typeSystem.equiv(scType, `type`)
     }
 
-    def equiv(`type`: ScType, undefinedSubstitutor: ScUndefinedSubstitutor, falseUndef: Boolean = true)
-             (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-      typeSystem.equivalence.equivInner(scType, `type`, undefinedSubstitutor, falseUndef)
+    def equiv(`type`: ScType, undefinedSubstitutor: ScUndefinedSubstitutor, falseUndef: Boolean = true): (Boolean, ScUndefinedSubstitutor) = {
+      typeSystem.equivInner(scType, `type`, undefinedSubstitutor, falseUndef)
     }
 
-    def conforms(`type`: ScType)
-                (implicit typeSystem: TypeSystem): Boolean = {
-      typeSystem.conformance.conformsInner(`type`, scType)._1
+    def conforms(`type`: ScType): Boolean = {
+      typeSystem.conformsInner(`type`, scType)._1
     }
 
-    def weakConforms(`type`: ScType)
-                    (implicit typeSystem: TypeSystem): Boolean = {
-      typeSystem.conformance.conformsInner(`type`, scType, checkWeak = true)._1
+    def weakConforms(`type`: ScType): Boolean = {
+      typeSystem.conformsInner(`type`, scType, checkWeak = true)._1
     }
 
     def conforms(`type`: ScType,
                  undefinedSubstitutor: ScUndefinedSubstitutor,
-                 checkWeak: Boolean = false)
-                (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-      typeSystem.conformance.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
+                 checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
+      typeSystem.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
     }
 
-    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
-      typeSystem.bounds.glb(scType, `type`, checkWeak)
+    def glb(`type`: ScType, checkWeak: Boolean = false): ScType = {
+      typeSystem.glb(scType, `type`, checkWeak)
     }
 
-    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit typeSystem: TypeSystem): ScType = {
-      typeSystem.bounds.lub(scType, `type`, checkWeak)
+    def lub(`type`: ScType, checkWeak: Boolean = true): ScType = {
+      typeSystem.lub(scType, `type`, checkWeak)
+    }
+
+    def isBoolean: Boolean = scType == stdTypes.Boolean
+
+    def isAny: Boolean = scType == stdTypes.Any
+
+    def isAnyRef: Boolean = scType == stdTypes.AnyRef
+
+    def isNothing: Boolean = scType == stdTypes.Nothing
+
+    def isUnit: Boolean = scType == stdTypes.Unit
+
+    def isNull: Boolean = scType == stdTypes.Null
+
+    def isPrimitive: Boolean = scType match {
+      case v: ValType => !isUnit
+      case _ => false
     }
 
     def removeUndefines(): ScType = scType.recursiveUpdate {
-      case _: UndefinedType => (true, Any)
+      case _: UndefinedType => (true, stdTypes.Any)
       case tp: ScType => (false, tp)
     }
 
     def toPsiType(noPrimitives: Boolean = false)
                  (implicit elementScope: ElementScope): PsiType = {
-      elementScope.typeSystem.bridge.toPsiType(scType, noPrimitives = noPrimitives)
+      typeSystem.toPsiType(scType, noPrimitives = noPrimitives)
     }
 
     /**
@@ -97,7 +117,7 @@ package object types {
         tp.recursiveUpdate {
           `type` => `type`.isAliasType match {
             case Some(AliasType(ta: ScTypeAliasDefinition, _, Failure(_, _))) if needExpand(ta) =>
-              (true, Any)
+              (true, projectContext.stdTypes.Any)
             case Some(AliasType(ta: ScTypeAliasDefinition, _, Success(upper, _))) if needExpand(ta) =>
               if (visited.contains(`type`)) throw RecursionException
               val updated =
@@ -125,12 +145,12 @@ package object types {
   }
 
   implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {
-    def glb(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem): ScType = {
-      typeSystem.bounds.glb(types, checkWeak)
+    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
+      project.typeSystem.glb(types, checkWeak)
     }
 
-    def lub(checkWeak: Boolean = true)(implicit typeSystem: TypeSystem): ScType = {
-      typeSystem.bounds.glb(types, checkWeak)
+    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext): ScType = {
+      project.typeSystem.lub(types, checkWeak)
     }
   }
 

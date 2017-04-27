@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -237,13 +237,14 @@ object InferUtil {
                                     expectedType: Option[ScType], expr: PsiElement,
                                     check: Boolean): TypeResult[ScType] = {
     implicit val ctx: ProjectContext = expr
+    val Unit = ctx.stdTypes.Unit
 
     var nonValueType = _nonValueType
     nonValueType match {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, _, impl), typeParams), _)
         if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
-          if (expected.equiv(api.Unit)) return //do not update according to Unit type
+          if (expected.equiv(Unit)) return //do not update according to Unit type
           val innerInternal = internal match {
               case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
               case _ => internal
@@ -286,8 +287,8 @@ object InferUtil {
           expectedType match {
             case Some(expectedType@FunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
               && !mt.returnType.conforms(expectedType) =>
-              if (expectedRet.equiv(api.Unit)) { //value discarding
-                ScMethodType(api.Unit, mt.params, mt.isImplicit)
+              if (expectedRet.equiv(Unit)) { //value discarding
+                ScMethodType(Unit, mt.params, mt.isImplicit)
               } else {
                 mt.returnType match {
                   case methodType: ScMethodType => return mt.copy(
@@ -333,8 +334,7 @@ object InferUtil {
     }
   }
 
-  def undefineSubstitutor(typeParams: Seq[TypeParameter])
-                         (implicit typeSystem: TypeSystem): ScSubstitutor = {
+  def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
     typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
         subst.bindT(tp.nameAndId, UndefinedType(TypeParameterType(tp.psiTypeParameter)))
@@ -345,8 +345,7 @@ object InferUtil {
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
                          safeCheck: Boolean = false,
-                         filterTypeParams: Boolean = true)
-                        (implicit typeSystem: TypeSystem): ScTypePolymorphicType = {
+                         filterTypeParams: Boolean = true): ScTypePolymorphicType = {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck,
       filterTypeParams)._1
   }
@@ -358,8 +357,7 @@ object InferUtil {
                                           typeParams: Seq[TypeParameter],
                                           shouldUndefineParameters: Boolean = true,
                                           safeCheck: Boolean = false,
-                                          filterTypeParams: Boolean = true)
-                                         (implicit typeSystem: TypeSystem): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+                                          filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
     val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
       shouldUndefineParameters, safeCheck, filterTypeParams)
     (tp, problems)
@@ -370,9 +368,9 @@ object InferUtil {
                                              shouldUndefineParameters: Boolean = true,
                                              safeCheck: Boolean = false,
                                              filterTypeParams: Boolean = true
-                                            )
-                                            (implicit typeSystem: TypeSystem
                                             ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
+    implicit val projectContext = retType.projectContext
+
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
     val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty

@@ -205,7 +205,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val element = file.findElementAt(offset)
     if (element == null) return null
 
-    implicit val typeSystem = element.typeSystem
+    implicit val project = file.projectContext
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {

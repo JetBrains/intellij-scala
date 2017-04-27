@@ -166,7 +166,7 @@ object ScPattern {
                   if (p == pattern) return Some(t)
                 }
                 None
-              case et0 if et0 == api.AnyRef || et0 == Any => Some(api.Any)
+              case et0 if et0.isAnyRef || et0.isAny => Some(Any)
               case _ => None
             }
           case _: ScXmlPattern =>

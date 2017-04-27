@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 
-import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt, ScUndefinedSubstitutor, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
@@ -35,8 +33,7 @@ case class ScThisType(element: ScTemplateDefinition) extends DesignatorOwner {
 
   override private[types] def designatorSingletonType = None
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (this, `type`) match {
       case (ScThisType(clazz1), ScThisType(clazz2)) =>
         (ScEquivalenceUtil.areClassesEquivalent(clazz1, clazz2), substitutor)

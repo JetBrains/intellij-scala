@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -198,18 +198,16 @@ import com.intellij.openapi.project.Project
 class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
   implicit def ctx: ProjectContext = project
 
-  def projectOpened(): Unit = {}
+  def projectOpened(): Unit = {
+    StartupManager.getInstance(project).registerPostStartupActivity {
+      registerClasses()
+    }
+  }
   def disposeComponent(): Unit = {}
 
   def getComponentName = "SyntheticClasses"
 
-  override def initComponent(): Unit = {
-    StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
-      def run() {
-        registerClasses()
-      }
-    })
-  }
+  override def initComponent(): Unit = {}
 
   def projectClosed(): Unit = {
     scriptSyntheticValues.clear()
@@ -239,6 +237,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   var file : PsiFile = _
 
   def registerClasses() {
+    val stdTypes = ctx.stdTypes
+    import stdTypes._
+
     all = new mutable.HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
       "dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, "")
@@ -252,9 +253,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       override val retType = TypeParameterType(typeParams.head, None)
     })
 
-    val anyRef = registerClass(api.AnyRef, "AnyRef")
-    anyRef.addMethod(new ScSyntheticFunction("eq", Boolean, Seq(Seq(api.AnyRef))))
-    anyRef.addMethod(new ScSyntheticFunction("ne", Boolean, Seq(Seq(api.AnyRef))))
+    val anyRef = registerClass(AnyRef, "AnyRef")
+    anyRef.addMethod(new ScSyntheticFunction("eq", Boolean, Seq(Seq(AnyRef))))
+    anyRef.addMethod(new ScSyntheticFunction("ne", Boolean, Seq(Seq(AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction("synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
       override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(Parameter(
         TypeParameterType(typeParams.head, None), isRepeated = false, index = 0)))
@@ -461,11 +462,16 @@ object Unit
     classesInitialized = true
   }
 
-  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = (ic1.t, ic2.t) match {
-    case (_, Double) | (Double, _) => Double
-    case (Float, _) | (_, Float) => Float
-    case (_, Long) | (Long, _)=> Long
-    case _ => Int
+  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = {
+    val stdTypes = ic1.projectContext.stdTypes
+    import stdTypes._
+
+    (ic1.t, ic2.t) match {
+      case (_, Double) | (Double, _) => Double
+      case (Float, _) | (_, Float) => Float
+      case (_, Long) | (Long, _)=> Long
+      case _ => Int
+    }
   }
 
   def registerClass(t: StdType, name: String) = {

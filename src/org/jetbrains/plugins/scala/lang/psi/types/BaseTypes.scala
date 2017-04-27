@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import scala.collection.mutable
 
 object BaseTypes {
-  def get(t: ScType, notAll: Boolean = false, visitedAliases: Set[ScTypeAlias] = Set.empty)
-         (implicit typeSystem: TypeSystem = ScalaTypeSystem): Seq[ScType] = {
+  def get(t: ScType, notAll: Boolean = false, visitedAliases: Set[ScTypeAlias] = Set.empty): Seq[ScType] = {
+    implicit val project = t.projectContext
+
     ProgressManager.checkCanceled()
     t match {
       case ScDesignatorType(td : ScTemplateDefinition) =>
@@ -91,8 +92,7 @@ object BaseTypes {
     }
   }
 
-  def reduce(types: Seq[ScType])
-            (implicit typeSystem: TypeSystem): Seq[ScType] = {
+  def reduce(types: Seq[ScType]): Seq[ScType] = {
     val res = new mutable.HashMap[PsiClass, ScType]
     object all extends mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
     val iterator = types.iterator

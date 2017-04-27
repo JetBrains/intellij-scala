@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 
-import scala.Predef._
-
-
 /**
  * Nikolay.Tropin
  * 4/23/13
@@ -74,7 +71,7 @@ object SimplifyBooleanUtil {
     case _ => false
   }
 
-  private def isOfBooleanType(expr: ScExpression): Boolean = {
+  def isOfBooleanType(expr: ScExpression): Boolean = {
     import expr.projectContext
     expr.getType(TypingContext.empty).getOrAny.weakConforms(api.Boolean)
   }

@@ -33,32 +33,38 @@ object ComparingUnrelatedTypesInspection {
 
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
 
-  private def cannotBeCompared(type1: ScType, type2: ScType)
-                              (implicit typeSystem: TypeSystem): Boolean = {
+  private def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
+    val stdTypes = type1.projectContext.stdTypes
+    import stdTypes._
+
     var types = Seq(type1, type2)
-    if (types.exists(undefinedTypeAlias(_))) return false
+    if (types.exists(undefinedTypeAlias)) return false
 
     types = types.map(extractActualType)
     if (!types.contains(Null)) {
       types = types.map {
-        case tp => StdType.fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp)
+        case tp => fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp)
       }
     }
 
-    if (types.forall(isNumericType(_))) return false
+    if (types.forall(isNumericType)) return false
 
     val Seq(unboxed1, unboxed2) = types
     ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
 
-  private def isNumericType(`type`: ScType): Boolean = `type` match {
-    case Byte | Char | Short | Int | Long | Float | Double => true
-    case ScDesignatorType(c: ScClass) => c.supers.headOption.exists(_.qualifiedName == "scala.math.ScalaNumber")
-    case _ => false
+  private def isNumericType(`type`: ScType): Boolean = {
+    val stdTypes = `type`.projectContext.stdTypes
+    import stdTypes._
+
+    `type` match {
+      case Byte | Char | Short | Int | Long | Float | Double => true
+      case ScDesignatorType(c: ScClass) => c.supers.headOption.exists(_.qualifiedName == "scala.math.ScalaNumber")
+      case _ => false
+    }
   }
 
-  private def undefinedTypeAlias(`type`: ScType)
-                                (implicit typeSystem: TypeSystem) = `type`.isAliasType match {
+  private def undefinedTypeAlias(`type`: ScType) = `type`.isAliasType match {
     case Some(ScTypeUtil.AliasType(_, lower, upper)) =>
       lower.isEmpty || upper.isEmpty || !lower.get.equiv(upper.get)
     case _ => false
@@ -79,7 +85,6 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         case m: PsiMethod if MethodUtils.isEquals(m) => true
         case _ => false
       }
-      implicit val typeSystem = holderTypeSystem(holder)
       if (needHighlighting) {
         //getType() for the reference on the left side returns singleton type, little hack here
         val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
@@ -91,7 +96,6 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         }
       }
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
-      implicit val typeSystem = holderTypeSystem(holder)
       for {
         ParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(_.tryExtractDesignatorSingleton)
         argType <- arg.getType()
@@ -101,7 +105,6 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     case IsInstanceOfCall(call) =>
-      implicit val typeSystem = holderTypeSystem(holder)
       val qualType = call.referencedExpr match {
         case ScReferenceExpression.withQualifier(q) => q.getType().toOption
         case _ => None

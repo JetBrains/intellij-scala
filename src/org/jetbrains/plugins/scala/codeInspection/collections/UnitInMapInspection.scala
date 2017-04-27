@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{ChangeReferenceNameQuickFix, InspectionBundle, ProblemsHolderExt}
+import org.jetbrains.plugins.scala.codeInspection.{ChangeReferenceNameQuickFix, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
 /**
@@ -28,7 +28,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
       val fixes =
         if (isInBlock) Seq(new ChangeReferenceNameQuickFix(InspectionBundle.message("use.foreach.instead.of.map"), ref, "foreach"))
         else Seq.empty
-      implicit val typeSystem = holder.typeSystem
+      val Unit = call.projectContext.stdTypes.Unit
       val unitTypeReturns = body.calculateReturns().collect {
         case expr@Typeable(ft@FunctionType(Unit, _)) if arg.getType().getOrAny.equiv(ft) => expr
         case expr@Typeable(Unit) => expr

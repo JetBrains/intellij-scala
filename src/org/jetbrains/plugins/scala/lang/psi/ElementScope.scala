@@ -5,7 +5,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -15,8 +15,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
   */
 case class ElementScope(project: Project, scope: GlobalSearchScope) {
   implicit def projectContext: ProjectContext = project
-
-  def typeSystem: TypeSystem = projectContext
 
   def getCachedClass(fqn: String): Option[PsiClass] =
     getCachedClasses(fqn).find {

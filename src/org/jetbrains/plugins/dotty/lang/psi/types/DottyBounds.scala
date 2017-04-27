@@ -6,12 +6,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 /**
   * @author adkozlov
   */
-object Bounds extends api.Bounds {
-  override implicit lazy val typeSystem = DottyTypeSystem
+trait DottyBounds extends api.Bounds {
+  typeSystem: api.TypeSystem =>
 
   override def glb(first: ScType, second: ScType, checkWeak: Boolean): ScType = {
     checkTypes(first, second) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
@@ -30,12 +30,12 @@ object Bounds extends api.Bounds {
     }
 
     mergeIfSub(first, second, checkWeak) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
     mergeIfSub(second, first, checkWeak) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
@@ -49,17 +49,17 @@ object Bounds extends api.Bounds {
 
   override def lub(first: ScType, second: ScType, checkWeak: Boolean): ScType = {
     checkTypes(first, second) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
     mergeIfSuper(first, second, checkWeak) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
     mergeIfSuper(second, first, checkWeak) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
@@ -75,10 +75,10 @@ object Bounds extends api.Bounds {
   private def checkTypes(first: ScType, second: ScType) = {
     if (first.eq(second)) first
     else first match {
-      case DottyNoType => second
+      case DottyNoType() => second
       case _ => second match {
-        case DottyNoType => first
-        case _ => DottyNoType // TODO: is refined of Any/Nothing
+        case DottyNoType() => first
+        case _ => DottyNoType() // TODO: is refined of Any/Nothing
       }
     }
   }
@@ -87,18 +87,18 @@ object Bounds extends api.Bounds {
   private def mergeIfSuper(first: ScType, second: ScType, checkWeak: Boolean): ScType = {
     second match {
       case DottyOrType(left, right) => merge(first, second, left, right, checkWeak, mergeIfSuper, lub)
-      case _ => DottyNoType
+      case _ => DottyNoType()
     }
   }
 
   private def orType(first: ScType, second: ScType): ScType = {
     distributedOr(first, second) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
     distributedOr(second, first) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
@@ -106,13 +106,13 @@ object Bounds extends api.Bounds {
     DottyOrType(first, second)
   }
 
-  private def distributedOr(first: ScType, second: ScType) = DottyNoType
+  private def distributedOr(first: ScType, second: ScType) = DottyNoType()
 
   // TODO: frozen?
   private def mergeIfSub(first: ScType, second: ScType, checkWeak: Boolean): ScType = {
     second match {
       case DottyAndType(left, right) => merge(first, second, left, right, checkWeak, mergeIfSub, glb)
-      case _ => DottyNoType
+      case _ => DottyNoType()
     }
   }
 
@@ -122,9 +122,9 @@ object Bounds extends api.Bounds {
                     getBound: (ScType, ScType, Boolean) => ScType) = {
     merger(first, left, checkWeak) match {
       case bound if bound.eq(left) => second
-      case DottyNoType => merger(first, right, checkWeak) match {
+      case DottyNoType() => merger(first, right, checkWeak) match {
         case bound if bound.eq(right) => second
-        case DottyNoType => DottyNoType
+        case DottyNoType() => DottyNoType()
         case bound => getBound(left, bound, checkWeak)
       }
       case bound => getBound(bound, right, checkWeak)
@@ -133,12 +133,12 @@ object Bounds extends api.Bounds {
 
   private def andType(first: ScType, second: ScType): ScType = {
     distributedAnd(first, second) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
     distributedAnd(second, first) match {
-      case DottyNoType =>
+      case DottyNoType() =>
       case result => return result
     }
 
@@ -146,5 +146,5 @@ object Bounds extends api.Bounds {
     DottyAndType(first, second)
   }
 
-  private def distributedAnd(second: ScType, first: ScType) = DottyNoType
+  private def distributedAnd(second: ScType, first: ScType) = DottyNoType()
 }

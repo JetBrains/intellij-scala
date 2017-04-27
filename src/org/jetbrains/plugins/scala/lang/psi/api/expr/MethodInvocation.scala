@@ -350,8 +350,6 @@ object MethodInvocation {
   implicit class MethodInvocationExt(val invocation: MethodInvocation) extends AnyVal {
     private implicit def elementScope = invocation.elementScope
 
-    private implicit def typeSystem = invocation.projectContext
-
     /**
       * This method useful in case if you want to update some polymorphic type
       * according to method call expected type

@@ -33,11 +33,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeFromText
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.JavaConverters._
@@ -60,6 +60,9 @@ class ScalaChangeSignatureDialog(val project: Project,
     ScalaMethodDescriptor,
     ScalaParameterTableModelItem,
     ScalaParameterTableModel](project, method, false, method.fun) {
+
+  implicit val projectContext: ProjectContext = project
+
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
   override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
@@ -354,7 +357,7 @@ class ScalaChangeSignatureDialog(val project: Project,
   protected def returnType: ScType =
     Option(myReturnTypeCodeFragment).flatMap { fragment =>
       createTypeFromText(fragment.getText, fragment.getContext, fragment)
-    }.getOrElse(Any)
+    }.getOrElse(api.Any)
 
   protected def splittedItems: Seq[Seq[ScalaParameterTableModelItem]] = {
     def inner(items: Seq[ScalaParameterTableModelItem]): Seq[Seq[ScalaParameterTableModelItem]] = {

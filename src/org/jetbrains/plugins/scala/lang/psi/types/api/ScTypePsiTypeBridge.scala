@@ -11,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 /**
   * @author adkozlov
   */
-trait ScTypePsiTypeBridge extends TypeSystemOwner {
+trait PsiTypeBridge {
+  typeSystem: TypeSystem =>
+
   /**
     * @param treatJavaObjectAsAny if true, and paramTopLevel is true, java.lang.Object is treated as scala.Any
     *                             See SCL-3036 and SCL-2375
@@ -55,6 +57,10 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
                 noPrimitives: Boolean = false,
                 skolemToWildcard: Boolean = false)
                (implicit elementScope: ElementScope): PsiType = {
+
+    val stdTypes = `type`.projectContext.stdTypes
+    import stdTypes._
+
     def javaObject = createJavaObject
     def primitiveOrObject(primitive: PsiPrimitiveType) =
       if (noPrimitives) javaObject else primitive

@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 
 import scala.annotation.tailrec
 
@@ -52,8 +53,10 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val implicitParameters: Seq[ScalaResolveResult] = Seq.empty,
                          val implicitReason: ImplicitResult = NoResult,
                          val implicitSearchState: Option[ImplicitState] = None,
-                         val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None) extends ResolveResult {
+                         val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None) extends ResolveResult with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
+
+  override implicit def projectContext: ProjectContext = element.getProject
 
   def getElement: PsiNamedElement = element
 

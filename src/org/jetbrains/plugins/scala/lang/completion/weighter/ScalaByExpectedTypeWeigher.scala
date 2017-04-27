@@ -12,12 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * Created by Kate Ustyuzhanina on 11/24/16.
   */
 class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElement) extends LookupElementWeigher("scalaExpectedType") {
+
+  private implicit def project = position.projectContext
 
   override def weigh(element: LookupElement, context: WeighingContext): Comparable[_] = {
     import KindWeights._
@@ -38,8 +39,6 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
   }
 
   def expectedType(scType: ScType, el: ScalaLookupItem): Boolean = {
-    implicit val typeSystem = el.element.typeSystem
-
     if (scType == null) {
       return false
     }
@@ -71,7 +70,6 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
       case _ if !ScalaSmartCompletionContributor.isAccessible(scalaLookupItem, position) || scalaLookupItem.isNamedParameterOrAssignment =>
         (null, null)
       case _ =>
-        implicit val typeSystem = scalaLookupItem.element.getProject.typeSystem
         scalaLookupItem.element match {
           case fun: ScSyntheticFunction =>
             val tp = fun.retType

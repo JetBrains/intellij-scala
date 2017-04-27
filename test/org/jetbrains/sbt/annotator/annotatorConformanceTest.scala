@@ -2,7 +2,6 @@ package org.jetbrains.sbt.annotator
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.annotator.SbtAnnotator.isTypeAllowed
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.junit.Assert.assertTrue
@@ -22,8 +21,6 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
 
   def doConformanceTest(expression: ScExpression, typeNameExpected: String): Unit = {
     val file = loadTestFile() // just for the context. we can probably create a context without loading the file?
-    implicit val project = file.getProject
-    implicit val typeSystem = project.typeSystem
 
     expression.setContext(file, null)
 

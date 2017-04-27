@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 /**
   * @author adkozlov
   */
-object ScTypePresentation extends org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation {
-  override implicit lazy val typeSystem = DottyTypeSystem
+trait DottyTypePresentation extends api.TypePresentation {
+  typeSystem: api.TypeSystem =>
 
   override protected def typeText(`type`: ScType,
                                   nameFun: (PsiNamedElement) => String,

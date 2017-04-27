@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ExpectedType, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -18,21 +18,25 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class MakeBoxingExplicit extends AbstractTransformer {
   private val Class = "scala.runtime.BoxesRunTime"
 
-  private val Methods = Map[ScType, String](
-    (StdType.Boolean, "boxToBoolean"),
-    (StdType.Char, "boxToCharacter"),
-    (StdType.Byte, "boxToByte"),
-    (StdType.Short, "boxToShort"),
-    (StdType.Int, "boxToInteger"),
-    (StdType.Long, "boxToLong"),
-    (StdType.Float, "boxToFloat"),
-    (StdType.Double, "boxToDouble"))
+  def boxMethodName(t: ScType): Option[String] = {
+    t match {
+      case _ if t.isUnit => None
+      case v: ValType =>
+        val postfix = v.name match {
+          case "Char" => "Character"
+          case "Int" => "Integer"
+          case name => name
+        }
+        Some(s"boxTo$postfix")
+      case _ => None
+    }
+  }
 
   def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScExpression) && Typeable(t) && ExpectedType(et)
-      if Methods.contains(t) && et != StdType.AnyRef && et != t && !isSpecializedFor(et, t) =>
+      if boxMethodName(t).nonEmpty && et != AnyRef && et != t && !isSpecializedFor(et, t) =>
 
-      val target = s"$Class.${Methods(t)}"
+      val target = s"$Class.${boxMethodName(t).get}"
 
       val FirstChild(r: ScReferenceExpression) = e.replace(code"${simpleNameOf(target)}($e)")
       bindTo(r, target)

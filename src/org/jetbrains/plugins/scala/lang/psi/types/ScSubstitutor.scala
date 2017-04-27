@@ -166,6 +166,8 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
   }
 
   protected def substInternal(t: ScType) : ScType = {
+    import t.projectContext
+
     var result: ScType = t
     val visitor = new ScalaTypeVisitor {
       override def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {
@@ -178,7 +180,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                 Suspension(substInternal(lowerType.v)),
                 Suspension(substInternal(upperType.v)),
                 psiTypeParameter)
-          })(t.typeSystem)
+          })
       }
 
       override def visitAbstractType(a: ScAbstractType): Unit = {
@@ -402,7 +404,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
       }
 
       override def visitJavaArrayType(j: JavaArrayType): Unit = {
-        result = JavaArrayType(substInternal(j.argument))(j.typeSystem)
+        result = JavaArrayType(substInternal(j.argument))
       }
 
       override def visitProjectionType(p: ScProjectionType): Unit = {
@@ -448,7 +450,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
         result = updateThisType match {
           case Some(thisType@ScDesignatorType(param: ScParameter)) =>
             val paramType = param.getRealParameterType(TypingContext.empty).getOrAny
-            if (paramType.conforms(middleRes)(ScalaTypeSystem)) thisType
+            if (paramType.conforms(middleRes)) thisType
             else middleRes
           case _ => middleRes
         }

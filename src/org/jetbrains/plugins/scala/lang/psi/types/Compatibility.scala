@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set}
@@ -35,16 +36,15 @@ object Compatibility {
   @TestOnly
   var seqClass: Option[PsiClass] = None
 
-  private implicit val typeSystem = ScalaTypeSystem
+  case class Expression(expr: ScExpression)(implicit pc: ProjectContext) {
 
-  case class Expression(expr: ScExpression) {
     var typez: ScType = null
     var place: PsiElement = null
-    def this(tp: ScType) = {
+    def this(tp: ScType)(implicit pc: ProjectContext) = {
       this(null: ScExpression)
       typez = tp
     }
-    def this(tp: ScType, place: PsiElement) {
+    def this(tp: ScType, place: PsiElement)(implicit pc: ProjectContext) {
       this(tp)
       this.place = place
     }
@@ -106,9 +106,9 @@ object Compatibility {
   object Expression {
     import scala.language.implicitConversions
 
-    implicit def scExpression2Expression(expr: ScExpression): Expression = Expression(expr)
-    implicit def seq2ExpressionSeq(seq: Seq[ScExpression]): Seq[Expression] = seq.map(Expression(_))
-    implicit def args2ExpressionArgs(list: List[Seq[ScExpression]]): List[Seq[Expression]] = {
+    implicit def scExpression2Expression(expr: ScExpression)(implicit pc: ProjectContext): Expression = Expression(expr)
+    implicit def seq2ExpressionSeq(seq: Seq[ScExpression])(implicit pc: ProjectContext): Seq[Expression] = seq.map(Expression(_))
+    implicit def args2ExpressionArgs(list: List[Seq[ScExpression]])(implicit pc: ProjectContext): List[Seq[Expression]] = {
       list.map(_.map(Expression(_)))
     }
   }
@@ -126,7 +126,8 @@ object Compatibility {
   def checkConformance(checkNames: Boolean,
                        parameters: Seq[Parameter],
                        exprs: Seq[Expression],
-                       checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+                       checkWithImplicits: Boolean)
+                      (implicit project: ProjectContext): (Boolean, ScUndefinedSubstitutor) = {
     val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, isShapesResolve = false)
     (r.problems.isEmpty, r.undefSubst)
   }
@@ -139,10 +140,15 @@ object Compatibility {
   }
 
   case class ConformanceExtResult(problems: Seq[ApplicabilityProblem],
-                                  undefSubst: ScUndefinedSubstitutor = ScUndefinedSubstitutor(),
+                                  undefSubst: ScUndefinedSubstitutor,
                                   defaultParameterUsed: Boolean = false,
                                   matchedArgs: Seq[(Parameter, ScExpression)] = Seq(),
                                   matchedTypes: Seq[(Parameter, ScType)] = Seq())
+
+  object ConformanceExtResult {
+    def apply(problems: Seq[ApplicabilityProblem])(implicit project: ProjectContext): ConformanceExtResult =
+      ConformanceExtResult(problems, ScUndefinedSubstitutor())
+  }
 
   def collectSimpleProblems(exprs: Seq[Expression], parameters: Seq[Parameter]): Seq[ApplicabilityProblem] = {
     val problems = new ArrayBuffer[ApplicabilityProblem]()
@@ -169,7 +175,8 @@ object Compatibility {
                           parameters: Seq[Parameter],
                           exprs: Seq[Expression],
                           checkWithImplicits: Boolean,
-                          isShapesResolve: Boolean): ConformanceExtResult = {
+                          isShapesResolve: Boolean)
+                         (implicit project: ProjectContext): ConformanceExtResult = {
     ProgressManager.checkCanceled()
     var undefSubst = ScUndefinedSubstitutor()
 
@@ -177,7 +184,7 @@ object Compatibility {
 
     if(clashedAssignments.nonEmpty) {
       val problems = clashedAssignments.map(ParameterSpecifiedMultipleTimes(_))
-      return ConformanceExtResult(problems)
+      return ConformanceExtResult(problems, undefSubst)
     }
 
     //optimization:
@@ -400,7 +407,8 @@ object Compatibility {
                  checkWithImplicits: Boolean,
                  scope: GlobalSearchScope,
                  isShapesResolve: Boolean,
-                 ref: PsiElement = null): ConformanceExtResult = {
+                 ref: PsiElement = null)
+                (implicit project: ProjectContext): ConformanceExtResult = {
     val exprs: Seq[Expression] = argClauses.headOption match {case Some(seq) => seq case _ => Seq.empty}
     named match {
       case synthetic: ScSyntheticFunction =>

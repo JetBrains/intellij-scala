@@ -16,8 +16,8 @@ import scala.collection.JavaConversions._
 /**
   * @author adkozlov
   */
-object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
-  override implicit lazy val typeSystem = DottyTypeSystem
+trait DottyPsiTypeBridge extends api.PsiTypeBridge {
+  typeSystem: api.TypeSystem =>
 
   override def toScType(`type`: PsiType,
                         treatJavaObjectAsAny: Boolean)

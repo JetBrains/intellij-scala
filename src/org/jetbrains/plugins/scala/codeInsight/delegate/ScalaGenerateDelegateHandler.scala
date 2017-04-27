@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterCl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
@@ -209,7 +208,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case _: ScAliasMember => false
-    case typed: ScalaTypedMember if typed.scType == Unit => false
+    case typed: ScalaTypedMember if typed.scType.isUnit => false
     case method: ScMethodMember =>
       method.getElement match {
         case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false

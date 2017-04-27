@@ -36,6 +36,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScProjectionType private(val projected: ScType,
                                val element: PsiNamedElement,
                                val superReference: Boolean /* todo: find a way to remove it*/) extends DesignatorOwner {
+
   override protected def isAliasTypeInner: Option[AliasType] = {
     actualElement match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
@@ -194,8 +195,7 @@ class ScProjectionType private(val projected: ScType,
   def actualElement: PsiNamedElement = actual._1
   def actualSubst: ScSubstitutor = actual._2
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     def isSingletonOk(typed: ScTypedDefinition): Boolean = {
       typed.nameContext match {
         case _: ScValue => true

@@ -84,7 +84,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasUnitResultType: Boolean = {
     @tailrec
     def hasUnitRT(t: ScType): Boolean = t match {
-      case Unit => true
+      case _ if t.isUnit => true
       case ScMethodType(result, _, _) => hasUnitRT(result)
       case _ => false
     }

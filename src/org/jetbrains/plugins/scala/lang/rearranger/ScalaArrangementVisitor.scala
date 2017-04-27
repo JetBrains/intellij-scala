@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScPackaging}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 import scala.collection.mutable
@@ -343,6 +342,8 @@ object ScalaArrangementVisitor {
   }
 
   private def hasJavaGetterName(method: ScFunction) = {
+    import method.projectContext
+
     val name = method.getName
     if (nameStartsWith(name, "get") && !(nameStartsWith(name, "getAnd") && name.charAt("getAnd".length).isUpper)) {
       method.returnType.getOrAny != api.Unit
@@ -360,8 +361,8 @@ object ScalaArrangementVisitor {
 
   private def hasSetterSignature(method: ScFunction) =
     method.getParameterList.getParametersCount == 1 && (method.returnType.getOrAny match {
-      case Any => true
-      case returnType: ScType => returnType == api.Unit
+      case t if t.isAny => true
+      case returnType: ScType => returnType.isUnit
     })
 
   private def isJavaGetter(method: ScFunction) =

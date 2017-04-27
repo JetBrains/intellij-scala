@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Typeable, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -50,6 +49,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   this: ScalaEvaluatorBuilder =>
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
+  private val stdTypes = projectContext.stdTypes
+  import stdTypes._
 
   def fileName: String = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
 
@@ -392,7 +393,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case gen: ScGenericCall =>
         gen.arguments.head.getType(TypingContext.empty).map {
           val project = ref.getProject
-          implicit val typeSystem = project.typeSystem
           _.extractClass(project) match {
             case Some(clazz) =>
               DebuggerUtil.getClassJVMName(clazz)
@@ -541,7 +541,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val methodPosition = DebuggerUtil.getSourcePositions(method.getNavigationElement)
     val signature = JVMNameUtil.getJVMSignature(method)
     ref.qualifier match {
-      case Some(qual@Typeable(tp)) if isPrimitiveScType(tp) =>
+      case Some(qual@Typeable(tp)) if tp.isPrimitive =>
         val boxEval = boxEvaluator(evaluatorFor(qual))
         ScalaMethodEvaluator(boxEval, method.name, signature, argEvals, None, methodPosition)
       case Some(_) if method.hasModifierPropertyScala("static") =>
@@ -708,8 +708,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   private def calcLocal(named: PsiNamedElement): Evaluator = {
-    implicit val typeSystem = named.typeSystem
-
     val name = NameTransformer.encode(named.name)
     val containingClass = getContextClass(named)
 
@@ -964,7 +962,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         parents.constructor match {
           case Some(constr) =>
             val project = templ.getProject
-            implicit val typeSystem = project.typeSystem
             constr.typeElement.calcType.extractClass(project) match {
               case Some(clazz) if clazz.qualifiedName == "scala.Array" =>
                 val typeArgs = constr.typeArgList.fold("")(_.getText)
@@ -1305,52 +1302,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     valueClassInstance(unboxed)
   }
 
-}
-
-object ScalaEvaluatorBuilderUtil {
-  private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
-  private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
-  def boxEvaluator(eval: Evaluator): Evaluator = new ScalaBoxingEvaluator(eval)
-  def boxed(evaluators: Evaluator*): Seq[Evaluator] = evaluators.map(boxEvaluator)
-  def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
-  def notEvaluator(eval: Evaluator): Evaluator = {
-    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
-    unboxEvaluator(ScalaMethodEvaluator(BOXES_RUN_TIME, "takeNot", rawText, boxed(eval)))
-  }
-  def eqEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
-    new ScalaEqEvaluator(left, right)
-  }
-
-  def neEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
-    notEvaluator(eqEvaluator(left, right))
-  }
-
-  def unitEvaluator(): Evaluator = {
-    ScalaFieldEvaluator(BOXED_UNIT, "UNIT")
-  }
-
-  def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
-    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
-    unboxEvaluator(ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(eval)))
-  }
-
-  def binaryEvaluator(left: Evaluator, right: Evaluator, boxesRunTimeName: String): Evaluator = {
-    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
-    unboxEvaluator(ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(left, right)))
-  }
-
-  object hasDeepestInvokedReference {
-    @tailrec
-    final def unapply(expr: ScExpression): Option[ScReferenceExpression] = {
-      expr match {
-        case call: ScMethodCall => unapply(call.deepestInvokedExpr)
-        case genCall: ScGenericCall => unapply(genCall.referencedExpr)
-        case ref: ScReferenceExpression => Some(ref)
-        case _ => None
-      }
-    }
-  }
-
   def classTagText(arg: ScType): String = {
     arg match {
       case Short => "_root_.scala.reflect.ClassTag.Short"
@@ -1402,9 +1353,9 @@ object ScalaEvaluatorBuilderUtil {
         }*/   //todo:
       case _ => scType.extractClass() match {
         case Some(clss) => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_." +
-                clss.qualifiedName + "])"
+          clss.qualifiedName + "])"
         case _ => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_.java.lang." +
-                "Object])"
+          "Object])"
       }
     }
   }
@@ -1412,16 +1363,57 @@ object ScalaEvaluatorBuilderUtil {
   def isOfPrimitiveType(param: PsiParameter): Boolean = param match { //todo specialized type parameters
     case p: ScParameter =>
       val tp: ScType = p.getType(TypingContext.empty).getOrAny
-      isPrimitiveScType(tp)
+      tp.isPrimitive
     case _: PsiParameter =>
       val tp = param.getType
       import com.intellij.psi.PsiType._
       Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
     case _ => false
   }
+}
 
-  def isPrimitiveScType(tp: ScType): Boolean = {
-    Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
+object ScalaEvaluatorBuilderUtil {
+  private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
+  private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
+  def boxEvaluator(eval: Evaluator): Evaluator = new ScalaBoxingEvaluator(eval)
+  def boxed(evaluators: Evaluator*): Seq[Evaluator] = evaluators.map(boxEvaluator)
+  def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
+  def notEvaluator(eval: Evaluator): Evaluator = {
+    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
+    unboxEvaluator(ScalaMethodEvaluator(BOXES_RUN_TIME, "takeNot", rawText, boxed(eval)))
+  }
+  def eqEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
+    new ScalaEqEvaluator(left, right)
+  }
+
+  def neEvaluator(left: Evaluator, right: Evaluator): Evaluator = {
+    notEvaluator(eqEvaluator(left, right))
+  }
+
+  def unitEvaluator(): Evaluator = {
+    ScalaFieldEvaluator(BOXED_UNIT, "UNIT")
+  }
+
+  def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
+    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Ljava/lang/Object;")
+    unboxEvaluator(ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(eval)))
+  }
+
+  def binaryEvaluator(left: Evaluator, right: Evaluator, boxesRunTimeName: String): Evaluator = {
+    val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;")
+    unboxEvaluator(ScalaMethodEvaluator(BOXES_RUN_TIME, boxesRunTimeName, rawText, boxed(left, right)))
+  }
+
+  object hasDeepestInvokedReference {
+    @tailrec
+    final def unapply(expr: ScExpression): Option[ScReferenceExpression] = {
+      expr match {
+        case call: ScMethodCall => unapply(call.deepestInvokedExpr)
+        case genCall: ScGenericCall => unapply(genCall.referencedExpr)
+        case ref: ScReferenceExpression => Some(ref)
+        case _ => None
+      }
+    }
   }
 
   object implicitlyConvertedTo {

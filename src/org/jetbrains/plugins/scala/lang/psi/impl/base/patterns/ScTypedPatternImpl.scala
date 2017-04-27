@@ -48,7 +48,6 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override def toString: String = "TypedPattern: " + name
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
-    implicit val typeSystem = this.projectContext
     typePattern match {
       case Some(tp) =>
         if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))

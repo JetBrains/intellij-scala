@@ -17,9 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScP
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatchStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMatch
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Seq
 
@@ -138,8 +137,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
   private def findSurroundingMatch(element: PsiElement): Option[((Project, Editor, PsiElement) => Unit, String)] = {
     element.getParent match {
       case x: ScMatchStmt if x.caseClauses.isEmpty =>
-        val project = element.getProject
-        implicit val typeSystem = project.typeSystem
+        val project = element.projectContext
         val clazz = x.expr
           .flatMap(_.getType(TypingContext.empty).toOption)
           .flatMap(_.extractClass(project))

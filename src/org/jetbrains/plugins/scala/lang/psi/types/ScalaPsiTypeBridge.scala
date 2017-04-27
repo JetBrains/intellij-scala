@@ -4,7 +4,6 @@ package psi
 package types
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions.{PsiWildcardTypeExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
@@ -15,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
-object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
-  override implicit lazy val typeSystem = ScalaTypeSystem
+trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
+  typeSystem: api.TypeSystem =>
 
   override def toScType(psiType: PsiType,
                         treatJavaObjectAsAny: Boolean)
@@ -127,13 +126,15 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     if (t.isInstanceOf[NonValueType]) return toPsiType(t.inferValueType)
 
     def javaObject = createJavaObject
+    val qualNameToType = elementScope.projectContext.stdTypes.QualNameToType
+
     t match {
       case ScCompoundType(Seq(typez, _*), _, _) => toPsiType(typez)
-      case ScDesignatorType(c: ScTypeDefinition) if StdType.QualNameToType.contains(c.qualifiedName) =>
-        toPsiType(StdType.QualNameToType(c.qualifiedName), noPrimitives, skolemToWildcard)
+      case ScDesignatorType(c: ScTypeDefinition) if qualNameToType.contains(c.qualifiedName) =>
+        toPsiType(qualNameToType(c.qualifiedName), noPrimitives, skolemToWildcard)
       case ScDesignatorType(valClass: ScClass) if ValueClassType.isValueClass(valClass) =>
         valClass.parameters.head.getRealParameterType(TypingContext.empty) match {
-          case Success(tp, _) if !(noPrimitives && ScalaEvaluatorBuilderUtil.isPrimitiveScType(tp)) =>
+          case Success(tp, _) if !(noPrimitives && tp.isPrimitive) =>
             toPsiType(tp, noPrimitives, skolemToWildcard)
           case _ => createType(valClass)
         }

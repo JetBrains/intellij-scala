@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -181,7 +180,6 @@ object ScFunctionWrapper {
             case Some(_) =>
               val classes = new ArrayBuffer[String]()
               val project = fun.getProject
-              implicit val typeSystem = project.typeSystem
               tp.upperBound.map(subst.subst) match {
                 case Success(tp: ScCompoundType, _) =>
                   tp.components.foreach { tp: ScType =>

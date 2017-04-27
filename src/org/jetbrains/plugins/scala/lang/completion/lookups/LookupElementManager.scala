@@ -22,7 +22,7 @@ object LookupElementManager {
   }
 
   def getLookupElement(resolveResult: ScalaResolveResult,
-                       qualifierType: ScType = Nothing,
+                       qualifierType: ScType = null,
                        isClassName: Boolean = false,
                        isInImport: Boolean = false,
                        isOverloadedForClassName: Boolean = false,
@@ -31,8 +31,11 @@ object LookupElementManager {
                        containingClass: Option[PsiClass] = None,
                        isInSimpleString: Boolean = false,
                        isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
+    import resolveResult.projectContext
+
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
+    val qualType = Option(qualifierType).getOrElse(Nothing)
 
     def isRenamed = resolveResult.isRenamed.filter(element.name != _)
 
@@ -58,9 +61,9 @@ object LookupElementManager {
 
         def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
 
-        qualifierType match {
+        qualType match {
           case _ if !isPredef && !usedImportForElement =>
-            qualifierType.extractDesignated(expandAliases = false) match {
+            qualType.extractDesignated(expandAliases = false) match {
               case Some(named) =>
                 named match {
                   case cl: PsiClass => Some(cl)

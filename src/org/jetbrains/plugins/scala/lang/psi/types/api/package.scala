@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiTypeParameter
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author adkozlov
@@ -10,7 +11,7 @@ package object api {
   implicit class TypeParametersArrayExt(val typeParameters: Array[TypeParameter]) extends AnyVal {
     def subst(function: TypeParameter => TypeParameter): Seq[TypeParameter] = typeParameters.toSeq.subst(function)
 
-    def depth = typeParameters.toSeq.depth
+    def depth: Int = typeParameters.toSeq.depth
   }
 
   implicit class TypeParametersSeqExt(val typeParameters: Seq[TypeParameter]) extends AnyVal {
@@ -31,4 +32,33 @@ package object api {
     }
   }
 
+  def Any(implicit pc: ProjectContext) = StdTypes.instance.Any
+
+  def AnyRef(implicit pc: ProjectContext) = StdTypes.instance.AnyRef
+
+  def Null(implicit pc: ProjectContext) = StdTypes.instance.Null
+
+  def Nothing(implicit pc: ProjectContext) = StdTypes.instance.Nothing
+
+  def Singleton(implicit pc: ProjectContext) = StdTypes.instance.Singleton
+
+  def AnyVal(implicit pc: ProjectContext) = StdTypes.instance.AnyVal
+
+  def Unit(implicit pc: ProjectContext) = StdTypes.instance.Unit
+
+  def Boolean(implicit pc: ProjectContext) = StdTypes.instance.Boolean
+
+  def Char(implicit pc: ProjectContext) = StdTypes.instance.Char
+
+  def Byte(implicit pc: ProjectContext) = StdTypes.instance.Byte
+
+  def Short(implicit pc: ProjectContext) = StdTypes.instance.Short
+
+  def Int(implicit pc: ProjectContext) = StdTypes.instance.Int
+
+  def Long(implicit pc: ProjectContext) = StdTypes.instance.Long
+
+  def Float(implicit pc: ProjectContext) = StdTypes.instance.Float
+
+  def Double(implicit pc: ProjectContext) = StdTypes.instance.Double
 }

@@ -3,14 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil.isOfBooleanType
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 
 import scala.language.implicitConversions
 
@@ -132,12 +131,6 @@ object SimpleBooleanMatchUtil {
       case _ => expr.getText
     }
   }
-
-  private def isOfBooleanType(expr: ScExpression): Boolean = {
-    import expr.projectContext
-    expr.getType(TypingContext.empty).getOrAny.weakConforms(api.Boolean)
-  }
-
 
   private def isValidClauses(stmt: ScMatchStmt): Boolean = getPartitionedClauses(stmt).nonEmpty
 

@@ -11,9 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 /**
   * @author adkozlov
   */
-trait Equivalence extends TypeSystemOwner {
-  type Data = (ScType, ScType, Boolean)
-  type Result = (Boolean, ScUndefinedSubstitutor)
+trait Equivalence {
+  typeSystem: TypeSystem =>
+
+  private type Data = (ScType, ScType, Boolean)
+  private type Result = (Boolean, ScUndefinedSubstitutor)
 
   private val guard = RecursionManager.RecursionGuard[Data, Result](s"${typeSystem.name}.equivalence.guard")
 
@@ -26,7 +28,7 @@ trait Equivalence extends TypeSystemOwner {
 
   final def equiv(left: ScType, right: ScType): Boolean = equivInner(left, right)._1
 
-  final def clearCache(): Unit = cache.clear()
+  def clearCache(): Unit = cache.clear()
 
   /**
     * @param falseUndef use false to consider undef type equals to any type
@@ -59,7 +61,7 @@ trait Equivalence extends TypeSystemOwner {
       return (false, ScUndefinedSubstitutor())
     }
 
-    val result = guard.doPreventingRecursion(key, computable(left, right, ScUndefinedSubstitutor(), falseUndef))
+    val result = guard.doPreventingRecursion(key, equivComputable(left, right, ScUndefinedSubstitutor(), falseUndef))
     if (result == null) return (false, ScUndefinedSubstitutor())
     if (!nowEval) {
       try {
@@ -73,7 +75,7 @@ trait Equivalence extends TypeSystemOwner {
     result.copy(_2 = substitutor + result._2)
   }
 
-  protected def computable(left: ScType, right: ScType,
-                           substitutor: ScUndefinedSubstitutor,
-                           falseUndef: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
+  protected def equivComputable(left: ScType, right: ScType,
+                                substitutor: ScUndefinedSubstitutor,
+                                falseUndef: Boolean): Computable[(Boolean, ScUndefinedSubstitutor)]
 }
