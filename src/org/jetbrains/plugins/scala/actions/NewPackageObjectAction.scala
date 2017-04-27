@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import com.intellij.ide.fileTemplates.FileTemplateManager
-import com.intellij.ide.fileTemplates.actions.{AttributesDefaults, CreateFromTemplateAction}
+import com.intellij.ide.fileTemplates.actions.AttributesDefaults
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.JavaDirectoryService
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
@@ -14,14 +12,12 @@ import org.jetbrains.plugins.scala.project._
  * Pavel Fatin
  */
 
-class NewPackageObjectAction
-        extends CreateFromTemplateAction(FileTemplateManager.getDefaultInstance().getInternalTemplate("Package Object"))
-        with DumbAware {
+class NewPackageObjectAction extends LazyFileTemplateAction("Package Object", Icons.PACKAGE_OBJECT) {
 
   override def update(e: AnActionEvent) {
     super.update(e)
 
-    e.getPresentation.setIcon(Icons.PACKAGE_OBJECT)
+    e.getPresentation.setIcon(icon)
 
     val hasPackage = Option(LangDataKeys.IDE_VIEW.getData(e.getDataContext))
             .flatMap(_.getDirectories.headOption)
