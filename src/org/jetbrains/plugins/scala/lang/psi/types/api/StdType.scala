@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import java.util.concurrent.atomic.AtomicReference
+
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
@@ -47,7 +49,15 @@ object StdType {
   def unapply(t: StdType): Option[(String, Option[StdType])] = Some((t.name, t.tSuper))
 }
 
-class StdTypes(implicit projectContext: ProjectContext) extends AbstractProjectComponent(projectContext) {
+sealed class ValType(override val name: String)(implicit projectContext: ProjectContext)
+  extends StdType(name, Some(StdTypes.instance.AnyVal)) {
+
+  override def isFinalType = true
+}
+
+class StdTypes(implicit private val projectContext: ProjectContext)
+  extends AbstractProjectComponent(projectContext) {
+
   lazy val Any = new StdType("Any", None)
 
   lazy val AnyRef = new StdType("AnyRef", Some(Any))
@@ -105,14 +115,22 @@ class StdTypes(implicit projectContext: ProjectContext) extends AbstractProjectC
     JAVA_LANG_FLOAT -> Float,
     JAVA_LANG_DOUBLE -> Double
   )
-}
 
-sealed class ValType(override val name: String)(implicit projectContext: ProjectContext)
-  extends StdType(name, Some(StdTypes.instance.AnyVal)) {
-
-  override def isFinalType = true
+  override def disposeComponent(): Unit = {
+    StdTypes.current.compareAndSet(this, null)
+  }
 }
 
 object StdTypes {
-  def instance(implicit pc: ProjectContext): StdTypes = pc.getComponent(classOf[StdTypes])
+  private val current = new AtomicReference[StdTypes]()
+
+  def instance(implicit pc: ProjectContext): StdTypes = {
+    val last = current.get()
+    if (last != null && (last.projectContext == pc)) last
+    else {
+      val fromContainer = pc.getComponent(classOf[StdTypes])
+      current.compareAndSet(last, fromContainer)
+      fromContainer
+    }
+  }
 }
