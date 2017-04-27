@@ -10,7 +10,7 @@ import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -62,11 +62,10 @@ object Compatibility {
           val results = new ImplicitCollector(place, functionType, functionType, None, isImplicitConversion = true).collect()
           if (results.length == 1) {
             val res = results.head
-            val paramType = InferUtil.extractImplicitParameterType(res)
 
-            val maybeType: Option[ScType] = paramType match {
+            val maybeType: Option[ScType] = extractImplicitParameterType(res).flatMap {
               case FunctionType(rt, Seq(_)) => Some(rt)
-              case _ =>
+              case paramType =>
                 elementScope.cachedFunction1Type.flatMap { functionType =>
                   val (_, substitutor) = paramType.conforms(functionType, ScUndefinedSubstitutor())
                   substitutor.getSubstitutor.map {

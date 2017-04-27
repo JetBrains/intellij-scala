@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
@@ -33,8 +33,8 @@ case class ExtensionConversionData(baseExpr: ScExpression,
 
 object ExtensionConversionHelper {
   def specialExtractParameterType(resolveResult: ScalaResolveResult): Option[(ScType, Seq[TypeParameter])] = {
-    val result = InferUtil.extractImplicitParameterType(resolveResult) match {
-      case functionType @ FunctionType(_, _) => Some(functionType)
+    val result = extractImplicitParameterType(resolveResult).flatMap {
+      case functionType@FunctionType(_, _) => Some(functionType)
       case implicitParameterType =>
         implicit val project = resolveResult.element.getProject
         ElementScope(project).cachedFunction1Type

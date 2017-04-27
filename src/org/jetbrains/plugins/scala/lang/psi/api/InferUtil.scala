@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, Typeable}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -176,8 +176,13 @@ object InferUtil {
       if (results.length == 1) {
         if (check && !results.head.isApplicable()) throw new SafeCheckException
         resolveResults += results.head
-        def updateExpr() {
-          exprs += new Expression(polymorphicSubst subst extractImplicitParameterType(results.head))
+
+        def updateExpr(): Unit = {
+          val maybeType = results.headOption
+            .flatMap(extractImplicitParameterType)
+            .map(polymorphicSubst.subst)
+
+          exprs ++= maybeType.map(new Expression(_))
         }
         val evaluator = ScalaMacroEvaluator.getInstance(project)
         evaluator.isMacro(results.head.getElement) match {
@@ -323,16 +328,20 @@ object InferUtil {
     }
   }
 
-  def extractImplicitParameterType(r: ScalaResolveResult): ScType = {
-    r match {
-      case r: ScalaResolveResult if r.implicitParameterType.isDefined => r.implicitParameterType.get
-      case ScalaResolveResult(o: ScObject, subst) => subst.subst(o.getType(TypingContext.empty).get)
-      case ScalaResolveResult(param: ScParameter, subst) => subst.subst(param.getType(TypingContext.empty).get)
-      case ScalaResolveResult(patt: ScBindingPattern, subst) => subst.subst(patt.getType(TypingContext.empty).get)
-      case ScalaResolveResult(f: ScFieldId, subst) => subst.subst(f.getType(TypingContext.empty).get)
-      case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.functionTypeNoImplicits().get)
+  def extractImplicitParameterType(result: ScalaResolveResult): Option[ScType] =
+    result.implicitParameterType.orElse {
+      val ScalaResolveResult(element, substitutor) = result
+
+      val maybeType = element match {
+        case _: ScObject |
+             _: ScParameter |
+             _: ScBindingPattern |
+             _: ScFieldId => element.asInstanceOf[Typeable].getType().toOption
+        case function: ScFunction => function.functionTypeNoImplicits()
+      }
+
+      maybeType.map(substitutor.subst)
     }
-  }
 
   def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
     typeParams.foldLeft(ScSubstitutor.empty) {

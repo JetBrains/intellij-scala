@@ -293,7 +293,7 @@ object ScExpression {
               val implicitCollector = new ImplicitCollector(expr, functionType, functionType, None, isImplicitConversion = true)
               val fromImplicit = implicitCollector.collect() match {
                 case Seq(res) =>
-                  val `type` = extractImplicitParameterType(res) match {
+                  val `type` = extractImplicitParameterType(res).flatMap {
                     case FunctionType(rt, Seq(_)) => Some(rt)
                     case paramType =>
                       expr.elementScope.cachedFunction1Type.flatMap { functionType =>
