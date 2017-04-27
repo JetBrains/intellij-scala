@@ -157,7 +157,7 @@ object InstanceOfClass {
 object TypeAsClass {
   def unapply(scType: ScType): Option[PsiClass] = scType match {
     case ExtractClass(aClass) => Some(aClass)
-    case t: ScType => t.extractDesignatorSingleton.flatMap(_.extractClass())
+    case t: ScType => t.extractDesignatorSingleton.flatMap(_.extractClass)
     case _ => None
   }
 }

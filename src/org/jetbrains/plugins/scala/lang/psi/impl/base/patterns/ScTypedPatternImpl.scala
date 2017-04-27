@@ -55,7 +55,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
           tp.typeElement.getType(ctx).map {
             case tp: ScExistentialType =>
               val skolem = tp.quantified
-              skolem.extractClassType(getProject) match {  //todo: type aliases?
+              skolem.extractClassType match {  //todo: type aliases?
                 case Some((clazz: ScTypeDefinition, subst)) =>
                   val typeParams = clazz.typeParameters
                   skolem match {

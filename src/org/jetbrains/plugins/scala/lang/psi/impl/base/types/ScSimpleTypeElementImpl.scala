@@ -275,7 +275,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
             this.success(tvar.getType().getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
-            this.success(synth.t)
+            this.success(synth.stdType)
           case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
             if constrRef && to.isInstanceOf[PsiNamedElement] &&
               (to.typeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) =>

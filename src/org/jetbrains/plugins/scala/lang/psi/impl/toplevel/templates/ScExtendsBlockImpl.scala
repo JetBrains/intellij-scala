@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, api, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
@@ -98,7 +98,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
     def extract(scType: ScType): Boolean = {
-      scType.extractClass(getProject) match {
+      scType.extractClass match {
         case Some(_: ScObject) => true
         case Some(_: ScTrait) => false
         case Some(_: ScClass) => true
@@ -210,9 +210,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case c: PsiClass if !c.isInterface => true
       case _ => false
     } match {
-      case Some(s: ScSyntheticClass) if api.AnyVal.asClass(getProject).contains(s) => //do nothing
-      case Some(s: ScSyntheticClass) if api.AnyRef.asClass(getProject).contains(s) ||
-        api.Any.asClass(getProject).contains(s) =>
+      case Some(s: ScSyntheticClass) if s.stdType.isAnyVal => //do nothing
+      case Some(s: ScSyntheticClass) if s.stdType.isAnyRef || s.stdType.isAny =>
         buffer -= s
         if (javaObjectClass != null)
           buffer += javaObjectClass

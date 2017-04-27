@@ -530,7 +530,7 @@ object ScalaDocumentationProvider {
                       args.headOption match {
                         case a: Some[ScType] =>
                           val project = function.getProject
-                          a.get.extractClass(project) match {
+                          a.get.extractClass match {
                             case Some(clazz) => buffer append clazz.qualifiedName
                             case _ =>
                           }

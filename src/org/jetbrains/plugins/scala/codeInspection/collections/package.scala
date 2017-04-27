@@ -358,7 +358,7 @@ package object collections {
   def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = Option(expr).flatMap {
     _.getType().toOption
   }.flatMap {
-    _.tryExtractDesignatorSingleton.extractClass(expr.getProject)
+    _.tryExtractDesignatorSingleton.extractClass
   }.exists {
     qualifiedNameFitToPatterns(_, patterns)
   }

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.project.Project
 import com.intellij.psi.CommonClassNames._
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -21,11 +20,10 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
     * Return wrapped to option appropriate synthetic class.
     * In dumb mode returns None (or before it ends to register classes).
     *
-    * @param project in which project to find this class
     * @return If possible class to represent this type.
     */
-  def asClass(project: Project): Option[ScSyntheticClass] = {
-    val classes = SyntheticClasses.get(project)
+  def syntheticClass: Option[ScSyntheticClass] = {
+    val classes = SyntheticClasses.get(projectContext)
     if (classes.isClassesRegistered) classes.byName(name) else None
   }
 
@@ -33,7 +31,7 @@ sealed class StdType(val name: String, val tSuper: Option[StdType])
     (`type` match {
       case stdType: StdType => this == stdType
       case _ =>
-        `type`.extractClass() match {
+        `type`.extractClass match {
           case Some(_: ScObject) => false
           case Some(clazz) => clazz.qualifiedName match {
             case this.fullName => true

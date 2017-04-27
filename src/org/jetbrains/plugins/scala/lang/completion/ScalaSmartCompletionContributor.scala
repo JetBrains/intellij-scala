@@ -73,7 +73,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             } else {
               typez.foreach {
                 case ParameterizedType(tpe, Seq(arg)) if !elementAdded =>
-                  tpe.extractClass(scalaLookupItem.element.getProject) match {
+                  tpe.extractClass match {
                     case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                         scalaLookupItem.someSmartCompletion = true
@@ -189,7 +189,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           def checkTypeProjection(tp: ScType) {
             tp match {
               case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
-                proj.extractClass(place.getProject) match {
+                proj.extractClass match {
                   case Some(o: ScObject) if ResolveUtils.isAccessible(o, place, forCompletion = true) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
                   case _ =>
                 }
@@ -198,7 +198,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           }
           @tailrec
           def checkType(tp: ScType) {
-            tp.extractClass(place.getProject) match {
+            tp.extractClass match {
               case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
                 tp match {
                   case ParameterizedType(_, Seq(scType)) => checkType(scType)
@@ -257,7 +257,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                       var elementAdded = false
                       typez.foreach {
                         case ParameterizedType(tp, Seq(arg)) if !elementAdded =>
-                          tp.extractClass(place.getProject) match {
+                          tp.extractClass match {
                             case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                               if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                                 el.someSmartCompletion = true

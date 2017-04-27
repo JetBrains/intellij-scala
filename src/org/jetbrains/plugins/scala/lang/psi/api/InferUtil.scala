@@ -193,7 +193,7 @@ object InferUtil {
         def checkManifest(fun: ScalaResolveResult => Unit) {
           val result = paramType match {
             case p@ParameterizedType(des, Seq(_)) =>
-              des.extractClass(project) match {
+              des.extractClass match {
                 case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
                   //do not throw, it's safe
                   new ScalaResolveResult(clazz, p.substitutor)

@@ -420,7 +420,7 @@ object ResolveUtils {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
           def isInheritorOrSame(tp: ScType): Boolean = {
-            tp.extractClass(placeTd.getProject) match {
+            tp.extractClass match {
               case Some(clazz) =>
                 if (clazz == td) return true
                 if (isInheritorDeep(clazz, td)) return true

@@ -41,7 +41,7 @@ trait DottyPsiTypeBridge extends api.PsiTypeBridge {
       case ScDesignatorType(clazz: PsiClass) => createType(clazz)
       case projectionType: ScProjectionType =>
         projectionType.actualElement match {
-          case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.t)
+          case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.stdType)
           case clazz: PsiClass => createType(clazz, raw = true)
           case definition: ScTypeAliasDefinition => definition.aliasedType match {
             case Success(result, _) => createComponent(result)

@@ -97,7 +97,7 @@ trait ScalaBounds extends api.Bounds {
     }
 
     private val typeNamedElement: Option[(PsiNamedElement, ScSubstitutor)] = {
-      tp.extractClassType() match {
+      tp.extractClassType match {
         case None =>
           tp.isAliasType match {
             case Some(AliasType(ta, _, _)) => Some(ta, ScSubstitutor.empty)
@@ -197,7 +197,7 @@ trait ScalaBounds extends api.Bounds {
             val iterator = superTypes.iterator
             while(iterator.hasNext) {
               val st = iterator.next()
-              st.extractClassType(base.getProject) match {
+              st.extractClassType match {
                 case None =>
                 case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
                   case None =>
@@ -271,7 +271,7 @@ trait ScalaBounds extends api.Bounds {
               case Some(w) => ScExistentialType(JavaArrayType(v), List(w))
               case None => JavaArrayType(v)
             }
-          case (JavaArrayType(arg), ParameterizedType(des, args)) if args.length == 1 && (des.extractClass() match {
+          case (JavaArrayType(arg), ParameterizedType(des, args)) if args.length == 1 && (des.extractClass match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
@@ -280,7 +280,7 @@ trait ScalaBounds extends api.Bounds {
               case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
               case None => ScParameterizedType(des, Seq(v))
             }
-          case (ParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass() match {
+          case (ParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>

@@ -53,7 +53,7 @@ object ComparingUtil {
     if (tp2.weakConforms(tp1) || tp1.weakConforms(tp2)) return false
 
     val Seq(clazzOpt1, clazzOpt2) =
-      Seq(tp1, tp2).map(_.tryExtractDesignatorSingleton.extractClass())
+      Seq(tp1, tp2).map(_.tryExtractDesignatorSingleton.extractClass)
     if (clazzOpt1.isEmpty || clazzOpt2.isEmpty) return false
     val (clazz1, clazz2) = (clazzOpt1.get, clazzOpt2.get)
 

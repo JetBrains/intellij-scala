@@ -183,7 +183,7 @@ object ScFunctionWrapper {
               tp.upperBound.map(subst.subst) match {
                 case Success(tp: ScCompoundType, _) =>
                   tp.components.foreach { tp: ScType =>
-                    tp.extractClass(project) match {
+                    tp.extractClass match {
                       case Some(clazz) => classes += clazz.getQualifiedName
                       case _ =>
                     }
@@ -192,7 +192,7 @@ object ScFunctionWrapper {
                 case Success(tpt: TypeParameterType, _) =>
                   classes += tpt.canonicalText
                 case Success(scType, _) =>
-                  scType.extractClass(project) match {
+                  scType.extractClass match {
                     case Some(clazz) => classes += clazz.getQualifiedName
                     case _ =>
                   }

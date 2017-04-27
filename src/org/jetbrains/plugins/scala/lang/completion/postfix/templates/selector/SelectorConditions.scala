@@ -40,7 +40,7 @@ object SelectorConditions {
         val project = expression.getProject
 
         expression.getTypeIgnoreBaseType.toOption.flatMap { tp =>
-          tp.extractClass(project)
+          tp.extractClass
         }.exists { psiClass =>
           val manager = ScalaPsiManager.instance(project)
           val scope = GlobalSearchScope.allScope(project)

@@ -262,7 +262,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                                 val iter = types.iterator
                                 while (iter.hasNext) {
                                   val tps = iter.next()
-                                  tps.extractClass(clazz.getProject) match {
+                                  tps.extractClass match {
                                     case Some(cl) =>
                                       if (cl == clazz) return tp
                                     case _ =>
@@ -296,7 +296,7 @@ class ScSubstitutor private (val tvMap: Map[(String, Long), ScType],
                       val iter = types.iterator
                       while (iter.hasNext) {
                         val tps = iter.next()
-                        tps.extractClass(clazz.getProject) match {
+                        tps.extractClass match {
                           case Some(cl) =>
                             if (cl == clazz) return tp
                             else if (isInheritorDeep(cl, clazz)) return tp

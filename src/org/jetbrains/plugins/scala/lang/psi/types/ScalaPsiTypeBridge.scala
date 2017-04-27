@@ -116,7 +116,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
                         (implicit elementScope: ElementScope): PsiType = {
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
-      proj.projected.extractClass(elementScope.project) match {
+      proj.projected.extractClass match {
         case Some(outer) => outer.hasTypeParameters
         case _ => false
       }
@@ -166,7 +166,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
-            case syn: ScSyntheticClass => toPsiType(syn.t)
+            case syn: ScSyntheticClass => toPsiType(syn.stdType)
             case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
         case elem: ScTypeAliasDefinition =>

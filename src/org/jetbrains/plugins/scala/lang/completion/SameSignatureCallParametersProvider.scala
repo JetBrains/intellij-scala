@@ -101,7 +101,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
           case Success(tp, _) =>
             val project = position.getProject
 
-            val signatures = tp.extractClassType(project) match {
+            val signatures = tp.extractClassType match {
               case Some((clazz: ScClass, subst)) if !clazz.hasTypeParameters || (clazz.hasTypeParameters &&
                       typeElement.isInstanceOf[ScParameterizedTypeElement]) =>
                 val constructors = clazz match {

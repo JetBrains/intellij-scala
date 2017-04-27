@@ -96,7 +96,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(ScThisType(clazz)) => clazz
       case Some(tp) =>
         val project = elem.getProject
-        tp.extractClass(project) match {
+        tp.extractClass match {
           case Some(x) => x
           case None => getContextClass(elem)
       }
@@ -393,7 +393,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case gen: ScGenericCall =>
         gen.arguments.head.getType(TypingContext.empty).map {
           val project = ref.getProject
-          _.extractClass(project) match {
+          _.extractClass match {
             case Some(clazz) =>
               DebuggerUtil.getClassJVMName(clazz)
             case None => null
@@ -962,7 +962,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         parents.constructor match {
           case Some(constr) =>
             val project = templ.getProject
-            constr.typeElement.calcType.extractClass(project) match {
+            constr.typeElement.calcType.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "scala.Array" =>
                 val typeArgs = constr.typeArgList.fold("")(_.getText)
                 val args = constr.args.fold("(0)")(_.getText)
@@ -1351,7 +1351,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             "_root_.scala.reflect.ClassManifest.classType(" +
           case _ => "null"
         }*/   //todo:
-      case _ => scType.extractClass() match {
+      case _ => scType.extractClass match {
         case Some(clss) => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_." +
           clss.qualifiedName + "])"
         case _ => "_root_.scala.reflect.ClassManifest.classType(classOf[_root_.java.lang." +

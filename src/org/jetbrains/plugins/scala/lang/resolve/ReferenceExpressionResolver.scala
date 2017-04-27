@@ -283,7 +283,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def processConstructorReference(args: ScArgumentExprList, assign: PsiElement, baseProcessor: BaseProcessor) {
       def processConstructor(elem: PsiElement, tp: ScType, typeArgs: Seq[ScTypeElement], arguments: Seq[ScArgumentExprList],
                              secondaryConstructors: (ScClass) => Seq[ScFunction]) {
-        tp.extractClassType(ref.getProject) match {
+        tp.extractClassType match {
           case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
             if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
               for (method <- clazz.getMethods) {

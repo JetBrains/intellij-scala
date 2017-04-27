@@ -138,7 +138,7 @@ object SideEffectsUtil {
     }
 
     val clazzName = typeOfQual.map(_.tryExtractDesignatorSingleton) match {
-      case Some(tp) => tp.extractClass(m.getProject).map(_.qualifiedName)
+      case Some(tp) => tp.extractClass.map(_.qualifiedName)
       case None => methodClazzName
     }
 

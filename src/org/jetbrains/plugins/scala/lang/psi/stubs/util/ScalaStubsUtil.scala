@@ -72,7 +72,7 @@ object ScalaStubsUtil {
             case c: ScCompoundType =>
               c.components.exists(checkTp)
             case _ =>
-              tp.extractClass(project) match {
+              tp.extractClass match {
                 case Some(otherClazz) =>
                   if (ScEquivalenceUtil.areClassesEquivalent(clazz, otherClazz)) return true
                 case _ =>

@@ -140,7 +140,7 @@ final class CreateCaseClausesIntention extends PsiElementBaseIntentionAction {
         val project = element.projectContext
         val clazz = x.expr
           .flatMap(_.getType(TypingContext.empty).toOption)
-          .flatMap(_.extractClass(project))
+          .flatMap(_.extractClass)
 
         clazz match {
           case Some(cls: ScTypeDefinition) if cls.hasModifierProperty("sealed") =>

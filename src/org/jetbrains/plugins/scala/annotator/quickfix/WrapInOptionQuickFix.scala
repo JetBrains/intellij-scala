@@ -38,8 +38,6 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult[ScType],
 
 object WrapInOptionQuickFix {
   def isAvailable(expr: ScExpression, expectedType: TypeResult[ScType], exprType: TypeResult[ScType]): Boolean = {
-    import expr.projectContext
-
     var result = false
     for {
       scType <- exprType
@@ -47,7 +45,7 @@ object WrapInOptionQuickFix {
     } {
       expectedType match {
         case ParameterizedType(des, Seq(typeArg)) =>
-          des.extractClass(expr.getProject) match {
+          des.extractClass match {
             case Some(scClass: ScClass)
               if scClass.qualifiedName == "scala.Option" && scType.conforms(typeArg) => result = true
             case _ =>

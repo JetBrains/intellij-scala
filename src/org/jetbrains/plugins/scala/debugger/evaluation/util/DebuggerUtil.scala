@@ -108,13 +108,13 @@ object DebuggerUtil {
         buff.append(getJVMQualifiedName(argument))
         buff.append("[]")
         buff.toName
-      case ParameterizedType(arr, Seq(arg)) if arr.extractClass().exists(_.qualifiedName == "scala.Array") =>
+      case ParameterizedType(arr, Seq(arg)) if arr.extractClass.exists(_.qualifiedName == "scala.Array") =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
         buff.toName
       case _ =>
-        tp.extractClass() match {
+        tp.extractClass match {
           case Some(clazz) => getClassJVMName(clazz)
           case None => JVMNameUtil.getJVMRawText(tp.canonicalText)
         }
@@ -145,7 +145,7 @@ object DebuggerUtil {
       case ParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg))
         if clazz.qualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
       case _ =>
-        tp.extractClass() match {
+        tp.extractClass match {
           case Some(obj: ScObject) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + "$;"
           case Some(obj: ScTypeDefinition) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + ";"
           case Some(clazz) => "L" + clazz.qualifiedName.replace('.', '/') + ";"

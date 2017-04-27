@@ -42,7 +42,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
   def isProperTargetCollection(typeResult: TypeResult[ScType], project: Project): Boolean =
     typeResult.exists {
       scType =>
-        scType.extractClass(project) exists {
+        scType.extractClass exists {
           psiClass =>
             val superNames: Set[String] = allSupers(psiClass)
             superNames.exists(i => targetCollections.contains(i))
@@ -52,7 +52,7 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
   def isAlreadyConvertedCollection(typeResult: TypeResult[ScType], project: Project): Boolean =
     typeResult.exists {
       scType =>
-        scType.extractClass(project) exists {
+        scType.extractClass exists {
           psiClass => alreadyConvertedPrefixes.exists(prefix => psiClass.getQualifiedName.startsWith(prefix))
         }
     }

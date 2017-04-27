@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiNamedElement, PsiType, PsiTypeParameter}
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
@@ -61,6 +59,8 @@ package object types {
 
     def isAnyRef: Boolean = scType == stdTypes.AnyRef
 
+    def isAnyVal: Boolean = scType == stdTypes.AnyVal
+
     def isNothing: Boolean = scType == stdTypes.Nothing
 
     def isUnit: Boolean = scType == stdTypes.Unit
@@ -99,14 +99,13 @@ package object types {
         .extractFrom(scType).map(_._1)
     }
 
-    def extractClassType(project: Project = null,
-                         visitedAlias: Set[ScTypeAlias] = Set.empty): Option[(PsiClass, ScSubstitutor)] = {
-      new ClassTypeExtractor(project, needSubstitutor = true)
+    def extractClassType: Option[(PsiClass, ScSubstitutor)] = {
+      new ClassTypeExtractor(needSubstitutor = true)
         .extractFrom(scType)
     }
 
-    def extractClass(project: Project = null): Option[PsiClass] = {
-      new ClassTypeExtractor(project, needSubstitutor = false)
+    def extractClass: Option[PsiClass] = {
+      new ClassTypeExtractor(needSubstitutor = false)
         .extractFrom(scType).map(_._1)
     }
 
@@ -157,7 +156,6 @@ package object types {
   private trait Extractor[T <: PsiNamedElement] {
     def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(T, ScSubstitutor)]
     def expandAliases: Boolean
-    def project: Project
     def needSubstitutor: Boolean
 
     def extractFrom(scType: ScType,
@@ -198,7 +196,7 @@ package object types {
               (element, withFollower)
           }
         case stdType: StdType =>
-          stdType.asClass(project).flatMap {
+          stdType.syntheticClass.flatMap {
             filter(_, ScSubstitutor.empty)
           }
         case ScExistentialType(quantified, _) =>
@@ -213,19 +211,15 @@ package object types {
   private class DesignatorExtractor(override val expandAliases: Boolean, override val needSubstitutor: Boolean) extends Extractor[PsiNamedElement] {
     override def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiNamedElement, ScSubstitutor)] =
       Some(named, subst)
-
-    override def project: Project = DecompilerUtil.obtainProject
   }
 
-  private class ClassTypeExtractor(givenProject: Project, override val needSubstitutor: Boolean) extends Extractor[PsiClass] {
+  private class ClassTypeExtractor(override val needSubstitutor: Boolean) extends Extractor[PsiClass] {
     override def filter(named: PsiNamedElement, subst: ScSubstitutor): Option[(PsiClass, ScSubstitutor)] =
       named match {
         case _: PsiTypeParameter => None
         case c: PsiClass => Some(c, subst)
         case _ => None
       }
-
-    override def project: Project = Option(givenProject).getOrElse(DecompilerUtil.obtainProject)
 
     override val expandAliases: Boolean = true
   }

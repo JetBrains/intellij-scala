@@ -425,7 +425,7 @@ package object extensions {
             m.containingClass match {
               case t: ScTrait =>
                 val linearization = MixinNodes.linearization(clazz)
-                  .flatMap(_.extractClass(clazz.getProject))
+                  .flatMap(_.extractClass)
                 var index = linearization.indexWhere(_ == t)
                 while (index >= 0) {
                   val cl = linearization(index)

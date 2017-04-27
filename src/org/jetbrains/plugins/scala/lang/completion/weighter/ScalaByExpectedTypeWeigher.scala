@@ -46,7 +46,7 @@ class ScalaByExpectedTypeWeigher(expectedTypes: Seq[ScType], position: PsiElemen
     if (!scType.equiv(Nothing) && expectedTypes.exists(scType conforms _)) true
     else {
       def checkParametrizedType(tpe: ScType, arg: ScType): Boolean = {
-        tpe.extractClass(el.element.getProject) match {
+        tpe.extractClass match {
           case Some(clazz) if (clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some") && (!scType.equiv(Nothing) && scType.conforms(arg)) =>
             true
           case _ => false

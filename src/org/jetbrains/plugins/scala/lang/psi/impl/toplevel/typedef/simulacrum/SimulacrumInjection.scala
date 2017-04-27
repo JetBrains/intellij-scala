@@ -139,7 +139,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                   case Success(ParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
                     def fromType: Seq[String] = {
                       val project = clazz.getProject
-                      classType.extractClass(project) match {
+                      classType.extractClass match {
                         case Some(cl: ScTypeDefinition) => Seq(s" with ${cl.qualifiedName}.AllOps[$tpName$additionalWithComma]")
                         case _ => Seq.empty
                       }

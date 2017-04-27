@@ -262,7 +262,7 @@ case class ScExistentialType(quantified: ScType,
           case undef: UndefinedType =>
             undef.parameterType.arguments.map(_.psiTypeParameter).iterator
           case tp: ScType =>
-            tp.extractClass() match {
+            tp.extractClass match {
               case Some(owner) =>
                 owner match {
                   case td: ScTypeDefinition => td.typeParameters.iterator

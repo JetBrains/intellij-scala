@@ -534,7 +534,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
         val typeElement = constr.typeElement
         val i = constr.arguments.indexOf(args.element)
-        typeElement.calcType.extractClassType(project) match {
+        typeElement.calcType.extractClassType match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
             clazz match {
               case clazz: ScClass =>

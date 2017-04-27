@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.light.scala
 
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.{PsiAnnotation, PsiElement, PsiManager, PsiTypeParameterListOwner}
+import com.intellij.psi.{PsiAnnotation, PsiElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * @author Alefas
@@ -69,8 +70,8 @@ class ScDelegatingLightTypeParam(t: TypeParameter, val tParam: ScTypeParam)
   override def isHigherKindedTypeParameter: Boolean = tParam.isHigherKindedTypeParameter
 }
 
-class ScExistentialLightTypeParam(manager: PsiManager, override val name: String)
-  extends LightElement(manager, ScalaLanguage.INSTANCE) with ScLightTypeParam {
+class ScExistentialLightTypeParam(override val name: String)(implicit pc: ProjectContext)
+  extends LightElement(pc, ScalaLanguage.INSTANCE) with ScLightTypeParam {
 
   override def getIndex: Int = 0
 

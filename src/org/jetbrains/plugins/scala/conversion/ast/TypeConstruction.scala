@@ -53,13 +53,13 @@ object TypeConstruction {
     scType match {
       case p@ParameterizedType(des, args) =>
         val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(des, withPrefix = textMode))
-        buffer += ((typeConstruction, p.extractClass().flatMap(el => Option(el.getQualifiedName))))
+        buffer += ((typeConstruction, p.extractClass.flatMap(el => Option(el.getQualifiedName))))
         val argsOnLevel = args.map(getParts(_, buffer))
         ParametrizedConstruction(typeConstruction, argsOnLevel)
       case JavaArrayType(argument) => ArrayConstruction(getParts(argument, buffer))
       case otherType =>
         val typeConstruction: IntermediateNode = TypeConstruction(ctx.typeSystem.presentableText(otherType, withPrefix = textMode))
-        buffer += ((typeConstruction, otherType.extractClass().flatMap(el => Option(el.getQualifiedName))))
+        buffer += ((typeConstruction, otherType.extractClass.flatMap(el => Option(el.getQualifiedName))))
         typeConstruction
     }
   }

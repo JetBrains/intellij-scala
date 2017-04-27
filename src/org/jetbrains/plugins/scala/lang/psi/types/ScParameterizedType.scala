@@ -197,7 +197,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
   private def getStandardType(prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
     def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.qualifiedName != null && clazz.qualifiedName.startsWith(qualNamePrefix)
 
-    designator.extractClassType() match {
+    designator.extractClassType match {
       case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
         val result = clazz.getType(TypingContext.empty)
         result match {

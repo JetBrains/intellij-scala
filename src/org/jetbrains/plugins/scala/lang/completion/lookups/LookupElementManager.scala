@@ -68,7 +68,7 @@ object LookupElementManager {
                 named match {
                   case cl: PsiClass => Some(cl)
                   case tp: Typeable =>
-                    tp.getType(TypingContext.empty).toOption.flatMap(_.extractClass(tp.getProject))
+                    tp.getType(TypingContext.empty).toOption.flatMap(_.extractClass)
                   case _ => None
                 }
               case _ => None

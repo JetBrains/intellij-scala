@@ -6,7 +6,6 @@ package types
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -42,10 +41,10 @@ trait ScalaConformance extends api.Conformance {
         if (leftVisitor.getResult != null) return leftVisitor.getResult
 
         //tail, based on class inheritance
-        right.extractClassType() match {
+        right.extractClassType match {
           case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, substitutor)
           case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
-            left.extractClass(rClass.getProject) match {
+            left.extractClass match {
               case Some(lClass) =>
                 if (rClass.qualifiedName == "java.lang.Object") {
                   return conformsInner(left, AnyRef, visited, substitutor, checkWeak)
@@ -155,12 +154,10 @@ trait ScalaConformance extends api.Conformance {
   }
 
   private class LeftConformanceVisitor(l: ScType, r: ScType, visited: Set[PsiClass],
-                               subst: ScUndefinedSubstitutor,
-                               checkWeak: Boolean = false) extends ScalaTypeVisitor {
+                                       subst: ScUndefinedSubstitutor,
+                                       checkWeak: Boolean = false) extends ScalaTypeVisitor {
 
-    lazy val manager: PsiManager =
-      if (visited.isEmpty) PsiManager.getInstance(DecompilerUtil.obtainProject)  //todo: remove obtainProject?
-      else visited.head.getManager
+    private implicit val projectContext = l.projectContext
 
     private def addBounds(parameterType: TypeParameterType, `type`: ScType) = {
       val name = parameterType.nameAndId
@@ -453,7 +450,7 @@ trait ScalaConformance extends api.Conformance {
             case _ =>
               proj2.actualElement match {
                 case syntheticClass: ScSyntheticClass =>
-                  result = conformsInner(l, syntheticClass.t, HashSet.empty, undefinedSubst)
+                  result = conformsInner(l, syntheticClass.stdType, HashSet.empty, undefinedSubst)
                 case v: ScBindingPattern =>
                   val res = v.getType(TypingContext.empty)
                   if (res.isEmpty) result = (false, undefinedSubst)
@@ -777,7 +774,7 @@ trait ScalaConformance extends api.Conformance {
         case p2: ScParameterizedType =>
           val args = p2.typeArguments
           val des = p2.designator
-          if (args.length == 1 && (des.extractClass() match {
+          if (args.length == 1 && (des.extractClass match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
@@ -1057,7 +1054,7 @@ trait ScalaConformance extends api.Conformance {
         case _: JavaArrayType =>
           val args = p.typeArguments
           val des = p.designator
-          if (args.length == 1 && (des.extractClass() match {
+          if (args.length == 1 && (des.extractClass match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
@@ -1172,7 +1169,7 @@ trait ScalaConformance extends api.Conformance {
             e.wildcards.find(_.name == name) match {
               case Some(ScExistentialArgument(thatName, args, lower, upper)) if !rejected.contains(thatName) =>
                 val tpt = tptsMap.getOrElseUpdate(thatName,
-                  TypeParameterType(args, Suspension(lower), Suspension(upper), new ScExistentialLightTypeParam(manager, name))
+                  TypeParameterType(args, Suspension(lower), Suspension(upper), new ScExistentialLightTypeParam(name))
                 )
                 (true, tpt)
               case _ => (false, t)
@@ -1551,7 +1548,7 @@ trait ScalaConformance extends api.Conformance {
             case r => r
           }
       }
-      tp.extractClassType(leftClass.getProject) match {
+      tp.extractClassType match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
         case Some((clazz: PsiClass, _)) if condition(clazz) =>
           if (res == null) res = tp
@@ -1579,7 +1576,7 @@ trait ScalaConformance extends api.Conformance {
       case undef: UndefinedType =>
         Option(undef.parameterType.psiTypeParameter).map(_.getTypeParameters.iterator)
       case _ =>
-        des.extractClass().map {
+        des.extractClass.map {
           case td: ScTypeDefinition => td.typeParameters.iterator
           case other => other.getTypeParameters.iterator
         }
@@ -1649,7 +1646,7 @@ trait ScalaConformance extends api.Conformance {
   }
 
   def findDiffLengthArgs(eType: ScType, argLength: Int): Option[(Seq[ScType], ScType)] =
-    eType.extractClassType() match {
+    eType.extractClassType match {
       case Some((clazz, classSubst)) =>
         val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, argLength)
         if (!t._1) {

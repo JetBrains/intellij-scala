@@ -53,7 +53,7 @@ object BaseTypes {
         val s = p.actualSubst.followed(genericSubst)
         BaseTypes.get(s.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
       case p : ScParameterizedType =>
-        p.designator.extractClass() match {
+        p.designator.extractClass match {
           case Some(td: ScTypeDefinition) =>
             reduce(td.superTypes.flatMap { tp =>
               if (!notAll) BaseTypes.get(p.substitutor.subst(tp), notAll, visitedAliases = visitedAliases) ++ Seq(p.substitutor.subst(tp)) else Seq(p
@@ -98,7 +98,7 @@ object BaseTypes {
     val iterator = types.iterator
     while (iterator.hasNext) {
        val t = iterator.next()
-      t.extractClass() match {
+      t.extractClass match {
         case Some(c) =>
           val isBest = all.get(c) match {
             case None => true

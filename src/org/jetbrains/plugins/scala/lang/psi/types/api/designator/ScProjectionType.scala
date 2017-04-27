@@ -106,7 +106,7 @@ class ScProjectionType private(val projected: ScType,
           .flatMap(_.lastChildStub)
           .getOrElse(definition.extendsBlock)
 
-      projected.extractClass(element.getProject) match {
+      projected.extractClass match {
         case Some(definition: ScTypeDefinition) => fromClazz(definition)
         case _ => projected match {
           case ScThisType(definition: ScTypeDefinition) => fromClazz(definition)
@@ -227,7 +227,7 @@ class ScProjectionType private(val projected: ScType,
     r match {
       case t: StdType =>
         element match {
-          case synth: ScSyntheticClass => synth.t.equiv(t, uSubst, falseUndef)
+          case synth: ScSyntheticClass => synth.stdType.equiv(t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case ParameterizedType(ScProjectionType(_, _, _), _) =>

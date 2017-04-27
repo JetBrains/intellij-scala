@@ -37,7 +37,7 @@ case class JavaArrayType(argument: ScType) extends ValueType {
     `type` match {
       case JavaArrayType(thatArgument) => argument.equiv(thatArgument, substitutor, falseUndef)
       case ParameterizedType(designator, arguments) if arguments.length == 1 =>
-        designator.extractClass() match {
+        designator.extractClass match {
           case Some(td) if td.qualifiedName == "scala.Array" => argument.equiv(arguments.head, substitutor, falseUndef)
           case _ => (false, substitutor)
         }

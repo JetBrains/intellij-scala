@@ -166,7 +166,7 @@ object ScalaAfterNewCompletionUtil {
                                  renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                  insertHandler: InsertHandler[LookupElement],
                                  renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
-    tp.extractClassType(place.getProject) match {
+    tp.extractClassType match {
       case Some((_: ScObject, _)) => null
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
         //filter base types (it's important for scala 2.9)
@@ -193,7 +193,7 @@ object ScalaAfterNewCompletionUtil {
                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]) {
     implicit val project = place.getProject
 
-    typez.extractClass(project) match {
+    typez.extractClass match {
       case Some(clazz) =>
         //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
         val searchScope =

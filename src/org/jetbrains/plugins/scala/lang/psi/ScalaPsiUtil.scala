@@ -562,7 +562,7 @@ object ScalaPsiUtil {
           collectParts(a)
           collectPartsIter(args)
         case p@ParameterizedType(des, args) =>
-          p.extractClassType(project) match {
+          p.extractClassType match {
             case Some((clazz, subst)) =>
               parts += des
               collectParts(des)
@@ -583,7 +583,7 @@ object ScalaPsiUtil {
             case v: ScParameter => collectPartsTr(v.getType(TypingContext.empty).map(proj.actualSubst.subst))
             case _ =>
           }
-          tp.extractClassType(project) match {
+          tp.extractClassType match {
             case Some((clazz, subst)) =>
               parts += tp
               collectSupers(clazz, subst)
@@ -594,7 +594,7 @@ object ScalaPsiUtil {
         case ScExistentialType(quant, _) => collectParts(quant)
         case TypeParameterType(_, _, upper, _) => collectParts(upper.v)
         case _ =>
-          tp.extractClassType(project) match {
+          tp.extractClassType match {
             case Some((clazz, subst)) =>
               var packObjects = new ArrayBuffer[ScTypeDefinition]()
 
@@ -659,7 +659,7 @@ object ScalaPsiUtil {
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
           case _ =>
-            tp.extractClass(project) match {
+            tp.extractClass match {
               case Some(obj: ScObject) if !visited.contains(obj) => addResult(obj.qualifiedName, tp)
               case Some(clazz) if !visited.contains(clazz) =>
                 getCompanionModule(clazz) match {
@@ -1892,7 +1892,7 @@ object ScalaPsiUtil {
       else validConstructor && selfTypeCorrectIfScala212
     }
 
-    expected.extractClassType(element.getProject).flatMap {
+    expected.extractClassType.flatMap {
       case (templDef: ScTemplateDefinition, substitutor) =>
         if (!isSAMable(templDef)) None
         else {

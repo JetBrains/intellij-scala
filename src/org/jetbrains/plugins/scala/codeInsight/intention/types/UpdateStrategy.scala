@@ -219,7 +219,7 @@ object UpdateStrategy {
         Seq(typeElemfromText(newCompType.canonicalText))
       case tp =>
         val project = context.getProject
-        tp.extractClass(project) match {
+        tp.extractClass match {
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName == "scala.Some" =>
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(_.startsWith("_root_.scala.Option"))
             (tp.canonicalText +: baseTypes).map(typeElemfromText)
@@ -235,7 +235,7 @@ object UpdateStrategy {
             val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
             (tp.canonicalText +: baseTypes).map(typeElemfromText)
           case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
+            val sealedType = BaseTypes.get(tp).find(_.extractClass.exists(isSealed))
             (tp +: sealedType.toSeq).map(typeElemFromType)
           case _ => Seq(typeElemFromType(tp))
         }
