@@ -185,6 +185,10 @@ package object extensions {
     def collectOption[B](pf: scala.PartialFunction[T, B]): Option[B] = Some(v).collect(pf)
   }
 
+  implicit class OptionExt[T](val option: Option[T]) extends AnyVal {
+    def getOrThrow(exception: => Exception): T = option.getOrElse(throw exception)
+  }
+
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
     def option[A](a: => A): Option[A] = if (b) Some(a) else None
 
