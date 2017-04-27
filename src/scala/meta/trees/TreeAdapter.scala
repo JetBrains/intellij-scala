@@ -346,16 +346,18 @@ trait TreeAdapter {
         res
       case t: ScGenericCall =>
         m.Term.ApplyType(ideaToMeta(t.referencedExpr).asInstanceOf[m.Term], Seq(t.arguments.map(toType):_*))
+      case t: ScParenthesisedExpr =>
+        t.expr.map(expression).getOrElse(unreachable)
+      case t: ScAssignStmt =>
+        m.Term.Assign(expression(t.getLExpression).asInstanceOf[m.Term.Ref], expression(t.getRExpression.get))
+      case t: ScUnderscoreSection =>
+        m.Term.Placeholder()
       case t: ScConstrExpr =>
         t ???
       case t: ScInterpolatedStringLiteral =>
         t ???
-      case t: ScParenthesisedExpr =>
-        t.expr.map(expression).getOrElse(unreachable)
       case t: ScTypedStmt =>
         t ???
-      case t: ScUnderscoreSection =>
-        m.Term.Placeholder()
       case t: ScXmlExpr =>
         t ???
 

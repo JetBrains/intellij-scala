@@ -184,4 +184,11 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
+  def testAssignment(): Unit = {
+    doTest(
+      "someVar = value",
+      Term.Assign(Term.Name("someVar"), Term.Name("value"))
+    )
+  }
+
 }
