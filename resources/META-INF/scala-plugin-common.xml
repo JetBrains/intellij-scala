@@ -986,6 +986,11 @@
                          shortName="RedundantDefaultArgument" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ExpandUpdateCallInspection"
+                       displayName="Can replace to update method call" groupPath="Scala" groupName="Syntactic Simplification"
+                       shortName="ExpandUdateCallInspection" level="WEAK WARNING"
+                       enabledByDefault="true" language="Scala"/>
+
         <!--Syntactic clarification inspections (including syntactic desugaring), see SCL-10327-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection"
                          displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic Clarification"
