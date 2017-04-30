@@ -19,11 +19,9 @@ class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspect
     doTest(
       s"$evenFunction ${START}if (isEven(2)) Some(2) else None$END",
       s"$evenFunction if (isEven(2)) Some(2) else None",
-      s"$evenFunction Option(2).filter(isEven)"
+      s"$evenFunction Some(2).filter(isEven)"
     )
   }
-
-  def foo(a:Int)(b:Int) = a + b
 
   def testShouldReplaceWhenReturningOption() = {
     doTest(

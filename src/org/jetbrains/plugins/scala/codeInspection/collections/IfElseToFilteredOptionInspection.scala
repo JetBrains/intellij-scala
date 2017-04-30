@@ -14,20 +14,28 @@ object FilterOption extends SimplificationType {
   override def hint: String = InspectionBundle.message("ifstmt.to.filteredOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case ex@IfStmt(ScMethodCall(method, Seq(methodArg)), scalaSome(someArg), scalaNone()) =>
-      replaceIfEqual(ex, method, methodArg, someArg)
-    case ex@IfStmt(ScMethodCall(method, Seq(methodArg)), scalaOption(optionArg), scalaNone()) =>
-      replaceIfEqual(ex, method, methodArg, optionArg)
+    case ex@IfStmt(ScMethodCall(method, Seq(methodArg)), some@scalaSome(_), scalaNone()) =>
+      replaceIfEqual(ex, method, methodArg, some)
+    case ex@IfStmt(ScMethodCall(method, Seq(methodArg)), option@scalaOption(_), scalaNone()) =>
+      replaceIfEqual(ex, method, methodArg, option)
     case _ => None
   }
 
   private def replaceIfEqual(expression: ScExpression,
                              methodCall: ScExpression,
                              methodArgument: ScExpression,
-                             optionArgument: ScExpression): Option[Simplification] = {
-    if (methodArgument.getText == optionArgument.getText)
-      Some(replace(expression).withText(s"Option(${methodArgument.getText}).filter(${methodCall.getText})"))
-    else
-      None
+                             option: ScExpression): Option[Simplification] = {
+    val replaceWith = getReplacement(_: String, expression, methodArgument, methodCall)
+    option match {
+      case scalaSome(arg) if argsEqual(methodArgument, arg) => Some(replaceWith("Some"))
+      case scalaOption(arg) if argsEqual(methodArgument, arg) => Some(replaceWith("Option"))
+      case _ => None
+    }
+  }
+
+  private def argsEqual(firstArg: ScExpression, secondArg: ScExpression) = firstArg.getText == secondArg.getText
+
+  private def getReplacement(optionCall: String, expression: ScExpression, methodArg: ScExpression, methodCall: ScExpression) = {
+    replace(expression).withText(s"$optionCall(${methodArg.getText}).filter(${methodCall.getText})")
   }
 }
