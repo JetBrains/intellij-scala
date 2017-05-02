@@ -122,4 +122,6 @@ class EditorStub extends Editor {
   override def xyToVisualPosition(p: Point2D): VisualPosition = null
 
   override def visualPositionToPoint2D(pos: VisualPosition): Point2D = null
+
+  override def getEditorKind: EditorKind = EditorKind.MAIN_EDITOR
 }

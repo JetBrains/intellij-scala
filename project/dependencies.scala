@@ -4,7 +4,7 @@ import meta.Shared
 object Versions {
   val scalaVersion = "2.11.11"
   val sbtVersion = "0.13.13"
-  val ideaVersion = "172.1657"
+  val ideaVersion = "172-SNAPSHOT"
   val sbtStructureVersion: String = Shared.sbtStructureVersion
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
