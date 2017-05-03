@@ -45,7 +45,8 @@ class PsiTypedDefinitionWrapper(val delegate: ScTypedDefinition, isStatic: Boole
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
+} with PsiMethodWrapper(delegate.getManager, method, containingClass)
+  with NavigablePsiElementWrapper[ScTypedDefinition] {
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {

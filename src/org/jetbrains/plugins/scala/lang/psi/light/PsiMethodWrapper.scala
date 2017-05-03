@@ -82,8 +82,8 @@ abstract class PsiMethodWrapper(manager: PsiManager, method: PsiMethod, containi
     PsiSuperMethodImplUtil.getHierarchicalMethodSignature(this)
 }
 
-trait NavigablePsiElementWrapper extends NavigatablePsiElement {
-  val delegate: NavigatablePsiElement
+trait NavigablePsiElementWrapper[E <: NavigatablePsiElement] extends NavigatablePsiElement {
+  val delegate: E
 
   override final def navigate(requestFocus: Boolean): Unit =
     delegate.navigate(requestFocus)

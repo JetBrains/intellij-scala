@@ -24,7 +24,8 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
+} with PsiMethodWrapper(delegate.getManager, method, containingClass)
+  with NavigablePsiElementWrapper[ScPrimaryConstructor] {
 
   override protected def returnType: ScType = {
     forDefault match {
@@ -74,7 +75,8 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
+} with PsiMethodWrapper(delegate.getManager, method, containingClass)
+  with NavigablePsiElementWrapper[ScFunction] {
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {
