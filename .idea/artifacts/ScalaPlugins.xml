@@ -58,12 +58,12 @@
         <element id="library" level="project" name="SBT: org.scalameta:transversers_2.11:1.6.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:trees_2.11:1.6.0:jar" />
         <element id="library" level="project" name="SBT: org.scalameta:semantic_2.11:1.6.0:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-17-g544df1f:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:7.0.0-18-gd3edca5:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.13:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-17-g544df1f:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-17-g544df1f:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:7.0.0-18-gd3edca5:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:7.0.0-18-gd3edca5:jar" />
       </element>
     </root>
   </artifact>
