@@ -31,28 +31,38 @@ import scala.collection.JavaConverters._
 class SbtShellRunner(project: Project, consoleTitle: String)
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
 
+  private val filePatternFilters = {
+    import PatternHyperlinkPart._
+
+    // file with line number
+    val fileWithLinePattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}")
+    // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
+    val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, null, PATH, LINE)
+
+    // file output without lines in messages
+    val fileOnlyPattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}")
+    val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, null, PATH)
+
+    val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
+    new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
+  }
+
+  private def pattern(patternMacro: String) =
+    new RegexpFilter(project, patternMacro).getPattern
+
   private val myConsoleView: LanguageConsoleImpl = ShellUIUtil.inUIsync {
     val cv = new LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage)
     cv.getConsoleEditor.setOneLineMode(true)
 
     // exception file links
     cv.addMessageFilter(new ExceptionFilter(GlobalSearchScope.allScope(project)))
-
-    // url links
     new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
-
-    // file links
-    val patternMacro = s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}:\\s"
-    val pattern = new RegexpFilter(project, patternMacro).getPattern
-    import PatternHyperlinkPart._
-    // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
-    val format = new PatternHyperlinkFormat(pattern, false, false, null, PATH, LINE)
-    val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(format))
-    val fileFilter = new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
-    cv.addMessageFilter(fileFilter)
+    // file links in error messages and `inspect` output
+    cv.addMessageFilter(filePatternFilters)
 
     cv
   }
+
 
   private lazy val processManager = SbtProcessManager.forProject(project)
 
