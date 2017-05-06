@@ -2,16 +2,19 @@ package org.jetbrains.sbt.shell
 
 import java.util
 
+import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.compiler.ex.CompilerPathsEx
 import com.intellij.openapi.externalSystem.model.execution.ExternalSystemTaskExecutionSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemUtil, ExternalSystemApiUtil => ES}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.module.ModuleType
+import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.task._
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -62,12 +65,14 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
     val callbackOpt = Option(callback)
 
+    val validTasks = tasks.asScala.collect {
+      case task: ModuleBuildTask => task
+    }
+
     // the "build" button in IDEA always runs the build for all individual modules,
     // and may work differently than just calling the products task from the main module in sbt
-    val moduleCommands = tasks.asScala.flatMap {
-      case task: ModuleBuildTask => buildCommands(task)
-      case _ => Seq.empty[String]
-    }
+    val moduleCommands = validTasks.flatMap(buildCommands)
+    val modules = validTasks.map(_.getModule)
 
     // don't run anything if there's no module to run a build for
     // TODO user feedback
@@ -80,7 +85,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       FileDocumentManager.getInstance().saveAllDocuments()
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project, command, callbackOpt)
+      val task = new CommandTask(project, modules, command, callbackOpt)
       ProgressManager.getInstance().run(task)
     }
   }
@@ -112,7 +117,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
 }
 
-private class CommandTask(project: Project, command: String, callbackOpt: Option[ProjectTaskNotification]) extends
+private class CommandTask(project: Project, modules: Traversable[Module], command: String, callbackOpt: Option[ProjectTaskNotification]) extends
   Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   import CommandTask._
@@ -134,6 +139,7 @@ private class CommandTask(project: Project, command: String, callbackOpt: Option
         case Output(text) =>
           indicator.setText2(text)
         case TaskComplete =>
+          indicator.setText("")
       }
 
       taskResultAggregator(data,event)
@@ -166,6 +172,12 @@ private class CommandTask(project: Project, command: String, callbackOpt: Option
 
     // block thread to make indicator available :(
     Await.ready(commandFuture, Duration.Inf)
+
+    // remove this if/when external system handles this refresh on its own
+    indicator.setText("Synchronizing output directories...")
+    val roots = CompilerPathsEx.getOutputPaths(modules.toArray)
+    CompilerUtil.refreshOutputRoots(ContainerUtil.newArrayList(roots: _*))
+    indicator.setText("")
   }
 }
 
