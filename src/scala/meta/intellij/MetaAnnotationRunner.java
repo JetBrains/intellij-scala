@@ -58,6 +58,8 @@ public class MetaAnnotationRunner {
         return result.toString();
     }
 
+
+    // TODO: set working dir
     private static Object invokeAnnotation(Class<?> clazz, Object[] trees) throws InstantiationException, IllegalAccessException, InvocationTargetException {
         Constructor<?> ctor = clazz.getDeclaredConstructors()[0];
         ctor.setAccessible(true);

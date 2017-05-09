@@ -10,21 +10,21 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   def testIf() {
     doTest(
       "if (true) 42",
-      Term.If(Lit(value = true), Lit(42), Lit(()))
+      Term.If(Lit.Boolean(value = true), Lit.Int(42), Lit.Unit(()))
     )
   }
 
   def testIfElse() {
     doTest(
       "if (false) 42 else 0",
-      Term.If(Lit(value = false), Lit(42), Lit(0))
+      Term.If(Lit.Boolean(value = false), Lit.Int(42), Lit(0))
     )
   }
 
   def testIfElseIfElse() {
     doTest(
       "if (true) 42 else if (false) 999 else 0",
-      Term.If(Lit(value = true), Lit(42), Term.If(Lit(value = false), Lit(999), Lit(0)))
+      Term.If(Lit.Boolean(value = true), Lit.Int(42), Term.If(Lit.Boolean(value = false), Lit(999), Lit(0)))
     )
   }
 
@@ -64,7 +64,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         |//start
         |new Foo(42)
       """.stripMargin,
-      Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit(42)))), Term.Param(Nil, Name.Anonymous(), None, None), None))
+      Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42)))), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 
@@ -73,7 +73,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       """class Foo(a:Int)(b:String)
         |//start
         |new Foo(42)("")""".stripMargin,
-      Term.New(Template(Nil, List(Term.Apply(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit(42))), List(Lit("")))), Term.Param(Nil, Name.Anonymous(), None, None), None))
+      Term.New(Template(Nil, List(Term.Apply(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42))), List(Lit("")))), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 
@@ -127,7 +127,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     doTest(
       "for(s <- Seq(1)) {42}",
       Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")),
-        Term.Apply(Term.Name("Seq"), List(Lit(1))))), Term.Block(List(Lit(42))))
+        Term.Apply(Term.Name("Seq"), List(Lit(1))))), Term.Block(List(Lit.Int(42))))
     )
   }
 
