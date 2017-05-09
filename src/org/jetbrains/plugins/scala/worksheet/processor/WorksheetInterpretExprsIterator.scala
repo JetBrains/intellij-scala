@@ -18,7 +18,7 @@ class WorksheetInterpretExprsIterator(file: ScalaFile, ifEditor: Option[Editor],
   
   
   def collectAll(acc: PsiElement => Unit, onError: Option[PsiErrorElement => Unit]) {
-    var current = start.parentsInFile.toList.lastOption.getOrElse(start)
+    var current = inReadAction(start.parentsInFile.toList.lastOption.getOrElse(start))
     if (lastProcessed.isDefined) current = current.getNextSibling
     
     while (current != null) {
