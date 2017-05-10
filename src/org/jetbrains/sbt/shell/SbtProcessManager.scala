@@ -211,13 +211,8 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   }
 
   override def projectClosed(): Unit = {
-    disposeComponent()
-  }
-
-  override def disposeComponent(): Unit = {
     destroyProcess()
   }
-
 }
 
 object SbtProcessManager {

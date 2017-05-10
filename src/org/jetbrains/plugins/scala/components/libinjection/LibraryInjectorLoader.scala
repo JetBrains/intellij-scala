@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
 import com.intellij.openapi.progress.ProgressManager
@@ -72,7 +72,7 @@ object InjectorPersistentCache {
   }
 }
 
-class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
+class LibraryInjectorLoader(val project: Project) extends AbstractProjectComponent(project) {
 
   import LibraryInjectorLoader.{LOG, _}
 
@@ -98,7 +98,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
-  private var jarCache: InjectorPersistentCache = _
+  private var jarCache: InjectorPersistentCache = null
   def getJarCache: InjectorPersistentCache = jarCache
   private val loadedInjectors: mutable.HashMap[Class[_], mutable.HashSet[String]] = mutable.HashMap()
 
@@ -125,7 +125,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     myInjectorCacheDir.mkdirs()
     LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(myLibraryTableListener)
     jarCache = verifyAndLoadCache
-//    init()
+    //    init()
   }
 
   override def projectClosed(): Unit = {
