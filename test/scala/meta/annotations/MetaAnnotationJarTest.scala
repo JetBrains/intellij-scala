@@ -24,7 +24,7 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
 
   override protected def librariesLoaders = Seq(new DisposableScalaLibraryLoader()) ++ additionalLibraries
 
-  protected val jarPath = "/addFoo_2.11_3.0.0-M7.jar"
+  protected val jarPath = "/addFoo_2.11_3.0.0-M8.jar"
 
   override def setUp() = {
     super.setUp()
@@ -32,22 +32,22 @@ class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMet
     PsiTestUtil.addLibrary(myModule, getTestDataPath + jarPath)
   }
 
-//  def testLoadAnnotationFromJar(): Unit = {
-//    val source =
-//      """
-//        |@addFoo
-//        |class foo
-//        |""".stripMargin
-//    myFixture.configureByText("foo.scala", source)
-//    val clazz = myFixture.findClass("foo").asInstanceOf[ScClass]
-//    val expansion = clazz.getMetaExpansion
-//    expansion match {
-//      case Right(q"class foo { def fooBar: Int = 42 }") => // ok
-//      case Right(other) => fail(s"Got unexpected expansion: $other")
-//      case Left(error)  => fail(s"Failed to expand meta annotation: $error")
-//    }
-//    myFixture.findAllGutters().get(0).asInstanceOf[GutterIconRenderer].getClickAction.actionPerformed(new TestActionEvent())
-//  }
+  def testLoadAnnotationFromJar(): Unit = {
+    val source =
+      """
+        |@addFoo
+        |class foo
+        |""".stripMargin
+    myFixture.configureByText("foo.scala", source)
+    val clazz = myFixture.findClass("foo").asInstanceOf[ScClass]
+    val expansion = clazz.getMetaExpansion
+    expansion match {
+      case Right(q"class foo { def fooBar: Int = 42 }") => // ok
+      case Right(other) => fail(s"Got unexpected expansion: $other")
+      case Left(error)  => fail(s"Failed to expand meta annotation: $error")
+    }
+    myFixture.findAllGutters().get(0).asInstanceOf[GutterIconRenderer].getClickAction.actionPerformed(new TestActionEvent())
+  }
 
   def testGutterClickExpansion(): Unit = {
     val source =
