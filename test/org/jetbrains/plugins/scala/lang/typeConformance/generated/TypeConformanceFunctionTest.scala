@@ -8,4 +8,15 @@ class TypeConformanceFunctionTest extends TypeConformanceTestBase {
   def testToAnyRef() {doTest()}
 
   def testToClass() {doTest()}
+
+  def testScl7462(): Unit = {
+    doTest(
+      """import scala.collection.GenTraversableOnce
+        |
+        |def f(curry: String)(i: String): Option[String] = Some(i)
+        |
+        |val x: (String) => GenTraversableOnce[String] = f("curry")
+        |//True""".stripMargin)
+  }
+
 }
