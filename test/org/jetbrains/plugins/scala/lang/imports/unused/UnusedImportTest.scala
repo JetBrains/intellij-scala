@@ -55,4 +55,18 @@ class UnusedImportTest extends UnusedImportTestBase with AssertMatches {
     }
   }
 
+  def testSCL9538(): Unit = {
+    val text =
+      """
+        |import scala.concurrent.ExecutionContext
+        |import scala.concurrent.ExecutionContext.Implicits.global
+        |
+        |class AppModel(implicit ec: ExecutionContext) {
+        |
+        |}
+        |
+        |val x = new AppModel
+      """.stripMargin
+    assert(messages(text).isEmpty)
+  }
 }
