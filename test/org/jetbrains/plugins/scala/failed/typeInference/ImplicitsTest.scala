@@ -203,8 +203,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
       """.stripMargin)
   }
 
-  def testSCL9877(): Unit = doTest()
-
   def testSCL10141(): Unit = {
     doTest(
       s"""

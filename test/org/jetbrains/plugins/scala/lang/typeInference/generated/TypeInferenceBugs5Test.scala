@@ -830,6 +830,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL9865(): Unit = doInjectorTest(new SCL9865Injector)
 
+  def testSCL9877(): Unit = doTest()
+
   def testSCL10037() = doTest {
     """
       |import scala.language.existentials
