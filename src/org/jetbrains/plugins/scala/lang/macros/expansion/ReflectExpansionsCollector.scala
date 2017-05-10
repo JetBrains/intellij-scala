@@ -4,7 +4,7 @@ import java.io._
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerManager}
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiElement
@@ -16,15 +16,14 @@ import scala.collection.mutable
   * @author Mikhail Mutcianko
   * @since 20.09.16
   */
-class ReflectExpansionsCollector(project: Project) extends ProjectComponent {
+class ReflectExpansionsCollector(project: Project) extends AbstractProjectComponent(project) {
   override def getComponentName = "ReflectExpansionsCollector"
-  override def initComponent() = ()
-  override def disposeComponent() = ()
-  override def projectOpened() = {
+
+  override def projectOpened(): Unit = {
     installCompilationListener()
     collectedExpansions = deserializeExpansions()
   }
-  override def projectClosed() = uninstallCompilationListener()
+  override def projectClosed(): Unit = uninstallCompilationListener()
 
   private var collectedExpansions: mutable.Map[String, Seq[MacroExpansion]] = mutable.Map.empty
 
@@ -69,5 +68,5 @@ class ReflectExpansionsCollector(project: Project) extends ProjectComponent {
 }
 
 object ReflectExpansionsCollector {
-  def getInstance(project: Project) = project.getComponent(classOf[ReflectExpansionsCollector])
+  def getInstance(project: Project): ReflectExpansionsCollector = project.getComponent(classOf[ReflectExpansionsCollector])
 }

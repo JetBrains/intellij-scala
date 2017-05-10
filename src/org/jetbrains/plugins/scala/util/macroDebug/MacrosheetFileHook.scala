@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package util.macroDebug
 
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
 import com.intellij.openapi.fileEditor._
@@ -13,16 +13,11 @@ import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 /**
  * Created by ibogomolov on 28.05.14.
  */
-class MacrosheetFileHook(private val project: Project) extends ProjectComponent{
+class MacrosheetFileHook(private val project: Project) extends AbstractProjectComponent(project) {
+
   override def projectOpened() {
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, MacrosheetEditorListener)
   }
-
-  override def projectClosed() { }
-
-  override def disposeComponent() {}
-
-  override def initComponent() {}
 
   override def getComponentName: String = "Macrosheet component"
 

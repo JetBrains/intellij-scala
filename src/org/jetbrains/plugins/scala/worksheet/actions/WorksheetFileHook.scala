@@ -9,7 +9,7 @@ import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor._
@@ -28,14 +28,8 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinterFactory, 
  * User: Dmitry Naydanov
  * Date: 1/24/14
  */
-class WorksheetFileHook(private val project: Project) extends ProjectComponent {
+class WorksheetFileHook(private val project: Project) extends AbstractProjectComponent(project)  {
   private var statusDisplay: Option[InteractiveStatusDisplay] = None
-  
-  override def disposeComponent() {}
-
-  override def initComponent() {}
-
-  override def projectClosed() { }
 
   override def projectOpened() {
     project.getMessageBus.connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, WorksheetEditorListener)

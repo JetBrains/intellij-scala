@@ -25,7 +25,7 @@ import scala.collection.JavaConversions._
   name = "HighlightingAdvisor", storages = Array(
   new Storage("highlighting.xml"))
 )
-class HighlightingAdvisor(project: Project) extends ProjectComponent with PersistentStateComponent[HighlightingSettings] {
+class HighlightingAdvisor(project: Project) extends AbstractProjectComponent(project) with PersistentStateComponent[HighlightingSettings] {
   @Language("HTML")
   private val AdviceMessage = """
   <html>
@@ -63,13 +63,9 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
   private var settings = new HighlightingSettings()
 
-  def getComponentName = "HighlightingAdvisor"
+  override def getComponentName = "HighlightingAdvisor"
 
-  def initComponent() {}
-
-  def disposeComponent() {}
-
-  def projectOpened() {
+  override def projectOpened() {
     project.scalaEvents.addScalaProjectListener(ScalaListener)
     statusBar.foreach { bar =>
       configureWidget(bar)
@@ -77,7 +73,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     }
   }
 
-  def projectClosed() {
+  override def projectClosed() {
     project.scalaEvents.removeScalaProjectListener(ScalaListener)
     statusBar.foreach { bar =>
       configureWidget(bar)

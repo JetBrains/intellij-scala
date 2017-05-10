@@ -7,7 +7,7 @@ import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask, CompilerManager}
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.CompilerModuleExtension
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.project._
  * Pavel Fatin
  */
 
-class ServerMediator(project: Project) extends ProjectComponent {
+class ServerMediator(project: Project) extends AbstractProjectComponent(project) {
 
   private def isScalaProject = project.hasScala
   private val settings = ScalaCompileServerSettings.getInstance
@@ -129,13 +129,5 @@ class ServerMediator(project: Project) extends ProjectComponent {
     result
   }
 
-  def getComponentName: String = getClass.getSimpleName
-
-  def initComponent() {}
-
-  def disposeComponent() {}
-
-  def projectOpened() {}
-
-  def projectClosed() {}
+  override def getComponentName: String = getClass.getSimpleName
 }
