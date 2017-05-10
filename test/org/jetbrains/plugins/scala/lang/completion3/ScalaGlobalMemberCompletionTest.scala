@@ -144,8 +144,8 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy7.scala", fileText)
-    val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 2)
-    assert(activeLookup == null)
+    val lookups = complete(completionType = CompletionType.BASIC, time = 2)
+    assert(lookups.isEmpty)
 
     val resultText =
 """
@@ -190,8 +190,8 @@ class Test {
 }
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy7.scala", fileText)
-    val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 2)
-    Assert.assertTrue(!activeLookup.exists(_.getLookupString == "doSmthPrivate"))
+    val lookups = complete(completionType = CompletionType.BASIC, time = 2)
+    Assert.assertTrue(!lookups.exists(_.getLookupString == "doSmthPrivate"))
   }
 
   def testGlobalMember9() {
@@ -209,8 +209,8 @@ class Test {
       }
       """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy7.scala", fileText)
-    val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 3)
-    Assert.assertTrue(activeLookup.exists(_.getLookupString == "doSmthPrivate"))
+    val lookups = complete(completionType = CompletionType.BASIC, time = 3)
+    Assert.assertTrue(lookups.exists(_.getLookupString == "doSmthPrivate"))
   }
 
   def testGlobalMemberInherited() {
@@ -235,8 +235,7 @@ class Test {
       }
       """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummyGlobalMemberInherited.scala", fileText)
-    val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 3)
-    val lookups = activeLookup.collect {
+    val lookups = complete(completionType = CompletionType.BASIC, time = 3).collect {
       case sli: ScalaLookupItem => sli.containingClass.name + "." + sli.getLookupString
     }
     val expected = Set("D1.zeeGlobalDefInherited", "D1.zeeGlobalValInherited", "D1.zeeGlobalDef", "D1.zeeGlobalVal", "D2.zeeGlobalDefInherited", "D2.zeeGlobalValInherited")
@@ -250,7 +249,7 @@ class Test {
         |ja.asSc<caret>
       """.stripMargin.replaceAll("\r", "").trim
     configureFromFileTextAdapter("javaConverters.scala", fileText)
-    val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 2)
+    val lookups = complete(completionType = CompletionType.BASIC, time = 2)
 
     val resultText =
       """
@@ -276,8 +275,8 @@ class Test {
         |ja.asScala
       """.stripMargin.replaceAll("\r", "").trim
 
-    if (activeLookup != null)
-      completeLookupItem(activeLookup.find(le => le.getLookupString == "asScala").get)
+    lookups.find(le => le.getLookupString == "asScala")
+      .foreach(finishLookup(_))
     val resultFileText = getFileAdapter.getText
     resultFileText.trim match {
       case `resultText` =>

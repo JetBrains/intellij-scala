@@ -54,7 +54,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+    val lookups = complete(2, CompletionType.BASIC)
 
     val resultText =
       """
@@ -67,7 +67,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find {
+    finishLookup(lookups.find {
       case le: ScalaLookupItem =>
         le.element match {
           case c: ScObject if c.qualifiedName == "scala.collection.mutable.HashSet" => true
@@ -89,7 +89,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+    val lookups = complete(2, CompletionType.BASIC)
 
     val resultText =
       """
@@ -102,7 +102,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find {
+    finishLookup(lookups.find {
       case le: ScalaLookupItem =>
         le.element match {
           case c: ScClass if c.qualifiedName == "scala.collection.mutable.HashSet" => true
@@ -129,7 +129,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |}
         """.stripMargin.replaceAll("\r", "").trim()
       configureFromFileTextAdapter("dummy.scala", fileText)
-      val (activeLookup, _) = complete(2, CompletionType.BASIC)
+      val lookups = complete(2, CompletionType.BASIC)
 
       val resultText =
         """
@@ -141,7 +141,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
           |}
         """.stripMargin.replaceAll("\r", "").trim()
 
-      completeLookupItem(activeLookup.find {
+      finishLookup(lookups.find {
         case le: ScalaLookupItem =>
           le.element match {
             case c: ScClass if c.qualifiedName == "scala.collection.mutable.ListMap" => true
@@ -168,7 +168,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+    val lookups = complete(2, CompletionType.BASIC)
 
     val resultText =
       """
@@ -181,7 +181,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find {
+    finishLookup(lookups.find {
       case le: ScalaLookupItem =>
         le.element match {
           case c: ScClass if c.qualifiedName == "scala.collection.immutable.ListSet" => true

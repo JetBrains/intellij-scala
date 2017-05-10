@@ -19,9 +19,9 @@ class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
     val resultText = finalText.stripMargin('|').replaceAll("\r", "").trim()
 
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.BASIC)
+    val lookups = complete(2, CompletionType.BASIC)
 
-    completeLookupItem(activeLookup.find(cv => filter(cv)).get)
+    finishLookup(lookups.find(cv => filter(cv)).get)
     checkResultByText(resultText)
   }
 

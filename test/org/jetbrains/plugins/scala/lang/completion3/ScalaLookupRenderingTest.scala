@@ -35,14 +35,14 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
     }
 
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
     val resultText =
       """
       |foo(x: Int*)
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    val result = activeLookup.filter(_.getLookupString == "foo").map(p => {
+    val result = lookups.filter(_.getLookupString == "foo").map(p => {
       val presentation: LookupElementPresentation = new LookupElementPresentation
       p.renderElement(presentation)
       presentation.getItemText + presentation.getTailText

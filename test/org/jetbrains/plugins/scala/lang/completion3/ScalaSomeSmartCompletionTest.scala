@@ -4,13 +4,13 @@ import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 
 class ScalaSomeSmartCompletionTest extends ScalaCodeInsightTestBase {
   def testSomeSmart1() {
     val fileText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -19,10 +19,10 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -31,13 +31,13 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "z").get)
+    finishLookup(lookups.find(le => le.getLookupString == "z").get)
     checkResultByText(resultText)
   }
 
   def testSomeSmart2() {
     val fileText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -46,10 +46,10 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -58,13 +58,13 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "z").get, ',')
+    finishLookup(lookups.find(le => le.getLookupString == "z").get, ',')
     checkResultByText(resultText)
   }
 
   def testSomeSmart3() {
     val fileText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -73,10 +73,10 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -85,13 +85,13 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "z").get)
+    finishLookup(lookups.find(le => le.getLookupString == "z").get)
     checkResultByText(resultText)
   }
 
   def testSomeSmart4() {
     val fileText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -100,10 +100,10 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
-"""
+      """
 class TUI {
   class A
   def foo(x: Option[A]) = 1
@@ -112,16 +112,15 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
 
-    if (activeLookup != null) {
-      completeLookupItem(activeLookup.find(le => le.getLookupString == "z").get)
-    }
+    lookups.find(le => le.getLookupString == "z")
+      .foreach(finishLookup(_))
 
     checkResultByText(resultText)
   }
 
   def testSomeSmart5() {
     val fileText =
-"""
+      """
 class TUI {
   class A
   class B {def z(x: Int): A = new A}
@@ -130,10 +129,10 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
-"""
+      """
 class TUI {
   class A
   class B {def z(x: Int): A = new A}
@@ -142,9 +141,8 @@ class TUI {
 }
 """.replaceAll("\r", "").trim()
 
-    if (activeLookup != null) {
-      completeLookupItem(activeLookup.find(le => le.getLookupString == "z").get)
-    }
+    lookups.find(le => le.getLookupString == "z")
+      .foreach(finishLookup(_))
 
     checkResultByText(resultText)
   }
@@ -152,48 +150,52 @@ class TUI {
   def testOuterThis() {
     val fileText =
       """
-      |class TT {
-      |  class GG {
-      |    val al: Option[TT] = <caret>
-      |  }
-      |}
+        |class TT {
+        |  class GG {
+        |    val al: Option[TT] = <caret>
+        |  }
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
       """
-      |class TT {
-      |  class GG {
-      |    val al: Option[TT] = Some(TT.this)<caret>
-      |  }
-      |}
+        |class TT {
+        |  class GG {
+        |    val al: Option[TT] = Some(TT.this)<caret>
+        |  }
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "TT.this").get, '\t')
+    lookups.find(le => le.getLookupString == "TT.this")
+      .foreach(finishLookup(_))
+
     checkResultByText(resultText)
   }
 
   def testSomeScalaEnum() {
     val fileText =
       """
-      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
-      |class A {
-      |  val x: Option[Scala.Scala] = a<caret>
-      |}
+        |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+        |class A {
+        |  val x: Option[Scala.Scala] = a<caret>
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
       """
-      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
-      |class A {
-      |  val x: Option[Scala.Scala] = Some(Scala.aaa)<caret>
-      |}
+        |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+        |class A {
+        |  val x: Option[Scala.Scala] = Some(Scala.aaa)<caret>
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get, '\t')
+    lookups.find(le => le.getLookupString == "aaa")
+      .foreach(finishLookup(_))
+
     checkResultByText(resultText)
   }
 }

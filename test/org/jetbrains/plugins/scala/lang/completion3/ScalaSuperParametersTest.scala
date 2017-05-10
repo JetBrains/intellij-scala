@@ -21,7 +21,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
     val resultText =
       """
@@ -34,7 +34,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "x, y, z").get)
+    finishLookup(lookups.find(le => le.getLookupString == "x, y, z").get)
     checkResultByText(resultText)
   }
 
@@ -50,7 +50,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
     val resultText =
       """
@@ -63,7 +63,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "x, y").get)
+    finishLookup(lookups.find(le => le.getLookupString == "x, y").get)
     checkResultByText(resultText)
   }
 
@@ -79,7 +79,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
@@ -92,7 +92,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "x, y").get)
+    finishLookup(lookups.find(le => le.getLookupString == "x, y").get)
     checkResultByText(resultText)
   }
 
@@ -113,7 +113,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
     val resultText =
       """
@@ -131,7 +131,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "x, y").get)
+    finishLookup(lookups.find(le => le.getLookupString == "x, y").get)
     checkResultByText(resultText)
   }
 
@@ -152,7 +152,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
     val resultText =
       """
@@ -170,7 +170,7 @@ class TUI {
 }
       """.replaceAll("\r", "").trim()
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "x, y, z").get)
+    finishLookup(lookups.find(le => le.getLookupString == "x, y, z").get)
     checkResultByText(resultText)
   }
 

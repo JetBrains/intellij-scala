@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completeStatement
 
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
@@ -19,7 +20,7 @@ abstract class ScalaCompleteStatementTestBase extends ScalaCodeInsightTestBase {
     CodeStyleSettingsManager.getSettings(getProjectAdapter).KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
 
     configureFromFileTextAdapter(fileName, fileText)
-    invokeSmartEnter()
+    executeActionAdapter(IdeActions.ACTION_EDITOR_COMPLETE_STATEMENT)
     checkResultByText(StringUtil.convertLineSeparators(resultText))
 
     CodeStyleSettingsManager.getSettings(getProjectAdapter).KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = false

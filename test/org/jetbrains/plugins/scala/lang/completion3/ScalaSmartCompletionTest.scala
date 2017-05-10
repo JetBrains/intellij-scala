@@ -10,31 +10,31 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 28.10.11
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 28.10.11
+  */
 
 class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
   def testAfterPlaceholder() {
     val fileText =
       """
-      |class A {
-      |  class B {def concat: B = new B}
-      |  val f: B => B = _.<caret>
-      |}
+        |class A {
+        |  class B {def concat: B = new B}
+        |  val f: B => B = _.<caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class A {
-      |  class B {def concat: B = new B}
-      |  val f: B => B = _.concat<caret>
-      |}
+        |class A {
+        |  class B {def concat: B = new B}
+        |  val f: B => B = _.concat<caret>
+        |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "concat").get)
+    finishLookup(lookups.find(le => le.getLookupString == "concat").get)
     checkResultByText(normalize(resultText))
   }
 
@@ -54,7 +54,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
         |def bar(unit: TimeUnit) {}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
@@ -71,7 +71,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
         |def bar(unit: TimeUnit) {}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("DAYS")).get)
+    finishLookup(lookups.find(le => le.getLookupString.contains("DAYS")).get)
     checkResultByText(normalize(resultText))
   }
 
@@ -91,7 +91,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
         |def bar(unit: TimeUnit) {}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
@@ -108,37 +108,37 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
         |def bar(unit: TimeUnit) {}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("DAYS")).get)
+    finishLookup(lookups.find(le => le.getLookupString.contains("DAYS")).get)
     checkResultByText(normalize(resultText))
   }
 
   def testAfterNew() {
     val fileText =
       """
-      |import scala.collection.mutable.HashSet
-      |
-      |class A {
-      |  val f: HashSet[String] = new <caret>
-      |}
+        |import scala.collection.mutable.HashSet
+        |
+        |class A {
+        |  val f: HashSet[String] = new <caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |import scala.collection.mutable
-      |import scala.collection.mutable.HashSet
-      |
-      |class A {
-      |  val f: HashSet[String] = new mutable.HashSet[String]()
-      |}
+        |import scala.collection.mutable
+        |import scala.collection.mutable.HashSet
+        |
+        |class A {
+        |  val f: HashSet[String] = new mutable.HashSet[String]()
+        |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "HashSet").get, '[')
+    finishLookup(lookups.find(le => le.getLookupString == "HashSet").get, '[')
     checkResultByText(normalize(resultText))
   }
 
-  def testAfterNewNoObject(): Unit ={
+  def testAfterNewNoObject(): Unit = {
     val fileText =
       """
         |class testAfterNewNoObject {
@@ -151,211 +151,221 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     Assert.assertTrue(
       "Smart Completion shouldn't contain Objects in after new position",
-      !activeLookup.exists(_.getLookupString == "OTest"))
+      !lookups.exists(_.getLookupString == "OTest"))
   }
 
   def testFilterPrivates() {
     val fileText =
       """
-      |class Test {
-      |  def foo(): String = ""
-      |  private def bar(): String = ""
-      |}
-      |
-      |object O extends App {
-      |  val s: String = new Test().bar<caret>
-      |}
+        |class Test {
+        |  def foo(): String = ""
+        |  private def bar(): String = ""
+        |}
+        |
+        |object O extends App {
+        |  val s: String = new Test().bar<caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
-    Assert.assertNull(activeLookup)
+    Assert.assertTrue(lookups.isEmpty)
   }
 
   def testFilterObjectDouble() {
     val fileText =
       """
-      |class Test {
-      |  val x: Double = <caret>
-      |}
+        |class Test {
+        |  val x: Double = <caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
-    Assert.assertTrue(!activeLookup.exists(_.getLookupString == "Double"))
+    Assert.assertTrue(!lookups.exists(_.getLookupString == "Double"))
   }
 
   def testFalse() {
     val fileText =
       """
-      |class A {
-      |  val f: Boolean = <caret>
-      |}
+        |class A {
+        |  val f: Boolean = <caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class A {
-      |  val f: Boolean = false<caret>
-      |}
+        |class A {
+        |  val f: Boolean = false<caret>
+        |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "false").get)
+    finishLookup(lookups.find(le => le.getLookupString == "false").get)
     checkResultByText(normalize(resultText))
   }
 
   def testClassOf() {
     val fileText =
       """
-      |class A {
-      |  val f: Class[_] = <caret>
-      |}
+        |class A {
+        |  val f: Class[_] = <caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class A {
-      |  val f: Class[_] = classOf[<caret>]
-      |}
+        |class A {
+        |  val f: Class[_] = classOf[<caret>]
+        |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "classOf").get)
+    finishLookup(lookups.find(le => le.getLookupString == "classOf").get)
     checkResultByText(normalize(resultText))
   }
 
   def testSmartRenamed() {
     val fileText =
       """
-      |import java.util.{ArrayList => BLLLL}
-      |object Test extends App {
-      |  val al: java.util.List[Int] = new BL<caret>
-      |}
+        |import java.util.{ArrayList => BLLLL}
+        |object Test extends App {
+        |  val al: java.util.List[Int] = new BL<caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |import java.util.{ArrayList => BLLLL}
-      |object Test extends App {
-      |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
-      |}
+        |import java.util.{ArrayList => BLLLL}
+        |object Test extends App {
+        |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
+        |}
       """
 
-    completeLookupItem(activeLookup.find(le => le.getLookupString == "BLLLL").get)
+    finishLookup(lookups.find(le => le.getLookupString == "BLLLL").get)
     checkResultByText(normalize(resultText))
   }
 
   def testThis() {
     val fileText =
       """
-      |class TT {
-      |  val al: TT = <caret>
-      |}
+        |class TT {
+        |  val al: TT = <caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class TT {
-      |  val al: TT = this<caret>
-      |}
+        |class TT {
+        |  val al: TT = this<caret>
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "this").get)
+    lookups.find(le => le.getLookupString == "this")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testInnerThis() {
     val fileText =
       """
-      |class TT {
-      |  class GG {
-      |    val al: GG = <caret>
-      |  }
-      |}
+        |class TT {
+        |  class GG {
+        |    val al: GG = <caret>
+        |  }
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class TT {
-      |  class GG {
-      |    val al: GG = this<caret>
-      |  }
-      |}
+        |class TT {
+        |  class GG {
+        |    val al: GG = this<caret>
+        |  }
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "this").get)
+    lookups.find(le => le.getLookupString == "this")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testOuterThis() {
     val fileText =
       """
-      |class TT {
-      |  class GG {
-      |    val al: TT = <caret>
-      |  }
-      |}
+        |class TT {
+        |  class GG {
+        |    val al: TT = <caret>
+        |  }
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class TT {
-      |  class GG {
-      |    val al: TT = TT.this<caret>
-      |  }
-      |}
+        |class TT {
+        |  class GG {
+        |    val al: TT = TT.this<caret>
+        |  }
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "TT.this").get)
+    lookups.find(le => le.getLookupString == "TT.this")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testWhile() {
     val fileText =
       """
-      |while (<caret>) {}
+        |while (<caret>) {}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |while (true<caret>) {}
+        |while (true<caret>) {}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "true").get)
+    lookups.find(le => le.getLookupString == "true")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testDoWhile() {
     val fileText =
       """
-      |do {} while (<caret>)
+        |do {} while (<caret>)
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |do {} while (true<caret>)
+        |do {} while (true<caret>)
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "true").get)
+    lookups.find(le => le.getLookupString == "true")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
@@ -363,59 +373,63 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
   def testNewFunction() {
     TypeAnnotationSettings.set(getProjectAdapter,
       TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-    
+
     val fileText =
       """
-      |val x: Int => String = new <caret>
+        |val x: Int => String = new <caret>
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |val x: Int => String = new Function[Int, String] {
-      |  def apply(v1: Int): String = <selection>???</selection>
-      |}
+        |val x: Int => String = new Function[Int, String] {
+        |  def apply(v1: Int): String = <selection>???</selection>
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "Function1").get)
+    lookups.find(le => le.getLookupString == "Function1")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testEtaExpansion() {
     val fileText =
       """
-      |def foo(x: Int): String = x.toString
-      |val x: Int => String = <caret>
+        |def foo(x: Int): String = x.toString
+        |val x: Int => String = <caret>
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |def foo(x: Int): String = x.toString
-      |val x: Int => String = foo _<caret>
+        |def foo(x: Int): String = x.toString
+        |val x: Int => String = foo _<caret>
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "foo").get)
+    lookups.find(le => le.getLookupString == "foo")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testJavaEnum() {
     val javaFileText =
       """
-      |package a;
-      |
-      |public enum Java {
-      |  aaa, bbb, ccc
-      |}
+        |package a;
+        |
+        |public enum Java {
+        |  aaa, bbb, ccc
+        |}
       """
     val fileText =
       """
-      |import a.Java
-      |class A {
-      |  val x: Java = a<caret>
-      |}
+        |import a.Java
+        |class A {
+        |  val x: Java = a<caret>
+        |}
       """
 
     inWriteAction {
@@ -424,115 +438,125 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     }
 
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |import a.Java
-      |class A {
-      |  val x: Java = Java.aaa<caret>
-      |}
+        |import a.Java
+        |class A {
+        |  val x: Java = Java.aaa<caret>
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get)
+    lookups.find(le => le.getLookupString == "aaa")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testScalaEnum() {
     val fileText =
       """
-      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
-      |class A {
-      |  val x: Scala.Scala = a<caret>
-      |}
+        |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+        |class A {
+        |  val x: Scala.Scala = a<caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
-      |class A {
-      |  val x: Scala.Scala = Scala.aaa<caret>
-      |}
+        |object Scala extends Enumeration {type Scala = Value; val aaa, bbb, ccc = Value}
+        |class A {
+        |  val x: Scala.Scala = Scala.aaa<caret>
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "aaa").get)
+    lookups.find(le => le.getLookupString == "aaa")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testScalaFactoryMethod() {
     val fileText =
       """
-      |class Scala
-      |object Scala {
-      |  def getInstance() = new Scala
-      |}
-      |class A {
-      |  val x: Scala = get<caret>
-      |}
+        |class Scala
+        |object Scala {
+        |  def getInstance() = new Scala
+        |}
+        |class A {
+        |  val x: Scala = get<caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class Scala
-      |object Scala {
-      |  def getInstance() = new Scala
-      |}
-      |class A {
-      |  val x: Scala = Scala.getInstance()<caret>
-      |}
+        |class Scala
+        |object Scala {
+        |  def getInstance() = new Scala
+        |}
+        |class A {
+        |  val x: Scala = Scala.getInstance()<caret>
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "getInstance").get)
+    lookups.find(le => le.getLookupString == "getInstance")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testScalaFactoryApply() {
     val fileText =
       """
-      |case class Scala()
-      |class A {
-      |  val x: Scala = <caret>
-      |}
+        |case class Scala()
+        |class A {
+        |  val x: Scala = <caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |case class Scala()
-      |class A {
-      |  val x: Scala = Scala.apply()<caret>
-      |}
+        |case class Scala()
+        |class A {
+        |  val x: Scala = Scala.apply()<caret>
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "apply").get)
+    lookups.find(le => le.getLookupString == "apply")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testScalaHashSetEmpty() {
     val fileText =
       """
-      |import collection.mutable.HashSet
-      |class A {
-      |  val x: HashSet[String] = <caret>
-      |}
+        |import collection.mutable.HashSet
+        |class A {
+        |  val x: HashSet[String] = <caret>
+        |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |import collection.mutable.HashSet
-      |class A {
-      |  val x: HashSet[String] = HashSet.empty<caret>
-      |}
+        |import collection.mutable.HashSet
+        |class A {
+        |  val x: HashSet[String] = HashSet.empty<caret>
+        |}
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "empty").get)
+    lookups.find(le => le.getLookupString == "empty")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
@@ -546,49 +570,53 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
         |val map: A[Int,Int] = new <caret>
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
     val resultText =
       """
-      |class A[T, K](s: Int)
-      |
-      |class B[T, K](s: Int) extends A[T, K](s)
-      |
-      |val map: A[Int,Int] = new B[Int, Int](<caret>)
+        |class A[T, K](s: Int)
+        |
+        |class B[T, K](s: Int) extends A[T, K](s)
+        |
+        |val map: A[Int,Int] = new B[Int, Int](<caret>)
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "B").get)
+    lookups.find(le => le.getLookupString == "B")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 
   def testChainedSecondCompletion() {
     val fileText =
       """
-      |object YY {
-      |  def foo(): YY = new YY
-      |  val x: OP = <caret>
-      |}
-      |class YY {
-      |  def goo(x: Int) = new OP
-      |}
-      |class OP
+        |object YY {
+        |  def foo(): YY = new YY
+        |  val x: OP = <caret>
+        |}
+        |class YY {
+        |  def goo(x: Int) = new OP
+        |}
+        |class OP
       """
     configureFromFileTextAdapter("dummy.scala", normalize(fileText))
-    val (activeLookup, _) = complete(2, CompletionType.SMART)
+    val lookups = complete(2, CompletionType.SMART)
 
     val resultText =
       """
-      |object YY {
-      |  def foo(): YY = new YY
-      |  val x: OP = foo().goo(<caret>)
-      |}
-      |class YY {
-      |  def goo(x: Int) = new OP
-      |}
-      |class OP
+        |object YY {
+        |  def foo(): YY = new YY
+        |  val x: OP = foo().goo(<caret>)
+        |}
+        |class YY {
+        |  def goo(x: Int) = new OP
+        |}
+        |class OP
       """
 
-    if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "foo.goo").get)
+    lookups.find(le => le.getLookupString == "foo.goo")
+      .foreach(finishLookup(_))
+
     checkResultByText(normalize(resultText))
   }
 }

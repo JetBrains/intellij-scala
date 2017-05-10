@@ -190,9 +190,9 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
       |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
-    Assert.assertNull(activeLookup)
+    Assert.assertTrue(lookups.isEmpty)
   }
 
   def testFilterImplicit() {
@@ -202,8 +202,8 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
       |foo((impl<caret>: Int) => 0)
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
-    val (activeLookup, _) = complete(1, CompletionType.SMART)
+    val lookups = complete(1, CompletionType.SMART)
 
-    Assert.assertNull(activeLookup)
+    Assert.assertTrue(lookups.isEmpty)
   }
 }

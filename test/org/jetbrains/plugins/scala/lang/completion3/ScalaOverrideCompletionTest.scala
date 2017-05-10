@@ -168,7 +168,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    doTest(baseText+ inText, baseText+ outText, Some("abstractFoo"))
+    doTest(baseText + inText, baseText + outText, Some("abstractFoo"))
   }
 
   def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = {
@@ -186,7 +186,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
 
-    doTest(baseText+ inText, baseText+ outText, Some("intVariable"))
+    doTest(baseText + inText, baseText + outText, Some("intVariable"))
   }
 
   def testNoMethodCompletionInClassParameter(): Unit = {
@@ -197,12 +197,10 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
-    Option(activeLookup).foreach { al =>
-      val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
-      assert(result.isEmpty, "Override is not enable at this place")
-    }
+    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
+    assert(result.isEmpty, "Override is not enable at this place")
   }
 
   def testNoCompletionAfterDot(): Unit = {
@@ -213,12 +211,10 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
-    Option(activeLookup).foreach { al =>
-      val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
-      assert(result.isEmpty, "Override is not enable at this place")
-    }
+    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
+    assert(result.isEmpty, "Override is not enable at this place")
   }
 
   //Like in java, don't save annotations here
@@ -249,11 +245,10 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
-    Option(activeLookup).foreach { al =>
-      val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
-      assert(result.isEmpty, "Override is not enable at this place")
-    }
+    val lookups = complete(1, CompletionType.BASIC)
+
+    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
+    assert(result.isEmpty, "Override is not enable at this place")
   }
 
   def testNoCompletionInModifier(): Unit = {
@@ -264,12 +259,10 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
-    Option(activeLookup).foreach { al =>
-      val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
-      assert(result.isEmpty, "Override is not enable at this place")
-    }
+    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
+    assert(result.isEmpty, "Override is not enable at this place")
   }
 
   def testNoCompletionAfterColon(): Unit = {
@@ -280,12 +273,10 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """
     configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
-    Option(activeLookup).foreach { al =>
-      val result = al.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
-      assert(result.isEmpty, "Override is not enable at this place")
-    }
+    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
+    assert(result.isEmpty, "Override is not enable at this place")
   }
 
   def testParamsFromClass(): Unit = {
@@ -301,7 +292,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     val resultText =
-    """
+      """
         |class Person(val name: String) {
         |  val gender: Boolean = true
         |  val age: Int = 45
@@ -326,20 +317,19 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
 
     configureFromFileTextAdapter("dummy.scala", normalize(inText))
-    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+    val lookups = complete(1, CompletionType.BASIC)
 
-    assert(activeLookup != null, "No lookup was found")
+    assert(lookups.nonEmpty, "No lookup was found")
 
-    Option(activeLookup).foreach { lookup =>
-      item match {
-        case Some(name) =>
-          def containsAll(lookupString: String, parts: String): Boolean =
-            parts.split(" ").forall(lookupString.contains)
+    item match {
+      case Some(name) =>
+        def containsAll(lookupString: String, parts: String): Boolean =
+          parts.split(" ").forall(lookupString.contains)
 
-          lookup.find(ls => containsAll(ls.getLookupString, name)).foreach(completeLookupItem(_))
-        case _ => completeLookupItem()
-      }
-      checkResultByText(normalize(resultText))
+        lookups.find(ls => containsAll(ls.getLookupString, name))
+          .foreach(finishLookup(_))
+      case _ => finishLookup()
     }
+    checkResultByText(normalize(resultText))
   }
 }

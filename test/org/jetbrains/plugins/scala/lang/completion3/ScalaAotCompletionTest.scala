@@ -28,9 +28,9 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     test(before, after) {
-      val (activeLookup, _) = complete(1, CompletionType.BASIC)
-      Assert.assertTrue(activeLookup.exists(_.getLookupString == "Foo"))
-      completeLookupItem(findByText(activeLookup, "foo: Foo"))
+      val lookups = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(lookups.exists(_.getLookupString == "Foo"))
+      finishLookup(findByText(lookups, "foo: Foo"))
     }
   }
 
@@ -52,9 +52,9 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     test(before, after) {
-      val (activeLookup, _) = complete(1, CompletionType.BASIC)
-      Assert.assertTrue(activeLookup.exists(_.getLookupString == "Foo"))
-      completeLookupItem(findByText(activeLookup, "foo"))
+      val lookups = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(lookups.exists(_.getLookupString == "Foo"))
+      finishLookup(findByText(lookups, "foo"))
     }
   }
 
@@ -72,9 +72,9 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     test(before, after) {
-      val (activeLookup, _) = complete(1, CompletionType.BASIC)
-      Assert.assertTrue(activeLookup.exists(_.getLookupString == "Foo"))
-      completeLookupItem(findByText(activeLookup, "foo"))
+      val lookups = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(lookups.exists(_.getLookupString == "Foo"))
+      finishLookup(findByText(lookups, "foo"))
     }
   }
 
@@ -92,9 +92,9 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     test(before, after) {
-      val (activeLookup, _) = complete(1, CompletionType.BASIC)
-      Assert.assertTrue(activeLookup.exists(_.getLookupString == "FooBarMoo"))
-      completeLookupItem(findByText(activeLookup, "barMoo: FooBarMoo"))
+      val lookups = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(lookups.exists(_.getLookupString == "FooBarMoo"))
+      finishLookup(findByText(lookups, "barMoo: FooBarMoo"))
     }
   }
 
@@ -112,9 +112,9 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     test(before, after) {
-      val (activeLookup, _) = complete(1, CompletionType.BASIC)
-      Assert.assertTrue(activeLookup.exists(_.getLookupString == "Rectangle"))
-      completeLookupItem(findByText(activeLookup, "rectangle: Rectangle"))
+      val lookups = complete(1, CompletionType.BASIC)
+      Assert.assertTrue(lookups.exists(_.getLookupString == "Rectangle"))
+      finishLookup(findByText(lookups, "rectangle: Rectangle"))
     }
   }
 
@@ -126,14 +126,14 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
 }
 
 object ScalaAotCompletionTest {
-  def findByText(elements: Array[LookupElement], text: String): LookupElement = {
+  def findByText(elements: Seq[LookupElement], text: String): LookupElement = {
     findByText0(elements, text).getOrElse {
       Assert.fail("No such element: " + text)
       null // unreachable
     }
   }
 
-  def findByText0(elements: Array[LookupElement], text: String): Option[LookupElement] = {
+  def findByText0(elements: Seq[LookupElement], text: String): Option[LookupElement] = {
     elements.find { element =>
       val presentation = new LookupElementPresentation()
       element.renderElement(presentation)
