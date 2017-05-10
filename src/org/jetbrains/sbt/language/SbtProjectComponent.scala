@@ -31,11 +31,14 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
 
   private val SBT_MAVEN_NOTIFICATION_GROUP = "Unindexed maven repositories for SBT detection"
 
-  override def initComponent() {
+  override def projectOpened(): Unit = {
     manager.addPsiTreeChangeListener(TreeListener)
+
+    // disabled feature as too annoying
+    setupMavenIndexes()
   }
 
-  override def disposeComponent() {
+  override def projectClosed(): Unit = {
     manager.removePsiTreeChangeListener(TreeListener)
   }
 
@@ -134,10 +137,5 @@ class SbtProjectComponent(project: Project) extends AbstractProjectComponent(pro
         }
       })
     notificationData
-  }
-
-  override def projectOpened(): Unit = {
-    // disabled feature as too annoying
-       setupMavenIndexes()
   }
 }

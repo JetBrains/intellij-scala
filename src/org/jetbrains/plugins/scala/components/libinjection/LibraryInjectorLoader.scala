@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
 import com.intellij.openapi.progress.ProgressManager
@@ -72,7 +72,7 @@ object InjectorPersistentCache {
   }
 }
 
-class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
+class LibraryInjectorLoader(val project: Project) extends AbstractProjectComponent(project) {
 
   import LibraryInjectorLoader.{LOG, _}
 
@@ -127,7 +127,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   override def projectOpened(): Unit = {
     jarCache = verifyAndLoadCache
-//    init()
+    //    init()
   }
   
   def addListener(l: InjectorsLoadedListener) {
