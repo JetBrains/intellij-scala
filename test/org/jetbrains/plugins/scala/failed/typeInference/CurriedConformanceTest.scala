@@ -9,15 +9,6 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class CurriedConformanceTest extends TypeConformanceTestBase {
-  def testScl7462(): Unit = {
-    doTest(
-      """import scala.collection.GenTraversableOnce
-        |
-        |def f(curry: String)(i: String): Option[String] = Some(i)
-        |
-        |val x: (String) => GenTraversableOnce[String] = f("curry")
-        |//True""".stripMargin)
-  }
 
   def testSCL7488(): Unit = {
     doTest(
