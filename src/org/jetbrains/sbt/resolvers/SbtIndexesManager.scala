@@ -2,7 +2,7 @@ package org.jetbrains.sbt.resolvers
 
 import java.io.File
 
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -17,15 +17,13 @@ import scala.collection.mutable
   * @author Mikhail Mutcianko
   * @since 26.07.16
   */
-class SbtIndexesManager(val project: Project) extends ProjectComponent {
+class SbtIndexesManager(val project: Project) extends AbstractProjectComponent(project) {
   import SbtIndexesManager._
 
   override def projectClosed(): Unit = {
     indexes.values.foreach(_.close())
   }
-  override def projectOpened(): Unit = ()
-  override def initComponent(): Unit = ()
-  override def disposeComponent(): Unit = ()
+
   override def getComponentName: String = "SbtResolversManager"
 
   private val indexes = new mutable.HashMap[String, ResolverIndex]()

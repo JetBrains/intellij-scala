@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.migration
 
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.externalSystem.model.project.LibraryData
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
@@ -21,7 +21,9 @@ import scala.collection.mutable
   * User: Dmitry.Naydanov
   * Date: 14.11.16.
   */
-class BundledCodeStoreComponent(project: Project, private val injector: LibraryInjectorLoader) extends ProjectComponent with LibraryInjectorLoader.InjectorsLoadedListener {
+class BundledCodeStoreComponent(project: Project, private val injector: LibraryInjectorLoader)
+  extends AbstractProjectComponent(project) with LibraryInjectorLoader.InjectorsLoadedListener {
+
   private var oldLibrariesCopy: Option[Seq[Library]] = None
   private var newLibrariesCopy: Option[Seq[LibraryData]] = None
   private var isImportFinished = false
@@ -164,10 +166,6 @@ class BundledCodeStoreComponent(project: Project, private val injector: LibraryI
     })
   }
 
-  
-  override def projectClosed(): Unit = {}
-  override def initComponent(): Unit = {}
-  override def disposeComponent(): Unit = {}
   override def getComponentName: String = "Scala bundled code store component"
 }
 

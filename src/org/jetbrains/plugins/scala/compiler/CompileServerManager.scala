@@ -10,7 +10,7 @@ import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -26,18 +26,14 @@ import org.jetbrains.plugins.scala.project._
 /**
  * @author Pavel Fatin
  */
-class CompileServerManager(project: Project) extends ProjectComponent {
+class CompileServerManager(project: Project) extends AbstractProjectComponent(project) {
    private val IconRunning = Icons.COMPILE_SERVER
 
    private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
    private val timer = new Timer(1000, TimerListener)
 
-   def initComponent() {}
-
-   def disposeComponent() {}
-
-   def projectOpened() {
+   override def projectOpened() {
      if (ApplicationManager.getApplication.isUnitTestMode) return
 
      project.scalaEvents.addScalaProjectListener(ScalaListener)
@@ -46,7 +42,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      timer.start()
    }
 
-   def projectClosed() {
+   override def projectClosed() {
      if (ApplicationManager.getApplication.isUnitTestMode) return
 
      project.scalaEvents.removeScalaProjectListener(ScalaListener)
@@ -54,7 +50,7 @@ class CompileServerManager(project: Project) extends ProjectComponent {
      timer.stop()
    }
 
-   def getComponentName: String = getClass.getSimpleName
+   override def getComponentName: String = getClass.getSimpleName
 
    def configureWidget() {
      if (ApplicationManager.getApplication.isUnitTestMode) return

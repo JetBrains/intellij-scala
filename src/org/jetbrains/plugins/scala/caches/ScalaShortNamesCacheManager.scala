@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.caches
 
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
@@ -24,7 +24,7 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 09.02.12
  */
 
-class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
+class ScalaShortNamesCacheManager(project: Project) extends AbstractProjectComponent(project) {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager")
 
   def getClassByFQName(name: String, scope: GlobalSearchScope): PsiClass = {
@@ -242,15 +242,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
 
   private def psiManager = ScalaPsiManager.instance(project)
 
-  def initComponent() {}
-
-  def disposeComponent() {}
-
-  def projectOpened() {}
-
-  def projectClosed() {}
-
-  def getComponentName: String = "ScalaShortNamesCacheManager"
+  override def getComponentName: String = "ScalaShortNamesCacheManager"
 }
 
 object ScalaShortNamesCacheManager {

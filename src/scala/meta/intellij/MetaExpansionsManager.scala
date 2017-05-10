@@ -5,13 +5,13 @@ import java.lang.reflect.InvocationTargetException
 import java.net.URL
 
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerManager, CompilerPaths}
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.libraries.{Library, LibraryUtil}
-import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator, OrderRootType}
+import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
@@ -24,27 +24,27 @@ import org.jetbrains.plugins.scala.project._
 
 import scala.collection.immutable
 import scala.meta.parsers.Parse
-import scala.meta.{Dialect, Tree}
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
+import scala.meta.{Dialect, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
 /**
   * @author Mikhail Mutcianko
   * @since 20.09.16
   */
-class MetaExpansionsManager(project: Project) extends ProjectComponent {
+class MetaExpansionsManager(project: Project) extends AbstractProjectComponent(project)  {
   import org.jetbrains.plugins.scala.project._
 
   import scala.collection.convert.decorateAsScala._
 
   override def getComponentName = "MetaExpansionsManager"
+
   override def projectOpened(): Unit = installCompilationListener()
+
   override def projectClosed(): Unit = {
     uninstallCompilationListener()
     annotationClassLoaders.clear()
   }
-  override def initComponent(): Unit = ()
-  override def disposeComponent(): Unit = ()
 
   private val annotationClassLoaders = new java.util.concurrent.ConcurrentHashMap[String, URLClassLoader]().asScala
 

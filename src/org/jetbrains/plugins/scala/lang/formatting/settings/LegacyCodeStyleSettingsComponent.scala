@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
+import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleScheme
 import com.intellij.psi.impl.source.codeStyle.CodeStyleSchemesImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
@@ -9,8 +10,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
   * @author Roman.Shein
   *         Date: 24.01.2017
   */
-class LegacyCodeStyleSettingsComponent extends ProjectComponent {
-  override def projectClosed(): Unit = {}
+class LegacyCodeStyleSettingsComponent(project: Project) extends AbstractProjectComponent(project) {
 
   override def projectOpened(): Unit = {
     import collection.JavaConversions._
@@ -24,10 +24,6 @@ class LegacyCodeStyleSettingsComponent extends ProjectComponent {
       }
     }
   }
-
-  override def initComponent(): Unit = {}
-
-  override def disposeComponent(): Unit = {}
 
   override def getComponentName: String = "LegacyCodeStyleSettingsComponent"
 }
