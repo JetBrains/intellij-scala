@@ -53,16 +53,14 @@ class CompileServerLauncher extends ApplicationComponent {
 
   private def start(project: Project): Boolean = {
 
-    compileServerJdk(project)
-      .right.flatMap(start(project, _)) match {
-
-      case Left(error) =>
+    compileServerJdk(project) match {
+      case None =>
         val title = "Cannot start Scala compile server"
-        val content = s"<html><body>${error.replace("\n", "<br>")} <a href=''>Configure</a></body></html>"
-        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, ConfigureLinkListener))
+        val content = "JDK for compiler process not found"
+        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR))
         false
-
-      case Right(_) =>
+      case Some(jdk) =>
+        start(project, jdk)
         invokeLater {
           CompileServerManager.configureWidget(project)
         }
@@ -154,9 +152,9 @@ object CompileServerLauncher {
     sdk
   }
 
-  def compileServerJdk(project: Project): Either[String, JDK] = {
+  def compileServerJdk(project: Project): Option[JDK] = {
     val sdk = compileServerSdk(project)
-    findJdkByName(sdk.getName)
+    toJdk(sdk)
   }
 
   def instance: CompileServerLauncher = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
@@ -231,8 +229,8 @@ object CompileServerLauncher {
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
         val workingDirChanged = useProjectHome && projectHome(project) != serverInstance.map(_.workingDir)
         val jdkChanged = compileServerJdk(project) match {
-          case Right(projectJdk) => projectJdk != instance.jdk
-          case Left(_) => false
+          case Some(projectJdk) => projectJdk != instance.jdk
+          case _ => false
         }
         workingDirChanged || instance.bootClasspath != withTimestamps(bootClasspath(project)) || jdkChanged
     }
