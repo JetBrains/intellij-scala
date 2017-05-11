@@ -16,7 +16,8 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
-import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
+import com.intellij.openapi.options.ConfigurationException
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, SdkTypeId}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.Condition
 import com.intellij.openapi.util.io.FileUtil._
@@ -107,6 +108,24 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setUseAutoImport(false)
         getExternalProjectSettings.setCreateEmptyContentRootDirectories(false)
+      }
+
+      override def validate(): Boolean = {
+        if (!super.validate()) return false
+
+        val selectedSdk = myJdkComboBox.getSelectedJdk
+        def isJava8 = JavaSdk.getInstance().getVersion(selectedSdk).isAtLeast(JavaSdkVersion.JDK_1_8)
+
+        if (scalaVersion == null || selectedSdk == null) true
+        else {
+          val selectedVersion = Version(scalaVersion)
+          val needJdk8 = selectedVersion >= Version("2.12") && !isJava8
+
+          if (needJdk8) {
+            throw new ConfigurationException("Scala 2.12 requires JDK 1.8", "Wrong JDK version")
+          }
+          else true
+        }
       }
     }
 
