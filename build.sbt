@@ -159,7 +159,8 @@ lazy val testDownloader =
     dependencyOverrides ++= Set(
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     ),
-    update := update.dependsOn(update.in(sbtLaunchTestDownloader)).value
+    update := update.dependsOn(update.in(sbtLaunchTestDownloader)).value,
+    ideSkipProject := true
   )
 
 lazy val sbtLaunchTestDownloader =
@@ -167,7 +168,8 @@ lazy val sbtLaunchTestDownloader =
   .settings(
     autoScalaLibrary := false,
     conflictManager := ConflictManager.all,
-    libraryDependencies ++= DependencyGroups.sbtLaunchTestDownloader
+    libraryDependencies ++= DependencyGroups.sbtLaunchTestDownloader,
+    ideSkipProject := true
   )
 
 lazy val jmhBenchmarks =
