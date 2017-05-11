@@ -64,7 +64,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val scalaPlatformComboBox         = new SComboBox()
     val scalaVersionComboBox          = new SComboBox()
 
-    val sbtVersions = withProgressSynchronously("Fetching SBT versions")(_ => Versions.loadSbtVersions)
+    val sbtVersions = withProgressSynchronously("Fetching SBT versions")(_ => Versions.loadSbtVersions.filterNot(_.startsWith("0.12")))
 
     sbtVersionComboBox.setItems(sbtVersions)
     scalaPlatformComboBox.setItems(Platform.Values)
