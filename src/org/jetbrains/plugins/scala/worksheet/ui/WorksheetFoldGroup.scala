@@ -3,13 +3,16 @@ package worksheet.ui
 
 import java.util
 
+import com.intellij.openapi.editor.ex.FoldingListener
 import com.intellij.openapi.editor.impl.{EditorImpl, FoldingModelImpl}
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.FileAttributeUtilCache
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetFoldGroup.WorksheetFoldRegionListener
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -31,29 +34,45 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
       unfolded.get(key) + left
     }
   }
+  
+  def addRegion(foldingModel: FoldingModelImpl, start: Int, end: Int, leftStart: Int, 
+                spaces: Int, leftSideLength: Int, isExpanded: Boolean) {
+    val placeholder = viewerEditor.getDocument.getText(
+      new TextRange(start, start + Math.min(end - start, WorksheetFoldGroup.PLACEHOLDER_LIMIT)))
+    
+    val region = foldingModel.createFoldRegion(start.toInt, end.toInt, placeholder, null, false)
+    region.setExpanded(isExpanded)
+    addRegion(region, leftStart.toInt, spaces.toInt, leftSideLength.toInt)
 
-  def addRegion(region: WorksheetFoldRegionDelegate, start: Int, spaces: Int, leftSideLength: Int) {
+    foldingModel.addFoldRegion(region)
+  }
+
+  def addRegion(region: FoldRegion, start: Int, spaces: Int, leftSideLength: Int) {
     regions += FoldRegionInfo(region, region.isExpanded, start, spaces, leftSideLength)
   }
 
-  def removeRegion(region: WorksheetFoldRegionDelegate) {
+  def removeRegion(region: FoldRegion) {
     regions -= FoldRegionInfo(region, expanded = true, 0, 0, 0)
   }
 
-  def onExpand(expandedRegion: WorksheetFoldRegionDelegate): Boolean = {
+  def onExpand(expandedRegion: FoldRegion): Boolean = {
     traverseAndChange(expandedRegion, expand = true)
   }
 
-  def onCollapse(collapsedRegion: WorksheetFoldRegionDelegate): Boolean = {
+  def onCollapse(collapsedRegion: FoldRegion): Boolean = {
     traverseAndChange(collapsedRegion, expand = false)
   }
 
   def getCorrespondInfo: ArrayBuffer[(Int, Int, Int, Int, Int)] = regions map {
-    case FoldRegionInfo(region: WorksheetFoldRegionDelegate, _, leftStart, spaces, lsLength) =>
+    case FoldRegionInfo(region: FoldRegion, _, leftStart, spaces, lsLength) =>
       (region.getStartOffset, region.getEndOffset, leftStart, spaces, lsLength)
   }
+  
+  def installOn(model: FoldingModelImpl) {
+    model.addListener(new WorksheetFoldRegionListener(this), project) 
+  }
 
-  private def traverseAndChange(target: WorksheetFoldRegionDelegate, expand: Boolean): Boolean = {
+  private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
     if (!viewerEditor.asInstanceOf[EditorImpl].getContentComponent.hasFocus) return false
 
     val ((fromTo, offsetsSpaces), targetInfo) = traverseRegions(target) match {
@@ -70,7 +89,7 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
     true
   }
 
-  protected def serialize() = regions map {
+  protected def serialize(): String = regions map {
     case FoldRegionInfo(region, expanded, trueStart, spaces, lsLength) =>
       s"${region.getStartOffset},${region.getEndOffset},$expanded,$trueStart,$spaces,$lsLength"
   } mkString "|"
@@ -81,23 +100,11 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
     folding runBatchFoldingOperation new Runnable {
       override def run() {
         elem split '|' foreach {
-          case regionElem =>
+          regionElem =>
             regionElem split ',' match {
-              case Array(start, end, expanded, trueStart, spaces, lsLength) =>
+              case Array(start, end, expanded, leftStart, spaces, leftSideLength) =>
                 try {
-                  val region = new WorksheetFoldRegionDelegate (
-                    viewerEditor,
-                    start.toInt,
-                    end.toInt,
-                    trueStart.toInt,
-                    spaces.toInt,
-                    WorksheetFoldGroup.this,
-                    lsLength.toInt
-                  )
-
-                  region.setExpanded(expanded.length == 4)
-
-                  folding addFoldRegion region
+                  addRegion(folding, start.toInt, end.toInt, leftStart.toInt, spaces.toInt, leftSideLength.toInt, expanded.length == 4)
                 } catch {
                   case _: NumberFormatException =>
                 }
@@ -110,12 +117,12 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
 
   private def offset2Line(offset: Int) = doc getLineNumber offset
 
-  private def traverseRegions(target: WorksheetFoldRegionDelegate): (mutable.Iterable[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = {
+  private def traverseRegions(target: FoldRegion): (mutable.Iterable[((Int, Int), (Int, Int))], FoldRegionInfo, Int) = {
     if (regions.isEmpty) return (mutable.ArrayBuffer.empty, null, 0)
 
     def numbers(reg: FoldRegionInfo, stored: Int) =
-      ((offset2Line(reg.trueStart) - reg.lsLength, offset2Line(reg.trueStart)),
-      (offset2Line(reg.trueStart) + stored, reg.spaces))
+      ((offset2Line(reg.leftStart) - reg.lsLength, offset2Line(reg.leftStart)),
+      (offset2Line(reg.leftStart) + stored, reg.spaces))
 
     ((mutable.ArrayBuffer[((Int, Int), (Int, Int))](), null: FoldRegionInfo, 0) /: regions) {
       case ((res, _, ff), reg) if reg.expanded && reg.region == target => (res, reg, ff)
@@ -130,7 +137,7 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
   }
 
   private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean) {
-    val line = offset2Line(target.trueStart)
+    val line = offset2Line(target.leftStart)
     val key = unfolded floorKey line
 
     val spaces = target.spaces
@@ -149,7 +156,7 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
   }
 
 
-  private case class FoldRegionInfo(region: FoldRegion, var expanded: Boolean, trueStart: Int, spaces: Int, lsLength: Int) {
+  private case class FoldRegionInfo(region: FoldRegion, var expanded: Boolean, leftStart: Int, spaces: Int, lsLength: Int) {
     override def equals(obj: scala.Any): Boolean = obj match {
       case info: FoldRegionInfo => this.region.equals(info.region)
       case _ => false
@@ -160,7 +167,15 @@ class WorksheetFoldGroup(private val viewerEditor: Editor, private val originalE
 }
 
 object WorksheetFoldGroup {
+  private val PLACEHOLDER_LIMIT = 75
   private val WORKSHEET_PERSISTENT_FOLD_KEY = new FileAttribute("WorksheetPersistentFoldings", 1, false)
+  
+  private class WorksheetFoldRegionListener(val owner: WorksheetFoldGroup) extends FoldingListener {
+    override def onFoldRegionStateChange(region: FoldRegion): Unit = 
+      if (region.isExpanded) owner.onExpand(region) else owner.onCollapse(region)
+
+    override def onFoldProcessingEnd() {}
+  }
 
   def save(file: ScalaFile, group: WorksheetFoldGroup) {
     val virtualFile = file.getVirtualFile
