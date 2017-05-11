@@ -20,6 +20,7 @@ import scala.collection.mutable.ArrayBuffer
   * element can be any stable element, class, value or type alias
   */
 case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false) extends DesignatorOwner {
+
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
@@ -59,12 +60,11 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
 
   def getValType: Option[StdType] = element match {
     case clazz: PsiClass if !clazz.isInstanceOf[ScObject] =>
-      StdType.QualNameToType.get(clazz.qualifiedName)
+      projectContext.stdTypes.QualNameToType.get(clazz.qualifiedName)
     case _ => None
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) = left.designatorSingletonType.filter {
       case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
       case _ => false

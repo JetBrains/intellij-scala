@@ -5,8 +5,6 @@ package impl
 package toplevel
 package typedef
 
-import java.io.IOException
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
@@ -14,16 +12,14 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -593,7 +589,7 @@ object TypeDefinitionMembers {
                 case c: ScCompoundType =>
                   getSignatures(c, Some(clazzType), clazz)
                 case tp =>
-                  val cl = tp.extractClass(td.getProject).getOrElse(clazz)
+                  val cl = tp.extractClass.getOrElse(clazz)
                   getSignatures(cl)
               }
             case _ =>
@@ -618,7 +614,7 @@ object TypeDefinitionMembers {
               case c: ScCompoundType =>
                 getTypes(c, Some(clazzType), clazz)
               case tp =>
-                val cl = tp.extractClass(td.getProject).getOrElse(clazz)
+                val cl = tp.extractClass.getOrElse(clazz)
                 getTypes(cl)
             }
           case _ =>
@@ -634,6 +630,8 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
+    implicit val projectContext = clazz.projectContext
+
     def signaturesForJava: SignatureNodes.Map = {
       val map = new SignatureNodes.Map
       if (!processor.isInstanceOf[BaseProcessor]) {
@@ -667,8 +665,8 @@ object TypeDefinitionMembers {
       isObject = clazz.isInstanceOf[ScObject], signaturesForJava = () => signaturesForJava,
       syntheticMethods = () => syntheticMethods)) return false
 
-    if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-      Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
+    if (!(AnyRef.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+      Any.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
 
     if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state))) return false
     true
@@ -679,12 +677,14 @@ object TypeDefinitionMembers {
                                state: ResolveState,
                                lastParent: PsiElement,
                                place: PsiElement): Boolean = {
+    import td.projectContext
+
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(td),
       () => getParameterlessSignatures(td), () => getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
 
-    if (!(api.AnyRef.asClass(td.getProject).getOrElse(return true).
+    if (!(api.AnyRef.syntheticClass.getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
-      api.Any.asClass(td.getProject).getOrElse(return true).
+      api.Any.syntheticClass.getOrElse(return true).
               processDeclarations(processor, state, lastParent, place))) return false
     true
   }
@@ -694,6 +694,8 @@ object TypeDefinitionMembers {
                           state: ResolveState,
                           lastParent: PsiElement,
                           place: PsiElement): Boolean = {
+    import comp.projectContext
+
     val compoundTypeThisType = Option(state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY)).getOrElse(None)
     if (!privateProcessDeclarations(processor, state, lastParent, place,
       () => getSignatures(comp, compoundTypeThisType, place), () => getParameterlessSignatures(comp, compoundTypeThisType, place),
@@ -703,8 +705,8 @@ object TypeDefinitionMembers {
       if (lastParent != null) lastParent.getProject
       else if (place != null) place.getProject
       else return true
-    if (!(api.AnyRef.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-      api.Any.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
+    if (!(api.AnyRef.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+      api.Any.syntheticClass.getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
       return false
 
     true

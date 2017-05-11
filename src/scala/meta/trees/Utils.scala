@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
@@ -106,6 +105,8 @@ trait Utils {
   }
 
   implicit class RichScExpression(expr: ScExpression) {
+    import expr.projectContext
+
     def withSubstitutionCaching[T](fun: TypeResult[ScType] => T):T = withSubstitutionCaching(TypingContext.empty, fun)
 
     def withSubstitutionCaching[T](context: TypingContext = TypingContext.empty, fun: TypeResult[ScType] => T):T = {
@@ -129,8 +130,8 @@ trait Utils {
     def getTypeWithCachedSubst(context: TypingContext): ScType = {
       if (dumbMode) {
         expr match {
-          case ts: ScTypedStmt => ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null).getOrElse(StdType.Any)
-          case _                => StdType.Any
+          case ts: ScTypedStmt => ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null).getOrElse(ptype.api.Any)
+          case _                => ptype.api.Any
         }
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
@@ -140,9 +141,11 @@ trait Utils {
   }
 
   implicit class RichScFunctionDefinition(expr: ScFunctionDefinition) {
+    import expr.projectContext
+
     def getTypeWithCachedSubst: ScType = {
       if (dumbMode) {
-        expr.definedReturnType.getOrElse(StdType.Any)
+        expr.definedReturnType.getOrElse(ptype.api.Any)
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)
         s.subst(expr.getType().get)
@@ -151,11 +154,13 @@ trait Utils {
   }
 
   implicit class RichScTypedDefinition(expr: ScTypedDefinition) {
+    import expr.projectContext
+
     def getTypeWithCachedSubst: TypeResult[ScType] = {
       if (dumbMode) {
         expr match {
           case ts: ScTypedStmt => TypeResult.fromOption(ScalaPsiElementFactory.createTypeFromText(ts.getText, expr, null))
-          case _ => Success(StdType.Any, None)
+          case _ => Success(ptype.api.Any, None)
         }
       } else {
         val s = ScSubstitutor(ScSubstitutor.cache.toMap)

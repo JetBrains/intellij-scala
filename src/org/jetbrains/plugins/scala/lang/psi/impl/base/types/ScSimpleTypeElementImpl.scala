@@ -275,7 +275,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
             this.success(tvar.getType().getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
-            this.success(synth.t)
+            this.success(synth.stdType)
           case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
             if constrRef && to.isInstanceOf[PsiNamedElement] &&
               (to.typeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
@@ -331,6 +331,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 object ScSimpleTypeElementImpl {
 
   def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean = false): TypeResult[ScType] = {
+    import ref.projectContext
+
     val (resolvedElement, fromType) = (if (!shapesOnly) {
       if (ref.isConstructorReference) {
         ref.resolveNoConstructor match {
@@ -402,6 +404,8 @@ object ScSimpleTypeElementImpl {
                            message: String,
                            path: ScPathElement,
                            function: ScTemplateDefinition => ScType) = {
+    import path.projectContext
+
     val element = Some(path)
     maybeTemplate match {
       case Some(template) => Success(function(template), element)

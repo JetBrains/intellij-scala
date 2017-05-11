@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 
 /**
  * Pavel Fatin
@@ -55,11 +55,11 @@ object AnnotatorPart {
   }
 
   def superRefs(td: ScTemplateDefinition): Seq[(ScTypeElement, Option[PsiClass])] = {
-    collectSuperRefs(td, _.extractClass(td.getProject))
+    collectSuperRefs(td, _.extractClass)
   }
 
   def superRefsWithSubst(td: ScTemplateDefinition): Seq[(ScTypeElement, Option[(PsiClass, ScSubstitutor)])] = {
-    collectSuperRefs(td, _.extractClassType(td.getProject))
+    collectSuperRefs(td, _.extractClassType)
   }
 
 }

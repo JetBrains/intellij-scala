@@ -19,7 +19,7 @@ class ScalaIterableComponentTypeMacro extends ScalaMacro {
               MacroUtil.getComponentFromArrayType(exprType) match {
                 case Some(arrComponentType) => Some(arrComponentType)
                 case None =>
-                  exprType.extractClass(context.getProject) match {
+                  exprType.extractClass match {
                     case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty => Some(exprType)
                     case _ => None
                   }

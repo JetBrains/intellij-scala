@@ -4,12 +4,15 @@ import _root_.java.io._
 import _root_.java.lang.{Boolean => JavaBoolean}
 import _root_.java.security.MessageDigest
 
+import com.intellij.ide.plugins.PluginManager
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Computable, Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.util.{Function => IdeaFunction, PathUtil}
+import com.intellij.util.{PathUtil, Function => IdeaFunction}
+import plugins.scala.extensions._
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -177,4 +180,9 @@ package object sbt {
       def compute: T = body
     })
   }
+
+  def isIdeaPluginEnabled(id: String): Boolean =
+    PluginId.findId(id).toOption
+      .flatMap(PluginManager.getPlugin(_).toOption)
+      .exists(_.isEnabled)
 }

@@ -36,7 +36,7 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
 }
 
 object SbtNodeAction {
-  def scopedKey(project:String, key: String): String = if (project.nonEmpty) s"$project$key" else key
+  def scopedKey(project:String, key: String): String = if (project.nonEmpty) s"$project/$key" else key
 }
 
 abstract class SbtTaskAction extends SbtNodeAction[SbtTaskData](classOf[SbtTaskData])

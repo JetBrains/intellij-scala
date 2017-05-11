@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, TypeParametersArrayExt, TypeVisitor, ValueType, _}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
@@ -20,7 +21,11 @@ import scala.collection.mutable
  */
 case class ScCompoundType(components: Seq[ScType],
                           signatureMap: Map[Signature, ScType] = Map.empty,
-                          typesMap: Map[String, TypeAliasSignature] = Map.empty) extends ScalaType with ValueType {
+                          typesMap: Map[String, TypeAliasSignature] = Map.empty)
+                         (implicit override val projectContext: ProjectContext)
+
+  extends ScalaType with ValueType {
+
   private var hash: Int = -1
 
   override def hashCode: Int = {
@@ -135,8 +140,7 @@ case class ScCompoundType(components: Seq[ScType],
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case r: ScCompoundType =>
@@ -188,12 +192,12 @@ case class ScCompoundType(components: Seq[ScType],
       case _ =>
         if (signatureMap.isEmpty && typesMap.isEmpty) {
           val filtered = components.filter {
-            case Any => false
-            case AnyRef =>
-              if (!r.conforms(api.AnyRef)) return (false, undefinedSubst)
+            case t if t.isAny => false
+            case t if t.isAnyRef =>
+              if (!r.conforms(AnyRef)) return (false, undefinedSubst)
               false
             case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
-              if (!r.conforms(api.AnyRef)) return (false, undefinedSubst)
+              if (!r.conforms(AnyRef)) return (false, undefinedSubst)
               false
             case _ => true
           }
@@ -206,7 +210,8 @@ case class ScCompoundType(components: Seq[ScType],
 }
 
 object ScCompoundType {
-  def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias]): ScCompoundType = {
+  def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias])
+             (implicit projectContext: ProjectContext): ScCompoundType = {
     val signatureMapVal: mutable.HashMap[Signature, ScType] = new mutable.HashMap[Signature, ScType] {
       override def elemHashCode(s : Signature): Int = s.name.hashCode * 31 + {
         val length = s.paramLength
@@ -215,7 +220,6 @@ object ScCompoundType {
       }
     }
 
-    implicit val typeSystem = ScalaTypeSystem
     for (decl <- decls) {
       decl match {
         case fun: ScFunction => signatureMapVal += ((Signature(fun), fun.returnType.getOrAny))

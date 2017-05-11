@@ -32,7 +32,6 @@ object DebuggerTestUtil {
   def enableCompileServer(enable: Boolean): Unit = {
     val compileServerSettings = ScalaCompileServerSettings.getInstance()
     compileServerSettings.COMPILE_SERVER_ENABLED = enable
-    compileServerSettings.COMPILE_SERVER_SDK = DebuggerTestUtil.jdk8Name
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_IDLE = true
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
     ApplicationManager.getApplication.saveSettings()

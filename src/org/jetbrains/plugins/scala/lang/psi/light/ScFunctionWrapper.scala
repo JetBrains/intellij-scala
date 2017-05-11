@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -25,7 +24,8 @@ class ScPrimaryConstructorWrapper(val delegate: ScPrimaryConstructor, isJavaVara
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
+} with PsiMethodWrapper(delegate.getManager, method, containingClass)
+  with NavigablePsiElementWrapper[ScPrimaryConstructor] {
 
   override protected def returnType: ScType = {
     forDefault match {
@@ -75,7 +75,8 @@ class ScFunctionWrapper(val delegate: ScFunction, isStatic: Boolean, isInterface
     LightUtil.createJavaMethod(methodText, containingClass, delegate.getProject)
   }
 
-} with PsiMethodWrapper(delegate.getManager, method, containingClass) with NavigablePsiElementWrapper {
+} with PsiMethodWrapper(delegate.getManager, method, containingClass)
+  with NavigablePsiElementWrapper[ScFunction] {
 
   override def hasModifierProperty(name: String): Boolean = {
     name match {
@@ -181,11 +182,10 @@ object ScFunctionWrapper {
             case Some(_) =>
               val classes = new ArrayBuffer[String]()
               val project = fun.getProject
-              implicit val typeSystem = project.typeSystem
               tp.upperBound.map(subst.subst) match {
                 case Success(tp: ScCompoundType, _) =>
                   tp.components.foreach { tp: ScType =>
-                    tp.extractClass(project) match {
+                    tp.extractClass match {
                       case Some(clazz) => classes += clazz.getQualifiedName
                       case _ =>
                     }
@@ -194,7 +194,7 @@ object ScFunctionWrapper {
                 case Success(tpt: TypeParameterType, _) =>
                   classes += tpt.canonicalText
                 case Success(scType, _) =>
-                  scType.extractClass(project) match {
+                  scType.extractClass match {
                     case Some(clazz) => classes += clazz.getQualifiedName
                     case _ =>
                   }

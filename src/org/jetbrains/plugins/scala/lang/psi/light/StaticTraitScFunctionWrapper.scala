@@ -4,7 +4,7 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
+import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
@@ -25,7 +25,7 @@ class StaticTraitScFunctionWrapper(val function: ScFunction, containingClass: Ps
   override def canNavigateToSource: Boolean = function.canNavigateToSource
 
   override protected def returnType: ScType = {
-    if (!function.isConstructor) function.returnType.getOrElse(StdType.AnyRef)
+    if (!function.isConstructor) function.returnType.getOrElse(AnyRef)
     else null
   }
 

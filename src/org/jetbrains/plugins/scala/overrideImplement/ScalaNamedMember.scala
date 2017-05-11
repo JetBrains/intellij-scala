@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
 * User: Alexander Podkhalyuzin
@@ -35,8 +34,9 @@ class ScMethodMember(val sign: PhysicalSignature, val isOverride: Boolean)
           val scType: ScType = sign.method match {
             case fun: ScFunction => sign.substitutor.subst(fun.returnType.getOrAny)
             case method: PsiMethod =>
-              sign.substitutor.subst(Option(method.getReturnType).getOrElse(PsiType.VOID)
-                .toScType()(method.getProject.typeSystem))
+              val psiType = Option(method.getReturnType).getOrElse(PsiType.VOID)
+              val fromPsiType = psiType.toScType()(sign.projectContext)
+              sign.substitutor.subst(fromPsiType)
           }
           val text = ScalaPsiUtil.getMethodPresentableText(sign.method)
         } with PsiElementClassMember[PsiMethod](sign.method, text) with ScalaNamedMember with ScalaTypedMember
@@ -57,7 +57,7 @@ class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val s
 
 class JavaFieldMember(field: PsiField, val substitutor: ScSubstitutor)
         extends {
-          val scType = substitutor.subst(field.getType.toScType()(field.getProject.typeSystem))
+          val scType = substitutor.subst(field.getType.toScType()(field.getProject))
           val name = field.getName
           val text = name + ": " + scType.presentableText
         } with PsiElementClassMember[PsiField](field, text) with ScalaNamedMember with ScalaTypedMember

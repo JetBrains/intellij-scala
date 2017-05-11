@@ -7,6 +7,7 @@ import java.util.Objects
 
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 
 
@@ -16,6 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
  * inferences work together.
  */
 case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper: ScType) extends ScalaType with NonValueType {
+
+  override implicit def projectContext: ProjectContext = parameterType.projectContext
+
   private var hash: Int = -1
 
   override def hashCode: Int = {
@@ -33,8 +37,7 @@ case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case _ if falseUndef => (false, uSubst)
       case _ =>

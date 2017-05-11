@@ -92,7 +92,7 @@ class ImplicitCollector(place: PsiElement,
   private val project = place.getProject
   private implicit def ctx: ProjectContext = project
 
-  private val clazz: Option[PsiClass] = tp.extractClass(project)
+  private val clazz: Option[PsiClass] = tp.extractClass
   private lazy val possibleScalaFunction: Option[Int] = clazz.flatMap(possibleFunctionN)
 
   private val mostSpecificUtil: MostSpecificUtil = MostSpecificUtil(place, 1)
@@ -668,7 +668,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def argsConformWeakly(left: ScType, right: ScType)(implicit typeSystem: TypeSystem): Boolean = {
+  private def argsConformWeakly(left: ScType, right: ScType): Boolean = {
     (left, right) match {
       case (leftFun: ScParameterizedType, rightFun: ScParameterizedType) =>
         leftFun.designator.canonicalText == "_root_.scala.Function1" &&

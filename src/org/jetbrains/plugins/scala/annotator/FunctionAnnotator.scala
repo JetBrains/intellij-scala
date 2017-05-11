@@ -10,16 +10,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypesExt}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
 trait FunctionAnnotator {
-  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean) {
-    implicit val ctx: ProjectContext = function
+  self: ScalaAnnotator =>
 
+  def annotateFunction(function: ScFunctionDefinition, holder: AnnotationHolder, typeAware: Boolean) {
     if (!function.hasExplicitType && !function.returnTypeIsDefined) {
       function.recursiveReferences.foreach { ref =>
           val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
@@ -75,7 +74,7 @@ trait FunctionAnnotator {
 
       val explicitReturn = usage.isInstanceOf[ScReturnStmt]
       val emptyReturn = explicitReturn && usage.asInstanceOf[ScReturnStmt].expr.isEmpty
-      val anyReturn = usageType == Any
+      val anyReturn = usageType.isAny
       val underCatchBlock = usage.getContext.isInstanceOf[ScCatchBlock]
 
       if (explicitReturn && hasAssign && !explicitType) {

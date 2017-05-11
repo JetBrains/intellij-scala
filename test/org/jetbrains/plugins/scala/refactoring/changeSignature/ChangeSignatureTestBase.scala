@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaParameterInfo}
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.{TypeAnnotationSettings, TypeAnnotationUtil}
 import org.junit.Assert._
 
@@ -28,6 +29,8 @@ import org.junit.Assert._
 abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   var targetMethod: PsiMember = null
   protected var isAddDefaultValue = false
+
+  implicit def projectContext: ProjectContext = getProjectAdapter
 
   override def getTestDataPath = folderPath
 

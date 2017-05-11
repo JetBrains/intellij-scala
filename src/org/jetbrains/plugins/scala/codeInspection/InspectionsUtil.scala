@@ -32,6 +32,7 @@ object InspectionsUtil {
 
   def conformsToTypeFromClass(scType: ScType, className: String, project: Project): Boolean = {
     implicit val ctx: ProjectContext = project
+
     def typeFromClassName(fqn: String, project: Project): Option[ScType] = {
       val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
       Option(clazz).map { c =>

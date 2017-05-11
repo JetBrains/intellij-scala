@@ -53,6 +53,7 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
 object ScThisReferenceImpl {
   def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult[ScType] = {
+    import td.projectContext
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C .this occurs as the prefix of a selection, its type is C.this.type,
     // otherwise it is the self type of class C .
@@ -65,7 +66,6 @@ object ScThisReferenceImpl {
         case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
           ScThisType(td)
         case _ =>
-          implicit val ctx = td.projectContext
 
           td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map {
             case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)

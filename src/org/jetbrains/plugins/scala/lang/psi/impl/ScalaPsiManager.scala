@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Null, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
@@ -48,7 +48,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(val project: Project) {
-  implicit def ctx: ProjectContext = project
+  implicit def projectContext: ProjectContext = project
 
   private val inJavaPsiFacade: ThreadLocal[Boolean] = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false
@@ -253,11 +253,8 @@ class ScalaPsiManager(val project: Project) {
 
   private def clearCaches(): Unit = {
     val typeSystem = project.typeSystem
-    val equivalence = typeSystem.equivalence
-    val conformance = typeSystem.conformance
 
-    conformance.clearCache()
-    equivalence.clearCache()
+    typeSystem.clearCache()
     ParameterizedType.substitutorCache.clear()
     ScParameterizedType.cache.clear()
     collectImplicitObjectsCache.clear()
@@ -288,13 +285,14 @@ class ScalaPsiManager(val project: Project) {
   }
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
-  private val syntheticPackages = new WeakValueHashMap[String, Any]
+  private val syntheticPackages = new WeakValueHashMap[String, AnyRef]
+  private val emptyMarker: AnyRef = new Object
 
   def syntheticPackage(fqn: String): ScSyntheticPackage = {
     var p = syntheticPackages.get(fqn)
     if (p == null) {
       p = syntheticPackagesCreator.getPackage(fqn)
-      if (p == null) p = Null
+      if (p == null) p = emptyMarker
       synchronized {
         val pp = syntheticPackages.get(fqn)
         if (pp == null) {
@@ -319,8 +317,7 @@ class ScalaPsiManager(val project: Project) {
   }
 
   private def andType(psiTypes: Seq[PsiType]): ScType = {
-    implicit val typeSystem = project.typeSystem
-    typeSystem.andType(psiTypes.map(_.toScType()))
+    projectContext.typeSystem.andType(psiTypes.map(_.toScType()))
   }
 
   def getStableTypeAliasesNames: Seq[String] = {

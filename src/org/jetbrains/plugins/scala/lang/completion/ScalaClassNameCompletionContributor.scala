@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
@@ -108,8 +107,7 @@ object ScalaClassNameCompletionContributor {
       case _ =>
     }
 
-    val project = position.getProject
-    implicit val typeSystem = project.typeSystem
+    implicit val project: ProjectContext = position.getProject
 
     def addTypeForCompletion(typeToImport: TypeToImport) {
       val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
@@ -122,7 +120,7 @@ object ScalaClassNameCompletionContributor {
               if (containingClass == null) return false
               JavaCompletionUtil.isInExcludedPackage(containingClass, false)
             case PrefixPackageToImport(pack) =>
-              JavaProjectCodeInsightSettings.getSettings(pack.getProject).isExcluded(pack.getQualifiedName)
+              JavaProjectCodeInsightSettings.getSettings(project).isExcluded(pack.getQualifiedName)
           }
         }
       })
@@ -159,10 +157,10 @@ object ScalaClassNameCompletionContributor {
     }
 
     val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.map(_ < Scala_2_9).getOrElse(true)
-
+    val QualNameToType = project.stdTypes.QualNameToType
     for {
       clazz <- SyntheticClasses.get(project).all.valuesIterator
-      if checkSynthetic || !StdType.QualNameToType.contains(clazz.qualifiedName)
+      if checkSynthetic || !QualNameToType.contains(clazz.qualifiedName)
     } addTypeForCompletion(ClassTypeToImport(clazz))
 
     val prefixMatcher = result.getPrefixMatcher
@@ -176,10 +174,11 @@ object ScalaClassNameCompletionContributor {
         }
       })
 
+    val manager = ScalaPsiManager.instance
     for {
-      name <- ScalaPsiManager.instance(project).getStableTypeAliasesNames
+      name <- manager.getStableTypeAliasesNames
       if prefixMatcher.prefixMatches(name)
-      alias <- ScalaPsiManager.instance(project).getStableAliasesByName(name, position.getResolveScope)
+      alias <- manager.getStableAliasesByName(name, position.getResolveScope)
     } {
       addTypeForCompletion(TypeAliasToImport(alias))
     }

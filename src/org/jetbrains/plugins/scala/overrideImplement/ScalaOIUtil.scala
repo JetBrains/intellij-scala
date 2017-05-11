@@ -136,8 +136,7 @@ object ScalaOIUtil {
             case _ => false
           })
       case x: ScTemplateDefinition =>
-        implicit val typeSystem = x.projectContext
-        x.superTypes.map(_.extractClass(x.getProject)).find {
+        x.superTypes.map(_.extractClass).find {
           case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
           case _ => false
         } match {

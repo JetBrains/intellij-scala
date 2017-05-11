@@ -59,7 +59,6 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
 
   private def addSuperCallCompletions(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
     val position = positionFromParameters(parameters)
-    implicit val typeSystem = position.typeSystem
 
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
@@ -102,7 +101,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
           case Success(tp, _) =>
             val project = position.getProject
 
-            val signatures = tp.extractClassType(project) match {
+            val signatures = tp.extractClassType match {
               case Some((clazz: ScClass, subst)) if !clazz.hasTypeParameters || (clazz.hasTypeParameters &&
                       typeElement.isInstanceOf[ScParameterizedTypeElement]) =>
                 val constructors = clazz match {
@@ -128,7 +127,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
   }
 
   private def paramsInClause(m: PsiMethod, subst: ScSubstitutor, clauseIndex: Int): Seq[(String, ScType)] = {
-    implicit val typeSystem = m.typeSystem
+    implicit val projectContext = m.projectContext
     m match {
       case fun: ScMethodLike =>
         val clauses = fun.effectiveParameterClauses
@@ -144,8 +143,6 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
   }
 
   private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet) {
-    import methodLike.projectContext
-
     for (signature <- signatures if signature.forall(_._1 != null)) {
       val names = new ArrayBuffer[String]()
       val res = signature.map {

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 /**
@@ -49,12 +49,11 @@ object ComparingUtil {
     areUnrelatedClasses && (oneFinal || twoNonTraitsOrInterfaces || sealedAndAllChildrenAreIrreconcilable)
   }
 
-  def isNeverSubType(tp1: ScType, tp2: ScType, sameType: Boolean = false)
-                    (implicit typeSystem: TypeSystem): Boolean = {
+  def isNeverSubType(tp1: ScType, tp2: ScType, sameType: Boolean = false): Boolean = {
     if (tp2.weakConforms(tp1) || tp1.weakConforms(tp2)) return false
 
     val Seq(clazzOpt1, clazzOpt2) =
-      Seq(tp1, tp2).map(_.tryExtractDesignatorSingleton.extractClass())
+      Seq(tp1, tp2).map(_.tryExtractDesignatorSingleton.extractClass)
     if (clazzOpt1.isEmpty || clazzOpt2.isEmpty) return false
     val (clazz1, clazz2) = (clazzOpt1.get, clazzOpt2.get)
 

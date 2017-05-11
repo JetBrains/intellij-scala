@@ -30,12 +30,10 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(new ScalaGenerateEqualsHandler)
 
 class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
-  private val myEqualsFields = collection.mutable.LinkedHashSet[ScNamedElement]()
-  private val myHashCodeFields = collection.mutable.LinkedHashSet[ScNamedElement]()
+  private lazy val myEqualsFields = collection.mutable.LinkedHashSet[ScNamedElement]()
+  private lazy val myHashCodeFields = collection.mutable.LinkedHashSet[ScNamedElement]()
 
   def chooseOriginalMembers(aClass: ScClass, project: Project, editor: Editor): Boolean = {
-    implicit val ctx: ProjectContext = project
-
     val equalsMethod = hasEquals(aClass)
     val hashCodeMethod = hasHashCode(aClass)
     var needEquals = equalsMethod.isEmpty
@@ -93,8 +91,6 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
   }
 
   protected def createHashCode(aClass: ScClass): ScFunction = {
-    import aClass.projectContext
-
     val declText = "def hashCode(): Int"
     val signature = new PhysicalSignature(
       createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
@@ -126,8 +122,6 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
   }
 
   protected def createEquals(aClass: ScClass, project: Project): ScFunction = {
-    implicit val ctx: ProjectContext = project
-
     val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == that.$name")
     val declText = "def equals(other: Any): Boolean"
     val signature = new PhysicalSignature(
@@ -205,8 +199,6 @@ class ScalaGenerateEqualsHandler extends ScalaCodeInsightActionHandler {
   }
 
   private def findSuchMethod(clazz: ScClass, name: String, methodType: ScType): Option[ScFunction] = {
-    import clazz.projectContext
-
     clazz.functions
       .filter(_.name == name)
       .find(fun => fun.methodType(None) equiv methodType)

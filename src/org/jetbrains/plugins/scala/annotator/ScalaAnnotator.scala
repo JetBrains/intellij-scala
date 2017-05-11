@@ -40,10 +40,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScType, ScalaType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -512,7 +512,7 @@ abstract class ScalaAnnotator extends Annotator
             }
             candidates(0) match {
               case ScalaResolveResult(fun: ScFunction, subst) =>
-                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(api.Boolean)) {
+                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(Boolean)) {
                   error()
                 }
               case _ => error()
@@ -521,7 +521,7 @@ abstract class ScalaAnnotator extends Annotator
             block.getContext match {
               case t: ScTryStmt =>
                 t.expectedTypeEx(fromUnderscore = false) match {
-                  case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
+                  case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
                   case Some((tp: ScType, typeElement)) =>
                     val returnType = candidates(0) match {
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
@@ -974,7 +974,7 @@ abstract class ScalaAnnotator extends Annotator
             case param: ScParameter =>
               if (!param.isDefaultParam) return //performance optimization
               param.getRealParameterType() match {
-                case Success(paramType, _) if paramType.extractClass(expr.getProject).isDefined =>
+                case Success(paramType, _) if paramType.extractClass.isDefined =>
                 //do not check generic types. See SCL-3508
                 case _ => return
               }
@@ -983,7 +983,7 @@ abstract class ScalaAnnotator extends Annotator
           }
 
           expr.expectedTypeEx(fromUnderscore) match {
-            case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
+            case Some((tp: ScType, _)) if tp equiv Unit => //do nothing
             case Some((tp: ScType, typeElement)) =>
               val expectedType = Success(tp, None)
               implicitFunction match {
@@ -1080,13 +1080,13 @@ abstract class ScalaAnnotator extends Annotator
         val error = ScalaBundle.message("return.outside.method.definition")
         val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == api.Unit) =>
+      case _ if !fun.hasAssign || fun.returnType.exists(_ == Unit) =>
       case _ => fun.returnTypeElement match {
         case Some(_: ScTypeElement) =>
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {
-            case Success(tp: ScType, _) if tp equiv api.Unit => return //nothing to check
+            case Success(tp: ScType, _) if tp equiv Unit => return //nothing to check
             case _ =>
           }
 
@@ -1402,7 +1402,8 @@ abstract class ScalaAnnotator extends Annotator
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
-        val conformsToTypeList = Seq(api.Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
+        val Long = literal.projectContext.stdTypes.Long
+        val conformsToTypeList = Seq(Long) ++ createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
         val shouldRegisterFix = (if (isNegative) parent.asInstanceOf[ScPrefixExpr] else literal).expectedType().forall { x =>
           conformsToTypeList.exists(_.weakConforms(x))
         }

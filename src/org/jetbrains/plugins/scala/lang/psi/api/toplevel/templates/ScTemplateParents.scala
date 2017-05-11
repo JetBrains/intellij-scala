@@ -45,7 +45,7 @@ object ScTemplateParents {
       case element: ScTypeElement =>
         def tail(): PsiClass = {
           element.getType(TypingContext.empty).map {
-            case tp: ScType => tp.extractClass(project) match {
+            case tp: ScType => tp.extractClass match {
               case Some(clazz) => clazz
               case _ => null
             }
@@ -59,7 +59,7 @@ object ScTemplateParents {
               case ScalaResolveResult(c: PsiClass, _) => c
               case ScalaResolveResult(ta: ScTypeAliasDefinition, _) =>
                 ta.aliasedType match {
-                  case Success(te, _) => te.extractClass(project) match {
+                  case Success(te, _) => te.extractClass match {
                     case Some(c) => c
                     case _ => null
                   }

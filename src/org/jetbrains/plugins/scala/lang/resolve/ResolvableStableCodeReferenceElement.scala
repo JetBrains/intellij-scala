@@ -5,7 +5,6 @@ package resolve
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 import scala.collection.Set
@@ -15,14 +14,6 @@ trait ResolvableStableCodeReferenceElement
 object ResolvableStableCodeReferenceElement {
 
   implicit class Ext(val stableRef: ScStableCodeReferenceElement) extends AnyVal {
-
-    private def getProject = stableRef.getProject
-
-    private def getContext = stableRef.getContext
-
-    private def getText = stableRef.getText
-
-    private implicit def typeSystem: TypeSystem = stableRef.projectContext
 
     @CachedWithRecursionGuard(stableRef, Array.empty, ModCount.getBlockModificationCount)
     def resolveTypesOnly(incomplete: Boolean): Array[ResolveResult] = {

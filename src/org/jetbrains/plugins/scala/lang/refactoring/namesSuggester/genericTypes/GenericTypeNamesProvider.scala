@@ -50,6 +50,6 @@ object GenericTypeNamesProvider {
         .exists(baseClass => clazz.isInheritor(baseClass, true) || areClassesEquivalent(clazz, baseClass))
     }
 
-    `type`.extractClass().exists(isInheritor)
+    `type`.extractClass.exists(isInheritor)
   }
 }

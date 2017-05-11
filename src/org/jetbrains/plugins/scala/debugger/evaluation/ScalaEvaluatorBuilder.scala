@@ -84,7 +84,6 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
   def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 
   protected def evaluatorFor(element: PsiElement): Evaluator = {
-    implicit val typeSystem = element.typeSystem
     element match {
       case implicitlyConvertedTo(expr) => evaluatorFor(expr)
       case needsCompilation(message) => throw new NeedCompilationException(message)

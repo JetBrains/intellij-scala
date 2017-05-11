@@ -373,7 +373,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
     private def alreadyResolves(refText: String): Option[Boolean] = {
       def areEquivTypes(e1: PsiNamedElement, e2: PsiNamedElement): Boolean = {
-        ScDesignatorType(e1).equiv(ScDesignatorType(e2))(e1.typeSystem)
+        ScDesignatorType(e1).equiv(ScDesignatorType(e2))
       }
 
       val ref = newRef(refText, origElement)

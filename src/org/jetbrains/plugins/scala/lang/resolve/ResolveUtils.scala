@@ -9,7 +9,6 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -30,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -81,7 +81,6 @@ object ResolveUtils {
           })
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
-    implicit val typeSystem = m.typeSystem
     implicit val elementScope = ElementScope(m.getProject, scope)
 
     val retType: ScType = (m, returnType) match {
@@ -104,7 +103,7 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
     if (m.getTypeParameters.isEmpty) javaMethodType(m, s, scope, returnType)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(TypeParameter(_)))(m.typeSystem)
+      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(TypeParameter(_)))
     }
   }
 
@@ -421,7 +420,7 @@ object ResolveUtils {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
           def isInheritorOrSame(tp: ScType): Boolean = {
-            tp.extractClass(placeTd.getProject) match {
+            tp.extractClass match {
               case Some(clazz) =>
                 if (clazz == td) return true
                 if (isInheritorDeep(clazz, td)) return true

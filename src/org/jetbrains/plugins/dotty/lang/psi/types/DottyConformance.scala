@@ -7,15 +7,16 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 /**
   * @author adkozlov
   */
-object Conformance extends api.Conformance {
-  override implicit lazy val typeSystem = DottyTypeSystem
+trait DottyConformance extends api.Conformance {
+  typeSystem: api.TypeSystem =>
 
-  override protected def computable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) = new Computable[(Boolean, ScUndefinedSubstitutor)] {
-    override def compute(): (Boolean, ScUndefinedSubstitutor) = (false, ScUndefinedSubstitutor())
-  }
+  override protected def conformsComputable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
+    new Computable[(Boolean, ScUndefinedSubstitutor)] {
+      override def compute(): (Boolean, ScUndefinedSubstitutor) = (false, ScUndefinedSubstitutor())
+    }
 
   private def isSubType(left: ScType, right: ScType) = right match {
-    case DottyNoType => false
+    case DottyNoType() => false
     case _ => if (left eq right) true else firstTry(left, right)
   }
 

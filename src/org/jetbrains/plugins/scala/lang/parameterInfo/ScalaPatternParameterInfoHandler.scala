@@ -100,7 +100,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 case (param, o) =>
                   val buffer: StringBuilder = new StringBuilder("")
                   buffer.append(param.presentableText)
-                  val isSeq = methodName == "unapplySeq" && (param.extractClass(sign.method.getProject) match {
+                  val isSeq = methodName == "unapplySeq" && (param.extractClass match {
                     case Some(clazz) => clazz.qualifiedName == "scala.Seq"
                     case _ => false
                   })
@@ -205,7 +205,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val element = file.findElementAt(offset)
     if (element == null) return null
 
-    implicit val typeSystem = element.typeSystem
+    implicit val project = file.projectContext
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {

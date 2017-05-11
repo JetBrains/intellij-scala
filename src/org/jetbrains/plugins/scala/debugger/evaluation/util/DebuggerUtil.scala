@@ -84,7 +84,9 @@ object DebuggerUtil {
   }
 
   def getJVMQualifiedName(tp: ScType): JVMName = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Any => JVMNameUtil.getJVMRawText("java.lang.Object")
       case Null => JVMNameUtil.getJVMRawText("scala.Null") //shouldn't be
@@ -106,13 +108,13 @@ object DebuggerUtil {
         buff.append(getJVMQualifiedName(argument))
         buff.append("[]")
         buff.toName
-      case ParameterizedType(arr, Seq(arg)) if arr.extractClass().exists(_.qualifiedName == "scala.Array") =>
+      case ParameterizedType(arr, Seq(arg)) if arr.extractClass.exists(_.qualifiedName == "scala.Array") =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
         buff.toName
       case _ =>
-        tp.extractClass() match {
+        tp.extractClass match {
           case Some(clazz) => getClassJVMName(clazz)
           case None => JVMNameUtil.getJVMRawText(tp.canonicalText)
         }
@@ -120,7 +122,9 @@ object DebuggerUtil {
   }
 
   def getJVMStringForType(tp: ScType, isParam: Boolean = true): String = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case AnyRef => "Ljava/lang/Object;"
       case Any => "Ljava/lang/Object;"
@@ -141,7 +145,7 @@ object DebuggerUtil {
       case ParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg))
         if clazz.qualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
       case _ =>
-        tp.extractClass() match {
+        tp.extractClass match {
           case Some(obj: ScObject) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + "$;"
           case Some(obj: ScTypeDefinition) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + ";"
           case Some(clazz) => "L" + clazz.qualifiedName.replace('.', '/') + ";"
@@ -235,13 +239,16 @@ object DebuggerUtil {
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {
     tp match {
-      case Boolean => vm.mirrorOf(b)
-      case Unit => vm.mirrorOfVoid()
+      case _ if tp.isBoolean => vm.mirrorOf(b)
+      case _ if tp.isUnit => vm.mirrorOfVoid()
       case _ => null
     }
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Long): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -256,6 +263,9 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Char): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -270,6 +280,9 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Double): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -284,6 +297,9 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Float): Value = {
+    val stdTypes = tp.projectContext.stdTypes
+    import stdTypes._
+
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)

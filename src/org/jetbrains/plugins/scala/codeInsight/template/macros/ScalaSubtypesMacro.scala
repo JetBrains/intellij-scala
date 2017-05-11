@@ -33,7 +33,7 @@ class ScalaSubtypesMacro extends ScalaMacro {
     val project = context.getProject
     params(0).calculateResult(context) match {
       case scTypeRes: ScalaTypeResult =>
-        scTypeRes.myType.extractClass(project) match {
+        scTypeRes.myType.extractClass match {
           case Some(x: ScTypeDefinition) =>
             import scala.collection.JavaConversions._
             ClassInheritorsSearch.search(x, GlobalSearchScope.projectScope(context.getProject), true).findAll().

@@ -35,11 +35,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Seq
 import scala.collection.generic.CanBuildFrom
@@ -61,6 +60,7 @@ package object extensions {
   implicit class PsiMethodExt(val repr: PsiMethod) extends AnyVal {
 
     import PsiMethodExt._
+    implicit private def project: ProjectContext = repr.getProject
 
     def isAccessor: Boolean = isParameterless && hasQueryLikeName && !hasVoidReturnType
 
@@ -94,7 +94,7 @@ package object extensions {
           .map(_.getType(TypingContext.empty).getOrNothing)
       case _ =>
         parameters.map(_.getType)
-          .map(_.toScType()(repr.typeSystem))
+          .map(_.toScType())
     }
 
     def isParameterless: Boolean = parameters.isEmpty
@@ -185,6 +185,10 @@ package object extensions {
     def collectOption[B](pf: scala.PartialFunction[T, B]): Option[B] = Some(v).collect(pf)
   }
 
+  implicit class OptionExt[T](val option: Option[T]) extends AnyVal {
+    def getOrThrow(exception: => Exception): T = option.getOrElse(throw exception)
+  }
+
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
     def option[A](a: => A): Option[A] = if (b) Some(a) else None
 
@@ -220,9 +224,9 @@ package object extensions {
         case _ => element.getStartOffsetInParent
       }
 
-    implicit def typeSystem: TypeSystem = element.getProject.typeSystem
-
     implicit def elementScope: ElementScope = ElementScope(element)
+
+    def projectContext: ProjectContext = element.getProject
 
     def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
       def lift(`type`: PsiType) = Option(`type`.toScType())
@@ -331,23 +335,23 @@ package object extensions {
     def toScType(visitedRawTypes: Set[PsiClass] = Set.empty,
                  paramTopLevel: Boolean = false,
                  treatJavaObjectAsAny: Boolean = true)
-                (implicit typeSystem: TypeSystem): ScType =
-      typeSystem.bridge.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
+                (implicit project: ProjectContext): ScType =
+      project.typeSystem.toScType(`type`, treatJavaObjectAsAny)(visitedRawTypes, paramTopLevel)
   }
 
   implicit class PsiWildcardTypeExt(val `type`: PsiWildcardType) extends AnyVal {
-    def lower(implicit typeSystem: TypeSystem,
+    def lower(implicit project: ProjectContext,
               visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isSuper) Some(`type`.getSuperBound) else None)
 
-    def upper(implicit typeSystem: TypeSystem,
+    def upper(implicit project: ProjectContext,
               visitedRawTypes: Set[PsiClass],
               paramTopLevel: Boolean): Option[ScType] =
       bound(if (`type`.isExtends) Some(`type`.getExtendsBound) else None)
 
     private def bound(maybeBound: Option[PsiType])
-                     (implicit typeSystem: TypeSystem,
+                     (implicit project: ProjectContext,
                       visitedRawTypes: Set[PsiClass],
                       paramTopLevel: Boolean) = maybeBound map {
       _.toScType(visitedRawTypes, paramTopLevel = paramTopLevel)
@@ -421,7 +425,7 @@ package object extensions {
             m.containingClass match {
               case t: ScTrait =>
                 val linearization = MixinNodes.linearization(clazz)
-                  .flatMap(_.extractClass(clazz.getProject))
+                  .flatMap(_.extractClass)
                 var index = linearization.indexWhere(_ == t)
                 while (index >= 0) {
                   val cl = linearization(index)
@@ -730,6 +734,8 @@ package object extensions {
   }
 
   implicit class PsiParameterExt(val param: PsiParameter) extends AnyVal {
+    implicit def project: ProjectContext = param.getProject
+
     def paramType(exact: Boolean = true, treatJavaObjectAsAny: Boolean = true): ScType = param match {
       case parameter: FakePsiParameter => parameter.parameter.paramType
       case parameter: ScParameter => parameter.getType(TypingContext.empty).getOrAny
@@ -739,7 +745,7 @@ package object extensions {
             arrayType.getComponentType
           case tp => tp
         }
-        paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)(param.typeSystem)
+        paramType.toScType(paramTopLevel = true, treatJavaObjectAsAny = treatJavaObjectAsAny)
     }
 
     def index: Int = param match {

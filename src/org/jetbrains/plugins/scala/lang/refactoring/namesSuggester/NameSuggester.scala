@@ -36,7 +36,7 @@ object NameSuggester {
       expression.getTypeIgnoreBaseType.toOption
 
     types.toSeq.sortWith {
-      case (_, Unit) => true
+      case (_, t) if t.isUnit => true
       case _ => false
     }
   }
@@ -74,6 +74,9 @@ object NameSuggester {
       case _ => camelCaseNames(name)
     }
 
+    val stdTypes = `type`.projectContext.stdTypes
+    import stdTypes._
+
     def valTypeName(`type`: ValType): String = {
       val typeName = `type`.name
 
@@ -81,7 +84,7 @@ object NameSuggester {
         case Char | Byte | Int | Long | Double => 1
         case Short | Float => 2
         case Boolean => 4
-        case Unit => typeName.length
+        case _ => typeName.length
       }
 
       toLowerCase(typeName, length)

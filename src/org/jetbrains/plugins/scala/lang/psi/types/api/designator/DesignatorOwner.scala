@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, ValueType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * @author adkozlov
   */
-trait DesignatorOwner extends ValueType with TypeInTypeSystem {
+trait DesignatorOwner extends ValueType {
   val element: PsiNamedElement
-  override implicit val typeSystem: TypeSystem = element.typeSystem
 
-  val isSingleton = element match {
+  override implicit def projectContext: ProjectContext = element
+
+  val isSingleton: Boolean = element match {
     case typedDefinition: ScTypedDefinition => typedDefinition.isStable
     case _ => false
   }

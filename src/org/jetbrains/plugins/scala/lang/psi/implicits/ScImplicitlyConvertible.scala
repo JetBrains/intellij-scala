@@ -35,8 +35,7 @@ import scala.collection.{Set, mutable}
   */
 //todo: refactor this terrible code
 class ScImplicitlyConvertible(val expression: ScExpression,
-                              val fromUnderscore: Boolean = false)
-                             (implicit val typeSystem: TypeSystem) {
+                              val fromUnderscore: Boolean = false) {
 
   private lazy val placeType =
     expression.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).map {
@@ -89,7 +88,7 @@ class ScImplicitlyConvertible(val expression: ScExpression,
 
     placeType match {
       case None => Set.empty
-      case Some(Nothing) => Set.empty
+      case Some(t) if t.isNothing => Set.empty
       case Some(u: UndefinedType) => Set.empty
       case Some(scType) =>
         val processor = new CollectImplicitsProcessor(expression, false)

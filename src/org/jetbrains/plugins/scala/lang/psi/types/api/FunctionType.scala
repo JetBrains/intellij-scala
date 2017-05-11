@@ -57,7 +57,7 @@ sealed trait FunctionTypeFactory {
         _.startsWith(prefix)
       }
 
-    parameterizedType.designator.extractClassType().collect {
+    parameterizedType.designator.extractClassType.collect {
       case (definition: ScTypeDefinition, substitutor) if startsWith(definition) =>
         (definition, substitutor.followed(parameterizedType.substitutor))
     }.flatMap {

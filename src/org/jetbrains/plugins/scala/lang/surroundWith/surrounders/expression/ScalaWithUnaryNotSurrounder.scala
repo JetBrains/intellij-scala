@@ -8,8 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 
 /**
   * User: Alexander Podkhalyuzin
@@ -25,7 +24,7 @@ class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
     if (elements.length != 1) return false
     elements(0) match {
       case x: ScExpression
-        if x.getTypeIgnoreBaseType.getOrAny.conforms(api.Boolean)(x.getProject.typeSystem) => true
+        if x.getTypeIgnoreBaseType.getOrAny.conforms(x.projectContext.stdTypes.Boolean) => true
       case _ => false
     }
   }

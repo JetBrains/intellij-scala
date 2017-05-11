@@ -22,7 +22,9 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
   public int COMPILE_SERVER_PORT = 3200;
   public String COMPILE_SERVER_ID = UUID.randomUUID().toString();
 
+  //is not accessible from UI, but is serialized and used in jps-plugin
   public String COMPILE_SERVER_SDK;
+
   public String COMPILE_SERVER_MAXIMUM_HEAP_SIZE = "1024";
   public String COMPILE_SERVER_JVM_PARAMETERS = "-server -Xss1m";
 

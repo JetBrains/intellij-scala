@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -81,8 +81,8 @@ class ScSyntheticTypeParameter(override val name: String, val owner: ScFun)
 }
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
-class ScSyntheticClass(val className: String, val t: StdType)
-                      (implicit projectContext: ProjectContext)
+sealed class ScSyntheticClass(val className: String, val stdType: StdType)
+                             (implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(className) with PsiClass with PsiClassFake {
   override def getPresentation: ItemPresentation = {
     new ItemPresentation {
@@ -137,10 +137,12 @@ class ScSyntheticClass(val className: String, val t: StdType)
   }
 
   override def getSuperTypes: Array[PsiClassType] = {
-    t.tSuper match {
+    stdType.tSuper match {
       case None => PsiClassType.EMPTY_ARRAY
-      case Some(ts) => Array[PsiClassType] (JavaPsiFacade.getInstance(projectContext).getElementFactory.
-              createType(ts.asClass(projectContext).getOrElse(return PsiClassType.EMPTY_ARRAY), PsiSubstitutor.EMPTY))
+      case Some(ts) =>
+        val syntheticClass = ts.syntheticClass.getOrElse(return PsiClassType.EMPTY_ARRAY)
+        val factory = JavaPsiFacade.getInstance(projectContext).getElementFactory
+        Array[PsiClassType](factory.createType(syntheticClass, PsiSubstitutor.EMPTY))
     }
   }
 }
@@ -150,7 +152,7 @@ class ScSyntheticFunction(val name: String, val retType: ScType, val paramClause
   extends SyntheticNamedElement(name) with ScFun {
   def isStringPlusMethod: Boolean = {
     if (name != "+") return false
-    retType.extractClass(projectContext.getProject) match {
+    retType.extractClass match {
       case Some(clazz) => clazz.qualifiedName == "java.lang.String"
       case _ => false
     }
@@ -198,18 +200,16 @@ import com.intellij.openapi.project.Project
 class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
   implicit def ctx: ProjectContext = project
 
-  def projectOpened(): Unit = {}
+  def projectOpened(): Unit = {
+    StartupManager.getInstance(project).registerPostStartupActivity {
+      registerClasses()
+    }
+  }
   def disposeComponent(): Unit = {}
 
   def getComponentName = "SyntheticClasses"
 
-  override def initComponent(): Unit = {
-    StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
-      def run() {
-        registerClasses()
-      }
-    })
-  }
+  override def initComponent(): Unit = {}
 
   def projectClosed(): Unit = {
     scriptSyntheticValues.clear()
@@ -239,6 +239,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
   var file : PsiFile = _
 
   def registerClasses() {
+    val stdTypes = ctx.stdTypes
+    import stdTypes._
+
     all = new mutable.HashMap[String, ScSyntheticClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
       "dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, "")
@@ -252,9 +255,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       override val retType = TypeParameterType(typeParams.head, None)
     })
 
-    val anyRef = registerClass(api.AnyRef, "AnyRef")
-    anyRef.addMethod(new ScSyntheticFunction("eq", Boolean, Seq(Seq(api.AnyRef))))
-    anyRef.addMethod(new ScSyntheticFunction("ne", Boolean, Seq(Seq(api.AnyRef))))
+    val anyRef = registerClass(AnyRef, "AnyRef")
+    anyRef.addMethod(new ScSyntheticFunction("eq", Boolean, Seq(Seq(AnyRef))))
+    anyRef.addMethod(new ScSyntheticFunction("ne", Boolean, Seq(Seq(AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction("synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
       override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(Parameter(
         TypeParameterType(typeParams.head, None), isRepeated = false, index = 0)))
@@ -282,24 +285,24 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
 
     for (nc <- numeric) {
       for (nc1 <- numeric; op <- numeric_comp_ops)
-        nc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(nc1.t))))
+        nc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(nc1.stdType))))
       for (nc1 <- numeric; op <- numeric_arith_ops)
-        nc.addMethod(new ScSyntheticFunction(op, op_type(nc, nc1), Seq(Seq(nc1.t))))
+        nc.addMethod(new ScSyntheticFunction(op, op_type(nc, nc1), Seq(Seq(nc1.stdType))))
       for (nc1 <- numeric)
-        nc.addMethod(new ScSyntheticFunction("to" + nc1.className, nc1.t, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction("to" + nc1.className, nc1.stdType, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
-        nc.addMethod(new ScSyntheticFunction("unary_" + un_op, nc.t match {
-          case Long | Double | Float => nc.t
+        nc.addMethod(new ScSyntheticFunction("unary_" + un_op, nc.stdType match {
+          case Long | Double | Float => nc.stdType
           case _ => Int
         }, Seq.empty))
     }
 
     for (ic <- integer) {
       for (ic1 <- integer; op <- bitwise_bin_ops)
-        ic.addMethod(new ScSyntheticFunction(op, op_type(ic, ic1), Seq(Seq(ic1.t))))
-      ic.addMethod(new ScSyntheticFunction("unary_~", ic.t, Seq.empty))
+        ic.addMethod(new ScSyntheticFunction(op, op_type(ic, ic1), Seq(Seq(ic1.stdType))))
+      ic.addMethod(new ScSyntheticFunction("unary_~", ic.stdType, Seq.empty))
 
-      val ret = ic.t match {
+      val ret = ic.stdType match {
         case Long => Long
         case _ => Int
       }
@@ -461,11 +464,16 @@ object Unit
     classesInitialized = true
   }
 
-  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = (ic1.t, ic2.t) match {
-    case (_, Double) | (Double, _) => Double
-    case (Float, _) | (_, Float) => Float
-    case (_, Long) | (Long, _)=> Long
-    case _ => Int
+  def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = {
+    val stdTypes = ic1.projectContext.stdTypes
+    import stdTypes._
+
+    (ic1.stdType, ic2.stdType) match {
+      case (_, Double) | (Double, _) => Double
+      case (Float, _) | (_, Float) => Float
+      case (_, Long) | (Long, _)=> Long
+      case _ => Int
+    }
   }
 
   def registerClass(t: StdType, name: String) = {

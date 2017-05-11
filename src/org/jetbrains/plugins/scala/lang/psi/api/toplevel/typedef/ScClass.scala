@@ -16,13 +16,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 */
 
 trait ScClass extends ScTypeDefinition with ScConstructorOwner {
-  protected def typeParamString: String =
-    typeParameters map {
-      ScalaPsiUtil.typeParamString
-    } match {
-      case Seq() => ""
-      case seq => seq.mkString("[", ", ", "]")
-    }
+
+  def typeParamString: String = typeParameters
+    .map(ScalaPsiUtil.typeParamString) match {
+    case Seq() => ""
+    case seq => seq.mkString("[", ", ", "]")
+  }
 
   def tooBigForUnapply: Boolean = constructor.exists(_.parameters.length > 22)
 

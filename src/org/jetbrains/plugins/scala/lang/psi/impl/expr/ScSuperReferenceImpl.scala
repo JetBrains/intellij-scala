@@ -107,7 +107,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       def resolve: PsiClass = {
         def resolveNoHack: PsiClass = {
           findSuper(id) match {
-            case Some(t) => t.extractClass(getProject) match {
+            case Some(t) => t.extractClass match {
               case Some(c) => c
               case None    => null
             }
@@ -135,7 +135,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         case None => Array[Object]()
         case Some(supers) =>
           val buff = new ArrayBuffer[Object]
-          supers.foreach { t => t.extractClass(getProject) match {
+          supers.foreach { t => t.extractClass match {
             case Some(c) => buff += c
             case None =>
           }}
@@ -149,7 +149,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     case Some(types) =>
       val name = id.getText
       for (t <- types) {
-        t.extractClass(getProject) match {
+        t.extractClass match {
           case Some(c) if name == c.name => return Some(t)
           case _ =>
         }

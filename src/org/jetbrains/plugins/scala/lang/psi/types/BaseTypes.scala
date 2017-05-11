@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import scala.collection.mutable
 
 object BaseTypes {
-  def get(t: ScType, notAll: Boolean = false, visitedAliases: Set[ScTypeAlias] = Set.empty)
-         (implicit typeSystem: TypeSystem = ScalaTypeSystem): Seq[ScType] = {
+  def get(t: ScType, notAll: Boolean = false, visitedAliases: Set[ScTypeAlias] = Set.empty): Seq[ScType] = {
+    implicit val project = t.projectContext
+
     ProgressManager.checkCanceled()
     t match {
       case ScDesignatorType(td : ScTemplateDefinition) =>
@@ -52,7 +53,7 @@ object BaseTypes {
         val s = p.actualSubst.followed(genericSubst)
         BaseTypes.get(s.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
       case p : ScParameterizedType =>
-        p.designator.extractClass() match {
+        p.designator.extractClass match {
           case Some(td: ScTypeDefinition) =>
             reduce(td.superTypes.flatMap { tp =>
               if (!notAll) BaseTypes.get(p.substitutor.subst(tp), notAll, visitedAliases = visitedAliases) ++ Seq(p.substitutor.subst(tp)) else Seq(p
@@ -91,14 +92,13 @@ object BaseTypes {
     }
   }
 
-  def reduce(types: Seq[ScType])
-            (implicit typeSystem: TypeSystem): Seq[ScType] = {
+  def reduce(types: Seq[ScType]): Seq[ScType] = {
     val res = new mutable.HashMap[PsiClass, ScType]
     object all extends mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
     val iterator = types.iterator
     while (iterator.hasNext) {
        val t = iterator.next()
-      t.extractClass() match {
+      t.extractClass match {
         case Some(c) =>
           val isBest = all.get(c) match {
             case None => true

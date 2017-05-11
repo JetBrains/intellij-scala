@@ -32,7 +32,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -128,7 +127,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>
-        implicit val typeSystem = args.typeSystem
+        implicit val project = args.projectContext
         val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
@@ -434,7 +433,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
 
   def elementsForParameterInfo(args: Invocation): Seq[Object] = {
-    implicit val typeSystem = args.element.getProject.typeSystem
+    implicit val project = args.element.projectContext
     args.parent match {
       case call: MethodInvocation =>
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
@@ -535,7 +534,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
         val typeElement = constr.typeElement
         val i = constr.arguments.indexOf(args.element)
-        typeElement.calcType.extractClassType(constr.getProject) match {
+        typeElement.calcType.extractClassType match {
           case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
             clazz match {
               case clazz: ScClass =>
@@ -642,7 +641,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     val argsOption: Option[Invocation] = findArgs(element)
     if (argsOption.isEmpty) return null
     val args = argsOption.get
-    implicit val typeSystem = file.getProject.typeSystem
+    implicit val project = file.projectContext
     context match {
       case context: CreateParameterInfoContext =>
         context.setItemsToShow(elementsForParameterInfo(args).toArray)
@@ -657,7 +656,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         if (!equivalent(context.getObjectsToView, elementsForParameterInfo(args))) {
           context.removeHint()
 
-          ShowParameterInfoHandler.invoke(context.getProject, context.getEditor, context.getFile, context.getOffset, null, false)
+          ShowParameterInfoHandler.invoke(project, context.getEditor, context.getFile, context.getOffset, null, false)
         }
       case _ =>
     }

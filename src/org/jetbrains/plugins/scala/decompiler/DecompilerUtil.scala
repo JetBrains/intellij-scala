@@ -42,13 +42,6 @@ object DecompilerUtil {
     }
   }
 
-  def obtainProject: Project = {
-    val manager = ProjectManager.getInstance
-    val projects = openedNotDisposedProjects
-    if (projects.length == 0) manager.getDefaultProject
-    else projects(0)
-  }
-
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
   private def attributesSupported = !ScalaLoader.isUnderUpsource
 

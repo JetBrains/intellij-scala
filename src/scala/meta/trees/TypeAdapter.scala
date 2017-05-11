@@ -190,8 +190,8 @@ trait TypeAdapter {
         case t: ptype.ScExistentialType =>
           val wcards = t.wildcards.map {wc =>
 //            val (name, args, lower, upper) = wc
-            val ubound = if (wc.upper == ptype.api.Any)      None else Some(toType(wc.upper))
-            val lbound = if (wc.lower == ptype.api.Nothing)  None else Some(toType(wc.lower))
+            val ubound = if (wc.upper.isAny)      None else Some(toType(wc.upper))
+            val lbound = if (wc.lower.isNothing)  None else Some(toType(wc.lower))
             m.Decl.Type(Nil, m.Type.Name(wc.name),
                 //FIXME: pass actual prefix, when solution for recursive prefix computation is ready
                // .withAttrs(h.Denotation.Single(h.Prefix.None, toSymbolWtihParent(wc.name, pivot, h.ScalaSig.Type(wc.name))))
@@ -215,8 +215,8 @@ trait TypeAdapter {
   }
 
   def toTypeParams(tp: TypeParameterType): m.Type.Param = {
-    val ubound = if (tp.upperType.v == ptype.api.Any)      None else Some(toType(tp.upperType.v))
-    val lbound = if (tp.lowerType.v == ptype.api.Nothing)  None else Some(toType(tp.lowerType.v))
+    val ubound = if (tp.upperType.v.isAny)      None else Some(toType(tp.upperType.v))
+    val lbound = if (tp.lowerType.v.isNothing)  None else Some(toType(tp.lowerType.v))
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),//.withAttrs(h.Denotation.None).setTypechecked,

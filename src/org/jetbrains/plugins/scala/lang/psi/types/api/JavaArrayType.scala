@@ -3,9 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScUndefinedSubstitutor, ScalaType}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
-case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) extends ValueType with TypeInTypeSystem {
+case class JavaArrayType(argument: ScType) extends ValueType {
+
+  override implicit def projectContext: ProjectContext = argument.projectContext
 
   def getParameterizedType(implicit elementScope: ElementScope): Option[ValueType] = {
     elementScope.getCachedClasses("scala.Array").collect {
@@ -30,12 +33,11 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
         JavaArrayType(argument.recursiveVarianceUpdateModifiable(newData, update, 0))
     }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) =
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =
     `type` match {
       case JavaArrayType(thatArgument) => argument.equiv(thatArgument, substitutor, falseUndef)
       case ParameterizedType(designator, arguments) if arguments.length == 1 =>
-        designator.extractClass() match {
+        designator.extractClass match {
           case Some(td) if td.qualifiedName == "scala.Array" => argument.equiv(arguments.head, substitutor, falseUndef)
           case _ => (false, substitutor)
         }

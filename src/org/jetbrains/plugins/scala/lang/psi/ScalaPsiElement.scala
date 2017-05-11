@@ -8,10 +8,10 @@ import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.intersectScopes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
-trait ScalaPsiElement extends PsiElement with MonadTransformer {
+trait ScalaPsiElement extends PsiElement with MonadTransformer with ProjectContextOwner {
   protected var context: PsiElement = null
   protected var child: PsiElement = null
 

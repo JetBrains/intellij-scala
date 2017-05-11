@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParame
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter.javaPsiTypeParameterUpperType
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.Seq
 
@@ -87,7 +88,7 @@ object TypeParameter {
           () => typeParam.upperBound.getOrAny)
       case _ =>
         (Seq.empty,
-          () => Nothing,
+          () => Nothing(typeParameter.getProject),
           () => javaPsiTypeParameterUpperType(typeParameter)
         )
     }
@@ -108,6 +109,8 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
                              lowerType: Suspension,
                              upperType: Suspension,
                              psiTypeParameter: PsiTypeParameter) extends ValueType with NamedType {
+
+  override implicit def projectContext: ProjectContext = psiTypeParameter
 
   override val name: String = psiTypeParameter.name
 
@@ -138,15 +141,14 @@ case class TypeParameterType(arguments: Seq[TypeParameterType],
     case _ => false
   }
 
-  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) =
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) =
     (`type` match {
       case that: TypeParameterType => (that.psiTypeParameter eq psiTypeParameter) || {
         (psiTypeParameter, that.psiTypeParameter) match {
           case (myBound: ScTypeParam, thatBound: ScTypeParam) =>
             //TODO this is a temporary hack, so ignore substitutor for now
-            myBound.lowerBound.exists(typeSystem.equivalence.equiv(_, thatBound.lowerBound.getOrNothing)) &&
-              myBound.upperBound.exists(typeSystem.equivalence.equiv(_, thatBound.upperBound.getOrNothing)) &&
+            myBound.lowerBound.exists(_.equiv(thatBound.lowerBound.getOrNothing)) &&
+              myBound.upperBound.exists(_.equiv(thatBound.upperBound.getOrNothing)) &&
               (myBound.name == thatBound.name || thatBound.isHigherKindedTypeParameter || myBound.isHigherKindedTypeParameter)
           case _ => false
         }
@@ -175,7 +177,7 @@ object TypeParameterType {
           case Some(_) => typeParameter.getTypeParameters.toSeq
           case _ => Seq.empty
         },
-          () => Nothing,
+          () => Nothing(typeParameter.getProject),
           () => javaPsiTypeParameterUpperType(typeParameter)
         )
     }

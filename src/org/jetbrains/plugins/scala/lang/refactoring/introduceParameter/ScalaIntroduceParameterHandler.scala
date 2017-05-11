@@ -60,6 +60,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
   }
 
   def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike): (ScExpression, ScType) = {
+    import method.projectContext
+
     val namesAndTypes = input.map { v =>
       val elem = v.element
       val typeText = elem match {

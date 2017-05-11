@@ -61,7 +61,7 @@ object PatternAnnotator {
 
     val neverMatches = !PatternAnnotatorUtil.matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
-    def isEliminatedByErasure = (exprType.extractClass(pattern.getProject), patType.extractClass()) match {
+    def isEliminatedByErasure = (exprType.extractClass, patType.extractClass) match {
       case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
       case _ => false
     }
@@ -181,8 +181,7 @@ object PatternAnnotator {
 
 object PatternAnnotatorUtil {
   @tailrec
-  def matchesPattern(matching: ScType, matched: ScType)
-                    (implicit ctx: ProjectContext): Boolean = {
+  def matchesPattern(matching: ScType, matched: ScType): Boolean = {
     def abstraction(scType: ScType, visited: Set[ScType] = Set.empty): ScType = {
       if (visited.contains(scType)) {
         return scType

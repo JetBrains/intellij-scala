@@ -16,8 +16,8 @@ import scala.collection.JavaConversions._
 /**
   * @author adkozlov
   */
-object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
-  override implicit lazy val typeSystem = DottyTypeSystem
+trait DottyPsiTypeBridge extends api.PsiTypeBridge {
+  typeSystem: api.TypeSystem =>
 
   override def toScType(`type`: PsiType,
                         treatJavaObjectAsAny: Boolean)
@@ -41,7 +41,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case ScDesignatorType(clazz: PsiClass) => createType(clazz)
       case projectionType: ScProjectionType =>
         projectionType.actualElement match {
-          case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.t)
+          case syntheticClass: ScSyntheticClass => toPsiType(syntheticClass.stdType)
           case clazz: PsiClass => createType(clazz, raw = true)
           case definition: ScTypeAliasDefinition => definition.aliasedType match {
             case Success(result, _) => createComponent(result)

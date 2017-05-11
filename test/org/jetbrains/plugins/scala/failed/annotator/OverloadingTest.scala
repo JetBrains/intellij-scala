@@ -51,7 +51,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
-      if (!actual.conforms(expected)(typeElement.projectContext)) {
+      if (!actual.conforms(expected)) {
         val expr = expression match {
           case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
           case _ => expression

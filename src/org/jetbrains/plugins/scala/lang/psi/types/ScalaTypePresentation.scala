@@ -4,7 +4,6 @@ package psi
 package types
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -21,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-object ScTypePresentation extends api.ScTypePresentation {
-  override implicit lazy val typeSystem = ScalaTypeSystem
+trait ScalaTypePresentation extends api.TypePresentation {
+  typeSystem: api.TypeSystem =>
 
   protected override def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     def typeSeqText(ts: Seq[ScType], start: String, sep: String, end: String, checkWildcard: Boolean = false): String = {
@@ -44,11 +43,11 @@ object ScTypePresentation extends api.ScTypePresentation {
       else if (param.isCovariant) buffer ++= "+"
       buffer ++= param.name
       param.lowerBound foreach {
-        case Nothing =>
+        case tp if tp.isNothing =>
         case tp: ScType => buffer ++= s" >: ${typeText0(tp)}"
       }
       param.upperBound foreach {
-        case Any =>
+        case tp if tp.isAny =>
         case tp: ScType => buffer ++= s" <: ${typeText0(tp)}"
       }
       param.viewBound foreach {
@@ -151,7 +150,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           val defnText = ta match {
             case tad: ScTypeAliasDefinition =>
               tad.aliasedType.map {
-                case Nothing => ""
+                case tpe if tpe.isNothing => ""
                 case tpe => s" = ${typeText0(tpe)}"
               }.getOrElse("")
             case _ =>
@@ -212,8 +211,7 @@ object ScTypePresentation extends api.ScTypePresentation {
         case namedType: NamedType => namedType.name
         case ScAbstractType(tpt, _, _) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
         case f@FunctionType(ret, params) if t.isAliasType.isEmpty =>
-          val project = DecompilerUtil.obtainProject
-          val arrow = ScalaPsiUtil.functionArrow(project)
+          val arrow = ScalaPsiUtil.functionArrow
           typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
           clazz.name + ".this" + typeTail(needDotType)

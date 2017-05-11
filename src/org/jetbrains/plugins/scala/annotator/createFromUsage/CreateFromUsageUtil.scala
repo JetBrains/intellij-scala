@@ -34,16 +34,20 @@ object CreateFromUsageUtil {
 
   def nameByType(tp: ScType): String = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
 
-  def nameAndTypeForArg(arg: PsiElement): (String, ScType) = arg match {
-    case ref: ScReferenceExpression => (ref.refName, ref.getType().getOrAny)
-    case expr: ScExpression =>
-      val tp = expr.getType().getOrAny
-      (nameByType(tp), tp)
-    case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.getType(TypingContext.empty).getOrAny)
-    case p: ScPattern =>
-      val tp: ScType = p.getType(TypingContext.empty).getOrAny
-      (nameByType(tp), tp)
-    case _ => ("value", Any)
+  def nameAndTypeForArg(arg: PsiElement): (String, ScType) = {
+    implicit val project = arg.projectContext
+
+    arg match {
+      case ref: ScReferenceExpression => (ref.refName, ref.getType().getOrAny)
+      case expr: ScExpression =>
+        val tp = expr.getType().getOrAny
+        (nameByType(tp), tp)
+      case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.getType(TypingContext.empty).getOrAny)
+      case p: ScPattern =>
+        val tp: ScType = p.getType(TypingContext.empty).getOrAny
+        (nameByType(tp), tp)
+      case _ => ("value", Any)
+    }
   }
 
   def paramsText(args: Seq[PsiElement]): String = {
@@ -119,6 +123,7 @@ object CreateFromUsageUtil {
   }
 
   def unapplyMethodText(pattern: ScPattern): String = {
+    import pattern.projectContext
     val pType = pattern.expectedType.getOrElse(Any)
     val pName = nameByType(pType)
     s"def unapply($pName: ${pType.canonicalText}): ${unapplyMethodTypeText(pattern)} = ???"
@@ -152,7 +157,7 @@ object InstanceOfClass {
 object TypeAsClass {
   def unapply(scType: ScType): Option[PsiClass] = scType match {
     case ExtractClass(aClass) => Some(aClass)
-    case t: ScType => t.extractDesignatorSingleton.flatMap(_.extractClass())
+    case t: ScType => t.extractDesignatorSingleton.flatMap(_.extractClass)
     case _ => None
   }
 }

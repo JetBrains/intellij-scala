@@ -1406,6 +1406,9 @@
         <component>
           <implementation-class>org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache</implementation-class>
         </component>
+        <component>
+          <implementation-class>org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes</implementation-class>
+        </component>
     </project-components>
 
     <actions>

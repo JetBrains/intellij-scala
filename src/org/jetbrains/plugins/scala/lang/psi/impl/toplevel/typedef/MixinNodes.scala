@@ -380,7 +380,7 @@ abstract class MixinNodes {
     val iter = superTypes.iterator
     while (iter.hasNext) {
       val superType = iter.next()
-      superType.extractClassType(place.map(_.getProject).orNull) match {
+      superType.extractClassType match {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
@@ -511,12 +511,12 @@ object MixinNodes {
       }
     }
     def add(tp: ScType) {
-      tp.extractClass(ctx) match {
+      tp.extractClass match {
         case Some(clazz) if clazz.qualifiedName != null && !set.contains(classString(clazz)) =>
           tp +=: buffer
           set += classString(clazz)
         case Some(clazz) if clazz.getTypeParameters.nonEmpty =>
-          val i = buffer.indexWhere(_.extractClass(clazz.getProject) match {
+          val i = buffer.indexWhere(_.extractClass match {
               case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
               case _ => false
             }
@@ -554,7 +554,7 @@ object MixinNodes {
         }
       }
       tp = updateTp(tp)
-      tp.extractClassType(ctx) match {
+      tp.extractClassType match {
         case Some((clazz, subst)) =>
           val lin = linearization(clazz)
           val newIterator = lin.reverseIterator

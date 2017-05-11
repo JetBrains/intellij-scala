@@ -22,9 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, api, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
@@ -71,6 +70,9 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   def superTypes: List[ScType] = {
     val buffer = new ListBuffer[ScType]
 
+    val stdTypes = projectContext.stdTypes
+    import stdTypes._
+
     def addType(t: ScType) {
       t match {
         case ScCompoundType(comps, _, _) => comps.foreach(addType)
@@ -96,7 +98,7 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
     def extract(scType: ScType): Boolean = {
-      scType.extractClass(getProject) match {
+      scType.extractClass match {
         case Some(_: ScObject) => true
         case Some(_: ScTrait) => false
         case Some(_: ScClass) => true
@@ -106,12 +108,12 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     }
 
     val findResult = buffer.find {
-      case AnyVal | api.AnyRef | Any => true
+      case AnyVal | AnyRef | Any => true
       case t => extract(t)
     }
     findResult match {
       case Some(AnyVal) => //do nothing
-      case res@(Some(api.AnyRef) | Some(Any)) =>
+      case res@(Some(AnyRef) | Some(Any)) =>
         buffer -= res.get
         if (javaObject != null)
           buffer += javaObject
@@ -208,9 +210,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
       case c: PsiClass if !c.isInterface => true
       case _ => false
     } match {
-      case Some(s: ScSyntheticClass) if AnyVal.asClass(getProject).contains(s) => //do nothing
-      case Some(s: ScSyntheticClass) if api.AnyRef.asClass(getProject).contains(s) ||
-        Any.asClass(getProject).contains(s) =>
+      case Some(s: ScSyntheticClass) if s.stdType.isAnyVal => //do nothing
+      case Some(s: ScSyntheticClass) if s.stdType.isAnyRef || s.stdType.isAny =>
         buffer -= s
         if (javaObjectClass != null)
           buffer += javaObjectClass

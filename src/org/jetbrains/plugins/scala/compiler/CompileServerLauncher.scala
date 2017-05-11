@@ -4,14 +4,15 @@ package compiler
 import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
+import com.intellij.compiler.server.BuildManager
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService
-import com.intellij.openapi.roots.{ModuleRootManager, ProjectRootManager}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
@@ -19,7 +20,7 @@ import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.{Platform, ProjectExt, ScalaLanguageLevel, ScalaModule}
+import org.jetbrains.plugins.scala.project.{Platform, ProjectExt}
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -51,31 +52,16 @@ class CompileServerLauncher extends ApplicationComponent {
   }
 
   private def start(project: Project): Boolean = {
-    val applicationSettings = ScalaCompileServerSettings.getInstance
 
-    jdkChangeRequired(project).foreach(applicationSettings.COMPILE_SERVER_SDK = _)
-
-    if (applicationSettings.COMPILE_SERVER_SDK == null) {
-      // Try to find a suitable JDK
-      val allJdks = availableJdks(project)
-      val chosen = allJdks.headOption.map(_.getName)
-
-      chosen.foreach(applicationSettings.COMPILE_SERVER_SDK = _)
-
-//       val message = "JVM SDK is automatically selected: " + name +
-//               "\n(can be changed in Application Settings / Scala)"
-//       Notifications.Bus.notify(new Notification("scala", "Scala compile server",
-//         message, NotificationType.INFORMATION))
-    }
-
-    findJdkByName(applicationSettings.COMPILE_SERVER_SDK)
-      .left.map(_ + "\nPlease either disable Scala compile server or configure a valid JVM SDK for it.")
+    compileServerJdk(project)
       .right.flatMap(start(project, _)) match {
+
       case Left(error) =>
         val title = "Cannot start Scala compile server"
         val content = s"<html><body>${error.replace("\n", "<br>")} <a href=''>Configure</a></body></html>"
         Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, ConfigureLinkListener))
         false
+
       case Right(_) =>
         invokeLater {
           CompileServerManager.configureWidget(project)
@@ -125,7 +111,7 @@ class CompileServerLauncher extends ApplicationComponent {
                 .left.map(_.getMessage)
                 .right.map { process =>
           val watcher = new ProcessWatcher(process, "scalaCompileServer")
-          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), withTimestamps(bootCp)))
+          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), withTimestamps(bootCp), jdk))
           watcher.startNotify()
           process
         }
@@ -162,6 +148,17 @@ class CompileServerLauncher extends ApplicationComponent {
 }
 
 object CompileServerLauncher {
+  def compileServerSdk(project: Project): Sdk = {
+    val sdk = BuildManager.getBuildProcessRuntimeSdk(project).first
+    ScalaCompileServerSettings.getInstance().COMPILE_SERVER_SDK = sdk.getName
+    sdk
+  }
+
+  def compileServerJdk(project: Project): Either[String, JDK] = {
+    val sdk = compileServerSdk(project)
+    findJdkByName(sdk.getName)
+  }
+
   def instance: CompileServerLauncher = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
 
   def compilerJars: Seq[File] = {
@@ -214,11 +211,7 @@ object CompileServerLauncher {
 
     val (userMaxPermSize, otherParams) = settings.COMPILE_SERVER_JVM_PARAMETERS.split(" ").partition(_.contains("-XX:MaxPermSize"))
 
-    val defaultMaxPermSize = Some("-XX:MaxPermSize=256m")
-    val needMaxPermSize = settings.COMPILE_SERVER_SDK < "1.8"
-    val maxPermSize = if (needMaxPermSize) userMaxPermSize.headOption.orElse(defaultMaxPermSize) else None
-
-    xmx ++ otherParams ++ maxPermSize
+    xmx ++ otherParams
   }
 
   def ensureServerRunning(project: Project) {
@@ -234,11 +227,14 @@ object CompileServerLauncher {
     val settings = ScalaCompileServerSettings.getInstance()
     serverInstance match {
       case None => true
-      case _ if jdkChangeRequired(project).nonEmpty => true
       case Some(instance) =>
         val useProjectHome = settings.USE_PROJECT_HOME_AS_WORKING_DIR
         val workingDirChanged = useProjectHome && projectHome(project) != serverInstance.map(_.workingDir)
-        workingDirChanged || instance.bootClasspath != withTimestamps(bootClasspath(project))
+        val jdkChanged = compileServerJdk(project) match {
+          case Right(projectJdk) => projectJdk != instance.jdk
+          case Left(_) => false
+        }
+        workingDirChanged || instance.bootClasspath != withTimestamps(bootClasspath(project)) || jdkChanged
     }
   }
 
@@ -263,35 +259,6 @@ object CompileServerLauncher {
     } yield file
   }
 
-  private def availableJdks(project: Project): Seq[Sdk] = {
-    val javaSdk = JavaSdk.getInstance
-    Option(ProjectRootManager.getInstance(project).getProjectSdk) ++: ProjectJdkTable.getInstance.getSdksOfType(javaSdk).asScala
-  }
-
-  private def jdkChangeRequired(project: Project): Option[String] = {
-    val javaSdk = JavaSdk.getInstance
-    def isAtLeast8(sdk: Sdk): Boolean =
-      Option(javaSdk.getVersion(sdk)).exists(_.isAtLeast(JavaSdkVersion.JDK_1_8))
-
-    def isScala2_12(module: ScalaModule) = module.sdk.languageLevel >= ScalaLanguageLevel.Scala_2_12
-    def isJava8(module: ScalaModule) = {
-      val sdk = Option(ModuleRootManager.getInstance(module.module).getSdk)
-      sdk.exists(isAtLeast8)
-    }
-
-    val requiresJdk8 = project.scalaModules.exists(m => isScala2_12(m) || isJava8(m))
-    if (requiresJdk8) {
-      val jdk8Names = availableJdks(project).toSet.filter(isAtLeast8).map(_.getName)
-      if (jdk8Names.isEmpty) {
-        val title = "Scala 2.12 requires JDK 1.8 to compile"
-        val content = s"<html><body><a href=''>Configure</a></body></html>"
-        Notifications.Bus.notify(new Notification("scala", title, content, NotificationType.ERROR, new ConfigureJDKListener(project)))
-      }
-      if (!jdk8Names.contains(ScalaCompileServerSettings.getInstance().COMPILE_SERVER_SDK))
-        jdk8Names.headOption
-      else None
-    } else None
-  }
 
   object ConfigureLinkListener extends NotificationListener.Adapter {
     def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
@@ -316,7 +283,11 @@ object CompileServerLauncher {
   }
 }
 
-private case class ServerInstance(watcher: ProcessWatcher, port: Int, workingDir: File, bootClasspath: Set[(File, Long)]) {
+private case class ServerInstance(watcher: ProcessWatcher,
+                                  port: Int,
+                                  workingDir: File,
+                                  bootClasspath: Set[(File, Long)],
+                                  jdk: JDK) {
   private var stopped = false
 
   def running: Boolean = !stopped && watcher.running

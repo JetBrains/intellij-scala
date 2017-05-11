@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -18,7 +17,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 class PatternMayNeverMatchInspection extends AbstractInspection(inspectionId, inspectionName) {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case pat@ScPatternExpectedAndPatternType(exTp, patType) =>
-      implicit val ctx: ProjectContext = holder.getProject
       if (!PatternAnnotatorUtil.matchesPattern(exTp, patType) && !patType.conforms(exTp) &&
         !isNeverSubType(exTp, patType)) {
         //need to check so inspection highlighting doesn't interfere with PatterAnnotator's

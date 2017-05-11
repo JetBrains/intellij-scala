@@ -135,7 +135,7 @@ object ScalaGenerationInfo {
     val superOrSelfQual: String = td.selfType match {
       case None => "super."
       case Some(st: ScType) =>
-        val psiClass = st.extractClass(td.getProject).getOrElse(return "super.")
+        val psiClass = st.extractClass.getOrElse(return "super.")
 
         def nonStrictInheritor(base: PsiClass, inheritor: PsiClass): Boolean = {
           if (base == null || inheritor == null) false

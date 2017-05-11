@@ -319,7 +319,7 @@ object ScalaGlobalMembersCompletionContributor {
     }.map {
       resolveResult.substitutor.subst
     }.flatMap {
-      _.extractClass(element.getProject)
+      _.extractClass
     }.collect {
       case o: ScObject => o
     }
