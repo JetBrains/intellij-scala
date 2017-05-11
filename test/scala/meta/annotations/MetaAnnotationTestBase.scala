@@ -224,7 +224,7 @@ object MetaAnnotationTestBase {
 
   private case class MetaParadiseLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "paradise"
-    override protected val version: String = "3.0.0-M7"
+    override protected val version: String = "3.0.0-M8"
 
     override protected def folder(implicit version: ScalaVersion): String =
       s"${name}_${version.minor}"
