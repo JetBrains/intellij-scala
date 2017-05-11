@@ -135,9 +135,8 @@ abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[Fil
           configurationError("No Scala SDK configured for module: " + module.getName))
 
   private def findJdk = CompileServerLauncher.compileServerJdk(module.getProject) match {
-    case Right(jdk) => jdk.executable
-    case Left(msg) =>
-      configurationError(msg)
+    case Some(jdk) => jdk.executable
+    case None => configurationError("JDK for compiler process not found")
   }
 
   private def checkFilesToCompile(files: Seq[File]) = {
