@@ -339,9 +339,6 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   }
 
   override def checkConfiguration() {
-    super.checkConfiguration()
-
-
     def checkModule() = if (getModule == null) throw new RuntimeConfigurationException("Module is not specified")
 
     testKind match {
