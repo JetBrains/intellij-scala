@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import com.intellij.psi.PsiFile
+import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
@@ -12,286 +12,309 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
   */
 class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
 
-  private val baseText =
-    """
-      |trait Base {
-      |  protected def foo(int: Int): Int = 45
-      |  /**
-      |    * text
-      |    */
-      |  type StringType = String
-      |  val intValue = 45
-      |  var intVariable: Int
-      |  type A
-      |  def abstractFoo
-      |
-      |  @throws(classOf[Exception])
-      |  def annotFoo(int: Int): Int = 45
-      |}
-    """
+  import ScalaCodeInsightTestBase._
 
-  def testFunction() {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   override def f<caret>
-        |}
-      """
+  protected override def setUp(): Unit = {
+    super.setUp()
 
-    val outText =
+    val project = getProject
+    val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
+
+    import TypeAnnotationSettings.{alwaysAddType, set}
+    set(project, alwaysAddType(codeStyleSettings))
+  }
+
+  def testFunction(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   override def f$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override def foo(int: Int): Int = super.foo(int)
         |}
-      """
-
-    doTest(baseText + inText, baseText + outText)
+      """,
+    char = DEFAULT_CHAR,
+    time = DEFAULT_TIME,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    _ => true
   }
 
-  def testValue() {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   override val intVa<caret>
-        |}
-      """
-    val outText =
+  def testValue(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   override val intVa$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override val intValue: Int = _
         |}
-      """
-    doTest(baseText + inText, baseText + outText, Some("intValue"))
-  }
+      """,
+    item = "intValue"
+  )
 
-  def testVariable() {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   override var i<caret>
-        |}
-      """
-
-    val outText =
+  def testVariable(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   override var i$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override var intVariable: Int = _
         |}
-      """
-    doTest(baseText + inText, baseText + outText, Some("intVariable"))
-  }
+      """,
+    item = "intVariable"
+  )
 
-  def testJavaObjectMethod() {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   override def h<caret>
-        |}
-      """
-
-    val outText =
+  def testJavaObjectMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   override def h$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override def hashCode(): Int = super.hashCode()
         |}
-      """
+      """,
+    item = "hashCode"
+  )
 
-    doTest(baseText + inText, baseText + outText, Some("hashCode"))
-  }
-
-  def testOverrideKeword() {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   over<caret>
-        |}
-      """
-
-    val outText =
+  def testOverrideKeyword(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   over$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override protected def foo(int: Int): Int = super.foo(int)
         |}
-      """
+      """,
+    item = "override def foo"
+  )
 
-    doTest(baseText + inText, baseText + outText, Some("override def foo"))
-  }
-
-  def testAbstractType(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   override type <caret>
-        |}
-      """
-
-    val outText =
+  def testAbstractType(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   override type $CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override type A = this.type
         |}
-      """
+      """,
+    item = "A"
+  )
 
-    doTest(baseText + inText, baseText + outText, Some("A"))
-  }
-
-  def testAbstractFucntion(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   override protected def <caret>
-        |}
-      """
-
-    val outText =
+  def testAbstractFunction(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   override protected def $CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override protected def abstractFoo: Unit = ???
         |}
-      """
+      """,
+    item = "abstractFoo"
+  )
 
-    doTest(baseText + inText, baseText + outText, Some("abstractFoo"))
-  }
-
-  def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   protected def a<caret>
-        |}
-      """
-
-    val outText =
+  def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   protected def a$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override protected def abstractFoo: Unit = ???
         |}
-      """
+      """,
+    item = "abstractFoo"
+  )
 
-    doTest(baseText + inText, baseText + outText, Some("abstractFoo"))
-  }
-
-  def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   var i<caret>
-        |}
-      """
-
-    val outText =
+  def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   var i$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override var intVariable: Int = _
         |}
-      """
+      """,
+    item = "intVariable"
+  )
 
-    doTest(baseText + inText, baseText + outText, Some("intVariable"))
-  }
+  def testNoMethodCompletionInClassParameter(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   class A(ab$CARET)
+         |}
+      """,
+    item = "abstractFoo"
+  )
 
-  def testNoMethodCompletionInClassParameter(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   class A(ab<caret>)
-        |}
-      """
-    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val lookups = complete(1, CompletionType.BASIC)
-
-    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
-    assert(result.isEmpty, "Override is not enable at this place")
-  }
-
-  def testNoCompletionAfterDot(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   var i = 12.ab<caret>
-        |}
-      """
-    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val lookups = complete(1, CompletionType.BASIC)
-
-    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
-    assert(result.isEmpty, "Override is not enable at this place")
-  }
+  def testNoCompletionAfterDot(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   var i = 12.ab$CARET
+         |}
+      """,
+    item = "abstractFoo"
+  )
 
   //Like in java, don't save annotations here
-  def testWithAnnotation(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   annotFoo<caret>
-        |}
-      """
-
-    val outText =
+  def testWithAnnotation(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   annotFoo$CARET
+         |}
+      """,
+    resultText =
       """
         |class Inheritor extends Base {
         |  override def annotFoo(int: Int): Int = super.annotFoo(int)
         |}
-      """
-    doTest(baseText + inText, baseText + outText, Some("override annotFoo"))
-  }
+      """,
+    item = "override annotFoo"
+  )
 
-  def testNoCompletionInFunciton(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   def outherFunc(): Unit = {
-        |     annotFoo<caret>
-        |   }
-        |}
-      """
-    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val lookups = complete(1, CompletionType.BASIC)
+  def testNoCompletionInFunction(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   def outherFunc(): Unit = {
+         |     annotFoo$CARET
+         |   }
+         |}
+      """,
+    item = "abstractFoo"
+  )
 
-    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("abstractFoo"))
-    assert(result.isEmpty, "Override is not enable at this place")
-  }
+  def testNoCompletionInModifier(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   private[intV$CARET] val test = 123
+         |}
+      """,
+    item = "intValue"
+  )
 
-  def testNoCompletionInModifier(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   private[intV<caret>] val test = 123
-        |}
-      """
-    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val lookups = complete(1, CompletionType.BASIC)
+  def testNoCompletionAfterColon(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class Inheritor extends Base {
+         |   val test: intV$CARET = 123
+         |}
+      """,
+    item = "intValue"
+  )
 
-    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
-    assert(result.isEmpty, "Override is not enable at this place")
-  }
+  def testParamsFromTrait(): Unit = doCompletionTest(
+    fileText = s"class Test(ov$CARET) extends Base",
+    resultText = "class Test(override var intVariable: Int) extends Base",
+    item = "override intVariable"
+  )
 
-  def testNoCompletionAfterColon(): Unit = {
-    val inText =
-      """
-        |class Inheritor extends Base {
-        |   val test: intV<caret> = 123
-        |}
-      """
-    configureFromFileTextAdapter("dummy.scala", normalize(baseText + inText))
-    val lookups = complete(1, CompletionType.BASIC)
+  override protected def checkNoCompletion(fileText: String,
+                                           item: String,
+                                           time: Int,
+                                           completionType: CompletionType): Unit =
+    super.checkNoCompletion(fileText, time, completionType) { lookup =>
+      lookup.getLookupString.contains("override") &&
+        lookup.getAllLookupStrings.contains(item)
+    }
 
-    val result = lookups.find(le => le.getLookupString.contains("override") && le.getAllLookupStrings.contains("intValue"))
-    assert(result.isEmpty, "Override is not enable at this place")
-  }
+  override protected def doCompletionTest(fileText: String,
+                                          resultText: String,
+                                          item: String,
+                                          char: Char,
+                                          time: Int,
+                                          completionType: CompletionType): Unit =
+    super.doCompletionTest(fileText, resultText, char, time, completionType) { lookup =>
+      val lookupString = lookup.getLookupString
+      item.split(" ").forall(lookupString.contains)
+    }
 
-  def testParamsFromClass(): Unit = {
-    val inText =
-      """
-        |class Person(val name: String) {
-        |  val gender: Boolean = true
-        |  val age: Int = 45
-        |}
-        |
-        |case class ExamplePerson(override val nam<caret>, override val age: Int, override val gender: Boolean) extends Person("") {
-        |}
-      """
+  import ScalaOverrideCompletionTest._
 
-    val resultText =
+  override protected def configureFromFileText(fileText: String): PsiFile =
+    super.configureFromFileText(testText(fileText))
+
+  override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit =
+    super.checkResultByText(testText(expectedFileText), ignoreTrailingSpaces)
+}
+
+object ScalaOverrideCompletionTest {
+
+  private def testText(fileText: String): String =
+    s"""
+       |trait Base {
+       |  protected def foo(int: Int): Int = 45
+       |  /**
+       |    * text
+       |    */
+       |  type StringType = String
+       |  val intValue = 45
+       |  var intVariable: Int
+       |  type A
+       |  def abstractFoo
+       |
+       |  @throws(classOf[Exception])
+       |  def annotFoo(int: Int): Int = 45
+       |}
+       |
+       |$fileText
+    """
+}
+
+class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
+
+  import ScalaCodeInsightTestBase._
+
+  def testParamsFromClass(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Person(val name: String) {
+         |  val gender: Boolean = true
+         |  val age: Int = 45
+         |}
+         |
+         |case class ExamplePerson(override val nam$CARET, override val age: Int, override val gender: Boolean) extends Person("") {
+         |}
+      """,
+    resultText =
       """
         |class Person(val name: String) {
         |  val gender: Boolean = true
@@ -300,36 +323,11 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
         |
         |case class ExamplePerson(override val name: String, override val age: Int, override val gender: Boolean) extends Person("") {
         |}
-      """
-
-    doTest(inText, resultText)
-  }
-
-  def testParamsFromTrait(): Unit = {
-    val inText = "class Test(ov<caret>) extends Base"
-    val resultText = "class Test(override var intVariable: Int) extends Base"
-
-    doTest(baseText + inText, baseText + resultText, Some("override intVariable"))
-  }
-
-  def doTest(inText: String, resultText: String, item: Option[String] = None): Unit = {
-    TypeAnnotationSettings.set(getProjectAdapter,
-      TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProjectAdapter)))
-
-    configureFromFileTextAdapter("dummy.scala", normalize(inText))
-    val lookups = complete(1, CompletionType.BASIC)
-
-    assert(lookups.nonEmpty, "No lookup was found")
-
-    item match {
-      case Some(name) =>
-        def containsAll(lookupString: String, parts: String): Boolean =
-          parts.split(" ").forall(lookupString.contains)
-
-        lookups.find(ls => containsAll(ls.getLookupString, name))
-          .foreach(finishLookup(_))
-      case _ => finishLookup()
-    }
-    checkResultByText(normalize(resultText))
+      """,
+    char = DEFAULT_CHAR,
+    time = DEFAULT_TIME,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    _ => true
   }
 }

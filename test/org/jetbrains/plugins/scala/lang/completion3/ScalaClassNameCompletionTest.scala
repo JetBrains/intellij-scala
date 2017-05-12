@@ -1,8 +1,11 @@
-package org.jetbrains.plugins.scala.lang.completion3
+package org.jetbrains.plugins.scala
+package lang
+package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.{DEFAULT_CHAR, DEFAULT_COMPLETION_TYPE}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
@@ -10,167 +13,108 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
   * User: Alefas
   * Date: 27.03.12
   */
+abstract class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
-class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
-  def withRelativeImports(body: => Unit): Unit = {
-    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
-    val oldValue = settings.isAddFullQualifiedImports
-    settings.setAddFullQualifiedImports(false)
-    try {
-      body
-    } finally {
-      settings.setAddFullQualifiedImports(oldValue)
-    }
+  protected def predicate(lookup: LookupElement,
+                          qualifiedName: String,
+                          companionObject: Boolean = false): Boolean =
+    Option(lookup).collect {
+      case lookup: ScalaLookupItem => lookup
+    }.map(_.element).collect {
+      case o: ScObject if companionObject => o
+      case c: ScClass => c
+    }.exists(_.qualifiedName == qualifiedName)
+
+  protected def codeStyleSettings: ScalaCodeStyleSettings =
+    ScalaCodeStyleSettings.getInstance(getProject)
+}
+
+class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
+
+  def testClassNameRenamed(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |import java.util.{ArrayList => BLLLL}
+         |object Test extends App {
+         |  val al: java.util.List[Int] = new BL$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import java.util.{ArrayList => BLLLL}
+         |object Test extends App {
+         |  val al: java.util.List[Int] = new BLLLL[Int]($CARET)
+         |}
+      """.stripMargin,
+    item = "BLLLL"
+  )
+
+  def testExpressionSameName(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |import collection.immutable.HashSet
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  HashSet$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import collection.immutable.HashSet
+         |import scala.collection.mutable
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  mutable.HashSet$CARET
+         |}
+      """.stripMargin,
+    char = DEFAULT_CHAR,
+    time = 2,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    predicate(_, "scala.collection.mutable.HashSet", companionObject = true)
   }
 
-  def testClassNameRenamed() {
-    val fileText =
-      """
-        |import java.util.{ArrayList => BLLLL}
-        |object Test extends App {
-        |  val al: java.util.List[Int] = new BL<caret>
-        |}
-      """
-
-    val resultText =
-      """
-        |import java.util.{ArrayList => BLLLL}
-        |object Test extends App {
-        |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
-        |}
-      """
-
-    doCompletionTest(fileText, resultText, "BLLLL")
+  def testClassSameName(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |import collection.immutable.HashSet
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  val y: HashSet$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |import collection.immutable.HashSet
+         |import scala.collection.mutable
+         |
+         |object Sandbox extends App {
+         |  val x: HashSet[Int] = new HashSet[Int]
+         |  val y: mutable.HashSet$CARET
+         |}
+      """.stripMargin,
+    char = DEFAULT_CHAR,
+    time = 2,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    predicate(_, "scala.collection.mutable.HashSet")
   }
 
-  def testExpressionSameName() {
-    val fileText =
-      """
-        |import collection.immutable.HashSet
-        |
-        |object Sandbox extends App {
-        |  val x: HashSet[Int] = new HashSet[Int]
-        |  HashSet<caret>
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val lookups = complete(2, CompletionType.BASIC)
-
-    val resultText =
-      """
-        |import collection.immutable.HashSet
-        |import scala.collection.mutable
-        |
-        |object Sandbox extends App {
-        |  val x: HashSet[Int] = new HashSet[Int]
-        |  mutable.HashSet<caret>
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-
-    finishLookup(lookups.find {
-      case le: ScalaLookupItem =>
-        le.element match {
-          case c: ScObject if c.qualifiedName == "scala.collection.mutable.HashSet" => true
-          case _ => false
-        }
-      case _ => false
-    }.get)
-    checkResultByText(resultText)
-  }
-
-  def testClassSameName() {
-    val fileText =
-      """
-        |import collection.immutable.HashSet
-        |
-        |object Sandbox extends App {
-        |  val x: HashSet[Int] = new HashSet[Int]
-        |  val y: HashSet<caret>
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val lookups = complete(2, CompletionType.BASIC)
-
-    val resultText =
-      """
-        |import collection.immutable.HashSet
-        |import scala.collection.mutable
-        |
-        |object Sandbox extends App {
-        |  val x: HashSet[Int] = new HashSet[Int]
-        |  val y: mutable.HashSet<caret>
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-
-    finishLookup(lookups.find {
-      case le: ScalaLookupItem =>
-        le.element match {
-          case c: ScClass if c.qualifiedName == "scala.collection.mutable.HashSet" => true
-          case _ => false
-        }
-      case _ => false
-    }.get)
-    checkResultByText(resultText)
-  }
-
-  def testSmartJoining() {
-    val settings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
-    val oldValue = settings.getImportsWithPrefix
-    settings.setImportsWithPrefix(Array.empty)
-    try {
-      val fileText =
-        """
-          |import collection.mutable.{Builder, Queue}
-          |import scala.collection.immutable.HashMap
-          |import collection.mutable.ArrayBuffer
-          |
-          |object Sandbox extends App {
-          |  val m: ListM<caret>
-          |}
-        """.stripMargin.replaceAll("\r", "").trim()
-      configureFromFileTextAdapter("dummy.scala", fileText)
-      val lookups = complete(2, CompletionType.BASIC)
-
-      val resultText =
-        """
-          |import collection.mutable.{ArrayBuffer, Builder, ListMap, Queue}
-          |import scala.collection.immutable.HashMap
-          |
-          |object Sandbox extends App {
-          |  val m: ListMap
-          |}
-        """.stripMargin.replaceAll("\r", "").trim()
-
-      finishLookup(lookups.find {
-        case le: ScalaLookupItem =>
-          le.element match {
-            case c: ScClass if c.qualifiedName == "scala.collection.mutable.ListMap" => true
-            case _ => false
-          }
-        case _ => false
-      }.get)
-      checkResultByText(resultText)
-    }
-    catch {
-      case t: Exception => settings.setImportsWithPrefix(oldValue)
-    }
-  }
-
-  def testImportsMess() {
-    val fileText =
-      """
-        |import scala.collection.immutable.{BitSet, HashSet, ListMap, SortedMap}
-        |import scala.collection.mutable._
-        |
-        |class Test2 {
-        |  val x: HashMap[String, String] = HashMap.empty
-        |  val z: ListSet<caret> = null
-        |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val lookups = complete(2, CompletionType.BASIC)
-
-    val resultText =
+  def testImportsMess(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |import scala.collection.immutable.{BitSet, HashSet, ListMap, SortedMap}
+         |import scala.collection.mutable._
+         |
+         |class Test2 {
+         |  val x: HashMap[String, String] = HashMap.empty
+         |  val z: ListSet$CARET = null
+         |}
+      """.stripMargin,
+    resultText =
       """
         |import scala.collection.immutable.{HashMap => _, _}
         |import scala.collection.mutable._
@@ -179,38 +123,32 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |  val x: HashMap[String, String] = HashMap.empty
         |  val z: ListSet = null
         |}
-      """.stripMargin.replaceAll("\r", "").trim()
-
-    finishLookup(lookups.find {
-      case le: ScalaLookupItem =>
-        le.element match {
-          case c: ScClass if c.qualifiedName == "scala.collection.immutable.ListSet" => true
-          case _ => false
-        }
-      case _ => false
-    }.get)
-    checkResultByText(resultText)
+      """.stripMargin,
+    char = DEFAULT_CHAR,
+    time = 2,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    predicate(_, "scala.collection.immutable.ListSet")
   }
 
-  def testImplicitClass() {
-    val fileText =
-      """
-        |package a
-        |
-        |object A {
-        |
-        |  implicit class B(i: Int) {
-        |    def foo = 1
-        |  }
-        |
-        |}
-        |
-        |object B {
-        |  1.<caret>
-        |}
-      """
-
-    val resultText =
+  def testImplicitClass(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |package a
+         |
+         |object A {
+         |
+         |  implicit class B(i: Int) {
+         |    def foo = 1
+         |  }
+         |
+         |}
+         |
+         |object B {
+         |  1.$CARET
+         |}
+      """.stripMargin,
+    resultText =
       """
         |package a
         |
@@ -227,82 +165,141 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |object B {
         |  1.foo
         |}
+      """.stripMargin,
+    item = "foo",
+    time = 2
+  )
+}
+
+class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
+
+  private var importsWithPrefix: Array[String] = Array.empty
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+
+    val settings = codeStyleSettings
+    importsWithPrefix = settings.getImportsWithPrefix
+    settings.setImportsWithPrefix(Array.empty)
+  }
+
+  override protected def tearDown(): Unit = {
+    codeStyleSettings.setImportsWithPrefix(importsWithPrefix)
+
+    super.tearDown()
+  }
+
+  def testSmartJoining(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |import collection.mutable.{Builder, Queue}
+         |import scala.collection.immutable.HashMap
+         |import collection.mutable.ArrayBuffer
+         |
+         |object Sandbox extends App {
+         |  val m: ListM$CARET
+         |}
+    """.stripMargin,
+    resultText =
       """
+        |import collection.mutable.{ArrayBuffer, Builder, ListMap, Queue}
+        |import scala.collection.immutable.HashMap
+        |
+        |object Sandbox extends App {
+        |  val m: ListMap
+        |}
+      """.stripMargin,
+    char = DEFAULT_CHAR,
+    time = 2,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    predicate(_, "scala.collection.mutable.ListMap")
+  }
+}
 
-    doCompletionTest(fileText, resultText, "foo", time = 2)
+class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
+
+  private var isAddFullQualifiedImports: Boolean = false
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+
+    val settings = codeStyleSettings
+    isAddFullQualifiedImports = settings.isAddFullQualifiedImports
+    settings.setAddFullQualifiedImports(false)
   }
 
-  def testSCL4087() {
-    withRelativeImports {
-      val fileText =
-        """
-          |package a.b {
-          |
-          |  class XXXX
-          |
-          |}
-          |
-          |import a.{b => c}
-          |
-          |trait Y {
-          |  val x: XXXX<caret>
-          |}
-        """
+  override protected def tearDown(): Unit = {
+    codeStyleSettings.setAddFullQualifiedImports(isAddFullQualifiedImports)
 
-      val resultText =
-        """
-          |package a.b {
-          |
-          |  class XXXX
-          |
-          |}
-          |
-          |import a.{b => c}
-          |import c.XXXX
-          |
-          |trait Y {
-          |  val x: XXXX
-          |}
-        """
-      doCompletionTest(fileText, resultText, "XXXX", time = 2)
-    }
+    super.tearDown()
   }
 
-  def testSCL4087_2() {
-    withRelativeImports {
-      val fileText =
-        """
-          |package a.b.z {
-          |
-          |  class XXXX
-          |
-          |}
-          |
-          |import a.{b => c}
-          |
-          |trait Y {
-          |  val x: XXXX<caret>
-          |}
-        """
+  def testSCL4087(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |package a.b {
+         |
+         |  class XXXX
+         |
+         |}
+         |
+         |import a.{b => c}
+         |
+         |trait Y {
+         |  val x: XXXX$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      """
+        |package a.b {
+        |
+        |  class XXXX
+        |
+        |}
+        |
+        |import a.{b => c}
+        |import c.XXXX
+        |
+        |trait Y {
+        |  val x: XXXX
+        |}
+      """.stripMargin,
+    item = "XXXX",
+    time = 2
+  )
 
-      val resultText =
-        """
-          |package a.b.z {
-          |
-          |  class XXXX
-          |
-          |}
-          |
-          |import a.{b => c}
-          |import c.z.XXXX
-          |
-          |trait Y {
-          |  val x: XXXX
-          |}
-        """
-
-      doCompletionTest(fileText, resultText, "XXXX", time = 2)
-    }
-  }
-
+  def testSCL4087_2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |package a.b.z {
+         |
+         |  class XXXX
+         |
+         |}
+         |
+         |import a.{b => c}
+         |
+         |trait Y {
+         |  val x: XXXX$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      """
+        |package a.b.z {
+        |
+        |  class XXXX
+        |
+        |}
+        |
+        |import a.{b => c}
+        |import c.z.XXXX
+        |
+        |trait Y {
+        |  val x: XXXX
+        |}
+      """.stripMargin,
+    item = "XXXX",
+    time = 2
+  )
 }

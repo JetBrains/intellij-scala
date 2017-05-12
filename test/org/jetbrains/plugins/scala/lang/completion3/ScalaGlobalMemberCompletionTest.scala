@@ -1,129 +1,131 @@
-package org.jetbrains.plugins.scala.lang.completion3
+package org.jetbrains.plugins.scala
+package lang
+package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
+import junit.framework.ComparisonFailure
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.junit.Assert
+import org.junit.Assert.{assertArrayEquals, assertTrue}
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
+  * @author Alexander Podkhalyuzin
+  */
 class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
-  protected override def rootPath(): String = baseRootPath() + "completion3/globalMember"
 
-  def testGlobalMember1() {
-    val fileText =
-      """
-        |class TUI {
-        |  rawObj<caret>
-        |}
-      """
+  import ScalaCodeInsightTestBase._
 
-    val resultText =
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}globalMember"
+
+  override def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+ SourcesLoader(getTestDataPath)
+
+  def testGlobalMember1(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class TUI {
+         |  rawObj$CARET
+         |}
+      """.stripMargin,
+    resultText =
       """
         |import rawObject.RawObject1
         |
         |class TUI {
         |  RawObject1.rawObject()
         |}
-      """
+      """.stripMargin,
+    item = "rawObject",
+    time = 2
+  )
 
-    doCompletionTest(fileText, resultText, "rawObject", time = 2)
-  }
-
-  def testGlobalMember2() {
-    val fileText =
-      """
-        |class TUI {
-        |  globalVal<caret>
-        |}
-      """
-
-    val resultText =
+  def testGlobalMember2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class TUI {
+         |  globalVal$CARET
+         |}
+      """.stripMargin,
+    resultText =
       """
         |import rawObject.RawObject2
         |
         |class TUI {
         |  RawObject2.globalValue
         |}
-      """
+      """.stripMargin,
+    item = "globalValue",
+    time = 2
+  )
 
-    doCompletionTest(fileText, resultText, "globalValue", time = 2)
-  }
-
-  def testGlobalMember3() {
-    val fileText =
-      """
-        |class TUI {
-        |  globalVar<caret>
-        |}
-      """
-
-    val resultText =
+  def testGlobalMember3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class TUI {
+         |  globalVar$CARET
+         |}
+      """.stripMargin,
+    resultText =
       """
         |import rawObject.RawObject3
         |
         |class TUI {
         |  RawObject3.globalVariable
         |}
-      """
+      """.stripMargin,
+    item = "globalVariable",
+    time = 2
+  )
 
-    doCompletionTest(fileText, resultText, "globalVariable", time = 2)
-  }
-
-  def testGlobalMember4() {
-    val fileText =
-      """
-        |class TUI {
-        |  patternVal<caret>
-        |}
-      """
-
-    val resultText =
+  def testGlobalMember4(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class TUI {
+         |  patternVal$CARET
+         |}
+      """.stripMargin,
+    resultText =
       """
         |import rawObject.RawObject4
         |
         |class TUI {
         |  RawObject4.patternValue
         |}
-      """
+      """.stripMargin,
+    item = "patternValue",
+    time = 2
+  )
 
-    doCompletionTest(fileText, resultText, "patternValue", time = 2)
-  }
-
-  def testGlobalMember5() {
-    val fileText =
-      """
-        |class TUI {
-        |  patternVar<caret>
-        |}
-      """
-
-    val resultText =
+  def testGlobalMember5(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class TUI {
+         |  patternVar$CARET
+         |}
+      """.stripMargin,
+    resultText =
       """
         |import rawObject.RawObject5
         |
         |class TUI {
         |  RawObject5.patternVariable
         |}
-      """
+      """.stripMargin,
+    item = "patternVariable", time = 2
+  )
 
-    doCompletionTest(fileText, resultText, "patternVariable", time = 2)
-  }
-
-  def testGlobalMember6() {
-    val fileText =
-      """
-        |import rawObject.RawObject6.importedDef
-        |
+  def testGlobalMember6(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |import rawObject.RawObject6.importedDef
+         |
         |class TUI {
-        |  importDe<caret>
-        |}
-      """
-
-    val resultText =
+         |  importDe$CARET
+         |}
+      """.stripMargin,
+    resultText =
       """
         |import rawObject.RawObject6.importedDef
         |
@@ -131,159 +133,166 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
         |  importedDef()
         |}
         |
-      """
+      """.stripMargin,
+    item = "importedDef",
+    time = 2
+  )
 
-    doCompletionTest(fileText, resultText, "importedDef", time = 2)
+  def testGlobalMember7(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class TUI {
+         |  imposToR$CARET
+         |}
+       """.stripMargin,
+    time = 2,
+    completionType = DEFAULT_COMPLETION_TYPE
+  ) {
+    _ => true
   }
 
-  def testGlobalMember7() {
-    val fileText =
-"""
-class TUI {
-  imposToR<caret>
-}
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy7.scala", fileText)
-    val lookups = complete(completionType = CompletionType.BASIC, time = 2)
-    assert(lookups.isEmpty)
+  def testGlobalMemberJava(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class TUI {
+         |  activeCoun$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class TUI {
+         |  Thread.activeCount()$CARET
+         |}
+      """.stripMargin,
+    item = "activeCount",
+    time = 2
+  )
 
-    val resultText =
-"""
-class TUI {
-  imposToR<caret>
-}
-""".replaceAll("\r", "").trim()
+  def testGlobalMember8(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |object BlahBlahBlahContainer {
+         |  private def doSmthPrivate() {}
+         |  def doSmthPublic() {}
+         |}
+         |
+         |class Test {
+         |  def test() {
+         |    dsp$CARET
+         |  }
+         |}
+       """.stripMargin,
+    item = "doSmthPrivate",
+    time = 2
+  )
 
-    checkResultByText(resultText)
-  }
-
-  def testGlobalMemberJava() {
-    val fileText =
-      """
-        |class TUI {
-        |  activeCoun<caret>
-        |}
-      """
-
-    val resultText =
-      """
-        |class TUI {
-        |  Thread.activeCount()<caret>
-        |}
-      """
-
-    doCompletionTest(fileText, resultText, "activeCount", time = 2)
-  }
-
-  def testGlobalMember8() {
-    val fileText =
-"""
-object BlahBlahBlahContainer {
-  private def doSmthPrivate() {}
-  def doSmthPublic() {}
-}
-
-class Test {
-  def test() {
-    dsp<caret>
-  }
-}
-""".replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy7.scala", fileText)
-    val lookups = complete(completionType = CompletionType.BASIC, time = 2)
-    Assert.assertTrue(!lookups.exists(_.getLookupString == "doSmthPrivate"))
-  }
-
-  def testGlobalMember9() {
-    val fileText =
-      """
-      object BlahBlahBlahContainer {
-        private def doSmthPrivate() {}
-        def doSmthPublic() {}
-      }
-
-      class Test {
-        def test() {
-          dsp<caret>
-        }
-      }
-      """.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy7.scala", fileText)
-    val lookups = complete(completionType = CompletionType.BASIC, time = 3)
-    Assert.assertTrue(lookups.exists(_.getLookupString == "doSmthPrivate"))
-  }
-
-  def testGlobalMemberInherited() {
-    val fileText =
-      """
-      class Base {
-        def zeeGlobalDefInherited = 0
-        val zeeGlobalValInherited = 0
-      }
-
-      object D1 extends Base {
-        def zeeGlobalDef = 0
-        def zeeGlobalVal = 0
-      }
-
-      package object D2 extends Base
-
-      class Test {
-        def test() {
-          zeeGlobal<caret>
-        }
-      }
-      """.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummyGlobalMemberInherited.scala", fileText)
-    val lookups = complete(completionType = CompletionType.BASIC, time = 3).collect {
-      case sli: ScalaLookupItem => sli.containingClass.name + "." + sli.getLookupString
+  def testGlobalMember9(): Unit = {
+    val lookups = configureTest(
+      fileText =
+        s"""
+           |object BlahBlahBlahContainer {
+           |  private def doSmthPrivate() {}
+           |  def doSmthPublic() {}
+           |}
+           |
+           |class Test {
+           |  def test() {
+           |    dsp$CARET
+           |  }
+           |}
+       """.stripMargin,
+      time = 3
+    ) {
+      hasLookupString(_, "doSmthPrivate")
     }
-    val expected = Set("D1.zeeGlobalDefInherited", "D1.zeeGlobalValInherited", "D1.zeeGlobalDef", "D1.zeeGlobalVal", "D2.zeeGlobalDefInherited", "D2.zeeGlobalValInherited")
-    Assert.assertEquals(expected, lookups.toSet)
+
+    assertTrue(lookups.nonEmpty)
   }
 
-  def testJavaConverters() {
-    val fileText =
-      """
-        |val ja = new java.util.ArrayList[Int]
-        |ja.asSc<caret>
-      """.stripMargin.replaceAll("\r", "").trim
-    configureFromFileTextAdapter("javaConverters.scala", fileText)
-    val lookups = complete(completionType = CompletionType.BASIC, time = 2)
+  def testGlobalMemberInherited(): Unit = {
+    val lookups = configureTest(
+      fileText =
+        s"""
+           |class Base {
+           |  def zeeGlobalDefInherited = 0
+           |  val zeeGlobalValInherited = 0
+           |}
+           |
+           |object D1 extends Base {
+           |  def zeeGlobalDef = 0
+           |  def zeeGlobalVal = 0
+           |}
+           |
+           |package object D2 extends Base
+           |
+           |class Test {
+           |  def test() {
+           |    zeeGlobal$CARET
+           |  }
+           |}
+       """.stripMargin,
+      time = 3
+    )()
 
-    val resultText =
+    val actual = lookups.collect {
+      case lookup: ScalaLookupItem => s"${lookup.containingClass.name}.${lookup.getLookupString}"
+    }.toSet
+
+    val expected = Set(
+      "D1.zeeGlobalDefInherited",
+      "D1.zeeGlobalValInherited",
+      "D1.zeeGlobalDef",
+      "D1.zeeGlobalVal",
+      "D2.zeeGlobalDefInherited",
+      "D2.zeeGlobalValInherited"
+    )
+    assertArrayEquals(expected.toArray[AnyRef], actual.toArray[AnyRef])
+  }
+}
+
+class ScalaGlobalMemberCompletionTest2 extends ScalaCodeInsightTestBase {
+
+  import ScalaGlobalMemberCompletionTest2._
+
+  def testJavaConverters(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |val ja = new java.util.ArrayList[Int]
+         |ja.asSc$CARET
+      """.stripMargin,
+    resultText =
       """
-        |import scala.collection.JavaConverters.asScalaBufferConverter
-        |
         |val ja = new java.util.ArrayList[Int]
         |ja.asScala
-      """.stripMargin.replaceAll("\r", "").trim
+      """.stripMargin,
+    item = "asScala",
+    time = 2
+  )
 
-    val result2Text =
-      """
-        |import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-        |
-        |val ja = new java.util.ArrayList[Int]
-        |ja.asScala
-      """.stripMargin.replaceAll("\r", "").trim
-
-    val result3Text =
-      """
-        |import scala.collection.JavaConverters.iterableAsScalaIterableConverter
-        |
-        |val ja = new java.util.ArrayList[Int]
-        |ja.asScala
-      """.stripMargin.replaceAll("\r", "").trim
-
-    lookups.find(le => le.getLookupString == "asScala")
-      .foreach(finishLookup(_))
-    val resultFileText = getFileAdapter.getText
-    resultFileText.trim match {
-      case `resultText` =>
-      case `result2Text` =>
-      case `result3Text` =>
-      case _ =>
-        Assert.assertEquals(resultFileText, resultText)
+  override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit = {
+    def runCheck(fileText: String) = try {
+      super.checkResultByText(fileText, ignoreTrailingSpaces)
+      true
+    } catch {
+      case _: ComparisonFailure => false
     }
+
+    val expected = CONVERTERS_NAMES.map(expectedText(_, expectedFileText))
+    assertTrue(expected.exists(runCheck))
   }
+}
+
+object ScalaGlobalMemberCompletionTest2 {
+
+  private val CONVERTERS_NAMES = Seq(
+    "asScalaBufferConverter",
+    "collectionAsScalaIterableConverter",
+    "iterableAsScalaIterableConverter"
+  )
+
+  private def expectedText(className: String, expectedFileText: String): String =
+    s"""
+       |import scala.collection.JavaConverters.$className
+       |$expectedFileText
+       """.stripMargin
 }

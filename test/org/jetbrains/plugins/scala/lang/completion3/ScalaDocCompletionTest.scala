@@ -2,105 +2,105 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.extensions._
 
 /**
- * User: Dmitry Naydanov
- * Date: 12/9/11
- */
-
+  * User: Dmitry Naydanov
+  * Date: 12/9/11
+  */
 class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
-  protected def genericCompletionComparison(initialText: String, finalText: String, filter: LookupElement => Boolean) {
-    val fileText = initialText.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText = finalText.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val lookups = complete(2, CompletionType.BASIC)
+  import EditorTestUtil.{CARET_TAG => CARET}
+  import ScalaDocCompletionTest.DEFAULT_TIME
 
-    finishLookup(lookups.find(cv => filter(cv)).get)
-    checkResultByText(resultText)
+  def testTagNameCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         | /**
+         |  * @par$CARET
+         |  */
+         | def f(i: Int) { }
+      """.stripMargin,
+    resultText =
+      """
+        | /**
+        |  * @param
+        |  */
+        | def f(i: Int) { }
+      """.stripMargin,
+    item = "param",
+    time = DEFAULT_TIME
+  )
+
+  def testTagValueCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         | /**
+         |  * @param par$CARET
+         |  */
+         | def f(param: String) {}
+      """.stripMargin,
+    resultText =
+      """
+        | /**
+        |  * @param param
+        |  */
+        | def f(param: String) {}
+      """.stripMargin,
+    item = "param",
+    time = DEFAULT_TIME
+  )
+
+  def testLinkCodeCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         | /**
+         |  *
+         |  * [[HashM$CARET
+         |  */
+      """.stripMargin,
+    resultText =
+      """
+        | /**
+        |  *
+        |  * [[java.util.HashMap
+        |  */
+      """.stripMargin,
+    char = ScalaCodeInsightTestBase.DEFAULT_CHAR,
+    time = DEFAULT_TIME,
+    completionType = ScalaCodeInsightTestBase.DEFAULT_COMPLETION_TYPE
+  ) { lookup =>
+    lookup.getObject match {
+      case clazz: PsiClass => clazz.qualifiedName == "java.util.HashMap"
+      case _ => false
+    }
   }
 
-  protected def genericCompletionComprasion(initialText: String,  finalText: String,  preferedLookupString: String) {
-    genericCompletionComparison(initialText, finalText,
-      (le: LookupElement) => le.getLookupString == preferedLookupString)
-  }
+  def testTagValueFilteredCompletion(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |/**
+         | * @param iii
+         | * @param i$CARET
+         | */
+         | def f(iii: Int, ikk: Int) {}
+      """.stripMargin,
+    resultText =
+      """
+        |/**
+        | * @param iii
+        | * @param ikk
+        | */
+        | def f(iii: Int, ikk: Int) {}
+      """.stripMargin,
+    item = "ikk",
+    time = DEFAULT_TIME
+  )
+}
 
-  def testTagNameCompletion() {
-    genericCompletionComprasion(
-      """
-      | /**
-      |  * @par<caret>
-      |  */
-      | def f(i: Int) { }
-      """,
-      """
-      | /**
-      |  * @param
-      |  */
-      | def f(i: Int) { }
-      """,
-      "param"
-    )
-  }
+object ScalaDocCompletionTest {
 
-  def testTagValueCompletion() {
-    genericCompletionComprasion(
-      """
-      | /**
-      |  * @param par<caret>
-      |  */
-      | def f(param: String) {}
-      """,
-      """
-      | /**
-      |  * @param param
-      |  */
-      | def f(param: String) {}
-      """,
-      "param"
-    )
-  }
-
-  def testLinkCodeCompletion() {
-    genericCompletionComparison(
-      """
-      | /**
-      |  *
-      |  * [[HashM<caret>
-      |  */
-      """,
-      """
-      | /**
-      |  *
-      |  * [[java.util.HashMap
-      |  */
-      """,
-      (al: LookupElement) => al.getObject.asInstanceOf[PsiClass].qualifiedName == "java.util.HashMap"
-    )
-  }
-
-  def testTagValueFilteredCompletion() {
-    genericCompletionComprasion(
-      """
-      |/**
-      | * @param iii
-      | * @param i<caret>
-      | */
-      | def f(iii: Int, ikk: Int) {}
-      """,
-      """
-      |/**
-      | * @param iii
-      | * @param ikk
-      | */
-      | def f(iii: Int, ikk: Int) {}
-      """,
-      "ikk"
-    )
-  }
+  private val DEFAULT_TIME: Int = 2
 }

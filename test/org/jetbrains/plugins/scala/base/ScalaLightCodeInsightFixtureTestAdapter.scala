@@ -6,6 +6,7 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{JdkLoader, LibraryLoader, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.debugger.DefaultScalaSdkOwner
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
   * User: Dmitry Naydanov
@@ -16,6 +17,10 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   extends LightCodeInsightFixtureTestCase with DefaultScalaSdkOwner {
 
   override def getFixture: CodeInsightTestFixture = myFixture
+
+  override def getTestDataPath: String = TestUtils.getTestDataPath + "/"
+
+  protected def loadScalaLibrary: Boolean = true
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
     ScalaLibraryLoader(),
@@ -31,18 +36,16 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     }
   }
 
-  protected def loadScalaLibrary = true
-
-  protected def checkTextHasNoErrors(text: String): Unit = {
-    getFixture.configureByText("dummy.scala", text)
-    CodeFoldingManager.getInstance(getProject).buildInitialFoldings(getEditor)
-
-    getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
-  }
-
   protected override def tearDown(): Unit = {
     tearDownLibraries()
     super.tearDown()
+  }
+
+  protected def checkTextHasNoErrors(text: String): Unit = {
+    getFixture.configureByText(ScalaFileType.INSTANCE, text)
+    CodeFoldingManager.getInstance(getProject).buildInitialFoldings(getEditor)
+
+    getFixture.testHighlighting(false, false, false, getFile.getVirtualFile)
   }
 }
 

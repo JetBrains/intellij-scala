@@ -1,209 +1,201 @@
-package org.jetbrains.plugins.scala.lang.completion3
+package org.jetbrains.plugins.scala
+package lang
+package completion3
 
-import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-import org.junit.Assert
+import com.intellij.codeInsight.completion.CompletionType.SMART
+import com.intellij.testFramework.EditorTestUtil
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 04.01.12
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 04.01.12
+  */
 class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
-  def testPrivateVal() {
-    val fileText =
-      """
-      |class A {
-      |  private va<caret>
-      |}
-      """
 
-    val resultText =
-      """
-      |class A {
-      |  private val <caret>
-      |}
-      """
+  import EditorTestUtil.{CARET_TAG => CARET}
 
-    doCompletionTest(fileText, resultText, "val")
+  def testPrivateVal(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class A {
+         |  private va$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class A {
+         |  private val $CARET
+         |}
+      """.stripMargin,
+    item = "val"
+  )
+
+  def testPrivateThis(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class A {
+         |  pr$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class A {
+         |  private[$CARET]
+         |}
+      """.stripMargin,
+    item = "private",
+    char = '['
+  )
+
+  def testFirstVal(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class A {
+         |  def foo() {
+         |    va${CARET}vv.v
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class A {
+         |  def foo() {
+         |    val ${CARET}vv.v
+         |  }
+         |}
+      """.stripMargin,
+    item = "val",
+    char = ' '
+  )
+
+  def testIfAfterCase(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |1 match {
+         |  case a if$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |1 match {
+         |  case a if $CARET
+         |}
+      """.stripMargin,
+    item = "if",
+    char = ' '
+  )
+
+  def testValUnderCaseClause(): Unit = doCompletionTest(fileText =
+    s"""
+       |1 match {
+       |  case 1 =>
+       |    val$CARET
+       |}
+      """,
+    resultText =
+      s"""
+         |1 match {
+         |  case 1 =>
+         |    val $CARET
+         |}
+      """,
+    item = "val",
+    char = ' '
+  )
+
+  def testDefUnderCaseClause(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |1 match {
+         |  case 1 =>
+         |    def$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |1 match {
+         |  case 1 =>
+         |    def $CARET
+         |}
+      """.stripMargin,
+    item = "def",
+    char = ' '
+  )
+
+  def testIfParentheses(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |1 match {
+         |  case 1 =>
+         |    if$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |1 match {
+         |  case 1 =>
+         |    if ($CARET)
+         |}
+      """.stripMargin,
+    item = "if",
+    char = '('
+  )
+
+  def testTryBraces(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |1 match {
+         |  case 1 =>
+         |    try$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |1 match {
+         |  case 1 =>
+         |    try {$CARET}
+         |}
+      """.stripMargin,
+    item = "try",
+    char = '{'
+  )
+
+  def testDoWhile(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |do {} whi$CARET
+         |1
+      """.stripMargin,
+    resultText =
+      s"""
+         |do {} while ($CARET)
+         |1
+      """.stripMargin,
+    item = "while",
+    char = '('
+  )
+
+  def testFilterFinal(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |class Test {
+         |  def fina$CARET
+         |}
+      """.stripMargin,
+    time = 1,
+    completionType = SMART
+  ) {
+    _ => true
   }
 
-  def testPrivateThis() {
-    val fileText =
-      """
-        |class A {
-        |  pr<caret>
-        |}
-      """
-
-    val resultText =
-      """
-        |class A {
-        |  private[<caret>]
-        |}
-      """
-
-    doCompletionTest(fileText, resultText, "private", '[')
-  }
-
-  def testFirstVal() {
-    val fileText =
-      """
-      |class A {
-      |  def foo() {
-      |    va<caret>vv.v
-      |  }
-      |}
-      """
-
-    val resultText =
-      """
-      |class A {
-      |  def foo() {
-      |    val <caret>vv.v
-      |  }
-      |}
-      """
-
-    doCompletionTest(fileText, resultText, "val", ' ')
-  }
-
-  def testIfAfterCase() {
-    val fileText =
-      """
-      |1 match {
-      |  case a if<caret>
-      |}
-      """
-
-    val resultText =
-      """
-      |1 match {
-      |  case a if <caret>
-      |}
-      """
-
-    doCompletionTest(fileText, resultText, "if", ' ')
-  }
-
-  def testValUnderCaseClause() {
-    val fileText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    val<caret>
-      |}
-      """
-
-    val resultText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    val <caret>
-      |}
-      """
-
-    doCompletionTest(fileText, resultText, "val", ' ')
-  }
-
-  def testDefUnderCaseClause() {
-    val fileText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    def<caret>
-      |}
-      """
-
-    val resultText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    def <caret>
-      |}
-      """
-
-    doCompletionTest(fileText, resultText, "def", ' ')
-  }
-
-  def testIfParentheses() {
-    val fileText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    if<caret>
-      |}
-      """
-
-    val resultText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    if (<caret>)
-      |}
-      """
-
-    doCompletionTest(fileText, resultText, "if", '(')
-  }
-
-  def testTryBraces() {
-    val fileText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    try<caret>
-      |}
-      """
-
-    val resultText =
-      """
-      |1 match {
-      |  case 1 =>
-      |    try {<caret>}
-      |}
-      """
-
-    doCompletionTest(fileText, resultText, "try", '{')
-  }
-
-  def testDoWhile() {
-    val fileText =
-      """
-      |do {} whi<caret>
-      |1
-      """
-
-    val resultText =
-      """
-      |do {} while (<caret>)
-      |1
-      """
-
-    doCompletionTest(fileText, resultText, "while", '(')
-  }
-
-  def testFilterFinal() {
-    val fileText =
-      """
-      |class Test {
-      |  def fina<caret>
-      |}
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val lookups = complete(1, CompletionType.SMART)
-
-    Assert.assertTrue(lookups.isEmpty)
-  }
-
-  def testFilterImplicit() {
-    val fileText =
-      """
-      |def foo(p: (Int => Int)) {}
-      |foo((impl<caret>: Int) => 0)
-      """.stripMargin.replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    val lookups = complete(1, CompletionType.SMART)
-
-    Assert.assertTrue(lookups.isEmpty)
+  def testFilterImplicit(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |def foo(p: (Int => Int)) {}
+         |foo((impl$CARET: Int) => 0)
+      """.stripMargin,
+    time = 1,
+    completionType = SMART
+  ) {
+    _ => true
   }
 }

@@ -8,7 +8,6 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * User: Dmitry.Naydanov
@@ -23,7 +22,8 @@ class ArrowTypingTest extends EditorActionTestBase {
   private def convertLoadedString(str: String) =
     str.replace("$CARET_MARKER", CARET_MARKER).replace("${ScalaTypedHandler.unicodeCaseArrow}", ScalaTypedHandler.unicodeCaseArrow)
 
-  override def getTestDataPath: String = TestUtils.getTestDataPath + "/actions/editor/arrows"
+  override def getTestDataPath: String =
+    s"${super.getTestDataPath}actions/editor/arrows"
 
   override protected def setUp(): Unit = {
     super.setUp()
