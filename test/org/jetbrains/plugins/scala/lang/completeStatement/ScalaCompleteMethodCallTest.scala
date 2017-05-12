@@ -1,29 +1,33 @@
 package org.jetbrains.plugins.scala
-package lang.completeStatement
+package lang
+package completeStatement
+
+import com.intellij.testFramework.EditorTestUtil
 
 /**
- * @author Ksenia.Sautina
- * @since 1/28/13
- */
+  * @author Ksenia.Sautina
+  * @since 1/28/13
+  */
 class ScalaCompleteMethodCallTest extends ScalaCompleteStatementTestBase {
-  def testMethodCall() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {}
-        |
-        |  method(<caret>
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {}
-        |
-        |  method()<caret>
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  import EditorTestUtil.{CARET_TAG => CARET}
+
+  def testMethodCall(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {}
+         |
+         |  method($CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {}
+         |
+         |  method()$CARET
+         |}
+      """.stripMargin
+  )
 }

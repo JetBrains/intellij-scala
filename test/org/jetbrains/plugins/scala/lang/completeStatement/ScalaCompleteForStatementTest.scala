@@ -1,174 +1,163 @@
 package org.jetbrains.plugins.scala
-package lang.completeStatement
+package lang
+package completeStatement
+
+import com.intellij.testFramework.EditorTestUtil
 
 /**
- * @author Ksenia.Sautina
- * @since 2/25/13
- */
+  * @author Ksenia.Sautina
+  * @since 2/25/13
+  */
 class ScalaCompleteForStatementTest extends ScalaCompleteStatementTestBase {
 
-  def testForStatement1() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    for <caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    for (<caret>) {
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  import EditorTestUtil.{CARET_TAG => CARET}
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  def testForStatement1(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for $CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for ($CARET) {
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-  def testForStatement2() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    for<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    for (<caret>) {
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  def testForStatement2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for ($CARET) {
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  def testForStatement3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for ($CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for ($CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-  def testForStatement3() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    for (<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    for (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  def testForStatement4(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for (i <- 1 to 10$CARET) {
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for (i <- 1 to 10) {
+         |      $CARET
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
+  def testForStatement5(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for (i <- 1 to 10) {$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for (i <- 1 to 10) {
+         |      $CARET
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-  def testForStatement4() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    for (i <- 1 to 10<caret>) {
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    for (i <- 1 to 10) {
-        |      <caret>
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+  def testForStatement6(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for (i <- 1 to 10$CARET) {
+         |      println()
+         |    }
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for (i <- 1 to 10) {
+         |      $CARET
+         |      println()
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testForStatement5() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    for (i <- 1 to 10) {<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    for (i <- 1 to 10) {
-        |      <caret>
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testForStatement6() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    for (i <- 1 to 10<caret>) {
-        |      println()
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    for (i <- 1 to 10) {
-        |      <caret>
-        |      println()
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-  def testForStatement7() {
-    val fileText =
-      """
-        |class B {
-        |  def method() {
-        |    for ()<caret>
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-    val resultText =
-      """
-        |class B {
-        |  def method() {
-        |    for (<caret>) {
-        |
-        |    }
-        |  }
-        |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
-
-    checkScalaFileByText(fileText, resultText)
-  }
-
-
+  def testForStatement7(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for ()$CARET
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class B {
+         |  def method() {
+         |    for ($CARET) {
+         |
+         |    }
+         |  }
+         |}
+      """.stripMargin
+  )
 }
