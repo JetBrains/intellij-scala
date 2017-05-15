@@ -187,13 +187,11 @@ class SbtShellReadyListener(whenReady: =>Unit, whenWorking: =>Unit) extends Line
 
 private[shell] object SbtProcessUtil {
 
-  // zero width spaces aren't trimmed and don't make the UI uglier if they are only displayed as space
-  val IDEA_PROMPT_MARKER = "\u200b\u200b\u200b"
+  val IDEA_PROMPT_MARKER = "[IJ]"
 
   // the prompt marker is inserted by the sbt-idea-shell plugin
   def promptReady(line: String): Boolean = line.trim match {
-    case ">" => true
-    case x if x.endsWith(IDEA_PROMPT_MARKER) => true
+    case x if x.startsWith(IDEA_PROMPT_MARKER) => true
     case _ => false
   }
 }
