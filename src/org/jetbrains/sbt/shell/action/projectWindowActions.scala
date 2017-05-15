@@ -17,10 +17,11 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
   protected def buildCmd(projectId: String, key: String): String
 
   override def perform(project: Project, projectSystemId: ProjectSystemId, externalData: T, e: AnActionEvent): Unit = {
+     //noinspection ScalaUnusedSymbol (unused `n` is necessary for compile to succeed)
      val projectScope = for {
        selected <- ExternalSystemDataKeys.SELECTED_NODES.getData(e.getDataContext).asScala.headOption
        groupNode <- Option(selected.getParent)
-       moduleNode@(_moduleNode: ModuleNode) <- Option(groupNode.getParent)
+       moduleNode@(_n: ModuleNode) <- Option(groupNode.getParent)
        esModuleData <- Option(moduleNode.getData)
        sbtModuleData <- SbtUtil.getSbtModuleData(e.getProject, esModuleData.getId)
      } yield {

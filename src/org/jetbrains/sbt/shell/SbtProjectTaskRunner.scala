@@ -63,8 +63,6 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
                    callback: ProjectTaskNotification,
                    tasks: util.Collection[_ <: ProjectTask]): Unit = {
 
-    val callbackOpt = Option(callback)
-
     val validTasks = tasks.asScala.collect {
       case task: ModuleBuildTask => task
     }
@@ -85,7 +83,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       FileDocumentManager.getInstance().saveAllDocuments()
 
       // run this as a task (which blocks a thread) because it seems non-trivial to just update indicators asynchronously?
-      val task = new CommandTask(project, modules, command, callbackOpt)
+      val task = new CommandTask(project, modules.toArray, command, Option(callback))
       ProgressManager.getInstance().run(task)
     }
   }
@@ -117,7 +115,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
 
 }
 
-private class CommandTask(project: Project, modules: Traversable[Module], command: String, callbackOpt: Option[ProjectTaskNotification]) extends
+private class CommandTask(project: Project, modules: Array[Module], command: String, callbackOpt: Option[ProjectTaskNotification]) extends
   Task.Backgroundable(project, "sbt build", false, PerformInBackgroundOption.ALWAYS_BACKGROUND) {
 
   import CommandTask._
@@ -175,7 +173,7 @@ private class CommandTask(project: Project, modules: Traversable[Module], comman
 
     // remove this if/when external system handles this refresh on its own
     indicator.setText("Synchronizing output directories...")
-    val roots = CompilerPathsEx.getOutputPaths(modules.toArray)
+    val roots = CompilerPathsEx.getOutputPaths(modules)
     CompilerUtil.refreshOutputRoots(ContainerUtil.newArrayList(roots: _*))
     indicator.setText("")
   }
