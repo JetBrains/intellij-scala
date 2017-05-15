@@ -70,7 +70,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     val selectedRow = Option(myForm.resolversTable.getSelectedRow).filter(_ >= 0).getOrElse(0)
     try {
       val value = myForm.resolversTable.getModel.getValueAt(selectedRow, 2)
-      myForm.updateButton.setEnabled(value != SbtBundle("sbt.settings.resolvers.mavenUnavaliable"))
+      myForm.updateButton.setEnabled(value != SbtBundle("sbt.settings.resolvers.mavenUnavailable"))
     } catch {
       case _: IndexOutOfBoundsException => myForm.updateButton.setEnabled(false)  // no resolvers in project?
     }
@@ -100,7 +100,7 @@ private class ResolversModel(val resolvers: Seq[SbtResolver], val project:Projec
         if (ts == ResolverIndex.NO_TIMESTAMP)
           SbtBundle("sbt.settings.resolvers.neverUpdated")
         else if (ts == ResolverIndex.MAVEN_UNAVALIABLE)
-          SbtBundle("sbt.settings.resolvers.mavenUnavaliable")
+          SbtBundle("sbt.settings.resolvers.mavenUnavailable")
         else
           DateFormatUtil.formatDate(ts)
     }
