@@ -25,7 +25,7 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
   import ParameterInfoTestBase._
 
   protected def configureFile(): PsiFile = {
-    val filePath = s"$getTestDataPath${getTestName(false)}.scala"
+    val filePath = s"${getTestName(false)}.scala"
     getFixture.configureByFile(filePath)
   }
 
