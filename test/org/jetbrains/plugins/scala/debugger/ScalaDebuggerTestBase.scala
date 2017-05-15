@@ -143,13 +143,16 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   def getVirtualFile(file: File) = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
 
   def md5(file: File): Array[Byte] = {
+    import extensions._
     val md = MessageDigest.getInstance("MD5")
     val isSource = file.getName.endsWith(".java") || file.getName.endsWith(".scala")
     if (isSource) {
-      val text = scala.io.Source.fromFile(file, "UTF-8").mkString.replace("\r", "")
+      val text = FileUtil.loadFile(file, "UTF-8").replace("\r", "")
       md.digest(text.getBytes("UTF8"))
     } else {
-      md.digest(FileUtil.loadBytes(new FileInputStream(file)))
+      using(new FileInputStream(file)) { s =>
+        md.digest(FileUtil.loadBytes(s))
+      }
     }
   }
 
@@ -231,7 +234,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   private def fileWithTextExists(file: File, fileText: String): Boolean = {
     if (!file.exists()) false
     else {
-      val oldText = scala.io.Source.fromFile(file, "UTF-8").mkString
+      val oldText = FileUtil.loadFile(file, "UTF-8")
       oldText.replace("\r", "") == fileText.replace("\r", "")
     }
   }
