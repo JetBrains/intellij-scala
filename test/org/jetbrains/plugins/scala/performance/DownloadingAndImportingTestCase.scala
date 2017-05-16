@@ -84,7 +84,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
         ProjectJdkTable.getInstance().addJdk(sdk)
       }
       ProjectRootManager.getInstance(myProject).setProjectSdk(sdk)
-      reporter.notify("Finished SBT setup")
+      reporter.notify("Finished SBT setup, starting import")
     }
   }
 
