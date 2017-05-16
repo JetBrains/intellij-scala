@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
 import com.intellij.openapi.editor.LogicalPosition
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.performance.ScalaCommunityDownloadingAndImportingTestCase
+import org.jetbrains.plugins.scala.performance.ScalaCommunityGithubRepo
 import org.junit.experimental.categories.Category
 
 /**
@@ -11,7 +11,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[SlowTests]))
 class ScalaCommunityPerformanceRehighlightingTest extends RehighlightingPerformanceTypingTestBase
-  with ScalaCommunityDownloadingAndImportingTestCase {
+  with ScalaCommunityGithubRepo {
 
   def testTypingInScalaPsiUtil(): Unit = {
     doTest("ScalaPsiUtil.scala", 4.seconds, Seq("val i = Some(10)\n"), new LogicalPosition(80, 1), Some("def foo() = {\n"))

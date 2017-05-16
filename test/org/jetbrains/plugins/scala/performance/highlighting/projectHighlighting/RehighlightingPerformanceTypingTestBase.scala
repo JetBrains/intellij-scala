@@ -106,5 +106,5 @@ abstract class RehighlightingPerformanceTypingTestBase extends DownloadingAndImp
 
   override def revision: String
 
-  override protected def getExternalSystemConfigFileName: String
+  override protected def getExternalSystemConfigFileName: String =  "build.sbt"
 }

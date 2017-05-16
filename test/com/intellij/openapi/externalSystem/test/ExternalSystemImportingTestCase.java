@@ -404,7 +404,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
                 ProjectRootManagerEx.getInstanceEx(myProject).mergeRootsChangesDuring(new Runnable() {
                   @Override
                   public void run() {
-                    ServiceManager.getService(ProjectDataManager.class).importData(
+                    ServiceManager.getService(com.intellij.openapi.externalSystem.service.project.ProjectDataManager.class).importData(
                       Collections.singleton(externalProject), myProject, true);
                   }
                 });

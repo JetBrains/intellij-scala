@@ -39,5 +39,7 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
       }
     }).cpuBound().assertTiming()
   }
+
+  override protected def getExternalSystemConfigFileName = "build.sbt"
 }
 

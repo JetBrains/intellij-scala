@@ -17,6 +17,7 @@ import com.intellij.testFramework.{IdeaTestUtil, VfsTestUtil}
 import org.jetbrains.SbtStructureSetup
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -41,6 +42,8 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     settings.setCreateEmptyContentRootDirectories(true)
     settings
   }
+  
+  private val reporter = ProgressReporter.getInstance
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -58,17 +61,18 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
     super.setUpInWriteAction()
     val outputZipFile = new File(outputZipFileName)
     val projectDir = new File(projectDirPath)
-    println("Starting download")
     if (!outputZipFile.exists() && !projectDir.exists()) {
       //don't download if zip file is already there
-      GithubDownloadUtil.downloadAtomically(null, downloadURL, outputZipFile, githubUsername, githubRepoName)
-    }
-    println("Finished download, extracting")
+      reporter.notify("Starting download")
+      GithubDownloadUtil.downloadAtomically(reporter.progressIndicator, downloadURL, outputZipFile, githubUsername, githubRepoName)
+    } else { reporter.notify("Project files already exist, skipping download") }
     if (!projectDir.exists()) {
       //don't unpack if the project is already unpacked
+      reporter.notify("Finished download, extracting")
       ZipUtil.unzip(null, projectDir, outputZipFile, null, null, true)
-    }
+    } else { reporter.notify("Project files already extracted") }
     Assert.assertTrue("Project dir does not exist. Download or unpack failed!", projectDir.exists())
+    reporter.notify("Finished extracting, starting SBT setup")
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
     setUpSbtLauncherAndStructure(myProject)
     extensions.inWriteAction {
@@ -80,6 +84,7 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
         ProjectJdkTable.getInstance().addJdk(sdk)
       }
       ProjectRootManager.getInstance(myProject).setProjectSdk(sdk)
+      reporter.notify("Finished SBT setup")
     }
   }
 
@@ -119,12 +124,11 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
   def revision: String
 }
 
-trait ScalaCommunityDownloadingAndImportingTestCase {
-  protected def getExternalSystemConfigFileName: String = "build.sbt"
+trait ScalaCommunityGithubRepo {
 
   def githubUsername: String = "JetBrains"
 
   def githubRepoName: String = "intellij-scala"
 
-  def revision: String = "d2906113e9cdca0e302437cfd412fcb19d288720"
+  def revision: String = "a9ac902e8930c520b390095d9e9346d9ae546212"
 }
