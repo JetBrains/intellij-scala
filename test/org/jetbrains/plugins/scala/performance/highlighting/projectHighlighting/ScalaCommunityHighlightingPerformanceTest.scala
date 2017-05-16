@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
 import org.jetbrains.plugins.scala.SlowTests
-import org.jetbrains.plugins.scala.performance.ScalaCommunityDownloadingAndImportingTestCase
+import org.jetbrains.plugins.scala.performance.ScalaCommunityGithubRepo
 import org.junit.experimental.categories.Category
 
 /**
@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[SlowTests]))
 class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHighlightingTestBase
-  with ScalaCommunityDownloadingAndImportingTestCase {
+  with ScalaCommunityGithubRepo {
 
   def testPerformanceScalaCommunityScalaPsiUtil() = doTest("ScalaPsiUtil.scala", 25.seconds)
 

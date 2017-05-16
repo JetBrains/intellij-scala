@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import java.util
 
+import com.android.tools.idea.welcome.wizard.ProgressStep.ProgressPortionReporter
 import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.junit.Assert
 
 /**
@@ -27,52 +29,10 @@ trait AllProjectHighlightingTest {
 
   implicit def projectContext: ProjectContext = getProject
 
-  class DefaultReporter {
-    var totalErrors = 0
-    def reportError(file: VirtualFile, range: TextRange, message: String) = {
-      totalErrors += 1
-      println(s"Error: ${file.getName}${range.toString} - $message")
-    }
-    def updateProgress(percent: Int) = println(s"Highlighting -  $percent%")
-    def reportResults() = {
-      Assert.assertTrue(s"Found $totalErrors errors while highlighting the project", totalErrors == 0)
-    }
-  }
-
-  class TCReporter extends DefaultReporter {
-
-    def escapeTC(message: String): String = {
-      message
-        .replaceAll("##", "")
-        .replaceAll("([\"\'\n\r\\|\\[\\]])", "\\|$1")
-    }
-
-    override def updateProgress(percent: Int): Unit = println(s"##teamcity[progressMessage 'Highlighting - $percent%']")
-
-    override def reportError(file: VirtualFile, range: TextRange, message: String): Unit = {
-      totalErrors += 1
-      val escaped = escapeTC(Option(message).getOrElse(""))
-      val testName = s"${getClass.getName}.${Option(file).map(_.getName).getOrElse("UNKNOWN")}${Option(range).map(_.toString).getOrElse("(UNKNOWN)")}"
-      println(s"##teamcity[testStarted name='$testName']")
-      println(s"##teamcity[testFailed name='$testName' message='Highlighting error' details='$escaped']")
-      println(s"##teamcity[testFinished name='$testName']")
-    }
-
-    override def reportResults(): Unit = {
-      if (totalErrors > 0)
-        println(s"##teamcity[buildProblem description='Found $totalErrors errors while highlighting the project' ]")
-      else
-        println("##teamcity[buildStatus status='SUCCESS' text='No highlighting errors found in project']")
-    }
-  }
-
   def doAllProjectHighlightingTest(): Unit = {
     import scala.collection.JavaConversions._
 
-    val reporter = if (sys.env.contains("TEAMCITY_VERSION"))
-      new TCReporter
-    else
-      new DefaultReporter
+    val reporter = ProgressReporter.getInstance
 
     val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.INSTANCE, SourceFilterScope(getProject))
 
@@ -101,7 +61,7 @@ trait AllProjectHighlightingTest {
 
       if ((index + 1) * 100 >= (percent + 1) * size) {
         while ((index + 1) * 100 >= (percent + 1) * size) percent += 1
-        reporter.updateProgress(percent)
+        reporter.updateHighlightingProgress(percent)
       }
 
       val visitor = new ScalaRecursiveElementVisitor {
