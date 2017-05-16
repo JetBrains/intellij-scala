@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import java.util
 
-import com.android.tools.idea.welcome.wizard.ProgressStep.ProgressPortionReporter
 import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -17,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
-import org.junit.Assert
 
 /**
   * @author Mikhail Mutcianko
