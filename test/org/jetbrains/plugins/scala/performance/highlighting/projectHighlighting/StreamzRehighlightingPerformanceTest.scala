@@ -13,7 +13,7 @@ import scala.util.{Failure, Try}
 @Category(Array(classOf[SlowTests]))
 class StreamzRehighlightingPerformanceTest extends RehighlightingPerformanceTypingTestBase {
 
-  protected def getExternalSystemConfigFileName: String = "build.sbt"
+  override protected def getExternalSystemConfigFileName: String = "build.sbt"
 
   def githubUsername: String = "krasserm"
 
