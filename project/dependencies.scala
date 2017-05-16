@@ -11,7 +11,7 @@ object Versions {
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
   val httpComponentsVersion = "4.3.1"
-  val scalaMetaVersion = "1.6.0"
+  val scalaMetaVersion = "1.7.0"
   val paradiseVersion = "3.0.0-M8"
 }
 
