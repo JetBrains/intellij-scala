@@ -11,6 +11,8 @@ object Versions {
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
   val httpComponentsVersion = "4.3.1"
+  val scalaMetaVersion = "1.6.0"
+  val paradiseVersion = "3.0.0-M8"
 }
 
 object Dependencies {
@@ -38,8 +40,8 @@ object Dependencies {
 
   val scalastyle_2_11: ModuleID = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11: ModuleID = "org.scalariform" % "scalariform_2.11" % "0.1.7"
-  val macroParadise: ModuleID = "org.scalameta" % "paradise" % "3.0.0-M8" cross CrossVersion.full
-  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % "1.7.0" withSources() exclude("com.google.protobuf", "protobuf-java")
+  val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
+  val scalaMetaCore: ModuleID = "org.scalameta" % "scalameta_2.11" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
 
   val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val compilerInterfaceSources: ModuleID = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
@@ -51,6 +53,7 @@ object Dependencies {
 
 object DependencyGroups {
   import Dependencies._
+  import Versions._
 
   val sbtBundled = Seq(
     compilerInterfaceSources,
@@ -132,8 +135,8 @@ object DependencyGroups {
     "com.typesafe.slick" %% "slick" % "3.2.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
     "org.typelevel" %% "cats" % "0.4.0",
-    "org.scalameta" % "paradise_2.11.11" % "3.0.0-M8" exclude("org.scalameta", "scalameta_2.11"),
-    "org.scalameta" % "scalameta_2.12" % "1.6.0",
+    "org.scalameta" % "paradise_2.11.11" % paradiseVersion exclude("org.scalameta", "scalameta_2.11"),
+    "org.scalameta" % "scalameta_2.12" % scalaMetaVersion,
     "org.scala-js" % "scalajs-library_2.10" % "0.6.14",
     "com.typesafe.play" % "play_2.10" % "2.4.10",
     "com.typesafe.akka" % "akka-actor_2.11" % "2.4.17"
