@@ -30,13 +30,15 @@ class TeamCityReporter extends ConsoleReporter {
       tcPrint("buildStatus status='SUCCESS' text='No highlighting errors found in project'")
   }
 
-  override val progressIndicator: ProgressIndicator = new ProgressIndicatorBase() {
-    override def setText(text: String): Unit = {
+  override val progressIndicator: ProgressIndicator = new TextBasedProgressIndicator {
+    override def setText(text: String) = {
       if (getText != text) {
         super.setText(text)
         tcPrint(s"progressMessage '$text'")
       }
     }
+
+    override def setText2(text: String) = setText(text)
   }
 
   override def notify(message: String) = progressMessage(message)
