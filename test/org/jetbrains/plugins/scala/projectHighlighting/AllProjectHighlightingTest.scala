@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 
+import scala.util.control.NonFatal
+
 /**
   * @author Mikhail Mutcianko
   * @since 30.08.16
@@ -47,7 +49,8 @@ trait AllProjectHighlightingTest {
 
       val mock = new AnnotatorHolderMock(psiFile){
         override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
-          reporter.reportError(file, range, message)
+          // almost always duplicates reports from method below
+//          reporter.reportError(file, range, message)
           super.createErrorAnnotation(range, message)
         }
 
@@ -67,10 +70,7 @@ trait AllProjectHighlightingTest {
           try {
             annotator.annotate(element, mock)
           } catch {
-            case e: Throwable =>
-              println(s"Exception in ${file.getName}, Stacktrace: ")
-              e.printStackTrace()
-              assert(false)
+            case NonFatal(t) => reporter.reportError(file, element.getTextRange, s"Exception while highlighting: $t")
           }
           super.visitElement(element)
         }
