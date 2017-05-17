@@ -8,10 +8,12 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
+  private val scalaVersion = org.jetbrains.plugins.scala.debugger.Scala_2_11.minor
+
   def testSimple() = runTest(
     new project("simple") {
-      lazy val scalaLibrary = new library("SBT: org.scala-lang:scala-library:2.11.6:jar") {
-        classes += (IvyCacheDir / "org.scala-lang" / "scala-library" / "jars" / "scala-library-2.11.6.jar").getAbsolutePath
+      lazy val scalaLibrary = new library(s"SBT: org.scala-lang:scala-library:$scalaVersion:jar") {
+        classes += (IvyCacheDir / "org.scala-lang" / "scala-library" / "jars" / s"scala-library-$scalaVersion.jar").getAbsolutePath
       }
 
       libraries += scalaLibrary

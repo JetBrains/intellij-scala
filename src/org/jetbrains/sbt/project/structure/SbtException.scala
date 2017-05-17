@@ -61,7 +61,9 @@ object SbtException {
         NotTrimmed
 
     def dumpLog(log: String): File = {
-      val file = new File(PathManager.getLogPath, "sbt.last.log")
+      val logDir = new File(PathManager.getLogPath)
+      logDir.mkdirs()
+      val file = new File(logDir, "sbt.last.log")
       file.createNewFile()
       file.write(log)
       file.getAbsoluteFile
