@@ -81,8 +81,10 @@ class SbtShellRunner(project: Project, consoleTitle: String)
       // on Windows the terminal defaults to 80 columns which wraps and breaks highlighting.
       // Use a wider value that should be reasonable in most cases. Has no effect on Unix.
       // TODO perhaps determine actual width of window and adapt accordingly
-      myProcessHandler.getProcess match {
-        case proc: PtyProcess => proc.setWinSize(new WinSize (2000, 100))
+      if (!ApplicationManager.getApplication.isUnitTestMode) {
+        myProcessHandler.getProcess match {
+          case proc: PtyProcess => proc.setWinSize(new WinSize(2000, 100))
+        }
       }
 
       // assume initial state is Working
