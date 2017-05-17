@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 package project.notifications
 
+import java.io.File
 import java.util.Collections
 
 import com.intellij.openapi.components.ServiceManager
@@ -8,7 +9,8 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import com.intellij.openapi.externalSystem.service.project.{ExternalProjectRefreshCallback, ProjectDataManager}
+import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefreshCallback
+import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.Project
