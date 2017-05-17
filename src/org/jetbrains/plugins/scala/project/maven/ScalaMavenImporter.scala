@@ -94,11 +94,16 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
     validConfigurationIn(mavenProject).foreach { configuration =>
       val repositories = mavenProject.getRemoteRepositories
 
-      def resolve(id: MavenId) {
+      def resolve(id: MavenId): MavenArtifact = {
         embedder.resolve(new MavenArtifactInfo(id, "pom", null), repositories)
         embedder.resolve(new MavenArtifactInfo(id, "jar", null), repositories)
       }
 
+      // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
+      // Such an approach is probably incorrect, but we have to support that behaviour "as is".
+      configuration.implicitScalaLibrary.foreach { scalaLibraryId =>
+        mavenProject.addDependency(resolve(scalaLibraryId))
+      }
       configuration.compilerClasspath.foreach(resolve)
       configuration.plugins.foreach(resolve)
     }
@@ -139,13 +144,20 @@ private class ScalaConfiguration(project: MavenProject) {
   private def standardLibrary: Option[MavenArtifact] =
     project.findDependencies("org.scala-lang", "scala-library").headOption
 
+  // An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.
+  def implicitScalaLibrary: Option[MavenId] = Some(compilerVersionProperty, standardLibrary) collect  {
+    case (Some(compilerVersion), None) => new MavenId("org.scala-lang", "scala-library", compilerVersion)
+  }
+
   def compilerClasspath: Seq[MavenId] = {
     val basicIds = Seq(scalaCompilerId, scalaLibraryId)
     if (usesReflect) basicIds :+ scalaReflectId else basicIds
   }
 
-  def compilerVersion: Option[Version] = element("scalaVersion").map(_.getTextTrim)
+  def compilerVersion: Option[Version] = compilerVersionProperty
           .orElse(standardLibrary.map(_.getVersion)).map(Version(_))
+
+  private def compilerVersionProperty: Option[String] = element("scalaVersion").map(_.getTextTrim)
 
   private def usesReflect: Boolean = compilerVersion.exists(it => it.toLanguageLevel.exists(_ >= Scala_2_10))
 
