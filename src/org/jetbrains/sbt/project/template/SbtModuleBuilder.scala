@@ -38,7 +38,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
   private var scalaPlatform = Platform.Default
 
-  private var scalaVersion = Versions.DefaultScalaVersion
+  private var selectedScalaVersion: String = _
+
+  private def scalaVersion = Option(selectedScalaVersion).getOrElse(Versions.DefaultScalaVersion)
 
   def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
@@ -72,16 +74,28 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     scalaVersionComboBox.setTextRenderer(Version.abbreviate)
 
-    def loadScalaVersions(): Array[String] = {
-      def platform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
-      withProgressSynchronously(s"Fetching ${platform.name} versions")(_ => Versions.loadScalaVersions(platform))
+    scalaVersionComboBox.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = selectedScalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
+    })
+
+    def setupScalaVersionItems(): Unit = {
+      def loadScalaVersions(): Array[String] = {
+        def platform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
+        withProgressSynchronously(s"Fetching ${platform.name} versions")(_ => Versions.loadScalaVersions(platform))
+      }
+
+      val loadedVersions = loadScalaVersions()
+      scalaVersionComboBox.setItems(loadedVersions)
+      for (v <- Option(selectedScalaVersion) if loadedVersions.contains(v)) {
+        scalaVersionComboBox.setSelectedItem(v)
+      }
     }
 
-    scalaVersionComboBox.setItems(loadScalaVersions())
+    setupScalaVersionItems()
 
     scalaPlatformComboBox.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        scalaVersionComboBox.setItems(loadScalaVersions())
+        setupScalaVersionItems()
       }
     })
 
@@ -99,7 +113,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       override def updateDataModel() {
         sbtVersion = sbtVersionComboBox.getSelectedItem.asInstanceOf[String]
         scalaPlatform = scalaPlatformComboBox.getSelectedItem.asInstanceOf[Platform]
-        scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
 
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
 
