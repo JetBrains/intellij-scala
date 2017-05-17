@@ -125,7 +125,7 @@ object MetaExpansionsManager {
     try {
       val classFile = new File(clazz.getProtectionDomain.getCodeSource.getLocation.getPath, s"${clazz.getName.replaceAll("\\.", "/")}.class")
       val sourceFile = new File(annot.constructor.reference.get.resolve().getContainingFile.getVirtualFile.getPath)
-      val isInJar = classFile.getPath.contains(".jar/")
+      val isInJar = classFile.getPath.contains(".jar")
       isInJar || (classFile.exists() && classFile.lastModified() >= sourceFile.lastModified())
     } catch {
       case pc: ProcessCanceledException => throw pc
