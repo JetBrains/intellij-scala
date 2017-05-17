@@ -116,6 +116,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         val selectedSdk = myJdkComboBox.getSelectedJdk
         def isJava8 = JavaSdk.getInstance().getVersion(selectedSdk).isAtLeast(JavaSdkVersion.JDK_1_8)
 
+        val scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
         if (scalaVersion == null || selectedSdk == null) true
         else {
           val selectedVersion = Version(scalaVersion)
