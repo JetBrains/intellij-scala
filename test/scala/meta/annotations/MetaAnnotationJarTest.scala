@@ -20,16 +20,18 @@ import scala.meta.{ScalaMetaLibrariesOwner, _}
 class MetaAnnotationJarTest extends JavaCodeInsightFixtureTestCase with ScalaMetaLibrariesOwner {
   override protected def getTestDataPath: String = TestUtils.getTestDataPath + "/scalameta"
 
-  override implicit protected def module = myModule
-
   override protected def librariesLoaders = Seq(new DisposableScalaLibraryLoader()) ++ additionalLibraries
 
-  protected val jarPath = "/addFoo_2.11_3.0.0-M8.jar"
+  protected lazy val testJarPath = s"/addFoo_${version.major}_$paradiseVersion.jar"
+
+  override implicit protected def module = myModule
+
+  private val paradiseVersion = "3.0.0-M8"
 
   override def setUp() = {
     super.setUp()
     setUpLibraries()
-    PsiTestUtil.addLibrary(myModule, getTestDataPath + jarPath)
+    PsiTestUtil.addLibrary(myModule, getTestDataPath + testJarPath)
   }
 
   def testLoadAnnotationFromJar(): Unit = {
