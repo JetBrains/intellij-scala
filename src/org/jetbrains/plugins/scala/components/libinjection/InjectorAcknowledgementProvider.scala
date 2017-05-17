@@ -22,8 +22,15 @@ trait InjectorAcknowledgementProvider {
 
 // enable injector loading in tests, accept all injectors
 class TestAcknowledgementProvider extends InjectorAcknowledgementProvider {
-  override def askGlobalInjectorEnable(acceptCallback: => Any): Unit = acceptCallback
+  import TestAcknowledgementProvider._
+  override def askGlobalInjectorEnable(acceptCallback: => Any): Unit = {
+    if (sys.props.contains(TEST_ENABLED_KEY)) acceptCallback
+  }
   override def showReviewDialogAndFilter(candidates: ManifestToDescriptors): (ManifestToDescriptors, Seq[Nothing]) = (candidates, Seq.empty)
+}
+
+object TestAcknowledgementProvider {
+  val TEST_ENABLED_KEY = "test.injectors.enable"
 }
 
 class UIAcknowledgementProvider(private val GROUP: NotificationGroup,

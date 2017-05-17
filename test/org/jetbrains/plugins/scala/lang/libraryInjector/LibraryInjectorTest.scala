@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
+import org.jetbrains.plugins.scala.components.libinjection.TestAcknowledgementProvider.TEST_ENABLED_KEY
 import org.jetbrains.plugins.scala.debugger._
 import org.jetbrains.plugins.scala.lang.libraryInjector.LibraryInjectorTest.InjectorLibraryLoader
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
@@ -38,6 +39,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaSdkOwner {
   override protected def getTestProjectJdk: Sdk = DebuggerTestUtil.findJdk8()
 
   override def setUp(): Unit = {
+    sys.props += (TEST_ENABLED_KEY -> "true")
     super.setUp()
 
     CompilerTestUtil.enableExternalCompiler()
