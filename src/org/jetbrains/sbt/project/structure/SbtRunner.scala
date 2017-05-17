@@ -204,12 +204,13 @@ object SbtRunner {
   def getSbtLauncherDir: File = {
     val file: File = jarWith[this.type]
     val deep = if (file.getName == "classes") 1 else 2
+    val playEnabled = Try(getClass.getClassLoader.loadClass("com.intellij.scala.play.Play2Bundle") != null).getOrElse(false)
     (file << deep) / "launcher" match {
       case res: File if !res.exists() && isInTest =>
         (for {
           scalaVer <- jarWith[this.type].parent
           target <- scalaVer.parent
-          project <- target.parent
+          project <- if (playEnabled) Option(target << 3) else target.parent
         } yield project / "out" / "plugin" / "Scala" / "launcher").get
       case res => res
     }
