@@ -44,32 +44,43 @@ object ScalaBreadcrumbsPresentationProvider {
 
   case class MyCrumbPresentation(isTemplateDef: Boolean) extends CrumbPresentation {
     override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = {
-      if (hovered) {
-        val c = EditorColorsManager.getInstance().getGlobalScheme.getColor(BASE_BACKGROUND_COLOR)
-        val lumB = calculateColorLuminance(c)
-        
-        return if (lumB < 0.5) brighter(c, 2) else darker(c, 2)
-      }
+      if (hovered || selected) 
+        return adjustColor (
+          EditorColorsManager.getInstance().getGlobalScheme.getColor(BASE_BACKGROUND_COLOR), 
+          if (hovered && selected) 3 else 2
+        ) 
       
       val (first, second) = if (isTemplateDef) BASE_COLORS_PAIR else BASE_COLORS_PAIR.swap
-
-      val (c1, c2) = (getColorByKey(first), getColorByKey(second))
-      val (lum1, lum2) = (calculateColorLuminance(c1), calculateColorLuminance(c2))
-
-      if (checkContrastRatio(lum1, lum2)) c1
-        else if (lum1 < lum2 || lum1 == lum2 && isTemplateDef && lum1 > MIN_LUM) darker(c1, 2) else brighter(c1, 2)
+      val (background1, background2) = (getBackgroundColorByKey(first), getBackgroundColorByKey(second))
+      
+      if (background1 != null && background2 != null) 
+        adjustColor(background1, background2, isTemplateDef) 
+      else 
+        adjustColor(getForegroundColorByKey(first), getForegroundColorByKey(second), isTemplateDef)
     }
   }
   
   case class SimpleCrumbPresentation() extends CrumbPresentation {
-    override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = getColorByKey(DEFAULT_COLOR)
+    override def getBackgroundColor(selected: Boolean, hovered: Boolean, light: Boolean): Color = getForegroundColorByKey(DEFAULT_COLOR)
   }
   
-  @inline private def getAttributesByKey(attributesKey: TextAttributesKey) = 
+  private def adjustColor(c: Color, t: Int) = if (calculateColorLuminance(c) < 0.5) brighter(c, t) else darker(c, t)
+  
+  private def adjustColor(c: Color, by: Color, isTemplateDef: Boolean) = {
+    val (lum1, lum2) = (calculateColorLuminance(c), calculateColorLuminance(by))
+
+    if (checkContrastRatio(lum1, lum2)) c
+    else if (lum1 < lum2 || lum1 == lum2 && isTemplateDef && lum1 > MIN_LUM) darker(c, 2) else brighter(c, 2)
+  }
+  
+  private def getAttributesByKey(attributesKey: TextAttributesKey) = 
     EditorColorsManager.getInstance.getGlobalScheme.getAttributes(attributesKey)
   
-  @inline private def getColorByKey(attributesKey: TextAttributesKey) = 
+  private def getForegroundColorByKey(attributesKey: TextAttributesKey) = 
     getAttributesByKey(attributesKey).getForegroundColor
+  
+  private def getBackgroundColorByKey(attributesKey: TextAttributesKey) = 
+    getAttributesByKey(attributesKey).getBackgroundColor
 
   //Good idea from Android plugin 
   private val THRESHOLD = 1.9
