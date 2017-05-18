@@ -98,7 +98,6 @@ object SbtAnnotator {
   val AllowedTypes0136 = List("sbt.internals.DslEntry")
 
   def isTypeAllowed(expression: ScExpression, expressionType: ScType, allowedTypes: Seq[String]): Boolean = {
-    import expression.projectContext
 
     allowedTypes.flatMap { typeName =>
       createTypeFromText(typeName, expression.getContext, expression)

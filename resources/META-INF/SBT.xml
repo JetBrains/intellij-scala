@@ -43,6 +43,7 @@
         <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition" />
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
+
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.ModuleExtDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtBuildModuleDataService"/>
@@ -75,9 +76,15 @@
 
         <projectConfigurable groupId="build.tools" displayName="SBT" instance="org.jetbrains.sbt.settings.SbtExternalSystemConfigurable" />
 
-        <toolWindow id="SBT" anchor="right" icon="/org/jetbrains/plugins/scala/images/sbt.png"
+        <toolWindow id="SBT" anchor="right"
+                    icon="/org/jetbrains/plugins/scala/images/sbt.png"
                     factoryClass="org.jetbrains.sbt.project.ScalaToolWindowFactory"
                     conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition"/>
+
+        <toolWindow id="sbt-shell-toolwindow" anchor="bottom" canCloseContents="true"
+                    icon="/org/jetbrains/plugins/scala/images/sbtShell.png"
+                    factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
+                    conditionClass="org.jetbrains.sbt.project.ScalaToolWindowFactoryCondition" />
 
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 

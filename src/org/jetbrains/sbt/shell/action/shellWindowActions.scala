@@ -2,20 +2,14 @@ package org.jetbrains.sbt.shell.action
 
 import javax.swing.Icon
 
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.{ExecutionManager, Executor}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, IdeActions, Presentation}
-import com.intellij.openapi.project.DumbAwareAction
-import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellRunner}
+import com.intellij.openapi.project.{DumbAwareAction, Project}
+import com.intellij.openapi.wm.ToolWindowManager
+import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellToolWindowFactory}
 
-class AutoCompleteAction extends DumbAwareAction {
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    // TODO call code completion (ctrl+space by default)
-  }
-}
 
-class RestartAction(runner: SbtShellRunner, executor: Executor, contentDescriptor: RunContentDescriptor) extends DumbAwareAction {
+class RestartAction(project: Project) extends DumbAwareAction {
   copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_RERUN))
 
   val templatePresentation: Presentation = getTemplatePresentation
@@ -24,11 +18,23 @@ class RestartAction(runner: SbtShellRunner, executor: Executor, contentDescripto
   templatePresentation.setDescription(null)
 
   def actionPerformed(e: AnActionEvent): Unit = {
-    val removed = ExecutionManager.getInstance(runner.getProject)
-      .getContentManager
-      .removeRunContent(executor, contentDescriptor)
+    val twm = ToolWindowManager.getInstance(project)
+    val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
+    toolWindow.getContentManager.removeAllContents(true)
 
-    if (removed) SbtProcessManager.forProject(e.getProject).restartProcess()
+    SbtProcessManager.forProject(e.getProject).restartProcess()
+  }
+}
+
+class StopAction(project: Project) extends DumbAwareAction {
+  copyFrom(ActionManager.getInstance.getAction(IdeActions.ACTION_STOP_PROGRAM))
+  val templatePresentation: Presentation = getTemplatePresentation
+  templatePresentation.setIcon(AllIcons.Process.Stop)
+  templatePresentation.setText("Stop SBT Shell") // TODO i18n / language-bundle
+  templatePresentation.setDescription(null)
+
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    SbtProcessManager.forProject(e.getProject).destroyProcess()
   }
 }
 

@@ -1,27 +1,22 @@
 package org.jetbrains.sbt.shell
 
-import java.awt.event.KeyEvent
 import java.util
 import javax.swing.Icon
 
 import com.intellij.execution.Executor
 import com.intellij.execution.console._
-import com.intellij.execution.filters.UrlFilter.UrlFilterProvider
-import com.intellij.execution.filters._
 import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory
-import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.ui.actions.CloseAction
-import com.intellij.icons.AllIcons
+import com.intellij.execution.ui.layout.PlaceInGrid
+import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
+import com.intellij.ui.content.{Content, ContentFactory}
 import com.pty4j.{PtyProcess, WinSize}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.project.structure.SbtRunner
-import org.jetbrains.sbt.shell.action.{AutoCompleteAction, ExecuteTaskAction, RestartAction}
 
 import scala.collection.JavaConverters._
 
@@ -31,28 +26,12 @@ import scala.collection.JavaConverters._
 class SbtShellRunner(project: Project, consoleTitle: String)
   extends AbstractConsoleRunnerWithHistory[LanguageConsoleImpl](project, consoleTitle, project.getBaseDir.getCanonicalPath) {
 
-  private val myConsoleView: LanguageConsoleImpl = ShellUIUtil.inUIsync {
-    val cv = new LanguageConsoleImpl(project, SbtShellFileType.getName, SbtShellLanguage)
-    cv.getConsoleEditor.setOneLineMode(true)
+  private val toolWindowTitle = project.getName
 
-    // exception file links
-    cv.addMessageFilter(new ExceptionFilter(GlobalSearchScope.allScope(project)))
-
-    // url links
-    new UrlFilterProvider().getDefaultFilters(project).foreach(cv.addMessageFilter)
-
-    // file links
-    val patternMacro = s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}:\\s"
-    val pattern = new RegexpFilter(project, patternMacro).getPattern
-    import PatternHyperlinkPart._
-    // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
-    val format = new PatternHyperlinkFormat(pattern, false, false, null, PATH, LINE)
-    val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(format))
-    val fileFilter = new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
-    cv.addMessageFilter(fileFilter)
-
-    cv
-  }
+  private val myConsoleView: LanguageConsoleImpl =
+    ShellUIUtil.inUIsync {
+      SbtShellConsoleView(project)
+    }
 
   private lazy val processManager = SbtProcessManager.forProject(project)
 
@@ -89,19 +68,22 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
       // assume initial state is Working
       // this is not correct when shell process was started without view, but we avoid that
-      myConsoleView.setPrompt("X")
+      myConsoleView.setPrompt("(initializing) >")
 
       // TODO update icon with ready/working state
       val shellPromptChanger = new SbtShellReadyListener(
         whenReady = if (!SbtRunner.isInTest) myConsoleView.setPrompt(">"),
-        whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("X")
+        whenWorking = if (!SbtRunner.isInTest) myConsoleView.setPrompt("(running) >")
       )
       SbtProcessManager.forProject(project).attachListener(shellPromptChanger)
       SbtShellCommunication.forProject(project).initCommunication(myProcessHandler)
+
+      val twm = ToolWindowManager.getInstance(project)
+      val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
+      val content = createToolWindowContent
+      addToolWindowContent(toolWindow, content)
     }
   }
-
-  object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
 
   override def createExecuteActionHandler(): SbtShellExecuteActionHandler = {
     val historyController = new ConsoleHistoryController(SbtShellRootType, null, getConsoleView)
@@ -114,42 +96,62 @@ class SbtShellRunner(project: Project, consoleTitle: String)
                                   defaultExecutor: Executor,
                                   contentDescriptor: RunContentDescriptor): util.List[AnAction] = {
 
-    val myToolbarActions = List(
-      new RestartAction(this, defaultExecutor, contentDescriptor),
-      new CloseAction(defaultExecutor, contentDescriptor, project),
-      new ExecuteTaskAction("products", Option(AllIcons.Actions.Compile))
-    )
-
-    val allActions = List(
-      createAutoCompleteAction(),
-      createConsoleExecAction(myConsoleExecuteActionHandler)
-    ) ++ myToolbarActions
-
-    toolbarActions.addAll(myToolbarActions.asJava)
-    allActions.asJava
+    // the actual toolbar actions are initialized handled by SbtShellToolWindowFactory because this is just a hackjob
+    // the exec action needs to be created here so it is registered. TODO refactor so we don't need this
+    List(createConsoleExecAction(myConsoleExecuteActionHandler)).asJava
   }
 
   override def getConsoleIcon: Icon = Icons.SBT_SHELL
 
+  override def showConsole(defaultExecutor: Executor, contentDescriptor: RunContentDescriptor): Unit = {
+    val twm = ToolWindowManager.getInstance(getProject)
+    val toolWindow = twm.getToolWindow(SbtShellToolWindowFactory.ID)
+    twm.getFocusManager.requestFocusInProject(toolWindow.getComponent,project)
+  }
+
   def openShell(focus: Boolean): Unit = {
-    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(getExecutor.getToolWindowId)
+    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(SbtShellToolWindowFactory.ID)
     toolWindow.activate(null, focus)
-    val content = toolWindow.getContentManager.findContent(consoleTitle)
+    val content = toolWindow.getContentManager.findContent(toolWindowTitle)
     if (content != null)
       toolWindow.getContentManager.setSelectedContent(content, focus)
   }
 
-  def createAutoCompleteAction(): AnAction = {
-    val action = new AutoCompleteAction // TODO some sensible implementation possible yet?
-    action.registerCustomShortcutSet(KeyEvent.VK_TAB, 0, null)
-    action.getTemplatePresentation.setVisible(false)
-    action
+  def addToolWindowContent(toolWindow: ToolWindow, content: Content): Unit = {
+    val twContentManager = toolWindow.getContentManager
+    twContentManager.removeAllContents(true)
+    twContentManager.addContent(content)
+  }
+
+  def createToolWindowContent: Content = {
+    //Create runner UI layout
+    val factory = RunnerLayoutUi.Factory.getInstance(project)
+    val layoutUi = factory.create("sbt-shell-toolwindow-runner", "", "session", project)
+    val layoutComponent = layoutUi.getComponent
+    // Adding actions
+    val group = new DefaultActionGroup
+    layoutUi.getOptions.setLeftToolbar(group, ActionPlaces.UNKNOWN)
+    val console = layoutUi.createContent(SbtShellToolWindowFactory.ID, myConsoleView.getComponent, "sbt-shell-toolwindow-console", null, null)
+
+    myConsoleView.createConsoleActions.foreach(group.add)
+
+    layoutUi.addContent(console, 0, PlaceInGrid.right, false)
+
+    val content = ContentFactory.SERVICE.getInstance.createContent(layoutComponent, "sbt-shell-toolwindow-content", true)
+    content.setTabName(toolWindowTitle)
+    content.setDisplayName(toolWindowTitle)
+    content.setToolwindowTitle(toolWindowTitle)
+
+    content
+  }
+
+  object SbtShellRootType extends ConsoleRootType("sbt.shell", getConsoleTitle)
+
+  class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
+    extends ProcessBackedConsoleExecuteActionHandler(processHandler, true) {
+
+    // input is echoed to the process anyway
+    setAddCurrentToHistory(false)
   }
 }
 
-class SbtShellExecuteActionHandler(processHandler: ProcessHandler)
-  extends ProcessBackedConsoleExecuteActionHandler(processHandler, true) {
-
-  // input is echoed to the process anyway
-  setAddCurrentToHistory(false)
-}

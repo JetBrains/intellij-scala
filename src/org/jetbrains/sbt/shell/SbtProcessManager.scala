@@ -161,16 +161,11 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     }
   }
 
-  private def createShellRunner() = {
-    val title = "SBT Shell"
-    val runner = new SbtShellRunner(project, title)
-    runner.initAndRun()
-    runner
-  }
-
   private def updateShellRunner() = {
-    val runner = createShellRunner()
+    val title = project.getName
+    val runner = new SbtShellRunner(project, title)
     myShellRunner = Option(runner)
+    runner.initAndRun()
     runner
   }
 
@@ -189,13 +184,16 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   /** Creates the SbtShellRunner view, or focuses it if it already exists. */
   def openShellRunner(focus: Boolean = false): SbtShellRunner = myProcessHandler.synchronized {
 
-    myShellRunner match {
+    val theRunner = myShellRunner match {
       case Some(runner) if runner.getConsoleView.isRunning =>
-        ShellUIUtil.inUIsync(runner.openShell(focus))
         runner
       case _ =>
         updateShellRunner()
     }
+
+    ShellUIUtil.inUIsync(theRunner.openShell(focus))
+
+    theRunner
   }
 
   def restartProcess(): Unit = myProcessHandler.synchronized {
