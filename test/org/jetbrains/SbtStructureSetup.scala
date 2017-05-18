@@ -26,8 +26,7 @@ trait SbtStructureSetup {
     }
   }
 
-  private val LauncherVersion = "0.13.13"
-  private val SbtStructureVersion = "6.0.2"
+  private val LauncherVersion = "0.13.15"
   // this compiles fine in sbt, ignore the red
   private val SbtStructureVersion = meta.Shared.sbtStructureVersion
   private val CustomSbtLauncher = IvyCacheDir / "org.scala-sbt" / "sbt-launch" / "jars" / s"sbt-launch-$LauncherVersion.jar"

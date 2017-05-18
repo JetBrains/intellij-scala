@@ -3,7 +3,7 @@ import meta.Shared
 
 object Versions {
   val scalaVersion = "2.11.11"
-  val sbtVersion = "0.13.13"
+  val sbtVersion = "0.13.15"
   val ideaVersion = "172.2103.15"
   val sbtStructureVersion: String = Shared.sbtStructureVersion
   val luceneVersion = "4.8.1"
@@ -100,7 +100,8 @@ object DependencyGroups {
   val sbtLaunchTestDownloader: Seq[ModuleID] =
     Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
         "0.13.5", "0.13.6", "0.13.7", "0.13.8",
-        "0.13.9", "0.13.11", "0.13.12", "0.13.13")
+        "0.13.9", "0.13.11", "0.13.12", "0.13.13",
+        "0.13.15")
       .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
@@ -174,7 +175,7 @@ object DependencyGroups {
 
   // required jars for MockSbt - it adds different versions to test module classpath
   val mockSbtDownloader: Seq[ModuleID] = {
-    val latest = "0.13.13" // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
+    val latest = "0.13.15" // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
     val vs013 = Seq("0.13.1", "0.13.5", "0.13.7", latest)
     val vs012 = Seq("0.12.4")
 
