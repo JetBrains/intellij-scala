@@ -39,10 +39,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -103,18 +103,28 @@ object ScalaRefactoringUtil {
   }
 
   def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
-    import expr.projectContext
+    val stdTypes = expr.projectContext.stdTypes
+    import stdTypes._
 
-    val types = new ArrayBuffer[ScType]
-    if (scType != null) types += scType
-    expr.getTypeWithoutImplicits().foreach(types += _)
-    expr.getTypeIgnoreBaseType.foreach(types += _)
-    expr.expectedType().foreach(types += _)
-    if (types.isEmpty) types += Any
-    val unit = api.Unit
-    val sorted = types.map(_.removeAbstracts).distinct.sortWith((t1, t2) => t1.conforms(t2))
-    val result = if (sorted.contains(unit)) (sorted - unit) :+ unit else sorted
-    result.toArray
+    val types = Option(scType).toSeq ++
+      expr.getTypeWithoutImplicits().toOption ++
+      expr.getTypeIgnoreBaseType.toOption ++
+      expr.expectedType()
+
+    val sorted =
+      types.map(_.removeAbstracts)
+        .distinct
+        .filterNot(_ == Nothing)
+        .sortWith {
+          case (Unit, _) => false
+          case (t1, t2) => t1.conforms(t2)
+        }
+
+    if (sorted.isEmpty) {
+      if (scType == Nothing) Array(Nothing)
+      else Array(Any)
+    }
+    else sorted.toArray
   }
 
   def replaceSingletonTypes(scType: ScType): ScType = scType.recursiveUpdate {
