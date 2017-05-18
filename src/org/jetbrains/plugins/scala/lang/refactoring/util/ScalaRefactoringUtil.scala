@@ -116,7 +116,8 @@ object ScalaRefactoringUtil {
         .distinct
         .filterNot(_ == Nothing)
         .sortWith {
-          case (Unit, _) => false
+          case (Unit, _) => false //Unit goes to the very end
+          case (_, Unit) => true
           case (t1, t2) => t1.conforms(t2)
         }
 
