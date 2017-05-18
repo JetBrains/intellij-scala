@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -96,6 +96,11 @@ trait IntroduceExpressions {
                   case enum: ScEnumerator => enum.pattern.bindings.headOption.orNull
                   case _ => null
                 }
+                val newExpr: ScExpression = newDeclaration match {
+                  case ScVariableDefinition.expr(x) => x
+                  case ScPatternDefinition.expr(x) => x
+                  case _ => null
+                }
                 if (namedElement != null && namedElement.isValid) {
                   editor.getCaretModel.moveToOffset(namedElement.getTextOffset)
                   editor.getSelectionModel.removeSelection()
@@ -103,7 +108,7 @@ trait IntroduceExpressions {
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
                     val variableIntroducer =
-                      new ScalaInplaceVariableIntroducer(project, editor, expr, types, namedElement,
+                      new ScalaInplaceVariableIntroducer(project, editor, newExpr, types, namedElement,
                         INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType)
 
                     import scala.collection.JavaConversions._
