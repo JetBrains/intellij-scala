@@ -113,7 +113,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
 
   def testCompilerOptionsSetup(): Unit = {
     val additionalOptions = Seq(
-      "-Xplugin:test-plugin.jar",
+      "-Xplugin:test-plugin1.jar;test-plugin2.jar",
       "-Xexperimental",
       "-P:continuations:enable",
       "-language:dynamics",
@@ -145,7 +145,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     }
 
     assert(compilerConfiguration.debuggingInfoLevel == DebuggingInfoLevel.Source)
-    assert(compilerConfiguration.plugins == Seq("test-plugin.jar"))
+    assert(compilerConfiguration.plugins == Seq("test-plugin1.jar", "test-plugin2.jar"))
     assert(compilerConfiguration.additionalCompilerOptions == Seq("-encoding", "utf-8", "-target:jvm-1.5"))
     assert(compilerConfiguration.experimental)
     assert(compilerConfiguration.continuations)
