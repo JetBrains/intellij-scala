@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
-import junit.framework.ComparisonFailure
+import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -14,6 +13,7 @@ import org.junit.Assert.{assertArrayEquals, assertTrue}
   */
 class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
 
+  import EditorTestUtil.{CARET_TAG => CARET}
   import ScalaCodeInsightTestBase._
 
   override def getTestDataPath: String =
@@ -248,51 +248,4 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     )
     assertArrayEquals(expected.toArray[AnyRef], actual.toArray[AnyRef])
   }
-}
-
-class ScalaGlobalMemberCompletionTest2 extends ScalaCodeInsightTestBase {
-
-  import ScalaGlobalMemberCompletionTest2._
-
-  def testJavaConverters(): Unit = doCompletionTest(
-    fileText =
-      s"""
-         |val ja = new java.util.ArrayList[Int]
-         |ja.asSc$CARET
-      """.stripMargin,
-    resultText =
-      """
-        |val ja = new java.util.ArrayList[Int]
-        |ja.asScala
-      """.stripMargin,
-    item = "asScala",
-    time = 2
-  )
-
-  override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit = {
-    def runCheck(fileText: String) = try {
-      super.checkResultByText(fileText, ignoreTrailingSpaces)
-      true
-    } catch {
-      case _: ComparisonFailure => false
-    }
-
-    val expected = CONVERTERS_NAMES.map(expectedText(_, expectedFileText))
-    assertTrue(expected.exists(runCheck))
-  }
-}
-
-object ScalaGlobalMemberCompletionTest2 {
-
-  private val CONVERTERS_NAMES = Seq(
-    "asScalaBufferConverter",
-    "collectionAsScalaIterableConverter",
-    "iterableAsScalaIterableConverter"
-  )
-
-  private def expectedText(className: String, expectedFileText: String): String =
-    s"""
-       |import scala.collection.JavaConverters.$className
-       |$expectedFileText
-       """.stripMargin
 }
