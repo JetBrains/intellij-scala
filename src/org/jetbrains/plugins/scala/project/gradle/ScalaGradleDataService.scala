@@ -42,13 +42,22 @@ private object ScalaGradleDataService {
 
     private def doImport(scalaNode: DataNode[ScalaModelData]): Unit =
       for {
-        module <- getIdeModuleByNode(scalaNode)
+        module <- getIdeModulesByNode(scalaNode)
         compilerOptions = compilerOptionsFrom(scalaNode.getData)
         compilerClasspath = scalaNode.getData.getScalaClasspath.asScala.toSeq
       } {
         module.configureScalaCompilerSettingsFrom("Gradle", compilerOptions)
-        configureScalaSdk(module, compilerClasspath)
+        if (module.getName.endsWith("_main")) {
+          configureScalaSdk(module, compilerClasspath)
+        }
       }
+
+    private def getIdeModulesByNode(node: DataNode[_]): Seq[Module] = {
+      Option(node.getData(ProjectKeys.MODULE))
+        .map(_.getInternalName)
+        .map(name => findIdeModule(name + "_main").toSeq ++ findIdeModule(name + "_test").toSeq)
+        .getOrElse(Seq.empty)
+    }
 
     private def configureScalaSdk(module: Module, compilerClasspath: Seq[File]): Unit = {
       val compilerVersionOption = findScalaLibraryIn(compilerClasspath).flatMap(getVersionFromJar)
