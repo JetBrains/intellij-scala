@@ -62,8 +62,8 @@ object Versions  {
 
     val Sbt = Entity("https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r,
-      Version("0.12.0"),
-      Seq("0.12.4", "0.13.15"))
+      Version("0.13.5"),
+      Seq("0.13.15"))
 
     val Dotty = Entity(s"http://repo1.maven.org/maven2/ch/epfl/lamp/dotty_2.11/",
       """.+>(\d+.\d+.+)/<.*""".r,

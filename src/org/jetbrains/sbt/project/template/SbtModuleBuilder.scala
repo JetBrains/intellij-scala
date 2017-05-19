@@ -45,7 +45,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   private val selections = new Selections()
 
   private lazy val sbtVersions: Array[String] = withProgressSynchronously("Fetching SBT versions") { _ =>
-    Versions.loadSbtVersions.filterNot(_.startsWith("0.12"))
+    Versions.loadSbtVersions
   }
 
   private val scalaVersions: mutable.Map[Platform, Array[String]] = mutable.Map.empty
