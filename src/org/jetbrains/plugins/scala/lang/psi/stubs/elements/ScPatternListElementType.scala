@@ -25,8 +25,10 @@ class ScPatternListElementType extends ScStubElementType[ScPatternListStub, ScPa
       simplePatterns = dataStream.readBoolean)
 
   override def createStub(patterns: ScPatternList, parentStub: StubElement[_ <: PsiElement]): ScPatternListStub =
-    new ScPatternListStubImpl(parentStub, this,
-      simplePatterns = patterns.simplePatterns)
+    withStubAccessLock {
+      new ScPatternListStubImpl(parentStub, this,
+        simplePatterns = patterns.simplePatterns)
+    }
 
   override def createElement(node: ASTNode): ScPatternList = new ScPatternListImpl(node)
 

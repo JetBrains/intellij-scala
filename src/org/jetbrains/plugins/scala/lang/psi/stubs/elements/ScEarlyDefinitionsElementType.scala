@@ -21,7 +21,7 @@ class ScEarlyDefinitionsElementType[Func <: ScEarlyDefinitions]
     new ScEarlyDefinitionsStubImpl(parentStub, this)
 
   override def createStub(psi: ScEarlyDefinitions, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
-    new ScEarlyDefinitionsStubImpl(parentStub, this)
+    withStubAccessLock { new ScEarlyDefinitionsStubImpl(parentStub, this) }
 
   override def createElement(node: ASTNode): ScEarlyDefinitions = new ScEarlyDefinitionsImpl(node)
 

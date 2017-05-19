@@ -25,20 +25,21 @@ abstract class ScTemplateParentsElementType[P <: ScTemplateParents](debugName: S
       parentTypeTextRefs = dataStream.readNames,
       constructorRef = dataStream.readOptionName)
 
-  override def createStub(templateParents: P, parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub[P] = {
-    val parentsTypesTexts = templateParents.typeElementsWithoutConstructor.toArray.map {
-      _.getText
-    }
+  override def createStub(templateParents: P, parentStub: StubElement[_ <: PsiElement]): ScTemplateParentsStub[P] =
+    withStubAccessLock {
+      val parentsTypesTexts = templateParents.typeElementsWithoutConstructor.toArray.map {
+        _.getText
+      }
 
-    val constructorText = Option(templateParents).collect {
-      case parents: ScClassParents => parents
-    }.flatMap {
-      _.constructor
-    }.map {
-      _.getText
+      val constructorText = Option(templateParents).collect {
+        case parents: ScClassParents => parents
+      }.flatMap {
+        _.constructor
+      }.map {
+        _.getText
+      }
+      new ScTemplateParentsStubImpl(parentStub, this,
+        parentTypeTextRefs = parentsTypesTexts.asReferences,
+        constructorRef = constructorText.asReference)
     }
-    new ScTemplateParentsStubImpl(parentStub, this,
-      parentTypeTextRefs = parentsTypesTexts.asReferences,
-      constructorRef = constructorText.asReference)
-  }
 }

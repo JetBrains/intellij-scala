@@ -29,8 +29,10 @@ class ScTypeParamClauseElementType
       typeParameterClauseTextRef = dataStream.readName)
 
   override def createStub(typeParamClause: ScTypeParamClause, parentStub: StubElement[_ <: PsiElement]): ScTypeParamClauseStub =
-    new ScTypeParamClauseStubImpl(parentStub, this,
-      typeParameterClauseTextRef = fromString(typeParamClause.getText))
+    withStubAccessLock {
+      new ScTypeParamClauseStubImpl(parentStub, this,
+        typeParameterClauseTextRef = fromString(typeParamClause.getText))
+    }
 
   override def createElement(node: ASTNode): ScTypeParamClause = new ScTypeParamClauseImpl(node)
 

@@ -31,11 +31,13 @@ class ScAccessModifierElementType extends ScStubElementType[ScAccessModifierStub
       idTextRef = dataStream.readOptionName)
 
   override def createStub(modifier: ScAccessModifier, parentStub: StubElement[_ <: PsiElement]): ScAccessModifierStub =
-    new ScAccessModifierStubImpl(parentStub, this,
-      isProtected = modifier.isProtected,
-      isPrivate = modifier.isPrivate,
-      isThis = modifier.isThis,
-      idTextRef = modifier.idText.asReference)
+    withStubAccessLock {
+      new ScAccessModifierStubImpl(parentStub, this,
+        isProtected = modifier.isProtected,
+        isPrivate = modifier.isPrivate,
+        isThis = modifier.isThis,
+        idTextRef = modifier.idText.asReference)
+    }
 
   override def createElement(node: ASTNode): ScAccessModifier = new ScAccessModifierImpl(node)
 

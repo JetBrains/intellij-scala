@@ -27,8 +27,10 @@ class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, Sc
   }
 
   override def createStub(block: ScExtendsBlock, parentStub: StubElement[_ <: PsiElement]): ScExtendsBlockStub =
-    new ScExtendsBlockStubImpl(parentStub, this,
-      baseClassesRefs = block.directSupersNames.toArray.asReferences)
+    withStubAccessLock {
+      new ScExtendsBlockStubImpl(parentStub, this,
+        baseClassesRefs = block.directSupersNames.toArray.asReferences)
+    }
 
   override def indexStub(stub: ScExtendsBlockStub, sink: IndexSink): Unit =
     this.indexStub(stub.baseClasses, sink, SUPER_CLASS_NAME_KEY)

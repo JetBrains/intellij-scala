@@ -26,8 +26,10 @@ class ScReferencePatternElementType extends ScStubElementType[ScReferencePattern
       nameRef = dataStream.readName)
 
   override def createStub(pattern: ScReferencePattern, parentStub: StubElement[_ <: PsiElement]): ScReferencePatternStub =
-    new ScReferencePatternStubImpl(parentStub, this,
-      nameRef = StringRef.fromString(pattern.name))
+    withStubAccessLock {
+      new ScReferencePatternStubImpl(parentStub, this,
+        nameRef = StringRef.fromString(pattern.name))
+    }
 
   override def createElement(node: ASTNode): ScReferencePattern = new ScReferencePatternImpl(node)
 

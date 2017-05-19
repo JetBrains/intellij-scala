@@ -22,7 +22,7 @@ class ScIdListElementType
     new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
 
   override def createStub(psi: ScIdList, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
-    new ScIdListStubImpl(parentStub, this)
+    withStubAccessLock { new ScIdListStubImpl(parentStub, this) }
 
   override def createElement(node: ASTNode): ScIdList = new ScIdListImpl(node)
 
