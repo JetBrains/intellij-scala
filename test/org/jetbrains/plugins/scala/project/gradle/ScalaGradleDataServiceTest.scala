@@ -38,11 +38,9 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
       scalaLibrary.foreach(libraries += _)
 
       modules += new javaModule {
-        name := "Module 1"
-        moduleFileDirectoryPath := getProject.getBasePath + "/module1"
-        externalConfigPath := getProject.getBasePath + "/module1"
-
-        scalaLibrary.foreach(libraryDependencies += _)
+        name := "module"
+        moduleFileDirectoryPath := getProject.getBasePath + "/module"
+        externalConfigPath := getProject.getBasePath + "/module"
 
         arbitraryNodes += new Node[ScalaModelData] {
           override protected val data: ScalaModelData = new ScalaModelData(SbtProjectSystem.Id)
@@ -58,6 +56,24 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
           data.setTargetCompatibility("1.5")
         }
+      }
+
+      private val productionModule = new javaModule {
+        name := "module_main"
+        moduleFileDirectoryPath := getProject.getBasePath + "/module"
+        externalConfigPath := getProject.getBasePath + "/module"
+
+        scalaLibrary.foreach(libraryDependencies += _)
+      }
+
+      modules += productionModule
+
+      modules += new javaModule {
+        name := "module_test"
+        moduleFileDirectoryPath := getProject.getBasePath + "/module"
+        externalConfigPath := getProject.getBasePath + "/module"
+
+        moduleDependencies += productionModule
       }
     }.build.toDataNode
 
@@ -122,8 +138,11 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     options.setAdditionalParameters(additionalOptions.asJava)
 
     importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), Some(options)))
-    val module = ModuleManager.getInstance(getProject).findModuleByName("Module 1")
-    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+
+    val compilerConfiguration = {
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module_main")
+      ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+    }
 
     assert(compilerConfiguration.debuggingInfoLevel == DebuggingInfoLevel.Source)
     assert(compilerConfiguration.plugins == Seq("test-plugin.jar"))
@@ -144,6 +163,13 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
     assert(!compilerConfiguration.specialization)
     assert(compilerConfiguration.uncheckedWarnings)
     assert(!compilerConfiguration.warnings)
+
+    val testCompilerConfiguration = {
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module_test")
+      ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+    }
+
+    assert(testCompilerConfiguration.additionalCompilerOptions == Seq("-encoding", "utf-8", "-target:jvm-1.5"))
   }
 
   def testModuleIsNull(): Unit = {
