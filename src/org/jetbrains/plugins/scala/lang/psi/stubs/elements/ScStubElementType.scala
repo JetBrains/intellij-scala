@@ -26,4 +26,17 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debug
   }
 
   override def isLeftBound = true
+
+  protected def withStubAccessLock(fun: => S): S= {
+    import ScStubElementType._isStubBuilding
+    try {
+      _isStubBuilding.set(true)
+      fun
+    } finally { _isStubBuilding.set(false) }
+  }
+}
+
+object ScStubElementType {
+  private val _isStubBuilding: ThreadLocal[Boolean] = new ThreadLocal[Boolean]
+  def isStubBuilding: Boolean = _isStubBuilding.get()
 }

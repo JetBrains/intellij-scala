@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
 /**
@@ -42,7 +42,7 @@ trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
       case _ => false
     }
     // do not resolve anything while the stubs are building to avoid deadlocks
-    if (ScTemplateDefinitionElementType.isStubBuilding.get() || DumbService.isDumb(getProject))
+    if (ScStubElementType.isStubBuilding || DumbService.isDumb(getProject))
       return false
 
     constructor.reference.exists {

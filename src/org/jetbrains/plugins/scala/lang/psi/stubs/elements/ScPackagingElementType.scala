@@ -32,10 +32,12 @@ class ScPackagingElementType extends ScStubElementType[ScPackagingStub, ScPackag
       isExplicit = dataStream.readBoolean)
 
   override def createStub(packaging: ScPackaging, parentStub: StubElement[_ <: PsiElement]): ScPackagingStub =
-    new ScPackagingStubImpl(parentStub, this,
-      parentPackageNameRef = fromString(packaging.parentPackageName),
-      packageNameRef = fromString(packaging.packageName),
-      isExplicit = packaging.isExplicit)
+    withStubAccessLock {
+      new ScPackagingStubImpl(parentStub, this,
+        parentPackageNameRef = fromString(packaging.parentPackageName),
+        packageNameRef = fromString(packaging.packageName),
+        isExplicit = packaging.isExplicit)
+    }
 
   override def indexStub(stub: ScPackagingStub, sink: IndexSink): Unit = {
     val prefix = stub.parentPackageName
