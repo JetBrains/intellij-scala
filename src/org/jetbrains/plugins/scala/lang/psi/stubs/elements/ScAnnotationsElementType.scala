@@ -20,7 +20,7 @@ class ScAnnotationsElementType extends ScStubElementType[ScAnnotationsStub, ScAn
     new ScAnnotationsStubImpl(parentStub, this)
 
   override def createStub(psi: ScAnnotations, parentStub: StubElement[_ <: PsiElement]): ScAnnotationsStub =
-    new ScAnnotationsStubImpl(parentStub, this)
+    withStubAccessLock { new ScAnnotationsStubImpl(parentStub, this) }
 
   override def createElement(node: ASTNode): ScAnnotations = new ScAnnotationsImpl(node)
 

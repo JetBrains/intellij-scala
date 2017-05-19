@@ -20,7 +20,7 @@ class ScTemplateBodyElementType extends ScStubElementType[ScTemplateBodyStub, Sc
     new ScTemplateBodyStubImpl(parentStub, this)
 
   override def createStub(templateBody: ScTemplateBody, parentStub: StubElement[_ <: PsiElement]): ScTemplateBodyStub =
-    new ScTemplateBodyStubImpl(parentStub, this)
+    withStubAccessLock { new ScTemplateBodyStubImpl(parentStub, this) }
 
   override def createElement(node: ASTNode): ScTemplateBody = new ScTemplateBodyImpl(node)
 

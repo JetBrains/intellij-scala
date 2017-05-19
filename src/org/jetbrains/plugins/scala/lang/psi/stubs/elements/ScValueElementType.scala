@@ -34,14 +34,16 @@ abstract class ScValueElementType[V <: ScValue](debugName: String)
       isImplicit = dataStream.readBoolean)
 
   override def createStub(value: ScValue, parentStub: StubElement[_ <: PsiElement]): ScValueStub =
-    new ScValueStubImpl(parentStub, this,
-      isDeclaration = isDeclaration(value),
-      namesRefs = names(value),
-      typeTextRef = typeText(value),
-      bodyTextRef = bodyText(value),
-      containerTextRef = containerText(value),
-      isLocal = isLocal(value),
-      isImplicit = value.hasModifierProperty("implicit"))
+    withStubAccessLock {
+      new ScValueStubImpl(parentStub, this,
+        isDeclaration = isDeclaration(value),
+        namesRefs = names(value),
+        typeTextRef = typeText(value),
+        bodyTextRef = bodyText(value),
+        containerTextRef = containerText(value),
+        isLocal = isLocal(value),
+        isImplicit = value.hasModifierProperty("implicit"))
+    }
 
   override def indexStub(stub: ScValueStub, sink: IndexSink): Unit = {
     super.indexStub(stub, sink)

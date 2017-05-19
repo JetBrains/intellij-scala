@@ -44,7 +44,7 @@ class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypePa
       positionInFile = dataStream.readInt)
   }
 
-  override def createStub(typeParam: ScTypeParam, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = {
+  override def createStub(typeParam: ScTypeParam, parentStub: StubElement[_ <: PsiElement]): ScTypeParamStub = withStubAccessLock {
     val lowerBoundText = typeParam.lowerTypeElement.map {
       _.getText
     }

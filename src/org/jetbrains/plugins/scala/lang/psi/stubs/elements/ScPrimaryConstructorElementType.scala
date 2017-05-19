@@ -20,7 +20,7 @@ class ScPrimaryConstructorElementType extends ScStubElementType[ScPrimaryConstru
     new ScPrimaryConstructorStubImpl(parentStub, this)
 
   override def createStub(constructor: ScPrimaryConstructor, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
-    new ScPrimaryConstructorStubImpl(parentStub, this)
+    withStubAccessLock { new ScPrimaryConstructorStubImpl(parentStub, this) }
 
   override def createElement(node: ASTNode): ScPrimaryConstructor = new ScPrimaryConstructorImpl(node)
 

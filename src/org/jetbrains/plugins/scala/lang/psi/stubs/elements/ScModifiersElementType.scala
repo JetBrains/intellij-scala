@@ -29,9 +29,11 @@ class ScModifiersElementType(debugName: String)
   }
 
   override def createStub(list: ScModifierList, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub =
-    new ScModifiersStubImpl(parentStub, this,
-      hasExplicitModifiers = list.hasExplicitModifiers,
-      modifiersRefs = list.modifiers.asReferences)
+    withStubAccessLock {
+      new ScModifiersStubImpl(parentStub, this,
+        hasExplicitModifiers = list.hasExplicitModifiers,
+        modifiersRefs = list.modifiers.asReferences)
+    }
 
   override def createElement(node: ASTNode): ScModifierList = new ScModifierListImpl(node)
 

@@ -28,10 +28,11 @@ class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnno
       nameRef = dataStream.readOptionName,
       typeTextRef = dataStream.readOptionName)
 
-  override def createStub(annotation: ScAnnotation, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub = {
-    val maybeTypeElement = Option(annotation).map {
-      _.typeElement
-    }
+  override def createStub(annotation: ScAnnotation, parentStub: StubElement[_ <: PsiElement]): ScAnnotationStub =
+    withStubAccessLock {
+      val maybeTypeElement = Option(annotation).map {
+        _.typeElement
+      }
 
     val maybeName = maybeTypeElement.flatMap {
       case parenthesised: ScParenthesisedTypeElement => parenthesised.typeElement
