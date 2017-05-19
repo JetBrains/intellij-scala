@@ -61,8 +61,11 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val projectSbtVersion = Version(SbtUtil.detectSbtVersion(workingDir, launcher))
     val autoPluginsSupported = projectSbtVersion >= SbtRunner.sinceSbtVersionShell
 
-    // an id to uniquely identify this boot of sbt form idea, so that any plugins it injects are never ever loaded otherwise
-    val uuid = UUID.randomUUID().toString
+    // an id to identify this boot of sbt as being launched from idea, so that any plugins it injects are never ever loaded otherwise
+    // use sbtStructureVersion as approximation of compatible versions of IDEA this is allowed to launch with.
+    // this avoids failing reloads when multiple sbt instances are booted from IDEA (SCL-12009)
+    // (this is marked red by IDEA because it doesn't understand sbt project model, but it compiles fine)
+    val runid = meta.Shared.sbtStructureVersion
 
     val projectSdk = ProjectRootManager.getInstance(project).getProjectSdk
     val configuredSdk = sbtSettings.jdk.map(JdkByName).flatMap(SdkUtils.findProjectSdk)
@@ -79,7 +82,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     val vmParams = javaParameters.getVMParametersList
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
-    vmParams.add(s"-Didea.runid=$uuid")
+    vmParams.add(s"-Didea.runid=$runid")
     sbtSettings.remoteDebugSbtShellPort.foreach { port =>
       vmParams.add("-Xdebug")
       vmParams.add(s"-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$port")
@@ -92,7 +95,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
       val globalPluginsDir = SbtUtil.globalPluginsDirectory(sbtMajorVersion)
 
       // evil side effect! writes injected plugin settings to user's global sbt config
-      injectSettings(uuid, injectedPlugins(sbtMajorVersion), globalPluginsDir)
+      injectSettings(runid, injectedPlugins(sbtMajorVersion), globalPluginsDir)
       // we have our plugins in there, load custom shell
       commandLine.addParameter("idea-shell")
     }
