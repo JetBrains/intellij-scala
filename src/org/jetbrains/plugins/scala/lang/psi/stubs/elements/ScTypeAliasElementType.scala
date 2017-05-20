@@ -39,7 +39,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       isStableQualifier = dataStream.readBoolean)
   }
 
-  override def createStub(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = withStubAccessLock {
+  override def createStubImpl(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
     val maybeAlias = Option(alias)
 
     val aliasedTypeText = maybeAlias.collect {

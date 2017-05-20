@@ -21,8 +21,8 @@ class ScIdListElementType
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
     new ScIdListStubImpl(parentStub.asInstanceOf[StubElement[PsiElement]], this)
 
-  override def createStub(psi: ScIdList, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
-    withStubAccessLock { new ScIdListStubImpl(parentStub, this) }
+  override def createStubImpl(psi: ScIdList, parentStub: StubElement[_ <: PsiElement]): ScIdListStub =
+    new ScIdListStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScIdList = new ScIdListImpl(node)
 

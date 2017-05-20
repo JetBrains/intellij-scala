@@ -19,8 +19,8 @@ class ScAnnotationsElementType extends ScStubElementType[ScAnnotationsStub, ScAn
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScAnnotationsStub =
     new ScAnnotationsStubImpl(parentStub, this)
 
-  override def createStub(psi: ScAnnotations, parentStub: StubElement[_ <: PsiElement]): ScAnnotationsStub =
-    withStubAccessLock { new ScAnnotationsStubImpl(parentStub, this) }
+  override def createStubImpl(psi: ScAnnotations, parentStub: StubElement[_ <: PsiElement]): ScAnnotationsStub =
+    new ScAnnotationsStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScAnnotations = new ScAnnotationsImpl(node)
 

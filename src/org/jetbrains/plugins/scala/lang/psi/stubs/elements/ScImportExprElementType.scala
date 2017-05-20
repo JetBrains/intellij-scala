@@ -26,7 +26,7 @@ class ScImportExprElementType extends ScStubElementType[ScImportExprStub, ScImpo
       referenceTextRef = dataStream.readOptionName,
       isSingleWildcard = dataStream.readBoolean)
 
-  override def createStub(expr: ScImportExpr, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub = withStubAccessLock {
+  override def createStubImpl(expr: ScImportExpr, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub = {
     val referenceText = expr.reference.map {
       _.getText
     }

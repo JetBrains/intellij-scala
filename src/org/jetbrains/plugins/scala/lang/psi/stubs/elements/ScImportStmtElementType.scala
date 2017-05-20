@@ -25,11 +25,9 @@ class ScImportStmtElementType extends ScStubElementType[ScImportStmtStub, ScImpo
     new ScImportStmtStubImpl(parentStub, this,
       importTextRef = dataStream.readName)
 
-  override def createStub(statement: ScImportStmt, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
-    withStubAccessLock {
-      new ScImportStmtStubImpl(parentStub, this,
-        importTextRef = fromString(statement.getText))
-    }
+  override def createStubImpl(statement: ScImportStmt, parentStub: StubElement[_ <: PsiElement]): ScImportStmtStub =
+    new ScImportStmtStubImpl(parentStub, this,
+      importTextRef = fromString(statement.getText))
 
   override def createElement(node: ASTNode): ScImportStmt = new ScImportStmtImpl(node)
 

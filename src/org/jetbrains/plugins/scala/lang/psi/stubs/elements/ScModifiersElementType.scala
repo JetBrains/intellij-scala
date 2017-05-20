@@ -28,12 +28,10 @@ class ScModifiersElementType(debugName: String)
       modifiersRefs = dataStream.readNames)
   }
 
-  override def createStub(list: ScModifierList, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub =
-    withStubAccessLock {
-      new ScModifiersStubImpl(parentStub, this,
-        hasExplicitModifiers = list.hasExplicitModifiers,
-        modifiersRefs = list.modifiers.asReferences)
-    }
+  override def createStubImpl(list: ScModifierList, parentStub: StubElement[_ <: PsiElement]): ScModifiersStub =
+    new ScModifiersStubImpl(parentStub, this,
+      hasExplicitModifiers = list.hasExplicitModifiers,
+      modifiersRefs = list.modifiers.asReferences)
 
   override def createElement(node: ASTNode): ScModifierList = new ScModifierListImpl(node)
 
