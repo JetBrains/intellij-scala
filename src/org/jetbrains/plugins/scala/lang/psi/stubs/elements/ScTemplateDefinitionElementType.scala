@@ -58,8 +58,9 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       isLocal = dataStream.readBoolean,
       isVisibleInJava = dataStream.readBoolean)
 
-  override def createStub(definition: ScTemplateDefinition, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
-    withStubAccessLock {
+  override def createStubImpl(definition: ScTemplateDefinition, parent: StubElement[_ <: PsiElement]): ScTemplateDefinitionStub = {
+    try {
+      ScTemplateDefinitionElementType.isStubBuilding.set(true)
       val fileName = definition.containingVirtualFile.map {
         _.getName
       }.orNull
@@ -107,6 +108,9 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         additionalJavaNamesRefs = definition.additionalJavaNames.asReferences,
         isLocal = isLocal,
         isVisibleInJava = isOkForJava(definition))
+
+    } finally {
+      ScTemplateDefinitionElementType.isStubBuilding.set(false)
     }
   }
 
@@ -159,4 +163,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
+}
+
+object ScTemplateDefinitionElementType {
+  val isStubBuilding: ThreadLocal[Boolean] = new ThreadLocal[Boolean]
 }

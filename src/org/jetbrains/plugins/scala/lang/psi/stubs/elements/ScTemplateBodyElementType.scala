@@ -19,8 +19,8 @@ class ScTemplateBodyElementType extends ScStubElementType[ScTemplateBodyStub, Sc
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateBodyStub =
     new ScTemplateBodyStubImpl(parentStub, this)
 
-  override def createStub(templateBody: ScTemplateBody, parentStub: StubElement[_ <: PsiElement]): ScTemplateBodyStub =
-    withStubAccessLock { new ScTemplateBodyStubImpl(parentStub, this) }
+  override def createStubImpl(templateBody: ScTemplateBody, parentStub: StubElement[_ <: PsiElement]): ScTemplateBodyStub =
+    new ScTemplateBodyStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScTemplateBody = new ScTemplateBodyImpl(node)
 

@@ -31,17 +31,16 @@ class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementSt
       typeTextRef = dataStream.readOptionName,
       typeNamesRefs = dataStream.readNames)
 
-  override def createStub(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub =
-    withStubAccessLock {
-      val typeElementText = typeElement.typeElement.map {
-        _.getText
-      }
-
-      new ScSelfTypeElementStubImpl(parentStub, this,
-        nameRef = StringRef.fromString(typeElement.name),
-        typeTextRef = typeElementText.asReference,
-        typeNamesRefs = typeElement.classNames.asReferences)
+  override def createStubImpl(typeElement: ScSelfTypeElement, parentStub: StubElement[_ <: PsiElement]): ScSelfTypeElementStub = {
+    val typeElementText = typeElement.typeElement.map {
+      _.getText
     }
+
+    new ScSelfTypeElementStubImpl(parentStub, this,
+      nameRef = StringRef.fromString(typeElement.name),
+      typeTextRef = typeElementText.asReference,
+      typeNamesRefs = typeElement.classNames.asReferences)
+  }
 
   override def indexStub(stub: ScSelfTypeElementStub, sink: IndexSink): Unit =
     this.indexStub(stub.classNames, sink, ScalaIndexKeys.SELF_TYPE_CLASS_NAME_KEY)

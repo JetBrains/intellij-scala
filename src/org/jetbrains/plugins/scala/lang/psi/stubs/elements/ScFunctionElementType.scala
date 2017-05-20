@@ -39,7 +39,7 @@ abstract class ScFunctionElementType(debugName: String) extends ScStubElementTyp
       isImplicit = dataStream.readBoolean,
       isLocal = dataStream.readBoolean)
 
-  override def createStub(function: ScFunction, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = withStubAccessLock {
+  override def createStubImpl(function: ScFunction, parentStub: StubElement[_ <: PsiElement]): ScFunctionStub = {
     val maybeFunction = Option(function)
     val returnTypeText = maybeFunction.flatMap {
       _.returnTypeElement

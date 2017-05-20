@@ -20,8 +20,8 @@ class ScEarlyDefinitionsElementType[Func <: ScEarlyDefinitions]
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
     new ScEarlyDefinitionsStubImpl(parentStub, this)
 
-  override def createStub(psi: ScEarlyDefinitions, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
-    withStubAccessLock { new ScEarlyDefinitionsStubImpl(parentStub, this) }
+  override def createStubImpl(psi: ScEarlyDefinitions, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
+    new ScEarlyDefinitionsStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScEarlyDefinitions = new ScEarlyDefinitionsImpl(node)
 

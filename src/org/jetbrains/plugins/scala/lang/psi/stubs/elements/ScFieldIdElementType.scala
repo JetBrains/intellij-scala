@@ -25,11 +25,9 @@ class ScFieldIdElementType extends ScStubElementType[ScFieldIdStub, ScFieldId]("
     new ScFieldIdStubImpl(parentStub, this,
       nameRef = dataStream.readName)
 
-  override def createStub(psi: ScFieldId, parentStub: StubElement[_ <: PsiElement]): ScFieldIdStub =
-    withStubAccessLock {
-      new ScFieldIdStubImpl(parentStub, this,
-        nameRef = StringRef.fromString(psi.name))
-    }
+  override def createStubImpl(psi: ScFieldId, parentStub: StubElement[_ <: PsiElement]): ScFieldIdStub =
+    new ScFieldIdStubImpl(parentStub, this,
+      nameRef = StringRef.fromString(psi.name))
 
   override def createElement(node: ASTNode): ScFieldId = new ScFieldIdImpl(node)
 

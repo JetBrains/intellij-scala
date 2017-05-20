@@ -28,17 +28,16 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
       importedNameRef = dataStream.readOptionName,
       isAliasedImport = dataStream.readBoolean)
 
-  override def createStub(selector: ScImportSelector, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub =
-    withStubAccessLock {
-      val referenceText = selector.reference.map {
-        _.getText
-      }
-
-      new ScImportSelectorStubImpl(parentStub, this,
-        referenceTextRef = referenceText.asReference,
-        importedNameRef = selector.importedName.asReference,
-        isAliasedImport = selector.isAliasedImport)
+  override def createStubImpl(selector: ScImportSelector, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub = {
+    val referenceText = selector.reference.map {
+      _.getText
     }
+
+    new ScImportSelectorStubImpl(parentStub, this,
+      referenceTextRef = referenceText.asReference,
+      importedNameRef = selector.importedName.asReference,
+      isAliasedImport = selector.isAliasedImport)
+  }
 
   override def createElement(node: ASTNode): ScImportSelector = new ScImportSelectorImpl(node)
 

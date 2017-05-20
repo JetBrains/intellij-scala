@@ -19,8 +19,8 @@ class ScPrimaryConstructorElementType extends ScStubElementType[ScPrimaryConstru
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
     new ScPrimaryConstructorStubImpl(parentStub, this)
 
-  override def createStub(constructor: ScPrimaryConstructor, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
-    withStubAccessLock { new ScPrimaryConstructorStubImpl(parentStub, this) }
+  override def createStubImpl(constructor: ScPrimaryConstructor, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
+    new ScPrimaryConstructorStubImpl(parentStub, this)
 
   override def createElement(node: ASTNode): ScPrimaryConstructor = new ScPrimaryConstructorImpl(node)
 
