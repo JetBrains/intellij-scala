@@ -20,10 +20,8 @@ class ScParamClausesElementType extends ScStubElementType[ScParamClausesStub, Sc
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
     new ScParamClausesStubImpl(parentStub, this)
 
-  override def createStub(psi: ScParameters, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
-    withStubAccessLock {
-      new ScParamClausesStubImpl(parentStub, this)
-    }
+  override def createStubImpl(psi: ScParameters, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
+    new ScParamClausesStubImpl(parentStub, this)
 
   override def createPsi(stub: ScParamClausesStub): ScParameters = new ScParametersImpl(stub)
 

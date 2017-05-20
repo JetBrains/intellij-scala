@@ -25,11 +25,9 @@ class ScParamClauseElementType extends ScStubElementType[ScParamClauseStub, ScPa
     new ScParamClauseStubImpl(parentStub, this,
       isImplicit = dataStream.readBoolean)
 
-  override def createStub(parameterClause: ScParameterClause, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
-    withStubAccessLock {
-      new ScParamClauseStubImpl(parentStub, this,
-        isImplicit = parameterClause.isImplicit)
-    }
+  override def createStubImpl(parameterClause: ScParameterClause, parentStub: StubElement[_ <: PsiElement]): ScParamClauseStub =
+    new ScParamClauseStubImpl(parentStub, this,
+      isImplicit = parameterClause.isImplicit)
 
   override def createElement(node: ASTNode): ScParameterClause = new ScParameterClauseImpl(node)
 

@@ -27,14 +27,12 @@ abstract class ScVariableElementType[V <: ScVariable](debugName: String)
       containerTextRef = dataStream.readOptionName,
       isLocal = dataStream.readBoolean)
 
-  override def createStub(variable: ScVariable, parentStub: StubElement[_ <: PsiElement]): ScVariableStub =
-    withStubAccessLock {
-      new ScVariableStubImpl(parentStub, this,
-        isDeclaration = isDeclaration(variable),
-        namesRefs = names(variable),
-        typeTextRef = typeText(variable),
-        bodyTextRef = bodyText(variable),
-        containerTextRef = containerText(variable),
-        isLocal = isLocal(variable))
-    }
+  override def createStubImpl(variable: ScVariable, parentStub: StubElement[_ <: PsiElement]): ScVariableStub =
+    new ScVariableStubImpl(parentStub, this,
+      isDeclaration = isDeclaration(variable),
+      namesRefs = names(variable),
+      typeTextRef = typeText(variable),
+      bodyTextRef = bodyText(variable),
+      containerTextRef = containerText(variable),
+      isLocal = isLocal(variable))
 }

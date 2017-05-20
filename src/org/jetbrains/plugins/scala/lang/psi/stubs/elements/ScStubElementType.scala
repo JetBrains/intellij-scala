@@ -17,6 +17,16 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debug
 
   override def createElement(node: ASTNode): T
 
+  override final def createStub(psi: T, parentStub: StubElement[_ <: PsiElement]): S = {
+    import ScStubElementType._isStubBuilding
+    try {
+      _isStubBuilding.set(true)
+      createStubImpl(psi, parentStub)
+    } finally { _isStubBuilding.set(false) }
+  }
+
+  protected def createStubImpl(psi: T, parentStub: StubElement[_ <: PsiElement]): S
+
   def isCompiled(stub: S): Boolean = {
     var parent = stub
     while (!parent.isInstanceOf[PsiFileStub[_ <: PsiFile]]) {
@@ -26,14 +36,6 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debug
   }
 
   override def isLeftBound = true
-
-  protected def withStubAccessLock(fun: => S): S= {
-    import ScStubElementType._isStubBuilding
-    try {
-      _isStubBuilding.set(true)
-      fun
-    } finally { _isStubBuilding.set(false) }
-  }
 }
 
 object ScStubElementType {

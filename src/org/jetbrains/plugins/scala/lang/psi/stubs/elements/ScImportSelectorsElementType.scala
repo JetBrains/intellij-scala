@@ -24,11 +24,9 @@ class ScImportSelectorsElementType extends ScStubElementType[ScImportSelectorsSt
     new ScImportSelectorsStubImpl(parentStub, this,
       hasWildcard = dataStream.readBoolean)
 
-  override def createStub(selectors: ScImportSelectors, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorsStub =
-    withStubAccessLock {
-      new ScImportSelectorsStubImpl(parentStub, this,
-        hasWildcard = selectors.hasWildcard)
-    }
+  override def createStubImpl(selectors: ScImportSelectors, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorsStub =
+    new ScImportSelectorsStubImpl(parentStub, this,
+      hasWildcard = selectors.hasWildcard)
 
   override def createElement(node: ASTNode): ScImportSelectors = new ScImportSelectorsImpl(node)
 

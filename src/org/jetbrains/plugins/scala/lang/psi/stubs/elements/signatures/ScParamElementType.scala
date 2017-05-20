@@ -43,7 +43,7 @@ abstract class ScParamElementType[P <: ScParameter](debugName: String) extends S
       bodyTextRef = dataStream.readOptionName,
       deprecatedNameRef = dataStream.readOptionName)
 
-  override def createStub(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = withStubAccessLock {
+  override def createStubImpl(parameter: ScParameter, parentStub: StubElement[_ <: PsiElement]): ScParameterStub = {
     val typeText = parameter.typeElement.map {
       _.getText
     }
