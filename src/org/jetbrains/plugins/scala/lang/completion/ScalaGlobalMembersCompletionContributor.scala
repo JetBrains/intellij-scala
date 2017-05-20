@@ -124,7 +124,10 @@ object ScalaGlobalMembersCompletionContributor {
       "scala.collection.convert.DecorateAsJava",
       "scala.collection.convert.DecorateAsScala",
       "scala.collection.convert.WrapAsScala",
-      "scala.collection.convert.WrapAsJava"
+      "scala.collection.convert.WrapAsJava",
+      "scala.concurrent.duration.DurationConversions",
+      "akka.pattern.AskSupport",
+      "akka.pattern.PipeToSupport"
     )
 
     def processElements(elements: Seq[PsiNamedElement]): Unit = elements
