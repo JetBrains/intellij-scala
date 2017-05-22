@@ -128,6 +128,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               case _ =>
             }
           case ScalaResolveResult(c: PsiClass, _) if c.qualifiedName == clazz.qualifiedName => return
+          case _ =>
         }
       case _ =>
     }
