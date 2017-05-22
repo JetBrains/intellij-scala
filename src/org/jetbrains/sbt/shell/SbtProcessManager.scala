@@ -80,6 +80,10 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
     vmParams.addAll(SbtOpts.loadFrom(workingDir).asJava)
     vmParams.addAll(sbtSettings.vmOptions.asJava)
     vmParams.add(s"-Didea.runid=$uuid")
+    sbtSettings.remoteDebugSbtShellPort.foreach { port =>
+      vmParams.add("-Xdebug")
+      vmParams.add(s"-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$port")
+    }
 
     val commandLine: GeneralCommandLine = javaParameters.toCommandLine
 

@@ -33,6 +33,13 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var useSbtShell: Boolean = false
 
+  @BeanProperty
+  var useRemoteDebugSbtShell: Boolean = false
+
+  @Nullable
+  @BeanProperty
+  var remoteDebugPort: String = null
+
   @Nullable
   @BeanProperty
   var sbtVersion: String = null
@@ -50,6 +57,8 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.sbtVersion = sbtVersion
     result.useSbtShell = useSbtShell
     result.useOurOwnAutoImport = useOurOwnAutoImport
+    result.useRemoteDebugSbtShell = useRemoteDebugSbtShell
+    result.remoteDebugPort = remoteDebugPort
     result
   }
 
@@ -58,6 +67,15 @@ class SbtProjectSettings extends ExternalProjectSettings {
 
   override def isUseAutoImport: Boolean =
     useOurOwnAutoImport
+
+  def extractRemoteDebugPort: Option[Int] =
+    if (useRemoteDebugSbtShell) {
+      try {
+        Some(Integer.parseInt(remoteDebugPort))
+      } catch {
+        case e: NumberFormatException => None
+      }
+    } else None
 }
 
 object SbtProjectSettings {
