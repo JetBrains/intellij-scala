@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.shell.sbt13_latest
 
-import java.util.concurrent.CountDownLatch
-
 import com.intellij.execution.Executor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
@@ -9,7 +7,7 @@ import com.intellij.openapi.module.ModuleManager
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestRunConfigurationForm}
-import org.jetbrains.sbt.shell.{CommunicationListener, SbtProjectPlatformTestCase}
+import org.jetbrains.sbt.shell.SbtProjectPlatformTestCase
 import org.junit.experimental.categories.Category
 
 /**
@@ -127,15 +125,10 @@ class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   protected def runConfig(config: AbstractTestRunConfiguration, expectedStrings: Seq[String],
                           unexpectedStrings: Seq[String], commandsExpected: Int = 1) = {
     config.useSbt = true
-    val latch = new CountDownLatch(commandsExpected)
-    val listener = getCommunicateListener(latch)
-    comm.addListener(listener)
     val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =
       new ExecutionEnvironmentBuilder(config.getProject, executor)
     executionEnvironmentBuilder.runProfile(config).buildAndExecute()
-    latch.await()
-    Thread.sleep(1000) //give the console some time to print everything
     runner.getConsoleView.flushDeferredText()
     val log = logger.getLog
     expectedStrings.foreach(str => assert(log.contains(str), s"Sbt shell console did not contain $str"))
@@ -145,11 +138,4 @@ class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
 
   override def getPath: String = "sbt/shell/sbtTestRunTest"
 
-  private def getCommunicateListener(latch: CountDownLatch) = new CommunicationListener {
-    override def onCommandQueued(command: String): Unit = {}//println("Listener-> command queued: " + command)
-
-    override def onCommandPolled(command: String): Unit = {}//println("Listener-> command polled: " + command)
-
-    override def onCommandFinished(command: String): Unit = latch.countDown()
-  }
 }

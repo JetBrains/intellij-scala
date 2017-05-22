@@ -13,7 +13,6 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Disposer, Key}
 import com.intellij.testFramework.{PlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.idea.maven.project.MavenProjectsManager
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.SbtProjectSystem
 
@@ -66,7 +65,6 @@ abstract class SbtProjectPlatformTestCase extends PlatformTestCase {
       Thread.sleep(500)
     }
     ProjectManager.getInstance().closeProject(myProject)
-//    MavenProjectsManager.getInstance(myProject).disposeComponent()
     super.tearDown()
     //remove links so that we don't leak the project
     myProject = null
