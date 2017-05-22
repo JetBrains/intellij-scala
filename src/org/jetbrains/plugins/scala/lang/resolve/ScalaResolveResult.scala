@@ -24,6 +24,10 @@ object ScalaResolveResult {
   def empty = new ScalaResolveResult(null, ScSubstitutor.empty, Set[ImportUsed]())
 
   def unapply(r: ScalaResolveResult): Some[(PsiNamedElement, ScSubstitutor)] = Some(r.element, r.substitutor)
+
+  object withActual {
+    def unapply(r: ScalaResolveResult): Option[PsiNamedElement] = Some(r.getActualElement)
+  }
 }
 
 class ScalaResolveResult(val element: PsiNamedElement,
