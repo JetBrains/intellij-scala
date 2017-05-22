@@ -18,6 +18,7 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.PredefinedConversionsProvider.findConversionProvider
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager.getLookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
@@ -162,33 +163,19 @@ object ScalaGlobalMembersCompletionContributor {
       .flatMap(ImplicitMapResult.unapply)
 
   private def implicitCandidates(reference: ScReferenceExpression): Seq[ScalaResolveResult] = {
-    val processor = new CollectImplicitsProcessor(reference, true)
+    implicit val processor = new CollectImplicitsProcessor(reference, true)
     val processedObjects = mutable.HashSet.empty[String]
-
-    val names = Set(
-      "scala.collection.convert.DecorateAsJava",
-      "scala.collection.convert.DecorateAsScala",
-      "scala.collection.convert.WrapAsScala",
-      "scala.collection.convert.WrapAsJava",
-      "scala.concurrent.duration.DurationConversions",
-      "akka.pattern.AskSupport",
-      "akka.pattern.PipeToSupport"
-    )
 
     def processElements(elements: Seq[PsiNamedElement]): Unit = elements
       .filter(isStatic)
       .foreach(processor.execute(_, initial()))
 
-    def processInheritors(inheritors: Iterable[PsiClass]): Unit = {
-      val maybeObject = inheritors.collectFirst {
+    def findInheritor(definition: ScTemplateDefinition): Option[ScObject] =
+      ClassInheritorsSearch.search(definition, false).asScala.collectFirst {
         case o: ScObject if o.isStatic => o
       }.filter { o =>
         processedObjects.add(o.qualifiedName)
       }
-
-      val maybeType = maybeObject.flatMap(_.getType().toOption)
-      maybeType.foreach(processor.processType(_, reference))
-    }
 
     implicitElements(reference).collect {
       case v: ScValue => (v, () => v.declaredElements)
@@ -199,9 +186,11 @@ object ScalaGlobalMembersCompletionContributor {
     }.foreach {
       case (_: ScObject, elements) =>
         processElements(elements())
-      case (definition, _) if names(definition.qualifiedName) =>
-        processInheritors(ClassInheritorsSearch.search(definition, false).asScala)
-      case _ =>
+      case (definition, _) =>
+        findConversionProvider(definition)
+          .foreach { provider =>
+            findInheritor(definition).foreach(provider.process)
+          }
     }
 
     processor.candidates.toSeq

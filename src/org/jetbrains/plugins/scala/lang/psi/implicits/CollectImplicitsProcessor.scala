@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 class CollectImplicitsProcessor(expression: ScExpression, withoutPrecedence: Boolean)
   extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence)(expression) {
 
-  protected def getPlace: PsiElement = expression
+  def getPlace: PsiElement = expression
 
   def execute(element: PsiElement, state: ResolveState): Boolean = {
     val functionType = expression.elementScope.function1Type(level = 0)

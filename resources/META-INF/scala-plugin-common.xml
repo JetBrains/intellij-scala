@@ -18,6 +18,8 @@
         <extensionPoint name="parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer"/>
         <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver"/>
         <extensionPoint name="genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider"/>
+        <extensionPoint name="predefinedConversionsProvider"
+                        interface="org.jetbrains.plugins.scala.lang.completion.PredefinedConversionsProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -39,6 +41,14 @@
               implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.FunctionTypeNamesProvider"/>
       <genericTypeNamesProvider
               implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TupleTypeNamesProvider"/>
+        <predefinedConversionsProvider
+                implementation="org.jetbrains.plugins.scala.lang.completion.DecorateAsJavaConversionsProvider"/>
+        <predefinedConversionsProvider
+                implementation="org.jetbrains.plugins.scala.lang.completion.DecorateAsScalaConversionsProvider"/>
+        <predefinedConversionsProvider
+                implementation="org.jetbrains.plugins.scala.lang.completion.WrapAsJavaConversionsProvider"/>
+        <predefinedConversionsProvider
+                implementation="org.jetbrains.plugins.scala.lang.completion.WrapAsScalaConversionsProvider"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">

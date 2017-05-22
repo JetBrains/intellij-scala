@@ -43,7 +43,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
   protected val signatures: mutable.HashMap[Signature, Boolean] = new mutable.HashMap[Signature, Boolean]()
 
-  protected def getPlace: PsiElement = place
+  def getPlace: PsiElement = place
 
   protected def getQualifiedName(result: ScalaResolveResult): QualifiedName = CompletionProcessor.getQualifiedName(result)
 
