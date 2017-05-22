@@ -71,10 +71,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           SourcePosition.createFromLine(psiFile, lineNumber)
         }
       }
-    position match {
-      case Some(p) => p
-      case None => throw NoDataException.INSTANCE
-    }
+    position.getOrThrow(NoDataException.INSTANCE)
   }
 
   @NotNull
