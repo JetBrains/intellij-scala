@@ -20,9 +20,9 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debug
   override final def createStub(psi: T, parentStub: StubElement[_ <: PsiElement]): S = {
     import ScStubElementType._isStubBuilding
     try {
-      _isStubBuilding.set(true)
+      _isStubBuilding.set(_isStubBuilding.get + 1)
       createStubImpl(psi, parentStub)
-    } finally { _isStubBuilding.set(false) }
+    } finally { _isStubBuilding.set(_isStubBuilding.get - 1) }
   }
 
   protected def createStubImpl(psi: T, parentStub: StubElement[_ <: PsiElement]): S
@@ -39,6 +39,8 @@ abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debug
 }
 
 object ScStubElementType {
-  private val _isStubBuilding: ThreadLocal[Boolean] = new ThreadLocal[Boolean]
-  def isStubBuilding: Boolean = _isStubBuilding.get()
+  private val _isStubBuilding: ThreadLocal[Int] = new ThreadLocal[Int] {
+    override def initialValue(): Int = 0
+  }
+  def isStubBuilding: Boolean = _isStubBuilding.get() > 0
 }
