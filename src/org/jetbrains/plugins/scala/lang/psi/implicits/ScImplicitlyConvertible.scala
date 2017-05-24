@@ -344,6 +344,14 @@ object ScImplicitlyConvertible {
     val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty
   }
 
+  object ImplicitMapResult {
+
+    def unapply(mapResult: ImplicitMapResult): Option[(ScalaResolveResult, ScType)] =
+      Option(mapResult).map { result =>
+        (result.resolveResult, result.resultType)
+      }
+  }
+
   private case class SimpleImplicitMapResult(resolveResult: ScalaResolveResult, resultType: ScType) extends ImplicitMapResult
 
   private case class DependentImplicitMapResult(resolveResult: ScalaResolveResult, resultType: ScType,
