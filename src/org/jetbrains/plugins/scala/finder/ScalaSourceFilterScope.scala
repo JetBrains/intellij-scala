@@ -30,14 +30,16 @@ class ScalaSourceFilterScope(implicit elementScope: ElementScope) extends Source
 
 object ScalaSourceFilterScope {
   def apply(search: ReferencesSearch.SearchParameters): SearchScope =
-    updateScope(search)(search.getEffectiveSearchScope)
+    updateScope(search.getProject)(search.getEffectiveSearchScope)
 
   def apply(search: MethodReferencesSearch.SearchParameters): SearchScope =
-    updateScope(search)(search.getEffectiveSearchScope)
+    updateScope(search.getProject)(search.getEffectiveSearchScope)
 
-  private def updateScope(search: DumbAwareSearchParameters): SearchScope => SearchScope = {
+  def apply(project: Project, scope: SearchScope): SearchScope = updateScope(project)(scope)
+
+  private def updateScope(project: Project): SearchScope => SearchScope = {
     case global: GlobalSearchScope =>
-      implicit val elementScope = ElementScope(search.getProject, global)
+      implicit val elementScope = ElementScope(project, global)
       new ScalaSourceFilterScope
     case local: LocalSearchScope =>
       val filtered = local.getScope.filter(_.getLanguage.isKindOf(ScalaLanguage.INSTANCE))

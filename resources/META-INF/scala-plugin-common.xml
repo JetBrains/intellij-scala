@@ -234,6 +234,8 @@
               id="scalaNameSuggestionProvider" order="last"/>
         <definitionsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.MethodImplementationsSearch"/>
         <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher" order="first"/>
+        <overridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawOverridingSearcher" order="last"/>
+        <allOverridingMethodsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.JavaRawAllOverridingSearcher" order="last"/>
         <antCustomCompiler implementation="org.jetbrains.plugins.scala.ant.ScalaAntCustomCompilerProvider"/>
         <refactoring.moveClassHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassHandler" order="first"/>
         <refactoring.moveDirectoryWithClassesHelper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveDirectoryWithClassesHelper"/>
