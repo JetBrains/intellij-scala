@@ -1188,7 +1188,7 @@ trait ScalaConformance extends api.Conformance {
         result = (false, undefinedSubst)
       } else {
         val unSubst: ScUndefinedSubstitutor = res._2
-        unSubst.getSubstitutor(notNonable = false) match {
+        unSubst.getSubstitutor match {
           case Some(uSubst) =>
             for (tpt <- tptsMap.values if result == null) {
               val substedTpt = uSubst.subst(tpt)
