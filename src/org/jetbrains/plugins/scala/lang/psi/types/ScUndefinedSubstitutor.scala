@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
+import com.intellij.openapi.util.Ref
+import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedSubstitutor._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 sealed trait ScUndefinedSubstitutor {
-
-  type Name = (String, Long)
-
-  case class SubstitutorWithBounds(subst: ScSubstitutor, lowers: Map[Name, ScType], upper: Map[Name, ScType])
-
   def addLower(name: Name, _lower: ScType, additional: Boolean = false, variance: Int = -1): ScUndefinedSubstitutor
   def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor
-  def getSubstitutor(notNonable: Boolean): Option[ScSubstitutor] = getSubstitutorWithBounds(notNonable).map(_._1)
-  def getSubstitutor: Option[ScSubstitutor] = getSubstitutor(notNonable = false)
+  def getSubstitutor: Option[ScSubstitutor] = getSubstitutorWithBounds(nonable = true).map(_._1)
   def filter(fun: (((String, Long), Set[ScType])) => Boolean): ScUndefinedSubstitutor
   def addSubst(added: ScUndefinedSubstitutor): ScUndefinedSubstitutor
   def +(subst: ScUndefinedSubstitutor): ScUndefinedSubstitutor = addSubst(subst)
@@ -20,10 +16,14 @@ sealed trait ScUndefinedSubstitutor {
   def names: Set[Name]
 
   //subst, lowers, uppers
-  def getSubstitutorWithBounds(notNonable: Boolean): Option[(ScSubstitutor, Map[Name, ScType], Map[Name, ScType])]
+  def getSubstitutorWithBounds(nonable: Boolean): Option[(ScSubstitutor, Map[Name, ScType], Map[Name, ScType])]
 }
 
 object ScUndefinedSubstitutor {
+
+  type Name = (String, Long)
+  type SubstitutorWithBounds = (ScSubstitutor, Map[Name, ScType], Map[Name, ScType])
+
   def apply(upperMap: Map[(String, Long), Set[ScType]] = Map.empty,
             lowerMap: Map[(String, Long), Set[ScType]] = Map.empty,
             upperAdditionalMap: Map[(String, Long), Set[ScType]] = Map.empty,
@@ -111,15 +111,8 @@ private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[S
           case (tp, _, data) => (false, tp, data)
         }, variance)
     }).unpackedType
-    val lMap = if (additional) lowerAdditionalMap else lowerMap
-    lMap.get(name) match {
-      case Some(set: Set[ScType]) =>
-        if (additional) copy(lowerAdditionalMap = lMap.updated(name, set + lower))
-        else copy(lowerMap = lMap.updated(name, set + lower))
-      case None =>
-        if (additional) copy(lowerAdditionalMap = lMap + ((name, Set(lower))))
-        else copy(lowerMap = lMap + ((name, Set(lower))))
-    }
+
+    addToMap(name, lower, toUpper = false, additional)
   }
 
   def addUpper(name: Name, _upper: ScType, additional: Boolean = false, variance: Int = 1): ScUndefinedSubstitutor = {
@@ -148,15 +141,8 @@ private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[S
             case (tp, _, data) => (false, tp, data)
           }, variance)
       }).unpackedType
-    val uMap = if (additional) upperAdditionalMap else upperMap
-    uMap.get(name) match {
-      case Some(set: Set[ScType]) =>
-        if (additional) copy(upperAdditionalMap = uMap.updated(name, set + upper))
-        else copy(upperMap = uMap.updated(name, set + upper))
-      case None =>
-        if (additional) copy(upperAdditionalMap = uMap + ((name, Set(upper))))
-        else copy(upperMap = uMap + ((name, Set(upper))))
-    }
+
+    addToMap(name, upper, toUpper = true, additional)
   }
 
   lazy val additionalNames: Set[Name] = {
@@ -169,149 +155,119 @@ private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[S
     upperMap.keySet ++ lowerMap.filter(_._2.exists(!_.equiv(Nothing))).keySet ++ additionalNames
   }
 
-  def getSubstitutorWithBounds(notNonable: Boolean): Option[(ScSubstitutor, Map[Name, ScType], Map[Name, ScType])] = {
+  private lazy val substWithBounds: Option[SubstitutorWithBounds] = getSubstitutorWithBoundsImpl(nonable = true)
+
+  private lazy val substWithBoundsNotNonable: Option[SubstitutorWithBounds] = getSubstitutorWithBoundsImpl(nonable = false)
+
+  override def getSubstitutorWithBounds(nonable: Boolean): Option[SubstitutorWithBounds] = {
+    if (nonable) substWithBounds
+    else substWithBoundsNotNonable
+  }
+
+  private def addToMap(name: Name, scType: ScType, toUpper: Boolean, toAdditional: Boolean): ScUndefinedSubstitutor = {
+    val map =
+      if (toUpper) if (toAdditional) upperAdditionalMap else upperMap
+      else if (toAdditional) lowerAdditionalMap else lowerMap
+
+    val forName = map.getOrElse(name, Set.empty)
+    val updated = map.updated(name, forName + scType)
+
+    if (toUpper)
+      if (toAdditional) copy(upperAdditionalMap = updated)
+      else copy(upperMap = updated)
+    else
+      if (toAdditional) copy(lowerAdditionalMap = updated)
+      else copy(lowerMap = updated)
+  }
+
+  private def getSubstitutorWithBoundsImpl(nonable: Boolean): Option[SubstitutorWithBounds] = {
     var tvMap = Map.empty[Name, ScType]
     var lMap = Map.empty[Name, ScType]
     var uMap = Map.empty[Name, ScType]
 
     def solve(name: Name, visited: Set[Name]): Option[ScType] = {
+
+      def checkRecursive(tp: ScType, needTvMapRef: Ref[Boolean]): Boolean = {
+        tp.recursiveUpdate {
+          case tpt: TypeParameterType =>
+            val otherName = tpt.nameAndId
+            if (additionalNames.contains(otherName)) {
+              needTvMapRef.set(true)
+              solve(otherName, visited + name) match {
+                case None if nonable => return false
+                case _ =>
+              }
+            }
+            (false, tpt)
+          case UndefinedType(tpt, _) =>
+            val otherName = tpt.nameAndId
+            if (names.contains(otherName)) {
+              needTvMapRef.set(true)
+              solve(otherName, visited + name) match {
+                case None if nonable => return false
+                case _ =>
+              }
+            }
+            (false, tpt)
+          case tp: ScType => (false, tp)
+        }
+        true
+      }
+
+      def hasRecursion(set: Set[ScType], needTvMapRef: Ref[Boolean]): Boolean = {
+        val iterator = set.iterator
+        while (iterator.hasNext) {
+          val p = iterator.next()
+          if (!checkRecursive(p, needTvMapRef)) {
+            tvMap += ((name, Nothing))
+            return true
+          }
+        }
+        false
+      }
+
       if (visited.contains(name)) {
         tvMap += ((name, Nothing))
         return None
       }
+
       tvMap.get(name) match {
         case Some(tp) => Some(tp)
         case _ =>
-          (lowerMap.get(name).map(set => lowerAdditionalMap.get(name) match {
-            case Some(set1) => set ++ set1
-            case _ => set
-          }) match {
-            case Some(set) => Some(set)
-            case _ => lowerAdditionalMap.get(name)
-          }) match {
-            case Some(set) =>
-              var res = false
-              def checkRecursive(tp: ScType): Boolean = {
-                tp.recursiveUpdate {
-                  case tpt: TypeParameterType =>
-                    val otherName = tpt.nameAndId
-                    if (additionalNames.contains(otherName)) {
-                      res = true
-                      solve(otherName, visited + name) match {
-                        case None if !notNonable => return false
-                        case _ =>
-                      }
-                    }
-                    (false, tpt)
-                  case UndefinedType(tpt, _) =>
-                    val otherName = tpt.nameAndId
-                    if (names.contains(otherName)) {
-                      res = true
-                      solve(otherName, visited + name) match {
-                        case None if !notNonable => return false
-                        case _ =>
-                      }
-                    }
-                    (false, tpt)
-                  case tp: ScType => (false, tp)
-                }
-                true
-              }
-              val seqIterator = set.iterator
-              while (seqIterator.hasNext) {
-                val p = seqIterator.next()
-                if (!checkRecursive(p)) {
-                  tvMap += ((name, Nothing))
+          val lowerSet = lowerMap.getOrElse(name, Set.empty) ++ lowerAdditionalMap.getOrElse(name, Set.empty)
+          if (lowerSet.nonEmpty) {
+            val needTvMapRef = Ref.create(false)
+            if (hasRecursion(lowerSet, needTvMapRef)) return None
+
+            val subst = if (needTvMapRef.get()) ScSubstitutor(tvMap) else ScSubstitutor.empty
+
+            val substed = lowerSet.toSeq.map(subst.subst)
+            val lower = project.typeSystem.lub(substed, checkWeak = true)
+
+            lMap += ((name, lower))
+            tvMap += ((name, lower))
+          }
+
+          val upperSet = upperMap.getOrElse(name, Set.empty) ++ upperAdditionalMap.getOrElse(name, Set.empty)
+          if (upperSet.nonEmpty) {
+            val needTvMapRef = Ref.create(false)
+            if (hasRecursion(upperSet, needTvMapRef)) return None
+
+            val subst = if (needTvMapRef.get()) ScSubstitutor(tvMap) else ScSubstitutor.empty
+            val substed = upperSet.toSeq.map(subst.subst)
+
+            val upper = project.typeSystem.glb(substed, checkWeak = false)
+            uMap += ((name, upper))
+
+            tvMap.get(name) match {
+              case Some(lower) =>
+                if (nonable && !lower.conforms(upper)) {
                   return None
                 }
-              }
-              if (set.nonEmpty) {
-                val subst = if (res) ScSubstitutor(tvMap) else ScSubstitutor.empty
-                var lower: ScType = Nothing
-                val setIterator = set.iterator
-                while (setIterator.hasNext) {
-                  lower = lower.lub(subst.subst(setIterator.next()), checkWeak = true)
-                }
-                lMap += ((name, lower))
-                tvMap += ((name, lower))
-              }
-            case None =>
+              case None => tvMap += ((name, upper))
+            }
           }
-          (upperMap.get(name).map(set => upperAdditionalMap.get(name) match {
-            case Some(set1) => set ++ set1
-            case _ => set
-          }) match {
-            case Some(set) => Some(set)
-            case _ => upperAdditionalMap.get(name)
-          }) match {
-            case Some(set) =>
-              var res = false
-              def checkRecursive(tp: ScType): Boolean = {
-                tp.recursiveUpdate {
-                  case tpt: TypeParameterType =>
-                    val otherName = tpt.nameAndId
-                    if (additionalNames.contains(otherName)) {
-                      res = true
-                      solve(otherName, visited + name) match {
-                        case None if !notNonable => return false
-                        case _ =>
-                      }
-                    }
-                    (false, tpt)
-                  case UndefinedType(tpt, _) =>
-                    val otherName = tpt.nameAndId
-                    if (names.contains(otherName)) {
-                      res = true
-                      solve(otherName, visited + name) match {
-                        case None if !notNonable => return false
-                        case _ =>
-                      }
-                    }
-                    (false, tpt)
-                  case tp: ScType => (false, tp)
-                }
-                true
-              }
-              val seqIterator = set.iterator
-              while (seqIterator.hasNext) {
-                val p = seqIterator.next()
-                if (!checkRecursive(p)) {
-                  tvMap += ((name, Nothing))
-                  return None
-                }
-              }
-              if (set.nonEmpty) {
-                var uType: ScType = Nothing
-                val subst = if (res) ScSubstitutor(tvMap) else ScSubstitutor.empty
-                val size: Int = set.size
-                if (size == 1) {
-                  uType = subst.subst(set.iterator.next())
-                  uMap += ((name, uType))
-                } else if (size > 1) {
-                  var upper: ScType = Any
-                  val setIterator = set.iterator
-                  while (setIterator.hasNext) {
-                    upper = upper.glb(subst.subst(setIterator.next()), checkWeak = false)
-                  }
-                  uType = upper
-                  uMap += ((name, uType))
-                }
-                tvMap.get(name) match {
-                  case Some(lower) =>
-                    if (!notNonable) {
-                      val seqIterator = set.iterator
-                      while (seqIterator.hasNext) {
-                        val upper = seqIterator.next()
-                        if (!lower.conforms(subst.subst(upper))) {
-                          return None
-                        }
-                      }
-                    }
-                  case None => tvMap += ((name, uType))
-                }
-              }
-            case None =>
-          }
+
 
           if (tvMap.get(name).isEmpty) {
             tvMap += ((name, Nothing))
@@ -319,12 +275,13 @@ private class ScUndefinedSubstitutorImpl(val upperMap: Map[(String, Long), Set[S
           tvMap.get(name)
       }
     }
+
     val namesIterator = names.iterator
     while (namesIterator.hasNext) {
       val name = namesIterator.next()
       solve(name, Set.empty) match {
         case Some(_) => // do nothing
-        case None if !notNonable => return None
+        case None if nonable => return None
         case _ =>
       }
     }
@@ -350,7 +307,7 @@ class ScMultiUndefinedSubstitutor(val subs: Seq[ScUndefinedSubstitutor]) extends
   override def addUpper(name: (String, Long), _upper: ScType, additional: Boolean, variance: Int): ScUndefinedSubstitutor =
     copy(subs.map(_.addUpper(name, _upper, additional, variance)))
 
-  override def getSubstitutorWithBounds(notNonable: Boolean): Option[(ScSubstitutor, Map[Name, ScType], Map[Name, ScType])] =
+  override def getSubstitutorWithBounds(notNonable: Boolean): Option[SubstitutorWithBounds] =
     subs.map(_.getSubstitutorWithBounds(notNonable)).find(_.isDefined).getOrElse(None)
 
   override def filter(fun: (((String, Long), Set[ScType])) => Boolean): ScUndefinedSubstitutor =
