@@ -111,6 +111,9 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
     val optString = options.mkString(", ")
     val pluginJar = sbtStructureJar(sbtVersion.presentation)
+    val dumpStructureCommand =
+      if (sbtVersion < sinceSbtVersionShell) "dump-structure"
+      else "dumpStructure"
 
     val setCommands = Seq(
       s"""shellPrompt := { _ => "" }""",
@@ -121,7 +124,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     val sbtCommands = Seq(
       setCommands,
       s"""apply -cp "${path(pluginJar)}" org.jetbrains.sbt.CreateTasks""",
-      "*/*:dump-structure"
+      s"*/*:$dumpStructureCommand"
     ).mkString(";",";","")
 
     val processCommandsRaw =
