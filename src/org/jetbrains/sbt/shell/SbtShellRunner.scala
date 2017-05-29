@@ -11,6 +11,7 @@ import com.intellij.execution.ui.layout.PlaceInGrid
 import com.intellij.execution.ui.{RunContentDescriptor, RunnerLayoutUi}
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.content.{Content, ContentFactory}
@@ -152,6 +153,11 @@ class SbtShellRunner(project: Project, consoleTitle: String)
 
     // input is echoed to the process anyway
     setAddCurrentToHistory(false)
+
+    override def execute(text: String, console: LanguageConsoleView): Unit = {
+      EditorUtil.scrollToTheEnd(console.getHistoryViewer)
+      super.execute(text, console)
+    }
   }
 }
 
