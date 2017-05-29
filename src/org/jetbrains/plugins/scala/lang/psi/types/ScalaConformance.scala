@@ -365,27 +365,28 @@ trait ScalaConformance extends api.Conformance {
 
     trait CompoundTypeVisitor extends ScalaTypeVisitor {
       override def visitCompoundType(c: ScCompoundType) {
-        var comps = c.components.toList
-        var results = List[ScUndefinedSubstitutor]()
+        val comps = c.components
+        var results = Set[ScUndefinedSubstitutor]()
         def traverse(check: (ScType, ScUndefinedSubstitutor) => (Boolean, ScUndefinedSubstitutor)) = {
           val iterator = comps.iterator
           while (iterator.hasNext) {
             val comp = iterator.next()
             val t = check(comp, undefinedSubst)
             if (t._1) {
-              results = t._2 :: results
-              comps = comps.filter(_ == comp)
+              results = results + t._2
             }
           }
         }
         traverse(typeSystem.equivInner(l, _, _))
-        traverse(conformsInner(l, _, HashSet.empty, _))
+        if (results.isEmpty) {
+          traverse(conformsInner(l, _, HashSet.empty, _))
+        }
 
-        if (results.length == 1) {
+        if (results.size == 1) {
           result = (true, results.head)
           return
-        } else if (results.length > 1) {
-          result = (true, ScUndefinedSubstitutor.multi(results.reverse))
+        } else if (results.size > 1) {
+          result = (true, ScUndefinedSubstitutor.multi(results))
           return
         }
 
