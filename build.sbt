@@ -1,3 +1,5 @@
+import java.io.File
+
 import Common._
 import com.dancingrobot84.sbtidea.tasks.{UpdateIdea => updateIdeaTask}
 import sbt.Keys.{`package` => pack}
@@ -27,7 +29,7 @@ addCommandAlias("packagePluginCommunity", "pluginPackagerCommunity/package")
 addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package")
 
 // Main projects
-lazy val scalaCommunity: Project =
+lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
   .dependsOn(compilerSettings, scalap % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin)
@@ -66,7 +68,9 @@ lazy val jpsPlugin =
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
-    libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.dottyInterface) ++ DependencyGroups.sbtBundled
+    libraryDependencies ++=
+      Seq(Dependencies.nailgun, Dependencies.dottyInterface) ++
+        DependencyGroups.sbtBundled
   )
 
 lazy val compilerSettings =
@@ -134,14 +138,18 @@ lazy val ideaRunner =
       "-Dapple.laf.useScreenMenuBar=true",
       s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin",
       "-Didea.ProcessCanceledException=disabled"
-    )
+    ),
+    products in Compile := {
+      (products in Compile).value :+ (pack in pluginPackagerCommunity).value
+    }
   )
 
-lazy val sbtRuntimeDependencies =
-  newProject("sbtRuntimeDependencies")
+lazy val sbtRuntimeDependencies = project
   .settings(
-    libraryDependencies ++= DependencyGroups.sbtRuntime,
-    autoScalaLibrary := false
+    libraryDependencies := DependencyGroups.sbtRuntime,
+    managedScalaInstance := false,
+    conflictManager := ConflictManager.all,
+    conflictWarning := ConflictWarning.disable
   )
 
 lazy val testDownloader =
@@ -216,6 +224,7 @@ lazy val iLoopWrapperPath = settingKey[File]("Path to repl interface sources")
 
 iLoopWrapperPath := baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala"
 
+
 lazy val pluginPackagerCommunity =
   newProject("pluginPackagerCommunity")
   .settings(
@@ -224,38 +233,42 @@ lazy val pluginPackagerCommunity =
       dependencyClasspath.in(scalaCommunity, Compile).value ++
       dependencyClasspath.in(jpsPlugin, Compile).value ++
       dependencyClasspath.in(runners, Compile).value ++
-      dependencyClasspath.in(sbtRuntimeDependencies, Compile).value,
-
+      dependencyClasspath.in(sbtRuntimeDependencies, Compile).value
+    ,
     mappings := {
       import Packaging.PackageEntry._
-      val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
-      val librariesToCopyAsIs = DependencyGroups.scalaCommunity.filterNot { lib =>
-        crossLibraries.contains(lib) || lib == Dependencies.scalaLibrary || lib == Dependencies.scalaMetaCore
-      }
+      import Dependencies._
+
+      val crossLibraries = (
+        List(Dependencies.scalaParserCombinators, Dependencies.scalaXml) ++
+          DependencyGroups.scalaCommunity
+        ).distinct
       val jps = Seq(
         Artifact(pack.in(jpsPlugin, Compile).value,
           "lib/jps/scala-jps-plugin.jar"),
-        Library(Dependencies.nailgun,
+        Library(nailgun,
           "lib/jps/nailgun.jar"),
-        Library(Dependencies.compilerInterfaceSources,
+        Library(compilerInterfaceSources,
           "lib/jps/compiler-interface-sources.jar"),
-        Library(Dependencies.incrementalCompiler,
+        Library(incrementalCompiler,
           "lib/jps/incremental-compiler.jar"),
-        Library(Dependencies.sbtInterface,
+        Library(sbtInterface,
           "lib/jps/sbt-interface.jar"),
-        Library(Dependencies.bundledJline,
+        Library(bundledJline,
           "lib/jps/jline.jar"),
-        Library(Dependencies.dottyInterface,
+        Library(dottyInterface,
           "lib/jps/dotty-interfaces.jar"),
         Artifact(Packaging.putInTempJar(baseDirectory.in(jpsPlugin).value / "resources" / "ILoopWrapperImpl.scala" ),
           "lib/jps/repl-interface-sources.jar")
       )
       val launcher = Seq(
-        Library(Dependencies.sbtStructureExtractor012,
+        Library(sbtStructureExtractor_012,
           "launcher/sbt-structure-0.12.jar"),
-        Library(Dependencies.sbtStructureExtractor013,
+        Library(sbtStructureExtractor_013,
           "launcher/sbt-structure-0.13.jar"),
-        Library(Dependencies.sbtLaunch,
+        Library(sbtStructureExtractor_100,
+          "launcher/sbt-structure-1.0.jar"),
+        Library(sbtLaunch,
           "launcher/sbt-launch.jar")
       )
       val lib = Seq(
@@ -272,22 +285,27 @@ lazy val pluginPackagerCommunity =
             pack.in(scalaRunner, Compile).value),
           "lib/scala-plugin-runners.jar"),
         AllOrganisation("org.scalameta", "lib/scalameta120.jar"),
-        Library(Dependencies.scalaLibrary,
+        Library(scalaLibrary,
           "lib/scala-library.jar")
       ) ++
         crossLibraries.map { lib =>
-          Library(lib.copy(name = lib.name + "_2.11"), s"lib/${lib.name}.jar")
-        } ++
-        librariesToCopyAsIs.map { lib =>
-          Library(lib, s"lib/${lib.name}.jar")
+          Library(
+            lib.copy(name = Packaging.crossName(lib, scalaVersion.value)),
+            s"lib/${lib.name}.jar"
+          )
         }
-      Packaging.convertEntriesToMappings(jps ++ lib ++ launcher, dependencyClasspath.value)
+
+      Packaging.convertEntriesToMappings(
+        jps ++ lib ++ launcher,
+        dependencyClasspath.value
+      )
     },
     pack := {
       Packaging.packagePlugin(mappings.value, artifactPath.value)
       artifactPath.value
     }
   )
+
 
 lazy val pluginCompressorCommunity =
   newProject("pluginCompressorCommunity")
