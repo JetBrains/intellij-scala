@@ -42,6 +42,7 @@ object SbtUtil {
   private def defaultGlobalBase = fileProperty("user.home") / ".sbt"
   private def defaultVersionedGlobalBase(sbtVersion: String): File = defaultGlobalBase / sbtVersion
 
+  // FIXME doesn't work for milestone versions
   def majorVersion(sbtVersion: Version): Version = sbtVersion.major(2)
 
   def detectSbtVersion(directory: File, sbtLauncher: => File): String =
