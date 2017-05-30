@@ -22,7 +22,8 @@ trait ScalaMetaLibrariesOwner extends ScalaSdkOwner {
     MetaTokensLoader(),
     MetaTransversersLoader(),
     MetaTreesLoader(),
-    MetaSemanticLoader()
+    MetaSemanticLoader(),
+    MetaIOLoader()
   )
 }
 
@@ -82,6 +83,10 @@ object ScalaMetaLibrariesOwner {
 
   private case class MetaSemanticLoader(implicit val module: Module) extends MetaBaseLoader {
     override protected val name: String = "semantic"
+  }
+
+  private case class MetaIOLoader(implicit val module: Module) extends MetaBaseLoader {
+    override protected val name: String = "io"
   }
 
 }
