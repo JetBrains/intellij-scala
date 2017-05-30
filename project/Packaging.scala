@@ -2,9 +2,6 @@ import java.io.File
 
 import sbt.Keys._
 import sbt._
-import coursier._
-
-import scalaz.concurrent.Task
 
 object Packaging {
 
@@ -63,8 +60,15 @@ object Packaging {
         .filter { case (k,_) => k == "scalaVersion" || k == "sbtVersion" }
     )
 
-  def crossName(moduleId: ModuleID, scalaVersion: String): String =
-    FromSbt.sbtModuleIdName(moduleId, scalaVersion, Versions.Scala.binaryVersion(scalaVersion))
+  def crossName(moduleId: ModuleID, scalaVersion: String): String = {
+    import CrossVersion._
+    val name = moduleId.name
+    moduleId.crossVersion match {
+      case Disabled => name
+      case f: Full => name + "_" + f.remapVersion(scalaVersion)
+      case b: Binary => name + "_" + b.remapVersion(Versions.Scala.binaryVersion(scalaVersion))
+    }
+  }
 
   def pluginVersion: String =
     Option(System.getProperty("plugin.version")).getOrElse("SNAPSHOT")

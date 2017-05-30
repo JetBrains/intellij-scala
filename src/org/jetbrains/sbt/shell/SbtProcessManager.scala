@@ -38,7 +38,7 @@ class SbtProcessManager(project: Project) extends AbstractProjectComponent(proje
   private def sbtStructurePlugin(sbtMajorVersion: Version): Seq[String] = {
     // IDEA won't import the shared source dir between build definition and build, so this red
     val sbtStructureVersion = meta.Shared.sbtStructureVersion
-    val sbtIdeaShellVersion = "1.2+1-02a235a2"
+    val sbtIdeaShellVersion = "1.2+2-3eadcace"
     sbtMajorVersion.presentation match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
