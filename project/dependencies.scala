@@ -1,4 +1,3 @@
-import coursier.ToSbt
 import meta.Shared
 import sbt._
 
@@ -39,11 +38,11 @@ object Versions {
   object Sbt {
     val binary_0_12 = "0.12"
     val binary_0_13 = "0.13"
-    val binary_1_0 = "1.0.0-M5"
+    val binary_1_0 = "1.0.0-M6"
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.15"
-    val latest_1_0 = "1.0.0-M5"
+    val latest_1_0 = "1.0.0-M6"
     val latest: String = latest_0_13
     // maybe we should supply latest sbt via BuildInfo to Sbt.LatestVersion
 
@@ -102,11 +101,6 @@ object Dependencies {
   private def sbtPluginDependency(module: ModuleID, sbtVersion: String): ModuleID =
     sbt.Defaults.sbtPluginExtra(module, sbtVersion, Sbt.scalaVersion(sbtVersion))
 
-  def toSbt(dep: coursier.Dependency): ModuleID =
-    ToSbt.moduleId(dep, Map.empty)
-
-  def toCoursier(module: ModuleID, scalaVersion: String = Versions.scalaVersion): Seq[coursier.Dependency] =
-    coursier.FromSbt.dependencies(module, scalaVersion, Versions.Scala.binaryVersion(scalaVersion)).map(_._2)
 }
 
 object DependencyGroups {
