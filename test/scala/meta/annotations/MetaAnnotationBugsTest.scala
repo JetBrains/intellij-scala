@@ -59,4 +59,41 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
         |}""".stripMargin.trim
     checkExpansionEquals(code, expansion)
   }
+
+  def testSCL12032(): Unit = {
+    compileMetaSource(
+      """
+        |import scala.meta._
+        |class a extends scala.annotation.StaticAnnotation {
+        |  inline def apply(defn: Any): Any = meta {
+        |    defn match {
+        |      case q"..$mods def $name[..$tparams](...$paramss): $tpeopt = $expr" =>
+        |        q"..$mods def $name[..$tparams](...$paramss): $tpeopt = $expr"
+        |
+        |      case _ => abort("@a can only be applied to method")
+        |    }
+        |   }
+        | }
+      """.stripMargin)
+
+    val codeBar =
+      """
+        |class A {
+        |  @a def foo() = "not important"
+        |  @a protected def bar<caret>() = "not important"
+        |}
+      """.stripMargin
+    val expectedBar = "protected def bar() = \"not important\""
+    checkExpansionEquals(codeBar, expectedBar)
+
+    val codeFoo =
+      """
+        |class A {
+        |  @a def foo<caret>() = "not important"
+        |  @a protected def bar() = "not important"
+        |}
+      """.stripMargin
+    val expectedFoo = "def foo() = \"not important\""
+    checkExpansionEquals(codeFoo, expectedFoo)
+  }
 }
