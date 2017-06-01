@@ -2,7 +2,6 @@ package org.jetbrains.plugins.cbt.project.template
 
 import com.intellij.platform.ProjectTemplate
 import org.jetbrains.sbt.Sbt
-import org.jetbrains.sbt.project.template.SbtModuleBuilder
 
 class CbtProjectTemplate extends ProjectTemplate {
   override def getName = "CBT"
@@ -11,7 +10,7 @@ class CbtProjectTemplate extends ProjectTemplate {
 
   override def getIcon = Sbt.Icon
 
-  override def createModuleBuilder() = new SbtModuleBuilder()
+  override def createModuleBuilder() = new CbtModuleBuilder()
 
   override def validateSettings() = null
 }
