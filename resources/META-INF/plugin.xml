@@ -31,4 +31,8 @@
     <xi:include href="/META-INF/scala-plugin-common.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/HOCON.xml" xpointer="xpointer(/idea-plugin/*)"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectTemplatesFactory implementation="org.jetbrains.plugins.cbt.project.template.CbtProjectTemplateFactory" order="first"/>
+    </extensions>
 </idea-plugin>
