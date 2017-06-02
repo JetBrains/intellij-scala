@@ -4,7 +4,7 @@ import java.util
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
-import com.intellij.execution.process.ProcessHandler
+import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
@@ -25,11 +25,14 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
   override def getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState = {
     new CbtComandLineState(this, environment)
   }
-}
 
-class CbtComandLineState(configuration: CbtRunConfiguration, environment: ExecutionEnvironment)
-  extends CommandLineState(environment) {
-  override def startProcess(): ProcessHandler = {
-    null
+  class CbtComandLineState(configuration: CbtRunConfiguration, environment: ExecutionEnvironment)
+    extends CommandLineState(environment) {
+    override def startProcess(): ProcessHandler = {
+      val commandLine = new GeneralCommandLine("cbt", "run")
+        .withWorkDirectory(defaultWorkingDirectory)
+      new OSProcessHandler(commandLine)
+    }
   }
 }
+
