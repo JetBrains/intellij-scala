@@ -7,7 +7,7 @@ import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.runner.SbtRunConfigurationFactory
 
 class CbtConfigurationType extends ConfigurationType {
-  val confFactory = new SbtRunConfigurationFactory(this)
+  val confFactory = new CbtRunConfigurationFactory(this)
 
   def getIcon: Icon = Sbt.Icon
 
