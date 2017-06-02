@@ -32,7 +32,9 @@
     <xi:include href="/META-INF/SBT.xml" xpointer="xpointer(/idea-plugin/*)"/>
     <xi:include href="/META-INF/HOCON.xml" xpointer="xpointer(/idea-plugin/*)"/>
 
+
     <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="org.jetbrains.plugins.cbt.runner.CbtConfigurationType"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.cbt.project.template.CbtProjectTemplateFactory" order="first"/>
     </extensions>
 </idea-plugin>
