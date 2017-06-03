@@ -4,7 +4,8 @@ import java.util
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations._
-import com.intellij.execution.process.{OSProcessHandler, ProcessHandler}
+import com.intellij.execution.filters.TextConsoleBuilderFactory
+import com.intellij.execution.process.{OSProcessHandler, ProcessHandler, ProcessHandlerFactory}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
@@ -48,10 +49,13 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   class CbtComandLineState(configuration: CbtRunConfiguration, environment: ExecutionEnvironment)
     extends CommandLineState(environment) {
+
     override def startProcess(): ProcessHandler = {
+      val factory = ProcessHandlerFactory.getInstance
+
       val commandLine = new GeneralCommandLine("cbt", task)
-        .withWorkDirectory(defaultWorkingDirectory)
-      new OSProcessHandler(commandLine)
+                        .withWorkDirectory(defaultWorkingDirectory)
+      factory.createColoredProcessHandler(commandLine)
     }
   }
 }
