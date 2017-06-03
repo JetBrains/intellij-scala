@@ -9,6 +9,8 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.JDOMExternalizer
+import org.jdom.Element
 
 import scala.collection.JavaConversions._
 
@@ -29,6 +31,16 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
   }
 
   def getTask: String = task
+
+  override def writeExternal(element: Element) {
+    super.writeExternal(element)
+    JDOMExternalizer.write(element, "task", task)
+  }
+
+  override def readExternal(element: Element) {
+    super.readExternal(element)
+    task = JDOMExternalizer.readString(element, "task")
+  }
 
   def apply(params: CbtRunConfigurationForm): Unit = {
     task = params.getTask
