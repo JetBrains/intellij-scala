@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.cbt.runner
 
-import javax.swing.{JComponent, JPanel}
+import javax.swing.JComponent
 
 import com.intellij.openapi.options.SettingsEditor
 
 class CbtRunConfigurationEditor extends SettingsEditor[CbtRunConfiguration]{
-  val panel = new JPanel()
+  val form = new CbtRunConfigurationForm()
 
-  override def createEditor(): JComponent = panel
+  override def createEditor(): JComponent = form.getMainPanel
 
-  override def applyEditorTo(s: CbtRunConfiguration): Unit = {}
+  override def resetEditorFrom(configuration: CbtRunConfiguration): Unit = form(configuration)
 
-  override def resetEditorFrom(s: CbtRunConfiguration): Unit = {}
+  override def applyEditorTo(configuration: CbtRunConfiguration): Unit = configuration(form)
 }

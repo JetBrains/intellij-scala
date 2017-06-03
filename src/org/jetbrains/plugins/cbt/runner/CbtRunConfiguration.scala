@@ -18,6 +18,8 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   private def defaultWorkingDirectory = Option(project.getBaseDir).fold("")(_.getPath)
 
+  private var task = ""
+
   override def getValidModules: util.Collection[Module] = List()
 
   override def getConfigurationEditor: SettingsEditor[_ <: RunConfiguration] = new CbtRunConfigurationEditor()
@@ -26,13 +28,18 @@ class CbtRunConfiguration(val project: Project, val configurationFactory: Config
     new CbtComandLineState(this, environment)
   }
 
+  def getTask: String = task
+
+  def apply(params: CbtRunConfigurationForm): Unit = {
+    task = params.getTask
+  }
+
   class CbtComandLineState(configuration: CbtRunConfiguration, environment: ExecutionEnvironment)
     extends CommandLineState(environment) {
     override def startProcess(): ProcessHandler = {
-      val commandLine = new GeneralCommandLine("cbt", "run")
+      val commandLine = new GeneralCommandLine("cbt", task)
         .withWorkDirectory(defaultWorkingDirectory)
       new OSProcessHandler(commandLine)
     }
   }
 }
-
