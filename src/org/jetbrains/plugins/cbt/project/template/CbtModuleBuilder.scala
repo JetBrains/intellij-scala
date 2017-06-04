@@ -37,7 +37,7 @@ class CbtModuleBuilder
     scalaVersions
   }
 
-  private def setupDefaults = {
+  private def setupDefaults() = {
     if (selections.scalaVersion == null)
       selections.scalaVersion =
         loadedScalaVersions.headOption.getOrElse(Versions.DefaultScalaVersion)
@@ -59,7 +59,7 @@ class CbtModuleBuilder
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    setupDefaults
+    setupDefaults()
 
     val scalaVersionComboBox = applyTo(new SComboBox()) (
       _.setItems(loadedScalaVersions)

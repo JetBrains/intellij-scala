@@ -35,6 +35,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="org.jetbrains.plugins.cbt.runner.CbtConfigurationType"/>
+        <externalSystemManager implementation="org.jetbrains.plugins.cbt.project.CbtExternalSystemManager"/>
+
         <projectTemplatesFactory implementation="org.jetbrains.plugins.cbt.project.template.CbtProjectTemplateFactory" order="first"/>
     </extensions>
 </idea-plugin>
