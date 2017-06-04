@@ -12,7 +12,3 @@ class CbtProjectSettings extends ExternalProjectSettings{
   }
 }
 
-object SbtProjectSettings {
-  def default: CbtProjectSettings =
-    new CbtProjectSettings
-}
