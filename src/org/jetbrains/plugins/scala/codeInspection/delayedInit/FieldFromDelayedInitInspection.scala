@@ -13,8 +13,9 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 /**
  * @author Nikolay.Tropin
  */
-class FieldFromDelayedInitInspection extends AbstractInspection("FieldFromDelayedInit", "Field from DelayedInit"){
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+class FieldFromDelayedInitInspection extends AbstractInspection("FieldFromDelayedInit", "Field from DelayedInit") {
+
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case ref: ScReferenceExpression =>
       ref.bind() match {
         case Some(FieldInDelayedInit(delayedInitClass)) =>

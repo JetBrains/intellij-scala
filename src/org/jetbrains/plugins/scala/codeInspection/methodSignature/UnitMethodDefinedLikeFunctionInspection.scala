@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 class UnitMethodDefinedLikeFunctionInspection extends AbstractMethodSignatureInspection(
   "ScalaUnitMethodDefinedLikeFunction", "Method with Unit result type defined like function") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case f: ScFunctionDefinition if f.hasUnitResultType =>
       f.returnTypeElement.foreach { e =>
         holder.registerProblem(e, getDisplayName, new RemoveTypeAnnotationAndEqualSign(f))

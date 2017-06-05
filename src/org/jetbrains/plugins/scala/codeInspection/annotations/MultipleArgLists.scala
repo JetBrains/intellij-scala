@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
  * Date: 30.09.15.
  */
 class MultipleArgLists extends AbstractInspection("ScalaAnnotMultipleArgLists", "MultipleArgListsInAnnotation") {
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case annotation: ScAnnotation if annotation.constructor.arguments.length > 1 => 
       holder.registerProblem(annotation, 
         "Implementation limitation: multiple argument lists on annotations are currently not supported")

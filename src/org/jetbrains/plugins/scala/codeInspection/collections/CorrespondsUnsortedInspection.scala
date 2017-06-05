@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 class CorrespondsUnsortedInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] = Array.empty
 
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case Both(expr: ScExpression, (left`.sameElements`(right))) if isUnsorted(left) || isUnsorted(right) =>
       holder.registerProblem(refNameId(expr).getOrElse(expr), InspectionBundle.message("sameElements.unsorted"), highlightType)
     case Both(expr: ScExpression, (left`.corresponds`(right, _))) if isIterator(left) && isUnsorted(right) =>

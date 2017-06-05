@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
  * 4/23/13
  *
  */
-class SimplifyBooleanInspection extends AbstractInspection("SimplifyBoolean", "Simplify boolean expression"){
+class SimplifyBooleanInspection extends AbstractInspection("SimplifyBoolean", "Simplify boolean expression") {
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions
     case expr: ScExpression if SimplifyBooleanUtil.canBeSimplified(expr) =>
         holder.registerProblem(expr, "Simplify boolean expression", ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanQuickFix(expr))

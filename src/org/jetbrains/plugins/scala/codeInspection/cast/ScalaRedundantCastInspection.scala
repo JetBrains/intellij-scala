@@ -15,11 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 /**
  * Pavel Fatin
  */
-
 class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") {
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case call: ScGenericCall =>
-      import call.projectContext
+
 
       call.referencedExpr.children.toList match {
         case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>

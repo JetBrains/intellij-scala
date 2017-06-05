@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 class UnitInMapInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] = Array()
 
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(call, _, Some(ref), Seq(arg @ lambdaWithBody(body)))
       if ref.refName == "map" && checkResolve(ref, getLikeCollectionClasses) =>
 

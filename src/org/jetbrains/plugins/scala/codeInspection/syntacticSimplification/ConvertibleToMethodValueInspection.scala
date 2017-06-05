@@ -31,8 +31,9 @@ object ConvertibleToMethodValueInspection {
   val inspectionId = "ConvertibleToMethodValue"
 }
 
-class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId, inspectionName){
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId, inspectionName) {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(_, _, Some(ref), _)
       if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty || hasByNameParam(srr.getElement)) =>
       //do nothing if implicit conversions or by-name params are involved
@@ -93,7 +94,6 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
   }
 
   private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String): Boolean = {
-    import oldExpr.projectContext
 
     val newExpr = createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {

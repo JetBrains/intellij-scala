@@ -4,7 +4,6 @@ package codeInspection.collections
 import java.awt.{Component, GridLayout}
 import java.util
 import javax.swing._
-import javax.swing.border
 import javax.swing.event.{ChangeEvent, ChangeListener}
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
@@ -48,10 +47,10 @@ object OperationOnCollectionInspectionBase {
   )
 }
 
-abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionId, inspectionName){
+abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionId, inspectionName) {
   private val settings = ScalaApplicationSettings.getInstance()
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override protected def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression  =>
       for (s <- simplifications(expr)) {
         holder.registerProblem(s.exprToReplace.getElement, s.hint, highlightType, s.rangeInParent, new OperationOnCollectionQuickFix(expr, s))
