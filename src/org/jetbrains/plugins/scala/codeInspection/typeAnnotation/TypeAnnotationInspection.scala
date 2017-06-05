@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala
-package codeInspection.typeAnnotation
+package codeInspection
+package typeAnnotation
 
-import java.util
+import java.{util => ju}
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.application.ex.ApplicationManagerEx
@@ -9,151 +10,185 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation, UpdateStrategy}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 /**
- * Pavel Fatin
- */
+  * Pavel Fatin
+  */
 class TypeAnnotationInspection extends AbstractInspection {
+
+  import TypeAnnotationInspection._
+
   // TODO Treat "simple" expressions just like any other expressions
   override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
-      val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
-
-      inspect(value.bindings.head,
-        kindOf(value) + " value",
-        TypeAnnotationUtil.isOverriding(value),
-        value.expr.exists(TypeAnnotationUtil.isSimple),
-        TypeAnnotationUtil.requirementForProperty(value, settings),
-        settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
-        settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-        holder)
-
+      inspect(value, value.bindings.head, "value", value.expr)
     case variable: ScVariableDefinition if variable.isSimple && !variable.hasExplicitType =>
-      val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
+      inspect(variable, variable.bindings.head, "variable", variable.expr)
+    case method: ScFunctionDefinition if functionIsValid(method) =>
+      inspect(method, method.nameId, "method", method.body)
+  }
 
-      inspect(variable.bindings.head,
-        kindOf(variable) + " variable",
-        TypeAnnotationUtil.isOverriding(variable),
-        variable.expr.exists(TypeAnnotationUtil.isSimple),
-        TypeAnnotationUtil.requirementForProperty(variable, settings),
+}
+
+object TypeAnnotationInspection {
+
+  import TypeAnnotationUtil._
+
+  private def functionIsValid(function: ScFunctionDefinition): Boolean =
+    function.hasAssign && !function.hasExplicitType &&
+      !function.isSecondaryConstructor &&
+      !function.hasAnnotation("org.junit.Test") && !function.hasAnnotation("junit.framework.Test") &&
+      !isMemberOf(function, "junit.framework.TestCase")
+
+  private def inspect(member: ScMember,
+                      anchor: PsiElement,
+                      kind: String,
+                      maybeExpression: Option[ScExpression])
+                     (implicit holder: ProblemsHolder) {
+    val (overridingPolicyIsRegular, simplePolicyIsRegular, isRequired) = policies(member)
+    if (isRequired &&
+      (simplePolicyIsRegular || !maybeExpression.exists(isSimple)) &&
+      (overridingPolicyIsRegular || !isOverriding(member))) {
+      val modifier = member match {
+        case _ if member.isLocal => "Local"
+        case _ if member.isPrivate => "Private"
+        case _ if member.isProtected => "Protected"
+        case _ => "Public"
+      }
+
+      holder.registerProblem(anchor, s"$modifier $kind requires an explicit type annotation (according to Code Style settings)",
+        new AddTypeAnnotationQuickFix(anchor),
+        new LearnWhyQuickFix,
+        new ModifyCodeStyleQuickFix)
+    }
+  }
+
+  private[this] def policies(member: ScMember)
+                            (implicit holder: ProblemsHolder): (Boolean, Boolean, Boolean) = {
+    val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
+
+    val (overridingPolicy, simplePolicy, requirement) = member match {
+      case _: ScPatternDefinition | _: ScVariableDefinition => (
         settings.OVERRIDING_PROPERTY_TYPE_ANNOTATION,
         settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
-        holder)
-
-    case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isSecondaryConstructor &&
-      !method.hasAnnotation("org.junit.Test") && !method.hasAnnotation("junit.framework.Test") &&
-      !TypeAnnotationUtil.isMemberOf(method, "junit.framework.TestCase") =>
-
-      val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
-
-      inspect(method.nameId,
-        kindOf(method) + " method",
-        TypeAnnotationUtil.isOverriding(method),
-        method.body.exists(TypeAnnotationUtil.isSimple),
-        TypeAnnotationUtil.requirementForMethod(method, settings),
+        requirementForProperty(member, settings)
+      )
+      case _ => (
         settings.OVERRIDING_METHOD_TYPE_ANNOTATION,
         settings.SIMPLE_METHOD_TYPE_ANNOTATION,
-        holder)
-  }
-
-  private def kindOf(member: ScMember) = if (member.isLocal) "Local" else {
-    if (member.isPrivate) "Private" else if (member.isProtected) "Protected" else "Public"
-  }
-
-  private def inspect(element: PsiElement,
-                      name: String,
-                      isOverriding: Boolean,
-                      isSimple: Boolean,
-                      requirement: Int,
-                      overridingPolicy: Int,
-                      simplePolicy: Int,
-                      holder: ProblemsHolder) {
-    if (requirement == TypeAnnotationRequirement.Required.ordinal &&
-            (!isSimple || simplePolicy == TypeAnnotationPolicy.Regular.ordinal) &&
-            (overridingPolicy == TypeAnnotationPolicy.Regular.ordinal || !isOverriding)) {
-      holder.registerProblem(element, s"$name requires an explicit type annotation (according to Code Style settings)",
-        new AddTypeAnnotationQuickFix(element),
-        new LearnWhyQuickFix(),
-        new ModifyCodeStyleQuickFix())
-    }
-  }
-
-  private class AddTypeAnnotationQuickFix(element: PsiElement)
-    extends AbstractFixOnPsiElement("Add type annotation", element) with BatchQuickFix[CommonProblemDescriptor] {
-
-    def doApplyFix(project: Project): Unit = {
-      val elem = getElement
-      ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, elem)
+        requirementForMethod(member, settings)
+      )
     }
 
-    override def applyFix(project: Project,
-                          descriptors: Array[CommonProblemDescriptor],
-                          psiElementsToIgnore: util.List[PsiElement],
-                          refreshViews: Runnable): Unit = {
+    val regularPolicy = TypeAnnotationPolicy.Regular.ordinal
+    (
+      overridingPolicy == regularPolicy,
+      simplePolicy == regularPolicy,
+      requirement == TypeAnnotationRequirement.Required.ordinal
+    )
+  }
+}
 
-      val fixes = descriptors.flatMap { d =>
-        d.getFixes.collect {
-          case addTypeFix: AddTypeAnnotationQuickFix => addTypeFix
+class AddTypeAnnotationQuickFix(element: PsiElement)
+  extends AbstractFixOnPsiElement("Add type annotation", element) with BatchQuickFix[CommonProblemDescriptor] {
+
+  import AddTypeAnnotationQuickFix._
+
+  def doApplyFix(project: Project): Unit =
+    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement)
+
+  override def applyFix(project: Project,
+                        descriptors: Array[CommonProblemDescriptor],
+                        psiElementsToIgnore: ju.List[PsiElement],
+                        refreshViews: Runnable): Unit = {
+    val quickFixes = descriptors.flatMap(_.getFixes).collect {
+      case quickFix: AddTypeAnnotationQuickFix => quickFix
+    }
+
+    val strategy = new CollectTypesToAddStrategy
+    ApplicationManagerEx.getApplicationEx.runProcessWithProgressSynchronously(
+      new ComputeTypesTask(quickFixes, strategy),
+      getFamilyName,
+      true,
+      project
+    )
+
+    inWriteCommandAction(project, getFamilyName) {
+      strategy.addActualTypes(Option(refreshViews))
+    }
+  }
+}
+
+object AddTypeAnnotationQuickFix {
+
+  private def updateProcessIndicator(text: String, quickFixesCount: Int): Unit = {
+    val indicator = ProgressManager.getInstance().getProgressIndicator
+    indicator.setFraction(indicator.getFraction + 1.0 / quickFixesCount)
+    indicator.setText(text)
+  }
+
+  private class ComputeTypesTask(quickFixes: Seq[AddTypeAnnotationQuickFix],
+                                 strategy: CollectTypesToAddStrategy) extends Runnable {
+
+    override def run(): Unit = inReadAction {
+      val quickFixesCount = quickFixes.length
+      quickFixes.map(_.getElement)
+        .foreach { element =>
+          ToggleTypeAnnotation.complete(strategy, element)
+          updateProcessIndicator(element.getText, quickFixesCount)
         }
-      }
-      val buffer = ArrayBuffer[(ScTypeElement, PsiElement)]()
-      val strategy = new CollectTypesToAddStrategy(buffer)
-
-      val computeTypesRunnable = new Runnable {
-        override def run(): Unit = inReadAction {
-          for (fix <- fixes) {
-            val elem = fix.getElement
-            ToggleTypeAnnotation.complete(strategy, elem)
-            val progress = ProgressManager.getInstance().getProgressIndicator
-            progress.setFraction(progress.getFraction + 1.0 / fixes.length)
-            progress.setText(elem.getText)
-          }
-        }
-      }
-
-      ApplicationManagerEx.getApplicationEx
-        .runProcessWithProgressSynchronously(computeTypesRunnable, getFamilyName, true, project)
-
-      inWriteCommandAction(project, getFamilyName) {
-        buffer.foreach {
-          case (typeElem, anchor) =>
-            val added = strategy.addActualType(typeElem, anchor)
-            TypeAdjuster.markToAdjust(added)
-
-            Option(refreshViews).foreach(_.run())
-        }
-      }
-    }
-
-    private class CollectTypesToAddStrategy(buffer: ArrayBuffer[(ScTypeElement, PsiElement)]) extends AddOnlyStrategy(editor = None) {
-
-      override def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement): Unit = {
-        val tps = UpdateStrategy.annotationsFor(t, context)
-        buffer += ((tps.head, anchor))
-      }
     }
   }
 
-  private class LearnWhyQuickFix extends LocalQuickFixBase("Learn Why...") {
-    def applyFix(project: Project, problemDescriptor: ProblemDescriptor) {
-      DesktopUtils.browse("http://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
+  class CollectTypesToAddStrategy() extends AddOnlyStrategy(editor = None) {
+
+    import TypeAdjuster.markToAdjust
+    import UpdateStrategy.annotationsFor
+
+    private val annotations = mutable.ArrayBuffer[(ScTypeElement, PsiElement)]()
+
+    def addActualTypes(refreshViews: Option[Runnable]): Unit =
+      annotations.map {
+        case (typeElement, anchor) => addActualType(typeElement, anchor)
+      }.foreach { addedElement =>
+        markToAdjust(addedElement)
+        refreshViews.foreach(_.run())
+      }
+
+    override def addTypeAnnotation(`type`: ScType, context: PsiElement, anchor: PsiElement): Unit = {
+      annotations ++= annotationsFor(`type`, context).headOption
+        .map((_, anchor))
     }
   }
 
-  private class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {
-    def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit = {
-      TypeAnnotationUtil.showTypeAnnotationsSettings(project)
-    }
-  }
+}
+
+class LearnWhyQuickFix extends LocalQuickFixBase("Learn Why...") {
+
+  import LearnWhyQuickFix.BlogPostUrl
+
+  def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
+    DesktopUtils.browse(BlogPostUrl)
+}
+
+object LearnWhyQuickFix {
+
+  private val BlogPostUrl: String = "http://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/"
+}
+
+class ModifyCodeStyleQuickFix extends LocalQuickFixBase("Modify Code Style...") {
+
+  def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
+    TypeAnnotationUtil.showTypeAnnotationsSettings(project)
 }
