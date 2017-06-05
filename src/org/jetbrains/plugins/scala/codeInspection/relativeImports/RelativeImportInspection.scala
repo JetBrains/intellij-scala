@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 class RelativeImportInspection extends AbstractInspection("RelativeImport", "Relative Import") {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case expr: ScImportExpr if expr.qualifier != null =>
       val q = qual(expr.qualifier)
       val resolve = q.multiResolve(false)

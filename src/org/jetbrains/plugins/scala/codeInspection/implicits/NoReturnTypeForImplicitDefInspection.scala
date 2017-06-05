@@ -15,8 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
  * Nikolay.Tropin
  * 2014-09-23
  */
-class NoReturnTypeForImplicitDefInspection extends AbstractInspection(id, description){
-  override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
+class NoReturnTypeForImplicitDefInspection extends AbstractInspection(id, description) {
+
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case fun: ScFunctionDefinition if fun.hasModifierProperty("implicit") &&
             fun.parameters.size == 1 &&
             !fun.paramClauses.clauses.exists(_.isImplicit) &&

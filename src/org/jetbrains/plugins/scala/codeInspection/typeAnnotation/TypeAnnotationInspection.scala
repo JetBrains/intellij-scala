@@ -26,7 +26,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 class TypeAnnotationInspection extends AbstractInspection {
   // TODO Treat "simple" expressions just like any other expressions
-  def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
+  override def actionFor(implicit holder: ProblemsHolder): PartialFunction[PsiElement, Unit] = {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
       val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
 
