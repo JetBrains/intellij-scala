@@ -19,6 +19,7 @@ class CbtProjectResolver extends ExternalSystemProjectResolver[CbtExecutionSetti
       val file = new File(settings.realProjectPath)
       if (file.isDirectory) file.getPath else file.getParent
     }
+    println("Cbt resolver called")
 
     val projectNode= new ProjectNode("", root, root)
     projectNode.toDataNode

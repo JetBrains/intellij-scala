@@ -17,6 +17,7 @@ import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{Platform, Versions}
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.template.SComboBox
 
 
@@ -83,11 +84,20 @@ class CbtModuleBuilder
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     val root = new File(getModuleFileDirectory)
-    generateTemplate(root)
+    if (root.exists()) {
+      updateModulePath()
+      generateTemplate(root)
+    }
     super.createModule(moduleModel)
   }
 
-  private def generateTemplate(root: File): Unit = {
+  private def updateModulePath() {
+    val file = new File(getModuleFilePath)
+    val path = file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
+    setModuleFilePath(path)
+  }
+
+ private def generateTemplate(root: File): Unit = {
     CBT.runAction(Seq("tools", "createMain"), root)
     CBT.runAction(Seq("tools", "createBuild"), root)
   }

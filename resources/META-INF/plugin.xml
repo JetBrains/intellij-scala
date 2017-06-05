@@ -35,8 +35,12 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="org.jetbrains.plugins.cbt.runner.CbtConfigurationType"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.cbt.project.settings.CbtSystemSettings"/>
+        <projectService serviceImplementation="org.jetbrains.plugins.cbt.project.settings.CbtLocalSettings"/>
         <externalSystemManager implementation="org.jetbrains.plugins.cbt.project.CbtExternalSystemManager"/>
-
         <projectTemplatesFactory implementation="org.jetbrains.plugins.cbt.project.template.CbtProjectTemplateFactory" order="first"/>
+
+        <projectImportProvider implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportProvider"/>
+        <projectImportBuilder implementation="org.jetbrains.plugins.cbt.project.CbtProjectImportBuilder"/>
     </extensions>
 </idea-plugin>

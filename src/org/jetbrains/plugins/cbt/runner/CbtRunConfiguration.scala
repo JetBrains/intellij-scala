@@ -12,6 +12,7 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.JDOMExternalizer
 import org.jdom.Element
+import org.jetbrains.plugins.cbt.project.settings.CbtProjectSettings
 
 import scala.collection.JavaConversions._
 
